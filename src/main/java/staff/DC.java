@@ -9,10 +9,12 @@ public class DC extends Staff {
     public final int[] overallWt = {0,4,3,1};
 
     //New Coach - Starting New League
-    public DC(String nm, int stars, Team t) {
+    public DC(String nm, int stars, int a, Team t) {
         position = "DC";
         name = nm;
         team = t;
+        age = a;
+
         createStaff(stars);
         ratOvr = getStaffOverall(overallWt);
         createStaffStats();

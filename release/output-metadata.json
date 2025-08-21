@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "artifactType": {
     "type": "APK",
     "kind": "Directory"
@@ -10,9 +10,11 @@
     {
       "type": "SINGLE",
       "filters": [],
-      "versionCode": 318,
-      "versionName": "v1.4.32",
-      "outputFile": "CFC-CareerEdition-v1.4-release.apk"
+      "attributes": [],
+      "versionCode": 320,
+      "versionName": "v1.4.5",
+      "outputFile": "CFC-CareerEdition-v1.5-release.apk"
     }
-  ]
+  ],
+  "elementType": "File"
 }

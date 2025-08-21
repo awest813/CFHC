@@ -2,7 +2,6 @@ package simulation;
 
 import android.util.Log;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -11,8 +10,6 @@ import comparator.CompConfTeamRanking;
 import comparator.CompPlayerHeisman;
 import comparator.CompTeamConfWins;
 import comparator.CompTeamPoll;
-import staff.HeadCoach;
-import staff.Staff;
 import positions.Player;
 import positions.PlayerCB;
 import positions.PlayerDL;
@@ -24,6 +21,7 @@ import positions.PlayerRB;
 import positions.PlayerS;
 import positions.PlayerTE;
 import positions.PlayerWR;
+import staff.HeadCoach;
 
 public class Conference {
 
@@ -246,7 +244,7 @@ public class Conference {
 
     public int getOOCGames() {
         int OOC = 0;
-        if(confTeams.size() >= 10) OOC = 3;
+        if(confTeams.size() >= 10) OOC = 4;
         else if(confTeams.size() == 9) OOC = 4;
         else if (confTeams.size() == 8) OOC = 5;
         else OOC = 12;
@@ -255,12 +253,12 @@ public class Conference {
 
     public int getOOCGamesEvenOdd() {
         int OOC = 0;
-        if (confTeams.size() > 14 && confTeams.size() % 2 == 0) OOC = 3;
-        else if (confTeams.size() >= 14 && confTeams.size() % 2 != 0) OOC = 0;
-        else if(confTeams.size() == 14) OOC = 3;
-        else if(confTeams.size() == 13) OOC = 0;
-        else if(confTeams.size() == 12) OOC = 3;
-        else if(confTeams.size() == 11) OOC = 2;
+        if (confTeams.size() > 14 && confTeams.size() % 2 == 0) OOC = 4;
+        else if (confTeams.size() >= 14 && confTeams.size() % 2 != 0) OOC = 4;
+        else if(confTeams.size() == 14) OOC = 4;
+        else if(confTeams.size() == 13) OOC = 4;
+        else if(confTeams.size() == 12) OOC = 4;
+        else if(confTeams.size() == 11) OOC = 3;
         else if(confTeams.size() == 10) OOC = 3;
         else if(confTeams.size() == 9) OOC = 4;
         else if (confTeams.size() == 8) OOC = 5;
@@ -271,9 +269,9 @@ public class Conference {
     public int getDivGames() {
         int div = 0;
         if(confTeams.size() < 12) div = 0;
-        else if (confTeams.size() >= 20) div = 9;
-        else if (confTeams.size() >= 18) div = 8;
-        else if (confTeams.size() >= 16) div = 7;
+        else if (confTeams.size() >= 20) div = 6;
+        else if (confTeams.size() >= 18) div = 6;
+        else if (confTeams.size() >= 16) div = 6;
         else if (confTeams.size() >= 14) div = 6;
         else div = 5;
         return div;
@@ -284,8 +282,13 @@ public class Conference {
      */
     public void setUpSchedule() {
         oocGames = getOOCGames();
-        //setDivisionTeams();
-        if(league.regSeasonWeeks == 13) {
+        /*if(confTeams.size()>=12) {
+            setDivisionTeams();
+            setUpCrossDivisionSchedule();
+            setUpDivisionSchedule();
+        } else  setUpEvenOddSchedule();*/
+
+        if (league.regSeasonWeeks == 13) {
             setUpOriginalSchedule();
         } else {
             setUpEvenOddSchedule();
@@ -520,6 +523,7 @@ public class Conference {
             return;
         } else {
             for (int i = 0; i < confTeams.size(); ++i) {
+                Log.d("conf","conf: " + confName + " team: " + confTeams.get(i).name + " gameSchedule size "+ confTeams.get(i).gameSchedule.size());
                 confTeams.get(i).gameSchedule.get(league.currentWeek+1).addUpcomingGames(confTeams.get(i));
             }
         }

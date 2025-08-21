@@ -236,7 +236,7 @@ public class Home extends AppCompatActivity {
                 Intent intent = new Intent();
                 intent.setAction(Intent.ACTION_VIEW);
                 intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                intent.setData(Uri.parse("https://www.paypal.me/anthonyhnguyen"));
+                intent.setData(Uri.parse("https://drive.google.com/drive/folders/1hfB_lbTaMfhm4lXtMelvgWoZSshL12v0?usp=sharing"));
                 startActivity(intent);
             }
         });
@@ -271,7 +271,7 @@ public class Home extends AppCompatActivity {
                 Intent intent = new Intent();
                 intent.setAction(Intent.ACTION_VIEW);
                 intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                intent.setData(Uri.parse("https://github.com/antdroidx/CFB-Coach"));
+                intent.setData(Uri.parse("https://github.com/antdroidx/"));
                 startActivity(intent);
             }
         });

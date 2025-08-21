@@ -118,7 +118,7 @@ public class Staff {
 
 
     public void createStaff(int stars) {
-        age = 30 + (int) (Math.random() * 28);
+        if (age == 0) age = 30 + (int) (Math.random() * 28);
         year = 0;
         contractYear = (int) (6 * Math.random());
         contractLength = 6;

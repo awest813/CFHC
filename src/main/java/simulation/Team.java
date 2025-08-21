@@ -710,29 +710,29 @@ public class Team {
         if (coach) {
             int coachNum = 100 * (int) Math.random();
             if (coachNum < 20) {
-                HC = new HeadCoach(league.getRandName(), stars - 2, this);
+                HC = new HeadCoach(league.getRandName(), stars - 2, 0, this);
             } else if (coachNum > 80) {
-                HC = new HeadCoach(league.getRandName(), stars + 2, this);
+                HC = new HeadCoach(league.getRandName(), stars + 2, 0, this);
             } else {
-                HC = new HeadCoach(league.getRandName(), stars, this);
+                HC = new HeadCoach(league.getRandName(), stars, 0, this);
             }
 
             coachNum = 100 * (int) Math.random();
             if (coachNum < 20) {
-                OC = new OC(league.getRandName(), stars - 2, this);
+                OC = new OC(league.getRandName(), stars - 2, 0, this);
             } else if (coachNum > 80) {
-                OC = new OC(league.getRandName(), stars + 2, this);
+                OC = new OC(league.getRandName(), stars + 2, 0, this);
             } else {
-                OC = new OC(league.getRandName(), stars, this);
+                OC = new OC(league.getRandName(), stars, 0, this);
             }
 
             coachNum = 100 * (int) Math.random();
             if (coachNum < 20) {
-                DC = new DC(league.getRandName(), stars - 2, this);
+                DC = new DC(league.getRandName(), stars - 2, 0, this);
             } else if (coachNum > 80) {
-                DC = new DC(league.getRandName(), stars + 2, this);
+                DC = new DC(league.getRandName(), stars + 2, 0, this);
             } else {
-                DC = new DC(league.getRandName(), stars, this);
+                DC = new DC(league.getRandName(), stars, 0, this);
             }
         }
 
@@ -861,16 +861,16 @@ public class Team {
         recruitWalkOns();
     }
 
-    public void newCustomHeadCoach(String coachName, int stars) {
-        HC = new HeadCoach(coachName, stars, this);
+    public void newCustomHeadCoach(String coachName, int stars, int age) {
+        HC = new HeadCoach(coachName, stars, age, this);
     }
 
-    public void newCustomOC(String coachName, int stars) {
-        OC = new OC(coachName, stars, this);
+    public void newCustomOC(String coachName, int stars, int age) {
+        OC = new OC(coachName, stars, age, this);
     }
 
-    public void newCustomDC(String coachName, int stars) {
-        DC = new DC(coachName, stars, this);
+    public void newCustomDC(String coachName, int stars, int age) {
+        DC = new DC(coachName, stars, age, this);
     }
 
     public void addPlayer(Player p) {
@@ -2058,7 +2058,7 @@ public class Team {
             DC = null;
             if(league.currentWeek < league.regSeasonWeeks) league.DCCarousel();
         } else {
-            HC = new HeadCoach(league.getRandName(), stars, this);
+            HC = new HeadCoach(league.getRandName(), stars, 0, this);
         }
 
         //done making players, sort them
@@ -5445,7 +5445,6 @@ public class Team {
 
     private void loadRBSaveData(String data) {
         teamRBs.add(new PlayerRB(this, data));
-
     }
 
     private void loadWRSaveData(String data) {
@@ -5457,32 +5456,26 @@ public class Team {
     }
 
     private void loadOLSaveData(String data) {
-
         teamOLs.add(new PlayerOL(this, data));
     }
 
     private void loadKSaveData(String data) {
-
         teamKs.add(new PlayerK(this, data));
     }
 
     private void loadDLSaveData(String data) {
-
         teamDLs.add(new PlayerDL(this, data));
     }
 
     private void loadLBSaveData(String data) {
-
         teamLBs.add(new PlayerLB(this, data));
     }
 
     private void loadCBSaveData(String data) {
-
         teamCBs.add(new PlayerCB(this, data));
     }
 
     private void loadSSaveData(String data) {
-
         teamSs.add(new PlayerS(this, data));
     }
 

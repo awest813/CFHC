@@ -4940,19 +4940,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     for (int i = 0; i < simLeague.teamList.size(); ++i) {
                         if (fileSplit[0].equals(simLeague.teamList.get(i).name)) {
-                            if (fileSplit.length > 3) {
+                            //Added feature to import coach age
+                            if (fileSplit.length > 4) {
 
                                 if (fileSplit[2].equals("HC"))
-                                    simLeague.teamList.get(i).newCustomHeadCoach(fileSplit[1], Integer.parseInt(fileSplit[3]));
+                                    simLeague.teamList.get(i).newCustomHeadCoach(fileSplit[1], Integer.parseInt(fileSplit[3]), Integer.parseInt(fileSplit[4]));
                                 else if (fileSplit[2].equals("OC"))
-                                    simLeague.teamList.get(i).newCustomOC(fileSplit[1], Integer.parseInt(fileSplit[3]));
+                                    simLeague.teamList.get(i).newCustomOC(fileSplit[1], Integer.parseInt(fileSplit[3]), Integer.parseInt(fileSplit[4]));
                                 else if (fileSplit[2].equals("DC"))
-                                    simLeague.teamList.get(i).newCustomDC(fileSplit[1], Integer.parseInt(fileSplit[3]));
+                                    simLeague.teamList.get(i).newCustomDC(fileSplit[1], Integer.parseInt(fileSplit[3]), Integer.parseInt(fileSplit[4]));
 
+                            } else if (fileSplit.length > 3) {
+                                if (fileSplit[2].equals("HC"))
+                                    simLeague.teamList.get(i).newCustomHeadCoach(fileSplit[1], Integer.parseInt(fileSplit[3]), 0);
+                                else if (fileSplit[2].equals("OC"))
+                                    simLeague.teamList.get(i).newCustomOC(fileSplit[1], Integer.parseInt(fileSplit[3]), 0);
+                                else if (fileSplit[2].equals("DC"))
+                                    simLeague.teamList.get(i).newCustomDC(fileSplit[1], Integer.parseInt(fileSplit[3]), 0);
                             } else if (fileSplit.length > 2) {
-
-                                simLeague.teamList.get(i).newCustomHeadCoach(fileSplit[1], Integer.parseInt(fileSplit[2]));
-
+                                simLeague.teamList.get(i).newCustomHeadCoach(fileSplit[1], Integer.parseInt(fileSplit[2]), 0);
                             } else {
                                 simLeague.teamList.get(i).HC.name = fileSplit[1];
                             }
@@ -5622,7 +5628,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             e.printStackTrace();
         }
     }
-    
+
     public void showImmersive(AlertDialog alert) {
         alert.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
         alert.show();
@@ -5653,5 +5659,4 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         TextView textView = dialog.findViewById(android.R.id.message);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
     }
-
 }

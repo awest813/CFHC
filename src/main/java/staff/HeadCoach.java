@@ -10,10 +10,11 @@ public class HeadCoach extends Staff {
     public final int[] overallWt = {1,1,1,1};
 
     //New Coach
-    public HeadCoach(String nm, int stars, Team t) {
+    public HeadCoach(String nm, int stars, int a, Team t) {
         position = "HC";
         name = nm;
         team = t;
+        age = a;
 
         createStaff(stars);
         ratOvr = getStaffOverall(overallWt);

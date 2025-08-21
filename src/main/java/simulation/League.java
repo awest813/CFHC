@@ -1,5 +1,7 @@
 package simulation;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -206,7 +208,7 @@ public class League {
     private final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
     private final DecimalFormat df2 = new DecimalFormat("#.##", symbols);
     private final DecimalFormat df3 = new DecimalFormat("#.####", symbols);
-    private final int seasonStart = 2019;
+    private final int seasonStart = 2021;
     int countTeam = 130; //default roster automatically calculates this number when using custom data or loaded saves
     private final int seasonWeeks = 30;
     public int regSeasonWeeks = 13; //original = 13 will change dynamically based on team/conference structure
@@ -238,7 +240,7 @@ public class League {
 
     public final String[] states = {"AS", "AZ", "CA", "HI", "ID", "MT", "NV", "OR", "UT", "WA", "CO", "KS", "MO", "NE", "NM", "ND", "OK", "SD", "TX", "WY", "IL", "IN", "IA", "KY", "MD", "MI", "MN", "OH", "TN", "WI", "CT", "DE", "ME", "MA", "NH", "NJ", "NY", "PA", "RI", "VT", "AL", "AK", "FL", "GA", "LA", "MS", "NC", "SC", "VA", "WV"};
 
-    public final String bowlNamesText = "Carnation Bowl, Mandarin Bowl, Honey Bowl, Fiesta Bowl, Nectatrine Bowl, Polyester Bowl, Lemon-Lime Bowl, Gator Bowl, Desert Bowl, Fort Bowl, Vacation Bowl, Star Bowl, Bell Bowl, Freedom Bowl, Casino Bowl, American Bowl, Island Bowl, Philantropy Bowl, Steak Bowl, Camping Bowl, Spud Bowl, Music Bowl, New Orleans Bowl, Cowboy Bowl, Santa Fe Bowl, Burrito Bowl, Mexico Bowl, Chick Bowl, Empire Bowl, Rainbow Bowl, Mushroom Bowl, Coffee Bowl, Cascade Bowl, Great Lakes Bowl, Cowboy Bowl, Alliance Bowl, Appalachian Bowl, Bayou Bowl, Nexus Bowl, Space Bowl, Everest Bowl, Cloud Bowl, Healthcare Bowl, More Chicken Bowl, Avocado Bowl, Realtors Bowl, Search Engine Bowl, Instant Photo Bowl, Social Faces Bowl, Grape Bowl, Tesla Bowl, Earthquake Bowl, Rainforest Bowl";
+    public final String bowlNamesText = "Carnation Bowl, Mandarin Bowl, Honey Bowl, Fiesta Bowl, Nectarine Bowl, Polyester Bowl, Twister Bowl, Gator Bowl, Desert Bowl, Fort Bowl, Vacation Bowl, Star Bowl, Bell Bowl, Freedom Bowl, Casino Bowl, American Bowl, Island Bowl, Charity Bowl, Steak Bowl, Camping Bowl, Spud Bowl, Music Bowl, New Orleans Bowl, Cowboy Bowl, Santa Fe Bowl, Burrito Bowl, Mexico Bowl, Chick Bowl, Empire Bowl, Rainbow Bowl, Mushroom Bowl, Coffee Bowl, Cascade Bowl, Great Lakes Bowl, Cowboy Bowl, Alliance Bowl, Appalachian Bowl, Bayou Bowl, Nexus Bowl, Space Bowl, Everest Bowl, Cloud Bowl, Healthcare Bowl, More Chicken Bowl, Avocado Bowl, Realtors Bowl, Search Engine Bowl, Instant Photo Bowl, Social Faces Bowl, Grape Bowl, Tesla Bowl, Earthquake Bowl, Rainforest Bowl";
 
     public String[] teamsFCS = {"Alabama State", "Albany", "Cal-Poly", "Central Arkansas", "Chattanooga", "Columbia", "Dayton", "Delaware", "Eastern Wash", "Eastern Tenn", "Spokane", "Harvard", "Yale", "Princeton", "Grambling", "Georgetown", "Idaho", "Idaho State", "James Madison", "Maine", "Miss Valley", "Montana", "Montana State", "New Hampshire", "North Dakota", "North Dakota St", "South Dakota", "South Dakota St", "Northern Arizona", "Northern Colorado", "Portland", "Rhode Island", "Sacramento", "Southern", "Southern TX", "Western llinois", "Youngstown"};
 
@@ -271,9 +273,10 @@ public class League {
         String[] confSplit = confText.split("%");
         int confDiv = 0;
         for (String n : confSplit) {
-            conferences.add(new Conference(n.split(",")[0], this, false, 0, 0));
-            conferences.get(confDiv).divisions.add(new Division(n.split(",")[1], this));
-            conferences.get(confDiv).divisions.add(new Division(n.split(",")[2], this));
+            //conferences.add(new Conference(n.split(",")[0], this, false, 0, 0));
+            conferences.add(new Conference(n, this, false, 0, 0));
+            //conferences.get(confDiv).divisions.add(new Division(n.split(",")[1], this));
+            //conferences.get(confDiv).divisions.add(new Division(n.split(",")[2], this));
             confDiv++;
         }
 
@@ -1105,8 +1108,8 @@ public class League {
                 }*/
             }
         }
-        if (numOddConf > 0) regSeasonWeeks++;
-        if (largeOddConf > 0) regSeasonWeeks++;
+        //if (numOddConf > 0) regSeasonWeeks++;
+        //if (largeOddConf > 0) regSeasonWeeks++;
 
         //set up schedule
         for (int i = 0; i < conferences.size(); ++i) {
@@ -1162,7 +1165,7 @@ public class League {
 
                 ArrayList<Team> availTeams = new ArrayList<>();
                 for (int t = 0; t < teamList.size(); t++) {
-                    if (teamList.get(t).oocWeeks.contains(week)) {
+                    if (teamList.get(t).oocWeeks.contains(week) && teamList.get(t).gameSchedule.size() >= week) {
                         availTeams.add(teamList.get(t));
                     }
                 }
@@ -1192,7 +1195,8 @@ public class League {
                     Game gm;
                     gm = new Game(a, b, "OOC");
 
-                    //Log.d("league", "setupSeason: " + a.name + " vs " + b.name);
+                    if(a.gameSchedule.size() != b.gameSchedule.size())
+                    Log.d("league", "setupSeason: week " + week + " " + a.name + " size" + a.gameSchedule.size() + " vs " + b.name + " size" + b.gameSchedule.size());
 
                     if (!a.conference.contains("Independent") && !a.conference.contains("FCS")) {
                         a.gameSchedule.add(week, gm);
@@ -3391,14 +3395,14 @@ public class League {
                             } else if (pos.equals("OC")) {
                                 teamList.get(j).OC = null;
                                 if(!teamList.get(j).userControlled) {
-                                    teamList.get(j).OC = new OC(getRandName(), teamList.get(j).rankTeamPrestige / (teamList.size() / 8), teamList.get(j));
+                                    teamList.get(j).OC = new OC(getRandName(), teamList.get(j).rankTeamPrestige / (teamList.size() / 8), 0, teamList.get(j));
                                     newsStories.get(currentWeek + 1).add("Replacement Promoted: " + teamList.get(j).name + ">" + teamList.get(j).strRankTeamRecord() +
                                             " hopes to continue their recent success, despite the recent loss of OC " + school.HC.name + ". The team has promoted his assistant coach " + teamList.get(j).OC.name + " to the Off Coordinator job at the school.");
                                 }
                             } else if (pos.equals("DC")) {
                                 teamList.get(j).DC = null;
                                 if (!teamList.get(j).userControlled) {
-                                    teamList.get(j).DC = new DC(getRandName(), teamList.get(j).rankTeamPrestige / (teamList.size() / 8), teamList.get(j));
+                                    teamList.get(j).DC = new DC(getRandName(), teamList.get(j).rankTeamPrestige / (teamList.size() / 8), 0, teamList.get(j));
                                     newsStories.get(currentWeek + 1).add("Replacement Promoted: " + teamList.get(j).name + ">" + teamList.get(j).strRankTeamRecord() +
                                             " hopes to continue their recent success, despite the recent loss of DC " + school.HC.name + ". The team has promoted his assistant coach " + teamList.get(j).DC.name + " to the Def Coordinator job at the school.");
                                 }
@@ -4026,7 +4030,7 @@ public class League {
     ///////////////////////////////////////////////////////
 
     /*
-Conference Realigment v2:
+Conference Realignment v2:
 
 Every conference creates a bucket of teams that are not meeting minimum prestige threshold and a bucket of exceeding threshold (if lower tierd conference).
 

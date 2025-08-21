@@ -10,10 +10,12 @@ public class OC extends Staff {
     public final int[] overallWt = {0,4,3,1};
 
     //New Coach
-    public OC(String nm, int stars, Team t) {
+    public OC(String nm, int stars, int a, Team t) {
         position = "OC";
         name = nm;
         team = t;
+        age = a;
+
         createStaff(stars);
         ratOvr = getStaffOverall(overallWt);
         createStaffStats();
