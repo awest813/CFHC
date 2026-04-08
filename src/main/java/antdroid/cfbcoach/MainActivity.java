@@ -379,6 +379,33 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    public void openHomeView(View view) {
+        currentTeam = userTeam;
+        examineTeam(currentTeam.name);
+        showHome();
+        currPage = 0;
+    }
+
+    public void openRosterView(View view) {
+        currPage = 1;
+        viewRoster();
+    }
+
+    public void openTeamStatsView(View view) {
+        currPage = 3;
+        updateTeamStats();
+    }
+
+    public void openScheduleView(View view) {
+        currPage = 4;
+        updateSchedule();
+    }
+
+    public void openLeagueDrawer(View view) {
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        drawer.openDrawer(GravityCompat.START);
+    }
+
     private void defaultScreen() {
         showHome();
     }

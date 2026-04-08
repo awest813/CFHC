@@ -38,9 +38,12 @@ public class TeamRoster extends ArrayAdapter<String> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rowView = inflater.inflate(R.layout.team_roster, parent, false);
+        View rowView = convertView;
+        if (rowView == null) {
+            LayoutInflater inflater = (LayoutInflater) context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            rowView = inflater.inflate(R.layout.team_roster, parent, false);
+        }
         TextView textLeft = rowView.findViewById(R.id.textTeamRosterLeft);
         TextView textClass = rowView.findViewById(R.id.textTeamRosterClass);
         final TextView textCenter = rowView.findViewById(R.id.textTeamRosterCenter);
@@ -52,6 +55,15 @@ public class TeamRoster extends ArrayAdapter<String> {
         textClass.setText(teamStat[1]);
         textCenter.setText(teamStat[2] + " " + teamStat[3]);
         textRight.setText(teamStat[4]);
+        textLeft.setTextColor(Color.parseColor("#B7C6D1"));
+        textClass.setTextColor(Color.parseColor("#B7C6D1"));
+        textCenter.setTextColor(Color.parseColor("#F5F7FA"));
+        textRight.setTextColor(Color.parseColor("#F5F7FA"));
+        textProg.setTextColor(Color.parseColor("#F4C95D"));
+        textCenter.setPaintFlags(textCenter.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+        textClass.setPaintFlags(textClass.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
+        textCenter.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
+        textClass.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
 
         if (teamStat[0].equals(" ")) {
             textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
@@ -123,6 +135,8 @@ public class TeamRoster extends ArrayAdapter<String> {
         //if(week > 5 && week < 8 && teamStat.length > 6 || week > 21 && teamStat.length > 6) {
         if(teamStat.length > 6) {
             textProg.setText(teamStat[6]);
+        } else {
+            textProg.setText("");
         }
 
 

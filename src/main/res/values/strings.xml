@@ -42,4 +42,17 @@
     <string name="menu_leagueplayerstats">Individual Stats</string>
     <string name="menu_leagueawards">Awards</string>
     <string name="menu_postseason">Post-Season</string>
+    <string name="main_hub_label">Program Hub</string>
+    <string name="main_hub_title">Run the season from one thumb-friendly dashboard.</string>
+    <string name="main_hub_subtitle">Jump between your team, the schedule, and league intel without leaving the main screen.</string>
+    <string name="main_filter_label">Scout Any Team</string>
+    <string name="main_filter_conference">Conference</string>
+    <string name="main_filter_team">Team</string>
+    <string name="quick_home">Home</string>
+    <string name="quick_roster">Roster</string>
+    <string name="quick_stats">Stats</string>
+    <string name="quick_schedule">Schedule</string>
+    <string name="quick_league">League</string>
+    <string name="quick_actions">Quick Actions</string>
+    <string name="quick_browse">Quick Browse</string>
 </resources>

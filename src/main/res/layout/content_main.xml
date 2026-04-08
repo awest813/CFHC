@@ -4,141 +4,283 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/bg_main_field"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/app_bar_main">
 
-
-
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:orientation="vertical"
+        android:paddingBottom="10dp"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
-        android:theme="@android:style/ThemeOverlay.Material.Dark"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:context="antdroid.cfbcoach.MainActivity"
         tools:showIn="@layout/activity_main">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:minHeight="15dp"
-            android:minWidth="15dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/bg_mobile_panel_strong"
+            android:gravity="center_vertical"
             android:orientation="vertical"
-            android:theme="@android:style/Theme.Material">
+            android:padding="16dp">
 
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="30dp"
-                android:background="#A5A5A5"
-                android:orientation="horizontal"
-                android:paddingStart="5sp"
-                android:paddingEnd="5sp"
-                android:paddingBottom="5sp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_mobile_chip"
+                android:paddingBottom="4dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="4dp"
+                android:text="@string/main_hub_label"
+                android:textAllCaps="true"
+                android:textColor="@color/accentGold"
+                android:textSize="11sp"
+                android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/textView14"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:text="Find Team "
-                    android:textSize="14sp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:text="@string/main_hub_title"
+                android:textColor="@color/textPrimary"
+                android:textSize="24sp"
+                android:textStyle="bold" />
 
-                <Spinner
-                    android:id="@+id/examineConfSpinner"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="4.70"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/main_hub_subtitle"
+                android:textColor="@color/textSecondary"
+                android:textSize="13sp" />
+        </LinearLayout>
 
-                <Spinner
-                    android:id="@+id/examineTeamSpinner"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="4.80"
-                    android:paddingLeft="5dp"
-                    android:paddingRight="5dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/bg_mobile_panel"
+            android:orientation="vertical"
+            android:padding="14dp">
 
-            </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/main_filter_label"
+                android:textColor="@color/textPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="@string/main_filter_conference"
+                android:textColor="@color/textMuted"
+                android:textSize="11sp" />
+
+            <Spinner
+                android:id="@+id/examineConfSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_mobile_chip"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:popupBackground="@color/surfacePrimary" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/main_filter_team"
+                android:textColor="@color/textMuted"
+                android:textSize="11sp" />
+
+            <Spinner
+                android:id="@+id/examineTeamSpinner"
+                android:layout_width="match_parent"
+                android:layout_height="44dp"
+                android:layout_marginTop="4dp"
+                android:background="@drawable/bg_mobile_chip"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:popupBackground="@color/surfacePrimary" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_mobile_panel"
+            android:orientation="vertical"
+            android:padding="8dp">
+
+            <Spinner
+                android:id="@+id/spinner"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
+
+            <ListView
+                android:id="@+id/mainList"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:cacheColorHint="@android:color/transparent"
+                android:divider="@android:color/transparent"
+                android:dividerHeight="8dp"
+                android:listSelector="@android:color/transparent"
+                android:padding="0dp"
+                android:scrollbars="none" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_bottom_nav"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:text="@string/quick_browse"
+                android:textColor="@color/textMuted"
+                android:textSize="11sp"
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dip"
-                android:layout_weight="6"
-                android:orientation="vertical"
-                android:weightSum="1">
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
 
-                <Spinner
-                    android:id="@+id/spinner"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:visibility="invisible" />
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_marginRight="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_action_secondary"
+                    android:onClick="openHomeView"
+                    android:text="@string/quick_home"
+                    android:textAllCaps="false"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="12sp" />
 
-                <ListView
-                    android:id="@+id/mainList"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:backgroundTintMode="src_over"
-                    android:padding="5dp"></ListView>
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_marginLeft="6dp"
+                    android:layout_marginRight="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_action_secondary"
+                    android:onClick="openRosterView"
+                    android:text="@string/quick_roster"
+                    android:textAllCaps="false"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="12sp" />
+
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_marginLeft="6dp"
+                    android:layout_marginRight="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_action_secondary"
+                    android:onClick="openTeamStatsView"
+                    android:text="@string/quick_stats"
+                    android:textAllCaps="false"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="12sp" />
+
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_marginLeft="6dp"
+                    android:layout_marginRight="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_action_secondary"
+                    android:onClick="openScheduleView"
+                    android:text="@string/quick_schedule"
+                    android:textAllCaps="false"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="12sp" />
+
+                <Button
+                    android:layout_width="0dp"
+                    android:layout_height="44dp"
+                    android:layout_marginLeft="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_action_secondary"
+                    android:onClick="openLeagueDrawer"
+                    android:text="@string/quick_league"
+                    android:textAllCaps="false"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="12sp" />
             </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="12dp"
+                android:text="@string/quick_actions"
+                android:textColor="@color/textMuted"
+                android:textSize="11sp"
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dip"
-                android:layout_weight="0.64"
-                android:gravity="center|bottom"
-                android:orientation="horizontal"
-                android:weightSum="1">
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
 
                 <Button
                     android:id="@+id/buttonDepthChart"
-                    android:layout_width="85dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="2dp"
-                    android:layout_marginRight="2dp"
-                    android:background="@color/colorPrimary"
-                    android:paddingLeft="1dp"
-                    android:paddingRight="1dp"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_marginRight="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_action_secondary"
                     android:text="Depth Chart"
-                    android:textAlignment="center"
-                    android:textColor="#ffffff"
-                    android:textSize="10sp" />
+                    android:textAllCaps="false"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="12sp" />
 
                 <Button
                     android:id="@+id/simGameButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="2dp"
-                    android:layout_marginRight="2dp"
-                    android:layout_weight="0.72"
-                    android:background="@color/winColor"
-                    android:paddingLeft="1dp"
-                    android:paddingRight="1dp"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_marginLeft="6dp"
+                    android:layout_marginRight="6dp"
+                    android:layout_weight="1.35"
+                    android:background="@drawable/bg_action_primary"
                     android:text="Play Week"
-                    android:textColor="#ffffff" />
+                    android:textAllCaps="false"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
 
                 <Button
                     android:id="@+id/buttonStrategy"
-                    android:layout_width="85dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="2dp"
-                    android:layout_marginRight="2dp"
-                    android:background="@color/colorPrimary"
-                    android:paddingLeft="1dp"
-                    android:paddingRight="1dp"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:layout_marginLeft="6dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_action_secondary"
                     android:text="Playbook"
-                    android:textAlignment="center"
-                    android:textColor="#ffffff"
-                    android:textSize="10sp" />
+                    android:textAllCaps="false"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="12sp" />
             </LinearLayout>
         </LinearLayout>
-
-    </RelativeLayout>
-
-
+    </LinearLayout>
 </android.support.constraint.ConstraintLayout>
