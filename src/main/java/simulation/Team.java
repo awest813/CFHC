@@ -187,41 +187,41 @@ public class Team {
     public int HoFCount = 0;
     //Defined Variables
 
-    public final int startersQB = 1;
-    public final int startersRB = 2;
-    public final int startersWR = 3;
-    public final int startersTE = 1;
-    public final int startersOL = 5;
-    public final int startersK = 1;
-    public final int startersDL = 4;
-    public final int startersLB = 3;
-    public final int startersCB = 3;
-    public final int startersS = 2;
+    public final int startersQB = RosterRules.STARTERS_QB;
+    public final int startersRB = RosterRules.STARTERS_RB;
+    public final int startersWR = RosterRules.STARTERS_WR;
+    public final int startersTE = RosterRules.STARTERS_TE;
+    public final int startersOL = RosterRules.STARTERS_OL;
+    public final int startersK = RosterRules.STARTERS_K;
+    public final int startersDL = RosterRules.STARTERS_DL;
+    public final int startersLB = RosterRules.STARTERS_LB;
+    public final int startersCB = RosterRules.STARTERS_CB;
+    public final int startersS = RosterRules.STARTERS_S;
 
-    public final int subQB = 0;
-    public final int subRB = 1;
-    public final int subWR = 2;
-    public final int subTE = 1;
-    public final int subOL = 2;
-    public final int subK = 0;
-    public final int subDL = 2;
-    public final int subLB = 2;
-    public final int subCB = 1;
-    public final int subS = 1;
+    public final int subQB = RosterRules.SUB_QB;
+    public final int subRB = RosterRules.SUB_RB;
+    public final int subWR = RosterRules.SUB_WR;
+    public final int subTE = RosterRules.SUB_TE;
+    public final int subOL = RosterRules.SUB_OL;
+    public final int subK = RosterRules.SUB_K;
+    public final int subDL = RosterRules.SUB_DL;
+    public final int subLB = RosterRules.SUB_LB;
+    public final int subCB = RosterRules.SUB_CB;
+    public final int subS = RosterRules.SUB_S;
 
-    public final int minQBs = 3;
-    public final int minRBs = 5;
-    public final int minWRs = 8;
-    public final int minTEs = 3;
-    public final int minOLs = 11;
-    public final int minKs = 2;
-    public final int minDLs = 9;
-    public final int minLBs = 7;
-    public final int minCBs = 7;
-    public final int minSs = 5;
+    public final int minQBs = RosterRules.MIN_QBS;
+    public final int minRBs = RosterRules.MIN_RBS;
+    public final int minWRs = RosterRules.MIN_WRS;
+    public final int minTEs = RosterRules.MIN_TES;
+    public final int minOLs = RosterRules.MIN_OLS;
+    public final int minKs = RosterRules.MIN_KS;
+    public final int minDLs = RosterRules.MIN_DLS;
+    public final int minLBs = RosterRules.MIN_LBS;
+    public final int minCBs = RosterRules.MIN_CBS;
+    public final int minSs = RosterRules.MIN_SS;
 
     private final int recruitExtras = 15;
-    private final int minPlayers = 65;
+    private final int minPlayers = RosterRules.MIN_PLAYERS;
     private final int minRecruitStar = 4;
     private final int maxStarRating = 10;
     private final int numRecruits = 40;
@@ -963,11 +963,11 @@ public class Team {
             //bonus for winning champ game
             teamPollScore += 50;
         }
-        if ("S16W".equals(sweet16)) {
+        if ("S16W".equals(sweet16) || "FRW".equals(sweet16)) {
             //bonus for winning champ game
             teamPollScore += 50;
         }
-        if ("S16L".equals(sweet16)) {
+        if ("S16L".equals(sweet16) || "FRL".equals(sweet16)) {
             //bonus for winning champ game
             teamPollScore += 25;
         }

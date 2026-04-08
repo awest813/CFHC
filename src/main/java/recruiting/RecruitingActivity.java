@@ -7,8 +7,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -34,8 +32,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import antdroid.cfbcoach.MainActivity;
 import antdroid.cfbcoach.R;
+import simulation.RosterRules;
 
 public class RecruitingActivity extends AppCompatActivity {
 
@@ -95,19 +96,19 @@ public class RecruitingActivity extends AppCompatActivity {
     private int needCBs;
     private int needSs;
 
-    private final int minPlayers = 50;
-    private final int minQBs = 3;
-    private final int minRBs = 5;
-    private final int minWRs = 8;
-    private final int minTEs = 3;
-    private final int minOLs = 11;
-    private final int minKs = 2;
-    private final int minDLs = 10;
-    private final int minLBs = 7;
-    private final int minCBs = 7;
-    private final int minSs = 5;
+    private final int minPlayers = RosterRules.MIN_PLAYERS;
+    private final int minQBs = RosterRules.MIN_QBS;
+    private final int minRBs = RosterRules.MIN_RBS;
+    private final int minWRs = RosterRules.MIN_WRS;
+    private final int minTEs = RosterRules.MIN_TES;
+    private final int minOLs = RosterRules.MIN_OLS;
+    private final int minKs = RosterRules.MIN_KS;
+    private final int minDLs = RosterRules.MIN_DLS;
+    private final int minLBs = RosterRules.MIN_LBS;
+    private final int minCBs = RosterRules.MIN_CBS;
+    private final int minSs = RosterRules.MIN_SS;
 
-    public final int maxPlayers = 75;
+    public final int maxPlayers = RosterRules.MAX_PLAYERS;
     private final double recruitOffBoard = 0.935;
 
     private final int five = 84;

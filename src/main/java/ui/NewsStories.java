@@ -26,9 +26,12 @@ public class NewsStories extends ArrayAdapter<String> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rowView = inflater.inflate(R.layout.news_story_list_item, parent, false);
+        View rowView = convertView;
+        if (rowView == null) {
+            LayoutInflater inflater = (LayoutInflater) context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            rowView = inflater.inflate(R.layout.news_story_list_item, parent, false);
+        }
         TextView newsTitle = rowView.findViewById(R.id.textNewsTitle);
         TextView newsContent = rowView.findViewById(R.id.textNewsContent);
 

@@ -1,43 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/bg_mobile_row"
+    android:gravity="center_vertical"
+    android:minHeight="60dp"
     android:orientation="horizontal"
-    android:padding="2dp">
+    android:padding="12dp">
 
     <TextView
         android:id="@+id/textTeamRankingsLeft"
-        android:layout_width="75.0dp"
+        android:layout_width="56dp"
         android:layout_height="wrap_content"
         android:gravity="start"
-        android:paddingEnd="5dp"
-        android:textAlignment="textEnd"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
+        android:textColor="@color/textSecondary"
+        android:textSize="12sp"
+        android:textStyle="bold" />
 
-    <RelativeLayout
-        android:id="@+id/relativeCenter"
-        android:layout_width="175.0dp"
+    <TextView
+        android:id="@+id/textTeamRankingsCenter"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/textTeamRankingsLeft"
-        android:gravity="center">
-
-        <TextView
-            android:id="@+id/textTeamRankingsCenter"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:gravity="left"
-            android:paddingStart="5dp"
-            android:textAlignment="gravity"
-            android:textAppearance="?android:attr/textAppearanceSmall" />
-    </RelativeLayout>
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_weight="1"
+        android:textColor="@color/textPrimary"
+        android:textSize="13sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/textTeamRankingsRight"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/relativeCenter"
-        android:gravity="right|end"
-        android:textAlignment="textStart"
-        android:textAppearance="?android:attr/textAppearanceSmall" />
-
-</RelativeLayout>
+        android:gravity="end"
+        android:textColor="@color/accentGold"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+</LinearLayout>

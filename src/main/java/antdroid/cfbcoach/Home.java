@@ -10,14 +10,11 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -28,7 +25,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 
+import androidx.appcompat.widget.Toolbar;
+import androidx.appcompat.app.AppCompatActivity;
 import ui.SaveFilesList;
 
 
@@ -36,7 +36,6 @@ public class Home extends AppCompatActivity {
     public String saveVer = "v1.4e";
     private static final int READ_REQUEST_CODE = 42;
     private static final int IMPORT_CODE = 12;
-    private boolean customCareer;
     private int theme = 1;
 
     @Override
@@ -61,47 +60,7 @@ public class Home extends AppCompatActivity {
         Button newGameButton = findViewById(R.id.buttonNewGame);
         newGameButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-
-                AlertDialog.Builder welcome = new AlertDialog.Builder(Home.this);
-                welcome.setMessage("Use Default Team Prestige or Randomize Teams Prestige?")
-                        .setTitle("Game Option")
-                        .setNeutralButton("Default", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                finish();
-                                Intent myIntent = new Intent(Home.this, MainActivity.class);
-                                myIntent.putExtra("SAVE_FILE", "NEW_LEAGUE");
-                                myIntent.putExtra("Theme", theme);
-                                Home.this.startActivity(myIntent);
-                            }
-                        })
-                        .setNegativeButton("Randomize", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                finish();
-                                Intent myIntent = new Intent(Home.this, MainActivity.class);
-                                myIntent.putExtra("SAVE_FILE", "NEW_LEAGUE_RANDOM");
-                                myIntent.putExtra("Theme", theme);
-                                Home.this.startActivity(myIntent);
-
-                            }
-                        })
-                        .setPositiveButton("Equalize", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        finish();
-                        Intent myIntent = new Intent(Home.this, MainActivity.class);
-                        myIntent.putExtra("SAVE_FILE", "NEW_LEAGUE_EQUALIZE");
-                        myIntent.putExtra("Theme", theme);
-                        Home.this.startActivity(myIntent);
-
-                    }
-                });
-                welcome.setCancelable(false);
-                AlertDialog dialog = welcome.create();
-                dialog.show();
-                TextView msgTxt = dialog.findViewById(android.R.id.message);
-                msgTxt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+                showPrestigeModeDialog(null);
             }
         });
 
@@ -132,11 +91,7 @@ public class Home extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 isExternalStorageReadable();
-                                customCareer = false;
-                                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                                intent.setType("*/*");
-                                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                                startActivityForResult(intent, READ_REQUEST_CODE);
+                                openDocumentPicker("*/*", READ_REQUEST_CODE);
                             }
                         });
                 welcome.setCancelable(false);
@@ -214,19 +169,7 @@ public class Home extends AppCompatActivity {
         Button creditsButton = findViewById(R.id.buttonCredits);
         creditsButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                AlertDialog.Builder welcome = new AlertDialog.Builder(Home.this);
-                welcome.setMessage(getString(R.string.credits))
-                        .setTitle("Game Acknowledgements")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        });
-                welcome.setCancelable(false);
-                AlertDialog dialog = welcome.create();
-                dialog.show();
-                TextView msgTxt = dialog.findViewById(android.R.id.message);
-                msgTxt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+                showMessageDialog("Game Acknowledgements", getString(R.string.credits), 12);
             }
         });
 
@@ -298,19 +241,7 @@ public class Home extends AppCompatActivity {
     }
 
     private void changelog() {
-        AlertDialog.Builder welcome = new AlertDialog.Builder(this);
-        welcome.setMessage(getString(R.string.changelog))
-                .setTitle("Changelog!")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
-        welcome.setCancelable(false);
-        AlertDialog dialog = welcome.create();
-        dialog.show();
-        TextView msgTxt = dialog.findViewById(android.R.id.message);
-        msgTxt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+        showMessageDialog("Changelog", getString(R.string.changelog), 14);
     }
 
     /**
@@ -351,15 +282,7 @@ public class Home extends AppCompatActivity {
             }
         });
         AlertDialog alert = builder.create();
-        alert.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
         showImmersive(alert);
-        alert.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-        alert.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
     }
 
     private void importGame() {
@@ -373,11 +296,7 @@ public class Home extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 // Do nothing
                 isExternalStorageReadable();
-                customCareer = false;
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                intent.setType("text/plain");
-                intent.addCategory(Intent.CATEGORY_OPENABLE);
-                startActivityForResult(intent, IMPORT_CODE);
+                openDocumentPicker("text/plain", IMPORT_CODE);
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -425,29 +344,16 @@ public class Home extends AppCompatActivity {
      */
     private String[] getSaveFileInfos() {
         String[] infos = new String[20];
-        String fileInfo;
-        File saveFile;
-        File extFile;
+        Arrays.fill(infos, "EMPTY");
         for (int i = 0; i < 20; ++i) {
-            saveFile = new File(getFilesDir(), "saveFile" + i + ".cfb");
+            File saveFile = new File(getFilesDir(), "saveFile" + i + ".cfb");
             if (saveFile.exists()) {
                 try {
-                    BufferedReader bufferedReader = new BufferedReader(new FileReader(saveFile));
-                    fileInfo = bufferedReader.readLine();
-                    infos[i] = fileInfo.substring(0, fileInfo.length() - 1); //gets rid of % at end
-                    if(!infos[i].contains(saveVer)) infos[i] = fileInfo.substring(0, fileInfo.length() - 1) + "\n[Old Save No Longer Supported]";
-                } catch (FileNotFoundException ex) {
-                    System.out.println(
-                            "Unable to open file");
+                    infos[i] = SaveFileSummary.summarize(saveFile, saveVer);
                 } catch (IOException ex) {
                     System.out.println(
                             "Error reading file");
-                } catch (NullPointerException ex) {
-                    System.out.println(
-                            "Null pointer exception!");
                 }
-            } else {
-                infos[i] = "EMPTY";
             }
         }
         return infos;
@@ -477,11 +383,6 @@ public class Home extends AppCompatActivity {
         return file;
     }
 
-    private Uri getURI(Intent intent) {
-        Uri uri = intent.getData();
-        return uri;
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
@@ -503,56 +404,7 @@ public class Home extends AppCompatActivity {
             uri = resultData.getData();
             final String uriStr = uri.toString();
 
-            AlertDialog.Builder welcome = new AlertDialog.Builder(Home.this);
-            welcome.setMessage("Use Default Team Prestige or Randomize Teams Prestige?")
-                    .setTitle("Game Option")
-                    .setNeutralButton("Default", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (customCareer) {
-                                myIntent.putExtra("SAVE_FILE", "NEW_LEAGUE_CUSTOM," + uriStr);
-                                myIntent.putExtra("Theme", theme);
-                            } else {
-                                myIntent.putExtra("SAVE_FILE", "NEW_LEAGUE_CUSTOM," + uriStr);
-                                myIntent.putExtra("Theme", theme);
-                            }
-                            finish();
-                            Home.this.startActivity(myIntent);
-                        }
-                    })
-                    .setNegativeButton("Randomize", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            if (customCareer) {
-                                myIntent.putExtra("SAVE_FILE", "NEW_LEAGUE_CUSTOM_RANDOM," + uriStr);
-                                myIntent.putExtra("Theme", theme);
-                            } else {
-                                myIntent.putExtra("SAVE_FILE", "NEW_LEAGUE_CUSTOM_RANDOM," + uriStr);
-                                myIntent.putExtra("Theme", theme);
-                            }
-                            finish();
-                            Home.this.startActivity(myIntent);
-                        }
-                    })
-                    .setPositiveButton("Equalize", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            if (customCareer) {
-                                myIntent.putExtra("SAVE_FILE", "NEW_LEAGUE_CUSTOM_EQUALIZE," + uriStr);
-                                myIntent.putExtra("Theme", theme);
-                            } else {
-                                myIntent.putExtra("SAVE_FILE", "NEW_LEAGUE_CUSTOM_EQUALIZE," + uriStr);
-                                myIntent.putExtra("Theme", theme);
-                            }
-                            finish();
-                            Home.this.startActivity(myIntent);
-                        }
-                    });
-            welcome.setCancelable(false);
-            AlertDialog dialog = welcome.create();
-            dialog.show();
-            TextView msgTxt = dialog.findViewById(android.R.id.message);
-            msgTxt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+            showPrestigeModeDialog(uriStr);
         }
 
 
@@ -626,15 +478,74 @@ public class Home extends AppCompatActivity {
 
 
     public void showImmersive(AlertDialog alert) {
-        alert.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
-        alert.show();
-        alert.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-        alert.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+        ImmersiveDialogHelper.show(alert);
+    }
+
+    private void openDocumentPicker(String mimeType, int requestCode) {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.setType(mimeType);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent, requestCode);
+    }
+
+    private void startMainActivity(String saveFileValue) {
+        Intent myIntent = new Intent(Home.this, MainActivity.class);
+        myIntent.putExtra("SAVE_FILE", saveFileValue);
+        myIntent.putExtra("Theme", theme);
+        finish();
+        Home.this.startActivity(myIntent);
+    }
+
+    private void showPrestigeModeDialog(final String customUri) {
+        AlertDialog.Builder welcome = new AlertDialog.Builder(Home.this);
+        welcome.setMessage("Use default team prestige, randomize prestige, or equalize the field for a fresh start?")
+                .setTitle("New Dynasty Setup")
+                .setNeutralButton("Default", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startMainActivity(buildSaveFileValue(customUri, ""));
+                    }
+                })
+                .setNegativeButton("Randomize", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        startMainActivity(buildSaveFileValue(customUri, "_RANDOM"));
+                    }
+                })
+                .setPositiveButton("Equalize", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        startMainActivity(buildSaveFileValue(customUri, "_EQUALIZE"));
+                    }
+                });
+        welcome.setCancelable(false);
+        AlertDialog dialog = welcome.create();
+        dialog.show();
+        TextView msgTxt = dialog.findViewById(android.R.id.message);
+        msgTxt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+    }
+
+    private String buildSaveFileValue(String customUri, String modeSuffix) {
+        if (customUri == null) {
+            return "NEW_LEAGUE" + modeSuffix;
+        }
+        return "NEW_LEAGUE_CUSTOM" + modeSuffix + "," + customUri;
+    }
+
+    private void showMessageDialog(String title, String message, int textSizeSp) {
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        dialogBuilder.setMessage(message)
+                .setTitle(title)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
+        dialogBuilder.setCancelable(false);
+        AlertDialog dialog = dialogBuilder.create();
+        dialog.show();
+        TextView msgTxt = dialog.findViewById(android.R.id.message);
+        msgTxt.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSizeSp);
     }
 
 }

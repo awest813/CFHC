@@ -1,69 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="8sp">
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialog_surface"
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp">
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <TextView
-            android:layout_width="0dip"
-            android:text="Offense:"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textAlignment="center"
-            android:layout_weight="2"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical" />
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_dialog_section"
+            android:orientation="vertical"
+            android:padding="14dp">
 
-        <Spinner
-            android:layout_width="0dip"
-            android:layout_weight="3"
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="PROGRAM IDENTITY"
+                android:textColor="@color/accentGold"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="Set the foundation for how your team wants to play on both sides of the ball. These choices shape the feel of your program every week."
+                android:textColor="@color/textSecondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/spinnerOffenseStrategy" />
+            android:background="@drawable/bg_dialog_section"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="OFFENSIVE IDENTITY"
+                android:textColor="@color/accentGold"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/spinnerOffenseStrategy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_mobile_chip"
+                android:padding="8dp" />
+
+            <TextView
+                android:id="@+id/textOffenseStrategy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Choose the offensive style that best matches the kind of team you want to build."
+                android:textColor="@color/textSecondary"
+                android:textSize="13sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_dialog_section"
+            android:orientation="vertical"
+            android:padding="14dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="DEFENSIVE IDENTITY"
+                android:textColor="@color/accentGold"
+                android:textSize="12sp"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/spinnerDefenseStrategy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/bg_mobile_chip"
+                android:padding="8dp" />
+
+            <TextView
+                android:id="@+id/textDefenseStrategy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Choose the defensive identity that will define your unit in big moments."
+                android:textColor="@color/textSecondary"
+                android:textSize="13sp" />
+        </LinearLayout>
     </LinearLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:paddingStart="10sp"
-        android:paddingEnd="10sp"
-        android:id="@+id/textOffenseStrategy" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="15dp"
-        android:paddingBottom="5dp">
-
-        <TextView
-            android:layout_width="0dip"
-            android:text="Defense:"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textAlignment="center"
-            android:layout_weight="2"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical" />
-
-        <Spinner
-            android:layout_width="0dip"
-            android:layout_weight="3"
-            android:layout_height="wrap_content"
-            android:id="@+id/spinnerDefenseStrategy" />
-    </LinearLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:paddingStart="10sp"
-        android:paddingEnd="10sp"
-        android:paddingBottom="15sp"
-        android:id="@+id/textDefenseStrategy" />
-
-</LinearLayout>
+</ScrollView>

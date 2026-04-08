@@ -8,12 +8,6 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -21,7 +15,6 @@ import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -59,7 +52,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import androidx.navigation.ui.AppBarConfiguration;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.core.view.GravityCompat;
+import com.google.android.material.navigation.NavigationView;
 import positions.Player;
 import positions.PlayerCB;
 import positions.PlayerDL;
@@ -140,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private boolean reincarnate;
 
     //Universe Settings
-    private final int seasonStart = 2019;
+    private final int seasonStart = 2026;
     private final int retireAge = 67;
 
     String saveLeagueFileStr;
@@ -155,7 +153,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public int theme;
 
     private boolean loadedLeague = false;
-    private AppBarConfiguration mAppBarConfiguration;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -507,12 +504,38 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Update Header Bar
     private void updateHeaderBar() {
-        getSupportActionBar().setTitle(season + " | " + currentTeam.name);
+        getSupportActionBar().setTitle(currentTeam.name);
+        SeasonPresentationController.update(this, currentTeam, simLeague, season);
+    }
+
+    public String getSeasonBadgeText() {
+        return SeasonPresentationController.getSeasonBadgeText(season);
+    }
+
+    public String getSeasonTitleText() {
+        return SeasonPresentationController.getSeasonTitleText(currentTeam, season);
+    }
+
+    public String getSeasonSubtitleText() {
+        return SeasonPresentationController.getSeasonSubtitleText();
+    }
+
+    public String getSeasonYearChipText() {
+        return SeasonPresentationController.getSeasonYearChipText(season);
+    }
+
+    public String getSeasonWeekChipText() {
+        return SeasonPresentationController.getSeasonWeekChipText(simLeague);
+    }
+
+    public String getSeasonPhaseChipText() {
+        return SeasonPresentationController.getSeasonPhaseChipText(simLeague);
     }
 
     private void selectTeam() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Choose your team:");
+        builder.setTitle("Choose Your Program");
+        builder.setMessage("Pick the school where your " + seasonStart + " head coaching run begins.");
         final String[] teams = simLeague.getTeamListStr();
         builder.setItems(teams, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
@@ -546,8 +569,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void userNameDialog() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("The Head Coach Name is required to have a first and a last name.");
-        builder.setTitle("Enter Name:")
+        builder.setMessage("Enter the full name that will represent your head coach across the league, records, and news stories.");
+        builder.setTitle("Name Your Head Coach")
                 .setView(getLayoutInflater().inflate(R.layout.username_dialog, null));
         builder.setCancelable(false);
         final AlertDialog dialog = builder.create();
@@ -616,10 +639,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void setupCoachStyle() {
 
-        String[] coachChoice = {"Balanced", "Defensive-Minded", "Offensive-Minded", "Graduate Assistant (HARD)"};
+        String[] coachChoice = {"Balanced Leader", "Defensive Architect", "Offensive Innovator", "Graduate Assistant (Hard Mode)"};
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder
-                .setTitle("Choose your Coaching Style")
+                .setTitle("Choose Your Coaching Identity")
                 .setSingleChoiceItems(coachChoice, -1, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -686,7 +709,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder
-                .setTitle("Choose your Base Offense")
+                .setTitle("Choose Your Base Offense")
                 .setSingleChoiceItems(coachChoice, -1, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -715,7 +738,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder
-                .setTitle("Choose your Base Defense")
+                .setTitle("Choose Your Base Defense")
                 .setSingleChoiceItems(coachChoice, -1, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -1751,9 +1774,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             else if (i == simLeague.regSeasonWeeks+1 && !simLeague.expPlayoffs) weekSelection[i] = "Bowl Week 1";
             else if (i == simLeague.regSeasonWeeks+2 && !simLeague.expPlayoffs) weekSelection[i] = "Bowl Week 2";
             else if (i == simLeague.regSeasonWeeks+3 && !simLeague.expPlayoffs) weekSelection[i] = "Bowl Week 3";
-            else if (i == simLeague.regSeasonWeeks+1) weekSelection[i] = "Sweet 16";
-            else if (i == simLeague.regSeasonWeeks+2) weekSelection[i] = "Elite 8";
-            else if (i == simLeague.regSeasonWeeks+3) weekSelection[i] = "Final Four";
+            else if (i == simLeague.regSeasonWeeks+1) weekSelection[i] = "First Round";
+            else if (i == simLeague.regSeasonWeeks+2) weekSelection[i] = "Quarterfinals";
+            else if (i == simLeague.regSeasonWeeks+3) weekSelection[i] = "Semifinals";
             else if (i == simLeague.regSeasonWeeks+4) weekSelection[i] = "National Champ";
             else weekSelection[i] = "Week " + i;
         }
@@ -2101,85 +2124,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Team Stategy/Playbook
     private void showTeamStrategyDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Team Strategy")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //do nothing?
-                    }
-                })
-                .setView(getLayoutInflater().inflate(R.layout.team_strategy_dialog, null));
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-
-        // Get the options for team strategies in both offense and defense
-        final PlaybookOffense[] tsOff = userTeam.getPlaybookOff();
-        final PlaybookDefense[] tsDef = userTeam.getPlaybookDef();
-        int offStratNum = userTeam.playbookOffNum;
-        int defStratNum = userTeam.playbookDefNum;
-
-        String[] stratOffSelection = new String[tsOff.length];
-        for (int i = 0; i < tsOff.length; ++i) {
-            stratOffSelection[i] = tsOff[i].getStratName();
-            //if (stratOffSelection[i].equals(userTeam.playbookOff.getStratName())) offStratNum = i;
-        }
-
-        String[] stratDefSelection = new String[tsDef.length];
-        for (int i = 0; i < tsDef.length; ++i) {
-            stratDefSelection[i] = tsDef[i].getStratName();
-            //if (stratDefSelection[i].equals(userTeam.playbookDef.getStratName())) defStratNum = i;
-        }
-
-        final TextView offStratDescription = dialog.findViewById(R.id.textOffenseStrategy);
-        final TextView defStratDescription = dialog.findViewById(R.id.textDefenseStrategy);
-
-        // Offense Strategy Spinner
-        Spinner stratOffSelectionSpinner = dialog.findViewById(R.id.spinnerOffenseStrategy);
-        avoidSpinnerDropdownFocus(stratOffSelectionSpinner);
-        ArrayAdapter<String> stratOffSpinnerAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, stratOffSelection);
-        stratOffSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        stratOffSelectionSpinner.setAdapter(stratOffSpinnerAdapter);
-        stratOffSelectionSpinner.setSelection(offStratNum);
-
-        stratOffSelectionSpinner.setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    public void onItemSelected(
-                            AdapterView<?> parent, View view, int position, long id) {
-                        offStratDescription.setText(tsOff[position].getStratDescription());
-                        userTeam.playbookOff = tsOff[position];
-                        userTeam.playbookOffNum = position;
-                    }
-
-                    public void onNothingSelected(AdapterView<?> parent) {
-                        // do nothing
-                    }
-                });
-
-        // Defense Spinner Adapter
-        Spinner stratDefSelectionSpinner = dialog.findViewById(R.id.spinnerDefenseStrategy);
-        avoidSpinnerDropdownFocus(stratDefSelectionSpinner);
-        ArrayAdapter<String> stratDefSpinnerAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, stratDefSelection);
-        stratDefSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        stratDefSelectionSpinner.setAdapter(stratDefSpinnerAdapter);
-        stratDefSelectionSpinner.setSelection(defStratNum);
-
-        stratDefSelectionSpinner.setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    public void onItemSelected(
-                            AdapterView<?> parent, View view, int position, long id) {
-                        defStratDescription.setText(tsDef[position].getStratDescription());
-                        userTeam.playbookDef = tsDef[position];
-                        userTeam.playbookDefNum = position;
-                    }
-
-                    public void onNothingSelected(AdapterView<?> parent) {
-                        // do nothing
-                    }
-                });
-
+        TeamStrategyDialogController.show(this, userTeam);
     }
 
     //Simulate Week
@@ -2247,17 +2192,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             } else if (simLeague.currentWeek == simLeague.regSeasonWeeks) {
                 heismanCeremony();
                 simGameButton.setTextSize(12);
-                if (simLeague.expPlayoffs) simGameButton.setText("Play Sweet 16");
+                if (simLeague.expPlayoffs) simGameButton.setText("Play First Round");
                 else simGameButton.setText("Play Bowl Week 1");
                 examineTeam(currentTeam.name);
             } else if (simLeague.currentWeek == simLeague.regSeasonWeeks+1) {
                 simGameButton.setTextSize(12);
-                if (simLeague.expPlayoffs) simGameButton.setText("Play Elite 8");
+                if (simLeague.expPlayoffs) simGameButton.setText("Play Quarterfinals");
                 else simGameButton.setText("Play Bowl Week 2");
                 examineTeam(currentTeam.name);
             } else if (simLeague.currentWeek == simLeague.regSeasonWeeks+2) {
                 simGameButton.setTextSize(12);
-                if (simLeague.expPlayoffs) simGameButton.setText("Play Final Four");
+                if (simLeague.expPlayoffs) simGameButton.setText("Play Semifinals");
                 else simGameButton.setText("Play Bowl Week 3");
                 examineTeam(currentTeam.name);
             } else if (simLeague.currentWeek == simLeague.regSeasonWeeks+3) {
@@ -3612,24 +3557,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Get Save Files from Storage
     private String[] getSaveFileInfos() {
         String[] infos = new String[20];
-        String fileInfo;
-        File saveFile;
+        Arrays.fill(infos, "EMPTY");
         for (int i = 0; i < 20; ++i) {
-            saveFile = new File(getFilesDir(), "saveFile" + i + ".cfb");
+            File saveFile = new File(getFilesDir(), "saveFile" + i + ".cfb");
             if (saveFile.exists()) {
                 try {
-                    BufferedReader bufferedReader = new BufferedReader(new FileReader(saveFile));
-                    fileInfo = bufferedReader.readLine();
-                    infos[i] = fileInfo.substring(0, fileInfo.length() - 1); //gets rid of % at end
-                } catch (FileNotFoundException ex) {
-                    System.out.println(
-                            "Unable to open file");
+                    infos[i] = SaveFileSummary.summarize(saveFile, simLeague.saveVer);
                 } catch (IOException ex) {
                     System.out.println(
                             "Error reading file");
                 }
-            } else {
-                infos[i] = "EMPTY";
             }
         }
         return infos;
@@ -3678,13 +3615,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //New Game Options
     private void careerModeOptions() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("New Game Options")
+        builder.setTitle(seasonStart + " Head Coach Career Setup")
                 .setView(getLayoutInflater().inflate(R.layout.settings_menu, null));
         final AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         builder.setCancelable(false);
         showImmersive(dialog);
 
         final CheckBox checkboxShowPotential = dialog.findViewById(R.id.checkboxShowPotential);
+        final TextView textSettingsLead = dialog.findViewById(R.id.textSettingsLead);
+        final TextView textSettingsSublead = dialog.findViewById(R.id.textSettingsSublead);
         checkboxShowPotential.setChecked(simLeague.showPotential);
 
         final CheckBox checkboxGameLog = dialog.findViewById(R.id.checkboxShowFullGameLog);
@@ -3704,6 +3643,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         final CheckBox checkboxPlayoffs = dialog.findViewById(R.id.checkboxPlayoffs);
         checkboxPlayoffs.setChecked(simLeague.expPlayoffs);
+
+        if (textSettingsLead != null) {
+            textSettingsLead.setText(seasonStart + " Head Coach Career");
+        }
+        if (textSettingsSublead != null) {
+            textSettingsSublead.setText("Set the tone for your first season, choose whether your coach is on the hot seat, and decide if this universe opens with the modern 12-team playoff.");
+        }
 
         final CheckBox checkboxProRelegation = dialog.findViewById(R.id.checkboxProRelegation);
         checkboxProRelegation.setChecked(simLeague.enableUnivProRel);
@@ -3812,7 +3758,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
 
-        goals = "Welcome to the " + simLeague.getYear() + " College Football season!\n\n";
+        goals = "Welcome to the " + simLeague.getYear() + " College Football season, Coach " + userTeam.HC.name + "!\n\n";
+        if (simLeague.isCareerMode()) {
+            goals += "Your head coaching career begins at " + userTeam.name + ". Job security, performance swings, and future opportunities will all respond to the seasons you build here.\n\n";
+        }
+        if (simLeague.expPlayoffs) {
+            goals += "This universe is using the 12-team playoff, so a strong finish can still open a path to the national title even if your team starts outside the top four.\n\n";
+        } else {
+            goals += "This universe is using the classic four-team playoff, so every loss near the top of the rankings carries extra weight.\n\n";
+        }
         goals += "This season your team is projected to finish ranked #" + userTeam.projectedPollRank + "!\n\n";
 
         int num = (int)(simLeague.teamList.size()*.875);
@@ -5657,15 +5611,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void showImmersive(AlertDialog alert) {
-        alert.getWindow().setFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
-        alert.show();
-        alert.getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
-                | View.SYSTEM_UI_FLAG_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION);
-        alert.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE);
+        ImmersiveDialogHelper.show(alert);
     }
 
 

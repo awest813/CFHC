@@ -21,14 +21,35 @@ public class SaveFilesList extends ArrayAdapter<String> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rowView = inflater.inflate(R.layout.save_list, parent, false);
+        View rowView = convertView;
+        if (rowView == null) {
+            LayoutInflater inflater = (LayoutInflater) context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            rowView = inflater.inflate(R.layout.save_list, parent, false);
+        }
 
-        String[] detailSplit = values[position].split(">");
         TextView itemL = rowView.findViewById(R.id.textPlayerStatsLeftChild);
-        itemL.setPadding(5, 0, 2, 0);
-        itemL.setText(detailSplit[0]);
+        TextView itemC = rowView.findViewById(R.id.textPlayerStatsCenter);
+        TextView itemR = rowView.findViewById(R.id.textPlayerStatsRightChild);
+
+        String[] lines = values[position].split("\\n");
+        itemL.setText(lines[0]);
+
+        if (lines.length > 1) {
+            itemC.setVisibility(View.VISIBLE);
+            itemC.setText(lines[1]);
+        } else {
+            itemC.setVisibility(View.GONE);
+            itemC.setText("");
+        }
+
+        if (lines.length > 2) {
+            itemR.setVisibility(View.VISIBLE);
+            itemR.setText(lines[2]);
+        } else {
+            itemR.setVisibility(View.GONE);
+            itemR.setText("");
+        }
 
         return rowView;
     }

@@ -29,12 +29,18 @@ public class TeamHome extends ArrayAdapter<String> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rowView = inflater.inflate(R.layout.team_home, parent, false);
+        View rowView = convertView;
+        if (rowView == null) {
+            LayoutInflater inflater = (LayoutInflater) context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            rowView = inflater.inflate(R.layout.team_home, parent, false);
+        }
         TextView textTeam = rowView.findViewById(R.id.home_teamname);
         TextView textRecord = rowView.findViewById(R.id.home_record);
         TextView textRank = rowView.findViewById(R.id.home_rank);
+        TextView textSeason = rowView.findViewById(R.id.home_season_chip);
+        TextView textWeek = rowView.findViewById(R.id.home_week_chip);
+        TextView textPhase = rowView.findViewById(R.id.home_phase_chip);
         TextView textTeamRatings = rowView.findViewById(R.id.home_teamRatings);
         TextView textInjuries = rowView.findViewById(R.id.home_injuries);
         TextView textSuspensions = rowView.findViewById(R.id.home_suspensions);
@@ -46,6 +52,9 @@ public class TeamHome extends ArrayAdapter<String> {
         textTeam.setText(teamStat[0]);
         textRank.setText(teamStat[1]);
         textRecord.setText(teamStat[2]);
+        textSeason.setText(mainAct.getSeasonYearChipText());
+        textWeek.setText(mainAct.getSeasonWeekChipText());
+        textPhase.setText(mainAct.getSeasonPhaseChipText());
         textTeamRatings.setText(teamStat[3]);
         textInjuries.setText(teamStat[4]);
         textSuspensions.setText(teamStat[5]);

@@ -31,9 +31,12 @@ public class TeamRankingsList extends ArrayAdapter<String> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rowView = inflater.inflate(R.layout.team_rankings_list_item, parent, false);
+        View rowView = convertView;
+        if (rowView == null) {
+            LayoutInflater inflater = (LayoutInflater) context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            rowView = inflater.inflate(R.layout.team_rankings_list_item, parent, false);
+        }
         TextView textLeft = rowView.findViewById(R.id.textTeamRankingsLeft);
         TextView textCenter = rowView.findViewById(R.id.textTeamRankingsCenter);
         TextView textRight = rowView.findViewById(R.id.textTeamRankingsRight);
@@ -43,6 +46,12 @@ public class TeamRankingsList extends ArrayAdapter<String> {
         textLeft.setText(teamStat[0]);
         textCenter.setText(teamStat[1]);
         textRight.setText(teamStat[2]);
+        textLeft.setTextColor(Color.parseColor("#B7C6D1"));
+        textCenter.setTextColor(Color.parseColor("#F5F7FA"));
+        textRight.setTextColor(Color.parseColor("#F4C95D"));
+        textLeft.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+        textCenter.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+        textRight.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
 
         if (teamStat[1].equals(userTeamStrRep)) {
             // Bold user team

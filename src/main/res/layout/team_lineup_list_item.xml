@@ -1,24 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="@drawable/bg_mobile_row"
+    android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:gravity="center"
-    android:padding="5dp">
+    android:padding="12dp">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:id="@+id/textViewLineupPlayerInfo"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:layout_centerVertical="true"
+        android:layout_weight="1"
+        android:paddingRight="10dp"
         android:text="A. Player Ovr:99 Pot:99 (A+,B-,C+)"
-        android:id="@+id/textViewLineupPlayerInfo" />
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@color/textPrimary"
+        android:textStyle="bold" />
 
     <CheckBox
+        android:id="@+id/checkboxPlayerStartingLineup"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:id="@+id/checkboxPlayerStartingLineup" />
-
-</RelativeLayout>
+        android:layout_height="wrap_content" />
+</LinearLayout>

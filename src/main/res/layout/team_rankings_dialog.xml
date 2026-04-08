@@ -2,18 +2,27 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="550dp"
+    android:background="@drawable/bg_dialog_surface"
     android:orientation="vertical"
-    android:padding="5dp">
+    android:padding="16dp">
 
     <Spinner
         android:id="@+id/spinnerTeamRankings"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_gravity="center_horizontal" />
+        android:background="@drawable/bg_mobile_chip"
+        android:padding="8dp" />
 
     <ListView
         android:id="@+id/listViewTeamRankings"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal" />
+        android:layout_height="0dp"
+        android:layout_marginTop="12dp"
+        android:layout_weight="1"
+        android:background="@drawable/bg_dialog_section"
+        android:cacheColorHint="@android:color/transparent"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="8dp"
+        android:listSelector="@android:color/transparent"
+        android:padding="8dp" />
 </LinearLayout>
