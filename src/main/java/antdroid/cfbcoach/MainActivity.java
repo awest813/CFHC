@@ -32,7 +32,6 @@ import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -41,8 +40,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.lang.reflect.Field;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -197,8 +194,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 currentTeam = simLeague.teamList.get(0);
                 currentConference = simLeague.conferences.get(0);
 
-                String saveFileStr = extras.getString("SAVE_FILE");
-                if (saveFileStr.contains("CUSTOM")) importDataPrompt();
+                LeagueLaunchCoordinator.LaunchRequest launchRequest = getLaunchRequest(extras);
+                if (launchRequest != null && launchRequest.isCustomUniverse()) importDataPrompt();
                 else careerModeOptions();
             }
 
@@ -397,10 +394,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void loadGame(Bundle extras) {
         try {
+            LeagueLaunchCoordinator.LaunchRequest launchRequest = getLaunchRequest(extras);
             LeagueLaunchCoordinator.LaunchResult result = LeagueLaunchCoordinator.load(
-                    extras,
+                    launchRequest,
                     getFilesDir(),
-                    getContentResolver(),
                     this,
                     seasonStart,
                     getString(R.string.league_player_names),
@@ -408,7 +405,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     getString(R.string.conferences),
                     getString(R.string.teams),
                     getString(R.string.bowls),
-                    this::customLeague
+                    this::customLeague,
+                    uri -> getContentResolver().openInputStream(Uri.parse(uri))
             );
 
             simLeague = result.league;
@@ -4762,63 +4760,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //CUSTOM DATA
 
 
-    private LeagueLaunchCoordinator.CustomUniverseFiles customLeague(Uri uri) throws IOException {
+    private LeagueLaunchCoordinator.CustomUniverseFiles customLeague(String uriString) throws IOException {
         try {
             File conferences = new File(getFilesDir(), "conferences.txt");
             File teams = new File(getFilesDir(), "teams.txt");
             File bowls = new File(getFilesDir(), "bowls.txt");
-            String line;
-            InputStream inputStream = getContentResolver().openInputStream(uri);
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-            StringBuilder sb = new StringBuilder();
-            //First ignore the save file info
-            line = null;
-            line = reader.readLine();
-            //Next get league history
-            sb.append("[START_CONFERENCES]\n");
-            while ((line = reader.readLine()) != null && !line.contains("[END_CONFERENCES]")) {
-                sb.append(line + "\n");
+            try (InputStream inputStream = getContentResolver().openInputStream(Uri.parse(uriString))) {
+                return CustomUniverseParser.parse(inputStream, conferences, teams, bowls);
             }
-            sb.append("[END_CONFERENCES]\n");
-
-            // Actually write to the file
-            try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(conferences)))) {
-                writer.write(sb.toString());
-            } catch (Exception e) {
-            }
-            StringBuilder sb1 = new StringBuilder();
-
-            //teams
-            sb1.append("[START_TEAMS]\n");
-            while ((line = reader.readLine()) != null && !line.contains("[END_TEAMS]")) {
-                sb1.append(line + "\n");
-            }
-            sb1.append("[END_TEAMS]\n");
-            // Actually write to the file
-            try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(teams)))) {
-                writer.write(sb1.toString());
-            } catch (Exception e) {
-            }
-
-            StringBuilder sb2 = new StringBuilder();
-
-            line = null;
-            line = reader.readLine();
-            //Next get league history
-            sb2.append(line + "\n");
-            sb2.append("[END_BOWL_NAMES]\n");
-
-            // Actually write to the file
-            try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(bowls)))) {
-                writer.write(sb2.toString());
-            } catch (Exception e) {
-            }
-            // Always close files.
-            reader.close();
-            return new LeagueLaunchCoordinator.CustomUniverseFiles(conferences, teams, bowls);
         } catch (Exception e) {
             Toast.makeText(MainActivity.this, "Error! Bad URL or unable to read file.", Toast.LENGTH_SHORT).show();
             throw new IOException("Unable to import custom universe", e);
@@ -4858,10 +4807,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 dataUri = resultData.getData();
                 try {
                     if (pendingImportType == LeagueImportFlowController.ImportType.COACH) {
-                        LeagueCustomDataImporter.importCoaches(getContentResolver(), dataUri, simLeague);
+                        try (InputStream stream = getContentResolver().openInputStream(dataUri)) {
+                            LeagueCustomDataImporter.importCoaches(stream, simLeague);
+                        }
                         defaultScreen();
                     } else if (pendingImportType == LeagueImportFlowController.ImportType.ROSTER) {
-                        LeagueCustomDataImporter.importRoster(getContentResolver(), dataUri, simLeague);
+                        try (InputStream stream = getContentResolver().openInputStream(dataUri)) {
+                            LeagueCustomDataImporter.importRoster(stream, simLeague);
+                        }
                         defaultScreen();
                     }
                     pendingImportType = null;
@@ -4878,7 +4831,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Empty file, don't show dialog confirmation
         isExternalStorageReadable();
         isExternalStorageWritable();
-        saveLeagueFile = LeagueExportController.exportPrimarySave(this, simLeague);
+        saveLeagueFile = LeagueExportController.exportPrimarySave(getExportSaveDir(), simLeague);
+        Toast.makeText(MainActivity.this, "Exported Save to Storage", Toast.LENGTH_SHORT).show();
     }
 
     //Export Save File
@@ -4886,7 +4840,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Empty file, don't show dialog confirmation
         isExternalStorageReadable();
         isExternalStorageWritable();
-        saveLeagueFile = LeagueExportController.exportTeams(this, simLeague);
+        saveLeagueFile = LeagueExportController.exportTeams(getExportSaveDir(), simLeague);
+        Toast.makeText(MainActivity.this, "Saved league!", Toast.LENGTH_SHORT).show();
     }
 
     //Export Save File
@@ -4894,7 +4849,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Empty file, don't show dialog confirmation
         isExternalStorageReadable();
         isExternalStorageWritable();
-        saveLeagueFile = LeagueExportController.exportBowls(this, simLeague);
+        saveLeagueFile = LeagueExportController.exportBowls(getExportSaveDir(), simLeague);
+        Toast.makeText(MainActivity.this, "Saved league!", Toast.LENGTH_SHORT).show();
     }
 
     //Export Save File
@@ -4902,7 +4858,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Empty file, don't show dialog confirmation
         isExternalStorageReadable();
         isExternalStorageWritable();
-        saveLeagueFile = LeagueExportController.exportPlayers(this, simLeague);
+        saveLeagueFile = LeagueExportController.exportPlayers(getExportSaveDir(), simLeague);
+        Toast.makeText(MainActivity.this, "Saved league!", Toast.LENGTH_SHORT).show();
     }
 
     //Export Save File
@@ -4910,7 +4867,30 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Empty file, don't show dialog confirmation
         isExternalStorageReadable();
         isExternalStorageWritable();
-        saveLeagueFile = LeagueExportController.exportConferences(this, simLeague);
+        saveLeagueFile = LeagueExportController.exportConferences(getExportSaveDir(), simLeague);
+        Toast.makeText(MainActivity.this, "Saved league!", Toast.LENGTH_SHORT).show();
+    }
+
+    private File getExportSaveDir() {
+        try {
+            return LeagueSaveStorage.getExportDir(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "CFBCOACH");
+        } catch (IOException ex) {
+            throw new IllegalStateException("Unable to prepare export directory", ex);
+        }
+    }
+
+    private LeagueLaunchCoordinator.LaunchRequest getLaunchRequest(Bundle extras) {
+        if (extras == null) {
+            return null;
+        }
+        Object request = extras.get("LAUNCH_REQUEST");
+        if (request instanceof LeagueLaunchCoordinator.LaunchRequest) {
+            return (LeagueLaunchCoordinator.LaunchRequest) request;
+        }
+        return LeagueLaunchCoordinator.LaunchRequest.fromLegacy(
+                extras.getString("SAVE_FILE"),
+                extras.getString("RECRUITS")
+        );
     }
 
 

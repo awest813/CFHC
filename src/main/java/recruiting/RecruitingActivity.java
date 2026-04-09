@@ -34,6 +34,7 @@ import java.util.Random;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import antdroid.cfbcoach.LeagueLaunchCoordinator;
 import antdroid.cfbcoach.MainActivity;
 import antdroid.cfbcoach.R;
 import simulation.RosterRules;
@@ -1222,8 +1223,7 @@ public class RecruitingActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         // Send info about what recruits were selected back
                         Intent myIntent = new Intent(RecruitingActivity.this, MainActivity.class);
-                        myIntent.putExtra("SAVE_FILE", "DONE_RECRUITING");
-                        myIntent.putExtra("RECRUITS", getRecruitsStr());
+                        myIntent.putExtra("LAUNCH_REQUEST", LeagueLaunchCoordinator.LaunchRequest.doneRecruiting(getRecruitsStr()));
                         myIntent.putExtra("Theme", theme);
                         RecruitingActivity.this.startActivity(myIntent);
                         finish();

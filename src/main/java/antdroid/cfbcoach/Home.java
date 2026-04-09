@@ -252,7 +252,7 @@ public class Home extends AppCompatActivity {
                     if(!fileInfos[item].contains("Old Save")) {
                         finish();
                         Intent myIntent = new Intent(Home.this, MainActivity.class);
-                        myIntent.putExtra("SAVE_FILE", "saveFile" + item + ".cfb");
+                        myIntent.putExtra("LAUNCH_REQUEST", LeagueLaunchCoordinator.LaunchRequest.loadInternal("saveFile" + item + ".cfb"));
                         myIntent.putExtra("Theme", theme);
                         Home.this.startActivity(myIntent);
                     } else {
@@ -386,7 +386,7 @@ public class Home extends AppCompatActivity {
             uri = resultData.getData();
             final String uriStr = uri.toString();
 
-            myIntent.putExtra("SAVE_FILE", "IMPORT_GAME," + uriStr);
+            myIntent.putExtra("LAUNCH_REQUEST", LeagueLaunchCoordinator.LaunchRequest.importSave(uriStr));
             myIntent.putExtra("Theme", theme);
             finish();
             Home.this.startActivity(myIntent);
@@ -463,9 +463,9 @@ public class Home extends AppCompatActivity {
         startActivityForResult(intent, requestCode);
     }
 
-    private void startMainActivity(String saveFileValue) {
+    private void startMainActivity(LeagueLaunchCoordinator.LaunchRequest launchRequest) {
         Intent myIntent = new Intent(Home.this, MainActivity.class);
-        myIntent.putExtra("SAVE_FILE", saveFileValue);
+        myIntent.putExtra("LAUNCH_REQUEST", launchRequest);
         myIntent.putExtra("Theme", theme);
         finish();
         Home.this.startActivity(myIntent);
@@ -478,19 +478,19 @@ public class Home extends AppCompatActivity {
                 .setNeutralButton("Default", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        startMainActivity(buildSaveFileValue(customUri, ""));
+                        startMainActivity(buildLaunchRequest(customUri, LeagueLaunchCoordinator.LaunchRequest.PrestigeMode.DEFAULT));
                     }
                 })
                 .setNegativeButton("Randomize", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        startMainActivity(buildSaveFileValue(customUri, "_RANDOM"));
+                        startMainActivity(buildLaunchRequest(customUri, LeagueLaunchCoordinator.LaunchRequest.PrestigeMode.RANDOMIZE));
                     }
                 })
                 .setPositiveButton("Equalize", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        startMainActivity(buildSaveFileValue(customUri, "_EQUALIZE"));
+                        startMainActivity(buildLaunchRequest(customUri, LeagueLaunchCoordinator.LaunchRequest.PrestigeMode.EQUALIZE));
                     }
                 });
         welcome.setCancelable(false);
@@ -500,11 +500,12 @@ public class Home extends AppCompatActivity {
         msgTxt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
     }
 
-    private String buildSaveFileValue(String customUri, String modeSuffix) {
+    private LeagueLaunchCoordinator.LaunchRequest buildLaunchRequest(String customUri,
+                                                                    LeagueLaunchCoordinator.LaunchRequest.PrestigeMode prestigeMode) {
         if (customUri == null) {
-            return "NEW_LEAGUE" + modeSuffix;
+            return LeagueLaunchCoordinator.LaunchRequest.newLeague(prestigeMode);
         }
-        return "NEW_LEAGUE_CUSTOM" + modeSuffix + "," + customUri;
+        return LeagueLaunchCoordinator.LaunchRequest.newCustomLeague(customUri, prestigeMode);
     }
 
     private void showMessageDialog(String title, String message, int textSizeSp) {

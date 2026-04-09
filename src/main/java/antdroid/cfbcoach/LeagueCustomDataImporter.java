@@ -1,8 +1,5 @@
 package antdroid.cfbcoach;
 
-import android.content.ContentResolver;
-import android.net.Uri;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,8 +25,7 @@ public final class LeagueCustomDataImporter {
     private LeagueCustomDataImporter() {
     }
 
-    public static void importCoaches(ContentResolver contentResolver, Uri uri, League league) throws IOException {
-        InputStream inputStream = contentResolver.openInputStream(uri);
+    public static void importCoaches(InputStream inputStream, League league) throws IOException {
         if (inputStream == null) {
             throw new IOException("Unable to open custom coach import stream");
         }
@@ -75,8 +71,7 @@ public final class LeagueCustomDataImporter {
         league.resetPlaybooks();
     }
 
-    public static void importRoster(ContentResolver contentResolver, Uri uri, League league) throws IOException {
-        InputStream inputStream = contentResolver.openInputStream(uri);
+    public static void importRoster(InputStream inputStream, League league) throws IOException {
         if (inputStream == null) {
             throw new IOException("Unable to open custom roster import stream");
         }

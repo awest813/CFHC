@@ -1,9 +1,5 @@
 package antdroid.cfbcoach;
 
-import android.content.Context;
-import android.os.Environment;
-import android.util.Log;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
@@ -40,10 +36,13 @@ public final class LeagueSaveStorage {
         return infos;
     }
 
-    public static File getExternalSaveDir(Context context, String folderName) {
-        File file = new File(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), folderName);
+    public static File getExportDir(File documentsDir, String folderName) throws IOException {
+        if (documentsDir == null) {
+            throw new IOException("Documents directory is unavailable");
+        }
+        File file = new File(documentsDir, folderName);
         if (!file.mkdirs() && !file.exists()) {
-            Log.e(folderName, "Directory not created");
+            throw new IOException("Directory not created: " + file.getAbsolutePath());
         }
         return file;
     }
