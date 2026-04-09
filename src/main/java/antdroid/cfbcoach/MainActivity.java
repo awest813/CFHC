@@ -1,7 +1,6 @@
 package antdroid.cfbcoach;
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
@@ -36,7 +35,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -59,16 +57,11 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.core.view.GravityCompat;
 import com.google.android.material.navigation.NavigationView;
 import positions.Player;
-import positions.PlayerCB;
-import positions.PlayerDL;
 import positions.PlayerK;
 import positions.PlayerLB;
-import positions.PlayerOL;
 import positions.PlayerQB;
-import positions.PlayerRB;
 import positions.PlayerS;
 import positions.PlayerTE;
-import positions.PlayerWR;
 import recruiting.RecruitingActivity;
 import simulation.Conference;
 import simulation.Game;
@@ -103,7 +96,7 @@ import ui.TeamRoster;
 import ui.TeamStatsList;
 
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, GameUiBridge {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, GameUiBridge, LeagueImportFlowController.Host {
     private static final int READ_REQUEST_CODE = 43;
     private HeadCoach userHC;
     private int season;
@@ -114,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private File saveLeagueFile;
     private String username;
     private Uri dataUri;
-    private String loadData;
+    private LeagueImportFlowController.ImportType pendingImportType;
     private String goals;
 
     private List<String> teamList;
@@ -141,12 +134,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Universe Settings
     private final int seasonStart = 2026;
     private final int retireAge = 67;
-
-    String saveLeagueFileStr;
-    private File customConfs;
-    private File customTeams;
-    private File customBowls;
-    private String customUri;
 
     private final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
     private final DecimalFormat df2 = new DecimalFormat("#.##");
@@ -409,98 +396,41 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void loadGame(Bundle extras) {
-        if (extras != null) {
-            String saveFileStr = extras.getString("SAVE_FILE");
+        try {
+            LeagueLaunchCoordinator.LaunchResult result = LeagueLaunchCoordinator.load(
+                    extras,
+                    getFilesDir(),
+                    getContentResolver(),
+                    this,
+                    seasonStart,
+                    getString(R.string.league_player_names),
+                    getString(R.string.league_last_names),
+                    getString(R.string.conferences),
+                    getString(R.string.teams),
+                    getString(R.string.bowls),
+                    this::customLeague
+            );
 
-            //NEW DYNASTY GAME
-            if (saveFileStr.contains("NEW_LEAGUE")) {
-                //NEW DYNASTY GAME WITH CUSTOM DATABASE
-                if (saveFileStr.contains("CUSTOM")) {
-                    newGame = true;
-                    String[] filesSplit = saveFileStr.split(",");
-                    this.customUri = filesSplit[1];
-                    customConfs = new File(getFilesDir(), "conferences.txt");
-                    customTeams = new File(getFilesDir(), "teams.txt");
-                    customBowls = new File(getFilesDir(), "bowls.txt");
-                    Uri uri = Uri.parse(customUri);
-                    customLeague(uri);
-                    if (saveFileStr.contains("RANDOM"))
-                        simLeague = new League(getString(R.string.league_player_names), getString(R.string.league_last_names), customConfs, customTeams, customBowls, true, false, this);
-                    else if (saveFileStr.contains("EQUALIZE"))
-                        simLeague = new League(getString(R.string.league_player_names), getString(R.string.league_last_names), customConfs, customTeams, customBowls, false, true, this);
-                    else
-                        simLeague = new League(getString(R.string.league_player_names), getString(R.string.league_last_names), customConfs, customTeams, customBowls, false, false, this);
-                    season = seasonStart;
+            simLeague = result.league;
+            season = result.season;
+            loadedLeague = result.loadedLeague;
+            newGame = result.newGame;
 
-                    //NEW DYNASTY DEFAULT DATABASE
-                } else if (saveFileStr.contains("RANDOM")) {
-                    simLeague = new League(getString(R.string.league_player_names), getString(R.string.league_last_names), getString(R.string.conferences), getString(R.string.teams), getString(R.string.bowls), true, false);
-                    season = seasonStart;
-
-                } else if (saveFileStr.contains("EQUALIZE")) {
-                    simLeague = new League(getString(R.string.league_player_names), getString(R.string.league_last_names), getString(R.string.conferences), getString(R.string.teams), getString(R.string.bowls), false, true);
-                    season = seasonStart;
-
-                } else {
-                    simLeague = new League(getString(R.string.league_player_names), getString(R.string.league_last_names), getString(R.string.conferences), getString(R.string.teams), getString(R.string.bowls), false, false);
-                    season = seasonStart;
-                }
-                //LOADING A CURRENT GAME AFTER RECRUITING PERIOD
-            } else if (saveFileStr.equals("DONE_RECRUITING")) {
-                File saveFile = new File(getFilesDir(), "saveLeagueRecruiting.cfb");
-                if (saveFile.exists()) {
-                    boolean recruitingChk = false;
-                    simLeague = new League(saveFile, getString(R.string.league_player_names), getString(R.string.league_last_names), this, recruitingChk);
-                    userTeam = simLeague.userTeam;
-                    userTeamStr = userTeam.name;
-                    userTeam.HC.user = true;
-                    userTeam.recruitPlayersFromStr(extras.getString("RECRUITS"));
-                    simLeague.updateTeamTalentRatings();
-                    season = simLeague.getYear();
-                    currentTeam = userTeam;
-                    loadedLeague = true;
-                }
-                //Import Save
-            } else if (saveFileStr.contains("IMPORT"))  {
-                String[] filesSplit = saveFileStr.split(",");
-                Uri uri = Uri.parse(filesSplit[1]);
-                InputStream inputStream = null;
-                try {
-                    inputStream = getContentResolver().openInputStream(uri);
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                }
-                simLeague = new League(inputStream, getString(R.string.league_player_names), getString(R.string.league_last_names), this);
-                userTeam = simLeague.userTeam;
+            if (result.userTeam != null) {
+                userTeam = result.userTeam;
                 userTeamStr = userTeam.name;
-                userTeam.HC.user = true;
-                simLeague.updateTeamTalentRatings();
-                season = simLeague.getYear();
-                currentTeam = userTeam;
-                loadedLeague = true;
-
-            } else {
-                File saveFile = new File(getFilesDir(), saveFileStr);
-                if (saveFile.exists()) {
-                    boolean recruitingChk = true;
-                    simLeague = new League(saveFile, getString(R.string.league_player_names), getString(R.string.league_last_names), this, recruitingChk);
-                    userTeam = simLeague.userTeam;
-                    userTeamStr = userTeam.name;
-                    userTeam.HC.user = true;
-                    season = simLeague.getYear();
-                    currentTeam = userTeam;
-                    loadedLeague = true;
-                    simLeague.updateTeamTalentRatings();
-                    if(season == seasonStart) seasonGoals();
-                }
             }
-        } else {
-            //STARTS A NEW GAME WITH NO EXTRAS - NOT USED CURRENTLY
-            simLeague = new League(getString(R.string.league_player_names), getString(R.string.league_last_names), getString(R.string.conferences), getString(R.string.teams), getString(R.string.bowls), false, false);
-            season = seasonStart;
+            if (result.currentTeam != null) {
+                currentTeam = result.currentTeam;
+            }
+            if (result.showSeasonGoals) {
+                seasonGoals();
+            }
+        } catch (Exception ex) {
+            System.out.println("Error reading file");
+            ex.printStackTrace();
+            crash();
         }
-
-
     }
 
     //Update Header Bar
@@ -3452,90 +3382,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void importDataPrompt() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage("Do you want to import Coach/Player data?")
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        importData();
-                    }
-                })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (newGame) {
-                            newGame = false;
-                            careerModeOptions();
-                        }
-                    }
-                });
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        builder.setCancelable(false);
+        LeagueImportFlowController.showImportPrompt(this, newGame);
+    }
+
+    @Override
+    public MainActivity getDialogContext() {
+        return this;
+    }
+
+    @Override
+    public void showDialog(AlertDialog dialog) {
+        dialog.setCancelable(false);
         showImmersive(dialog);
     }
 
-    private void importData() {
+    @Override
+    public void requestImportDocument(LeagueImportFlowController.ImportType type) {
+        pendingImportType = type;
         isExternalStorageReadable();
-
-        //ALERT DIALOG - ROSTER or COACH
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage("What type of custom data would you like to import?")
-                .setPositiveButton("Coach File", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        loadData = "coach";
-                        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                        intent.setType("*/*");
-                        intent.addCategory(Intent.CATEGORY_OPENABLE);
-                        startActivityForResult(intent, READ_REQUEST_CODE);
-                        importMoreDataPrompt();
-                    }
-                })
-                .setNegativeButton("Roster File", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        loadData = "roster";
-                        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-                        intent.setType("*/*");
-                        intent.addCategory(Intent.CATEGORY_OPENABLE);
-                        startActivityForResult(intent, READ_REQUEST_CODE);
-                        importMoreDataPrompt();
-                    }
-                })
-                .setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        importMoreDataPrompt();
-                    }
-                });
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        builder.setCancelable(false);
-        showImmersive(dialog);
-
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.setType("*/*");
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent, READ_REQUEST_CODE);
     }
 
-    private void importMoreDataPrompt() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage("Do you want to import more data?")
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        importData();
-                    }
-                })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (newGame) {
-                            newGame = false;
-                            careerModeOptions();
-                        }
-                    }
-                });
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        builder.setCancelable(false);
-        showImmersive(dialog);
+    @Override
+    public void finishImportFlowForNewGame() {
+        if (newGame) {
+            newGame = false;
+            careerModeOptions();
+        }
     }
 
     //Save File Dialog
@@ -3550,7 +3426,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 // Do something with the selection
                 if (fileInfos[itemy].equals("EMPTY")) {
                     // Empty file, don't show dialog confirmation
-                    saveLeagueFile = new File(getFilesDir(), "saveFile" + itemy + ".cfb");
+                    saveLeagueFile = LeagueSaveStorage.getSlotFile(getFilesDir(), itemy);
                     simLeague.saveLeague(saveLeagueFile);
                     Toast.makeText(MainActivity.this, "Saved league!",
                             Toast.LENGTH_SHORT).show();
@@ -3563,7 +3439,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     // Actually go back to main menu
-                                    saveLeagueFile = new File(getFilesDir(), "saveFile" + itemy + ".cfb");
+                                    saveLeagueFile = LeagueSaveStorage.getSlotFile(getFilesDir(), itemy);
                                     simLeague.saveLeague(saveLeagueFile);
                                     Toast.makeText(MainActivity.this, "Saved league!",
                                             Toast.LENGTH_SHORT).show();
@@ -3597,20 +3473,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Get Save Files from Storage
     private String[] getSaveFileInfos() {
-        String[] infos = new String[20];
-        Arrays.fill(infos, "EMPTY");
-        for (int i = 0; i < 20; ++i) {
-            File saveFile = new File(getFilesDir(), "saveFile" + i + ".cfb");
-            if (saveFile.exists()) {
-                try {
-                    infos[i] = SaveFileSummary.summarize(saveFile, simLeague.saveVer);
-                } catch (IOException ex) {
-                    System.out.println(
-                            "Error reading file");
-                }
-            }
-        }
-        return infos;
+        return LeagueSaveStorage.getSaveFileInfos(getFilesDir(), simLeague.saveVer);
     }
 
     //Export Save File
@@ -4629,7 +4492,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         simLeague.currentWeek = 0;
-                        saveLeagueFile = new File(getFilesDir(), "saveLeagueRecruiting.cfb");
+                        saveLeagueFile = LeagueSaveStorage.getRecruitingSaveFile(getFilesDir());
                         simLeague.saveLeague(saveLeagueFile);
 
                         //Get String of user team's players and such
@@ -4702,7 +4565,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void startRecruiting(File saveFile, Team userTeam)  throws InterruptedException, IOException {
-        saveLeagueFile = new File(getFilesDir(), "saveLeagueRecruiting.cfb");
+        saveLeagueFile = LeagueSaveStorage.getRecruitingSaveFile(getFilesDir());
 
         copyFile(saveFile, saveLeagueFile);
 
@@ -4899,7 +4762,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //CUSTOM DATA
 
 
-    private void customLeague(Uri uri) {
+    private LeagueLaunchCoordinator.CustomUniverseFiles customLeague(Uri uri) throws IOException {
         try {
             File conferences = new File(getFilesDir(), "conferences.txt");
             File teams = new File(getFilesDir(), "teams.txt");
@@ -4955,8 +4818,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
             // Always close files.
             reader.close();
+            return new LeagueLaunchCoordinator.CustomUniverseFiles(conferences, teams, bowls);
         } catch (Exception e) {
             Toast.makeText(MainActivity.this, "Error! Bad URL or unable to read file.", Toast.LENGTH_SHORT).show();
+            throw new IOException("Unable to import custom universe", e);
         }
     }
 
@@ -4975,16 +4840,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //* Creates external Save directory *//*
 
-    public File getExtSaveDir(Context context, String fileName) {
-        File file = new File(context.getExternalFilesDir(
-                Environment.DIRECTORY_DOCUMENTS), fileName);
-        if (!file.mkdirs()) {
-            Log.e(fileName, "Directory not created");
-        }
-        return file;
-    }
-
-
     @Override
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
@@ -5002,147 +4857,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 dataUri = null;
                 dataUri = resultData.getData();
                 try {
-                    if (loadData.equals("coach")) {
-                        readCoachFile(dataUri);
-                    } else if (loadData.equals("roster")) {
-                        readRosterFile(dataUri);
+                    if (pendingImportType == LeagueImportFlowController.ImportType.COACH) {
+                        LeagueCustomDataImporter.importCoaches(getContentResolver(), dataUri, simLeague);
+                        defaultScreen();
+                    } else if (pendingImportType == LeagueImportFlowController.ImportType.ROSTER) {
+                        LeagueCustomDataImporter.importRoster(getContentResolver(), dataUri, simLeague);
+                        defaultScreen();
                     }
+                    pendingImportType = null;
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
         }
-    }
-
-    private void readCoachFile(Uri uri) throws IOException {
-        String line;
-        InputStream inputStream = getContentResolver().openInputStream(uri);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        StringBuilder sb = new StringBuilder();
-        line = reader.readLine();
-        //First ignore the save file info
-        while ((line = reader.readLine()) != null && !line.equals("END_COACHES")) {
-            String[] fileSplit = line.split(",");
-
-            if (fileSplit.length > 1) {
-                if (fileSplit[1].split(" ").length > 1) {
-
-
-                    for (int i = 0; i < simLeague.teamList.size(); ++i) {
-                        if (fileSplit[0].equals(simLeague.teamList.get(i).name)) {
-                            //Added feature to import coach age
-                            if (fileSplit.length > 4) {
-
-                                if (fileSplit[2].equals("HC"))
-                                    simLeague.teamList.get(i).newCustomHeadCoach(fileSplit[1], Integer.parseInt(fileSplit[3]), Integer.parseInt(fileSplit[4]));
-                                else if (fileSplit[2].equals("OC"))
-                                    simLeague.teamList.get(i).newCustomOC(fileSplit[1], Integer.parseInt(fileSplit[3]), Integer.parseInt(fileSplit[4]));
-                                else if (fileSplit[2].equals("DC"))
-                                    simLeague.teamList.get(i).newCustomDC(fileSplit[1], Integer.parseInt(fileSplit[3]), Integer.parseInt(fileSplit[4]));
-
-                            } else if (fileSplit.length > 3) {
-                                if (fileSplit[2].equals("HC"))
-                                    simLeague.teamList.get(i).newCustomHeadCoach(fileSplit[1], Integer.parseInt(fileSplit[3]), 0);
-                                else if (fileSplit[2].equals("OC"))
-                                    simLeague.teamList.get(i).newCustomOC(fileSplit[1], Integer.parseInt(fileSplit[3]), 0);
-                                else if (fileSplit[2].equals("DC"))
-                                    simLeague.teamList.get(i).newCustomDC(fileSplit[1], Integer.parseInt(fileSplit[3]), 0);
-                            } else if (fileSplit.length > 2) {
-                                simLeague.teamList.get(i).newCustomHeadCoach(fileSplit[1], Integer.parseInt(fileSplit[2]), 0);
-                            } else {
-                                simLeague.teamList.get(i).HC.name = fileSplit[1];
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        reader.close();
-
-        simLeague.resetPlaybooks();
-
-        defaultScreen();
-    }
-
-    private void readRosterFile(Uri uri) throws IOException {
-        boolean custom = false;
-
-        //METHOD USED FOR CREATING NEW ROSTER FROM CUSTOM FILE
-        for (int i = 0; i < simLeague.teamList.size(); ++i) {
-            Team teamRoster = simLeague.teamList.get(i);
-            teamRoster.teamQBs.clear();
-            teamRoster.teamRBs.clear();
-            teamRoster.teamWRs.clear();
-            teamRoster.teamTEs.clear();
-            teamRoster.teamOLs.clear();
-            teamRoster.teamKs.clear();
-            teamRoster.teamDLs.clear();
-            teamRoster.teamLBs.clear();
-            teamRoster.teamCBs.clear();
-            teamRoster.teamSs.clear();
-        }
-
-        String line;
-        InputStream inputStream = getContentResolver().openInputStream(uri);
-        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        StringBuilder sb = new StringBuilder();
-        line = reader.readLine();
-        //First ignore the save file info;
-        while ((line = reader.readLine()) != null && !line.equals("END_ROSTER")) {
-            String[] fileSplit = line.split(",");
-
-            //Name checker
-            if (fileSplit.length > 1) {
-                if (fileSplit[1].split(" ").length > 1) {
-
-                    //METHOD FOR CREATING NEW ROSTER WITH CUSTOM FILE
-                    for (int i = 0; i < simLeague.teamList.size(); ++i) {
-                        if (fileSplit[0].equals(simLeague.teamList.get(i).name)) {
-                            Team teamRoster = simLeague.teamList.get(i);
-                            if (fileSplit[2].equals("QB")) {
-                                teamRoster.teamQBs.add(new PlayerQB(fileSplit[1], Integer.parseInt(fileSplit[3]), Integer.parseInt(fileSplit[4]), teamRoster, custom));
-                            } else if (fileSplit[2].equals("RB")) {
-                                teamRoster.teamRBs.add(new PlayerRB(fileSplit[1], Integer.parseInt(fileSplit[3]), Integer.parseInt(fileSplit[4]), teamRoster, custom));
-                            } else if (fileSplit[2].equals("WR")) {
-                                teamRoster.teamWRs.add(new PlayerWR(fileSplit[1], Integer.parseInt(fileSplit[3]), Integer.parseInt(fileSplit[4]), teamRoster, custom));
-                            } else if (fileSplit[2].equals("TE")) {
-                                teamRoster.teamTEs.add(new PlayerTE(fileSplit[1], Integer.parseInt(fileSplit[3]), Integer.parseInt(fileSplit[4]), teamRoster, custom));
-                            } else if (fileSplit[2].equals("OL")) {
-                                teamRoster.teamOLs.add(new PlayerOL(fileSplit[1], Integer.parseInt(fileSplit[3]), Integer.parseInt(fileSplit[4]), teamRoster, custom));
-                            } else if (fileSplit[2].equals("DL")) {
-                                teamRoster.teamDLs.add(new PlayerDL(fileSplit[1], Integer.parseInt(fileSplit[3]), Integer.parseInt(fileSplit[4]), teamRoster, custom));
-                            } else if (fileSplit[2].equals("LB")) {
-                                teamRoster.teamLBs.add(new PlayerLB(fileSplit[1], Integer.parseInt(fileSplit[3]), Integer.parseInt(fileSplit[4]), teamRoster, custom));
-                            } else if (fileSplit[2].equals("CB")) {
-                                teamRoster.teamCBs.add(new PlayerCB(fileSplit[1], Integer.parseInt(fileSplit[3]), Integer.parseInt(fileSplit[4]), teamRoster, custom));
-                            } else if (fileSplit[2].equals("S")) {
-                                teamRoster.teamSs.add(new PlayerS(fileSplit[1], Integer.parseInt(fileSplit[3]), Integer.parseInt(fileSplit[4]), teamRoster, custom));
-                            } else if (fileSplit[2].equals("K")) {
-                                teamRoster.teamKs.add(new PlayerK(fileSplit[1], Integer.parseInt(fileSplit[3]), Integer.parseInt(fileSplit[4]), teamRoster, custom));
-                            }
-
-                        }
-                    }
-                }
-            }
-
-        }
-        reader.close();
-
-        for (int i = 0; i < simLeague.teamList.size(); ++i) {
-            Team teamRoster = simLeague.teamList.get(i);
-            if (teamRoster.getAllPlayers().isEmpty()) {
-                teamRoster.newRoster(teamRoster.minQBs, teamRoster.minRBs, teamRoster.minWRs, teamRoster.minTEs, teamRoster.minOLs, teamRoster.minKs, teamRoster.minDLs, teamRoster.minLBs, teamRoster.minCBs, teamRoster.minSs, true);
-            } else {
-                teamRoster.newRoster(teamRoster.minQBs - teamRoster.teamQBs.size(), teamRoster.minRBs - teamRoster.teamRBs.size(), teamRoster.minWRs - teamRoster.teamWRs.size(),
-                        teamRoster.minTEs - teamRoster.teamTEs.size(), teamRoster.minOLs - teamRoster.teamOLs.size(), teamRoster.minKs - teamRoster.teamKs.size(),
-                        teamRoster.minDLs - teamRoster.teamDLs.size(), teamRoster.minLBs - teamRoster.teamLBs.size(), teamRoster.minCBs - teamRoster.teamCBs.size(), teamRoster.minSs - teamRoster.teamSs.size(), false);
-            }
-        }
-
-
-        simLeague.updateTeamTalentRatings();
-        defaultScreen();
     }
 
     //EXPORT DATA
@@ -5151,9 +4878,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Empty file, don't show dialog confirmation
         isExternalStorageReadable();
         isExternalStorageWritable();
-        saveLeagueFile = new File(getExtSaveDir(this,"CFBCOACH"), "CFB_SAVE.txt");
-        simLeague.saveLeague(saveLeagueFile);
-        Toast.makeText(MainActivity.this, "Exported Save to Storage", Toast.LENGTH_SHORT).show();
+        saveLeagueFile = LeagueExportController.exportPrimarySave(this, simLeague);
     }
 
     //Export Save File
@@ -5161,9 +4886,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Empty file, don't show dialog confirmation
         isExternalStorageReadable();
         isExternalStorageWritable();
-        saveLeagueFile = new File(getExtSaveDir(this,"CFBCOACH"), "CFB_TEAMS.txt");
-        simLeague.saveLeague(saveLeagueFile);
-        Toast.makeText(MainActivity.this, "Saved league!", Toast.LENGTH_SHORT).show();
+        saveLeagueFile = LeagueExportController.exportTeams(this, simLeague);
     }
 
     //Export Save File
@@ -5171,9 +4894,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Empty file, don't show dialog confirmation
         isExternalStorageReadable();
         isExternalStorageWritable();
-        saveLeagueFile = new File(getExtSaveDir(this,"CFBCOACH"), "CFB_BOWLS.txt");
-        simLeague.saveLeague(saveLeagueFile);
-        Toast.makeText(MainActivity.this, "Saved league!", Toast.LENGTH_SHORT).show();
+        saveLeagueFile = LeagueExportController.exportBowls(this, simLeague);
     }
 
     //Export Save File
@@ -5181,9 +4902,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Empty file, don't show dialog confirmation
         isExternalStorageReadable();
         isExternalStorageWritable();
-        saveLeagueFile = new File(getExtSaveDir(this,"CFBCOACH"), "CFB_PLAYERS.txt");
-        simLeague.saveLeague(saveLeagueFile);
-        Toast.makeText(MainActivity.this, "Saved league!", Toast.LENGTH_SHORT).show();
+        saveLeagueFile = LeagueExportController.exportPlayers(this, simLeague);
     }
 
     //Export Save File
@@ -5191,9 +4910,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Empty file, don't show dialog confirmation
         isExternalStorageReadable();
         isExternalStorageWritable();
-        saveLeagueFile = new File(getExtSaveDir(this,"CFBCOACH"), "CFB_CONF.txt");
-        simLeague.saveLeague(saveLeagueFile);
-        Toast.makeText(MainActivity.this, "Saved league!", Toast.LENGTH_SHORT).show();
+        saveLeagueFile = LeagueExportController.exportConferences(this, simLeague);
     }
 
 

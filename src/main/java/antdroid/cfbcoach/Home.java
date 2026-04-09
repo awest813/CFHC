@@ -3,13 +3,11 @@ package antdroid.cfbcoach;
 //Google Play Services ID: 116207837258
 
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,13 +16,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Arrays;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -345,20 +336,7 @@ public class Home extends AppCompatActivity {
      * Get info of the 10 save files for printing in the save file list
      */
     private String[] getSaveFileInfos() {
-        String[] infos = new String[20];
-        Arrays.fill(infos, "EMPTY");
-        for (int i = 0; i < 20; ++i) {
-            File saveFile = new File(getFilesDir(), "saveFile" + i + ".cfb");
-            if (saveFile.exists()) {
-                try {
-                    infos[i] = SaveFileSummary.summarize(saveFile, saveVer);
-                } catch (IOException ex) {
-                    System.out.println(
-                            "Error reading file");
-                }
-            }
-        }
-        return infos;
+        return LeagueSaveStorage.getSaveFileInfos(getFilesDir(), saveVer);
     }
 
     /* Checks if external storage is available for read and write */
@@ -373,18 +351,6 @@ public class Home extends AppCompatActivity {
         return Environment.MEDIA_MOUNTED.equals(state) ||
                 Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
     }
-    /* Creates external Save directory */
-
-    public File getExtSaveDir(Context context, String cfbCoach) {
-        // Get the directory for the app's private pictures directory.
-        File file = new File(context.getExternalFilesDir(
-                Environment.DIRECTORY_DOCUMENTS), cfbCoach);
-        if (!file.mkdirs()) {
-            Log.e(cfbCoach, "Directory not created");
-        }
-        return file;
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode,
                                  Intent resultData) {
