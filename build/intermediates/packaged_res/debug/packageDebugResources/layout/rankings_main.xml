@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:layout_marginBottom="8dp"
+    android:background="@drawable/bg_mobile_row"
+    android:orientation="horizontal"
+    android:padding="12dp">
+
+    <TextView
+        android:id="@+id/textRankLeft"
+        android:layout_width="0dip"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.55"
+        android:gravity="left"
+        android:paddingRight="10dp"
+        android:text="Rank"
+        android:textAlignment="textEnd"
+        android:textColor="@color/textMuted"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textRankCenter"
+        android:layout_width="0dip"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.95"
+        android:gravity="left"
+        android:text="Team"
+        android:textAlignment="textStart"
+        android:textColor="@color/textPrimary"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textRankRight"
+        android:layout_width="0dip"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.7"
+        android:gravity="right"
+        android:text="Value"
+        android:textAlignment="textStart"
+        android:textColor="@color/accentGold"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+</LinearLayout>

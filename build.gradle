@@ -6,7 +6,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.0.4'
+        classpath 'com.android.tools.build:gradle:8.7.0'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -27,13 +27,17 @@ android {
         config {
         }
     }
-    compileSdkVersion 30
+    compileSdk 35
     defaultConfig {
         applicationId "antdroid.cfbcoach"
-        minSdkVersion 24
-        targetSdkVersion 30
+        minSdk 24
+        targetSdk 30
         versionName 'v1.4.5'
         versionCode 320
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
     buildTypes {
         release {
