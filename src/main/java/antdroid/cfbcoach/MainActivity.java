@@ -72,6 +72,7 @@ import positions.PlayerWR;
 import recruiting.RecruitingActivity;
 import simulation.Conference;
 import simulation.Game;
+import simulation.GameUiBridge;
 import simulation.League;
 import simulation.PlaybookDefense;
 import simulation.PlaybookOffense;
@@ -102,7 +103,7 @@ import ui.TeamRoster;
 import ui.TeamStatsList;
 
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, GameUiBridge {
     private static final int READ_REQUEST_CODE = 43;
     private HeadCoach userHC;
     private int season;
@@ -786,6 +787,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
+    @Override
     public void updateSpinners() {
         confList.clear();
         for (int i = 0; i < simLeague.conferences.size(); i++) {
@@ -927,6 +929,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
+        bindRankingsDialogShell(dialog, "League News Feed", "Review preseason updates, weekly headlines, coaching movement, and offseason storylines from one clean archive.");
 
         ArrayList<String> rankings = new ArrayList<>();// = simLeague.getTeamRankingsStr(0);
         String[] weekSelection = new String[simLeague.currentWeek + 1];
@@ -1298,6 +1301,50 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         cpFeatStat3.setText(c[5]);
         cpFeatStat4Name.setText(c[6]);
         cpFeatStat4.setText(c[7]);
+    }
+
+    private void bindRankingsDialogShell(AlertDialog dialog, String title, String subtitle) {
+        TextView shellTitle = dialog.findViewById(R.id.textDialogShellTitle);
+        TextView shellSubtitle = dialog.findViewById(R.id.textDialogShellSubtitle);
+        if (shellTitle != null) {
+            shellTitle.setText(title);
+        }
+        if (shellSubtitle != null) {
+            shellSubtitle.setText(subtitle);
+        }
+    }
+
+    private void bindSimpleListDialogShell(AlertDialog dialog, String title, String subtitle) {
+        TextView shellTitle = dialog.findViewById(R.id.textSimpleDialogShellTitle);
+        TextView shellSubtitle = dialog.findViewById(R.id.textSimpleDialogShellSubtitle);
+        if (shellTitle != null) {
+            shellTitle.setText(title);
+        }
+        if (shellSubtitle != null) {
+            shellSubtitle.setText(subtitle);
+        }
+    }
+
+    private void bindArchiveDialogShell(AlertDialog dialog, String title, String subtitle) {
+        TextView shellTitle = dialog.findViewById(R.id.textArchiveShellTitle);
+        TextView shellSubtitle = dialog.findViewById(R.id.textArchiveShellSubtitle);
+        if (shellTitle != null) {
+            shellTitle.setText(title);
+        }
+        if (shellSubtitle != null) {
+            shellSubtitle.setText(subtitle);
+        }
+    }
+
+    private void bindGraphDialogShell(AlertDialog dialog, String title, String subtitle) {
+        TextView shellTitle = dialog.findViewById(R.id.textGraphShellTitle);
+        TextView shellSubtitle = dialog.findViewById(R.id.textGraphShellSubtitle);
+        if (shellTitle != null) {
+            shellTitle.setText(title);
+        }
+        if (shellSubtitle != null) {
+            shellSubtitle.setText(subtitle);
+        }
     }
 
 
@@ -1742,6 +1789,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
+        bindRankingsDialogShell(dialog, "Weekly Scoreboard", "Flip across regular season and postseason weeks to review the full league scoreboard.");
 
         ArrayList<String> rankings = new ArrayList<>();
         int dbSize;
@@ -2613,6 +2661,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
+        bindRankingsDialogShell(dialog, "League Archive", "Move between history, records, hall of fame entries, and coach data without leaving the same league center.");
 
         String[] historySelection = {"League History", "League Records", "League Stats", "Hall of Fame", "Head Coach Database"};
         Spinner leagueHistorySpinner = dialog.findViewById(R.id.spinnerTeamRankings);
@@ -2669,6 +2718,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
+        bindRankingsDialogShell(dialog, "League Stat Leaders", "Compare long-term program achievements across titles, bowls, wins, and hall-of-fame production.");
 
         ArrayList<String> rankings = new ArrayList<>();
         String[] rankingsSelection =
@@ -2716,6 +2766,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
+        bindRankingsDialogShell(dialog, "Head Coach Database", "Track the best careers in the universe by wins, trophies, awards, and accumulated prestige.");
 
         ArrayList<String> rankings = new ArrayList<>();// = simLeague.getTeamRankingsStr(0);
         String[] rankingsSelection =
@@ -2764,6 +2815,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.bowl_ccg_dialog, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
+        bindArchiveDialogShell(dialog, "AP Poll Archive", "Step through each completed season to review how the national rankings evolved over time.");
         if (season == seasonStart) {
             String[] selection = {"No History to Display"};
             Spinner top25hisSpinner = dialog.findViewById(R.id.spinnerBowlCCG);
@@ -2813,6 +2865,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
         final AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
+        bindRankingsDialogShell(dialog, currentTeam.name + " Archive", "Review your program history, records, and hall-of-fame legacy from one unified team archive.");
 
         String[] selection = {"Team History", "Team Records", "Hall of Fame", "Graph View: Prestige", "Graph View: Rankings"};
         Spinner teamHistSpinner = dialog.findViewById(R.id.spinnerTeamRankings);
@@ -2873,6 +2926,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.graphview, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
+        bindGraphDialogShell(dialog, currentTeam.name + " Prestige Trend", "See how program prestige has risen and fallen across your team's historical arc.");
         GraphView graph = dialog.findViewById(R.id.graph);
         LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
         String[] yearLabels = new String[currentTeam.teamHistory.size()];
@@ -2912,6 +2966,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.graphview, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
+        bindGraphDialogShell(dialog, currentTeam.name + " Ranking Trend", "Track where your program has landed in the national pecking order over time.");
         GraphView graph = dialog.findViewById(R.id.graph);
         LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
         String[] yearLabels = new String[currentTeam.teamHistory.size()];
@@ -2956,6 +3011,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
         final AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
+        bindRankingsDialogShell(dialog, "Head Coach History", "Review one coach's stops and jump into prestige or ranking trend views from the same archive flow.");
 
         String[] selection = {"Team History", "Graph View: Prestige", "Graph View: Rankings"};
         Spinner teamHistSpinner = dialog.findViewById(R.id.spinnerTeamRankings);
@@ -2976,8 +3032,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     new TeamHistoryList(MainActivity.this, hc.getCoachHistory());
                             teamHistoryList.setAdapter(teamHistoryAdapter);
                         } else if (position == 1) {
+                            dialog.dismiss();
                             coachGraphView(hc);
                         } else if (position == 2) {
+                            dialog.dismiss();
                             coachGraphViewRank(hc);
                         }
                     }
@@ -3001,6 +3059,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.graphview, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
+        bindGraphDialogShell(dialog, hc.name + " Prestige Trend", "Follow how this coach changed program prestige across each stop in his career.");
 
         DataPoint[] data = new DataPoint[hc.history.size()];
         GraphView graph = dialog.findViewById(R.id.graph);
@@ -3041,6 +3100,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.graphview, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
+        bindGraphDialogShell(dialog, hc.name + " Ranking Trend", "Follow how this coach's teams climbed or slid in the national rankings over time.");
         DataPoint[] data = new DataPoint[hc.history.size()];
         GraphView graph = dialog.findViewById(R.id.graph);
         LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
@@ -3214,6 +3274,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.bowl_ccg_dialog, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
+        bindArchiveDialogShell(dialog, "Post-Season Archive", "Switch between conference title games and postseason slates in one shared archive shell.");
 
         String[] selection = {"Conf Championships", "Post-Season"};
         Spinner bowlCCGSpinner = dialog.findViewById(R.id.spinnerBowlCCG);
@@ -3913,6 +3974,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.simple_list_dialog, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
+        bindSimpleListDialogShell(dialog, "Prestige Movement", "See which programs are rising and falling across the current college football landscape.");
 
         final ListView teamRankingsList = dialog.findViewById(R.id.listViewDialog);
         final TeamRankingsList teamRankingsAdapter =
@@ -4515,6 +4577,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.simple_list_dialog, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
+        bindSimpleListDialogShell(dialog, "Budget Landscape", "Compare which programs are operating with the strongest financial footing this cycle.");
 
         final ListView teamRankingsList = dialog.findViewById(R.id.listViewDialog);
         final TeamRankingsList teamRankingsAdapter =
@@ -4601,6 +4664,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
+        bindRankingsDialogShell(dialog, "Recruiting Launch", "Check who is leaving your roster or headed to the draft before you enter recruiting season.");
         String[] spinnerSelection = {"Players Leaving", "Pro Mock Draft"};
         Spinner beginRecruitingSpinner = dialog.findViewById(R.id.spinnerTeamRankings);
         avoidSpinnerDropdownFocus(beginRecruitingSpinner);
@@ -4636,6 +4700,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    @Override
     public void startRecruiting(File saveFile, Team userTeam)  throws InterruptedException, IOException {
         saveLeagueFile = new File(getFilesDir(), "saveLeagueRecruiting.cfb");
 
@@ -4673,6 +4738,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.simple_list_dialog, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
+        bindSimpleListDialogShell(dialog, "Recruiting Class Rankings", "Measure your incoming class against the rest of the country before you move on to season goals.");
 
         final ListView teamRankingsList = dialog.findViewById(R.id.listViewDialog);
         final TeamRankingsList teamRankingsAdapter =
@@ -5343,6 +5409,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         userTeam.suspendPlayerSetup(this);
     }
 
+    @Override
     public void disciplineAction(final Player player, final String issue, final int gamesA, final int gamesB) {
 
 
@@ -5388,6 +5455,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         userTeam.disciplineAction = false;
     }
 
+    @Override
     public void transferPlayer(final Player p) {
         PlayerProfileSnapshot snapshot = PlayerProfileSnapshot.fromPlayer(p);
 
@@ -5443,6 +5511,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
+    @Override
     public void crash() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setMessage("The DATABASE is invalid or corrupt. Please check for formatting or spelling errors.")

@@ -1,7 +1,5 @@
 package simulation;
 
-import android.util.Log;
-
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -23,7 +21,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 
-import antdroid.cfbcoach.MainActivity;
 import comparator.CompCoachAllAmericans;
 import comparator.CompCoachAllConference;
 import comparator.CompCoachBowlWins;
@@ -111,6 +108,10 @@ import staff.OC;
 import staff.Staff;
 
 public class League {
+    private static GameUiBridge bridgeOrNoOp(GameUiBridge bridge) {
+        return bridge == null ? GameUiBridge.NO_OP : bridge;
+    }
+
     public String saveVer = "v1.4e";
 
     public ArrayList<String[]> leagueHistory;
@@ -347,7 +348,12 @@ public class League {
     /**
      * Creates a CUSTOM League Universe
      */
-    public League(String namesCSV, String lastNamesCSV, File customConf, File customTeams, File customBowl, boolean randomize, boolean equalize, MainActivity main) {
+    public League(String namesCSV, String lastNamesCSV, File customConf, File customTeams, File customBowl, boolean randomize, boolean equalize) {
+        this(namesCSV, lastNamesCSV, customConf, customTeams, customBowl, randomize, equalize, GameUiBridge.NO_OP);
+    }
+
+    public League(String namesCSV, String lastNamesCSV, File customConf, File customTeams, File customBowl, boolean randomize, boolean equalize, GameUiBridge main) {
+        GameUiBridge bridge = bridgeOrNoOp(main);
         careerMode = true;
         showPotential = false;
         confRealignment = true;
@@ -376,7 +382,7 @@ public class League {
             System.out.println(
                     "Error reading file");
             ex.printStackTrace();
-            main.crash();
+            bridge.crash();
             return;
         }
 
@@ -438,7 +444,7 @@ public class League {
             System.out.println(
                     "Error reading file");
             ex.printStackTrace();
-            main.crash();
+            bridge.crash();
         }
 
         //set teamList
@@ -478,12 +484,12 @@ public class League {
             System.out.println(
                     "Unable to open file");
             ex.printStackTrace();
-            main.crash();
+            bridge.crash();
         } catch (IOException ex) {
             System.out.println(
                     "Error reading file");
             ex.printStackTrace();
-            main.crash();
+            bridge.crash();
         }
 
         if (bowlNames.length != bowlNamesText.split(",").length) {
@@ -524,7 +530,12 @@ public class League {
      *
      * @param saveFile file that league is saved in
      */
-    public League(File saveFile, String namesCSV, String lastNamesCSV, MainActivity mainAct, boolean recruitingChk) {
+    public League(File saveFile, String namesCSV, String lastNamesCSV, boolean recruitingChk) {
+        this(saveFile, namesCSV, lastNamesCSV, GameUiBridge.NO_OP, recruitingChk);
+    }
+
+    public League(File saveFile, String namesCSV, String lastNamesCSV, GameUiBridge mainAct, boolean recruitingChk) {
+        GameUiBridge bridge = bridgeOrNoOp(mainAct);
 
         setupCommonInitalizers();
         setupNamesDB(namesCSV, lastNamesCSV);
@@ -742,7 +753,7 @@ public class League {
                     if (line.contains("RECRUITING")) {
                         currentWeek = 99;
                         setTeamRanks();
-                        mainAct.startRecruiting(saveFile, userTeam);
+                        bridge.startRecruiting(saveFile, userTeam);
                     }
                 }
             }
@@ -782,7 +793,12 @@ public class League {
      * IMPORT A SAVE FILE
      * Create League from saved file.
      **/
-    public League(InputStream inputStream, String namesCSV, String lastNamesCSV, MainActivity main) {
+    public League(InputStream inputStream, String namesCSV, String lastNamesCSV) {
+        this(inputStream, namesCSV, lastNamesCSV, GameUiBridge.NO_OP);
+    }
+
+    public League(InputStream inputStream, String namesCSV, String lastNamesCSV, GameUiBridge main) {
+        GameUiBridge bridge = bridgeOrNoOp(main);
         setupCommonInitalizers();
         setupNamesDB(namesCSV, lastNamesCSV);
 
@@ -1001,7 +1017,7 @@ public class League {
             System.out.println(
                     "Error reading file");
             ex.printStackTrace();
-            main.crash();
+            bridge.crash();
         }
 
         //fix team divions
@@ -1228,7 +1244,7 @@ public class League {
                     gm = new Game(a, b, "OOC");
 
                     if(a.gameSchedule.size() != b.gameSchedule.size())
-                    Log.d("league", "setupSeason: week " + week + " " + a.name + " size" + a.gameSchedule.size() + " vs " + b.name + " size" + b.gameSchedule.size());
+                    PlatformLog.d("league", "setupSeason: week " + week + " " + a.name + " size" + a.gameSchedule.size() + " vs " + b.name + " size" + b.gameSchedule.size());
 
                     if (!a.conference.contains("Independent") && !a.conference.contains("FCS")) {
                         a.gameSchedule.add(week, gm);
@@ -3656,7 +3672,8 @@ public class League {
     }
 
     //Transfer players from the available transfer lists
-    public void transferPlayers(MainActivity mainAct) {
+    public void transferPlayers(GameUiBridge mainAct) {
+        GameUiBridge bridge = bridgeOrNoOp(mainAct);
         Collections.sort(teamList, new CompTeamPoll());
         int rand;
         Random random = new Random();
@@ -3696,7 +3713,7 @@ public class League {
                                 break;
                             } else if (userTeam.qbtransferNum == 0) {
                                 userTeam.qbtransferNum++;
-                                mainAct.transferPlayer(transferQBs.get(i));
+                                bridge.transferPlayer(transferQBs.get(i));
                                 transferQBs.remove(i);
                                 break;
                             }
@@ -3723,7 +3740,7 @@ public class League {
                                 transferRBs.remove(i);
                                 break;
                             } else {
-                                mainAct.transferPlayer(transferRBs.get(i));
+                                bridge.transferPlayer(transferRBs.get(i));
                                 transferRBs.remove(i);
                                 break;
                             }
@@ -3750,7 +3767,7 @@ public class League {
                                 transferWRs.remove(i);
                                 break;
                             } else {
-                                mainAct.transferPlayer(transferWRs.get(i));
+                                bridge.transferPlayer(transferWRs.get(i));
                                 transferWRs.remove(i);
                                 break;
                             }
@@ -3777,7 +3794,7 @@ public class League {
                                 transferTEs.remove(i);
                                 break;
                             } else {
-                                mainAct.transferPlayer(transferTEs.get(i));
+                                bridge.transferPlayer(transferTEs.get(i));
                                 transferTEs.remove(i);
                                 break;
                             }
@@ -3803,7 +3820,7 @@ public class League {
                             transferOLs.remove(i);
                             break;
                         } else {
-                            mainAct.transferPlayer(transferOLs.get(i));
+                            bridge.transferPlayer(transferOLs.get(i));
                             transferOLs.remove(i);
                             break;
                         }
@@ -3829,7 +3846,7 @@ public class League {
                                 transferKs.remove(i);
                                 break;
                             } else {
-                                mainAct.transferPlayer(transferKs.get(i));
+                                bridge.transferPlayer(transferKs.get(i));
                                 transferKs.remove(i);
                                 break;
                             }
@@ -3856,7 +3873,7 @@ public class League {
                                 transferDLs.remove(i);
                                 break;
                             } else {
-                                mainAct.transferPlayer(transferDLs.get(i));
+                                bridge.transferPlayer(transferDLs.get(i));
                                 transferDLs.remove(i);
                                 break;
                             }
@@ -3883,7 +3900,7 @@ public class League {
                                 transferLBs.remove(i);
                                 break;
                             } else {
-                                mainAct.transferPlayer(transferLBs.get(i));
+                                bridge.transferPlayer(transferLBs.get(i));
                                 transferLBs.remove(i);
                                 break;
                             }
@@ -3910,7 +3927,7 @@ public class League {
                                 transferCBs.remove(i);
                                 break;
                             } else {
-                                mainAct.transferPlayer(transferCBs.get(i));
+                                bridge.transferPlayer(transferCBs.get(i));
                                 transferCBs.remove(i);
                                 break;
                             }
@@ -3937,7 +3954,7 @@ public class League {
                                 transferSs.remove(i);
                                 break;
                             } else {
-                                mainAct.transferPlayer(transferSs.get(i));
+                                bridge.transferPlayer(transferSs.get(i));
                                 transferSs.remove(i);
                                 break;
                             }
@@ -4104,7 +4121,8 @@ Every conference creates a bucket of teams that are not meeting minimum prestige
 Then conferences can see if they want to add them to their list if the teams meet the new conference list... chosen at random.
 
 */
-    public void conferenceRealignmentV2(MainActivity main) {
+    public void conferenceRealignmentV2(GameUiBridge main) {
+        GameUiBridge bridge = bridgeOrNoOp(main);
         int minConfTeams = 12;
         int maxConfTeams = 16;
         ArrayList<Team> demoteTeamList = new ArrayList<>();
@@ -4447,7 +4465,7 @@ Then conferences can see if they want to add them to their list if the teams mee
                     newsHeadlines.add("NEW CONFERENCE ANNOUNCED! Today, the League is excited to announce the formation of the Antdroid Conference!");
                     countRealignment++;
 
-                    main.updateSpinners();
+                    bridge.updateSpinners();
 
                 }
             }

@@ -35,9 +35,12 @@ public class MainRankings extends ArrayAdapter<String> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rowView = inflater.inflate(R.layout.rankings_main, parent, false);
+        View rowView = convertView;
+        if (rowView == null) {
+            LayoutInflater inflater = (LayoutInflater) context
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            rowView = inflater.inflate(R.layout.rankings_main, parent, false);
+        }
         TextView textLeft = rowView.findViewById(R.id.textRankLeft);
         final TextView textCenter = rowView.findViewById(R.id.textRankCenter);
         TextView textRight = rowView.findViewById(R.id.textRankRight);

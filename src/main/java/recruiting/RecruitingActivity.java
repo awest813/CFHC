@@ -322,13 +322,13 @@ public class RecruitingActivity extends AppCompatActivity {
           Assign components to private variables for easier access later
          */
         budgetText = findViewById(R.id.textRecBudget);
-        String budgetStr = "Budget: $" + recruitingBudget;
-        budgetText.setText(budgetStr);
+        updateRecruitingOverview();
 
         /*
           Set up spinner for examining choosing position to recruit
          */
         positionSpinner = findViewById(R.id.spinnerRec);
+        MainActivity.avoidSpinnerDropdownFocus(positionSpinner);
         positions = new ArrayList<>();
         positions.add("Top 50 Recruits");
         positions.add("All Players");
@@ -346,7 +346,7 @@ public class RecruitingActivity extends AppCompatActivity {
         positions.add("Midwest (" + midwest.size() + ")");
         positions.add("Central (" + central.size() + ")");
         positions.add("East (" + east.size() + ")");
-        positions.add("South (" + east.size() + ")");
+        positions.add("South (" + south.size() + ")");
 
         dataAdapterPosition = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, positions);
@@ -375,7 +375,7 @@ public class RecruitingActivity extends AppCompatActivity {
         });
 
         final Switch filterSwitch = findViewById(R.id.filterSwitch);
-        filterSwitch.setText("Filter Unaffordable");
+        filterSwitch.setText(getString(R.string.recruiting_filter_label));
         filterSwitch.setChecked(autoFilter);
         filterSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -446,6 +446,29 @@ public class RecruitingActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void updateRecruitingOverview() {
+        if (budgetText != null) {
+            budgetText.setText("Budget: $" + recruitingBudget);
+        }
+
+        TextView programName = findViewById(R.id.textRecruitProgramName);
+        if (programName != null) {
+            programName.setText(teamName + " Recruiting");
+        }
+
+        TextView summaryText = findViewById(R.id.textRecruitSummary);
+        if (summaryText != null) {
+            int currentRoster = teamPlayers.size() + playersRecruited.size();
+            int graduatingCount = playersGraduating.size();
+            summaryText.setText("You currently have " + currentRoster + " active players, " + graduatingCount + " outgoing seniors, and a class board shaped by your biggest roster needs.");
+        }
+
+        TextView boardStatus = findViewById(R.id.textRecruitBoardStatus);
+        if (boardStatus != null) {
+            boardStatus.setText("Board: " + availAll.size() + " prospects");
+        }
     }
 
     //Create Roster Screen
@@ -796,6 +819,7 @@ public class RecruitingActivity extends AppCompatActivity {
             }
             dataAdapterPosition.notifyDataSetChanged();
         }
+        updateRecruitingOverview();
     }
 
 
@@ -963,7 +987,6 @@ public class RecruitingActivity extends AppCompatActivity {
     private void recruitPlayer(String player) {
         int moneyNeeded = getRecruitCost(player);
         recruitingBudget -= moneyNeeded;
-        budgetText.setText("Budget: $" + recruitingBudget);
 
         // Remove the player from the top 100 list
         avail50.remove(player);
@@ -1034,7 +1057,6 @@ public class RecruitingActivity extends AppCompatActivity {
 
         if (recruitingBudget >= scoutCost) {
             recruitingBudget -= scoutCost;
-            budgetText.setText("Budget: $" + recruitingBudget);
 
             // Check availAll first
             if (availAll.contains(player)) {
@@ -1074,6 +1096,7 @@ public class RecruitingActivity extends AppCompatActivity {
             Toast.makeText(this, "Scouted " + recruit.position() + " " + recruit.name(), Toast.LENGTH_SHORT).show();
 
             expListAdapter.notifyDataSetChanged();
+            updateRecruitingOverview();
 
             return true;
 

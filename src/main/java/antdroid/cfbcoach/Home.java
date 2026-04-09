@@ -6,7 +6,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -46,6 +45,9 @@ public class Home extends AppCompatActivity {
         setContentView(R.layout.activity_home);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
 
         hideSystemUI();
 
@@ -428,15 +430,22 @@ public class Home extends AppCompatActivity {
 
     private void setTheme() {
         Button themeButton = findViewById(R.id.buttonChangeTheme);
+        TextView themeStatus = findViewById(R.id.homeThemeStatus);
         View layout = findViewById(R.id.homeMain);
 
         if(theme == 0) {
-            themeButton.setText("Set Light Theme");
-            layout.setBackgroundColor(Color.DKGRAY);
+            themeButton.setText(getString(R.string.home_switch_theme_light));
+            if (themeStatus != null) {
+                themeStatus.setText(getString(R.string.home_badge_theme_dark));
+            }
+            layout.setBackgroundResource(R.drawable.bg_home_menu);
             setTheme(R.style.AppTheme);
         } else {
-            themeButton.setText("Set Dark Theme");
-            layout.setBackgroundColor(Color.LTGRAY);
+            themeButton.setText(getString(R.string.home_switch_theme_dark));
+            if (themeStatus != null) {
+                themeStatus.setText(getString(R.string.home_badge_theme_light));
+            }
+            layout.setBackgroundResource(R.drawable.bg_home_menu);
             setTheme(R.style.AppThemeLight);
         }
     }

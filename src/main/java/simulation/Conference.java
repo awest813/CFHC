@@ -1,7 +1,5 @@
 package simulation;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -435,7 +433,7 @@ public class Conference {
             Game gm;
             for(int t = 0; t < divisions.get(0).divTeams.size(); t++) {
 
-                Log.d("t", t + " " + (t % divisions.get(0).divTeams.size()));
+                PlatformLog.d("t", t + " " + (t % divisions.get(0).divTeams.size()));
                 Team a = divisions.get(0).divTeams.get(t % divTeams);
                 Team b = divisions.get(1).divTeams.get((t+g) % divTeams);
 
@@ -523,7 +521,7 @@ public class Conference {
             return;
         } else {
             for (int i = 0; i < confTeams.size(); ++i) {
-                Log.d("conf","conf: " + confName + " team: " + confTeams.get(i).name + " gameSchedule size "+ confTeams.get(i).gameSchedule.size());
+                PlatformLog.d("conf","conf: " + confName + " team: " + confTeams.get(i).name + " gameSchedule size "+ confTeams.get(i).gameSchedule.size());
                 confTeams.get(i).gameSchedule.get(league.currentWeek+1).addUpcomingGames(confTeams.get(i));
             }
         }

@@ -8,7 +8,6 @@ import java.util.Collections;
 import java.util.Locale;
 import java.util.Random;
 
-import antdroid.cfbcoach.MainActivity;
 import comparator.CompPlayer;
 import comparator.CompPlayerOVR;
 import comparator.CompRecruit;
@@ -3648,7 +3647,8 @@ public class Team {
     }
 
     //Apply Suspensions to Player
-    public void suspendPlayerSetup(MainActivity main) {
+    public void suspendPlayerSetup(GameUiBridge main) {
+        GameUiBridge bridge = main == null ? GameUiBridge.NO_OP : main;
         if(playersDis.size() <= 0) getLowDisciplinePlayers(75);
         int random = (int) (Math.random() * playersDis.size());
         if (random > playersDis.size() - 1) random = playersDis.size() - 1;
@@ -3661,7 +3661,7 @@ public class Team {
         if(issueNo > issue.length) issueNo = issue.length;
         String description = issue[issueNo];
 
-        main.disciplineAction(player, description, duration, duration2);
+        bridge.disciplineAction(player, description, duration, duration2);
     }
 
     public void disciplineAction(Player player, String description, int duration, int choice) {
