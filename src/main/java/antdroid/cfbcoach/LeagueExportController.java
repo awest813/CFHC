@@ -18,23 +18,23 @@ public final class LeagueExportController {
         return output;
     }
 
-    public static void exportPrimarySave(Context context, League league) {
-        exportLeagueFile(context, league, "CFB_SAVE.txt", "Exported Save to Storage");
+    public static File exportPrimarySave(Context context, League league) {
+        return exportLeagueFile(context, league, "CFB_SAVE.txt", "Exported Save to Storage");
     }
 
-    public static void exportTeams(Context context, League league) {
-        exportLeagueFile(context, league, "CFB_TEAMS.txt", "Saved league!");
+    public static File exportTeams(Context context, League league) {
+        return exportLeagueFile(context, league, "CFB_TEAMS.txt", "Saved league!");
     }
 
-    public static void exportBowls(Context context, League league) {
-        exportLeagueFile(context, league, "CFB_BOWLS.txt", "Saved league!");
+    public static File exportBowls(Context context, League league) {
+        return exportLeagueFile(context, league, "CFB_BOWLS.txt", "Saved league!");
     }
 
-    public static void exportPlayers(Context context, League league) {
-        exportLeagueFile(context, league, "CFB_PLAYERS.txt", "Saved league!");
+    public static File exportPlayers(Context context, League league) {
+        return exportLeagueFile(context, league, "CFB_PLAYERS.txt", "Saved league!");
     }
 
-    public static void exportConferences(Context context, League league) {
-        exportLeagueFile(context, league, "CFB_CONF.txt", "Saved league!");
+    public static File exportConferences(Context context, League league) {
+        return exportLeagueFile(context, league, "CFB_CONF.txt", "Saved league!");
     }
 }

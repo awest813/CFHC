@@ -98,16 +98,28 @@ public final class LeagueLaunchCoordinator {
                     if (saveFile.exists()) {
                         League league = new League(saveFile, playerNames, lastNames, bridge, false);
                         Team userTeam = league.userTeam;
+                        if (userTeam == null) {
+                            throw new IOException("Loaded recruiting resume save without a user team");
+                        }
                         userTeam.HC.user = true;
-                        userTeam.recruitPlayersFromStr(extras.getString("RECRUITS"));
+                        String recruits = extras.getString("RECRUITS");
+                        if (recruits != null && !recruits.isEmpty()) {
+                            userTeam.recruitPlayersFromStr(recruits);
+                        }
                         league.updateTeamTalentRatings();
                         return new LaunchResult(league, userTeam, userTeam, league.getYear(), true, false, false);
                     }
                 } else if (saveFileStr.contains("IMPORT")) {
                     String[] filesSplit = saveFileStr.split(",");
                     try (InputStream inputStream = contentResolver.openInputStream(Uri.parse(filesSplit[1]))) {
+                        if (inputStream == null) {
+                            throw new IOException("Unable to open imported save stream");
+                        }
                         League league = new League(inputStream, playerNames, lastNames, bridge);
                         Team userTeam = league.userTeam;
+                        if (userTeam == null) {
+                            throw new IOException("Imported save did not contain a user team");
+                        }
                         userTeam.HC.user = true;
                         league.updateTeamTalentRatings();
                         return new LaunchResult(league, userTeam, userTeam, league.getYear(), true, false, false);
@@ -117,6 +129,9 @@ public final class LeagueLaunchCoordinator {
                     if (saveFile.exists()) {
                         League league = new League(saveFile, playerNames, lastNames, bridge, true);
                         Team userTeam = league.userTeam;
+                        if (userTeam == null) {
+                            throw new IOException("Loaded save did not contain a user team");
+                        }
                         userTeam.HC.user = true;
                         league.updateTeamTalentRatings();
                         return new LaunchResult(league, userTeam, userTeam, league.getYear(), true, false, league.getYear() == seasonStart);
