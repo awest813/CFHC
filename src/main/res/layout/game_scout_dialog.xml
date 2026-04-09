@@ -17,37 +17,44 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_dialog_section"
-            android:gravity="center_vertical"
-            android:orientation="horizontal"
+            android:orientation="vertical"
             android:padding="12dp">
 
             <TextView
                 android:id="@+id/gameScoutDialogLeft"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:gravity="center"
                 android:text="ha1"
                 android:textColor="@color/accentGold"
                 android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/gameScoutDialogCenter"
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="ha3"
-                android:textColor="@color/textPrimary" />
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/gameScoutDialogRight"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:gravity="center"
-                android:text="ha3"
-                android:textColor="@color/textPrimary" />
+                <TextView
+                    android:id="@+id/gameScoutDialogCenter"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:paddingRight="8dp"
+                    android:text="ha3"
+                    android:textColor="@color/textPrimary" />
+
+                <TextView
+                    android:id="@+id/gameScoutDialogRight"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:paddingLeft="8dp"
+                    android:text="ha3"
+                    android:textColor="@color/textPrimary" />
+            </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
@@ -98,6 +105,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:background="@drawable/bg_dialog_section"
+            android:lineSpacingExtra="2dp"
             android:padding="12dp"
             android:text="ha3"
             android:textColor="@color/textPrimary" />

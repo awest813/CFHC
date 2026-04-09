@@ -1657,7 +1657,7 @@ public class League {
                 teamList.get(i).teamPrestige -= teamList.get(i).teamPrestige * 0.12;
                 teamList.get(i).teamBudget -= teamList.get(i).teamBudget * 0.12;
 
-                teamList.get(i).HC.contractLength =- 2;
+                teamList.get(i).HC.contractLength = Math.max(1, teamList.get(i).HC.contractLength - 2);
                 if(!teamList.get(i).userControlled && Math.random() < .15) {
                     teamList.get(i).midSeasonFiring();
                 }
@@ -3245,7 +3245,7 @@ public class League {
     public ArrayList<Team> getCoachListFired(int rating, String oldTeam) {
         ArrayList<Team> teamVacancies = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            if (teamList.get(i).getMinCoachHireReq() < rating && teamList.get(i).HC == null && teamList.get(i).name != oldTeam) {
+            if (teamList.get(i).getMinCoachHireReq() < rating && teamList.get(i).HC == null && !teamList.get(i).name.equals(oldTeam)) {
                 teamVacancies.add(teamList.get(i));
             }
         }
@@ -3260,7 +3260,7 @@ public class League {
     public ArrayList<Team> getCoachPromotionList(int rating, double offers, String oldTeam) {
         ArrayList<Team> teamVacancies = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            if (teamList.get(i).getMinCoachHireReq() < rating && teamList.get(i).HC == null && teamList.get(i).name != oldTeam && offers > 0.50) {
+            if (teamList.get(i).getMinCoachHireReq() < rating && teamList.get(i).HC == null && !teamList.get(i).name.equals(oldTeam) && offers > 0.50) {
                 teamVacancies.add(teamList.get(i));
             }
         }
@@ -3304,7 +3304,7 @@ public class League {
             int cPres = coachStarList.get(i).team.confPrestige;
 
             for (int t = 0; t < teamList.size(); ++t) {
-                if (teamList.get(t).HC == null && coachStarList.get(i).getStaffOverall(ovr) >= teamList.get(t).getMinCoachHireReq() && teamList.get(t).name != tmName && Math.random() > 0.66) {
+                if (teamList.get(t).HC == null && coachStarList.get(i).getStaffOverall(ovr) >= teamList.get(t).getMinCoachHireReq() && !teamList.get(t).name.equals(tmName) && Math.random() > 0.66) {
                     if (!coachStarList.get(i).position.equals("HC") || teamList.get(t).teamPrestige > tmPres && teamList.get(t).confPrestige > cPres || teamList.get(t).teamPrestige > tmPres + 5 || teamList.get(t).confPrestige + 10 > cPres) {
                         final Staff hiredHC = coachStarList.get(i);
                         teamList.get(t).HC = new HeadCoach(hiredHC, teamList.get(t));;
@@ -3389,7 +3389,7 @@ public class League {
         for (int i = 0; i < coachList.size(); ++i) {
             final Staff c = coachList.get(i);
             for (int t = 0; t < teamList.size(); ++t) {
-                if (teamList.get(t).HC == null && coachList.get(i).getStaffOverall(ovr) >= teamList.get(t).getMinCoachHireReq() && teamList.get(t).name != coachList.get(i).team.name && Math.random() > 0.60) {
+                if (teamList.get(t).HC == null && coachList.get(i).getStaffOverall(ovr) >= teamList.get(t).getMinCoachHireReq() && !teamList.get(t).name.equals(coachList.get(i).team.name) && Math.random() > 0.60) {
 
                     newsStories.get(currentWeek + 1).add("Coaching Switch: " + teamList.get(t).name + ">After an extensive search for a new head coach, " + teamList.get(t).strRankTeamRecord() + " has hired " + coachList.get(i).name +
                             " to lead the team. Head Coach " + coachList.get(i).name + " previously coached at " + coachList.get(i).team.name + ", before being let go this past season.");
@@ -3509,7 +3509,7 @@ public class League {
             Collections.sort(coachList, new CompCoachOvr());
             for (int i = 0; i < coachList.size(); ++i) {
                 final Staff c = coachList.get(i);
-                if (school.HC == null && coachList.get(i).getStaffOverall(ovr) + 5 >= school.getMinCoachHireReq() && school.name != coachList.get(i).team.name && Math.random() > 0.45) {
+                if (school.HC == null && coachList.get(i).getStaffOverall(ovr) + 5 >= school.getMinCoachHireReq() && !school.name.equals(coachList.get(i).team.name) && Math.random() > 0.45) {
                     school.HC = new HeadCoach(c, school);
                     school.HC.contractLength = 6;
                     school.HC.contractYear = 0;
@@ -3624,7 +3624,7 @@ public class League {
                 }
                 if(t.OC == null) t.OC = new OC(getRandName(), 6);
                 newsStories.get(currentWeek).add("Off Coord Change: " + t.name + ">After an extensive search for a new coordinator, " + t.name + " has hired " + t.OC.name +
-                        " to lead Offense.");
+                        " to lead the offense.");
                 newsHeadlines.add(t.name + " adds new Off Coord " + t.OC.name);
                 t.OC.contractLength = 3;
                 t.OC.contractYear = 0;
@@ -3647,7 +3647,7 @@ public class League {
                 }
                 if(t.DC == null) t.DC = new DC(getRandName(), 6);
                 newsStories.get(currentWeek).add("Def Coord Change: " + t.name + ">After an extensive search for a new coordinator, " + t.name + " has hired " + t.DC.name +
-                        " to lead Defense.");
+                        " to lead the defense.");
                 newsHeadlines.add(t.name + " adds new Def Coord " + t.DC.name);
                 t.DC.contractLength = 3;
                 t.DC.contractYear = 0;

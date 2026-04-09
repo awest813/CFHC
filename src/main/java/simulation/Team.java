@@ -1814,7 +1814,7 @@ public class Team {
         }
 
         if (!retired) {
-            if (teamPrestige > (HC.baselinePrestige + 9) && rankTeamPrestige > (int) (league.countTeam * 0.35) && !userControlled && HC.age < 50 || teamPrestige > (HC.baselinePrestige + 12) && confPrestige < league.confAvg && rankTeamPrestige < (int) (league.countTeam * 0.20) && !userControlled && HC.age < 48) {
+            if (!userControlled && ((teamPrestige > (HC.baselinePrestige + 9) && rankTeamPrestige > (int) (league.countTeam * 0.35) && HC.age < 50) || (teamPrestige > (HC.baselinePrestige + 12) && confPrestige < league.confAvg && rankTeamPrestige < (int) (league.countTeam * 0.20) && HC.age < 48))) {
                 league.newsStories.get(league.currentWeek + 1).add("Head Coach Rumor Mill>After another successful season at " + name + ", " + age + " year old head coach " + HC.name + " has moved to the top of" +
                         " many of the schools looking for a replacement at that position. He has a career record of " + wins + "-" + losses + ". ");
                 league.newsHeadlines.add(name + " " + HC.position + " " + HC.name + " rumored for a bigger program?");
@@ -1875,7 +1875,7 @@ public class Team {
                             HC = null;
                         }
                     }
-                } else if (totalPDiff < -2 && !league.isCareerMode() && !userControlled  && rankTeamPollScore > 15 || !userControlled && rankTeamPollScore > 25 && totalPDiff < -1) {
+                } else if (!userControlled && (((!league.isCareerMode()) && totalPDiff < -2 && rankTeamPollScore > 15) || (rankTeamPollScore > 25 && totalPDiff < -1))) {
                     fired = true;
                     league.newsStories.get(league.currentWeek + 1).add("Head Coach Firing at " + name + ">" + strRankTeamRecord() + " has fired their head coach, " + HC.name +
                             " after a disappointing tenure. He has a career record of " + wins + "-" + losses + ". The team is now searching for a new head coach.");
@@ -1883,7 +1883,7 @@ public class Team {
                     newCoachTeamChanges();
                     league.coachList.add(new HeadCoach(HC, this));
                     HC = null;
-                } else if (totalPDiff < -2 && league.isCareerMode() && rankTeamPollScore > 15 || rankTeamPollScore > 25 && totalPDiff < -1) {
+                } else if ((league.isCareerMode() && totalPDiff < -2 && rankTeamPollScore > 15) || (rankTeamPollScore > 25 && totalPDiff < -1)) {
                     fired = true;
                     league.newsStories.get(league.currentWeek + 1).add("Head Coach Firing at " + name + ">" + strRankTeamRecord() + " has fired their head coach, " + HC.name +
                             " after a disappointing tenure. He has a career record of " + wins + "-" + losses + ".  The team is now searching for a new head coach.");
@@ -1904,15 +1904,15 @@ public class Team {
         }
         if (userControlled) {
             if (newContract && proveIt)
-                contractString = "You've been given an additional " + HC.contractLength + " year contract based on the recent success of your team and not the disappointing past history!";
+                contractString = "You have been given an additional " + HC.contractLength + "-year prove-it contract based on your team's recent momentum despite the uneven start to your tenure.";
             else if (newContract) {
-                contractString = "Congratulations! You've been award with a new contract extension for " + HC.contractLength + " years!";
+                contractString = "Congratulations. You have been awarded a new " + HC.contractLength + "-year contract extension after this season's progress.";
             } else if (fired) {
-                contractString = "Due to your poor performance as head coach, the Athletic Director has terminated your contract and you are no longer Head Head Coach of this school.";
+                contractString = "Due to your performance as head coach, the Athletic Director has terminated your contract and you are no longer the head coach of this school.";
             } else {
                 contractString = "You have " + (HC.contractLength - HC.contractYear)
-                        + " years left on your contract. Your team prestige is currently at " + teamPrestige + " and your baseline " +
-                        "prestige was " + HC.baselinePrestige;
+                        + " years left on your contract. Current prestige: " + teamPrestige + ". Baseline prestige: " + HC.baselinePrestige +
+                        ". Current status: " + HC.coachStatus() + ".";
             }
         }
     }
@@ -2139,11 +2139,15 @@ public class Team {
 
     public void cpuCutPlayers() {
         ArrayList<Player> players = getAllPlayers();
-        int cuts = 0;
-        if(players.size() > minPlayers) {
-           cuts = minPlayers - players.size();
+        int excessPlayers = players.size() - minPlayers;
+        if (excessPlayers <= 0) {
+            return;
         }
-        cuts = (int) (Math.random()*cuts);
+
+        int cuts = new Random().nextInt(excessPlayers + 1);
+        if (cuts == 0) {
+            return;
+        }
 
         Collections.sort(players, new CompPlayerOVR());
 
