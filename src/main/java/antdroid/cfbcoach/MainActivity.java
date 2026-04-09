@@ -4,7 +4,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.Editable;
@@ -47,6 +46,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -94,7 +95,6 @@ import ui.TeamStatsList;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, GameUiBridge, LeagueImportFlowController.Host {
-    private static final int READ_REQUEST_CODE = 43;
     private HeadCoach userHC;
     private int season;
     public League simLeague;
@@ -103,7 +103,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Team userTeam;
     private File saveLeagueFile;
     private String username;
-    private Uri dataUri;
     private LeagueImportFlowController.ImportType pendingImportType;
     private String goals;
 
@@ -138,12 +137,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public int theme;
 
     private boolean loadedLeague = false;
+    private final ActivityResultLauncher<String[]> importDocumentPicker =
+            registerForActivityResult(new ActivityResultContracts.OpenDocument(), this::handleImportDocumentSelection);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Bundle extras = getIntent().getExtras();
-        theme =  Integer.parseInt(extras.get("Theme").toString());
+        theme = GameNavigation.getTheme(getIntent(), 1);
         if(theme == 1) setTheme(R.style.AppThemeLight);
         else setTheme(R.style.AppTheme);
 
@@ -178,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         jobList = new ArrayList<>();
 
         //Load Data
-        loadGame(extras);
+        loadGame();
 
 
         wantUpdateConf = true; // 0 and 1, don't update, 2 update
@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 currentTeam = simLeague.teamList.get(0);
                 currentConference = simLeague.conferences.get(0);
 
-                LeagueLaunchCoordinator.LaunchRequest launchRequest = getLaunchRequest(extras);
+                LeagueLaunchCoordinator.LaunchRequest launchRequest = getLaunchRequest();
                 if (launchRequest != null && launchRequest.isCustomUniverse()) importDataPrompt();
                 else careerModeOptions();
             }
@@ -392,9 +392,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         showHome();
     }
 
-    private void loadGame(Bundle extras) {
+    private void loadGame() {
         try {
-            LeagueLaunchCoordinator.LaunchRequest launchRequest = getLaunchRequest(extras);
+            LeagueLaunchCoordinator.LaunchRequest launchRequest = getLaunchRequest();
             LeagueLaunchCoordinator.LaunchResult result = LeagueLaunchCoordinator.load(
                     launchRequest,
                     getFilesDir(),
@@ -406,7 +406,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     getString(R.string.teams),
                     getString(R.string.bowls),
                     this::customLeague,
-                    uri -> getContentResolver().openInputStream(Uri.parse(uri))
+                    this::openDocumentStream
             );
 
             simLeague = result.league;
@@ -3398,10 +3398,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void requestImportDocument(LeagueImportFlowController.ImportType type) {
         pendingImportType = type;
         isExternalStorageReadable();
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.setType("*/*");
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        startActivityForResult(intent, READ_REQUEST_CODE);
+        importDocumentPicker.launch(new String[]{"*/*"});
     }
 
     @Override
@@ -3495,9 +3492,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void onClick(DialogInterface dialog, int which) {
                         // Actually go back to main menu
                         finish();
-                        Intent myIntent = new Intent(MainActivity.this, Home.class);
-                        myIntent.putExtra("Theme", theme);
-                        MainActivity.this.startActivity(myIntent);
+                        MainActivity.this.startActivity(GameNavigation.createHomeIntent(MainActivity.this, theme));
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -4503,10 +4498,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                         //Start Recruiting Activity
                         finish();
-                        Intent myIntent = new Intent(MainActivity.this, RecruitingActivity.class);
-                        myIntent.putExtra("USER_TEAM_INFO", sb.toString());
-                        myIntent.putExtra("Theme", theme);
-                        MainActivity.this.startActivity(myIntent);                    }
+                        MainActivity.this.startActivity(GameNavigation.createRecruitingIntent(
+                                MainActivity.this,
+                                sb.toString(),
+                                theme
+                        ));                    }
                 })
                 .setNegativeButton("Back", new DialogInterface.OnClickListener() {
                     @Override
@@ -4579,10 +4575,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //Start Recruiting Activity
         finish();
-        Intent myIntent = new Intent(MainActivity.this, RecruitingActivity.class);
-        myIntent.putExtra("USER_TEAM_INFO", sb.toString());
-        myIntent.putExtra("Theme", theme);
-        MainActivity.this.startActivity(myIntent);
+        MainActivity.this.startActivity(GameNavigation.createRecruitingIntent(
+                MainActivity.this,
+                sb.toString(),
+                theme
+        ));
     }
 
     //Recruiting Score
@@ -4765,13 +4762,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             File conferences = new File(getFilesDir(), "conferences.txt");
             File teams = new File(getFilesDir(), "teams.txt");
             File bowls = new File(getFilesDir(), "bowls.txt");
-            try (InputStream inputStream = getContentResolver().openInputStream(Uri.parse(uriString))) {
+            try (InputStream inputStream = openDocumentStream(uriString)) {
                 return CustomUniverseParser.parse(inputStream, conferences, teams, bowls);
             }
         } catch (Exception e) {
             Toast.makeText(MainActivity.this, "Error! Bad URL or unable to read file.", Toast.LENGTH_SHORT).show();
             throw new IOException("Unable to import custom universe", e);
         }
+    }
+
+    private InputStream openDocumentStream(String uriString) throws IOException {
+        if (uriString == null || uriString.isEmpty()) {
+            throw new IOException("Missing document uri");
+        }
+        InputStream inputStream = getContentResolver().openInputStream(android.net.Uri.parse(uriString));
+        if (inputStream == null) {
+            throw new IOException("Unable to open document stream");
+        }
+        return inputStream;
+    }
+
+    private void importCustomData(String uriString) throws IOException {
+        if (pendingImportType == null) {
+            return;
+        }
+        try (InputStream stream = openDocumentStream(uriString)) {
+            if (pendingImportType == LeagueImportFlowController.ImportType.COACH) {
+                LeagueCustomDataImporter.importCoaches(stream, simLeague);
+            } else if (pendingImportType == LeagueImportFlowController.ImportType.ROSTER) {
+                LeagueCustomDataImporter.importRoster(stream, simLeague);
+            }
+        } finally {
+            pendingImportType = null;
+        }
+        defaultScreen();
     }
 
     // Checks if external storage is available for read and write *//*
@@ -4789,39 +4813,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //* Creates external Save directory *//*
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode,
-                                 Intent resultData) {
-
-        // The ACTION_OPEN_DOCUMENT intent was sent with the request code
-        // READ_REQUEST_CODE. If the request code seen here doesn't match, it's the
-        // response to some other intent, and the code below shouldn't run at all.
-
-        if (requestCode == READ_REQUEST_CODE && resultCode == Home.RESULT_OK) {
-            // The document selected by the user won't be returned in the intent.
-            // Instead, a URI to that document will be contained in the return intent
-            // provided to this method as a parameter.
-            // Pull that URI using resultData.getData().
-            if (resultData != null) {
-                dataUri = null;
-                dataUri = resultData.getData();
-                try {
-                    if (pendingImportType == LeagueImportFlowController.ImportType.COACH) {
-                        try (InputStream stream = getContentResolver().openInputStream(dataUri)) {
-                            LeagueCustomDataImporter.importCoaches(stream, simLeague);
-                        }
-                        defaultScreen();
-                    } else if (pendingImportType == LeagueImportFlowController.ImportType.ROSTER) {
-                        try (InputStream stream = getContentResolver().openInputStream(dataUri)) {
-                            LeagueCustomDataImporter.importRoster(stream, simLeague);
-                        }
-                        defaultScreen();
-                    }
-                    pendingImportType = null;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+    private void handleImportDocumentSelection(android.net.Uri uri) {
+        if (uri == null) {
+            return;
+        }
+        try {
+            importCustomData(uri.toString());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -4879,18 +4878,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    private LeagueLaunchCoordinator.LaunchRequest getLaunchRequest(Bundle extras) {
-        if (extras == null) {
-            return null;
-        }
-        Object request = extras.get("LAUNCH_REQUEST");
-        if (request instanceof LeagueLaunchCoordinator.LaunchRequest) {
-            return (LeagueLaunchCoordinator.LaunchRequest) request;
-        }
-        return LeagueLaunchCoordinator.LaunchRequest.fromLegacy(
-                extras.getString("SAVE_FILE"),
-                extras.getString("RECRUITS")
-        );
+    private LeagueLaunchCoordinator.LaunchRequest getLaunchRequest() {
+        return GameNavigation.getLaunchRequest(getIntent());
     }
 
 
@@ -5217,9 +5206,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void onClick(DialogInterface dialog, int which) {
                         // Actually go back to main menu
                         finish();
-                        Intent myIntent = new Intent(MainActivity.this, Home.class);
-                        myIntent.putExtra("Theme", theme);
-                        MainActivity.this.startActivity(myIntent);
+                        MainActivity.this.startActivity(GameNavigation.createHomeIntent(MainActivity.this, theme));
                     }
                 })
                 .setCancelable(false);

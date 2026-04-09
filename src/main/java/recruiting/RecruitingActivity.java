@@ -34,6 +34,7 @@ import java.util.Random;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import antdroid.cfbcoach.GameNavigation;
 import antdroid.cfbcoach.LeagueLaunchCoordinator;
 import antdroid.cfbcoach.MainActivity;
 import antdroid.cfbcoach.R;
@@ -44,6 +45,7 @@ public class RecruitingActivity extends AppCompatActivity {
     private final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
     private final DecimalFormat df2 = new DecimalFormat("#.##", symbols);
     private int theme;
+    private RecruitingSessionData sessionData;
     // Variables use during recruiting
     private String teamName;
     public int recruitingBudget;
@@ -77,8 +79,6 @@ public class RecruitingActivity extends AppCompatActivity {
     private ArrayList<String> availSs;
     private ArrayList<String> availAll;
     private ArrayList<String> avail50;
-
-    private ArrayList<String> removeList;
 
     private ArrayList<String> west;
     private ArrayList<String> midwest;
@@ -143,9 +143,7 @@ public class RecruitingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Bundle extras = getIntent().getExtras();
-
-        theme =  Integer.parseInt(extras.get("Theme").toString());
+        theme = GameNavigation.getTheme(getIntent(), theme);
         if(theme == 1) setTheme(R.style.AppThemeLight);
         else setTheme(R.style.AppTheme);
 
@@ -187,134 +185,15 @@ public class RecruitingActivity extends AppCompatActivity {
         south = new ArrayList<>();
 
         // Get User Team's player info and team info for recruiting
-        String userTeamStr = "";
-        if (extras != null) {
-            userTeamStr = extras.getString("USER_TEAM_INFO");
-        }
-
-        // Parse through string
-        String[] lines = userTeamStr.split("%\n");
-        final String[] teamInfo = lines[0].split(",");
-        teamName = teamInfo[1];
-        recruitingBudget = Integer.parseInt(teamInfo[3]) * 15;
-        if (teamInfo[4].isEmpty()) {
-            HCtalent = 70;
-        } else {
-            HCtalent = Integer.parseInt(teamInfo[4]);
-        }
+        String userTeamStr = GameNavigation.getUserTeamInfo(getIntent());
+        sessionData = RecruitingSessionData.fromUserTeamInfo(userTeamStr);
+        bindSessionData();
         getSupportActionBar().setTitle(teamName + " | Recruiting");
 
         showPopUp = true;
         autoFilter = true;
-
-        // First get user team's roster info
-        int i = 1;
-        while (!lines[i].equals("END_TEAM_INFO")) {
-            RecruitingPlayerRecord playerInfo = RecruitingPlayerRecord.fromCsv(lines[i]);
-            if (playerInfo.isGraduating()) {
-                // Graduating player
-                playersGraduating.add(getReadablePlayerInfo(lines[i]));
-            } else {
-                teamPlayers.add(getReadablePlayerInfo(lines[i]));
-                if (playerInfo.position().equals("QB")) {
-                    teamQBs.add(getReadablePlayerInfo(lines[i]));
-                } else if (playerInfo.position().equals("RB")) {
-                    teamRBs.add(getReadablePlayerInfo(lines[i]));
-                } else if (playerInfo.position().equals("WR")) {
-                    teamWRs.add(getReadablePlayerInfo(lines[i]));
-                } else if (playerInfo.position().equals("TE")) {
-                    teamTEs.add(getReadablePlayerInfo(lines[i]));
-                } else if (playerInfo.position().equals("OL")) {
-                    teamOLs.add(getReadablePlayerInfo(lines[i]));
-                } else if (playerInfo.position().equals("K")) {
-                    teamKs.add(getReadablePlayerInfo(lines[i]));
-                } else if (playerInfo.position().equals("DL")) {
-                    teamDLs.add(getReadablePlayerInfo(lines[i]));
-                } else if (playerInfo.position().equals("LB")) {
-                    teamLBs.add(getReadablePlayerInfo(lines[i]));
-                } else if (playerInfo.position().equals("CB")) {
-                    teamCBs.add(getReadablePlayerInfo(lines[i]));
-                } else if (playerInfo.position().equals("S")) {
-                    teamSs.add(getReadablePlayerInfo(lines[i]));
-                }
-            }
-            ++i; // go to next line
-        }
-
-        sortTeam();
-
-
-        // Add extra money if your team was fleeced
-        int recBonus = (int)((minPlayers - teamPlayers.size()) * 27.5);
-        int coachBonus = (int)(HCtalent * 3.5);
-        recruitingBudget += recBonus + coachBonus;
-
-        // Next get recruits info
-        ++i;
-        while (i < lines.length) {
-            RecruitingPlayerRecord playerInfo = RecruitingPlayerRecord.fromCsv(lines[i]);
-            availAll.add(lines[i]);
-            int region = playerInfo.regionBucket();
-            if (region == 0) {
-                west.add(lines[i]);
-            }
-            if (region == 1) {
-                midwest.add(lines[i]);
-            }
-            if (region == 2) {
-                central.add(lines[i]);
-            }
-            if (region == 3) {
-                east.add(lines[i]);
-            }
-            if (region == 4) {
-                south.add(lines[i]);
-            }
-
-            if (playerInfo.position().equals("QB")) {
-                availQBs.add(lines[i]);
-            } else if (playerInfo.position().equals("RB")) {
-                availRBs.add(lines[i]);
-            } else if (playerInfo.position().equals("WR")) {
-                availWRs.add(lines[i]);
-            } else if (playerInfo.position().equals("TE")) {
-                availTEs.add(lines[i]);
-            } else if (playerInfo.position().equals("K")) {
-                availKs.add(lines[i]);
-            } else if (playerInfo.position().equals("OL")) {
-                availOLs.add(lines[i]);
-            } else if (playerInfo.position().equals("DL")) {
-                availDLs.add(lines[i]);
-            } else if (playerInfo.position().equals("LB")) {
-                availLBs.add(lines[i]);
-            } else if (playerInfo.position().equals("CB")) {
-                availCBs.add(lines[i]);
-            } else if (playerInfo.position().equals("S")) {
-                availSs.add(lines[i]);
-            }
-            ++i;
-        }
-
-
-        // Sort to get top 100 overall players
-        Collections.sort(availAll, new CompRecruitScoutGrade());
-        Collections.sort(west, new CompRecruitScoutGrade());
-        Collections.sort(midwest, new CompRecruitScoutGrade());
-        Collections.sort(central, new CompRecruitScoutGrade());
-        Collections.sort(east, new CompRecruitScoutGrade());
-        Collections.sort(south, new CompRecruitScoutGrade());
-
-        //avail50 = new ArrayList<>(availAll.subList(0, 49));
-        avail50 = new ArrayList<>();
-
-        int n = 0;
-        for(int p = 0; p < availAll.size(); p++) {
-                if (!RecruitingPlayerRecord.fromCsv(availAll.get(p)).position().equals("K")) {
-                    avail50.add(availAll.get(p));
-                    n++;
-                }
-                if (n > 50) break;
-            }
+        sessionData.applyBudgetBonuses(minPlayers);
+        recruitingBudget = sessionData.recruitingBudget;
 
         // Get needs for each position
         updatePositionNeeds();
@@ -330,24 +209,7 @@ public class RecruitingActivity extends AppCompatActivity {
          */
         positionSpinner = findViewById(R.id.spinnerRec);
         MainActivity.avoidSpinnerDropdownFocus(positionSpinner);
-        positions = new ArrayList<>();
-        positions.add("Top 50 Recruits");
-        positions.add("All Players");
-        positions.add("QB (Need: " + needQBs + ")");
-        positions.add("RB (Need: " + needRBs + ")");
-        positions.add("WR (Need: " + needWRs + ")");
-        positions.add("TE (Need: " + needTEs + ")");
-        positions.add("OL (Need: " + needOLs + ")");
-        positions.add("K (Need: " + needKs + ")");
-        positions.add("DL (Need: " + needDLs + ")");
-        positions.add("LB (Need: " + needLBs + ")");
-        positions.add("CB (Need: " + needCBs + ")");
-        positions.add("S (Need: " + needSs + ")");
-        positions.add("West (" + west.size() + ")");
-        positions.add("Midwest (" + midwest.size() + ")");
-        positions.add("Central (" + central.size() + ")");
-        positions.add("East (" + east.size() + ")");
-        positions.add("South (" + south.size() + ")");
+        positions = sessionData.buildPositionLabels(buildPositionNeeds());
 
         dataAdapterPosition = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, positions);
@@ -461,20 +323,18 @@ public class RecruitingActivity extends AppCompatActivity {
 
         TextView summaryText = findViewById(R.id.textRecruitSummary);
         if (summaryText != null) {
-            int currentRoster = teamPlayers.size() + playersRecruited.size();
-            int graduatingCount = playersGraduating.size();
-            summaryText.setText("You currently have " + currentRoster + " active players, " + graduatingCount + " outgoing seniors, and a class board shaped by your biggest roster needs.");
+            summaryText.setText(RecruitingPresentation.buildOverviewSummary(sessionData));
         }
 
         TextView boardStatus = findViewById(R.id.textRecruitBoardStatus);
         if (boardStatus != null) {
-            boardStatus.setText("Board: " + availAll.size() + " prospects");
+            boardStatus.setText(RecruitingPresentation.buildBoardStatus(sessionData));
         }
     }
 
     //Create Roster Screen
     private void makeRosterDialog() {
-        String rosterStr = getRosterStr();
+        String rosterStr = RecruitingPresentation.buildRosterText(sessionData, buildPositionNeeds());
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(rosterStr)
                 .setTitle(teamName + " Roster | Team Size: " + (teamPlayers.size() + playersRecruited.size()))
@@ -489,61 +349,6 @@ public class RecruitingActivity extends AppCompatActivity {
         TextView msgTxt = dialog.findViewById(android.R.id.message);
         msgTxt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
     }
-
-    private String getRosterStr() {
-        updatePositionNeeds();
-        StringBuilder sb = new StringBuilder();
-        String stbn = ""; //ST for starter, BN for bench
-        String p = ""; //player string
-
-        sb.append("QBs (Need: " + needQBs + ")\n");
-        appendPlayers(sb, teamQBs, 1);
-
-        sb.append("\nRBs (Need: " + needRBs + ")\n");
-        appendPlayers(sb, teamRBs, 2);
-
-        sb.append("\nWRs (Need: " + needWRs + ")\n");
-        appendPlayers(sb, teamWRs, 3);
-
-        sb.append("\nTEs (Need: " + needTEs + ")\n");
-        appendPlayers(sb, teamTEs, 1);
-
-        sb.append("\nOLs (Need: " + needOLs + ")\n");
-        appendPlayers(sb, teamOLs, 5);
-
-        sb.append("\nKs (Need: " + needKs + ")\n");
-        appendPlayers(sb, teamKs, 1);
-
-        sb.append("\nDLs (Need: " + needDLs + ")\n");
-        appendPlayers(sb, teamDLs, 4);
-
-        sb.append("\nLBs (Need: " + needLBs + ")\n");
-        appendPlayers(sb, teamLBs, 3);
-
-        sb.append("\nCBs (Need: " + needCBs + ")\n");
-        appendPlayers(sb, teamCBs, 3);
-
-        sb.append("\nSs (Need: " + needSs + ")\n");
-        appendPlayers(sb, teamSs, 2);
-
-        return sb.toString();
-    }
-
-    private void appendPlayers(StringBuilder sb, ArrayList<String> players, int numStart) {
-        String p, stbn;
-        for (int i = 0; i < players.size(); ++i) {
-            if (i > numStart - 1) stbn = "BN";
-            else stbn = "ST";
-            p = players.get(i);
-            sb.append("\t" + stbn + " " + p + "\n");
-        }
-    }
-
-    private String getReadablePlayerInfoPos(String p) {
-        RecruitingPlayerRecord player = RecruitingPlayerRecord.fromCsv(p);
-        return player.position() + " " + player.name() + " " + getYrStr(player.year()) + " " + player.recruitOverall() + " Ovr";
-    }
-
 
     //FILTERS & SORTINGS
 
@@ -577,7 +382,7 @@ public class RecruitingActivity extends AppCompatActivity {
             for (String p : players) {
                 ArrayList<String> pInfoList = new ArrayList<>();
                 RecruitingPlayerRecord record = RecruitingPlayerRecord.fromCsv(p);
-                pInfoList.add(getPlayerDetails(record, record.position()));
+                pInfoList.add(RecruitingPresentation.buildRecruitBoardDetails(record, record.position()));
                 playersInfo.put(record.listKey(), pInfoList);
             }
             expListAdapter.notifyDataSetChanged();
@@ -615,204 +420,52 @@ public class RecruitingActivity extends AppCompatActivity {
         for (String p : players) {
             ArrayList<String> pInfoList = new ArrayList<>();
             RecruitingPlayerRecord record = RecruitingPlayerRecord.fromCsv(p);
-            pInfoList.add(getPlayerDetails(record, pos));
+            pInfoList.add(RecruitingPresentation.buildRecruitBoardDetails(record, pos));
             playersInfo.put(record.listKey(), pInfoList);
         }
     }
 
-    //Player Attributes (Profile)
-    private String getPlayerDetails(RecruitingPlayerRecord player, String pos) {
-        if (pos.equals("QB")) {
-            return "Home State: " + getRegion(player.regionCode()) +
-                    "\nPass Strength: " + getGrade(player.field(13)) +
-                    "\nPass Accuracy: " + getGrade(player.field(14)) +
-                    "\nEvasion: " + getGrade(player.field(15)) +
-                    "\nSpeed: " + getGrade(player.field(16));
-        } else if (pos.equals("RB")) {
-            return "Home State: " + getRegion(player.regionCode()) +
-                    "\nSpeed: " + getGrade(player.field(13)) +
-                    "\nEvasion: " + getGrade(player.field(14)) +
-                    "\nPower:" + getGrade(player.field(15)) +
-                    "\nCatching: " + getGrade(player.field(16));
-        } else if (pos.equals("WR")) {
-            return "Home State: " + getRegion(player.regionCode()) +
-                    "\nSpeed: " + getGrade(player.field(13)) +
-                    "\nCatching: " + getGrade(player.field(14)) +
-                    "\nEvasion: " + getGrade(player.field(15)) +
-                    "\nJumping: " + getGrade(player.field(16));
-        } else if (pos.equals("TE")) {
-            return "Home State: " + getRegion(player.regionCode()) +
-                    "\nRun Blk: " + getGrade(player.field(13)) +
-                    "\nCatching: " + getGrade(player.field(14)) +
-                    "\nEvasion: " + getGrade(player.field(15)) +
-                    "\nSpeed: " + getGrade(player.field(16));
-        } else if (pos.equals("OL")) {
-            return "Home State: " + getRegion(player.regionCode()) +
-                    "\nRush Blk: " + getGrade(player.field(13)) +
-                    "\nPass Blk: " + getGrade(player.field(14)) +
-                    "\nStrength: " + getGrade(player.field(15)) +
-                    "\nVision: " + getGrade(player.field(16));
-        } else if (pos.equals("K")) {
-            return "Home State: " + getRegion(player.regionCode()) +
-                    "\nKick Power: " + getGrade(player.field(13)) +
-                    "\nAccuracy: " + getGrade(player.field(14)) +
-                    "\nPressure: " + getGrade(player.field(15)) +
-                    "\nForm: " + getGrade(player.field(16));
-        } else if (pos.equals("DL")) {
-            return "Home State: " + getRegion(player.regionCode()) +
-                    "\nRun Stop: " + getGrade(player.field(13)) +
-                    "\nTackling: " + getGrade(player.field(14)) +
-                    "\nPass Rush: " + getGrade(player.field(15)) +
-                    "\nStength: " + getGrade(player.field(16));
-        } else if (pos.equals("LB")) {
-            return "Home State: " + getRegion(player.regionCode()) +
-                    "\nTackle: " + getGrade(player.field(13)) +
-                    "\nRun Stop: " + getGrade(player.field(14)) +
-                    "\nCoverage: " + getGrade(player.field(15)) +
-                    "\nSpeed: " + getGrade(player.field(16));
-        } else if (pos.equals("CB")) {
-            return "Home State: " + getRegion(player.regionCode()) +
-                    "\nCoverage: " + getGrade(player.field(13)) +
-                    "\nSpeed: " + getGrade(player.field(14)) +
-                    "\nTackling: " + getGrade(player.field(15)) +
-                    "\nJumping: " + getGrade(player.field(16));
-        } else if (pos.equals("S")) {
-            return "Home State: " + getRegion(player.regionCode()) +
-                    "\nTackling: " + getGrade(player.field(13)) +
-                    "\nCoverage: " + getGrade(player.field(14)) +
-                    "\nSpeed: " + getGrade(player.field(15)) +
-                    "\nRun Stop: " + getGrade(player.field(16));
-        }
-        return "ERROR";
-    }
-
     //FILTER OUT UNAFFORDABLE PLAYERS
     private void removeUnaffordableRecruits() {
-        removeUnaffordable(players);
-        removeUnaffordable(avail50);
-        removeUnaffordable(availAll);
-        removeUnaffordable(availQBs);
-        removeUnaffordable(availRBs);
-        removeUnaffordable(availWRs);
-        removeUnaffordable(availTEs);
-        removeUnaffordable(availOLs);
-        removeUnaffordable(availKs);
-        removeUnaffordable(availDLs);
-        removeUnaffordable(availLBs);
-        removeUnaffordable(availCBs);
-        removeUnaffordable(availSs);
-        removeUnaffordable(west);
-        removeUnaffordable(midwest);
-        removeUnaffordable(central);
-        removeUnaffordable(east);
-        removeUnaffordable(south);
-
+        sessionData.removeUnaffordableRecruits();
         dataAdapterPosition.notifyDataSetChanged();
     }
 
     private void removeUnaffordable(List<String> list) {
-        int i = 0;
-        while (i < list.size()) {
-            if (getRecruitCost(list.get(i)) > recruitingBudget) {
-                // Can't afford him
-                list.remove(i);
-            } else {
-                ++i;
-            }
-        }
+        sessionData.removeUnaffordableRecruits();
     }
 
     //REMOVE RECRUITS OFF THE BOARD
     private void removeRecruits() {
-        removeRecruits(players);
-        removeRecruitBoard(removeList);
+        sessionData.removeRandomRecruits(recruitOffBoard, rand);
+        dataAdapterPosition.notifyDataSetChanged();
     }
 
     private void removeRecruits(List<String> list) {
-        removeList = new ArrayList<>();
-        for (int i = 0; i < list.size(); ++i) {
-            if (Math.random() > recruitOffBoard) {
-                removeList.add(list.get(i));
-                list.remove(i);
-            }
-        }
+        sessionData.removeRandomRecruits(recruitOffBoard, rand);
     }
 
     private void removeRecruitBoard(List<String> list) {
-
-        for (int i = 0; i < list.size(); i++) {
-
-            String player = list.get(i);
-            // Remove the player from the top 100 list
-            avail50.remove(player);
-            availAll.remove(player);
-            west.remove(player);
-            midwest.remove(player);
-            central.remove(player);
-            east.remove(player);
-            south.remove(player);
-
-            RecruitingPlayerRecord recruit = RecruitingPlayerRecord.fromCsv(player);
-            if (recruit.position().equals("QB")) {
-                availQBs.remove(player);
-            } else if (recruit.position().equals("RB")) {
-                availRBs.remove(player);
-            } else if (recruit.position().equals("WR")) {
-                availWRs.remove(player);
-            } else if (recruit.position().equals("TE")) {
-                availTEs.remove(player);
-            } else if (recruit.position().equals("OL")) {
-                availOLs.remove(player);
-            } else if (recruit.position().equals("K")) {
-                availKs.remove(player);
-            } else if (recruit.position().equals("DL")) {
-                availDLs.remove(player);
-            } else if (recruit.position().equals("LB")) {
-                availLBs.remove(player);
-            } else if (recruit.position().equals("CB")) {
-                availCBs.remove(player);
-            } else if (recruit.position().equals("S")) {
-                availSs.remove(player);
-            }
-        }
-
         dataAdapterPosition.notifyDataSetChanged();
     }
 
 
     //Update Position Spinner & Team Needs
     private void updatePositionNeeds() {
-        // Get needs for each position
-        needQBs = minQBs - teamQBs.size();
-        needRBs = minRBs - teamRBs.size();
-        needWRs = minWRs - teamWRs.size();
-        needTEs = minTEs - teamTEs.size();
-        needOLs = minOLs - teamOLs.size();
-        needKs = minKs - teamKs.size();
-        needDLs = minDLs - teamDLs.size();
-        needLBs = minLBs - teamLBs.size();
-        needCBs = minCBs - teamCBs.size();
-        needSs = minSs - teamSs.size();
+        RecruitingSessionData.PositionNeeds needs = buildPositionNeeds();
+        needQBs = needs.qbs;
+        needRBs = needs.rbs;
+        needWRs = needs.wrs;
+        needTEs = needs.tes;
+        needOLs = needs.ols;
+        needKs = needs.ks;
+        needDLs = needs.dls;
+        needLBs = needs.lbs;
+        needCBs = needs.cbs;
+        needSs = needs.ss;
 
         if (dataAdapterPosition != null) {
-            positions = new ArrayList<>();
-            positions.add("Top 50 Recruits");
-            positions.add("All Players");
-            positions.add("QB (Need: " + needQBs + ")");
-            positions.add("RB (Need: " + needRBs + ")");
-            positions.add("WR (Need: " + needWRs + ")");
-            positions.add("TE (Need: " + needTEs + ")");
-            positions.add("OL (Need: " + needOLs + ")");
-            positions.add("K (Need: " + needKs + ")");
-            positions.add("DL (Need: " + needDLs + ")");
-            positions.add("LB (Need: " + needLBs + ")");
-            positions.add("CB (Need: " + needCBs + ")");
-            positions.add("S (Need: " + needSs + ")");
-            positions.add("West (" + west.size() + ")");
-            positions.add("Midwest (" + midwest.size() + ")");
-            positions.add("Central (" + central.size() + ")");
-            positions.add("East (" + east.size() + ")");
-            positions.add("South (" + south.size() + ")");
+            positions = sessionData.buildPositionLabels(needs);
 
             dataAdapterPosition.clear();
             for (String p : positions) {
@@ -826,46 +479,12 @@ public class RecruitingActivity extends AppCompatActivity {
 
     //SORT - GRADE(Default)
     private void sortByGrade() {
-        Collections.sort(availAll, new CompRecruitScoutGrade());
-        Collections.sort(avail50, new CompRecruitScoutGrade());
-        Collections.sort(availQBs, new CompRecruitScoutGrade());
-        Collections.sort(availRBs, new CompRecruitScoutGrade());
-        Collections.sort(availWRs, new CompRecruitScoutGrade());
-        Collections.sort(availTEs, new CompRecruitScoutGrade());
-        Collections.sort(availOLs, new CompRecruitScoutGrade());
-        Collections.sort(availKs, new CompRecruitScoutGrade());
-        Collections.sort(availDLs, new CompRecruitScoutGrade());
-        Collections.sort(availLBs, new CompRecruitScoutGrade());
-        Collections.sort(availCBs, new CompRecruitScoutGrade());
-        Collections.sort(availSs, new CompRecruitScoutGrade());
-        Collections.sort(west, new CompRecruitScoutGrade());
-        Collections.sort(midwest, new CompRecruitScoutGrade());
-        Collections.sort(central, new CompRecruitScoutGrade());
-        Collections.sort(east, new CompRecruitScoutGrade());
-        Collections.sort(south, new CompRecruitScoutGrade());
-
+        sessionData.sortBoardsByGrade();
     }
 
     //SORT - COST
     private void sortByCost() {
-        Collections.sort(availAll, new CompRecruitCost());
-        Collections.sort(avail50, new CompRecruitCost());
-        Collections.sort(availQBs, new CompRecruitCost());
-        Collections.sort(availRBs, new CompRecruitCost());
-        Collections.sort(availWRs, new CompRecruitCost());
-        Collections.sort(availTEs, new CompRecruitCost());
-        Collections.sort(availOLs, new CompRecruitCost());
-        Collections.sort(availKs, new CompRecruitCost());
-        Collections.sort(availDLs, new CompRecruitCost());
-        Collections.sort(availLBs, new CompRecruitCost());
-        Collections.sort(availCBs, new CompRecruitCost());
-        Collections.sort(availSs, new CompRecruitCost());
-        Collections.sort(west, new CompRecruitCost());
-        Collections.sort(midwest, new CompRecruitCost());
-        Collections.sort(central, new CompRecruitCost());
-        Collections.sort(east, new CompRecruitCost());
-        Collections.sort(south, new CompRecruitCost());
-
+        sessionData.sortBoardsByCost();
     }
 
 
@@ -880,7 +499,7 @@ public class RecruitingActivity extends AppCompatActivity {
             if (showPopUp) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(this);
                 builder.setTitle("Confirm Recruiting");
-                builder.setMessage("Your team roster is at " + (teamPlayers.size() + playersRecruited.size()) + " (Max: 70).\n\nAre you sure you want to recruit " + getReadablePlayerInfoDisplay(player) + " for $" + moneyNeeded + "?");
+                builder.setMessage(RecruitingPresentation.buildRecruitConfirmMessage(sessionData, maxPlayers, player));
                 builder.setPositiveButton("Yes",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int id) {
@@ -986,114 +605,20 @@ public class RecruitingActivity extends AppCompatActivity {
     }
 
     private void recruitPlayer(String player) {
-        int moneyNeeded = getRecruitCost(player);
-        recruitingBudget -= moneyNeeded;
-
-        // Remove the player from the top 100 list
-        avail50.remove(player);
-        availAll.remove(player);
-        west.remove(player);
-        midwest.remove(player);
-        central.remove(player);
-        east.remove(player);
-        south.remove(player);
-        playersRecruited.add(player);
-
-        // Also need to add recruited player to correct team list and remove from avail list
         RecruitingPlayerRecord recruit = RecruitingPlayerRecord.fromCsv(player);
-        if (recruit.position().equals("QB")) {
-            availQBs.remove(player);
-            teamQBs.add(getReadablePlayerInfo(player));
-        } else if (recruit.position().equals("RB")) {
-            availRBs.remove(player);
-            teamRBs.add(getReadablePlayerInfo(player));
-        } else if (recruit.position().equals("WR")) {
-            availWRs.remove(player);
-            teamWRs.add(getReadablePlayerInfo(player));
-        } else if (recruit.position().equals("TE")) {
-            availTEs.remove(player);
-            teamTEs.add(getReadablePlayerInfo(player));
-        } else if (recruit.position().equals("OL")) {
-            availOLs.remove(player);
-            teamOLs.add(getReadablePlayerInfo(player));
-        } else if (recruit.position().equals("K")) {
-            availKs.remove(player);
-            teamKs.add(getReadablePlayerInfo(player));
-        } else if (recruit.position().equals("DL")) {
-            availDLs.remove(player);
-            teamDLs.add(getReadablePlayerInfo(player));
-        } else if (recruit.position().equals("LB")) {
-            availLBs.remove(player);
-            teamLBs.add(getReadablePlayerInfo(player));
-        } else if (recruit.position().equals("CB")) {
-            availCBs.remove(player);
-            teamCBs.add(getReadablePlayerInfo(player));
-        } else if (recruit.position().equals("S")) {
-            availSs.remove(player);
-            teamSs.add(getReadablePlayerInfo(player));
-        }
-        sortTeam();
-
-        players.remove(player);
+        sessionData.recruitPlayer(player, autoFilter, recruitOffBoard, rand);
+        recruitingBudget = sessionData.recruitingBudget;
 
         Toast.makeText(this, "Recruited " + recruit.position() + " " + recruit.name(),
                 Toast.LENGTH_SHORT).show();
 
-        if (autoFilter) removeUnaffordableRecruits();
-        removeRecruits();
         updatePositionNeeds();
     }
-
-
-    //PLAYER INFO FOR RECRUIT/REDSHIRTING DIALOG
-    private String getReadablePlayerInfoDisplay(String p) {
-        RecruitingPlayerRecord player = RecruitingPlayerRecord.fromCsv(p);
-        return player.stars() + "-Star " + player.position() + " " + player.name();
-    }
-
     //SCOUT PLAYER - created by Achi Jones - never used
     private boolean scoutPlayer(String player) {
-        int scoutCost = getRecruitCost(player) / 10;
-        if (scoutCost < 10) scoutCost = 10;
-
-        if (recruitingBudget >= scoutCost) {
-            recruitingBudget -= scoutCost;
-
-            // Check availAll first
-            if (availAll.contains(player)) {
-                int posTop = availAll.indexOf(player);
-                availAll.set(posTop, player.substring(0, player.length() - 1) + "1");
-            }
-            if (avail50.contains(player)) {
-                int posTop = avail50.indexOf(player);
-                avail50.set(posTop, player.substring(0, player.length() - 1) + "1");
-            }
-
-
-            // Next check all the position lists
+        if (sessionData.scoutPlayer(player)) {
+            recruitingBudget = sessionData.recruitingBudget;
             RecruitingPlayerRecord recruit = RecruitingPlayerRecord.fromCsv(player);
-            if (recruit.position().equals("QB") && availQBs.contains(player)) {
-                availQBs.set(availQBs.indexOf(player), player.substring(0, player.length() - 1) + "1");
-            } else if (recruit.position().equals("RB") && availRBs.contains(player)) {
-                availRBs.set(availRBs.indexOf(player), player.substring(0, player.length() - 1) + "1");
-            } else if (recruit.position().equals("WR") && availWRs.contains(player)) {
-                availWRs.set(availWRs.indexOf(player), player.substring(0, player.length() - 1) + "1");
-            } else if (recruit.position().equals("TE") && availTEs.contains(player)) {
-                availTEs.set(availTEs.indexOf(player), player.substring(0, player.length() - 1) + "1");
-            } else if (recruit.position().equals("OL") && availOLs.contains(player)) {
-                availOLs.set(availOLs.indexOf(player), player.substring(0, player.length() - 1) + "1");
-            } else if (recruit.position().equals("K") && availKs.contains(player)) {
-                availKs.set(availKs.indexOf(player), player.substring(0, player.length() - 1) + "1");
-            } else if (recruit.position().equals("DL") && availDLs.contains(player)) {
-                availDLs.set(availDLs.indexOf(player), player.substring(0, player.length() - 1) + "1");
-            } else if (recruit.position().equals("LB") && availLBs.contains(player)) {
-                availLBs.set(availLBs.indexOf(player), player.substring(0, player.length() - 1) + "1");
-            } else if (recruit.position().equals("CB") && availCBs.contains(player)) {
-                availCBs.set(availCBs.indexOf(player), player.substring(0, player.length() - 1) + "1");
-            } else if (recruit.position().equals("S") && availSs.contains(player)) {
-                availSs.set(availSs.indexOf(player), player.substring(0, player.length() - 1) + "1");
-            }
-
             Toast.makeText(this, "Scouted " + recruit.position() + " " + recruit.name(), Toast.LENGTH_SHORT).show();
 
             expListAdapter.notifyDataSetChanged();
@@ -1110,122 +635,39 @@ public class RecruitingActivity extends AppCompatActivity {
     }
 
     private void sortTeam() {
-        Collections.sort(teamQBs, new CompRecruitTeamRosterOvr());
-        Collections.sort(teamRBs, new CompRecruitTeamRosterOvr());
-        Collections.sort(teamWRs, new CompRecruitTeamRosterOvr());
-        Collections.sort(teamTEs, new CompRecruitTeamRosterOvr());
-        Collections.sort(teamOLs, new CompRecruitTeamRosterOvr());
-        Collections.sort(teamKs, new CompRecruitTeamRosterOvr());
-        Collections.sort(teamDLs, new CompRecruitTeamRosterOvr());
-        Collections.sort(teamLBs, new CompRecruitTeamRosterOvr());
-        Collections.sort(teamCBs, new CompRecruitTeamRosterOvr());
-        Collections.sort(teamSs, new CompRecruitTeamRosterOvr());
+        sessionData.sortTeamByOverall();
     }
 
     //PLAYER DISPLAY INFO
     private String getReadablePlayerInfo(String p) {
-        RecruitingPlayerRecord player = RecruitingPlayerRecord.fromCsv(p);
-        String improveStr = "";
-        String transfer = "";
-        if (player.isTransfer()) transfer = " (Transfer)";
-        if (!playersRecruited.contains(p)) {
-            improveStr = "(+" + player.improvement() + ")";
-            return player.name() + " " + getYrStr(player.year()) + "  Ovr: " + player.currentOverall() + " " + improveStr + transfer;
-        } else {
-            improveStr = " (Recruit)";
-            return player.name() + " " + getYrStr(player.year()) + "  Ovr: " + player.recruitOverall() + " " + improveStr + transfer;
-        }
+        return sessionData.getReadablePlayerInfo(p);
     }
 
     /**
      * Converts player string into '$500 QB A. Name, Overall: 89' or similar
      */
-    public String getPlayerNameCost(String player) {
-        RecruitingPlayerRecord recruit = RecruitingPlayerRecord.fromCsv(player);
-        return "$" + recruit.cost() + " " + recruit.position() + " " + recruit.name() + ">Grade: " + getStarGrade(recruit.field(6));
-    }
-
     /**
      * Used for parsing through string to get cost
      */
     public int getRecruitCost(String p) {
-        return RecruitingPlayerRecord.fromCsv(p).cost();
+        return sessionData.getRecruitCost(p);
     }
-
-    /**
-     * Convert year from number to String, i.e. 3 -> Junior
-     */
-    private String getYrStr(String yr) {
-        if (yr.equals("1")) {
-            return "[Fr]";
-        } else if (yr.equals("2")) {
-            return "[So]";
-        } else if (yr.equals("3")) {
-            return "[Jr]";
-        } else if (yr.equals("4")) {
-            return "[Sr]";
-        } else if (yr.equals("5")) {
-            return "[Sr]";
-        }
-        return "[XX]";
-    }
-
-    public String getGrade(String num) {
-        int pRat = (Integer.parseInt(num));
-        if (pRat > five) return " * * * * *";
-        else if (pRat > four) return " * * * *";
-        else if (pRat > three) return " * * *";
-        else if (pRat > two) return " * *";
-        else return " *";
-    }
-
-    public String getStarGrade(String num) {
-        int pRat = (Integer.parseInt(num));
-        if (pRat == 5) return " * * * * *";
-        if (pRat == 4) return " * * * *  ";
-        if (pRat == 3) return " * * *    ";
-        if (pRat == 2) return " * *      ";
-        if (pRat == 1) return " *        ";
-
-        else return "??";
-    }
-
-    public String getRegion(int region) {
-        return states[region];
-    }
-
-    public String getHeight(int height) {
-
-        int feet = height / 12;
-        int leftover = height % 12;
-
-        return feet + "'' " + leftover + "\"";
-    }
-
-    public String getWeight(int weight) {
-        return weight + " lbs";
-    }
-
 
     /**
      * Exit the recruiting activity. Called when the "Done" button is pressed or when user presses back button.
      */
     private void exitRecruiting() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Are you sure you are done recruiting? Any unfilled positions will be filled by walk-ons.\n\n");
-        for (int i = 2; i < positions.size() - 5; ++i) {
-            sb.append("\t\t" + positions.get(i) + "\n");
-        }
         AlertDialog.Builder builder = new AlertDialog.Builder(RecruitingActivity.this);
-        builder.setMessage(sb.toString())
+        builder.setMessage(RecruitingPresentation.buildExitConfirmMessage(positions))
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // Send info about what recruits were selected back
-                        Intent myIntent = new Intent(RecruitingActivity.this, MainActivity.class);
-                        myIntent.putExtra("LAUNCH_REQUEST", LeagueLaunchCoordinator.LaunchRequest.doneRecruiting(getRecruitsStr()));
-                        myIntent.putExtra("Theme", theme);
-                        RecruitingActivity.this.startActivity(myIntent);
+                        RecruitingActivity.this.startActivity(GameNavigation.createMainIntent(
+                                RecruitingActivity.this,
+                                LeagueLaunchCoordinator.LaunchRequest.doneRecruiting(getRecruitsStr()),
+                                theme
+                        ));
                         finish();
                     }
                 })
@@ -1243,14 +685,47 @@ public class RecruitingActivity extends AppCompatActivity {
      * Gets all the recruits in a string to send back to MainActivity to be added to user team
      */
     private String getRecruitsStr() {
-        StringBuilder sb = new StringBuilder();
+        return sessionData.buildRecruitsSaveData();
+    }
 
-        for (String p : playersRecruited) {
-            sb.append(p + "%\n");
-        }
-        sb.append("END_RECRUITS%\n");
+    private RecruitingSessionData.PositionNeeds buildPositionNeeds() {
+        return sessionData.calculateNeeds(minQBs, minRBs, minWRs, minTEs, minOLs, minKs, minDLs, minLBs, minCBs, minSs);
+    }
 
-        return sb.toString();
+    private void bindSessionData() {
+        teamName = sessionData.teamName;
+        recruitingBudget = sessionData.recruitingBudget;
+        HCtalent = sessionData.coachTalent;
+        playersRecruited = sessionData.playersRecruited;
+        playersGraduating = sessionData.playersGraduating;
+        teamPlayers = sessionData.teamPlayers;
+        teamQBs = sessionData.teamQBs;
+        teamRBs = sessionData.teamRBs;
+        teamWRs = sessionData.teamWRs;
+        teamTEs = sessionData.teamTEs;
+        teamOLs = sessionData.teamOLs;
+        teamKs = sessionData.teamKs;
+        teamDLs = sessionData.teamDLs;
+        teamLBs = sessionData.teamLBs;
+        teamCBs = sessionData.teamCBs;
+        teamSs = sessionData.teamSs;
+        availQBs = sessionData.availQBs;
+        availRBs = sessionData.availRBs;
+        availWRs = sessionData.availWRs;
+        availTEs = sessionData.availTEs;
+        availOLs = sessionData.availOLs;
+        availKs = sessionData.availKs;
+        availDLs = sessionData.availDLs;
+        availLBs = sessionData.availLBs;
+        availCBs = sessionData.availCBs;
+        availSs = sessionData.availSs;
+        availAll = sessionData.availAll;
+        avail50 = sessionData.avail50;
+        west = sessionData.west;
+        midwest = sessionData.midwest;
+        central = sessionData.central;
+        east = sessionData.east;
+        south = sessionData.south;
     }
 
     @Override
@@ -1299,9 +774,7 @@ public class RecruitingActivity extends AppCompatActivity {
             RecruitingPlayerRecord recruit = RecruitingPlayerRecord.fromCsv(playerCSV);
 
             details.setText(playerDetail);
-            potential.setText("Height: " + getHeight(recruit.heightInches()) + "\nWeight: " + getWeight(recruit.weightPounds()) + "\nIntelligence: " + getGrade(Integer.toString(recruit.intelligence())) + "\n" +
-                    "Character: " + getGrade(Integer.toString(recruit.character())) + "\n" +
-                    "Durability: " + getGrade(Integer.toString(recruit.durability())));
+            potential.setText(RecruitingPresentation.buildPotentialDetails(recruit));
 
             // Set up Recruit and Redshirt buttons to display the right price
             Button recruitPlayerButton = convertView.findViewById(R.id.buttonRecruitPlayer);
@@ -1346,9 +819,8 @@ public class RecruitingActivity extends AppCompatActivity {
 
         public View getGroupView(int groupPosition, boolean isExpanded,
                                  View convertView, ViewGroup parent) {
-            String[] playerCost = getPlayerNameCost(getGroup(groupPosition)).split(">");
-            String playerLeft = playerCost[0];
-            String playerRight = playerCost[1];
+            String playerLeft = RecruitingPresentation.getPlayerListLeftLabel(getGroup(groupPosition));
+            String playerRight = RecruitingPresentation.getPlayerListRightLabel(getGroup(groupPosition));
             if (convertView == null) {
                 LayoutInflater infalInflater = (LayoutInflater) context
                         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);

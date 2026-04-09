@@ -17,6 +17,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.app.AppCompatActivity;
 import ui.SaveFilesList;
@@ -24,14 +26,16 @@ import ui.SaveFilesList;
 
 public class Home extends AppCompatActivity {
     public String saveVer = "v1.4e";
-    private static final int READ_REQUEST_CODE = 42;
-    private static final int IMPORT_CODE = 12;
     private int theme = 1;
+    private final ActivityResultLauncher<String[]> customUniversePicker =
+            registerForActivityResult(new ActivityResultContracts.OpenDocument(), this::handleCustomUniverseSelection);
+    private final ActivityResultLauncher<String[]> importSavePicker =
+            registerForActivityResult(new ActivityResultContracts.OpenDocument(), this::handleImportSaveSelection);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Bundle extras = getIntent().getExtras();
+        theme = GameNavigation.getTheme(getIntent(), theme);
 
         setContentView(R.layout.activity_home);
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -42,10 +46,7 @@ public class Home extends AppCompatActivity {
 
         hideSystemUI();
 
-        if(extras != null &&extras.containsKey("Theme")) {
-            theme = Integer.parseInt(extras.get("Theme").toString());
-            setTheme();
-        }
+        setTheme();
 
         ImageView imageLogo = findViewById(R.id.imageLogo);
         imageLogo.setImageResource(R.drawable.main_menu_logo);
@@ -84,7 +85,7 @@ public class Home extends AppCompatActivity {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
                                 isExternalStorageReadable();
-                                openDocumentPicker("*/*", READ_REQUEST_CODE);
+                                customUniversePicker.launch(new String[]{"*/*"});
                             }
                         });
                 welcome.setCancelable(false);
@@ -251,10 +252,11 @@ public class Home extends AppCompatActivity {
                 if (!fileInfos[item].equals("EMPTY")) {
                     if(!fileInfos[item].contains("Old Save")) {
                         finish();
-                        Intent myIntent = new Intent(Home.this, MainActivity.class);
-                        myIntent.putExtra("LAUNCH_REQUEST", LeagueLaunchCoordinator.LaunchRequest.loadInternal("saveFile" + item + ".cfb"));
-                        myIntent.putExtra("Theme", theme);
-                        Home.this.startActivity(myIntent);
+                        Home.this.startActivity(GameNavigation.createMainIntent(
+                                Home.this,
+                                LeagueLaunchCoordinator.LaunchRequest.loadInternal("saveFile" + item + ".cfb"),
+                                theme
+                        ));
                     } else {
 
                         Toast.makeText(Home.this, "Incompatible Save!",
@@ -289,7 +291,7 @@ public class Home extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 // Do nothing
                 isExternalStorageReadable();
-                openDocumentPicker("text/plain", IMPORT_CODE);
+                importSavePicker.launch(new String[]{"text/plain"});
             }
         });
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -351,47 +353,23 @@ public class Home extends AppCompatActivity {
         return Environment.MEDIA_MOUNTED.equals(state) ||
                 Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
     }
-    @Override
-    public void onActivityResult(int requestCode, int resultCode,
-                                 Intent resultData) {
-        final Intent myIntent = new Intent(Home.this, MainActivity.class);
-        //String uriStr;
-
-        // The ACTION_OPEN_DOCUMENT intent was sent with the request code
-        // READ_REQUEST_CODE. If the request code seen here doesn't match, it's the
-        // response to some other intent, and the code below shouldn't run at all.
-
-        if (requestCode == READ_REQUEST_CODE && resultCode == Home.RESULT_OK) {
-            // The document selected by the user won't be returned in the intent.
-            // Instead, a URI to that document will be contained in the return intent
-            // provided to this method as a parameter.
-            // Pull that URI using resultData.getData().
-
-            //STARTING CUSTOM UNIVERSE
-            Uri uri = null;
-            uri = resultData.getData();
-            final String uriStr = uri.toString();
-
-            showPrestigeModeDialog(uriStr);
+    private void handleCustomUniverseSelection(Uri uri) {
+        if (uri == null) {
+            return;
         }
+        showPrestigeModeDialog(uri.toString());
+    }
 
-
-        //IMPORT EXTERNAL SAVE FILE
-        if (requestCode == IMPORT_CODE && resultCode == Home.RESULT_OK) {
-            // The document selected by the user won't be returned in the intent.
-            // Instead, a URI to that document will be contained in the return intent
-            // provided to this method as a parameter.
-            // Pull that URI using resultData.getData().
-            Uri uri = null;
-            uri = resultData.getData();
-            final String uriStr = uri.toString();
-
-            myIntent.putExtra("LAUNCH_REQUEST", LeagueLaunchCoordinator.LaunchRequest.importSave(uriStr));
-            myIntent.putExtra("Theme", theme);
-            finish();
-            Home.this.startActivity(myIntent);
-
+    private void handleImportSaveSelection(Uri uri) {
+        if (uri == null) {
+            return;
         }
+        finish();
+        Home.this.startActivity(GameNavigation.createMainIntent(
+                Home.this,
+                LeagueLaunchCoordinator.LaunchRequest.importSave(uri.toString()),
+                theme
+        ));
     }
 
     private void setTheme() {
@@ -456,19 +434,9 @@ public class Home extends AppCompatActivity {
         ImmersiveDialogHelper.show(alert);
     }
 
-    private void openDocumentPicker(String mimeType, int requestCode) {
-        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-        intent.setType(mimeType);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        startActivityForResult(intent, requestCode);
-    }
-
     private void startMainActivity(LeagueLaunchCoordinator.LaunchRequest launchRequest) {
-        Intent myIntent = new Intent(Home.this, MainActivity.class);
-        myIntent.putExtra("LAUNCH_REQUEST", launchRequest);
-        myIntent.putExtra("Theme", theme);
         finish();
-        Home.this.startActivity(myIntent);
+        Home.this.startActivity(GameNavigation.createMainIntent(Home.this, launchRequest, theme));
     }
 
     private void showPrestigeModeDialog(final String customUri) {
