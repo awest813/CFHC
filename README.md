@@ -1,84 +1,144 @@
 
-**College Football Coach: Career Edition**
-https://play.google.com/store/apps/details?id=antdroid.cfbcoach
+# College Football Head Coach (CFHC)
 
+> A college football dynasty simulation — recruit, game-plan, and manage your roster to build a championship program. Open-source, offline, and fully customizable.
 
-After getting permission from /u/jonesguy14 to post this, I am now releasing my expansion of College Football Coach for android. It's still in development, but should be fully functional now.
-Please share comments, suggestions, bugs, etc.
+---
 
-College Football Coach: Career Edition is a re-imagining and expansion of the popular Football Coach game. This game adds thousands of new lines of code and puts you in the role of a head coach of a college football dynasty in a totally dynamic and fully customizable game universe!
+## Project Overview
 
-Use your recruiting, game planning, and roster management skills to take your college to the top! But don't get fired!
+CFHC is an expansion of the original _College Football Coach_ game. The simulation engine covers recruiting, game-day strategy, player progression, coaching staff, conference structures, and more — all wrapped in a career-mode loop where you can get hired, win titles, or get fired.
 
-Game Manual is now available at http://www.Antdroid.dev
+The game is **Android-first** today, but the core simulation is being extracted into a platform-independent layer so the same engine can power future iOS and desktop clients (see [Roadmap](docs/ROADMAP.md) and [Platform Expansion](docs/platform-expansion.md)).
 
-*** 2019 Season Update ***
-+ New starting year and data
-+ New Dashboard UI
-+ New Player and Staff Profiles
-+ Added Offensive and Defensive Coordinators
-+ In-Game Injuries
-+ More stats and stat tracking year by year
-+ Accept or Decline Transfer Requests
-+ Re-wrote a lot of code for speed, tweaks and optimizations
-+ Added ability to save prior to recruiting
-+ Much more!
+| | |
+|---|---|
+| **Current version** | v1.4.5 |
+| **Platform** | Android (minSdk 24 / targetSdk 30) |
+| **Language** | Java 17 |
+| **Build tool** | Gradle 8.7 |
+| **Codebase** | ~35 000 LOC across 173 files in 7 packages |
 
+---
 
-**FAQ**
+## Features
 
-*ABOUT SAVING GAMES*
-This game is currently designed to be played a full season at a time. Save files will always start at the beginning of the season in which the save was made. At the START of each season, a pop up will ask you to save the game. You can also save games just prior to recruiting!
+### General
+- Career mode — start as a new hire and work your way up
+- Hire offensive and defensive coordinators
+- Import custom universes, rosters, and coaches from CSV
+- Edit team names, conference names, and coach names in-game
+- Realistic conference and team structures
+- Bowl games + 4-team playoff (expanded playoff option available)
+- 7 000+ first/last name database with geographic home regions
+- Television contract deals
+- Conference realignment, promotion/relegation, and random team generation options
+- Full league, team, coach, and player stat history
+- Player awards and year-end honors
+- Box scores, play-by-play logs, and dynamic news articles
+- Material Light and Dark themes
 
-*PLAY BY PLAY*
-To view game play log, click SCHEDULE, then choose the game you want to view by pressing the Score Box. Then when the pop up appears, click on the blue menu bar at the top.
+### Simulation Engine
+- Play-by-play game simulation with realistic outcomes
+- Mid-season and end-of-season player progression
+- Head coach and coordinator influence on progression
+- Multiple offensive and defensive playbooks
+- Full offensive, defensive, and special-teams stat tracking
+- Off-season coaching changes and infraction system
+- Computer poll logic, school prestige dynamics
+- Standard and medical redshirting
+- Undergraduate and graduate transfers
+- Player suspensions and dismissals
+- Team facilities and basic monetary system
 
-**HELP**
-Feel free to ask questions via reddit community at /r/footballcoach
+---
 
-As this game is completely free and open source, any help would be appreciated. This game was developed by one guy and is being continued on by myself in my spare time. If you do come across any bugs or issues, please post to reddit, github or contact me. Constructive criticism and feedback are appreciated!
+## Architecture
 
+```
+src/main/java/
+├── simulation/      Core engine — League, Team, Game, conferences, records
+│                    (~18K LOC, platform-independent)
+├── positions/       Player models — 11 position classes + base Player
+│                    (~4.6K LOC, platform-independent)
+├── staff/           Coaching staff — HeadCoach, OC, DC
+│                    (~0.9K LOC, platform-independent)
+├── comparator/      Sorting/ranking comparators (77 files)
+│                    (~1.3K LOC, platform-independent)
+├── recruiting/      Recruiting flow — session data, controllers, UI
+│                    (~1.5K LOC, partially Android-coupled)
+├── ui/              Android list adapters, profiles, roster views
+│                    (~1.8K LOC, Android-only)
+└── antdroid/        Android shell — activities, dialogs, navigation
+                     (~6.6K LOC, Android-only)
+```
 
+**Platform bridge interfaces** (already implemented):
+- `GameUiBridge` — UI callback abstraction with a `NO_OP` default
+- `PlatformResourceProvider` — asset/string loading
+- `GameFlowManager` — state-transition orchestration
+- `PlatformLog` — logging shim (replaces `android.util.Log`)
 
-Game Features include:
+---
 
-[General]
-* Career Mode: Start as a new hire coach and work your way to the top! Just don't get fired!
-* Hire Coordinators to your Staff
-* Import Custom Universe, Custom Rosters and Custom Coaches from text file
-* Game Editor: Ability to edit team names, conference names, and coach names
-* Realistic Conference and Team Structures
-* Bowl Games + 4-team Playoffs including Expanded Playoffs Option
-* Gigantic Names database with over 7000 first and last names
-* Geographic Home Regions
-* Optional Television Contract Deals
-* Optional Conference Realignment Features
-* Optional random Team Generation from Lower Tiers
-* Optional Promotion/Relegation System Mode
-* Full League, Team, Coach and Player Stats & history
-* Player Awards 
-* Game Summary Box Scores & Play Logging
-* Dynamic News & Articles
-* Material Light and Dark Themes
+## Engine Audit Summary
 
-[Game Simulation]
-* Realistic Sim Game logic with Full Game Play-by-Play Logging Option
-* Mid-Season and End-Season Player progression
-* Head Coach and Coordinator positions which affects player progression
-* Multiple Offense and Defensive Tactics
-* Offensive & Defensive player/team stat tracking
-* Special Teams stats & tracking
-* Off-season Coaching changes & Infraction system for balancing gameplay
-* Realistic Computer Poll Logic
-* Dynamic School Prestige Growth & Loss
-* Standard & Medical Redshirting
-* Undergrad & Graduate Transfers
-* Player Suspensions and Dismissals
-* Year End Awards
-* Conference Television Contracts
-* Team Facilities and Basic Monetary System
+A full audit of the simulation engine was completed in April 2026. Key findings:
 
+| Area | Rating | Notes |
+|------|--------|-------|
+| Architecture | 6/10 | Good platform separation; League and Team are still "God Objects" (~6.5K and ~5.5K LOC) |
+| Code Quality | 5/10 | Public mutable collections, minimal error handling, `System.out.println` in production |
+| Testability | 3/10 | No unit tests; public mutable state makes isolated testing difficult |
+| Portability | 4/10 | Recruiting package has circular Android coupling; save/load tied to `MainActivity` |
+| Dependency Health | 5/10 | `targetSdk 30` lags behind `compileSdk 35`; AndroidX libraries ~2 years outdated |
 
-My website: http://www.Antdroid.dev
+Top issues identified:
+1. **God Objects** — `League.java` (6 485 LOC, 109 public methods) and `Team.java` (5 487 LOC) need decomposition
+2. **Public mutable fields** — 46 in League, 31 in Team; callers can bypass all validation
+3. **Recruiting ↔ MainActivity circular dependency** — blocks platform expansion
+4. **Silent I/O failures** — `IOException` caught and swallowed without user feedback
+5. **No test suite** — zero automated tests
 
+See the full [Roadmap](docs/ROADMAP.md) for the prioritized remediation plan.
 
+---
+
+## Getting Started
+
+### Prerequisites
+- Android Studio (latest stable)
+- JDK 17+
+- Android SDK with API level 35
+
+### Build & Run
+```bash
+git clone https://github.com/awest813/CFHC.git
+cd CFHC
+./gradlew assembleDebug
+```
+Install the APK on a device or emulator, or run directly from Android Studio.
+
+---
+
+## FAQ
+
+**Saving games**
+The game saves at the start of each season (a pop-up will prompt you). You can also save just before recruiting begins. Save files always restore to the beginning of the season in which they were created.
+
+**Viewing play-by-play**
+Open **Schedule → tap a score box → tap the blue menu bar** at the top of the pop-up.
+
+---
+
+## Contributing
+
+This project is free and open-source. Contributions, bug reports, and feature suggestions are welcome:
+- Open an issue or pull request on GitHub
+- Join the community at [/r/footballcoach](https://www.reddit.com/r/footballcoach/)
+
+---
+
+## License
+
+See [LICENSE](LICENSE) for details.
