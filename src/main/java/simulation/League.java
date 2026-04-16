@@ -113,6 +113,11 @@ public class League {
     }
 
     public String saveVer = "v1.4e";
+    public PlatformResourceProvider resProvider;
+
+    public void setPlatformResourceProvider(PlatformResourceProvider resProvider) {
+        this.resProvider = resProvider;
+    }
 
     public ArrayList<String[]> leagueHistory;
     private ArrayList<String> heismanHistory;

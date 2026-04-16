@@ -62,9 +62,14 @@ import positions.PlayerS;
 import positions.PlayerTE;
 import recruiting.RecruitingActivity;
 import simulation.Conference;
+import simulation.CustomUniverseParser;
 import simulation.Game;
 import simulation.GameUiBridge;
 import simulation.League;
+import simulation.LeagueExportController;
+import simulation.LeagueLaunchCoordinator;
+import simulation.LeagueSaveStorage;
+import simulation.PlatformResourceProvider;
 import simulation.PlaybookDefense;
 import simulation.PlaybookOffense;
 import simulation.Team;
@@ -140,10 +145,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private final ActivityResultLauncher<String[]> importDocumentPicker =
             registerForActivityResult(new ActivityResultContracts.OpenDocument(), this::handleImportDocumentSelection);
 
+    private simulation.GameFlowManager flowManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         theme = GameNavigation.getTheme(getIntent(), 1);
+        flowManager = new AndroidGameFlowManager(this, theme);
         if(theme == 1) setTheme(R.style.AppThemeLight);
         else setTheme(R.style.AppTheme);
 
@@ -213,7 +221,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //Set up spinner for examining team.
         examineConfSpinner = findViewById(R.id.examineConfSpinner);
-        avoidSpinnerDropdownFocus(examineConfSpinner);
+        PlatformUiHelper.avoidSpinnerDropdownFocus(examineConfSpinner);
 
         confList = new ArrayList<>();
         for (int i = 0; i < simLeague.conferences.size(); i++) {
@@ -237,7 +245,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 });
 
         examineTeamSpinner = findViewById(R.id.examineTeamSpinner);
-        avoidSpinnerDropdownFocus(examineTeamSpinner);
+        PlatformUiHelper.avoidSpinnerDropdownFocus(examineTeamSpinner);
         teamList = new ArrayList<>();
         for (int i = 0; i < simLeague.teamList.size(); i++) {
             teamList.add(simLeague.teamList.get(i).strRep());
@@ -394,22 +402,24 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void loadGame() {
         try {
+            PlatformResourceProvider resProvider = new AndroidResourceProvider(this);
             LeagueLaunchCoordinator.LaunchRequest launchRequest = getLaunchRequest();
             LeagueLaunchCoordinator.LaunchResult result = LeagueLaunchCoordinator.load(
                     launchRequest,
                     getFilesDir(),
                     this,
                     seasonStart,
-                    getString(R.string.league_player_names),
-                    getString(R.string.league_last_names),
-                    getString(R.string.conferences),
-                    getString(R.string.teams),
-                    getString(R.string.bowls),
+                    resProvider.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
+                    resProvider.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES),
+                    resProvider.getString(PlatformResourceProvider.KEY_CONFERENCES),
+                    resProvider.getString(PlatformResourceProvider.KEY_TEAMS),
+                    resProvider.getString(PlatformResourceProvider.KEY_BOWLS),
                     this::customLeague,
                     this::openDocumentStream
             );
 
             simLeague = result.league;
+            simLeague.setPlatformResourceProvider(resProvider);
             season = result.season;
             loadedLeague = result.loadedLeague;
             newGame = result.newGame;
@@ -846,79 +856,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //News Display
     public void showNewsStoriesDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("News Stories")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //do nothing?
-                    }
-                })
-                .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-        bindRankingsDialogShell(dialog, "League News Feed", "Review preseason updates, weekly headlines, coaching movement, and offseason storylines from one clean archive.");
-
-        ArrayList<String> rankings = new ArrayList<>();// = simLeague.getTeamRankingsStr(0);
-        String[] weekSelection = new String[simLeague.currentWeek + 1];
-        for (int i = 0; i < weekSelection.length; ++i) {
-            if (i == 0) weekSelection[i] = "Pre-Season News";
-            else if (i == simLeague.regSeasonWeeks) weekSelection[i] = "Conf Champ Week"; //was 13
-            else if (i == simLeague.regSeasonWeeks+1) weekSelection[i] = "Bowl Week 1";
-            else if (i == simLeague.regSeasonWeeks+2) weekSelection[i] = "Bowl Week 2";
-            else if (i == simLeague.regSeasonWeeks+3) weekSelection[i] = "Bowl Week 3";
-            else if (i == simLeague.regSeasonWeeks+4) weekSelection[i] = "National Champ";
-            else if (i == simLeague.regSeasonWeeks+5) weekSelection[i] = "Season Summary";
-            else if (i == simLeague.regSeasonWeeks+6) weekSelection[i] = "Coaching Contracts";
-            else if (i == simLeague.regSeasonWeeks+7) weekSelection[i] = "Off-Season News";
-            else if (i == simLeague.regSeasonWeeks+8) weekSelection[i] = "Head Coach Hirings";
-            else if (i == simLeague.regSeasonWeeks+9) weekSelection[i] = "Coordinator Hirings";
-            else if (i == simLeague.regSeasonWeeks+10) weekSelection[i] = "Transfer News";
-            else if (i == simLeague.regSeasonWeeks+11) weekSelection[i] = "Off-Season News";
-            else if (i == simLeague.regSeasonWeeks+12) weekSelection[i] = "Recruiting News";
-            else weekSelection[i] = "Week " + i;
-        }
-        Spinner weekSelectionSpinner = dialog.findViewById(R.id.spinnerTeamRankings);
-        avoidSpinnerDropdownFocus(weekSelectionSpinner);
-        ArrayAdapter<String> weekSelectionSpinnerAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, weekSelection);
-        weekSelectionSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        weekSelectionSpinner.setAdapter(weekSelectionSpinnerAdapter);
-        if (simLeague.currentWeek > simLeague.regSeasonWeeks+5 && simLeague.currentWeek < simLeague.regSeasonWeeks+7) {
-            weekSelectionSpinner.setSelection(simLeague.currentWeek);
-        } else {
-            weekSelectionSpinner.setSelection(simLeague.currentWeek);
-        }
-
-        final ListView newsStoriesList = dialog.findViewById(R.id.listViewTeamRankings);
-        final NewsStories newsStoriesAdapter = new NewsStories(this, rankings);
-        newsStoriesList.setAdapter(newsStoriesAdapter);
-
-        weekSelectionSpinner.setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    public void onItemSelected(
-                            AdapterView<?> parent, View view, int position, long id) {
-                        ArrayList<String> rankings = simLeague.newsStories.get(position);
-                        boolean isempty = false;
-                        if (simLeague.currentWeek == simLeague.regSeasonWeeks+11 && rankings.size() == 0) {
-                            rankings.add("National Letter of Intention Day!>Today marks the first day of open recruitment. Teams are now allowed to sign incoming freshmen to their schools.");
-                        }
-                        if (rankings.size() == 0) {
-                            isempty = true;
-                            rankings.add("No news stories.>I guess this week was a bit boring, huh?");
-                        }
-                        newsStoriesAdapter.clear();
-                        newsStoriesAdapter.addAll(rankings);
-                        newsStoriesAdapter.notifyDataSetChanged();
-                        if (isempty) {
-                            rankings.remove(0);
-                        }
-                    }
-
-                    public void onNothingSelected(AdapterView<?> parent) {
-                        // do nothing
-                    }
-                });
+        NewsDialogController.show(this, simLeague);
     }
 
     //Team Stats
@@ -1231,49 +1169,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         cpFeatStat4.setText(c[7]);
     }
 
-    private void bindRankingsDialogShell(AlertDialog dialog, String title, String subtitle) {
-        TextView shellTitle = dialog.findViewById(R.id.textDialogShellTitle);
-        TextView shellSubtitle = dialog.findViewById(R.id.textDialogShellSubtitle);
-        if (shellTitle != null) {
-            shellTitle.setText(title);
-        }
-        if (shellSubtitle != null) {
-            shellSubtitle.setText(subtitle);
-        }
-    }
 
-    private void bindSimpleListDialogShell(AlertDialog dialog, String title, String subtitle) {
-        TextView shellTitle = dialog.findViewById(R.id.textSimpleDialogShellTitle);
-        TextView shellSubtitle = dialog.findViewById(R.id.textSimpleDialogShellSubtitle);
-        if (shellTitle != null) {
-            shellTitle.setText(title);
-        }
-        if (shellSubtitle != null) {
-            shellSubtitle.setText(subtitle);
-        }
-    }
-
-    private void bindArchiveDialogShell(AlertDialog dialog, String title, String subtitle) {
-        TextView shellTitle = dialog.findViewById(R.id.textArchiveShellTitle);
-        TextView shellSubtitle = dialog.findViewById(R.id.textArchiveShellSubtitle);
-        if (shellTitle != null) {
-            shellTitle.setText(title);
-        }
-        if (shellSubtitle != null) {
-            shellSubtitle.setText(subtitle);
-        }
-    }
-
-    private void bindGraphDialogShell(AlertDialog dialog, String title, String subtitle) {
-        TextView shellTitle = dialog.findViewById(R.id.textGraphShellTitle);
-        TextView shellSubtitle = dialog.findViewById(R.id.textGraphShellSubtitle);
-        if (shellTitle != null) {
-            shellTitle.setText(title);
-        }
-        if (shellSubtitle != null) {
-            shellSubtitle.setText(subtitle);
-        }
-    }
 
 
     //Player Awards for Bio
@@ -1298,484 +1194,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Game Summary
     public void showGameDialog(Game g) {
-        final String[] gameStr;
-        if (g.hasPlayed) {
-            // Show game sumamry dialog
-            gameStr = g.getGameSummaryStr();
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
-            builder.setTitle(g.awayTeam.name + " @ " + g.homeTeam.name + ": " + g.gameName)
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            //do nothing?
-                        }
-                    })
-                    .setView(getLayoutInflater().inflate(R.layout.game_dialog, null));
-            AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-            showImmersive(dialog);
-
-            // Game score
-            final TextView gameAwayScore = dialog.findViewById(R.id.gameDialogScoreAway);
-            final TextView gameHomeScore = dialog.findViewById(R.id.gameDialogScoreHome);
-            final TextView gameAwayScoreName = dialog.findViewById(R.id.gameDialogScoreAwayName);
-            final TextView gameHomeScoreName = dialog.findViewById(R.id.gameDialogScoreHomeName);
-            gameAwayScore.setText(g.awayScore + "");
-            gameHomeScore.setText(g.homeScore + "");
-            gameAwayScoreName.setText(g.awayTeam.getStrAbbrWL_2Lines());
-            gameHomeScoreName.setText(g.homeTeam.getStrAbbrWL_2Lines());
-
-
-            final TextView awayTeam = dialog.findViewById(R.id.teamAway);
-            final TextView awayQT1 = dialog.findViewById(R.id.awayQT1);
-            final TextView awayQT2 = dialog.findViewById(R.id.awayQT2);
-            final TextView awayQT3 = dialog.findViewById(R.id.awayQT3);
-            final TextView awayQT4 = dialog.findViewById(R.id.awayQT4);
-            final TextView awayOT = dialog.findViewById(R.id.awayOT);
-            final TextView homeTeam = dialog.findViewById(R.id.teamHome);
-            final TextView homeQT1 = dialog.findViewById(R.id.homeQT1);
-            final TextView homeQT2 = dialog.findViewById(R.id.homeQT2);
-            final TextView homeQT3 = dialog.findViewById(R.id.homeQT3);
-            final TextView homeQT4 = dialog.findViewById(R.id.homeQT4);
-            final TextView homeOT = dialog.findViewById(R.id.homeOT);
-            final TextView scoreOT = dialog.findViewById(R.id.scoreOT);
-
-
-            awayTeam.setText(g.awayTeam.abbr);
-            awayQT1.setText(Integer.toString(g.awayQScore[0]));
-            awayQT2.setText(Integer.toString(g.awayQScore[1]));
-            awayQT3.setText(Integer.toString(g.awayQScore[2]));
-            awayQT4.setText(Integer.toString(g.awayQScore[3]));
-
-            homeTeam.setText(g.homeTeam.abbr);
-            homeQT1.setText(Integer.toString(g.homeQScore[0]));
-            homeQT2.setText(Integer.toString(g.homeQScore[1]));
-            homeQT3.setText(Integer.toString(g.homeQScore[2]));
-            homeQT4.setText(Integer.toString(g.homeQScore[3]));
-
-            if (g.numOT > 0) {
-                int awayOTscore = g.awayScore - (g.awayQScore[0] + g.awayQScore[1] + g.awayQScore[2] + g.awayQScore[3]);
-                int homeOTscore = g.homeScore - (g.homeQScore[0] + g.homeQScore[1] + g.homeQScore[2] + g.homeQScore[3]);
-                awayOT.setText(Integer.toString(awayOTscore));
-                homeOT.setText(Integer.toString(homeOTscore));
-            } else {
-                awayOT.setText("");
-                homeOT.setText("");
-                scoreOT.setText("");
-            }
-
-            final TextView gameDialogScoreDashName = dialog.findViewById(R.id.gameDialogScoreDashName);
-            if (g.numOT > 0) {
-                gameDialogScoreDashName.setText(g.numOT + "OT");
-            } else gameDialogScoreDashName.setText("@");
-
-
-            final TextView gameL = dialog.findViewById(R.id.gameDialogLeft);
-            gameL.setText(gameStr[0]);
-            final TextView gameC = dialog.findViewById(R.id.gameDialogCenter);
-            gameC.setText(gameStr[1]);
-            final TextView gameR = dialog.findViewById(R.id.gameDialogRight);
-            gameR.setText(gameStr[2]);
-
-            final TextView gameQL = dialog.findViewById(R.id.gameDialogQBLeft);
-            gameQL.setText(gameStr[3]);
-            final TextView gameQC = dialog.findViewById(R.id.gameDialogQBCenter);
-            gameQC.setText(gameStr[4]);
-            final TextView gameQR = dialog.findViewById(R.id.gameDialogQBRight);
-            gameQR.setText(gameStr[5]);
-
-            final TextView gameRL = dialog.findViewById(R.id.gameDialogRushLeft);
-            gameRL.setText(gameStr[6]);
-            final TextView gameRC = dialog.findViewById(R.id.gameDialogRushCenter);
-            gameRC.setText(gameStr[7]);
-            final TextView gameRR = dialog.findViewById(R.id.gameDialogRushRight);
-            gameRR.setText(gameStr[8]);
-
-            final TextView gameWL = dialog.findViewById(R.id.gameDialogRecLeft);
-            gameWL.setText(gameStr[9]);
-            final TextView gameWC = dialog.findViewById(R.id.gameDialogRecCenter);
-            gameWC.setText(gameStr[10]);
-            final TextView gameWR = dialog.findViewById(R.id.gameDialogRecRight);
-            gameWR.setText(gameStr[11]);
-
-            final TextView gameDL = dialog.findViewById(R.id.gameDialogDefLeft);
-            gameDL.setText(gameStr[12]);
-            final TextView gameDC = dialog.findViewById(R.id.gameDialogDefCenter);
-            gameDC.setText(gameStr[13]);
-            final TextView gameDR = dialog.findViewById(R.id.gameDialogDefRight);
-            gameDR.setText(gameStr[14]);
-
-            final TextView gameKL = dialog.findViewById(R.id.gameDialogKickLeft);
-            gameKL.setText(gameStr[15]);
-            final TextView gameKC = dialog.findViewById(R.id.gameDialogKickCenter);
-            gameKC.setText(gameStr[16]);
-            final TextView gameKR = dialog.findViewById(R.id.gameDialogKickRight);
-            gameKR.setText(gameStr[17]);
-
-            final TextView gameB = dialog.findViewById(R.id.gameDialogBottom);
-            gameB.setText(gameStr[18] + "\n\n");
-
-            String[] selection;
-            selection = new String[5];
-            selection[0] = "menu >> Game Summary";
-            selection[1] = "menu >> Offense Stats";
-            selection[2] = "menu >> Defense Stats";
-            selection[3] = "menu >> Special Teams Stats";
-            selection[4] = "menu >> Game Play Log";
-
-            Spinner potySpinner = dialog.findViewById(R.id.boxscoreMenu);
-            avoidSpinnerDropdownFocus(potySpinner);
-            final ArrayAdapter<String> boxMenu = new ArrayAdapter<>(this,
-                    android.R.layout.simple_spinner_item, selection);
-            boxMenu.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            potySpinner.setAdapter(boxMenu);
-
-            potySpinner.setOnItemSelectedListener(
-                    new AdapterView.OnItemSelectedListener() {
-                        public void onItemSelected(
-                                AdapterView<?> parent, View view, int position, long id) {
-                            if (position == 0) {
-                                //Show Summary Only
-
-                                gameQL.setVisibility(View.GONE);
-                                gameQC.setVisibility(View.GONE);
-                                gameQR.setVisibility(View.GONE);
-
-                                gameRL.setVisibility(View.GONE);
-                                gameRC.setVisibility(View.GONE);
-                                gameRR.setVisibility(View.GONE);
-
-                                gameWL.setVisibility(View.GONE);
-                                gameWC.setVisibility(View.GONE);
-                                gameWR.setVisibility(View.GONE);
-
-                                gameDL.setVisibility(View.GONE);
-                                gameDC.setVisibility(View.GONE);
-                                gameDR.setVisibility(View.GONE);
-
-                                gameKL.setVisibility(View.GONE);
-                                gameKC.setVisibility(View.GONE);
-                                gameKR.setVisibility(View.GONE);
-
-                                gameB.setVisibility(View.GONE);
-
-                            } else if (position == 1) {
-                                //Show Summary + Offense Stats
-
-                                gameQL.setVisibility(View.VISIBLE);
-                                gameQC.setVisibility(View.VISIBLE);
-                                gameQR.setVisibility(View.VISIBLE);
-
-                                gameRL.setVisibility(View.VISIBLE);
-                                gameRC.setVisibility(View.VISIBLE);
-                                gameRR.setVisibility(View.VISIBLE);
-
-                                gameWL.setVisibility(View.VISIBLE);
-                                gameWC.setVisibility(View.VISIBLE);
-                                gameWR.setVisibility(View.VISIBLE);
-
-                                gameDL.setVisibility(View.GONE);
-                                gameDC.setVisibility(View.GONE);
-                                gameDR.setVisibility(View.GONE);
-
-                                gameKL.setVisibility(View.GONE);
-                                gameKC.setVisibility(View.GONE);
-                                gameKR.setVisibility(View.GONE);
-                                gameB.setVisibility(View.GONE);
-
-                            } else if (position == 2) {
-                                //Show Summary + Defense Stats
-
-                                gameQL.setVisibility(View.GONE);
-                                gameQC.setVisibility(View.GONE);
-                                gameQR.setVisibility(View.GONE);
-
-                                gameRL.setVisibility(View.GONE);
-                                gameRC.setVisibility(View.GONE);
-                                gameRR.setVisibility(View.GONE);
-
-                                gameWL.setVisibility(View.GONE);
-                                gameWC.setVisibility(View.GONE);
-                                gameWR.setVisibility(View.GONE);
-
-                                gameDL.setVisibility(View.VISIBLE);
-                                gameDC.setVisibility(View.VISIBLE);
-                                gameDR.setVisibility(View.VISIBLE);
-
-                                gameKL.setVisibility(View.GONE);
-                                gameKC.setVisibility(View.GONE);
-                                gameKR.setVisibility(View.GONE);
-                                gameB.setVisibility(View.GONE);
-
-                            } else if (position == 3) {
-                                //Show Summary + Specical Teams Stats
-
-                                gameQL.setVisibility(View.GONE);
-                                gameQC.setVisibility(View.GONE);
-                                gameQR.setVisibility(View.GONE);
-
-                                gameRL.setVisibility(View.GONE);
-                                gameRC.setVisibility(View.GONE);
-                                gameRR.setVisibility(View.GONE);
-
-                                gameWL.setVisibility(View.GONE);
-                                gameWC.setVisibility(View.GONE);
-                                gameWR.setVisibility(View.GONE);
-
-                                gameDL.setVisibility(View.GONE);
-                                gameDC.setVisibility(View.GONE);
-                                gameDR.setVisibility(View.GONE);
-
-                                gameKL.setVisibility(View.VISIBLE);
-                                gameKC.setVisibility(View.VISIBLE);
-                                gameKR.setVisibility(View.VISIBLE);
-                                gameB.setVisibility(View.GONE);
-
-                            } else if (position == 4) {
-                                //Show Summary + Play by Play
-
-                                gameQL.setVisibility(View.GONE);
-                                gameQC.setVisibility(View.GONE);
-                                gameQR.setVisibility(View.GONE);
-
-                                gameRL.setVisibility(View.GONE);
-                                gameRC.setVisibility(View.GONE);
-                                gameRR.setVisibility(View.GONE);
-
-                                gameWL.setVisibility(View.GONE);
-                                gameWC.setVisibility(View.GONE);
-                                gameWR.setVisibility(View.GONE);
-
-                                gameDL.setVisibility(View.GONE);
-                                gameDC.setVisibility(View.GONE);
-                                gameDR.setVisibility(View.GONE);
-
-                                gameKL.setVisibility(View.GONE);
-                                gameKC.setVisibility(View.GONE);
-                                gameKR.setVisibility(View.GONE);
-
-                                gameB.setVisibility(View.VISIBLE);
-
-                            } else {
-
-                                gameQL.setVisibility(View.GONE);
-                                gameQC.setVisibility(View.GONE);
-                                gameQR.setVisibility(View.GONE);
-
-                                gameRL.setVisibility(View.GONE);
-                                gameRC.setVisibility(View.GONE);
-                                gameRR.setVisibility(View.GONE);
-
-                                gameWL.setVisibility(View.GONE);
-                                gameWC.setVisibility(View.GONE);
-                                gameWR.setVisibility(View.GONE);
-
-                                gameDL.setVisibility(View.GONE);
-                                gameDC.setVisibility(View.GONE);
-                                gameDR.setVisibility(View.GONE);
-
-                                gameKL.setVisibility(View.GONE);
-                                gameKC.setVisibility(View.GONE);
-                                gameKR.setVisibility(View.GONE);
-
-                                gameB.setVisibility(View.GONE);
-                            }
-                        }
-
-                        public void onNothingSelected(AdapterView<?> parent) {
-                            // do nothing
-                        }
-                    });
-
-
-        } else {
-            // Show game scouting dialog
-            gameStr = g.getGameScoutStr();
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(g.awayTeam.name + " @ " + g.homeTeam.name + ": " + g.gameName)
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            //do nothing?
-                        }
-                    })
-                    .setView(getLayoutInflater().inflate(R.layout.game_scout_dialog, null));
-            AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-            showImmersive(dialog);
-
-            final TextView gameL = dialog.findViewById(R.id.gameScoutDialogLeft);
-            gameL.setText(gameStr[0]);
-            final TextView gameC = dialog.findViewById(R.id.gameScoutDialogCenter);
-            gameC.setText(gameStr[1]);
-            final TextView gameR = dialog.findViewById(R.id.gameScoutDialogRight);
-            gameR.setText(gameStr[2]);
-            final TextView gameB = dialog.findViewById(R.id.gameScoutDialogBottom);
-            gameB.setText(gameStr[3]);
-
-            // Set up spinners to choose strategy, if the game involves the user team
-            if (g.awayTeam == userTeam || g.homeTeam == userTeam) {
-
-                // Set text to show user team's abbr
-                TextView textScoutOffenseStrategy = dialog.findViewById(R.id.textScoutOffenseStrategy);
-                TextView textScoutDefenseStrategy = dialog.findViewById(R.id.textScoutDefenseStrategy);
-                textScoutOffenseStrategy.setText(userTeam.abbr + " Off Strategy:");
-                textScoutDefenseStrategy.setText(userTeam.abbr + " Def Strategy:");
-
-                // Get the strategy options
-                final PlaybookOffense[] tsOff = userTeam.getPlaybookOff();
-                final PlaybookDefense[] tsDef = userTeam.getPlaybookDef();
-                int offStratNum = 0;
-                int defStratNum = 0;
-
-                String[] stratOffSelection = new String[tsOff.length];
-                for (int i = 0; i < tsOff.length; ++i) {
-                    stratOffSelection[i] = tsOff[i].getStratName();
-                    if (stratOffSelection[i].equals(userTeam.playbookOff.getStratName()))
-                        offStratNum = i;
-                }
-
-                String[] stratDefSelection = new String[tsDef.length];
-                for (int i = 0; i < tsDef.length; ++i) {
-                    stratDefSelection[i] = tsDef[i].getStratName();
-                    if (stratDefSelection[i].equals(userTeam.playbookDef.getStratName()))
-                        defStratNum = i;
-                }
-
-                // Offense Strategy Spinner
-                Spinner stratOffSelectionSpinner = dialog.findViewById(R.id.spinnerScoutOffenseStrategy);
-                avoidSpinnerDropdownFocus(stratOffSelectionSpinner);
-                ArrayAdapter<String> stratOffSpinnerAdapter = new ArrayAdapter<>(this,
-                        android.R.layout.simple_spinner_item, stratOffSelection);
-                stratOffSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                stratOffSelectionSpinner.setAdapter(stratOffSpinnerAdapter);
-                stratOffSelectionSpinner.setSelection(offStratNum);
-
-                stratOffSelectionSpinner.setOnItemSelectedListener(
-                        new AdapterView.OnItemSelectedListener() {
-                            public void onItemSelected(
-                                    AdapterView<?> parent, View view, int position, long id) {
-                                userTeam.playbookOff = tsOff[position];
-                                userTeam.playbookOffNum = position;
-                            }
-
-                            public void onNothingSelected(AdapterView<?> parent) {
-                                // do nothing
-                            }
-                        });
-
-                // Defense Spinner Adapter
-                Spinner stratDefSelectionSpinner = dialog.findViewById(R.id.spinnerScoutDefenseStrategy);
-                avoidSpinnerDropdownFocus(stratDefSelectionSpinner);
-                ArrayAdapter<String> stratDefSpinnerAdapter = new ArrayAdapter<>(this,
-                        android.R.layout.simple_spinner_item, stratDefSelection);
-                stratDefSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                stratDefSelectionSpinner.setAdapter(stratDefSpinnerAdapter);
-                stratDefSelectionSpinner.setSelection(defStratNum);
-
-                stratDefSelectionSpinner.setOnItemSelectedListener(
-                        new AdapterView.OnItemSelectedListener() {
-                            public void onItemSelected(
-                                    AdapterView<?> parent, View view, int position, long id) {
-                                userTeam.playbookDef = tsDef[position];
-                                userTeam.playbookDefNum = position;
-                            }
-
-                            public void onNothingSelected(AdapterView<?> parent) {
-                                // do nothing
-                            }
-                        });
-            } else {
-                // Make the strategy stuff invisible
-                Spinner stratOffSelectionSpinner = dialog.findViewById(R.id.spinnerScoutOffenseStrategy);
-                Spinner stratDefSelectionSpinner = dialog.findViewById(R.id.spinnerScoutDefenseStrategy);
-                avoidSpinnerDropdownFocus(stratOffSelectionSpinner);
-                avoidSpinnerDropdownFocus(stratDefSelectionSpinner);
-                stratOffSelectionSpinner.setVisibility(View.GONE);
-                stratDefSelectionSpinner.setVisibility(View.GONE);
-
-                TextView textScoutOffenseStrategy = dialog.findViewById(R.id.textScoutOffenseStrategy);
-                TextView textScoutDefenseStrategy = dialog.findViewById(R.id.textScoutDefenseStrategy);
-                textScoutOffenseStrategy.setVisibility(View.GONE);
-                textScoutDefenseStrategy.setVisibility(View.GONE);
-            }
-        }
+        GameDialogController.show(this, g, userTeam);
     }
 
     //Weekly Scoreboard
     private void showWeeklyScores() {
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Weekly Scoreboard")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //do nothing?
-                    }
-                })
-                .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-        bindRankingsDialogShell(dialog, "Weekly Scoreboard", "Flip across regular season and postseason weeks to review the full league scoreboard.");
-
-        ArrayList<String> rankings = new ArrayList<>();
-        int dbSize;
-        if (simLeague.currentWeek + 2 <= simLeague.regSeasonWeeks+5 && simLeague.currentWeek+1 <= simLeague.regSeasonWeeks) dbSize = simLeague.currentWeek + 2;
-        else dbSize = simLeague.regSeasonWeeks+5;
-
-        String[] weekSelection = new String[dbSize];
-        for (int i = 0; i < weekSelection.length; ++i) {
-            if (i == simLeague.regSeasonWeeks) weekSelection[i] = "Conf Champ Week";
-            else if (i == simLeague.regSeasonWeeks+1 && !simLeague.expPlayoffs) weekSelection[i] = "Bowl Week 1";
-            else if (i == simLeague.regSeasonWeeks+2 && !simLeague.expPlayoffs) weekSelection[i] = "Bowl Week 2";
-            else if (i == simLeague.regSeasonWeeks+3 && !simLeague.expPlayoffs) weekSelection[i] = "Bowl Week 3";
-            else if (i == simLeague.regSeasonWeeks+1) weekSelection[i] = "First Round";
-            else if (i == simLeague.regSeasonWeeks+2) weekSelection[i] = "Quarterfinals";
-            else if (i == simLeague.regSeasonWeeks+3) weekSelection[i] = "Semifinals";
-            else if (i == simLeague.regSeasonWeeks+4) weekSelection[i] = "National Champ";
-            else weekSelection[i] = "Week " + i;
-        }
-
-        Spinner weekSelectionSpinner = dialog.findViewById(R.id.spinnerTeamRankings);
-        avoidSpinnerDropdownFocus(weekSelectionSpinner);
-        ArrayAdapter<String> weekSelectionSpinnerAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, weekSelection);
-        weekSelectionSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        weekSelectionSpinner.setAdapter(weekSelectionSpinnerAdapter);
-
-        int psweek = simLeague.currentWeek;
-        if(psweek > simLeague.regSeasonWeeks+4) psweek = simLeague.regSeasonWeeks+4;
-        if(simLeague.currentWeek+2 <= simLeague.regSeasonWeeks) weekSelectionSpinner.setSelection(dbSize - 2);
-        else weekSelectionSpinner.setSelection(psweek);
-
-        final ListView newsStoriesList = dialog.findViewById(R.id.listViewTeamRankings);
-        final NewsStories weeklyScoresAdapter = new NewsStories(this, rankings);
-        newsStoriesList.setAdapter(weeklyScoresAdapter);
-
-        weekSelectionSpinner.setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    public void onItemSelected(
-                            AdapterView<?> parent, View view, int position, long id) {
-                        ArrayList<String> scores = simLeague.weeklyScores.get(position);
-                        boolean isempty = false;
-                        if (scores.size() == 0) {
-                            isempty = true;
-                            scores.add(" > ");
-                        }
-                        weeklyScoresAdapter.clear();
-                        weeklyScoresAdapter.addAll(scores);
-                        weeklyScoresAdapter.notifyDataSetChanged();
-                        if (isempty) {
-                            scores.remove(0);
-                        }
-                    }
-
-                    public void onNothingSelected(AdapterView<?> parent) {
-                        // do nothing
-                    }
-                });
-
+        WeeklyScoresDialogController.show(this, simLeague);
     }
 
     // Shows Conference Standings
@@ -1798,283 +1222,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Depth Chart
     private void depthChartDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Set Team Lineup")
-                .setView(getLayoutInflater().inflate(R.layout.team_lineup_dialog, null));
-        final AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-
-        final String[] positionSelection = {"Quarterbacks", "Running Backs", "Wide Receivers", "Tight Ends", "Off Linemen",
-                "Kickers", "Def Linemen", "Linebackers", "Cornerbacks", "Safeties"};
-        final int[] positionNumberRequired = {userTeam.startersQB, userTeam.startersRB, userTeam.startersWR, userTeam.startersTE, userTeam.startersOL, userTeam.startersK, userTeam.startersDL, userTeam.startersLB, userTeam.startersCB, userTeam.startersS};
-        final Spinner teamLineupPositionSpinner = dialog.findViewById(R.id.spinnerTeamLineupPosition);
-        avoidSpinnerDropdownFocus(teamLineupPositionSpinner);
-        ArrayAdapter<String> teamLineupPositionSpinnerAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, positionSelection);
-        teamLineupPositionSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        teamLineupPositionSpinner.setAdapter(teamLineupPositionSpinnerAdapter);
-
-        final TextView minPlayersText = dialog.findViewById(R.id.textMinPlayers);
-
-        // Text to show what each attr is
-        final TextView textLineupPositionDescription = dialog.findViewById(R.id.textViewLineupPositionDescription);
-
-        // List of team's players for selected position
-        final ArrayList<Player> positionPlayers = new ArrayList<>();
-        positionPlayers.addAll(userTeam.teamQBs);
-
-        final ListView teamPositionList = dialog.findViewById(R.id.listViewTeamLineup);
-        final DepthChart teamLineupAdapter = new DepthChart(this, positionPlayers, 1);
-        teamPositionList.setAdapter(teamLineupAdapter);
-
-        teamLineupPositionSpinner.setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    public void onItemSelected(
-                            AdapterView<?> parent, View view, int position, long id) {
-
-                        minPlayersText.setText("Starters: " + positionNumberRequired[position]);
-
-                        updateLineupList(position, teamLineupAdapter, positionNumberRequired, positionPlayers, textLineupPositionDescription);
-                    }
-
-                    public void onNothingSelected(AdapterView<?> parent) {
-                        // do nothing
-                    }
-                });
-
-        Button saveLineupsButton = dialog.findViewById(R.id.buttonSaveLineups);
-        Button doneWithLineupsButton = dialog.findViewById(R.id.buttonDoneWithLineups);
-
-        doneWithLineupsButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Perform action on click
-                dialog.dismiss();
-                updateCurrTeam();
-            }
-        });
-
-        saveLineupsButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Save the lineup that player set for the position
-                int positionSpinner = teamLineupPositionSpinner.getSelectedItemPosition();
-                avoidSpinnerDropdownFocus(teamLineupPositionSpinner);
-                if (teamLineupAdapter.playersSelected.size() == teamLineupAdapter.playersRequired) {
-                    // Set starters to new selection
-                    userTeam.setStarters(teamLineupAdapter.playersSelected, positionSpinner);
-
-                    // Update list to show the change
-                    updateLineupList(positionSpinner, teamLineupAdapter, positionNumberRequired, positionPlayers, textLineupPositionDescription);
-
-                    Toast.makeText(MainActivity.this, "Saved lineup for " + positionSelection[positionSpinner] + "!",
-                            Toast.LENGTH_SHORT).show();
-                } else {
-                    Toast.makeText(MainActivity.this, teamLineupAdapter.playersSelected.size() + " players selected.\nNot the correct number of starters (" + teamLineupAdapter.playersRequired + ")",
-                            Toast.LENGTH_SHORT).show();
-                }
-
-            }
-        });
-    }
-
-    //Depth Chart Lineup Setup
-    private void updateLineupList(int position, DepthChart teamLineupAdapter, int[] positionNumberRequired,
-                                  ArrayList<Player> positionPlayers, TextView textLineupPositionDescription) {
-        teamLineupAdapter.playersRequired = positionNumberRequired[position];
-        teamLineupAdapter.playersSelected.clear();
-        teamLineupAdapter.players.clear();
-        positionPlayers.clear();
-        // Change position players to correct position
-        switch (position) {
-            case 0:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Pass Strength, Pass Accuracy, Evasion, Speed)");
-                positionPlayers.addAll(userTeam.teamQBs);
-                break;
-            case 1:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Speed, Evasion, Power, Catch)");
-                positionPlayers.addAll(userTeam.teamRBs);
-                break;
-            case 2:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Speed, Catch, Evasion, Jump)");
-                positionPlayers.addAll(userTeam.teamWRs);
-                break;
-            case 3:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Block, Catch, Evasion, Speed)");
-                positionPlayers.addAll(userTeam.teamTEs);
-                break;
-            case 4:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Run Block, Pass Block, Vision, Strength)");
-                positionPlayers.addAll(userTeam.teamOLs);
-                break;
-            case 5:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Kick Strength, Kick Accuracy, Pressure, Form)");
-                positionPlayers.addAll(userTeam.teamKs);
-                break;
-            case 6:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Run Stop, Tackle, Pass Rush, Strength)");
-                positionPlayers.addAll(userTeam.teamDLs);
-                break;
-            case 7:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Tackle, Run Stop, Cover, Speed)");
-                positionPlayers.addAll(userTeam.teamLBs);
-                break;
-            case 8:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Cover, Speed, Tackle, Jump)");
-                positionPlayers.addAll(userTeam.teamCBs);
-                break;
-            case 9:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Tackle, Cover, Speed, Run Stop)");
-                positionPlayers.addAll(userTeam.teamSs);
-                break;
-
-        }
-
-        // Change starters to correct starters
-        for (int i = 0; i < teamLineupAdapter.playersRequired; ++i) {
-            teamLineupAdapter.playersSelected.add(positionPlayers.get(i));
-        }
-        teamLineupAdapter.notifyDataSetChanged();
+        DepthChartDialogController.showDepthChart(this, userTeam);
     }
 
     //Depth Chart
     private void redshirtDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Select Redshirt Players")
-                .setView(getLayoutInflater().inflate(R.layout.team_lineup_dialog, null));
-        final AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-
-        final String[] positionSelection = {"Quarterbacks", "Running Backs", "Wide Receivers", "Tight Ends", "Off Linemen",
-                "Kickers", "Def Linemen", "Linebackers", "Cornerbacks", "Safeties"};
-        final int[] positionNumberRequired = {userTeam.minQBs, userTeam.minRBs, userTeam.minWRs, userTeam.minTEs, userTeam.minOLs, userTeam.minKs, userTeam.minDLs, userTeam.minLBs, userTeam.minCBs, userTeam.minSs};
-        final Spinner teamLineupPositionSpinner = dialog.findViewById(R.id.spinnerTeamLineupPosition);
-        avoidSpinnerDropdownFocus(teamLineupPositionSpinner);
-        ArrayAdapter<String> teamLineupPositionSpinnerAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, positionSelection);
-        teamLineupPositionSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        teamLineupPositionSpinner.setAdapter(teamLineupPositionSpinnerAdapter);
-
-        final TextView minPlayersText = dialog.findViewById(R.id.textMinPlayers);
-
-        // Text to show what each attr is
-        final TextView textLineupPositionDescription = dialog.findViewById(R.id.textViewLineupPositionDescription);
-
-        // List of team's players for selected position
-        final ArrayList<Player> positionPlayers = new ArrayList<>();
-        positionPlayers.addAll(userTeam.teamQBs);
-
-        final ListView teamPositionList = dialog.findViewById(R.id.listViewTeamLineup);
-        final RedshirtAdapter redshirtSelector = new RedshirtAdapter(this, positionPlayers, 1);
-        teamPositionList.setAdapter(redshirtSelector);
-
-        teamLineupPositionSpinner.setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    public void onItemSelected(
-                            AdapterView<?> parent, View view, int position, long id) {
-
-                        minPlayersText.setText("Min Active: " + positionNumberRequired[position] + " Current Active: " + userTeam.getActivePlayers(position));
-                        redshirtLineup(position, redshirtSelector, positionNumberRequired, positionPlayers, textLineupPositionDescription);
-                    }
-
-                    public void onNothingSelected(AdapterView<?> parent) {
-                        // do nothing
-                    }
-                });
-
-        Button saveLineupsButton = dialog.findViewById(R.id.buttonSaveLineups);
-        saveLineupsButton.setText("REDSHIRT PLAYERS");
-        Button doneWithLineupsButton = dialog.findViewById(R.id.buttonDoneWithLineups);
-
-        doneWithLineupsButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Button depthchartButton = findViewById(R.id.buttonDepthChart);
-                if (!redshirtComplete) depthchartButton.setText("SET REDSHIRTS");
-                dialog.dismiss();
-                updateCurrTeam();
-            }
-        });
-
-        saveLineupsButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Save the lineup that player set for the position
-                int positionSpinner = teamLineupPositionSpinner.getSelectedItemPosition();
-                avoidSpinnerDropdownFocus(teamLineupPositionSpinner);
-                // Set starters to new selection
-
-                if (redshirtSelector.playersSelected.size() + userTeam.countRedshirts() - redshirtSelector.playersRemoved.size() <= 10) {
-
-                    userTeam.setRedshirts(redshirtSelector.playersSelected, redshirtSelector.playersRemoved, positionSpinner);
-                    redshirtSelector.playersSelected.clear();
-                    redshirtSelector.playersRemoved.clear();
-
-                    // Update list to show the change
-                    redshirtLineup(positionSpinner, redshirtSelector, positionNumberRequired, positionPlayers, textLineupPositionDescription);
-                    minPlayersText.setText("Min Active: " + positionNumberRequired[positionSpinner] + " Current Active: " + userTeam.getActivePlayers(positionSpinner));
-
-                    Toast.makeText(MainActivity.this, "Set redshirts for " + positionSelection[positionSpinner] + "! You currently have " + userTeam.countRedshirts() + " (Max: 9) redshirted players.",
-                            Toast.LENGTH_SHORT).show();
-
-                } else {
-
-                    Toast.makeText(MainActivity.this, "A maximum of 10 players can be redshirted each season. You have exceeded this! You currently have " + userTeam.countRedshirts() + " redshirted players.",
-                            Toast.LENGTH_SHORT).show();
-                }
-
-
-            }
-        });
-    }
-
-    //Depth Chart Lineup Setup
-    private void redshirtLineup(int position, RedshirtAdapter redshirtSelector, int[] positionNumberRequired,
-                                ArrayList<Player> positionPlayers, TextView textLineupPositionDescription) {
-        redshirtSelector.playersRequired = positionNumberRequired[position];
-        redshirtSelector.playersSelected.clear();
-        redshirtSelector.players.clear();
-        positionPlayers.clear();
-        // Change position players to correct position
-        switch (position) {
-            case 0:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Pass Strength, Pass Accuracy, Evasion, Speed)");
-                positionPlayers.addAll(userTeam.teamQBs);
-                break;
-            case 1:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Power, Speed, Evasion, Catch)");
-                positionPlayers.addAll(userTeam.teamRBs);
-                break;
-            case 2:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Catch, Speed, Evaasion, Jump)");
-                positionPlayers.addAll(userTeam.teamWRs);
-                break;
-            case 3:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Catch, Run Block, Evasion, Speed)");
-                positionPlayers.addAll(userTeam.teamTEs);
-                break;
-            case 4:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Strength, Run Block, Pass Block, Awareness)");
-                positionPlayers.addAll(userTeam.teamOLs);
-                break;
-            case 5:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Kick Strength, Kick Accuracy, Clumsiness, Pressure)");
-                positionPlayers.addAll(userTeam.teamKs);
-                break;
-            case 6:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Strength, Run Def, Pass Def, Tackle)");
-                positionPlayers.addAll(userTeam.teamDLs);
-                break;
-            case 7:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Cover, Run Def, Tackle, Run Stop)");
-                positionPlayers.addAll(userTeam.teamLBs);
-                break;
-            case 8:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Cover, Speed, Tackle, Jump)");
-                positionPlayers.addAll(userTeam.teamCBs);
-                break;
-            case 9:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Cover, Speed, Tackle, Run Stop)");
-                positionPlayers.addAll(userTeam.teamSs);
-                break;
-        }
-        redshirtSelector.notifyDataSetChanged();
+        DepthChartDialogController.showRedshirt(this, userTeam);
     }
 
 
@@ -2336,396 +1489,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         return super.onOptionsItemSelected(item);
     }
-
-    //MENU ITEMS
-
-    //User Settings
+//User Settings
     private void changeSettingsDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Game Settings")
-                .setView(getLayoutInflater().inflate(R.layout.settings_menu, null));
-        final AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-
-        final CheckBox checkboxShowPotential = dialog.findViewById(R.id.checkboxShowPotential);
-        checkboxShowPotential.setChecked(simLeague.showPotential);
-
-        final CheckBox checkboxGameLog = dialog.findViewById(R.id.checkboxShowFullGameLog);
-        checkboxGameLog.setChecked(simLeague.fullGameLog);
-
-        final CheckBox checkboxCareerMode = dialog.findViewById(R.id.checkboxCareerMode);
-        checkboxCareerMode.setChecked(simLeague.isCareerMode());
-
-        final CheckBox checkboxNeverRetire = dialog.findViewById(R.id.checkboxNeverRetire);
-        checkboxNeverRetire.setChecked(simLeague.neverRetire);
-
-        final CheckBox checkboxTV = dialog.findViewById(R.id.checkboxTV);
-        checkboxTV.setChecked(simLeague.enableTV);
-
-        final CheckBox checkboxPlayoffs = dialog.findViewById(R.id.checkboxPlayoffs);
-        final TextView textPlayoffs = dialog.findViewById(R.id.textPlayoffs);
-        if(simLeague.currentWeek < simLeague.regSeasonWeeks) {
-            checkboxPlayoffs.setChecked(simLeague.expPlayoffs);
-        } else {
-            textPlayoffs.setVisibility(View.INVISIBLE);
-            checkboxPlayoffs.setVisibility(View.INVISIBLE);
-        }
-
-        final CheckBox checkboxRealignment = dialog.findViewById(R.id.checkboxConfRealignment);
-        if(simLeague.enableUnivProRel) {
-            final TextView textRealignment = dialog.findViewById(R.id.textConfRealignment);
-            textRealignment.setVisibility(View.INVISIBLE);
-            checkboxRealignment.setVisibility(View.INVISIBLE);
-        }
-        checkboxRealignment.setChecked(simLeague.confRealignment);
-
-        final CheckBox checkboxAdvRealignment = dialog.findViewById(R.id.checkboxAdvConfRealignment);
-        if(simLeague.enableUnivProRel) {
-            final TextView textAdvRealignment = dialog.findViewById(R.id.textAdvConfRealignment);
-            textAdvRealignment.setVisibility(View.INVISIBLE);
-            checkboxAdvRealignment.setVisibility(View.INVISIBLE);
-        }
-        checkboxAdvRealignment.setChecked(simLeague.advancedRealignment);
-
-        final CheckBox checkboxProRelegation = dialog.findViewById(R.id.checkboxProRelegation);
-        //checkboxProRelegation.setChecked(simLeague.enableUnivProRel);
-        checkboxProRelegation.setVisibility(View.INVISIBLE);
-        final TextView textProRel = dialog.findViewById(R.id.textEnableProRel);
-        textProRel.setVisibility(View.INVISIBLE);
-
-        checkboxAdvRealignment.setOnClickListener(new View.OnClickListener() {
-                                                      @Override
-                                                      public void onClick(View view) {
-                                                          if (checkboxAdvRealignment.isChecked()) {
-                                                              checkboxProRelegation.setChecked(false);
-                                                              checkboxRealignment.setChecked(true);
-                                                          }
-
-                                                          if(simLeague.regSeasonWeeks > 13) checkboxAdvRealignment.setChecked(true);
-                                                      }
-                                                  }
-        );
-
-        checkboxRealignment.setOnClickListener(new View.OnClickListener() {
-                                                   @Override
-                                                   public void onClick(View view) {
-                                                       if (checkboxRealignment.isChecked()) {
-                                                           checkboxProRelegation.setChecked(false);
-                                                       }
-                                                   }
-                                               }
-        );
-
-        checkboxProRelegation.setOnClickListener(new View.OnClickListener() {
-                                                     @Override
-                                                     public void onClick(View view) {
-                                                         if (checkboxProRelegation.isChecked()) {
-                                                             checkboxRealignment.setChecked(false);
-                                                             checkboxAdvRealignment.setChecked(false);
-                                                         }
-                                                     }
-                                                 }
-        );
-
-        Button cancelButton = dialog.findViewById(R.id.buttonCancelSettings);
-        Button okButton = dialog.findViewById(R.id.buttonOkSettings);
-        Button changeTeamsButton = dialog.findViewById(R.id.buttonChangeTeams);
-        if (userTeam.HC.age >= 55 && !simLeague.neverRetire) changeTeamsButton.setText("RETIRE");
-        if (simLeague.currentWeek < simLeague.regSeasonWeeks+6) changeTeamsButton.setVisibility(View.INVISIBLE);
-
-        Button gameEditorButton = dialog.findViewById(R.id.buttonGameEditor);
-        Button fixBowlButton = dialog.findViewById(R.id.buttonFixBowls);
-        Button fixProRel = dialog.findViewById(R.id.buttonProRel);
-        if (simLeague.currentWeek > 0) fixProRel.setVisibility(View.INVISIBLE);
-
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Perform action on click
-                dialog.dismiss();
-            }
-        });
-
-        gameEditorButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Perform action on click
-                dialog.dismiss();
-                gameEditorV2();
-
-            }
-        });
-
-        fixBowlButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Perform action on click
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle("Confirmation");
-                builder.setMessage("Are you sure you want to restore bowl names to game default names?");
-                builder.setCancelable(false);
-                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Perform action on click
-                        fixBowlNames();
-                        Toast.makeText(getApplicationContext(), "Bowl Names Replaced!", Toast.LENGTH_SHORT).show();
-                        dialog.dismiss();
-                    }
-                });
-
-                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(getApplicationContext(), "Canceled!", Toast.LENGTH_SHORT).show();
-                        dialog.dismiss();
-                    }
-                });
-
-                builder.show();
-            }
-        });
-
-        fixProRel.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Perform action on click
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setTitle("Confirmation");
-                builder.setMessage("Are you sure you want to convert to Promotion-Relegation Mode?");
-                builder.setCancelable(false);
-                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Perform action on click
-                        simLeague.enableUnivProRel = true;
-                        simLeague.convertUnivProRel();
-                        simLeague.confRealignment = false;
-                        simLeague.advancedRealignment = false;
-                        Toast.makeText(getApplicationContext(), "Conversion Complete!", Toast.LENGTH_SHORT).show();
-                        dialog.dismiss();
-                        updateSpinners();
-                        resetTeamUI();
-                    }
-                });
-
-                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        Toast.makeText(getApplicationContext(), "Canceled!", Toast.LENGTH_SHORT).show();
-                        dialog.dismiss();
-                    }
-                });
-
-                builder.show();
-            }
-        });
-
-        okButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Perform action on click
-                simLeague.showPotential = checkboxShowPotential.isChecked();
-                simLeague.fullGameLog = checkboxGameLog.isChecked();
-                simLeague.careerMode = checkboxCareerMode.isChecked();
-                simLeague.neverRetire = checkboxNeverRetire.isChecked();
-                simLeague.confRealignment = checkboxRealignment.isChecked();
-                simLeague.advancedRealignment = checkboxAdvRealignment.isChecked();
-                simLeague.expPlayoffs = checkboxPlayoffs.isChecked();
-                simLeague.enableTV = checkboxTV.isChecked();
-                if (simLeague.enableUnivProRel) {
-                    simLeague.confRealignment = false;
-                    simLeague.advancedRealignment = false;
-                }
-                dialog.dismiss();
-                resetUI();
-
-            }
-        });
-
-        changeTeamsButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                dialog.dismiss();
-                if (userTeam.HC.age >= 55 && !simLeague.neverRetire) {
-                    retirementQuestion();
-                } else {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setTitle("Confirmation");
-                    builder.setMessage("Are you sure you want to resign from this position?");
-                    builder.setCancelable(false);
-                    builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            // Perform action on click
-                            userHC = userTeam.HC;
-                            //selectNewTeam();
-                            if (simLeague.isCareerMode()) jobOffers(userHC);
-                            else selectNewTeam(userHC);
-                            dialog.dismiss();
-                        }
-                    });
-
-                    builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Toast.makeText(getApplicationContext(), "Canceled!", Toast.LENGTH_SHORT).show();
-                            dialog.dismiss();
-
-                        }
-                    });
-
-                    builder.show();
-                }
-            }
-        });
-
+        SettingsDialogController.show(this, simLeague);
     }
 
     //League History
     private void showLeagueHistoryDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("League History / Records")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //do nothing?
-                    }
-                })
-                .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-        bindRankingsDialogShell(dialog, "League Archive", "Move between history, records, hall of fame entries, and coach data without leaving the same league center.");
-
-        String[] historySelection = {"League History", "League Records", "League Stats", "Hall of Fame", "Head Coach Database"};
-        Spinner leagueHistorySpinner = dialog.findViewById(R.id.spinnerTeamRankings);
-        avoidSpinnerDropdownFocus(leagueHistorySpinner);
-        ArrayAdapter<String> leagueHistorySpinnerAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, historySelection);
-        leagueHistorySpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        leagueHistorySpinner.setAdapter(leagueHistorySpinnerAdapter);
-
-        final ListView leagueHistoryList = dialog.findViewById(R.id.listViewTeamRankings);
-        final String[] hofPlayers = new String[simLeague.leagueHoF.size()];
-        for (int i = 0; i < simLeague.leagueHoF.size(); ++i) {
-            hofPlayers[i] = simLeague.leagueHoF.get(i);
-        }
-
-        leagueHistorySpinner.setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    public void onItemSelected(
-                            AdapterView<?> parent, View view, int position, long id) {
-                        if (position == 1) {
-                            final LeagueRecordsList leagueRecordsAdapter =
-                                    new LeagueRecordsList(MainActivity.this, simLeague.getLeagueRecordsStr().split("\n"), userTeam.abbr, userTeam.name);
-                            leagueHistoryList.setAdapter(leagueRecordsAdapter);
-                        } else if (position == 2) {
-                            showLeagueHistoryStats();
-                        } else if (position == 3) {
-                            HallofFameList hofAdapter = new HallofFameList(MainActivity.this, hofPlayers, userTeam.name, false, MainActivity.this);
-                            leagueHistoryList.setAdapter(hofAdapter);
-                        } else if (position == 4) {
-                            showCoachDatabase();
-                        } else {
-                            final LeagueHistoryList leagueHistoryAdapter =
-                                    new LeagueHistoryList(MainActivity.this, simLeague.getLeagueHistoryStr().split("%"), userTeam.abbr);
-                            leagueHistoryList.setAdapter(leagueHistoryAdapter);
-                        }
-                    }
-
-                    public void onNothingSelected(AdapterView<?> parent) {
-                        // do nothing
-                    }
-                });
+        LeagueHistoryDialogController.show(this, simLeague, userTeam);
     }
 
-    //League History Stats
     private void showLeagueHistoryStats() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("League Stats")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //do nothing?
-                    }
-                })
-                .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-        bindRankingsDialogShell(dialog, "League Stat Leaders", "Compare long-term program achievements across titles, bowls, wins, and hall-of-fame production.");
-
-        ArrayList<String> rankings = new ArrayList<>();
-        String[] rankingsSelection =
-                {"National Championships", "Conference Championships", "Bowl Victories", "Total Wins", "Hall of Famers"};
-        Spinner teamRankingsSpinner = dialog.findViewById(R.id.spinnerTeamRankings);
-        avoidSpinnerDropdownFocus(teamRankingsSpinner);
-        ArrayAdapter<String> teamRankingsSpinnerAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, rankingsSelection);
-        teamRankingsSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        teamRankingsSpinner.setAdapter(teamRankingsSpinnerAdapter);
-
-        final ListView teamRankingsList = dialog.findViewById(R.id.listViewTeamRankings);
-        final TeamRankingsList teamRankingsAdapter =
-                new TeamRankingsList(this, rankings, userTeam.name);
-        teamRankingsList.setAdapter(teamRankingsAdapter);
-
-        teamRankingsSpinner.setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    public void onItemSelected(
-                            AdapterView<?> parent, View view, int position, long id) {
-                        ArrayList<String> rankings = simLeague.getLeagueHistoryStats(position);
-                        teamRankingsAdapter.setUserTeamStrRep(userTeam.name);
-                        teamRankingsAdapter.clear();
-                        teamRankingsAdapter.addAll(rankings);
-                        teamRankingsAdapter.notifyDataSetChanged();
-                    }
-
-                    public void onNothingSelected(AdapterView<?> parent) {
-                        // do nothing
-                    }
-                });
+        LeagueHistoryDialogController.showLeagueHistoryStats(this, simLeague, userTeam);
     }
 
-    //League History Stats
     private void showCoachDatabase() {
-        ArrayList<String> userNames = simLeague.getUserNames();
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Head Coach Database")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //do nothing?
-                    }
-                })
-                .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-        bindRankingsDialogShell(dialog, "Head Coach Database", "Track the best careers in the universe by wins, trophies, awards, and accumulated prestige.");
-
-        ArrayList<String> rankings = new ArrayList<>();// = simLeague.getTeamRankingsStr(0);
-        String[] rankingsSelection =
-                {"National Championships", "Conference Championships", "Bowl Victories", "Total Wins", "Winning PCT", "Head Coach of the Year", "Conf Head Coach of Year", "All-Americans", "All-Conference", "Head Coach Career Score", "Head Coach Accumulated Prestige"};
-        Spinner teamRankingsSpinner = dialog.findViewById(R.id.spinnerTeamRankings);
-        avoidSpinnerDropdownFocus(teamRankingsSpinner);
-        ArrayAdapter<String> teamRankingsSpinnerAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, rankingsSelection);
-        teamRankingsSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        teamRankingsSpinner.setAdapter(teamRankingsSpinnerAdapter);
-
-        final ListView teamRankingsList = dialog.findViewById(R.id.listViewTeamRankings);
-        final CoachDatabase coachDatabase =
-                new CoachDatabase(this, rankings, userTeam.name, this, userNames);
-        teamRankingsList.setAdapter(coachDatabase);
-
-        teamRankingsSpinner.setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    public void onItemSelected(
-                            AdapterView<?> parent, View view, int position, long id) {
-                        ArrayList<String> rankings = simLeague.getCoachDatabase(position);
-                        coachDatabase.setupUserHC(userTeam.HC.name + " (" + userTeam.abbr + ")");
-                        coachDatabase.clear();
-                        coachDatabase.addAll(rankings);
-                        coachDatabase.notifyDataSetChanged();
-                    }
-
-                    public void onNothingSelected(AdapterView<?> parent) {
-                        // do nothing
-                    }
-                });
+        LeagueHistoryDialogController.showCoachDatabase(this, simLeague, userTeam);
     }
 
 
@@ -2743,11 +1522,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.bowl_ccg_dialog, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
-        bindArchiveDialogShell(dialog, "AP Poll Archive", "Step through each completed season to review how the national rankings evolved over time.");
+        PlatformUiHelper.bindArchiveDialogShell(dialog, "AP Poll Archive", "Step through each completed season to review how the national rankings evolved over time.");
         if (season == seasonStart) {
             String[] selection = {"No History to Display"};
             Spinner top25hisSpinner = dialog.findViewById(R.id.spinnerBowlCCG);
-            avoidSpinnerDropdownFocus(top25hisSpinner);
+            PlatformUiHelper.avoidSpinnerDropdownFocus(top25hisSpinner);
             final ArrayAdapter<String> top25Adapter = new ArrayAdapter<>(this,
                     android.R.layout.simple_spinner_item, selection);
             top25Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -2758,7 +1537,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 selection[i] = Integer.toString(seasonStart + i);
             }
             Spinner top25hisSpinner = dialog.findViewById(R.id.spinnerBowlCCG);
-            avoidSpinnerDropdownFocus(top25hisSpinner);
+            PlatformUiHelper.avoidSpinnerDropdownFocus(top25hisSpinner);
             final ArrayAdapter<String> top25Adapter = new ArrayAdapter<>(this,
                     android.R.layout.simple_spinner_item, selection);
             top25Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -2793,11 +1572,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
         final AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
-        bindRankingsDialogShell(dialog, currentTeam.name + " Archive", "Review your program history, records, and hall-of-fame legacy from one unified team archive.");
+        PlatformUiHelper.bindRankingsDialogShell(dialog, currentTeam.name + " Archive", "Review your program history, records, and hall-of-fame legacy from one unified team archive.");
 
         String[] selection = {"Team History", "Team Records", "Hall of Fame", "Graph View: Prestige", "Graph View: Rankings"};
         Spinner teamHistSpinner = dialog.findViewById(R.id.spinnerTeamRankings);
-        avoidSpinnerDropdownFocus(teamHistSpinner);
+        PlatformUiHelper.avoidSpinnerDropdownFocus(teamHistSpinner);
         final ArrayAdapter<String> teamHistAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, selection);
         teamHistAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -2854,7 +1633,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.graphview, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
-        bindGraphDialogShell(dialog, currentTeam.name + " Prestige Trend", "See how program prestige has risen and fallen across your team's historical arc.");
+        PlatformUiHelper.bindGraphDialogShell(dialog, currentTeam.name + " Prestige Trend", "See how program prestige has risen and fallen across your team's historical arc.");
         GraphView graph = dialog.findViewById(R.id.graph);
         LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
         String[] yearLabels = new String[currentTeam.teamHistory.size()];
@@ -2894,7 +1673,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.graphview, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
-        bindGraphDialogShell(dialog, currentTeam.name + " Ranking Trend", "Track where your program has landed in the national pecking order over time.");
+        PlatformUiHelper.bindGraphDialogShell(dialog, currentTeam.name + " Ranking Trend", "Track where your program has landed in the national pecking order over time.");
         GraphView graph = dialog.findViewById(R.id.graph);
         LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
         String[] yearLabels = new String[currentTeam.teamHistory.size()];
@@ -2939,11 +1718,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
         final AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
-        bindRankingsDialogShell(dialog, "Head Coach History", "Review one coach's stops and jump into prestige or ranking trend views from the same archive flow.");
+        PlatformUiHelper.bindRankingsDialogShell(dialog, "Head Coach History", "Review one coach's stops and jump into prestige or ranking trend views from the same archive flow.");
 
         String[] selection = {"Team History", "Graph View: Prestige", "Graph View: Rankings"};
         Spinner teamHistSpinner = dialog.findViewById(R.id.spinnerTeamRankings);
-        avoidSpinnerDropdownFocus(teamHistSpinner);
+        PlatformUiHelper.avoidSpinnerDropdownFocus(teamHistSpinner);
         final ArrayAdapter<String> teamHistAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, selection);
         teamHistAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -2987,7 +1766,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.graphview, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
-        bindGraphDialogShell(dialog, hc.name + " Prestige Trend", "Follow how this coach changed program prestige across each stop in his career.");
+        PlatformUiHelper.bindGraphDialogShell(dialog, hc.name + " Prestige Trend", "Follow how this coach changed program prestige across each stop in his career.");
 
         DataPoint[] data = new DataPoint[hc.history.size()];
         GraphView graph = dialog.findViewById(R.id.graph);
@@ -3028,7 +1807,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.graphview, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
-        bindGraphDialogShell(dialog, hc.name + " Ranking Trend", "Follow how this coach's teams climbed or slid in the national rankings over time.");
+        PlatformUiHelper.bindGraphDialogShell(dialog, hc.name + " Ranking Trend", "Follow how this coach's teams climbed or slid in the national rankings over time.");
         DataPoint[] data = new DataPoint[hc.history.size()];
         GraphView graph = dialog.findViewById(R.id.graph);
         LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
@@ -3086,107 +1865,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Team Stats Rankings
     private void showTeamRankingsDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Team Statistical Rankings")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //do nothing?
-                    }
-                })
-                .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-
-        ArrayList<String> rankings = new ArrayList<>();
-        String[] rankingsSelection =
-                {"Power Index", "Prestige", "RPI","Strength of Schedule", "Strength of Wins", "Points Per Game", "Opp Points Per Game",
-                        "Yards Per Game", "Opp Yards Per Game", "Pass Yards Per Game", "Rush Yards Per Game",
-                        "Opp Pass YPG", "Opp Rush YPG", "TO Differential", "Off Talent", "Def Talent", "Team Chemistry", "Recruiting Class", "Discipline Score", "Team Budget", "Team Facilities", "Head Coach - Overall", "Head Coach Score"};
-        Spinner teamRankingsSpinner = dialog.findViewById(R.id.spinnerTeamRankings);
-        avoidSpinnerDropdownFocus(teamRankingsSpinner);
-        ArrayAdapter<String> teamRankingsSpinnerAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, rankingsSelection);
-        teamRankingsSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        teamRankingsSpinner.setAdapter(teamRankingsSpinnerAdapter);
-
-        final ListView teamRankingsList = dialog.findViewById(R.id.listViewTeamRankings);
-        final TeamRankingsList teamRankingsAdapter =
-                new TeamRankingsList(this, rankings, userTeam.name);
-        teamRankingsList.setAdapter(teamRankingsAdapter);
-
-        teamRankingsSpinner.setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    public void onItemSelected(
-                            AdapterView<?> parent, View view, int position, long id) {
-                        ArrayList<String> rankings = simLeague.getTeamRankingsStr(position);
-
-                        teamRankingsAdapter.setUserTeamStrRep(userTeam.name);
-                        if (position == 16)
-                            teamRankingsAdapter.setUserTeamStrRep(userTeam.name + "\n" + userTeam.getTopRecruit());
-
-                        teamRankingsAdapter.clear();
-                        teamRankingsAdapter.addAll(rankings);
-                        teamRankingsAdapter.notifyDataSetChanged();
-                    }
-
-                    public void onNothingSelected(AdapterView<?> parent) {
-                        // do nothing
-                    }
-                });
+        TeamRankingsDialogController.show(this, simLeague, userTeam);
     }
 
     //Player Stats Rankings
     private void showPlayerRankingsDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Player Statistical Rankings")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //do nothing?
-                    }
-                })
-                .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-
-        ArrayList<String> rankings = new ArrayList<>();
-        String[] rankingsSelection =
-                {"Passer Rating", "Passing Yards", "Passing TDs", "Interceptions Thrown", "Pass Comp PCT", "Rushing Yards", "Rushing TDs", "Receptions", "Receiving Yards", "Receiving TDs",
-                        "Tackles", "Sacks", "Fumbles Recovered", "Interceptions", "Field Goals Made", "Field Goal Pct", "Kickoff Return Yards", "Kickoff Return TDs", "Punt Return Yards", "Punt Return TDs",
-                        "Head Coach - Overall", "Head Coach - Season Score"
-                };
-        Spinner playerRankingssSpinner = dialog.findViewById(R.id.spinnerTeamRankings);
-        avoidSpinnerDropdownFocus(playerRankingssSpinner);
-        ArrayAdapter<String> playerRankingssSpinnerAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, rankingsSelection);
-        playerRankingssSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        playerRankingssSpinner.setAdapter(playerRankingssSpinnerAdapter);
-
-        final ListView playerRankingssList = dialog.findViewById(R.id.listViewTeamRankings);
-        final PlayerRankingsList playerRankingssAdapter =
-                new PlayerRankingsList(this, rankings, userTeam.abbr, this);
-        playerRankingssList.setAdapter(playerRankingssAdapter);
-
-        playerRankingssSpinner.setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    public void onItemSelected(
-                            AdapterView<?> parent, View view, int position, long id) {
-                        ArrayList<String> rankings = simLeague.getPlayerRankStr(position);
-                        if (position == 22) {
-                            playerRankingssAdapter.setUserTeamStrRep(userTeam.abbr);
-                        } else {
-                            playerRankingssAdapter.setUserTeamStrRep(userTeam.abbr);
-                        }
-                        playerRankingssAdapter.clear();
-                        playerRankingssAdapter.addAll(rankings);
-                        playerRankingssAdapter.notifyDataSetChanged();
-                    }
-
-                    public void onNothingSelected(AdapterView<?> parent) {
-                        // do nothing
-                    }
-                });
+        PlayerRankingsDialogController.show(this, simLeague, userTeam);
     }
 
     //Bowl Games Schedule
@@ -3202,11 +1886,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.bowl_ccg_dialog, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
-        bindArchiveDialogShell(dialog, "Post-Season Archive", "Switch between conference title games and postseason slates in one shared archive shell.");
+        PlatformUiHelper.bindArchiveDialogShell(dialog, "Post-Season Archive", "Switch between conference title games and postseason slates in one shared archive shell.");
 
         String[] selection = {"Conf Championships", "Post-Season"};
         Spinner bowlCCGSpinner = dialog.findViewById(R.id.spinnerBowlCCG);
-        avoidSpinnerDropdownFocus(bowlCCGSpinner);
+        PlatformUiHelper.avoidSpinnerDropdownFocus(bowlCCGSpinner);
         ArrayAdapter<String> bowlCCGadapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, selection);
         bowlCCGadapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -3250,7 +1934,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             String[] rankingsSelection =
                     {"Head Coach - Overall", "QB - Overall", "RB - Overall", "WR - Overall", "TE - Overall", "OL - Overall", "K - Overall", "DL - Overall", "LB - Overall", "CB - Overall", "S - Overall"};
             Spinner teamRankingsSpinner = dialog.findViewById(R.id.spinnerTeamRankings);
-            avoidSpinnerDropdownFocus(teamRankingsSpinner);
+            PlatformUiHelper.avoidSpinnerDropdownFocus(teamRankingsSpinner);
             ArrayAdapter<String> teamRankingsSpinnerAdapter = new ArrayAdapter<>(this,
                     android.R.layout.simple_spinner_item, rankingsSelection);
             teamRankingsSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -3327,7 +2011,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         Spinner potySpinner = dialog.findViewById(R.id.spinnerTeamRankings);
-        avoidSpinnerDropdownFocus(potySpinner);
+        PlatformUiHelper.avoidSpinnerDropdownFocus(potySpinner);
         ArrayAdapter<String> potyAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, selection);
         potyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -3492,7 +2176,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void onClick(DialogInterface dialog, int which) {
                         // Actually go back to main menu
                         finish();
-                        MainActivity.this.startActivity(GameNavigation.createHomeIntent(MainActivity.this, theme));
+                        flowManager.returnToMainHub();
+                        finish();
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -3511,116 +2196,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //New Game Options
     private void careerModeOptions() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(seasonStart + " Head Coach Career Setup")
-                .setView(getLayoutInflater().inflate(R.layout.settings_menu, null));
-        final AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        builder.setCancelable(false);
-        showImmersive(dialog);
-
-        final CheckBox checkboxShowPotential = dialog.findViewById(R.id.checkboxShowPotential);
-        final TextView textSettingsLead = dialog.findViewById(R.id.textSettingsLead);
-        final TextView textSettingsSublead = dialog.findViewById(R.id.textSettingsSublead);
-        checkboxShowPotential.setChecked(simLeague.showPotential);
-
-        final CheckBox checkboxGameLog = dialog.findViewById(R.id.checkboxShowFullGameLog);
-        checkboxGameLog.setChecked(simLeague.fullGameLog);
-
-        final CheckBox checkboxCareerMode = dialog.findViewById(R.id.checkboxCareerMode);
-        checkboxCareerMode.setChecked(simLeague.isCareerMode());
-
-        final CheckBox checkboxNeverRetire = dialog.findViewById(R.id.checkboxNeverRetire);
-        checkboxNeverRetire.setChecked(simLeague.neverRetire);
-
-        final CheckBox checkboxRealignment = dialog.findViewById(R.id.checkboxConfRealignment);
-        checkboxRealignment.setChecked(simLeague.confRealignment);
-
-        final CheckBox checkboxAdvRealignment = dialog.findViewById(R.id.checkboxAdvConfRealignment);
-        checkboxAdvRealignment.setChecked(simLeague.advancedRealignment);
-
-        final CheckBox checkboxPlayoffs = dialog.findViewById(R.id.checkboxPlayoffs);
-        checkboxPlayoffs.setChecked(simLeague.expPlayoffs);
-
-        if (textSettingsLead != null) {
-            textSettingsLead.setText(seasonStart + " Head Coach Career");
-        }
-        if (textSettingsSublead != null) {
-            textSettingsSublead.setText("Set the tone for your first season, choose whether your coach is on the hot seat, and decide if this universe opens with the modern 12-team playoff.");
-        }
-
-        final CheckBox checkboxProRelegation = dialog.findViewById(R.id.checkboxProRelegation);
-        checkboxProRelegation.setChecked(simLeague.enableUnivProRel);
-
-        final CheckBox checkboxTV = dialog.findViewById(R.id.checkboxTV);
-        checkboxTV.setChecked(simLeague.enableTV);
-
-        checkboxAdvRealignment.setOnClickListener(new View.OnClickListener() {
-                                                   @Override
-                                                   public void onClick(View view) {
-                                                       if (checkboxAdvRealignment.isChecked()) {
-                                                           checkboxProRelegation.setChecked(false);
-                                                           checkboxRealignment.setChecked(true);
-                                                       }
-
-                                                       if(simLeague.regSeasonWeeks > 13) checkboxAdvRealignment.setChecked(true);
-                                                   }
-                                               }
-        );
-
-        checkboxRealignment.setOnClickListener(new View.OnClickListener() {
-                                                                     @Override
-                                                                     public void onClick(View view) {
-                                                                         if (checkboxRealignment.isChecked()) {
-                                                                             checkboxProRelegation.setChecked(false);
-                                                                         }
-                                                                     }
-                                                                 }
-        );
-
-        checkboxProRelegation.setOnClickListener(new View.OnClickListener() {
-                                                     @Override
-                                                     public void onClick(View view) {
-                                                         if (checkboxProRelegation.isChecked()) {
-                                                             checkboxRealignment.setChecked(false);
-                                                             checkboxAdvRealignment.setChecked(false);
-                                                         }
-                                                     }
-                                                 }
-        );
-
-        Button cancelButton = dialog.findViewById(R.id.buttonCancelSettings);
-        cancelButton.setVisibility(View.INVISIBLE);
-        Button changeTeamsButton = dialog.findViewById(R.id.buttonChangeTeams);
-        changeTeamsButton.setVisibility(View.INVISIBLE);
-        Button gameEditorButton = dialog.findViewById(R.id.buttonGameEditor);
-        gameEditorButton.setVisibility(View.INVISIBLE);
-        Button fixBowlButton = dialog.findViewById(R.id.buttonFixBowls);
-        fixBowlButton.setVisibility(View.INVISIBLE);
-        Button fixProRel = dialog.findViewById(R.id.buttonProRel);
-        fixProRel.setVisibility(View.INVISIBLE);
-        Button okButton = dialog.findViewById(R.id.buttonOkSettings);
-        okButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Perform action on click
-                simLeague.showPotential = checkboxShowPotential.isChecked();
-                simLeague.fullGameLog = checkboxGameLog.isChecked();
-                simLeague.careerMode = checkboxCareerMode.isChecked();
-                simLeague.neverRetire = checkboxNeverRetire.isChecked();
-                simLeague.enableUnivProRel = checkboxProRelegation.isChecked();
-                simLeague.confRealignment = checkboxRealignment.isChecked();
-                simLeague.advancedRealignment = checkboxAdvRealignment.isChecked();
-                simLeague.expPlayoffs = checkboxPlayoffs.isChecked();
-                simLeague.enableTV = checkboxTV.isChecked();
-                if (simLeague.enableUnivProRel) {
-                    simLeague.confRealignment = false;
-                    universalProRelAction();
-                }
-                selectTeam();
-                dialog.dismiss();
-
-            }
-        });
-
+        SettingsDialogController.showCareerSetup(this, simLeague);
     }
 
     private void universalProRelAction() {
@@ -3830,7 +2406,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.simple_list_dialog, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
-        bindSimpleListDialogShell(dialog, "Prestige Movement", "See which programs are rising and falling across the current college football landscape.");
+        PlatformUiHelper.bindSimpleListDialogShell(dialog, "Prestige Movement", "See which programs are rising and falling across the current college football landscape.");
 
         final ListView teamRankingsList = dialog.findViewById(R.id.listViewDialog);
         final TeamRankingsList teamRankingsAdapter =
@@ -4433,7 +3009,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.simple_list_dialog, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
-        bindSimpleListDialogShell(dialog, "Budget Landscape", "Compare which programs are operating with the strongest financial footing this cycle.");
+        PlatformUiHelper.bindSimpleListDialogShell(dialog, "Budget Landscape", "Compare which programs are operating with the strongest financial footing this cycle.");
 
         final ListView teamRankingsList = dialog.findViewById(R.id.listViewDialog);
         final TeamRankingsList teamRankingsAdapter =
@@ -4498,11 +3074,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                         //Start Recruiting Activity
                         finish();
-                        MainActivity.this.startActivity(GameNavigation.createRecruitingIntent(
-                                MainActivity.this,
-                                sb.toString(),
-                                theme
-                        ));                    }
+                        flowManager.startRecruiting(sb.toString());
+                        finish();
+                    }
                 })
                 .setNegativeButton("Back", new DialogInterface.OnClickListener() {
                     @Override
@@ -4521,10 +3095,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
-        bindRankingsDialogShell(dialog, "Recruiting Launch", "Check who is leaving your roster or headed to the draft before you enter recruiting season.");
+        PlatformUiHelper.bindRankingsDialogShell(dialog, "Recruiting Launch", "Check who is leaving your roster or headed to the draft before you enter recruiting season.");
         String[] spinnerSelection = {"Players Leaving", "Pro Mock Draft"};
         Spinner beginRecruitingSpinner = dialog.findViewById(R.id.spinnerTeamRankings);
-        avoidSpinnerDropdownFocus(beginRecruitingSpinner);
+        PlatformUiHelper.avoidSpinnerDropdownFocus(beginRecruitingSpinner);
         ArrayAdapter<String> beginRecruitingSpinnerAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, spinnerSelection);
         beginRecruitingSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -4575,11 +3149,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //Start Recruiting Activity
         finish();
-        MainActivity.this.startActivity(GameNavigation.createRecruitingIntent(
-                MainActivity.this,
-                sb.toString(),
-                theme
-        ));
+        flowManager.startRecruiting(sb.toString());
+        finish();
     }
 
     //Recruiting Score
@@ -4596,7 +3167,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.simple_list_dialog, null));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
-        bindSimpleListDialogShell(dialog, "Recruiting Class Rankings", "Measure your incoming class against the rest of the country before you move on to season goals.");
+        PlatformUiHelper.bindSimpleListDialogShell(dialog, "Recruiting Class Rankings", "Measure your incoming class against the rest of the country before you move on to season goals.");
 
         final ListView teamRankingsList = dialog.findViewById(R.id.listViewDialog);
         final TeamRankingsList teamRankingsAdapter =
@@ -4661,7 +3232,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         String[] selection = {"Team History"};
         Spinner teamHistSpinner = dialog.findViewById(R.id.spinnerTeamRankings);
-        avoidSpinnerDropdownFocus(teamHistSpinner);
+        PlatformUiHelper.avoidSpinnerDropdownFocus(teamHistSpinner);
         final ArrayAdapter<String> teamHistAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, selection);
         teamHistAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -4728,7 +3299,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         String[] selection = {"Team History"};
         Spinner teamHistSpinner = dialog.findViewById(R.id.spinnerTeamRankings);
-        avoidSpinnerDropdownFocus(teamHistSpinner);
+        PlatformUiHelper.avoidSpinnerDropdownFocus(teamHistSpinner);
         final ArrayAdapter<String> teamHistAdapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, selection);
         teamHistAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -4903,175 +3474,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //GAME EDITOR V2
 
     public void gameEditorV2() {
-        currentTeam = userTeam;
-        currentConference = simLeague.conferences.get(simLeague.getConfNumber(userTeam.conference));
-
-
-
-        AlertDialog.Builder GameEditor = new AlertDialog.Builder(this);
-        GameEditor.setTitle("Game Universe Editor v2 (BETA)")
-                .setView(getLayoutInflater().inflate(R.layout.game_editor_full, null));
-        final AlertDialog dialog = GameEditor.create();
-        showImmersive(dialog);
-
-        //setup window
-        final List<String> teamEditor = new ArrayList<>();
-        final List<String> confEditor = new ArrayList<>();
-        final Spinner confList = dialog.findViewById(R.id.confList);
-        final Spinner teamList = dialog.findViewById(R.id.teamList);
-        avoidSpinnerDropdownFocus(confList);
-        avoidSpinnerDropdownFocus(teamList);
-        final EditText changeNameEditText = dialog.findViewById(R.id.editTextChangeName);
-        final EditText changeAbbrEditText = dialog.findViewById(R.id.editTextChangeAbbr);
-        final EditText changeLocationText = dialog.findViewById(R.id.editLocation);
-        //changeLocationText.setVisibility(View.INVISIBLE);
-
-        final EditText changeConfEditText = dialog.findViewById(R.id.editTextChangeConf);
-        final EditText changeHCEditText = dialog.findViewById(R.id.editTextChangeHC);
-        final EditText changePrestigeEditText = dialog.findViewById(R.id.editPrestige);
-
-        final ArrayAdapter<String> editorAdaptorConf = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, confEditor);
-        editorAdaptorConf.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        confList.setAdapter(editorAdaptorConf);
-        final ArrayAdapter<String> editorAdaptorTeam = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, teamEditor);
-        editorAdaptorTeam.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        teamList.setAdapter(editorAdaptorTeam);
-
-        Button cancelChangeNameButton = dialog.findViewById(R.id.buttonCancelChangeName);
-        cancelChangeNameButton.setText("BACK");
-        Button okChangeNameButton = dialog.findViewById(R.id.buttonOkChangeName);
-        okChangeNameButton.setText("UPDATE");
-
-        //fill in default data
-        for (int i = 0; i < simLeague.conferences.size(); i++) {
-            confEditor.add(simLeague.conferences.get(i).confName);
-        }
-        for (int i = 0; i < simLeague.conferences.get(simLeague.getConfNumber(currentTeam.conference)).confTeams.size(); i++) {
-            teamEditor.add(simLeague.conferences.get(simLeague.getConfNumber(currentTeam.conference)).confTeams.get(i).name);
-        }
-        editorAdaptorConf.notifyDataSetChanged();
-        editorAdaptorTeam.notifyDataSetChanged();
-
-        //setup spinner data
-        confList.setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    public void onItemSelected(
-                            AdapterView<?> parent, View view, int position, long id) {
-
-                        changeNameEditText.clearComposingText();
-                        changeAbbrEditText.clearComposingText();
-                        changeLocationText.clearComposingText();
-                        changeConfEditText.clearComposingText();
-                        changeHCEditText.clearComposingText();
-                        changePrestigeEditText.clearComposingText();
-
-                        currentConference = simLeague.conferences.get(position);
-                        teamEditor.clear();
-                        for (int i = 0; i < currentConference.confTeams.size(); i++) {
-                            teamEditor.add(currentConference.confTeams.get(i).name);
-                        }
-
-                        editorAdaptorConf.notifyDataSetChanged();
-                        editorAdaptorTeam.notifyDataSetChanged();
-                        teamList.performClick();
-                    }
-
-                    public void onNothingSelected(AdapterView<?> parent) {
-                    }
-                });
-
-        teamList.setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    public void onItemSelected(
-                            AdapterView<?> parent, View view, int position, long id) {
-                        Team tm = currentConference.confTeams.get(position);
-                        currentTeam = tm;
-                        currentConference = simLeague.conferences.get(simLeague.getConfNumber(currentTeam.conference));
-
-                            changeNameEditText.setText(currentTeam.name);
-                            changeAbbrEditText.setText(currentTeam.abbr);
-                            changeLocationText.setText(Integer.toString(currentTeam.location));
-                            changeConfEditText.setText(currentConference.confName);
-                            changeHCEditText.setText(currentTeam.HC.name);
-                            changePrestigeEditText.setText(Integer.toString(currentTeam.teamPrestige));
-                    }
-
-                    public void onNothingSelected(AdapterView<?> parent) {
-                    }
-                });
-
-
-        cancelChangeNameButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Perform action on click
-                updateCurrConference();  //updates the UI
-                resetTeamUI();
-                updateHeaderBar();
-                dialog.dismiss();
-                }
-        });
-
-        okChangeNameButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                // Perform action on click
-                String newName = changeNameEditText.getText().toString().trim();
-                String newAbbr = changeAbbrEditText.getText().toString().trim().toUpperCase();
-                String newLocation = changeLocationText.getText().toString().trim().toUpperCase();
-                String newConf = changeConfEditText.getText().toString().trim();
-                String newHC = changeHCEditText.getText().toString().trim();
-                int newPrestige = Integer.parseInt( changePrestigeEditText.getText().toString().trim() );
-
-                if (simLeague.isNameValid(newName) && simLeague.isAbbrValid(newAbbr) && simLeague.isNameValid(newConf) && isNameValid((newHC)) && simLeague.isInteger(newLocation)) {
-                    simLeague.changeAbbrHistoryRecords(currentTeam.abbr, newAbbr);
-
-                    if (newName != currentTeam.name) {
-                        currentTeam.name = newName; //set new team name
-                        teamEditor.clear();
-                        for (int i = 0; i < currentConference.confTeams.size(); i++) {
-                            teamEditor.add(currentConference.confTeams.get(i).name);
-                        }
-                        editorAdaptorTeam.notifyDataSetChanged();
-                    }
-
-                    if (newAbbr != currentTeam.abbr) currentTeam.abbr = newAbbr; //set new team Abbr
-
-                    if (newHC != currentTeam.HC.name) currentTeam.HC.name = newHC; //set new HC name
-
-                    if (newPrestige != currentTeam.teamPrestige) currentTeam.teamPrestige = newPrestige;
-
-                    if (newConf != currentConference.confName) {
-                        String oldConf = currentConference.confName;
-                        currentConference.confName = newConf;
-                        simLeague.updateTeamConf(newConf, oldConf, simLeague.getConfNumber(currentConference.confName));  //update all other conf teams
-
-                        confEditor.clear();
-                        for (int i = 0; i < simLeague.conferences.size(); i++) {
-                            confEditor.add(simLeague.conferences.get(i).confName);
-                        }
-                        editorAdaptorConf.notifyDataSetChanged();
-                        editorAdaptorTeam.notifyDataSetChanged();
-                        //Toast.makeText(MainActivity.this, "Updated Conference Name", Toast.LENGTH_SHORT).show();
-                    }
-
-                    if (Integer.parseInt(newLocation) != currentTeam.location) {
-                        currentTeam.location = Integer.parseInt(newLocation);
-                    }
-                    Toast.makeText(MainActivity.this, "Updated Team", Toast.LENGTH_SHORT).show();
-
-
-
-                    wantUpdateConf = true;
-                } else {
-                        Toast.makeText(MainActivity.this, "Invalid Update!",
-                                Toast.LENGTH_SHORT).show();
-                }
-
-            }
-        });
-
+        LeagueEditorDialogController.show(this, simLeague);
     }
+
 
     private void fixBowlNames() {
         String[] bowls = simLeague.bowlNamesText.split(",");
@@ -5097,48 +3502,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void disciplineAction(final Player player, final String issue, final int gamesA, final int gamesB) {
-
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle("Discipline Action Required");
-        builder.setMessage(player.position + " " + player.name + " (" + player.ratOvr + ") violated a team policy related to " + issue + ".\n\nThe team discipline rating is currently " + userTeam.teamDisciplineScore + "%\n\nHow do you want to proceed?");
-        builder.setCancelable(false);
-        builder.setPositiveButton("Suspend " + gamesA + " Games", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Perform action on click
-                userTeam.disciplineAction(player, issue, gamesA, 2);
-                dialog.dismiss();
-                if (userTeam.suspension) showSuspensions();
-                //refresh homepage
-                resetUI();
-            }
-        });
-        builder.setNegativeButton("Suspend " + gamesB + " Games", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Perform action on click
-                userTeam.disciplineAction(player, issue, gamesB, 1);
-                dialog.dismiss();
-                if (userTeam.suspension) showSuspensions();
-                //refresh homepage
-                resetUI();
-            }
-        });
-        builder.setNeutralButton("Ignore", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Perform action on click
-                userTeam.disciplineAction(player, issue, gamesA, 3);
-                dialog.dismiss();
-                if (userTeam.suspension) showSuspensions();
-                //refresh homepage
-                resetUI();
-
-            }
-        });
-        builder.show();
-        userTeam.disciplineAction = false;
+        DisciplineDialogController.showDisciplineAction(this, player, issue, gamesA, gamesB, userTeam);
     }
 
     @Override
@@ -5206,7 +3570,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void onClick(DialogInterface dialog, int which) {
                         // Actually go back to main menu
                         finish();
-                        MainActivity.this.startActivity(GameNavigation.createHomeIntent(MainActivity.this, theme));
+                        flowManager.returnToMainHub();
+                        finish();
                     }
                 })
                 .setCancelable(false);
@@ -5268,31 +3633,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
     }
 
-    public static void avoidSpinnerDropdownFocus(Spinner spinner) {
-        try {
-            Field listPopupField = Spinner.class.getDeclaredField("mPopup");
-            listPopupField.setAccessible(true);
-            Object listPopup = listPopupField.get(spinner);
-            if (listPopup instanceof ListPopupWindow) {
-                Field popupField = ListPopupWindow.class.getDeclaredField("mPopup");
-                popupField.setAccessible(true);
-                Object popup = popupField.get((ListPopupWindow) listPopup);
-                if (popup instanceof PopupWindow) {
-                    ((PopupWindow) popup).setFocusable(false);
-                }
-            }
-        } catch (NoSuchFieldException e) {
-            e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-    }
-
     public void showImmersive(AlertDialog alert) {
-        ImmersiveDialogHelper.show(alert);
+        PlatformUiHelper.showImmersive(alert);
     }
-
-
 
     //DEBUG
     private void showFreeAgents() {

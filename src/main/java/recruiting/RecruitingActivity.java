@@ -35,7 +35,7 @@ import java.util.Random;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import antdroid.cfbcoach.GameNavigation;
-import antdroid.cfbcoach.LeagueLaunchCoordinator;
+import simulation.LeagueLaunchCoordinator;
 import antdroid.cfbcoach.MainActivity;
 import antdroid.cfbcoach.R;
 import simulation.RosterRules;
@@ -45,82 +45,10 @@ public class RecruitingActivity extends AppCompatActivity {
     private final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
     private final DecimalFormat df2 = new DecimalFormat("#.##", symbols);
     private int theme;
+    private RecruitingController controller;
+    private simulation.GameFlowManager flowManager;
     private RecruitingSessionData sessionData;
     // Variables use during recruiting
-    private String teamName;
-    public int recruitingBudget;
-    private final Random rand = new Random();
-    private int HCtalent;
-
-    public ArrayList<String> playersRecruited;
-    private ArrayList<String> playersGraduating;
-    private ArrayList<String> teamQBs;
-    private ArrayList<String> teamRBs;
-    private ArrayList<String> teamWRs;
-    private ArrayList<String> teamTEs;
-    private ArrayList<String> teamOLs;
-    private ArrayList<String> teamKs;
-    private ArrayList<String> teamDLs;
-    private ArrayList<String> teamLBs;
-    private ArrayList<String> teamCBs;
-    private ArrayList<String> teamSs;
-
-    public ArrayList<String> teamPlayers; //all players
-
-    private ArrayList<String> availQBs;
-    private ArrayList<String> availRBs;
-    private ArrayList<String> availWRs;
-    private ArrayList<String> availTEs;
-    private ArrayList<String> availOLs;
-    private ArrayList<String> availKs;
-    private ArrayList<String> availDLs;
-    private ArrayList<String> availLBs;
-    private ArrayList<String> availCBs;
-    private ArrayList<String> availSs;
-    private ArrayList<String> availAll;
-    private ArrayList<String> avail50;
-
-    private ArrayList<String> west;
-    private ArrayList<String> midwest;
-    private ArrayList<String> central;
-    private ArrayList<String> east;
-    private ArrayList<String> south;
-
-    private int needQBs;
-    private int needRBs;
-    private int needWRs;
-    private int needTEs;
-    private int needOLs;
-    private int needKs;
-    private int needDLs;
-    private int needLBs;
-    private int needCBs;
-    private int needSs;
-
-    private final int minPlayers = RosterRules.MIN_PLAYERS;
-    private final int minQBs = RosterRules.MIN_QBS;
-    private final int minRBs = RosterRules.MIN_RBS;
-    private final int minWRs = RosterRules.MIN_WRS;
-    private final int minTEs = RosterRules.MIN_TES;
-    private final int minOLs = RosterRules.MIN_OLS;
-    private final int minKs = RosterRules.MIN_KS;
-    private final int minDLs = RosterRules.MIN_DLS;
-    private final int minLBs = RosterRules.MIN_LBS;
-    private final int minCBs = RosterRules.MIN_CBS;
-    private final int minSs = RosterRules.MIN_SS;
-
-    public final int maxPlayers = RosterRules.MAX_PLAYERS;
-    private final double recruitOffBoard = 0.935;
-
-    private final int five = 84;
-    private final int four = 78;
-    private final int three = 68;
-    private final int two = 58;
-
-    int height;
-    int weight;
-
-    // Whether to show pop ups every recruit
     private boolean showPopUp;
     private boolean autoFilter;
 
@@ -151,49 +79,17 @@ public class RecruitingActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // Init all the ArrayLists
-        playersRecruited = new ArrayList<>();
-        playersGraduating = new ArrayList<>();
-        teamQBs = new ArrayList<>();
-        teamRBs = new ArrayList<>();
-        teamWRs = new ArrayList<>();
-        teamTEs = new ArrayList<>();
-        teamOLs = new ArrayList<>();
-        teamKs = new ArrayList<>();
-        teamDLs = new ArrayList<>();
-        teamLBs = new ArrayList<>();
-        teamCBs = new ArrayList<>();
-        teamSs = new ArrayList<>();
-        teamPlayers = new ArrayList<>();
-        availQBs = new ArrayList<>();
-        availRBs = new ArrayList<>();
-        availWRs = new ArrayList<>();
-        availTEs = new ArrayList<>();
-        availOLs = new ArrayList<>();
-        availKs = new ArrayList<>();
-        availDLs = new ArrayList<>();
-        availLBs = new ArrayList<>();
-        availCBs = new ArrayList<>();
-        availSs = new ArrayList<>();
-
-        avail50 = new ArrayList<>();
-        availAll = new ArrayList<>();
-        west = new ArrayList<>();
-        midwest = new ArrayList<>();
-        central = new ArrayList<>();
-        east = new ArrayList<>();
-        south = new ArrayList<>();
-
         // Get User Team's player info and team info for recruiting
         String userTeamStr = GameNavigation.getUserTeamInfo(getIntent());
         sessionData = RecruitingSessionData.fromUserTeamInfo(userTeamStr);
-        bindSessionData();
-        getSupportActionBar().setTitle(teamName + " | Recruiting");
+        flowManager = new antdroid.cfbcoach.AndroidGameFlowManager(this, theme);
+        controller = new RecruitingController(sessionData, flowManager);
+        
+        getSupportActionBar().setTitle(sessionData.teamName + " | Recruiting");
 
         showPopUp = true;
         autoFilter = true;
-        sessionData.applyBudgetBonuses(minPlayers);
-        recruitingBudget = sessionData.recruitingBudget;
+        sessionData.applyBudgetBonuses(RosterRules.MIN_PLAYERS);
 
         // Get needs for each position
         updatePositionNeeds();
@@ -208,7 +104,7 @@ public class RecruitingActivity extends AppCompatActivity {
           Set up spinner for examining choosing position to recruit
          */
         positionSpinner = findViewById(R.id.spinnerRec);
-        MainActivity.avoidSpinnerDropdownFocus(positionSpinner);
+        PlatformUiHelper.avoidSpinnerDropdownFocus(positionSpinner);
         positions = sessionData.buildPositionLabels(buildPositionNeeds());
 
         dataAdapterPosition = new ArrayAdapter<>(this,
@@ -252,8 +148,12 @@ public class RecruitingActivity extends AppCompatActivity {
         Button viewRosterButton = findViewById(R.id.buttonRecRoster);
         viewRosterButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // Make dialog
-                makeRosterDialog();
+                RecruitingDialogController.showRosterDialog(
+                        RecruitingActivity.this,
+                        sessionData.teamName,
+                        RecruitingPresentation.buildRosterText(sessionData, buildPositionNeeds()),
+                        sessionData.teamPlayers.size() + sessionData.playersRecruited.size()
+                );
             }
         });
 
@@ -272,53 +172,16 @@ public class RecruitingActivity extends AppCompatActivity {
         final Button buttonExpandAll = findViewById(R.id.buttonRecruitExpandCollapse);
         buttonExpandAll.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(RecruitingActivity.this);
-                builder.setTitle("DISPLAY OPTIONS");
-                String filter = "Enable Auto-Remove Unaffordable Players";
-                if (autoFilter) filter = "Disable Auto-Remove Unaffordable Players";
-                final String[] sels = {"Expand All", "Collapse All", "Sort by Grade", "Sort by Cost", filter};
-                builder.setItems(sels, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int item) {
-                        // Do something with the selection
-                        if (item == 0) {
-                            // Expand everyone
-                            for (int i = 0; i < players.size(); ++i) {
-                                recruitList.expandGroup(i, false);
-                            }
-                        } else if (item == 1) {
-                            // Collapse everyone
-                            for (int i = 0; i < players.size(); ++i) {
-                                recruitList.collapseGroup(i);
-                            }
-                        } else if (item == 2) {
-                            sortByGrade();
-                            expListAdapter.notifyDataSetChanged();
-                        } else if (item == 3) {
-                            sortByCost();
-                            expListAdapter.notifyDataSetChanged();
-                        } else if (item == 4) {
-                            autoFilter = !autoFilter;
-                            filterSwitch.setChecked(autoFilter);
-                        }
-
-                        dialog.dismiss();
-                    }
-                });
-                AlertDialog alert = builder.create();
-                alert.show();
+                RecruitingDialogController.showDisplayOptions(RecruitingActivity.this, autoFilter, players, recruitList, expListAdapter);
             }
         });
 
     }
 
     private void updateRecruitingOverview() {
-        if (budgetText != null) {
-            budgetText.setText("Budget: $" + recruitingBudget);
-        }
-
         TextView programName = findViewById(R.id.textRecruitProgramName);
         if (programName != null) {
-            programName.setText(teamName + " Recruiting");
+            programName.setText(sessionData.teamName + " Recruiting");
         }
 
         TextView summaryText = findViewById(R.id.textRecruitSummary);
@@ -332,23 +195,7 @@ public class RecruitingActivity extends AppCompatActivity {
         }
     }
 
-    //Create Roster Screen
-    private void makeRosterDialog() {
-        String rosterStr = RecruitingPresentation.buildRosterText(sessionData, buildPositionNeeds());
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(rosterStr)
-                .setTitle(teamName + " Roster | Team Size: " + (teamPlayers.size() + playersRecruited.size()))
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //Dismiss dialog
-                    }
-                });
-        AlertDialog dialog = builder.create();
-        dialog.show();
-        TextView msgTxt = dialog.findViewById(android.R.id.message);
-        msgTxt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-    }
+
 
     //FILTERS & SORTINGS
 
@@ -363,19 +210,19 @@ public class RecruitingActivity extends AppCompatActivity {
         } else {
             // See top 100 recruits
             if (position == 0) {
-                players = avail50;
+                players = sessionData.avail50;
             } else if (position == 12) {
-                players = west;
+                players = sessionData.west;
             } else if (position == 13) {
-                players = midwest;
+                players = sessionData.midwest;
             } else if (position == 14) {
-                players = central;
+                players = sessionData.central;
             } else if (position == 15) {
-                players = east;
+                players = sessionData.east;
             } else if (position == 16) {
-                players = south;
+                players = sessionData.south;
             } else {
-                players = availAll;
+                players = sessionData.availAll;
             }
 
             playersInfo = new LinkedHashMap<>();
@@ -392,25 +239,25 @@ public class RecruitingActivity extends AppCompatActivity {
     //Get Players
     private void setPlayerList(String pos) {
         if (pos.equals("QB")) {
-            players = availQBs;
+            players = sessionData.availQBs;
         } else if (pos.equals("RB")) {
-            players = availRBs;
+            players = sessionData.availRBs;
         } else if (pos.equals("WR")) {
-            players = availWRs;
+            players = sessionData.availWRs;
         } else if (pos.equals("TE")) {
-            players = availTEs;
+            players = sessionData.availTEs;
         } else if (pos.equals("OL")) {
-            players = availOLs;
+            players = sessionData.availOLs;
         } else if (pos.equals("K")) {
-            players = availKs;
+            players = sessionData.availKs;
         } else if (pos.equals("DL")) {
-            players = availDLs;
+            players = sessionData.availDLs;
         } else if (pos.equals("LB")) {
-            players = availLBs;
+            players = sessionData.availLBs;
         } else if (pos.equals("CB")) {
-            players = availCBs;
+            players = sessionData.availCBs;
         } else if (pos.equals("S")) {
-            players = availSs;
+            players = sessionData.availSs;
         }
     }
 
@@ -453,16 +300,6 @@ public class RecruitingActivity extends AppCompatActivity {
     //Update Position Spinner & Team Needs
     private void updatePositionNeeds() {
         RecruitingSessionData.PositionNeeds needs = buildPositionNeeds();
-        needQBs = needs.qbs;
-        needRBs = needs.rbs;
-        needWRs = needs.wrs;
-        needTEs = needs.tes;
-        needOLs = needs.ols;
-        needKs = needs.ks;
-        needDLs = needs.dls;
-        needLBs = needs.lbs;
-        needCBs = needs.cbs;
-        needSs = needs.ss;
 
         if (dataAdapterPosition != null) {
             positions = sessionData.buildPositionLabels(needs);
@@ -478,136 +315,27 @@ public class RecruitingActivity extends AppCompatActivity {
 
 
     //SORT - GRADE(Default)
-    private void sortByGrade() {
-        sessionData.sortBoardsByGrade();
+    public void sortByGrade() {
+        controller.sortByGrade();
     }
 
     //SORT - COST
-    private void sortByCost() {
-        sessionData.sortBoardsByCost();
+    public void sortByCost() {
+        controller.sortByCost();
+    }
+
+    public void toggleAutoFilter() {
+        autoFilter = !autoFilter;
+        final Switch filterSwitch = findViewById(R.id.filterSwitch);
+        if (filterSwitch != null) filterSwitch.setChecked(autoFilter);
     }
 
 
-    //RECRUIT PLAYER
-    public void recruitPlayerDialog(String p, int pos, List<Integer> groupsExp) {
-        final String player = p;
-        final int groupPosition = pos;
-        final List<Integer> groupsExpanded = groupsExp;
-        int moneyNeeded = getRecruitCost(player);
-        if (recruitingBudget >= moneyNeeded) {
 
-            if (showPopUp) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Confirm Recruiting");
-                builder.setMessage(RecruitingPresentation.buildRecruitConfirmMessage(sessionData, maxPlayers, player));
-                builder.setPositiveButton("Yes",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
 
-                                recruitList.collapseGroup(groupPosition);
-                                for (int i = groupPosition + 1; i < players.size(); ++i) {
-                                    if (recruitList.isGroupExpanded(i)) {
-                                        groupsExpanded.add(i);
-                                    }
-                                    recruitList.collapseGroup(i);
-                                }
-
-                                recruitPlayer(player);
-
-                                expListAdapter.notifyDataSetChanged();
-
-                                dialog.dismiss();
-                            }
-                        });
-
-                builder.setNeutralButton("Yes, Don't Show",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-
-                                recruitList.collapseGroup(groupPosition);
-                                for (int i = groupPosition + 1; i < players.size(); ++i) {
-                                    if (recruitList.isGroupExpanded(i)) {
-                                        groupsExpanded.add(i);
-                                    }
-                                    recruitList.collapseGroup(i);
-                                }
-
-                                recruitPlayer(player);
-                                setShowPopUp(false);
-
-                                expListAdapter.notifyDataSetChanged();
-
-                                dialog.dismiss();
-                            }
-                        });
-
-                builder.setNegativeButton("Cancel",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                // not successful
-                                recruitList.collapseGroup(groupPosition);
-                                for (int i = groupPosition + 1; i < players.size(); ++i) {
-                                    if (recruitList.isGroupExpanded(i)) {
-                                        groupsExpanded.add(i);
-                                    }
-                                    recruitList.collapseGroup(i);
-                                }
-
-                                recruitList.expandGroup(groupPosition);
-                                expListAdapter.notifyDataSetChanged();
-/*                                for (int group : groupsExpanded) {
-                                    recruitList.expandGroup(group);
-                                }*/
-                                dialog.cancel();
-                            }
-                        });
-
-                AlertDialog dialog = builder.create();
-                dialog.show();
-
-                TextView msgTxt = dialog.findViewById(android.R.id.message);
-                msgTxt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-
-            } else {
-                // Don't show pop up dialog
-                recruitList.collapseGroup(groupPosition);
-                for (int i = groupPosition + 1; i < players.size(); ++i) {
-                    if (recruitList.isGroupExpanded(i)) {
-                        groupsExpanded.add(i);
-                    }
-                    recruitList.collapseGroup(i);
-                }
-
-                recruitPlayer(player);
-
-                expListAdapter.notifyDataSetChanged();
-/*                for (int group : groupsExpanded) {
-                    recruitList.expandGroup(group - 1);
-                }*/
-            }
-
-        } else {
-            recruitList.collapseGroup(groupPosition);
-            for (int i = groupPosition + 1; i < players.size(); ++i) {
-                if (recruitList.isGroupExpanded(i)) {
-                    groupsExpanded.add(i);
-                }
-                recruitList.collapseGroup(i);
-            }
-            Toast.makeText(this, "Not enough money!",
-                    Toast.LENGTH_SHORT).show();
-            recruitList.expandGroup(groupPosition);
-            expListAdapter.notifyDataSetChanged();
-/*            for (int group : groupsExpanded) {
-                recruitList.expandGroup(group);
-            }*/
-        }
-    }
-
-    private void recruitPlayer(String player) {
+    public void recruitPlayer(String player) {
         RecruitingPlayerRecord recruit = RecruitingPlayerRecord.fromCsv(player);
-        sessionData.recruitPlayer(player, autoFilter, recruitOffBoard, rand);
-        recruitingBudget = sessionData.recruitingBudget;
+        controller.recruitPlayer(player, autoFilter);
 
         Toast.makeText(this, "Recruited " + recruit.position() + " " + recruit.name(),
                 Toast.LENGTH_SHORT).show();
@@ -617,7 +345,6 @@ public class RecruitingActivity extends AppCompatActivity {
     //SCOUT PLAYER - created by Achi Jones - never used
     private boolean scoutPlayer(String player) {
         if (sessionData.scoutPlayer(player)) {
-            recruitingBudget = sessionData.recruitingBudget;
             RecruitingPlayerRecord recruit = RecruitingPlayerRecord.fromCsv(player);
             Toast.makeText(this, "Scouted " + recruit.position() + " " + recruit.name(), Toast.LENGTH_SHORT).show();
 
@@ -657,28 +384,7 @@ public class RecruitingActivity extends AppCompatActivity {
      * Exit the recruiting activity. Called when the "Done" button is pressed or when user presses back button.
      */
     private void exitRecruiting() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(RecruitingActivity.this);
-        builder.setMessage(RecruitingPresentation.buildExitConfirmMessage(positions))
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Send info about what recruits were selected back
-                        RecruitingActivity.this.startActivity(GameNavigation.createMainIntent(
-                                RecruitingActivity.this,
-                                LeagueLaunchCoordinator.LaunchRequest.doneRecruiting(getRecruitsStr()),
-                                theme
-                        ));
-                        finish();
-                    }
-                })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Do nothing
-                    }
-                });
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        RecruitingDialogController.showExitConfirmDialog(this, positions, controller);
     }
 
     /**
@@ -689,43 +395,7 @@ public class RecruitingActivity extends AppCompatActivity {
     }
 
     private RecruitingSessionData.PositionNeeds buildPositionNeeds() {
-        return sessionData.calculateNeeds(minQBs, minRBs, minWRs, minTEs, minOLs, minKs, minDLs, minLBs, minCBs, minSs);
-    }
-
-    private void bindSessionData() {
-        teamName = sessionData.teamName;
-        recruitingBudget = sessionData.recruitingBudget;
-        HCtalent = sessionData.coachTalent;
-        playersRecruited = sessionData.playersRecruited;
-        playersGraduating = sessionData.playersGraduating;
-        teamPlayers = sessionData.teamPlayers;
-        teamQBs = sessionData.teamQBs;
-        teamRBs = sessionData.teamRBs;
-        teamWRs = sessionData.teamWRs;
-        teamTEs = sessionData.teamTEs;
-        teamOLs = sessionData.teamOLs;
-        teamKs = sessionData.teamKs;
-        teamDLs = sessionData.teamDLs;
-        teamLBs = sessionData.teamLBs;
-        teamCBs = sessionData.teamCBs;
-        teamSs = sessionData.teamSs;
-        availQBs = sessionData.availQBs;
-        availRBs = sessionData.availRBs;
-        availWRs = sessionData.availWRs;
-        availTEs = sessionData.availTEs;
-        availOLs = sessionData.availOLs;
-        availKs = sessionData.availKs;
-        availDLs = sessionData.availDLs;
-        availLBs = sessionData.availLBs;
-        availCBs = sessionData.availCBs;
-        availSs = sessionData.availSs;
-        availAll = sessionData.availAll;
-        avail50 = sessionData.avail50;
-        west = sessionData.west;
-        midwest = sessionData.midwest;
-        central = sessionData.central;
-        east = sessionData.east;
-        south = sessionData.south;
+        return sessionData.calculateNeeds(RosterRules.MIN_QBS, RosterRules.MIN_RBS, RosterRules.MIN_WRS, RosterRules.MIN_TES, RosterRules.MIN_OLS, RosterRules.MIN_KS, RosterRules.MIN_DLS, RosterRules.MIN_LBS, RosterRules.MIN_CBS, RosterRules.MIN_SS);
     }
 
     @Override
@@ -733,8 +403,7 @@ public class RecruitingActivity extends AppCompatActivity {
         exitRecruiting();
     }
 
-
-    private void setShowPopUp(boolean tf) {
+    public void setShowPopUp(boolean tf) {
         showPopUp = tf;
     }
 
@@ -779,7 +448,7 @@ public class RecruitingActivity extends AppCompatActivity {
             // Set up Recruit and Redshirt buttons to display the right price
             Button recruitPlayerButton = convertView.findViewById(R.id.buttonRecruitPlayer);
 
-            if (teamPlayers.size() + playersRecruited.size() < maxPlayers) {
+            if (sessionData.teamPlayers.size() + sessionData.playersRecruited.size() < RosterRules.MAX_PLAYERS) {
                 recruitPlayerButton.setText("Recruit: $" + getRecruitCost(playerCSV));
             } else {
                 recruitPlayerButton.setText("ROSTER FULL");
@@ -790,9 +459,16 @@ public class RecruitingActivity extends AppCompatActivity {
             recruitPlayerButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     // Save who is currently expanded
-                    if (teamPlayers.size() + playersRecruited.size() < maxPlayers) {
-                        List<Integer> groupsExpanded = new ArrayList<>();
-                        recruitPlayerDialog(playerCSV, groupPosition, groupsExpanded);
+                    if (sessionData.teamPlayers.size() + sessionData.playersRecruited.size() < RosterRules.MAX_PLAYERS) {
+                        RecruitingDialogController.showRecruitConfirmDialog(
+                                RecruitingActivity.this,
+                                sessionData,
+                                playerCSV,
+                                groupPosition,
+                                recruitList,
+                                expListAdapter,
+                                showPopUp
+                        );
                     }
                 }
             });

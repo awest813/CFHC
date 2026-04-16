@@ -28,7 +28,7 @@ final class TeamStrategyDialogController {
                 .setView(activity.getLayoutInflater().inflate(R.layout.team_strategy_dialog, null));
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
-        ImmersiveDialogHelper.show(dialog);
+        PlatformUiHelper.showImmersive(dialog);
 
         final PlaybookOffense[] tsOff = userTeam.getPlaybookOff();
         final PlaybookDefense[] tsDef = userTeam.getPlaybookDef();
@@ -47,7 +47,7 @@ final class TeamStrategyDialogController {
         final TextView defStratDescription = dialog.findViewById(R.id.textDefenseStrategy);
 
         Spinner stratOffSelectionSpinner = dialog.findViewById(R.id.spinnerOffenseStrategy);
-        MainActivity.avoidSpinnerDropdownFocus(stratOffSelectionSpinner);
+        PlatformUiHelper.avoidSpinnerDropdownFocus(stratOffSelectionSpinner);
         ArrayAdapter<String> stratOffSpinnerAdapter = new ArrayAdapter<>(activity,
                 android.R.layout.simple_spinner_item, stratOffSelection);
         stratOffSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -68,7 +68,7 @@ final class TeamStrategyDialogController {
         });
 
         Spinner stratDefSelectionSpinner = dialog.findViewById(R.id.spinnerDefenseStrategy);
-        MainActivity.avoidSpinnerDropdownFocus(stratDefSelectionSpinner);
+        PlatformUiHelper.avoidSpinnerDropdownFocus(stratDefSelectionSpinner);
         ArrayAdapter<String> stratDefSpinnerAdapter = new ArrayAdapter<>(activity,
                 android.R.layout.simple_spinner_item, stratDefSelection);
         stratDefSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);

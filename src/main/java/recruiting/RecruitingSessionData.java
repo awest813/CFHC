@@ -35,6 +35,7 @@ public final class RecruitingSessionData {
     public final String teamName;
     public int recruitingBudget;
     public final int coachTalent;
+    public final double recruitOffBoard = 0.935;
 
     public final ArrayList<String> playersRecruited = new ArrayList<>();
     public final ArrayList<String> playersGraduating = new ArrayList<>();

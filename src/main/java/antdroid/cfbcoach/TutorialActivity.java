@@ -11,64 +11,48 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import java.util.List;
+
 public class TutorialActivity extends AppCompatActivity {
 
     private Spinner tutorialSpinner;
     private TextView tutorialTitle;
     private TextView tutorialContent;
-    private ArrayList<String> titles;
-    private ArrayList<String> contents;
-    private ArrayAdapter dataAdapterTutorial;
+    private TutorialController controller;
+    private int theme;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        theme = GameNavigation.getTheme(getIntent(), 1);
+        if(theme == 1) setTheme(R.style.AppThemeLight);
+        else setTheme(R.style.AppTheme);
         setContentView(R.layout.activity_tutorial);
 
         tutorialSpinner = findViewById(R.id.tutorialSpinner);
         tutorialTitle = findViewById(R.id.tutorialTitle);
         tutorialContent = findViewById(R.id.tutorialContent);
 
-        titles = new ArrayList<>();
-        contents = new ArrayList<>();
+        simulation.PlatformResourceProvider resProvider = new AndroidResourceProvider(this);
+        simulation.GameFlowManager flowManager = new AndroidGameFlowManager(this, theme);
+        controller = new TutorialController(resProvider, flowManager);
 
-        titles.add("Basics");
-        contents.add(getString(R.string.tutBasics));
-
-        titles.add("Playing a Season");
-        contents.add(getString(R.string.tutPlayingSeason));
-
-        titles.add("Rankings");
-        contents.add(getString(R.string.tutRankings));
-
-        titles.add("Roster");
-        contents.add(getString(R.string.tutRoster));
-
-        titles.add("Team Strategies");
-        contents.add(getString(R.string.tutTeamStrategy));
-
-        titles.add("Settings Menu & Built-In Game Mods");
-        contents.add(getString(R.string.tutSettings));
-
-        titles.add("User Customization");
-        contents.add(getString(R.string.tutCustomizations));
-
-        titles.add("Customization Example");
-        contents.add(getString(R.string.tutExampleCustom));
-
-        dataAdapterTutorial = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, titles);
+        List<String> titles = controller.getChapterTitles();
+        ArrayAdapter<String> dataAdapterTutorial = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, titles);
         dataAdapterTutorial.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         tutorialSpinner.setAdapter(dataAdapterTutorial);
         tutorialSpinner.setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {
                     public void onItemSelected(
                             AdapterView<?> parent, View view, int position, long id) {
-                        tutorialTitle.setText(titles.get(position));
-                        tutorialContent.setText(contents.get(position));
+                        TutorialController.TutorialChapter chapter = controller.getChapter(position);
+                        if (chapter != null) {
+                            tutorialTitle.setText(chapter.title);
+                            tutorialContent.setText(chapter.content);
+                        }
                     }
 
                     public void onNothingSelected(AdapterView<?> parent) {
-                        //heh
                     }
                 });
 
@@ -76,9 +60,7 @@ public class TutorialActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        finish();
-        Intent myIntent = new Intent(TutorialActivity.this, Home.class);
-        TutorialActivity.this.startActivity(myIntent);
+        controller.returnToMainHub();
     }
 
 }

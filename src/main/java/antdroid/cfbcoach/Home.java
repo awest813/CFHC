@@ -21,12 +21,18 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.app.AppCompatActivity;
+
+import simulation.LeagueLaunchCoordinator;
+import simulation.LeagueSaveStorage;
 import ui.SaveFilesList;
 
 
 public class Home extends AppCompatActivity {
     public String saveVer = "v1.4e";
     private int theme = 1;
+    private simulation.GameFlowManager flowManager;
+    private simulation.PlatformResourceProvider resProvider;
+
     private final ActivityResultLauncher<String[]> customUniversePicker =
             registerForActivityResult(new ActivityResultContracts.OpenDocument(), this::handleCustomUniverseSelection);
     private final ActivityResultLauncher<String[]> importSavePicker =
@@ -36,7 +42,8 @@ public class Home extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         theme = GameNavigation.getTheme(getIntent(), theme);
-
+        flowManager = new AndroidGameFlowManager(this, theme);
+        resProvider = new AndroidResourceProvider(this);
         setContentView(R.layout.activity_home);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -54,45 +61,20 @@ public class Home extends AppCompatActivity {
         Button newGameButton = findViewById(R.id.buttonNewGame);
         newGameButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                showPrestigeModeDialog(null);
+                HomeDialogController.showPrestigeModeDialog(Home.this, null, flowManager);
             }
         });
 
         Button newCustomGameButton = findViewById(R.id.buttonCustom);
         newCustomGameButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-
-                AlertDialog.Builder welcome = new AlertDialog.Builder(Home.this);
-                welcome.setMessage("Do you want to start the game with a custom Universe file? \nUniverse file must be correctly formatted to avoid errors!")
-                        .setTitle("Custom Dynasty")
-                        .setNeutralButton("Help", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                Intent intent = new Intent();
-                                intent.setAction(Intent.ACTION_VIEW);
-                                intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                                intent.setData(Uri.parse("https://www.antdroid.dev/p/game-manual.html"));
-                                startActivity(intent);
-                            }
-                        })
-                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-
-                            }
-                        })
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                isExternalStorageReadable();
-                                customUniversePicker.launch(new String[]{"*/*"});
-                            }
-                        });
-                welcome.setCancelable(false);
-                AlertDialog dialog = welcome.create();
-                dialog.show();
-                TextView msgTxt = dialog.findViewById(android.R.id.message);
-                msgTxt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+                HomeDialogController.showCustomGamePrompt(Home.this, new Runnable() {
+                    @Override
+                    public void run() {
+                        isExternalStorageReadable();
+                        customUniversePicker.launch(new String[]{"*/*"});
+                    }
+                });
             }
         });
 
@@ -107,8 +89,13 @@ public class Home extends AppCompatActivity {
         Button importButton = findViewById(R.id.buttonImportSave);
         importButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // Perform action on click
-                importGame();
+                HomeDialogController.showImportGameDialog(Home.this, new Runnable() {
+                    @Override
+                    public void run() {
+                        isExternalStorageReadable();
+                        importSavePicker.launch(new String[]{"text/plain"});
+                    }
+                });
             }
         });
 
@@ -141,8 +128,7 @@ public class Home extends AppCompatActivity {
         Button recentButton = findViewById(R.id.buttonUpdates);
         recentButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // Perform action on click
-                changelog();
+                HomeDialogController.showMessageDialog(Home.this, "Changelog", getString(R.string.changelog), 14);
             }
         });
 
@@ -163,7 +149,7 @@ public class Home extends AppCompatActivity {
         Button creditsButton = findViewById(R.id.buttonCredits);
         creditsButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                showMessageDialog("Game Acknowledgements", getString(R.string.credits), 12);
+                HomeDialogController.showMessageDialog(Home.this, "Game Acknowledgements", getString(R.string.credits), 12);
             }
         });
 
@@ -234,104 +220,19 @@ public class Home extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void changelog() {
-        showMessageDialog("Changelog", getString(R.string.changelog), 14);
-    }
-
-    /**
-     * Save League, show dialog to choose which save file to save onto.
-     */
     private void loadLeague() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Choose File to Load:");
-        final String[] fileInfos = getSaveFileInfos();
-        SaveFilesList saveFilesAdapter = new SaveFilesList(this, fileInfos);
-        builder.setAdapter(saveFilesAdapter, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int item) {
-                // Do something with the selection
-                if (!fileInfos[item].equals("EMPTY")) {
-                    if(!fileInfos[item].contains("Old Save")) {
-                        finish();
-                        Home.this.startActivity(GameNavigation.createMainIntent(
-                                Home.this,
-                                LeagueLaunchCoordinator.LaunchRequest.loadInternal("saveFile" + item + ".cfb"),
-                                theme
-                        ));
-                    } else {
-
-                        Toast.makeText(Home.this, "Incompatible Save!",
-                                Toast.LENGTH_SHORT).show();
-                    }
-
-
-                } else {
-                    Toast.makeText(Home.this, "Cannot load empty file!",
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Do nothing
-            }
-        });
-        AlertDialog alert = builder.create();
-        showImmersive(alert);
+        HomeDialogController.showLoadLeagueDialog(this, getSaveFileInfos(), theme);
     }
 
     private void importGame() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Choose File to Import:");
-        final String[] fileInfos = getSaveFileInfos();
-        SaveFilesList saveFilesAdapter = new SaveFilesList(this, fileInfos);
-        builder.setMessage("This feature lets you import external Exported Saves from your device. Please locate and select the desired file after pressing OK.");
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Do nothing
-                isExternalStorageReadable();
-                importSavePicker.launch(new String[]{"text/plain"});
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Do nothing
-            }
-        });
-        AlertDialog alert = builder.create();
-        showImmersive(alert);
+        // Handled via controller Runnable now
     }
 
     /**
      * Delete Save
      */
     private void deleteSave() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Choose File to Delete:");
-        final String[] fileInfos = getSaveFileInfos();
-        SaveFilesList saveFilesAdapter = new SaveFilesList(this, fileInfos);
-        builder.setAdapter(saveFilesAdapter, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int item) {
-                // Do something with the selection
-                if (!fileInfos[item].equals("EMPTY")) {
-                    deleteFile("saveFile" + item + ".cfb");
-                } else {
-                    Toast.makeText(Home.this, "Cannot load delete file!",
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Do nothing
-            }
-        });
-        AlertDialog alert = builder.create();
-        //showImmersive(alert);
-        showImmersive(alert);
+        HomeDialogController.showDeleteSaveDialog(this, getSaveFileInfos());
     }
 
     /**
@@ -357,19 +258,15 @@ public class Home extends AppCompatActivity {
         if (uri == null) {
             return;
         }
-        showPrestigeModeDialog(uri.toString());
+        HomeDialogController.showPrestigeModeDialog(this, uri.toString(), flowManager);
     }
 
     private void handleImportSaveSelection(Uri uri) {
         if (uri == null) {
             return;
         }
+        flowManager.importSave(uri.toString());
         finish();
-        Home.this.startActivity(GameNavigation.createMainIntent(
-                Home.this,
-                LeagueLaunchCoordinator.LaunchRequest.importSave(uri.toString()),
-                theme
-        ));
     }
 
     private void setTheme() {
@@ -431,66 +328,12 @@ public class Home extends AppCompatActivity {
 
 
     public void showImmersive(AlertDialog alert) {
-        ImmersiveDialogHelper.show(alert);
+        PlatformUiHelper.showImmersive(alert);
     }
 
-    private void startMainActivity(LeagueLaunchCoordinator.LaunchRequest launchRequest) {
-        finish();
-        Home.this.startActivity(GameNavigation.createMainIntent(Home.this, launchRequest, theme));
-    }
 
-    private void showPrestigeModeDialog(final String customUri) {
-        AlertDialog.Builder welcome = new AlertDialog.Builder(Home.this);
-        welcome.setMessage("Use default team prestige, randomize prestige, or equalize the field for a fresh start?")
-                .setTitle("New Dynasty Setup")
-                .setNeutralButton("Default", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        startMainActivity(buildLaunchRequest(customUri, LeagueLaunchCoordinator.LaunchRequest.PrestigeMode.DEFAULT));
-                    }
-                })
-                .setNegativeButton("Randomize", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        startMainActivity(buildLaunchRequest(customUri, LeagueLaunchCoordinator.LaunchRequest.PrestigeMode.RANDOMIZE));
-                    }
-                })
-                .setPositiveButton("Equalize", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        startMainActivity(buildLaunchRequest(customUri, LeagueLaunchCoordinator.LaunchRequest.PrestigeMode.EQUALIZE));
-                    }
-                });
-        welcome.setCancelable(false);
-        AlertDialog dialog = welcome.create();
-        dialog.show();
-        TextView msgTxt = dialog.findViewById(android.R.id.message);
-        msgTxt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-    }
 
-    private LeagueLaunchCoordinator.LaunchRequest buildLaunchRequest(String customUri,
-                                                                    LeagueLaunchCoordinator.LaunchRequest.PrestigeMode prestigeMode) {
-        if (customUri == null) {
-            return LeagueLaunchCoordinator.LaunchRequest.newLeague(prestigeMode);
-        }
-        return LeagueLaunchCoordinator.LaunchRequest.newCustomLeague(customUri, prestigeMode);
-    }
 
-    private void showMessageDialog(String title, String message, int textSizeSp) {
-        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
-        dialogBuilder.setMessage(message)
-                .setTitle(title)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
-        dialogBuilder.setCancelable(false);
-        AlertDialog dialog = dialogBuilder.create();
-        dialog.show();
-        TextView msgTxt = dialog.findViewById(android.R.id.message);
-        msgTxt.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSizeSp);
-    }
 
 }
 
