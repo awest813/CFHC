@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -112,7 +114,9 @@ public class League {
         return bridge == null ? GameUiBridge.NO_OP : bridge;
     }
 
+    public String leagueName = "Custom League";
     public String saveVer = "v1.4e";
+
     public PlatformResourceProvider resProvider;
 
     public void setPlatformResourceProvider(PlatformResourceProvider resProvider) {
@@ -703,11 +707,13 @@ public class League {
             }
 
             while ((line = bufferedReader.readLine()) != null && !line.equals("END_LEAGUE_HALL_OF_FAME")) {
-                PlayerRecord record = PlayerRecord.fromCsv(line);
-                leagueHoF.add(record);
+                PlayerRecord pr = PlayerRecord.fromCsv(line);
+                leagueHoF.add(pr);
+
                 for (Team t : teamList) {
-                    if (t.name.equals(record.teamName())) {
-                        t.hallOfFame.add(record);
+                    if (t.name.equals(pr.teamName())) {
+                        t.hallOfFame.add(pr);
+
 
                         t.HoFCount++;
                     }
@@ -877,7 +883,8 @@ public class League {
             while ((line = bufferedReader.readLine()) != null && !line.equals("END_TEAM_HISTORY")) {
                 for (int i = 0; i < teamList.size(); ++i) { //Do for every team
                     while ((line = bufferedReader.readLine()) != null && !line.equals("END_TEAM")) {
-                        teamList.get(i).teamHistory.add(line);
+                        teamList.get(i).teamHistory.add(TeamHistoryRecord.fromCsv(line));
+
                     }
                 }
             }
@@ -963,11 +970,13 @@ public class League {
             }
 
             while ((line = bufferedReader.readLine()) != null && !line.equals("END_LEAGUE_HALL_OF_FAME")) {
-                leagueHoF.add(line);
+                leagueHoF.add(PlayerRecord.fromCsv(line));
+
                 String[] fileSplit = line.split(":");
                 for (int i = 0; i < teamList.size(); ++i) {
                     if (teamList.get(i).name.equals(fileSplit[0])) {
-                        teamList.get(i).hallOfFame.add(line);
+                        teamList.get(i).hallOfFame.add(PlayerRecord.fromCsv(line));
+
                         teamList.get(i).HoFCount++;
                     }
                 }
@@ -1138,7 +1147,8 @@ public class League {
         }
 
         return new LeagueRecord(
-                leagueName, year, currentWeek,
+                leagueName, getYear(), currentWeek,
+
                 confRecords,
                 new ArrayList<>(leagueHoF),
                 leagueRecords.toRecordList(),
@@ -1149,7 +1159,8 @@ public class League {
 
     public void applyLeagueRecord(LeagueRecord record) {
         this.leagueName = record.leagueName();
-        this.year = record.year();
+        this.seasonStart = record.year() - (leagueHistory != null ? leagueHistory.size() : 0);
+
         this.currentWeek = record.currentWeek();
         this.heismanWinnerStrFull = record.heismanWinnerName();
         
@@ -1165,6 +1176,7 @@ public class League {
         for (DataRecord dr : record.leagueRecords()) {
             this.leagueRecords.addRecord(dr);
         }
+
         
         // Finalize setup
         for (Team t : teamList) {
@@ -1495,7 +1507,12 @@ public class League {
         return seasonStart + leagueHistory.size();
     }
 
+    public Player getHeismanWinner() {
+        return heisman;
+    }
+
     //Return homeState name
+
     public String getRegion(int region) {
         String location;
         if (region == 0) location = "West";

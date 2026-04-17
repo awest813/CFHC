@@ -17,6 +17,7 @@ public class PlayerOL extends Player {
     }
 
 
+
     //Size Config
     private final int hAvg = 76;
     private final int hMax = 5;
@@ -107,12 +108,6 @@ public class PlayerOL extends Player {
         team = t;
         transferPlayer(p);
     }
-
-    public PlayerOL(Team t, simulation.PlayerRecord record) {
-        super(t, record);
-        position = "OL";
-    }
-
 
     public int getRatRunBlock() {
         return ratAttr1;

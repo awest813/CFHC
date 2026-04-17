@@ -112,6 +112,11 @@ public class TeamRecords {
         }
     }
 
+    public void addRecord(DataRecord r) {
+        if (r != null) records.put(r.key(), r);
+    }
+
+
 
     public void changeAbbrRecords(String oldAbbr, String newAbbr) {
         for (String s : recordsList) {

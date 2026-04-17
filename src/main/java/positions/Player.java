@@ -23,7 +23,9 @@ public class Player {
     public Player() {}
 
     public Player(Team team, simulation.PlayerRecord record) {
+
         this.team = team;
+
         this.name = record.name();
         this.position = record.position();
         this.year = record.year();

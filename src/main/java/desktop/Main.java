@@ -4,9 +4,11 @@ import simulation.League;
 import simulation.LeagueRecord;
 import simulation.SaveManager;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
 
 /**
  * A rudimentary Java entry point for testing the simulation core outside of Android.
@@ -74,7 +76,6 @@ public class Main {
         }
     }
 
-    }
 
     private static void inspectSaveFile(String filePath) {
         try (FileInputStream fis = new FileInputStream(filePath)) {

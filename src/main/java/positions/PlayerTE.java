@@ -18,6 +18,7 @@ public class PlayerTE extends Player {
         super(team, record);
     }
 
+
     
     //Size Config
     private final int hAvg = 76;
@@ -108,12 +109,6 @@ public class PlayerTE extends Player {
         team = t;
         transferPlayer(p);
     }
-
-    public PlayerTE(Team t, simulation.PlayerRecord record) {
-        super(t, record);
-        position = "TE";
-    }
-
 
     public int getRatRunBlock() {
         return ratAttr1;

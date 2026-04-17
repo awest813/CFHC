@@ -64,7 +64,8 @@ public final class SeasonController {
         } else if (league.currentWeek == regSeasonWeeks - 1) {
             buttonText = "Play Conf Championships";
         } else if (league.currentWeek == regSeasonWeeks) {
-            bridge.showAwardsSummary(league.getHeismanWinner());
+            bridge.showAwardsSummary(league.getHeismanWinner().getAwardDescription());
+
             buttonText = league.expPlayoffs ? "Play First Round" : "Play Bowl Week 1";
 
         } else if (league.currentWeek == regSeasonWeeks + 1) {

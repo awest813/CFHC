@@ -17,6 +17,7 @@ public class PlayerK extends Player {
     }
 
 
+
     //Size Config
     private final int hAvg = 69;
     private final int hMax = 4;
@@ -104,13 +105,6 @@ public class PlayerK extends Player {
         team = t;
         transferPlayer(p);
     }
-
-    public PlayerK(Team t, simulation.PlayerRecord record) {
-        super(t, record);
-        position = "K";
-    }
-
-
 
     public int getRatKickPow() {
         return ratAttr1;

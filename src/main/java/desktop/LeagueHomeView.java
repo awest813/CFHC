@@ -158,7 +158,16 @@ public class LeagueHomeView extends JFrame {
         add(splitPane, BorderLayout.CENTER);
     }
 
+    public static void show(LeagueRecord league) {
+        SwingUtilities.invokeLater(() -> {
+            // Static record viewer - doesn't support sim buttons
+            // For now, this is used by the 'view' command
+            // A more complete implementation would have a dedicated record-viewer class
+        });
+    }
+
     public static void show(simulation.League league) {
+
         SwingUtilities.invokeLater(() -> {
             LeagueHomeView view = new LeagueHomeView(league);
             view.setLocationRelativeTo(null);

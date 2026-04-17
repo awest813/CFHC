@@ -12,6 +12,7 @@ public class PlayerQB extends Player {
     }
 
 
+
     //Size Config
     private final int hAvg = 75;
     private final int hMax = 3;
@@ -104,12 +105,6 @@ public class PlayerQB extends Player {
         transferPlayer(p);
     }
 
-    public PlayerQB(Team t, simulation.PlayerRecord record) {
-        super(t, record);
-        position = "QB";
-    }
-
-
     public int getRatPassPow() {
         return ratAttr1;
     }
@@ -195,5 +190,5 @@ public class PlayerQB extends Player {
             return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.HC.ratTalent) + " " + injury.toString();
         return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.HC.ratTalent) + " (" +
                 getRatPassPow() + ", " + getRatPassAcc() + ", " + getRatEvasion() + ", " + getRatSpeed() + ")";
-    }
+}
 }

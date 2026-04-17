@@ -306,7 +306,8 @@ public class Team {
         playbookOff = getPlaybookOff()[playbookOffNum];
         playbookDef = getPlaybookDef()[playbookDefNum];
 
-        hallOfFame.add("");
+        // hallOfFame.add(""); // Placeholder no longer needed for typed list
+
 
         teamBudget = 0;
         teamRecruitBudget = 0;
@@ -375,7 +376,8 @@ public class Team {
         playbookOff = getPlaybookOff()[playbookOffNum];
         playbookDef = getPlaybookDef()[playbookDefNum];
 
-        hallOfFame.add("");
+        // hallOfFame.add(""); // Placeholder no longer needed for typed list
+
 
         teamBudget = 0;
         teamRecruitBudget = 0;
@@ -463,14 +465,26 @@ public class Team {
         this.teamPrestige = record.prestige();
         commonInitializer();
 
-        this.HC = new staff.HeadCoach(record.headCoach());
-        this.OC = new staff.OffenseCoordinator(record.offenseCoach());
-        this.DC = new staff.DefenseCoordinator(record.defenseCoach());
+        this.HC = new staff.HeadCoach(record.headCoach(), this);
+        this.OC = new staff.OC(this, record.offenseCoach());
+        this.DC = new staff.DC(this, record.defenseCoach());
+
 
         for (PlayerRecord pr : record.roster()) {
             positions.Player p = positions.Player.fromRecord(pr, this);
-            allPlayers.add(p);
+            if (p instanceof positions.PlayerQB) teamQBs.add((positions.PlayerQB)p);
+            else if (p instanceof positions.PlayerRB) teamRBs.add((positions.PlayerRB)p);
+            else if (p instanceof positions.PlayerWR) teamWRs.add((positions.PlayerWR)p);
+            else if (p instanceof positions.PlayerTE) teamTEs.add((positions.PlayerTE)p);
+            else if (p instanceof positions.PlayerOL) teamOLs.add((positions.PlayerOL)p);
+            else if (p instanceof positions.PlayerK) teamKs.add((positions.PlayerK)p);
+            else if (p instanceof positions.PlayerDL) teamDLs.add((positions.PlayerDL)p);
+            else if (p instanceof positions.PlayerLB) teamLBs.add((positions.PlayerLB)p);
+            else if (p instanceof positions.PlayerCB) teamCBs.add((positions.PlayerCB)p);
+            else if (p instanceof positions.PlayerS) teamSs.add((positions.PlayerS)p);
+
         }
+
 
         this.teamHistory = new ArrayList<>(record.history());
         // records are handled by teamRecords object which is already inited in commonInitializer
@@ -3595,7 +3609,8 @@ public class Team {
 
         teamHistory.add(new TeamHistoryRecord(
                 league.getYear(), wins, losses, 0, 0, rankTeamPollScore,
-                teamPoints, teamOppPoints, teamYards, teamOppYards, teamTO,
+                teamPoints, teamOppPoints, teamYards, teamOppYards, teamTODiff,
+
                 teamPrestige, teamPrestigeStart, histYear
         ));
 
@@ -3639,7 +3654,8 @@ public class Team {
 
         int j = 0;
         for (int i = teamHistory.size(); i >0; --i) {
-            hist[j + 8] = teamHistory.get(i-1);
+            hist[j + 8] = teamHistory.get(i-1).toString();
+
             j++;
         }
         return hist;

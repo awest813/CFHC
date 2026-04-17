@@ -17,6 +17,7 @@ public class PlayerDL extends Player {
         super(team, record);
     }
 
+
     
     //Size Config
     private final int hAvg = 75;
@@ -106,13 +107,6 @@ public class PlayerDL extends Player {
         team = t;
         transferPlayer(p);
     }
-
-    public PlayerDL(Team t, simulation.PlayerRecord record) {
-        super(t, record);
-        position = "DL";
-    }
-
-
 
     public int getRatRunStop() {
         return ratAttr1;

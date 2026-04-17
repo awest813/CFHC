@@ -16,8 +16,9 @@ public class Staff {
 
     public Staff() {}
 
-    public Staff(Team team, StaffRecord record) {
+    public Staff(Team team, simulation.StaffRecord record) {
         this.team = team;
+
         this.position = record.position();
         this.name = record.name();
         this.age = record.age();
