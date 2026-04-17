@@ -14,6 +14,32 @@ public class Staff {
     public String name;
     public String position;
 
+    public Staff() {}
+
+    public Staff(Team team, StaffRecord record) {
+        this.team = team;
+        this.position = record.position();
+        this.name = record.name();
+        this.age = record.age();
+        this.year = record.year();
+        this.ratOff = record.ratOff();
+        this.ratDef = record.ratDef();
+        this.ratTalent = record.ratTalent();
+        this.ratDiscipline = record.ratDiscipline();
+        this.offStrat = record.offStrat();
+        this.defStrat = record.defStrat();
+        this.contractYear = record.contractYear();
+        this.contractLength = record.contractLength();
+        this.baselinePrestige = record.baselinePrestige();
+        this.retired = record.retired();
+        this.ratOvr = record.ratOvr();
+        this.ratImprovement = record.ratImprovement();
+        this.user = record.user();
+        this.stats = record.stats();
+        this.awards = record.awards();
+    }
+
+
     public int[] stats;
     public ArrayList<String> history;
     public int[] awards;
@@ -391,6 +417,15 @@ public class Staff {
     public int getWins() {
         return stats[0];
     }
+
+    public simulation.StaffRecord toRecord() {
+        return new simulation.StaffRecord(
+                position, name, age, year, ratOff, ratDef, ratTalent, ratDiscipline,
+                offStrat, defStrat, contractYear, contractLength, baselinePrestige,
+                retired, ratOvr, ratImprovement, user, stats, awards
+        );
+    }
+
 
     public void recordWins(int x) {
         stats[0] += x;

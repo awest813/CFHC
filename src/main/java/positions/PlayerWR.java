@@ -11,6 +11,11 @@ import java.util.Arrays;
 import simulation.Team;
 
 public class PlayerWR extends Player {
+
+    public PlayerWR(Team team, simulation.PlayerRecord record) {
+        super(team, record);
+    }
+
     
     //Size Config
     private final int hAvg = 73;
@@ -99,6 +104,12 @@ public class PlayerWR extends Player {
         team = t;
         transferPlayer(p);
     }
+
+    public PlayerWR(Team t, simulation.PlayerRecord record) {
+        super(t, record);
+        position = "WR";
+    }
+
 
     public int getRatSpeed() {
         return ratAttr1;

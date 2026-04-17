@@ -15,15 +15,18 @@ import android.widget.TextView;
 import antdroid.cfbcoach.MainActivity;
 import antdroid.cfbcoach.R;
 
-public class HallofFameList extends ArrayAdapter<String> {
+import simulation.PlayerRecord;
+
+public class HallofFameList extends ArrayAdapter<PlayerRecord> {
     private final Context context;
-    private final String[] values;
+    private final PlayerRecord[] values;
     private final String userTeam;
     private final MainActivity mainAct;
     private final boolean team;
 
-    public HallofFameList(Context context, String[] values, String userTeam, boolean team, MainActivity mainAct) {
+    public HallofFameList(Context context, PlayerRecord[] values, String userTeam, boolean team, MainActivity mainAct) {
         super(context, R.layout.hall_fame_list_item, values);
+
         this.context = context;
         this.values = values;
         this.userTeam = userTeam;
@@ -38,35 +41,29 @@ public class HallofFameList extends ArrayAdapter<String> {
         View rowView = inflater.inflate(R.layout.hall_fame_list_item, parent, false);
         TextView textTop = rowView.findViewById(R.id.textViewHallFameName);
 
-        String[] hof = values[position].split("&");
-        final String stats = values[position];
+        PlayerRecord record = values[position];
+        String nameStr = record.position() + " " + record.name();
+        String teamNameStr = record.teamName();
+        String entry = nameStr + ", " + teamNameStr + " [" + record.year() + "]\n"; // Simple version for now
+        String entryTeam = nameStr + " [" + record.year() + "]\n";
 
-        String[] HOFentry = hof[0].split(":");
-        String[] HOFline = HOFentry[1].split(" ");
-        String[] HOFyear= values[position].split("Yrs:");
-        String[] HOFyear2= HOFyear[1].split("&");
-        String[] HOFawards= values[position].split("Awards:");
-        String[] HOFawards2= HOFawards[1].split(">");
-        String entry = HOFline[1] + " " + HOFline[2] + " " + HOFline[3] + ", " + HOFentry[0] + ", " + HOFyear2[0] + "\n" + HOFawards2[0];
-        String entryTeam = HOFline[1] + " " + HOFline[2] + " " + HOFline[3] + ", " + HOFyear2[0] + "\n" + HOFawards2[0];
+        // Try to get old format for examineHOF if needed
+        final String oldFormat = simulation.Persistence.toCsv(record);
 
-        if (hof.length > 1) {
+        if(team) textTop.setText(entryTeam);
+        else textTop.setText(entry);
 
-            if(team) textTop.setText(entryTeam);
-            else textTop.setText(entry);
-
-            if (hof[0].split(":")[0].equals(userTeam)) {
-                textTop.setTextColor(Color.parseColor("#5994de"));
-            }
-
+        if (record.teamName().equals(userTeam)) {
+            textTop.setTextColor(Color.parseColor("#5994de"));
         }
 
         textTop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainAct.examineHOF(stats);
+                mainAct.examineHOF(oldFormat);
             }
         });
+
 
 
         return rowView;

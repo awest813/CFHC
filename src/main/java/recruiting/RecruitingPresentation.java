@@ -24,81 +24,83 @@ public final class RecruitingPresentation {
 
     public static String buildRosterText(RecruitingSessionData sessionData, RecruitingSessionData.PositionNeeds needs) {
         StringBuilder sb = new StringBuilder();
-        appendPositionSection(sb, "QBs", needs.qbs, sessionData.teamQBs, 1);
-        appendPositionSection(sb, "RBs", needs.rbs, sessionData.teamRBs, 2);
-        appendPositionSection(sb, "WRs", needs.wrs, sessionData.teamWRs, 3);
-        appendPositionSection(sb, "TEs", needs.tes, sessionData.teamTEs, 1);
-        appendPositionSection(sb, "OLs", needs.ols, sessionData.teamOLs, 5);
-        appendPositionSection(sb, "Ks", needs.ks, sessionData.teamKs, 1);
-        appendPositionSection(sb, "DLs", needs.dls, sessionData.teamDLs, 4);
-        appendPositionSection(sb, "LBs", needs.lbs, sessionData.teamLBs, 3);
-        appendPositionSection(sb, "CBs", needs.cbs, sessionData.teamCBs, 3);
-        appendPositionSection(sb, "Ss", needs.ss, sessionData.teamSs, 2);
+        appendPositionSection(sessionData, sb, "QBs", needs.qbs, sessionData.teamQBs, 1);
+        appendPositionSection(sessionData, sb, "RBs", needs.rbs, sessionData.teamRBs, 2);
+        appendPositionSection(sessionData, sb, "WRs", needs.wrs, sessionData.teamWRs, 3);
+        appendPositionSection(sessionData, sb, "TEs", needs.tes, sessionData.teamTEs, 1);
+        appendPositionSection(sessionData, sb, "OLs", needs.ols, sessionData.teamOLs, 5);
+        appendPositionSection(sessionData, sb, "Ks", needs.ks, sessionData.teamKs, 1);
+        appendPositionSection(sessionData, sb, "DLs", needs.dls, sessionData.teamDLs, 4);
+        appendPositionSection(sessionData, sb, "LBs", needs.lbs, sessionData.teamLBs, 3);
+        appendPositionSection(sessionData, sb, "CBs", needs.cbs, sessionData.teamCBs, 3);
+        appendPositionSection(sessionData, sb, "Ss", needs.ss, sessionData.teamSs, 2);
         return sb.toString();
     }
+
 
     public static String buildRecruitBoardDetails(RecruitingPlayerRecord player, String pos) {
         if (pos.equals("QB")) {
             return "Home State: " + getRegion(player.regionCode()) +
-                    "\nPass Strength: " + getGrade(player.field(13)) +
-                    "\nPass Accuracy: " + getGrade(player.field(14)) +
-                    "\nEvasion: " + getGrade(player.field(15)) +
-                    "\nSpeed: " + getGrade(player.field(16));
+                    "\nPass Strength: " + getGrade(player.rat1()) +
+                    "\nPass Accuracy: " + getGrade(player.rat2()) +
+                    "\nEvasion: " + getGrade(player.rat3()) +
+                    "\nSpeed: " + getGrade(player.rat4());
         } else if (pos.equals("RB")) {
             return "Home State: " + getRegion(player.regionCode()) +
-                    "\nSpeed: " + getGrade(player.field(13)) +
-                    "\nEvasion: " + getGrade(player.field(14)) +
-                    "\nPower:" + getGrade(player.field(15)) +
-                    "\nCatching: " + getGrade(player.field(16));
+                    "\nSpeed: " + getGrade(player.rat1()) +
+                    "\nEvasion: " + getGrade(player.rat2()) +
+                    "\nPower:" + getGrade(player.rat3()) +
+                    "\nCatching: " + getGrade(player.rat4());
         } else if (pos.equals("WR")) {
             return "Home State: " + getRegion(player.regionCode()) +
-                    "\nSpeed: " + getGrade(player.field(13)) +
-                    "\nCatching: " + getGrade(player.field(14)) +
-                    "\nEvasion: " + getGrade(player.field(15)) +
-                    "\nJumping: " + getGrade(player.field(16));
+                    "\nSpeed: " + getGrade(player.rat1()) +
+                    "\nCatching: " + getGrade(player.rat2()) +
+                    "\nEvasion: " + getGrade(player.rat3()) +
+                    "\nJumping: " + getGrade(player.rat4());
         } else if (pos.equals("TE")) {
             return "Home State: " + getRegion(player.regionCode()) +
-                    "\nRun Blk: " + getGrade(player.field(13)) +
-                    "\nCatching: " + getGrade(player.field(14)) +
-                    "\nEvasion: " + getGrade(player.field(15)) +
-                    "\nSpeed: " + getGrade(player.field(16));
+                    "\nRun Blk: " + getGrade(player.rat1()) +
+                    "\nCatching: " + getGrade(player.rat2()) +
+                    "\nEvasion: " + getGrade(player.rat3()) +
+                    "\nSpeed: " + getGrade(player.rat4());
         } else if (pos.equals("OL")) {
             return "Home State: " + getRegion(player.regionCode()) +
-                    "\nRush Blk: " + getGrade(player.field(13)) +
-                    "\nPass Blk: " + getGrade(player.field(14)) +
-                    "\nStrength: " + getGrade(player.field(15)) +
-                    "\nVision: " + getGrade(player.field(16));
+                    "\nRush Blk: " + getGrade(player.rat1()) +
+                    "\nPass Blk: " + getGrade(player.rat2()) +
+                    "\nStrength: " + getGrade(player.rat3()) +
+                    "\nVision: " + getGrade(player.rat4());
         } else if (pos.equals("K")) {
             return "Home State: " + getRegion(player.regionCode()) +
-                    "\nKick Power: " + getGrade(player.field(13)) +
-                    "\nAccuracy: " + getGrade(player.field(14)) +
-                    "\nPressure: " + getGrade(player.field(15)) +
-                    "\nForm: " + getGrade(player.field(16));
+                    "\nKick Power: " + getGrade(player.rat1()) +
+                    "\nAccuracy: " + getGrade(player.rat2()) +
+                    "\nPressure: " + getGrade(player.rat3()) +
+                    "\nForm: " + getGrade(player.rat4());
         } else if (pos.equals("DL")) {
             return "Home State: " + getRegion(player.regionCode()) +
-                    "\nRun Stop: " + getGrade(player.field(13)) +
-                    "\nTackling: " + getGrade(player.field(14)) +
-                    "\nPass Rush: " + getGrade(player.field(15)) +
-                    "\nStength: " + getGrade(player.field(16));
+                    "\nRun Stop: " + getGrade(player.rat1()) +
+                    "\nTackling: " + getGrade(player.rat2()) +
+                    "\nPass Rush: " + getGrade(player.rat3()) +
+                    "\nStength: " + getGrade(player.rat4());
         } else if (pos.equals("LB")) {
             return "Home State: " + getRegion(player.regionCode()) +
-                    "\nTackle: " + getGrade(player.field(13)) +
-                    "\nRun Stop: " + getGrade(player.field(14)) +
-                    "\nCoverage: " + getGrade(player.field(15)) +
-                    "\nSpeed: " + getGrade(player.field(16));
+                    "\nTackle: " + getGrade(player.rat1()) +
+                    "\nRun Stop: " + getGrade(player.rat2()) +
+                    "\nCoverage: " + getGrade(player.rat3()) +
+                    "\nSpeed: " + getGrade(player.rat4());
         } else if (pos.equals("CB")) {
             return "Home State: " + getRegion(player.regionCode()) +
-                    "\nCoverage: " + getGrade(player.field(13)) +
-                    "\nSpeed: " + getGrade(player.field(14)) +
-                    "\nTackling: " + getGrade(player.field(15)) +
-                    "\nJumping: " + getGrade(player.field(16));
+                    "\nCoverage: " + getGrade(player.rat1()) +
+                    "\nSpeed: " + getGrade(player.rat2()) +
+                    "\nTackling: " + getGrade(player.rat3()) +
+                    "\nJumping: " + getGrade(player.rat4());
         } else if (pos.equals("S")) {
             return "Home State: " + getRegion(player.regionCode()) +
-                    "\nTackling: " + getGrade(player.field(13)) +
-                    "\nCoverage: " + getGrade(player.field(14)) +
-                    "\nSpeed: " + getGrade(player.field(15)) +
-                    "\nRun Stop: " + getGrade(player.field(16));
+                    "\nTackling: " + getGrade(player.rat1()) +
+                    "\nCoverage: " + getGrade(player.rat2()) +
+                    "\nSpeed: " + getGrade(player.rat3()) +
+                    "\nRun Stop: " + getGrade(player.rat4());
         }
+
         return "ERROR";
     }
 
@@ -110,11 +112,10 @@ public final class RecruitingPresentation {
                 "\nDurability: " + getGrade(Integer.toString(recruit.durability()));
     }
 
-    public static String buildRecruitConfirmMessage(RecruitingSessionData sessionData, int maxPlayers, String playerCsv) {
-        RecruitingPlayerRecord player = RecruitingPlayerRecord.fromCsv(playerCsv);
+    public static String buildRecruitConfirmMessage(RecruitingSessionData sessionData, int maxPlayers, RecruitingPlayerRecord recruit) {
         int currentRoster = sessionData.teamPlayers.size() + sessionData.playersRecruited.size();
         return "Your team roster is at " + currentRoster + " (Max: " + maxPlayers + ").\n\nAre you sure you want to recruit " +
-                player.stars() + "-Star " + player.position() + " " + player.name() + " for $" + player.cost() + "?";
+                recruit.stars() + "-Star " + recruit.position() + " " + recruit.name() + " for $" + recruit.cost() + "?";
     }
 
     public static String buildExitConfirmMessage(List<String> positions) {
@@ -126,23 +127,23 @@ public final class RecruitingPresentation {
         return sb.toString();
     }
 
-    public static String getPlayerListLeftLabel(String playerCsv) {
-        RecruitingPlayerRecord recruit = RecruitingPlayerRecord.fromCsv(playerCsv);
+    public static String getPlayerListLeftLabel(RecruitingPlayerRecord recruit) {
         return "$" + recruit.cost() + " " + recruit.position() + " " + recruit.name();
     }
 
-    public static String getPlayerListRightLabel(String playerCsv) {
-        RecruitingPlayerRecord recruit = RecruitingPlayerRecord.fromCsv(playerCsv);
-        return "Grade: " + getStarGrade(recruit.field(6));
+    public static String getPlayerListRightLabel(RecruitingPlayerRecord recruit) {
+        return "Grade: " + getStarGrade(recruit.stars());
     }
 
-    private static void appendPositionSection(StringBuilder sb, String label, int need, List<String> players, int numStart) {
+    private static void appendPositionSection(RecruitingSessionData sessionData, StringBuilder sb, String label, int need, List<RecruitingPlayerRecord> players, int numStart) {
         sb.append(label).append(" (Need: ").append(need).append(")\n");
         for (int i = 0; i < players.size(); ++i) {
-            sb.append("\t").append(i > numStart - 1 ? "BN" : "ST").append(" ").append(players.get(i)).append("\n");
+            String readable = sessionData.getReadablePlayerInfo(players.get(i));
+            sb.append("\t").append(i > numStart - 1 ? "BN" : "ST").append(" ").append(readable).append("\n");
         }
         sb.append("\n");
     }
+
 
     private static String getGrade(String num) {
         int pRat = Integer.parseInt(num);
@@ -153,8 +154,7 @@ public final class RecruitingPresentation {
         return " *";
     }
 
-    private static String getStarGrade(String num) {
-        int pRat = Integer.parseInt(num);
+    private static String getStarGrade(int pRat) {
         if (pRat == 5) return " * * * * *";
         if (pRat == 4) return " * * * *  ";
         if (pRat == 3) return " * * *    ";
@@ -162,6 +162,7 @@ public final class RecruitingPresentation {
         if (pRat == 1) return " *        ";
         return "??";
     }
+
 
     private static String getRegion(int region) {
         return STATES[region];

@@ -36,7 +36,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import antdroid.cfbcoach.GameNavigation;
 import simulation.LeagueLaunchCoordinator;
-import antdroid.cfbcoach.MainActivity;
 import antdroid.cfbcoach.R;
 import simulation.RosterRules;
 
@@ -63,7 +62,8 @@ public class RecruitingActivity extends AppCompatActivity {
     private ArrayAdapter dataAdapterPosition;
     private ExpandableListAdapterRecruiting expListAdapter;
     public Map<String, List<String>> playersInfo;
-    public List<String> players;
+    public List<RecruitingPlayerRecord> players;
+
 
     public final String[] states = {"AS","AZ","CA","HI","ID","MT","NV","OR","UT","WA","CO","KS","MO","NE","NM","ND","OK","SD","TX","WY","IL","IN","IA","KY","MD","MI","MN","OH","TN","WI","CT","DE","ME","MA","NH","NJ","NY","PA","RI","VT","AL","AK","FL","GA","LA","MS","NC","SC","VA","WV"};
 
@@ -202,97 +202,20 @@ public class RecruitingActivity extends AppCompatActivity {
 
     //UPDATE DATA AFTER CHOOSING FILTER
     private void updateForNewPosition(int position) {
-        if (position > 1 && position < 12) {
-            String[] splitty = currentPosition.split(" ");
-            setPlayerList(splitty[0]);
-            setPlayerInfoMap(splitty[0]);
-            expListAdapter.notifyDataSetChanged();
-        } else {
-            // See top 100 recruits
-            if (position == 0) {
-                players = sessionData.avail50;
-            } else if (position == 12) {
-                players = sessionData.west;
-            } else if (position == 13) {
-                players = sessionData.midwest;
-            } else if (position == 14) {
-                players = sessionData.central;
-            } else if (position == 15) {
-                players = sessionData.east;
-            } else if (position == 16) {
-                players = sessionData.south;
-            } else {
-                players = sessionData.availAll;
-            }
-
-            playersInfo = new LinkedHashMap<>();
-            for (String p : players) {
-                ArrayList<String> pInfoList = new ArrayList<>();
-                RecruitingPlayerRecord record = RecruitingPlayerRecord.fromCsv(p);
-                pInfoList.add(RecruitingPresentation.buildRecruitBoardDetails(record, record.position()));
-                playersInfo.put(record.listKey(), pInfoList);
-            }
-            expListAdapter.notifyDataSetChanged();
-        }
+        players = controller.getPlayersForPosition(position, currentPosition);
+        playersInfo = controller.buildPlayersInfoMap(players, position, currentPosition);
+        expListAdapter.notifyDataSetChanged();
     }
 
-    //Get Players
-    private void setPlayerList(String pos) {
-        if (pos.equals("QB")) {
-            players = sessionData.availQBs;
-        } else if (pos.equals("RB")) {
-            players = sessionData.availRBs;
-        } else if (pos.equals("WR")) {
-            players = sessionData.availWRs;
-        } else if (pos.equals("TE")) {
-            players = sessionData.availTEs;
-        } else if (pos.equals("OL")) {
-            players = sessionData.availOLs;
-        } else if (pos.equals("K")) {
-            players = sessionData.availKs;
-        } else if (pos.equals("DL")) {
-            players = sessionData.availDLs;
-        } else if (pos.equals("LB")) {
-            players = sessionData.availLBs;
-        } else if (pos.equals("CB")) {
-            players = sessionData.availCBs;
-        } else if (pos.equals("S")) {
-            players = sessionData.availSs;
-        }
-    }
-
-    //Player General Display
-    private void setPlayerInfoMap(String pos) {
-        playersInfo = new LinkedHashMap<>();
-        for (String p : players) {
-            ArrayList<String> pInfoList = new ArrayList<>();
-            RecruitingPlayerRecord record = RecruitingPlayerRecord.fromCsv(p);
-            pInfoList.add(RecruitingPresentation.buildRecruitBoardDetails(record, pos));
-            playersInfo.put(record.listKey(), pInfoList);
-        }
-    }
-
-    //FILTER OUT UNAFFORDABLE PLAYERS
+    //FILTERS & SORTINGS
     private void removeUnaffordableRecruits() {
         sessionData.removeUnaffordableRecruits();
         dataAdapterPosition.notifyDataSetChanged();
     }
 
-    private void removeUnaffordable(List<String> list) {
-        sessionData.removeUnaffordableRecruits();
-    }
-
     //REMOVE RECRUITS OFF THE BOARD
     private void removeRecruits() {
-        sessionData.removeRandomRecruits(recruitOffBoard, rand);
-        dataAdapterPosition.notifyDataSetChanged();
-    }
-
-    private void removeRecruits(List<String> list) {
-        sessionData.removeRandomRecruits(recruitOffBoard, rand);
-    }
-
-    private void removeRecruitBoard(List<String> list) {
+        sessionData.removeRandomRecruits(sessionData.recruitOffBoard, new Random());
         dataAdapterPosition.notifyDataSetChanged();
     }
 
@@ -333,33 +256,31 @@ public class RecruitingActivity extends AppCompatActivity {
 
 
 
-    public void recruitPlayer(String player) {
-        RecruitingPlayerRecord recruit = RecruitingPlayerRecord.fromCsv(player);
-        controller.recruitPlayer(player, autoFilter);
+    public void recruitPlayer(RecruitingPlayerRecord recruit) {
+        controller.recruitPlayer(recruit, autoFilter);
 
         Toast.makeText(this, "Recruited " + recruit.position() + " " + recruit.name(),
                 Toast.LENGTH_SHORT).show();
 
         updatePositionNeeds();
+        updateBudgetText();
     }
+
     //SCOUT PLAYER - created by Achi Jones - never used
-    private boolean scoutPlayer(String player) {
-        if (sessionData.scoutPlayer(player)) {
-            RecruitingPlayerRecord recruit = RecruitingPlayerRecord.fromCsv(player);
+    private boolean scoutPlayer(RecruitingPlayerRecord recruit) {
+        if (controller.scoutPlayer(recruit)) {
             Toast.makeText(this, "Scouted " + recruit.position() + " " + recruit.name(), Toast.LENGTH_SHORT).show();
 
             expListAdapter.notifyDataSetChanged();
             updateRecruitingOverview();
-
+            updateBudgetText();
             return true;
-
         } else {
-            Toast.makeText(this, "Not enough money!",
-                    Toast.LENGTH_SHORT).show();
-
+            Toast.makeText(this, "Not enough money!", Toast.LENGTH_SHORT).show();
             return false;
         }
     }
+
 
     private void sortTeam() {
         sessionData.sortTeamByOverall();
@@ -376,9 +297,10 @@ public class RecruitingActivity extends AppCompatActivity {
     /**
      * Used for parsing through string to get cost
      */
-    public int getRecruitCost(String p) {
-        return sessionData.getRecruitCost(p);
+    public int getRecruitCost(RecruitingPlayerRecord p) {
+        return controller.getSessionData().getRecruitCost(p);
     }
+
 
     /**
      * Exit the recruiting activity. Called when the "Done" button is pressed or when user presses back button.
@@ -418,9 +340,10 @@ public class RecruitingActivity extends AppCompatActivity {
         }
 
         public String getChild(int groupPosition, int childPosition) {
-            RecruitingPlayerRecord recruit = RecruitingPlayerRecord.fromCsv(players.get(groupPosition));
+            RecruitingPlayerRecord recruit = players.get(groupPosition);
             return playersInfo.get(recruit.listKey()).get(childPosition);
         }
+
 
         public long getChildId(int groupPosition, int childPosition) {
             return childPosition;
@@ -430,7 +353,7 @@ public class RecruitingActivity extends AppCompatActivity {
         public View getChildView(final int groupPosition, final int childPosition,
                                  boolean isLastChild, View convertView, ViewGroup parent) {
             final String playerDetail = getChild(groupPosition, childPosition);
-            final String playerCSV = getGroup(groupPosition);
+            final RecruitingPlayerRecord recruit = getGroup(groupPosition);
             LayoutInflater inflater = context.getLayoutInflater();
 
             if (convertView == null) {
@@ -440,7 +363,6 @@ public class RecruitingActivity extends AppCompatActivity {
             // Set up Text for player details
             final TextView details = convertView.findViewById(R.id.textRecruitDetails);
             final TextView potential = convertView.findViewById(R.id.textRecruitPotential);
-            RecruitingPlayerRecord recruit = RecruitingPlayerRecord.fromCsv(playerCSV);
 
             details.setText(playerDetail);
             potential.setText(RecruitingPresentation.buildPotentialDetails(recruit));
@@ -449,7 +371,7 @@ public class RecruitingActivity extends AppCompatActivity {
             Button recruitPlayerButton = convertView.findViewById(R.id.buttonRecruitPlayer);
 
             if (sessionData.teamPlayers.size() + sessionData.playersRecruited.size() < RosterRules.MAX_PLAYERS) {
-                recruitPlayerButton.setText("Recruit: $" + getRecruitCost(playerCSV));
+                recruitPlayerButton.setText("Recruit: $" + recruit.cost());
             } else {
                 recruitPlayerButton.setText("ROSTER FULL");
                 //recruitPlayerButton.setVisibility(View.INVISIBLE);
@@ -463,7 +385,7 @@ public class RecruitingActivity extends AppCompatActivity {
                         RecruitingDialogController.showRecruitConfirmDialog(
                                 RecruitingActivity.this,
                                 sessionData,
-                                playerCSV,
+                                recruit,
                                 groupPosition,
                                 recruitList,
                                 expListAdapter,
@@ -476,14 +398,17 @@ public class RecruitingActivity extends AppCompatActivity {
             return convertView;
         }
 
+
         public int getChildrenCount(int groupPosition) {
-            RecruitingPlayerRecord recruit = RecruitingPlayerRecord.fromCsv(players.get(groupPosition));
+            RecruitingPlayerRecord recruit = players.get(groupPosition);
             return playersInfo.get(recruit.listKey()).size();
         }
 
-        public String getGroup(int groupPosition) {
+
+        public RecruitingPlayerRecord getGroup(int groupPosition) {
             return players.get(groupPosition);
         }
+
 
         public int getGroupCount() {
             return players.size();

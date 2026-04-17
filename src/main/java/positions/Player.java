@@ -19,6 +19,43 @@ public class Player {
     public Team team;
     public String name;
     public String position;
+    
+    public Player() {}
+
+    public Player(Team team, simulation.PlayerRecord record) {
+        this.team = team;
+        this.name = record.name();
+        this.position = record.position();
+        this.year = record.year();
+        this.homeState = record.homeState();
+        this.character = record.character();
+        this.ratIntelligence = record.ratIntelligence();
+        this.recruitRating = record.recruitRating();
+        this.isTransfer = record.isTransfer();
+        this.wasRedshirt = record.wasRedshirt();
+        this.ratPot = record.ratPot();
+        this.ratDurability = record.ratDurability();
+        this.ratOvr = record.ratOvr();
+        this.cost = record.cost();
+        this.ratAttr1 = record.attributes()[0];
+        this.ratAttr2 = record.attributes()[1];
+        this.ratAttr3 = record.attributes()[2];
+        this.ratAttr4 = record.attributes()[3];
+        this.height = record.height();
+        this.weight = record.weight();
+        this.isSuspended = record.isSuspended();
+        this.weeksSuspended = record.weeksSuspended();
+        this.troubledTimes = record.troubledTimes();
+        this.talentNFL = record.talentNFL();
+        this.stats = record.stats();
+        this.careerStats = (ArrayList<int[]>) record.careerStats();
+        this.awards = record.awards();
+        this.isRedshirt = record.isRedshirt();
+        this.isMedicalRS = record.isMedicalRS();
+        this.isGradTransfer = record.isGradTransfer();
+        this.isWalkOn = record.isWalkOn();
+    }
+
     public int year;
     public int ratOvr;
     public int ratOvrStart;
@@ -48,7 +85,36 @@ public class Player {
     public ArrayList<int[]> careerStats;
     public int[] awards;
 
+    public simulation.PlayerRecord toRecord() {
+        return new simulation.PlayerRecord(
+                position, name, team != null ? team.name : "", year, homeState, character, ratIntelligence, recruitRating,
+
+                isTransfer, wasRedshirt, ratPot, ratDurability, ratOvr, cost,
+                new int[]{ratAttr1, ratAttr2, ratAttr3, ratAttr4}, height, weight,
+                isSuspended, weeksSuspended, troubledTimes, talentNFL, stats, careerStats, awards,
+                isRedshirt, isMedicalRS, isGradTransfer, isWalkOn
+        );
+    }
+
+
+    public static Player fromRecord(simulation.PlayerRecord record, Team team) {
+        switch (record.position()) {
+            case "QB": return new PlayerQB(team, record);
+            case "RB": return new PlayerRB(team, record);
+            case "WR": return new PlayerWR(team, record);
+            case "TE": return new PlayerTE(team, record);
+            case "OL": return new PlayerOL(team, record);
+            case "K":  return new PlayerK(team, record);
+            case "DL": return new PlayerDL(team, record);
+            case "LB": return new PlayerLB(team, record);
+            case "CB": return new PlayerCB(team, record);
+            case "S":  return new PlayerS(team, record);
+            default:   return new Player(team, record);
+        }
+    }
+
     public boolean wonHeisman;
+
     public boolean wonAllAmerican;
     public boolean wonAllConference;
     public boolean wonTopFreshman;

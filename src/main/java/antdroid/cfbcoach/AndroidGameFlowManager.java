@@ -1,6 +1,8 @@
 package antdroid.cfbcoach;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import simulation.GameFlowManager;
 import simulation.LeagueLaunchCoordinator;
 
@@ -10,10 +12,12 @@ import simulation.LeagueLaunchCoordinator;
 public class AndroidGameFlowManager implements GameFlowManager {
 
     private final Context context;
+    private final Activity activity;
     private final int theme;
 
-    public AndroidGameFlowManager(Context context, int theme) {
-        this.context = context;
+    public AndroidGameFlowManager(Activity activity, int theme) {
+        this.context = activity;
+        this.activity = activity;
         this.theme = theme;
     }
 
@@ -46,17 +50,6 @@ public class AndroidGameFlowManager implements GameFlowManager {
     }
 
     @Override
-    public void finishRecruiting(String recruitsData) {
-        LeagueLaunchCoordinator.LaunchRequest request = LeagueLaunchCoordinator.LaunchRequest.doneRecruiting(recruitsData);
-        context.startActivity(GameNavigation.createMainIntent(context, request, theme));
-    }
-
-    @Override
-    public void showNotification(String title, String message) {
-        PlatformUiHelper.showNotification(context, title, message);
-    }
-
-    @Override
     public void finishRecruiting(String recruitsStr) {
         Intent intent = GameNavigation.createMainIntent(
                 activity,
@@ -65,6 +58,11 @@ public class AndroidGameFlowManager implements GameFlowManager {
         );
         activity.startActivity(intent);
         activity.finish();
+    }
+
+    @Override
+    public void showNotification(String title, String message) {
+        PlatformUiHelper.showNotification(context, title, message);
     }
 
     @Override

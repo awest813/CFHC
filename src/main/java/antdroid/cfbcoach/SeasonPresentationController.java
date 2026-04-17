@@ -14,6 +14,8 @@ public final class SeasonPresentationController {
             return;
         }
 
+        simulation.SeasonPresentation.SeasonStatus status = simulation.SeasonPresentation.getStatus(currentTeam, simLeague, season);
+
         TextView seasonBadge = activity.findViewById(R.id.mainSeasonBadge);
         TextView seasonTitle = activity.findViewById(R.id.mainSeasonTitle);
         TextView seasonSubtitle = activity.findViewById(R.id.mainSeasonSubtitle);
@@ -22,66 +24,47 @@ public final class SeasonPresentationController {
         TextView seasonPhaseChip = activity.findViewById(R.id.mainSeasonPhaseChip);
 
         if (seasonBadge != null) {
-            seasonBadge.setText(getSeasonBadgeText(season));
+            seasonBadge.setText(status.badge);
         }
         if (seasonTitle != null) {
-            seasonTitle.setText(getSeasonTitleText(currentTeam, season));
+            seasonTitle.setText(status.title);
         }
         if (seasonSubtitle != null) {
-            seasonSubtitle.setText(getSeasonSubtitleText());
+            seasonSubtitle.setText(status.subtitle);
         }
         if (seasonYearChip != null) {
-            seasonYearChip.setText(getSeasonYearChipText(season));
+            seasonYearChip.setText(status.yearChip);
         }
         if (seasonWeekChip != null) {
-            seasonWeekChip.setText(getSeasonWeekChipText(simLeague));
+            seasonWeekChip.setText(status.weekChip);
         }
         if (seasonPhaseChip != null) {
-            seasonPhaseChip.setText(getSeasonPhaseChipText(simLeague));
+            seasonPhaseChip.setText(status.phaseChip);
         }
     }
 
     public static String getSeasonBadgeText(int season) {
-        return season + " Season";
+        return simulation.SeasonPresentation.getSeasonBadgeText(season);
     }
 
     public static String getSeasonTitleText(Team currentTeam, int season) {
-        return currentTeam.name + " " + season;
+        return simulation.SeasonPresentation.getSeasonTitleText(currentTeam, season);
     }
 
     public static String getSeasonSubtitleText() {
-        return "Track the campaign at a glance with your current week, season phase, and team command center in one place.";
+        return simulation.SeasonPresentation.getSeasonSubtitleText();
     }
 
     public static String getSeasonYearChipText(int season) {
-        return "Year " + season;
+        return simulation.SeasonPresentation.getSeasonYearChipText(season);
     }
 
     public static String getSeasonWeekChipText(League simLeague) {
-        if (simLeague.currentWeek <= 0) {
-            return "Week 0  Preseason";
-        } else if (simLeague.currentWeek <= simLeague.regSeasonWeeks) {
-            return "Week " + simLeague.currentWeek;
-        } else if (simLeague.currentWeek == simLeague.regSeasonWeeks + 1) {
-            return "Week " + simLeague.currentWeek + "  CCG";
-        } else if (simLeague.currentWeek <= simLeague.regSeasonWeeks + 4) {
-            return "Week " + simLeague.currentWeek + "  Bowls";
-        }
-        return "Week " + simLeague.currentWeek + "  Offseason";
+        return simulation.SeasonPresentation.getSeasonWeekChipText(simLeague);
     }
 
     public static String getSeasonPhaseChipText(League simLeague) {
-        if (simLeague.currentWeek <= 0) {
-            return "Phase  Preseason";
-        } else if (simLeague.currentWeek < simLeague.regSeasonWeeks) {
-            return "Phase  Regular Season";
-        } else if (simLeague.currentWeek == simLeague.regSeasonWeeks) {
-            return "Phase  Rivalry Stretch";
-        } else if (simLeague.currentWeek == simLeague.regSeasonWeeks + 1) {
-            return "Phase  Championship Week";
-        } else if (simLeague.currentWeek <= simLeague.regSeasonWeeks + 4) {
-            return "Phase  Postseason";
-        }
-        return "Phase  Transition";
+        return simulation.SeasonPresentation.getSeasonPhaseChipText(simLeague);
     }
 }
+

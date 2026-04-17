@@ -2,13 +2,12 @@ package recruiting;
 
 import java.util.Comparator;
 
-class CompRecruitTeamRosterOvr implements Comparator<String> {
+class CompRecruitTeamRosterOvr implements Comparator<RecruitingPlayerRecord> {
     @Override
-    public int compare(String a, String b) {
-        String[] psA = a.split(" ");
-        String[] psB = b.split(" ");
-        int ovrA = Integer.parseInt(psA[5]);
-        int ovrB = Integer.parseInt(psB[5]);
-        return ovrA > ovrB ? -1 : ovrA == ovrB ? 0 : 1;
+    public int compare(RecruitingPlayerRecord a, RecruitingPlayerRecord b) {
+        int ovrA = a.currentOverall();
+        int ovrB = b.currentOverall();
+        return Integer.compare(ovrB, ovrA);
     }
 }
+

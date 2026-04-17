@@ -7,6 +7,13 @@ import simulation.Team;
 
 public class HeadCoach extends Staff {
 
+    public HeadCoach(simulation.StaffRecord record, Team team) {
+        super(team, record);
+        this.history = new java.util.ArrayList<>();
+    }
+
+
+
     public final int[] overallWt = {1,1,1,1};
 
     //New Coach
@@ -51,6 +58,12 @@ public class HeadCoach extends Staff {
         history = new ArrayList<>();
 
     }
+
+    public HeadCoach(Team t, simulation.StaffRecord record) {
+        super(t, record);
+        history = new ArrayList<>();
+    }
+
 
     //New Loading Feature (Retired/Unemployed)
     public HeadCoach(String data) {

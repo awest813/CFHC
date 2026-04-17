@@ -42,6 +42,12 @@ public class DC extends Staff {
 
     }
 
+    public DC(Team t, simulation.StaffRecord record) {
+        super(t, record);
+        history = new ArrayList<>();
+    }
+
+
     //New Loading Feature (Retired/Unemployed)
     public DC(String data) {
         team = null;

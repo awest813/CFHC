@@ -40,8 +40,9 @@ public class Team {
     public String conference;
     public String division;
     public int location;
-    public ArrayList<String> teamHistory;
-    public ArrayList<String> hallOfFame;
+    public ArrayList<TeamHistoryRecord> teamHistory;
+    public ArrayList<PlayerRecord> hallOfFame;
+
     public TeamRecords teamRecords;
     public boolean userControlled;
     public boolean showPopups;
@@ -455,11 +456,36 @@ public class Team {
         }
     }
 
+    public Team(LeagueRecord.TeamRecord record, League league) {
+        this.league = league;
+        this.name = record.name();
+        this.abbr = record.abbr();
+        this.teamPrestige = record.prestige();
+        commonInitializer();
+
+        this.HC = new staff.HeadCoach(record.headCoach());
+        this.OC = new staff.OffenseCoordinator(record.offenseCoach());
+        this.DC = new staff.DefenseCoordinator(record.defenseCoach());
+
+        for (PlayerRecord pr : record.roster()) {
+            positions.Player p = positions.Player.fromRecord(pr, this);
+            allPlayers.add(p);
+        }
+
+        this.teamHistory = new ArrayList<>(record.history());
+        // records are handled by teamRecords object which is already inited in commonInitializer
+        for (DataRecord dr : record.records()) {
+            this.teamRecords.addRecord(dr);
+        }
+    }
+
+
     private void commonInitializer() {
         userControlled = false;
         showPopups = true;
         teamHistory = new ArrayList<>();
         hallOfFame = new ArrayList<>();
+
         teamRecords = new TeamRecords();
         playersInjured = new ArrayList<>();
 
@@ -495,6 +521,22 @@ public class Team {
         playersTransferring = new ArrayList<>();
         redshirtList = new ArrayList<>();
     }
+
+    public LeagueRecord.TeamRecord toRecord() {
+        ArrayList<PlayerRecord> roster = new ArrayList<>();
+        for (positions.Player p : getAllPlayers()) {
+            roster.add(p.toRecord());
+        }
+
+        return new LeagueRecord.TeamRecord(
+                name, abbr, teamPrestige,
+                HC.toRecord(), OC.toRecord(), DC.toRecord(),
+                roster,
+                new ArrayList<>(teamHistory),
+                teamRecords.toRecordList()
+        );
+    }
+
 
     public void setupTeamBenchmark() {
         sortPlayers();
@@ -3551,7 +3593,13 @@ public class Team {
             histYear += gameSum[1] + " " + gameSum[2];
         }
 
-        teamHistory.add(histYear);
+        teamHistory.add(new TeamHistoryRecord(
+                league.getYear(), wins, losses, 0, 0, rankTeamPollScore,
+                teamPoints, teamOppPoints, teamYards, teamOppYards, teamTO,
+                teamPrestige, teamPrestigeStart, histYear
+        ));
+
+
     }
 
     public void updateCoachHistory(Staff c) {
@@ -4931,17 +4979,12 @@ public class Team {
             int avgScore = totalScore / (p.year);
             if (score > 99 || statScore > 28000 || totalScore > 28750 || avgScore > 7450) {
                 // HOFer
-                ArrayList<String> careerStats = p.getCareerStatsList();
-                StringBuilder sb = new StringBuilder();
-                sb.append(p.getPosNameYrOvr_Str() + "&");
-                for (String s : careerStats) {
-                    sb.append(s + "&");
-                }
-
-                hallOfFame.add(sb.toString());
-                league.leagueHoF.add(sb.toString());
+                PlayerRecord record = p.toRecord();
+                hallOfFame.add(record);
+                league.leagueHoF.add(record);
                 HoFCount++;
             }
+
         }
     }
 
@@ -5273,76 +5316,44 @@ public class Team {
     //Saves generated recruits to a file for Recruiting Activity
     public String getRecruitsInfoSaveFile() {
         int rating = getUserRecruitStars();
-
         StringBuilder sb = new StringBuilder();
-        PlayerQB[] qbs = getQBRecruits(rating);
-        for (PlayerQB p : qbs) {
-            sb.append("QB," + p.name + "," + p.year + "," + p.homeState + "," + p.character + "," + p.ratIntelligence + "," + p.recruitRating + "," + p.isTransfer + "," + p.wasRedshirt + "," + p.ratPot + "," + p.ratDurability
-                    + "," + p.ratOvr + "," + p.cost + "," + p.getRatPassPow() + "," + p.getRatPassAcc() + "," + p.getRatEvasion() + "," + p.getRatSpeed() + "," + p.height + "," + p.weight + "%\n");
-        }
-        PlayerRB[] rbs = getRBRecruits(rating);
-        for (PlayerRB p : rbs) {
-            sb.append("RB," + p.name + "," + p.year + "," + p.homeState + "," + p.character + "," + p.ratIntelligence + "," + p.recruitRating + "," + p.isTransfer + "," + p.wasRedshirt + "," + p.ratPot + "," + p.ratDurability
-                    + "," + p.ratOvr + "," + p.cost + "," + p.getRatRushPower() + "," + p.getRatSpeed() + "," + p.getRatEvasion() + "," + p.getRatCatch() + "," + p.height + "," + p.weight + "%\n");
-        }
-        PlayerWR[] wrs = getWRRecruits(rating);
-        for (PlayerWR p : wrs) {
-            sb.append("WR," + p.name + "," + p.year + "," + p.homeState + "," + p.character + "," + p.ratIntelligence + "," + p.recruitRating + "," + p.isTransfer + "," + p.wasRedshirt + "," + p.ratPot + "," + p.ratDurability
-                    + "," + p.ratOvr + "," + p.cost + "," + p.getRatCatch() + "," + p.getRatSpeed() + "," + p.getRatEvasion() + "," + p.getRatJump() + "," + p.height + "," + p.weight + "%\n");
-        }
-        PlayerTE[] tes = getTERecruits(rating);
-        for (PlayerTE p : tes) {
-            sb.append("TE," + p.name + "," + p.year + "," + p.homeState + "," + p.character + "," + p.ratIntelligence + "," + p.recruitRating + "," + p.isTransfer + "," + p.wasRedshirt + "," + p.ratPot + "," + p.ratDurability
-                    + "," + p.ratOvr + "," + p.cost + "," + p.getRatCatch() + "," + p.getRatRunBlock() + "," + p.getRatEvasion() + "," + p.getRatSpeed() + "," + p.height + "," + p.weight + "%\n");
-        }
-        PlayerK[] ks = getKRecruits(rating);
-        for (PlayerK p : ks) {
-            sb.append("K," + p.name + "," + p.year + "," + p.homeState + "," + p.character + "," + p.ratIntelligence + "," + p.recruitRating + "," + p.isTransfer + "," + p.wasRedshirt + "," + p.ratPot + "," + p.ratDurability
-                    + "," + p.ratOvr + "," + p.cost + "," + p.getRatKickPow() + "," + p.getRatKickAcc() + "," + p.getRatKickFum() + "," + p.getRatKickPressure() + "," + p.height + "," + p.weight + "%\n");
-        }
-        PlayerOL[] ols = getOLRecruits(rating);
-        for (PlayerOL p : ols) {
-            sb.append("OL," + p.name + "," + p.year + "," + p.homeState + "," + p.character + "," + p.ratIntelligence + "," + p.recruitRating + "," + p.isTransfer + "," + p.wasRedshirt + "," + p.ratPot + "," + p.ratDurability
-                    + "," + p.ratOvr + "," + p.cost + "," + p.getRatStrength() + "," + p.getRatRunBlock() + "," + p.getRatPassBlock() + "," + p.getRatVision() + "," + p.height + "," + p.weight + "%\n");
-        }
-        PlayerDL[] dls = getDLRecruits(rating);
-        for (PlayerDL p : dls) {
-            sb.append("DL," + p.name + "," + p.year + "," + p.homeState + "," + p.character + "," + p.ratIntelligence + "," + p.recruitRating + "," + p.isTransfer + "," + p.wasRedshirt + "," + p.ratPot + "," + p.ratDurability
-                    + "," + p.ratOvr + "," + p.cost + "," + p.getRatStrength() + "," + p.getRatRunStop() + "," + p.getRatPassRush() + "," + p.getRatTackle() + "," + p.height + "," + p.weight + "%\n");
-        }
-        PlayerLB[] lbs = getLBRecruits(rating);
-        for (PlayerLB p : lbs) {
-            sb.append("LB," + p.name + "," + p.year + "," + p.homeState + "," + p.character + "," + p.ratIntelligence + "," + p.recruitRating + "," + p.isTransfer + "," + p.wasRedshirt + "," + p.ratPot + "," + p.ratDurability
-                    + "," + p.ratOvr + "," + p.cost + "," + p.getRatCoverage() + "," + p.getRatRunStop() + "," + p.getRatTackle() + "," + p.getRatSpeed() + "," + p.height + "," + p.weight + "%\n");
-        }
-        PlayerCB[] cbs = getCBRecruits(rating);
-        for (PlayerCB p : cbs) {
-            sb.append("CB," + p.name + "," + p.year + "," + p.homeState + "," + p.character + "," + p.ratIntelligence + "," + p.recruitRating + "," + p.isTransfer + "," + p.wasRedshirt + "," + p.ratPot + "," + p.ratDurability
-                    + "," + p.ratOvr + "," + p.cost + "," + p.getRatCoverage() + "," + p.getRatSpeed() + "," + p.getRatTackle() + "," + p.getRatJump() + "," + p.height + "," + p.weight + "%\n");
-        }
-        PlayerS[] ss = getSRecruits(rating);
-        for (PlayerS p : ss) {
-            sb.append("S," + p.name + "," + p.year + "," + p.homeState + "," + p.character + "," + p.ratIntelligence + "," + p.recruitRating + "," + p.isTransfer + "," + p.wasRedshirt + "," + p.ratPot + "," + p.ratDurability
-                    + "," + p.ratOvr + "," + p.cost + "," + p.getRatCoverage() + "," + p.getRatSpeed() + "," + p.getRatTackle() + "," + p.getRatRunStop() + "," + p.height + "," + p.weight + "%\n");
-        }
+
+        appendRecruits(sb, getQBRecruits(rating));
+        appendRecruits(sb, getRBRecruits(rating));
+        appendRecruits(sb, getWRRecruits(rating));
+        appendRecruits(sb, getTERecruits(rating));
+        appendRecruits(sb, getKRecruits(rating));
+        appendRecruits(sb, getOLRecruits(rating));
+        appendRecruits(sb, getDLRecruits(rating));
+        appendRecruits(sb, getLBRecruits(rating));
+        appendRecruits(sb, getCBRecruits(rating));
+        appendRecruits(sb, getSRecruits(rating));
 
         return sb.toString();
     }
+
+    private void appendRecruits(StringBuilder sb, Player[] recruits) {
+        for (Player p : recruits) {
+            sb.append(Persistence.toCsv(p.toRecord())).append("%\n");
+        }
+    }
+
 
     //Creates a Save File for Team Roster
     public String getPlayerInfoSaveFile() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append(HC.saveStaffData() + "%\n");
-        sb.append(OC.saveStaffData() + "%\n");
-        sb.append(DC.saveStaffData() + "%\n");
+        sb.append(Persistence.toCsv(HC.toRecord()) + "%\n");
+        sb.append(Persistence.toCsv(OC.toRecord()) + "%\n");
+        sb.append(Persistence.toCsv(DC.toRecord()) + "%\n");
 
         for(Player p : getAllPlayers()) {
-            sb.append(p.savePlayerData() + "%\n");
+            sb.append(Persistence.toCsv(p.toRecord()) + "%\n");
         }
 
         return sb.toString();
     }
+
 
     public String midseasonTeamSave() {
         StringBuilder teamSave = new StringBuilder();
@@ -5432,16 +5443,17 @@ public class Team {
     }
 
     private void loadHCSaveData(String data) {
-        HC = new HeadCoach(this, data);
+        HC = new HeadCoach(this, StaffRecord.fromCsv(data));
     }
 
     private void loadOCSaveData(String data) {
-        OC = new OC(this, data);
+        OC = new OC(this, StaffRecord.fromCsv(data));
     }
 
     private void loadDCSaveData(String data) {
-        DC = new DC(this, data);
+        DC = new DC(this, StaffRecord.fromCsv(data));
     }
+
 
     private void loadQBSaveData(String data) {
         teamQBs.add(new PlayerQB(this, data));

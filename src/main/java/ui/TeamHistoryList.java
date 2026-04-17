@@ -14,12 +14,15 @@ import android.widget.TextView;
 
 import antdroid.cfbcoach.R;
 
-public class TeamHistoryList extends ArrayAdapter<String> {
-    private final Context context;
-    private final String[] values;
+import simulation.TeamHistoryRecord;
 
-    public TeamHistoryList(Context context, String[] values) {
+public class TeamHistoryList extends ArrayAdapter<TeamHistoryRecord> {
+    private final Context context;
+    private final TeamHistoryRecord[] values;
+
+    public TeamHistoryList(Context context, TeamHistoryRecord[] values) {
         super(context, R.layout.team_history_list_item, values);
+
         this.context = context;
         this.values = values;
     }
@@ -32,7 +35,8 @@ public class TeamHistoryList extends ArrayAdapter<String> {
         TextView textTop = rowView.findViewById(R.id.textViewTeamHistoryTitle);
         TextView textBottom = rowView.findViewById(R.id.textViewTeamHistoryDetail);
 
-        String[] teamHist = values[position].split(">");
+        String summary = values[position].summary();
+        String[] teamHist = summary.split(">");
         if (teamHist.length > 1) {
             textTop.setText(teamHist[0]);
             String[] yearSplit = teamHist[0].split(" ");
@@ -54,9 +58,10 @@ public class TeamHistoryList extends ArrayAdapter<String> {
             }
             textBottom.setText(detail);
         } else {
-            textTop.setText(values[position]);
+            textTop.setText(summary);
 
-            String[] yearSplit = values[position].split(" ");
+            String[] yearSplit = summary.split(" ");
+
             boolean wonNC = false, wonCC = false, wonB = false;
             for (String s : yearSplit) {
                 if (s.equals("NCW")) wonNC = true;

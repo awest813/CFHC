@@ -7,6 +7,11 @@ import simulation.Team;
 
 public class PlayerQB extends Player {
 
+    public PlayerQB(Team team, simulation.PlayerRecord record) {
+        super(team, record);
+    }
+
+
     //Size Config
     private final int hAvg = 75;
     private final int hMax = 3;
@@ -98,6 +103,12 @@ public class PlayerQB extends Player {
         team = t;
         transferPlayer(p);
     }
+
+    public PlayerQB(Team t, simulation.PlayerRecord record) {
+        super(t, record);
+        position = "QB";
+    }
+
 
     public int getRatPassPow() {
         return ratAttr1;

@@ -7,6 +7,11 @@ import simulation.Team;
 
 public class PlayerCB extends Player {
 
+    public PlayerCB(Team team, simulation.PlayerRecord record) {
+        super(team, record);
+    }
+
+
     //Size Config
     private final int hAvg = 71;
     private final int hMax = 4;
@@ -96,6 +101,12 @@ public class PlayerCB extends Player {
         team = t;
         transferPlayer(p);
     }
+
+    public PlayerCB(Team t, simulation.PlayerRecord record) {
+        super(t, record);
+        position = "CB";
+    }
+
 
 
     public int getRatCoverage() {

@@ -2,13 +2,11 @@ package recruiting;
 
 import java.util.Comparator;
 
-class CompRecruitScoutGrade implements Comparator<String> {
+class CompRecruitScoutGrade implements Comparator<RecruitingPlayerRecord> {
     @Override
-    public int compare(String a, String b) {
-        String[] psA = a.split(",");
-        String[] psB = b.split(",");
-        float ovrA = (4 * Integer.parseInt(psA[11]) + Integer.parseInt(psA[9])) / 5;
-        float ovrB = (4 * Integer.parseInt(psB[11]) + Integer.parseInt(psB[9])) / 5;
-        return ovrA > ovrB ? -1 : ovrA == ovrB ? 0 : 1;
+    public int compare(RecruitingPlayerRecord a, RecruitingPlayerRecord b) {
+        float ovrA = (4 * a.recruitOverall() + a.potential()) / 5.0f;
+        float ovrB = (4 * b.recruitOverall() + b.potential()) / 5.0f;
+        return Float.compare(ovrB, ovrA);
     }
 }

@@ -37,39 +37,42 @@ public final class RecruitingSessionData {
     public final int coachTalent;
     public final double recruitOffBoard = 0.935;
 
-    public final ArrayList<String> playersRecruited = new ArrayList<>();
-    public final ArrayList<String> playersGraduating = new ArrayList<>();
-    public final ArrayList<String> teamPlayers = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> playersRecruited = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> playersGraduating = new ArrayList<>();
 
-    public final ArrayList<String> teamQBs = new ArrayList<>();
-    public final ArrayList<String> teamRBs = new ArrayList<>();
-    public final ArrayList<String> teamWRs = new ArrayList<>();
-    public final ArrayList<String> teamTEs = new ArrayList<>();
-    public final ArrayList<String> teamOLs = new ArrayList<>();
-    public final ArrayList<String> teamKs = new ArrayList<>();
-    public final ArrayList<String> teamDLs = new ArrayList<>();
-    public final ArrayList<String> teamLBs = new ArrayList<>();
-    public final ArrayList<String> teamCBs = new ArrayList<>();
-    public final ArrayList<String> teamSs = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> teamPlayers = new ArrayList<>();
 
-    public final ArrayList<String> availQBs = new ArrayList<>();
-    public final ArrayList<String> availRBs = new ArrayList<>();
-    public final ArrayList<String> availWRs = new ArrayList<>();
-    public final ArrayList<String> availTEs = new ArrayList<>();
-    public final ArrayList<String> availOLs = new ArrayList<>();
-    public final ArrayList<String> availKs = new ArrayList<>();
-    public final ArrayList<String> availDLs = new ArrayList<>();
-    public final ArrayList<String> availLBs = new ArrayList<>();
-    public final ArrayList<String> availCBs = new ArrayList<>();
-    public final ArrayList<String> availSs = new ArrayList<>();
-    public final ArrayList<String> availAll = new ArrayList<>();
-    public final ArrayList<String> avail50 = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> teamQBs = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> teamRBs = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> teamWRs = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> teamTEs = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> teamOLs = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> teamKs = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> teamDLs = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> teamLBs = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> teamCBs = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> teamSs = new ArrayList<>();
 
-    public final ArrayList<String> west = new ArrayList<>();
-    public final ArrayList<String> midwest = new ArrayList<>();
-    public final ArrayList<String> central = new ArrayList<>();
-    public final ArrayList<String> east = new ArrayList<>();
-    public final ArrayList<String> south = new ArrayList<>();
+
+    public final ArrayList<RecruitingPlayerRecord> availQBs = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> availRBs = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> availWRs = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> availTEs = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> availOLs = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> availKs = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> availDLs = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> availLBs = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> availCBs = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> availSs = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> availAll = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> avail50 = new ArrayList<>();
+
+    public final ArrayList<RecruitingPlayerRecord> west = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> midwest = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> central = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> east = new ArrayList<>();
+    public final ArrayList<RecruitingPlayerRecord> south = new ArrayList<>();
+
 
     private RecruitingSessionData(String teamName, int recruitingBudget, int coachTalent) {
         this.teamName = teamName;
@@ -148,23 +151,24 @@ public final class RecruitingSessionData {
         return labels;
     }
 
-    public String getReadablePlayerInfo(String playerCsv) {
-        RecruitingPlayerRecord player = RecruitingPlayerRecord.fromCsv(playerCsv);
+    public String getReadablePlayerInfo(RecruitingPlayerRecord player) {
         String transfer = player.isTransfer() ? " (Transfer)" : "";
-        if (!playersRecruited.contains(playerCsv)) {
+        if (!playersRecruited.contains(player)) {
             return player.name() + " " + getYearLabel(player.year()) + "  Ovr: " + player.currentOverall() + " (+" + player.improvement() + ")" + transfer;
         }
         return player.name() + " " + getYearLabel(player.year()) + "  Ovr: " + player.recruitOverall() + "  (Recruit)" + transfer;
     }
 
+
     public String buildRecruitsSaveData() {
         StringBuilder sb = new StringBuilder();
-        for (String player : playersRecruited) {
-            sb.append(player).append("%\n");
+        for (RecruitingPlayerRecord player : playersRecruited) {
+            sb.append(player.raw()).append("%\n");
         }
         sb.append("END_RECRUITS%\n");
         return sb.toString();
     }
+
 
     public static String getYearLabel(String year) {
         if ("1".equals(year)) {
@@ -179,9 +183,10 @@ public final class RecruitingSessionData {
         return "[XX]";
     }
 
-    public int getRecruitCost(String playerCsv) {
-        return RecruitingPlayerRecord.fromCsv(playerCsv).cost();
+    public int getRecruitCost(RecruitingPlayerRecord player) {
+        return player.cost();
     }
+
 
     public void sortBoardsByCost() {
         Collections.sort(availAll, new CompRecruitCost());
@@ -203,13 +208,12 @@ public final class RecruitingSessionData {
         Collections.sort(south, new CompRecruitCost());
     }
 
-    public void recruitPlayer(String playerCsv, boolean autoFilter, double recruitOffBoardChance, Random random) {
-        recruitingBudget -= getRecruitCost(playerCsv);
-        removeRecruitFromBoards(playerCsv);
-        playersRecruited.add(playerCsv);
+    public void recruitPlayer(RecruitingPlayerRecord recruit, boolean autoFilter, double recruitOffBoardChance, Random random) {
+        recruitingBudget -= recruit.cost();
+        removeRecruitFromBoards(recruit);
+        playersRecruited.add(recruit);
 
-        RecruitingPlayerRecord recruit = RecruitingPlayerRecord.fromCsv(playerCsv);
-        addToTeamPositionList(recruit.position(), getReadablePlayerInfo(playerCsv));
+        addToTeamPositionList(recruit.position(), getReadablePlayerInfo(recruit));
         sortTeamByOverall();
 
         if (autoFilter) {
@@ -218,43 +222,51 @@ public final class RecruitingSessionData {
         removeRandomRecruits(recruitOffBoardChance, random);
     }
 
-    public boolean scoutPlayer(String playerCsv) {
-        int scoutCost = getRecruitCost(playerCsv) / 10;
-        if (scoutCost < 10) {
-            scoutCost = 10;
-        }
+
+    public boolean scoutPlayer(RecruitingPlayerRecord recruit) {
+        int scoutCost = Math.max(10, recruit.cost() / 10);
         if (recruitingBudget < scoutCost) {
             return false;
         }
 
         recruitingBudget -= scoutCost;
-        markScouted(availAll, playerCsv);
-        markScouted(avail50, playerCsv);
-
-        RecruitingPlayerRecord recruit = RecruitingPlayerRecord.fromCsv(playerCsv);
-        if (recruit.position().equals("QB")) {
-            markScouted(availQBs, playerCsv);
-        } else if (recruit.position().equals("RB")) {
-            markScouted(availRBs, playerCsv);
-        } else if (recruit.position().equals("WR")) {
-            markScouted(availWRs, playerCsv);
-        } else if (recruit.position().equals("TE")) {
-            markScouted(availTEs, playerCsv);
-        } else if (recruit.position().equals("OL")) {
-            markScouted(availOLs, playerCsv);
-        } else if (recruit.position().equals("K")) {
-            markScouted(availKs, playerCsv);
-        } else if (recruit.position().equals("DL")) {
-            markScouted(availDLs, playerCsv);
-        } else if (recruit.position().equals("LB")) {
-            markScouted(availLBs, playerCsv);
-        } else if (recruit.position().equals("CB")) {
-            markScouted(availCBs, playerCsv);
-        } else if (recruit.position().equals("S")) {
-            markScouted(availSs, playerCsv);
-        }
+        markScoutedEverywhere(recruit);
         return true;
     }
+
+    private void markScoutedEverywhere(RecruitingPlayerRecord recruit) {
+        markScouted(availAll, recruit);
+        markScouted(avail50, recruit);
+        markScouted(west, recruit);
+        markScouted(midwest, recruit);
+        markScouted(central, recruit);
+        markScouted(east, recruit);
+        markScouted(south, recruit);
+        
+        // Position specific
+        String pos = recruit.position();
+        if (pos.equals("QB")) markScouted(availQBs, recruit);
+        else if (pos.equals("RB")) markScouted(availRBs, recruit);
+        else if (pos.equals("WR")) markScouted(availWRs, recruit);
+        else if (pos.equals("TE")) markScouted(availTEs, recruit);
+        else if (pos.equals("OL")) markScouted(availOLs, recruit);
+        else if (pos.equals("K")) markScouted(availKs, recruit);
+        else if (pos.equals("DL")) markScouted(availDLs, recruit);
+        else if (pos.equals("LB")) markScouted(availLBs, recruit);
+        else if (pos.equals("CB")) markScouted(availCBs, recruit);
+        else if (pos.equals("S")) markScouted(availSs, recruit);
+    }
+
+    private void markScouted(List<RecruitingPlayerRecord> list, RecruitingPlayerRecord recruit) {
+        for (int i = 0; i < list.size(); ++i) {
+            if (list.get(i).raw().equals(recruit.raw())) {
+                String scoutedRaw = recruit.raw().substring(0, recruit.raw().length() - 1) + "T";
+                list.set(i, RecruitingPlayerRecord.fromRecruitCsv(scoutedRaw));
+                break;
+            }
+        }
+    }
+
 
     public void removeUnaffordableRecruits() {
         removeUnaffordable(avail50);
@@ -276,8 +288,20 @@ public final class RecruitingSessionData {
         removeUnaffordable(south);
     }
 
+    private void removeUnaffordable(List<RecruitingPlayerRecord> list) {
+        int i = 0;
+        while (i < list.size()) {
+            if (list.get(i).cost() > recruitingBudget) {
+                list.remove(i);
+            } else {
+                i++;
+            }
+        }
+    }
+
+
     public void removeRandomRecruits(double recruitOffBoardChance, Random random) {
-        ArrayList<String> removeList = new ArrayList<>();
+        ArrayList<RecruitingPlayerRecord> removeList = new ArrayList<>();
         int i = 0;
         while (i < availAll.size()) {
             if (random.nextDouble() > recruitOffBoardChance) {
@@ -287,141 +311,118 @@ public final class RecruitingSessionData {
                 i++;
             }
         }
-        for (String recruit : removeList) {
+        for (RecruitingPlayerRecord recruit : removeList) {
             removeRecruitFromBoards(recruit);
         }
     }
 
+
     private void addExistingPlayer(String playerCsv) {
-        RecruitingPlayerRecord player = RecruitingPlayerRecord.fromCsv(playerCsv);
-        String readable = getReadablePlayerInfo(playerCsv);
+        RecruitingPlayerRecord player = RecruitingPlayerRecord.fromRosterCsv(playerCsv);
         if (player.isGraduating()) {
-            playersGraduating.add(readable);
+            playersGraduating.add(player);
             return;
         }
-        teamPlayers.add(readable);
-        addToTeamPositionList(player.position(), readable);
+        teamPlayers.add(player);
+        addToTeamPositionList(player.position(), player);
     }
+
+
 
     private void addRecruit(String recruitCsv) {
-        RecruitingPlayerRecord player = RecruitingPlayerRecord.fromCsv(recruitCsv);
-        availAll.add(recruitCsv);
-        addToRegionList(player.regionBucket(), recruitCsv);
-        addToAvailablePositionList(player.position(), recruitCsv);
+        RecruitingPlayerRecord player = RecruitingPlayerRecord.fromRecruitCsv(recruitCsv);
+        availAll.add(player);
+        addToRegionList(player.regionBucket(), player);
+        addToAvailablePositionList(player.position(), player);
     }
 
-    private void addToRegionList(int regionBucket, String recruitCsv) {
+
+    private void addToRegionList(int regionBucket, RecruitingPlayerRecord recruit) {
         if (regionBucket == 0) {
-            west.add(recruitCsv);
+            west.add(recruit);
         } else if (regionBucket == 1) {
-            midwest.add(recruitCsv);
+            midwest.add(recruit);
         } else if (regionBucket == 2) {
-            central.add(recruitCsv);
+            central.add(recruit);
         } else if (regionBucket == 3) {
-            east.add(recruitCsv);
+            east.add(recruit);
         } else if (regionBucket == 4) {
-            south.add(recruitCsv);
+            south.add(recruit);
         }
     }
 
-    private void addToAvailablePositionList(String position, String recruitCsv) {
+    private void addToAvailablePositionList(String position, RecruitingPlayerRecord recruit) {
         if (position.equals("QB")) {
-            availQBs.add(recruitCsv);
+            availQBs.add(recruit);
         } else if (position.equals("RB")) {
-            availRBs.add(recruitCsv);
+            availRBs.add(recruit);
         } else if (position.equals("WR")) {
-            availWRs.add(recruitCsv);
+            availWRs.add(recruit);
         } else if (position.equals("TE")) {
-            availTEs.add(recruitCsv);
-        } else if (position.equals("K")) {
-            availKs.add(recruitCsv);
+            availTEs.add(recruit);
         } else if (position.equals("OL")) {
-            availOLs.add(recruitCsv);
+            availOLs.add(recruit);
+        } else if (position.equals("K")) {
+            availKs.add(recruit);
         } else if (position.equals("DL")) {
-            availDLs.add(recruitCsv);
+            availDLs.add(recruit);
         } else if (position.equals("LB")) {
-            availLBs.add(recruitCsv);
+            availLBs.add(recruit);
         } else if (position.equals("CB")) {
-            availCBs.add(recruitCsv);
+            availCBs.add(recruit);
         } else if (position.equals("S")) {
-            availSs.add(recruitCsv);
+            availSs.add(recruit);
         }
     }
 
-    private void addToTeamPositionList(String position, String readablePlayer) {
+
+    private void addToTeamPositionList(String position, RecruitingPlayerRecord player) {
         if (position.equals("QB")) {
-            teamQBs.add(readablePlayer);
+            teamQBs.add(player);
         } else if (position.equals("RB")) {
-            teamRBs.add(readablePlayer);
+            teamRBs.add(player);
         } else if (position.equals("WR")) {
-            teamWRs.add(readablePlayer);
+            teamWRs.add(player);
         } else if (position.equals("TE")) {
-            teamTEs.add(readablePlayer);
+            teamTEs.add(player);
         } else if (position.equals("OL")) {
-            teamOLs.add(readablePlayer);
+            teamOLs.add(player);
         } else if (position.equals("K")) {
-            teamKs.add(readablePlayer);
+            teamKs.add(player);
         } else if (position.equals("DL")) {
-            teamDLs.add(readablePlayer);
+            teamDLs.add(player);
         } else if (position.equals("LB")) {
-            teamLBs.add(readablePlayer);
+            teamLBs.add(player);
         } else if (position.equals("CB")) {
-            teamCBs.add(readablePlayer);
+            teamCBs.add(player);
         } else if (position.equals("S")) {
-            teamSs.add(readablePlayer);
+            teamSs.add(player);
         }
     }
 
-    private void removeUnaffordable(List<String> list) {
-        int i = 0;
-        while (i < list.size()) {
-            if (getRecruitCost(list.get(i)) > recruitingBudget) {
-                list.remove(i);
-            } else {
-                ++i;
-            }
-        }
+
+    private void removeRecruitFromBoards(RecruitingPlayerRecord recruit) {
+        availAll.remove(recruit);
+        avail50.remove(recruit);
+        west.remove(recruit);
+        midwest.remove(recruit);
+        central.remove(recruit);
+        east.remove(recruit);
+        south.remove(recruit);
+        availQBs.remove(recruit);
+        availRBs.remove(recruit);
+        availWRs.remove(recruit);
+        availTEs.remove(recruit);
+        availKs.remove(recruit);
+        availOLs.remove(recruit);
+        availDLs.remove(recruit);
+        availLBs.remove(recruit);
+        availCBs.remove(recruit);
+        availSs.remove(recruit);
     }
 
-    private void removeRecruitFromBoards(String playerCsv) {
-        avail50.remove(playerCsv);
-        availAll.remove(playerCsv);
-        west.remove(playerCsv);
-        midwest.remove(playerCsv);
-        central.remove(playerCsv);
-        east.remove(playerCsv);
-        south.remove(playerCsv);
 
-        RecruitingPlayerRecord recruit = RecruitingPlayerRecord.fromCsv(playerCsv);
-        if (recruit.position().equals("QB")) {
-            availQBs.remove(playerCsv);
-        } else if (recruit.position().equals("RB")) {
-            availRBs.remove(playerCsv);
-        } else if (recruit.position().equals("WR")) {
-            availWRs.remove(playerCsv);
-        } else if (recruit.position().equals("TE")) {
-            availTEs.remove(playerCsv);
-        } else if (recruit.position().equals("OL")) {
-            availOLs.remove(playerCsv);
-        } else if (recruit.position().equals("K")) {
-            availKs.remove(playerCsv);
-        } else if (recruit.position().equals("DL")) {
-            availDLs.remove(playerCsv);
-        } else if (recruit.position().equals("LB")) {
-            availLBs.remove(playerCsv);
-        } else if (recruit.position().equals("CB")) {
-            availCBs.remove(playerCsv);
-        } else if (recruit.position().equals("S")) {
-            availSs.remove(playerCsv);
-        }
-    }
 
-    private void markScouted(List<String> recruits, String playerCsv) {
-        int index = recruits.indexOf(playerCsv);
-        if (index >= 0) {
-            recruits.set(index, playerCsv.substring(0, playerCsv.length() - 1) + "1");
-        }
-    }
 
     public void sortBoardsByGrade() {
         Collections.sort(availAll, new CompRecruitScoutGrade());
@@ -458,8 +459,8 @@ public final class RecruitingSessionData {
     public void rebuildTopProspects() {
         avail50.clear();
         int added = 0;
-        for (String recruit : availAll) {
-            if (!RecruitingPlayerRecord.fromCsv(recruit).position().equals("K")) {
+        for (RecruitingPlayerRecord recruit : availAll) {
+            if (!recruit.position().equals("K")) {
                 avail50.add(recruit);
                 added++;
             }
@@ -468,4 +469,5 @@ public final class RecruitingSessionData {
             }
         }
     }
+
 }

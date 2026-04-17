@@ -29,7 +29,7 @@ public final class RecruitingDialogController {
     /**
      * Show display options dialog (Expand All, Sort, etc.)
      */
-    public static void showDisplayOptions(final RecruitingActivity activity, final boolean autoFilter, final List<String> players, final ExpandableListView recruitList, final RecruitingActivity.ExpandableListAdapterRecruiting expListAdapter) {
+    public static void showDisplayOptions(final RecruitingActivity activity, final boolean autoFilter, final List<RecruitingPlayerRecord> players, final ExpandableListView recruitList, final RecruitingActivity.ExpandableListAdapterRecruiting expListAdapter) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle("DISPLAY OPTIONS");
         
@@ -84,8 +84,8 @@ public final class RecruitingDialogController {
     /**
      * Show recruiting confirmation dialog
      */
-    public static void showRecruitConfirmDialog(final RecruitingActivity activity, final RecruitingSessionData sessionData, final String playerCsv, final int groupPosition, final ExpandableListView recruitList, final RecruitingActivity.ExpandableListAdapterRecruiting expListAdapter, boolean showPopUp) {
-        int moneyNeeded = sessionData.getRecruitCost(playerCsv);
+    public static void showRecruitConfirmDialog(final RecruitingActivity activity, final RecruitingSessionData sessionData, final RecruitingPlayerRecord recruit, final int groupPosition, final ExpandableListView recruitList, final RecruitingActivity.ExpandableListAdapterRecruiting expListAdapter, boolean showPopUp) {
+        int moneyNeeded = recruit.cost();
         
         if (sessionData.recruitingBudget < moneyNeeded) {
             collapseForRefresh(recruitList, groupPosition, playersCount(sessionData));
@@ -96,17 +96,17 @@ public final class RecruitingDialogController {
         }
 
         if (!showPopUp) {
-            performRecruit(activity, sessionData, playerCsv, groupPosition, recruitList, expListAdapter);
+            performRecruit(activity, sessionData, recruit, groupPosition, recruitList, expListAdapter);
             return;
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle("Confirm Recruiting");
-        builder.setMessage(RecruitingPresentation.buildRecruitConfirmMessage(sessionData, RosterRules.MAX_PLAYERS, playerCsv));
+        builder.setMessage(RecruitingPresentation.buildRecruitConfirmMessage(sessionData, RosterRules.MAX_PLAYERS, recruit.raw()));
         
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                performRecruit(activity, sessionData, playerCsv, groupPosition, recruitList, expListAdapter);
+                performRecruit(activity, sessionData, recruit, groupPosition, recruitList, expListAdapter);
                 dialog.dismiss();
             }
         });
@@ -114,7 +114,7 @@ public final class RecruitingDialogController {
         builder.setNeutralButton("Yes, Don't Show", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 activity.setShowPopUp(false);
-                performRecruit(activity, sessionData, playerCsv, groupPosition, recruitList, expListAdapter);
+                performRecruit(activity, sessionData, recruit, groupPosition, recruitList, expListAdapter);
                 dialog.dismiss();
             }
         });
@@ -155,11 +155,12 @@ public final class RecruitingDialogController {
         PlatformUiHelper.showImmersive(dialog);
     }
 
-    private static void performRecruit(RecruitingActivity activity, RecruitingSessionData sessionData, String playerCsv, int groupPosition, ExpandableListView recruitList, RecruitingActivity.ExpandableListAdapterRecruiting expListAdapter) {
+    private static void performRecruit(RecruitingActivity activity, RecruitingSessionData sessionData, RecruitingPlayerRecord recruit, int groupPosition, ExpandableListView recruitList, RecruitingActivity.ExpandableListAdapterRecruiting expListAdapter) {
         collapseForRefresh(recruitList, groupPosition, playersCount(sessionData));
-        activity.recruitPlayer(playerCsv);
+        activity.recruitPlayer(recruit);
         expListAdapter.notifyDataSetChanged();
     }
+
 
     private static void collapseForRefresh(ExpandableListView recruitList, int groupPosition, int totalCount) {
         recruitList.collapseGroup(groupPosition);

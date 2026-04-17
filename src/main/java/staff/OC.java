@@ -45,6 +45,12 @@ public class OC extends Staff {
 
     }
 
+    public OC(Team t, simulation.StaffRecord record) {
+        super(t, record);
+        history = new ArrayList<>();
+    }
+
+
     //New Loading Feature (Retired/Unemployed)
     public OC(String data) {
         team = null;

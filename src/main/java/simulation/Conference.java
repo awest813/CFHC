@@ -116,6 +116,34 @@ public class Conference {
 
     }
 
+    public Conference(LeagueRecord.ConferenceRecord record, League league) {
+        this.confName = record.name();
+        this.league = league;
+        this.confTeams = new ArrayList<>();
+        this.allConfCoach = new ArrayList<>();
+        this.allConfPlayers = new ArrayList<>();
+        this.divisions = new ArrayList<Division>();
+        this.divisions.add(new Division("A", league));
+        this.divisions.add(new Division("B", league));
+        this.oocWeeks = new ArrayList<>();
+
+        for (LeagueRecord.TeamRecord tr : record.teams()) {
+            Team t = new Team(tr, league);
+            confTeams.add(t);
+            league.teamList.add(t);
+        }
+    }
+
+
+    public LeagueRecord.ConferenceRecord toRecord() {
+        ArrayList<LeagueRecord.TeamRecord> teams = new ArrayList<>();
+        for (Team t : confTeams) {
+            teams.add(t.toRecord());
+        }
+        return new LeagueRecord.ConferenceRecord(confName, teams);
+    }
+
+
     public String getTVName() {
         String name;
 

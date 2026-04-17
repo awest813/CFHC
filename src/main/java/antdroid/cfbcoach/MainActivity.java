@@ -60,8 +60,8 @@ import positions.PlayerLB;
 import positions.PlayerQB;
 import positions.PlayerS;
 import positions.PlayerTE;
-import recruiting.RecruitingActivity;
 import simulation.Conference;
+
 import simulation.CustomUniverseParser;
 import simulation.Game;
 import simulation.GameUiBridge;
@@ -103,6 +103,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private HeadCoach userHC;
     private int season;
     public League simLeague;
+    private simulation.SeasonController seasonController;
+
     private Conference currentConference;
     private Team currentTeam;
     private Team userTeam;
@@ -110,6 +112,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private String username;
     private LeagueImportFlowController.ImportType pendingImportType;
     private String goals;
+    private simulation.SaveLoadService saveLoadService;
+
 
     private List<String> teamList;
     private List<String> confList;
@@ -152,7 +156,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         theme = GameNavigation.getTheme(getIntent(), 1);
         flowManager = new AndroidGameFlowManager(this, theme);
+        saveLoadService = new simulation.SaveLoadService(getFilesDir(), "5.0"); // Fixed version for now, should come from simLeague eventually
         if(theme == 1) setTheme(R.style.AppThemeLight);
+
         else setTheme(R.style.AppTheme);
 
         hideSystemUI();
@@ -198,7 +204,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 simLeague.userTeam = userTeam;
                 userTeam.userControlled = true;
                 userTeamStr = userTeam.name;
-                currentTeam = userTeam;
                 currentTeam = simLeague.teamList.get(0);
                 currentConference = simLeague.conferences.get(0);
 
@@ -294,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        //Simulate Week Button
+        //Simulate Week
         final Button simGameButton = findViewById(R.id.simGameButton);
         simGameButton.setText("START SEASON");
         simGameButton.setOnClickListener(new View.OnClickListener() {
@@ -421,6 +426,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             simLeague = result.league;
             simLeague.setPlatformResourceProvider(resProvider);
             season = result.season;
+            seasonController = new simulation.SeasonController(simLeague, this, flowManager);
+
             loadedLeague = result.loadedLeague;
             newGame = result.newGame;
 
@@ -744,6 +751,84 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         resetTeamUI();
     }
+
+    @Override
+    public void updateSimStatus(String statusText, String buttonText, boolean isMajorEvent) {
+        Button simGameButton = findViewById(R.id.simGameButton);
+        if (simGameButton != null) {
+            simGameButton.setText(buttonText);
+            // statusText could be used for a separate label if we had one
+        }
+        updateHeaderBar();
+    }
+
+    @Override
+    public void showNotification(String title, String message) {
+        PlatformUiHelper.showNotification(this, title, message);
+    }
+
+    @Override
+    public void refreshCurrentPage() {
+        resetUI();
+    }
+
+    @Override
+    public void showAwardsSummary(String summaryText) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Awards ceremony")
+                .setMessage(summaryText)
+                .setPositiveButton("OK", null);
+        showImmersive(builder.create());
+    }
+
+    @Override
+    public void showMidseasonSummary() {
+        midseasonSummary();
+    }
+
+    @Override
+    public void showSeasonSummary() {
+        seasonSummary();
+    }
+
+    @Override
+    public void showContractDialog() {
+        if (simLeague.isCareerMode()) contractDialog();
+    }
+
+    @Override
+    public void showJobOffersDialog() {
+        if (simLeague.isCareerMode()) jobOffers(userHC);
+    }
+
+    @Override
+    public void showPromotionsDialog() {
+        if (simLeague.isCareerMode()) promotions(userHC);
+    }
+
+    @Override
+    public void showRedshirtList() {
+        showRedshirtListFix();
+    }
+
+    @Override
+    public void showTransferList() {
+        transfers();
+    }
+
+    @Override
+    public void showRealignmentSummary() {
+        // realignment summary usually shown via news headlines or specific dialogs
+        // placeholder for now
+    }
+
+    @Override
+    public void startRecruitingFlow() {
+        beginRecruiting();
+    }
+
+
+
 
     public void examineTeam(String teamName) {
         wantUpdateConf = false;
@@ -1238,179 +1323,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Simulate Week
     private void simulateWeek() {
-        simLeague.newsHeadlines.clear();
-        Button simGameButton = findViewById(R.id.simGameButton);
-        // In-Season
-        if(simLeague.currentWeek == 0 && !redshirtComplete) {
-            simGameButton.setTextSize(12);
-            simGameButton.setText("Play Week " + (simLeague.currentWeek + 1));
-            redshirtComplete = true;
-            userTeam.recruitWalkOns();
-            simLeague.preseasonNews();
-            Button depthchartButton = findViewById(R.id.buttonDepthChart);
-            depthchartButton.setBackgroundColor(0XFF607D8B);
-            depthchartButton.setText("DEPTH CHART");
-        } else if (simLeague.currentWeek <= simLeague.regSeasonWeeks+3) {
-            int numGamesPlayed = userTeam.gameWLSchedule.size();
-
-            simLeague.playWeek();
-
-            if (simLeague.currentWeek == simLeague.regSeasonWeeks/2) {
-                midseasonSummary();
-            }
-
-            // Show notification for being invited/not invited to bowl or CCG
-            if (simLeague.currentWeek >= simLeague.regSeasonWeeks-1) {
-                if (!userTeam.gameSchedule.get(userTeam.gameSchedule.size() - 1).hasPlayed) {
-                    String weekGameName = userTeam.gameSchedule.get(userTeam.gameSchedule.size() - 1).gameName;
-                    if (weekGameName.equals("NCG")) {
-                            Toast.makeText(MainActivity.this, "Congratulations! " + userTeam.name + " was invited to the National Championship Game!",
-                                    Toast.LENGTH_SHORT).show();
-                    } else {
-                        if (simLeague.expPlayoffs)
-                            Toast.makeText(MainActivity.this, "Congratulations! " + userTeam.name + " was invited to the " +
-                                            weekGameName + "!",
-                                    Toast.LENGTH_SHORT).show();
-                        else {
-                            if (simLeague.currentWeek == simLeague.regSeasonWeeks)
-                                Toast.makeText(MainActivity.this, "Congratulations! " + userTeam.name + " was invited to the " +
-                                                weekGameName + "!",
-                                        Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                } else if (simLeague.currentWeek == simLeague.regSeasonWeeks-1) {
-                        Toast.makeText(MainActivity.this, userTeam.name + " was not invited to the Conference Championship.",
-                                Toast.LENGTH_SHORT).show();
-                } else if (simLeague.currentWeek == simLeague.regSeasonWeeks) {
-                    if (simLeague.expPlayoffs)
-                        Toast.makeText(MainActivity.this, userTeam.name + " did not make the College Football Playoffs.",
-                                Toast.LENGTH_SHORT).show();
-                    if (!simLeague.expPlayoffs)
-                        Toast.makeText(MainActivity.this, userTeam.name + " was not invited to a bowl game.",
-                                Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            if (simLeague.currentWeek < simLeague.regSeasonWeeks-1) {
-                simGameButton.setTextSize(14);
-                simGameButton.setText("Play Week " + (simLeague.currentWeek + 1));
-            } else if (simLeague.currentWeek == simLeague.regSeasonWeeks-1) {
-                simGameButton.setTextSize(11);
-                simGameButton.setText("Play Conf Championships");
-                examineTeam(currentTeam.name);
-            } else if (simLeague.currentWeek == simLeague.regSeasonWeeks) {
-                heismanCeremony();
-                simGameButton.setTextSize(12);
-                if (simLeague.expPlayoffs) simGameButton.setText("Play First Round");
-                else simGameButton.setText("Play Bowl Week 1");
-                examineTeam(currentTeam.name);
-            } else if (simLeague.currentWeek == simLeague.regSeasonWeeks+1) {
-                simGameButton.setTextSize(12);
-                if (simLeague.expPlayoffs) simGameButton.setText("Play Quarterfinals");
-                else simGameButton.setText("Play Bowl Week 2");
-                examineTeam(currentTeam.name);
-            } else if (simLeague.currentWeek == simLeague.regSeasonWeeks+2) {
-                simGameButton.setTextSize(12);
-                if (simLeague.expPlayoffs) simGameButton.setText("Play Semifinals");
-                else simGameButton.setText("Play Bowl Week 3");
-                examineTeam(currentTeam.name);
-            } else if (simLeague.currentWeek == simLeague.regSeasonWeeks+3) {
-                simGameButton.setTextSize(10);
-                simGameButton.setText("Play National Championship");
-            } else if (simLeague.currentWeek == simLeague.regSeasonWeeks+4) {
-                simGameButton.setTextSize(10);
-                simGameButton.setText("Season Summary");
-                showNewsStoriesDialog();
-            }
-
-
-            updateCurrTeam();
-            scrollToLatestGame();
-
-            //Off-Season
-        } else if (simLeague.currentWeek == simLeague.regSeasonWeeks+4) {
-            // Show NCG summary and check league records
-            simLeague.enterOffseason();
-            simLeague.checkLeagueRecords();
-            seasonSummary();
-            simLeague.updateHCHistory();
-            simLeague.updateTeamHistories();
-            simLeague.updateLeagueHistory();
-            simLeague.currentWeek++;
-            simGameButton.setTextSize(12);
-            simGameButton.setText("Off-Season: Contracts");
-
-        } else if (simLeague.currentWeek == simLeague.regSeasonWeeks+5) {
-            userHC = userTeam.HC;
-
-            simLeague.advanceStaff();
-            if (simLeague.isCareerMode()) contractDialog();
-            simGameButton.setTextSize(12);
-            if (simLeague.isCareerMode())
-                simGameButton.setText("Off-Season: Job Offers");
-            else simGameButton.setText("Off-Season: Continue");
-            simLeague.currentWeek++;
-
-
-        } else if (simLeague.currentWeek == simLeague.regSeasonWeeks+6 && userTeam.fired) {
-            if (simLeague.isCareerMode()) jobOffers(userHC);
-            simLeague.currentWeek++;
-            simGameButton.setTextSize(12);
-            simGameButton.setText("Off-Season: Coaching Changes");
-
-        } else if (simLeague.currentWeek == simLeague.regSeasonWeeks+6 && !userTeam.fired) {
-            userHC = userTeam.HC;
-            if (simLeague.isCareerMode()) promotions(userHC);
-            simLeague.currentWeek++;
-            simGameButton.setTextSize(12);
-            simGameButton.setText("Off-Season: Coaching Changes");
-
-        } else if (simLeague.currentWeek == simLeague.regSeasonWeeks+7) {
-            simLeague.coachCarousel();
-            simGameButton.setTextSize(12);
-            simLeague.currentWeek++;
-            simGameButton.setText("Off-Season: Coordinator Changes");
-
-        } else if (simLeague.currentWeek == simLeague.regSeasonWeeks+8) {
-            hireAssistants();
-            simLeague.currentWeek++;
-            simGameButton.setTextSize(12);
-            simGameButton.setText("Off-Season: Graduation");
-
-
-        } else if (simLeague.currentWeek == simLeague.regSeasonWeeks+9) {
-            simLeague.advanceSeason();
-            simLeague.currentWeek++;
-            //if (simLeague.updateTV) newsTV();
-            showRedshirtList();
-            simGameButton.setTextSize(12);
-            simGameButton.setText("Off-Season: Transfer List");
-
-        } else if (simLeague.currentWeek == simLeague.regSeasonWeeks+10) {
-            simLeague.transferPlayers(this);
-            simLeague.currentWeek++;
-            simGameButton.setTextSize(12);
-            simGameButton.setText("Off-Season: Complete Transfers");
-
-        } else if (simLeague.currentWeek == simLeague.regSeasonWeeks+11) {
-            transfers(); //displays list of transfers
-            simLeague.currentWeek++;
-            simGameButton.setTextSize(12);
-            simGameButton.setText("Off-Season: Continue");
-            simLeague.newsHeadlines.add("National Letter of Intent Day Begins!");
-        } else if (simLeague.currentWeek == simLeague.regSeasonWeeks+12) {
-            //conf realignment
-            conferenceRealignment();
-            //Promotion/Relegation!
-            universalProRel();
-            hireAssistantsFix();
-            simLeague.hireMissingCoaches();
-            simLeague.currentWeek++;
-            simGameButton.setTextSize(12);
-            simGameButton.setText("Begin Recruiting");
-        } else if (simLeague.currentWeek >= simLeague.regSeasonWeeks+13) {
-            beginRecruiting();
+        if (seasonController != null) {
+            seasonController.advanceWeek();
         }
+    }
+
 
         if(userTeam.disciplineAction) disciplineSetup();
 
@@ -1583,18 +1500,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         teamHistSpinner.setAdapter(teamHistAdapter);
 
         final ListView teamHistoryList = dialog.findViewById(R.id.listViewTeamRankings);
-        final String[] hofPlayers = new String[currentTeam.hallOfFame.size()];
-        for (int i = 0; i < currentTeam.hallOfFame.size(); ++i) {
-            hofPlayers[i] = currentTeam.hallOfFame.get(i);
-        }
+        final PlayerRecord[] hofPlayers = currentTeam.hallOfFame.toArray(new PlayerRecord[0]);
 
         teamHistSpinner.setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {
                     public void onItemSelected(
                             AdapterView<?> parent, View view, int position, long id) {
                         if (position == 0) {
+                            TeamHistoryRecord[] histArray = currentTeam.teamHistory.toArray(new TeamHistoryRecord[0]);
                             TeamHistoryList teamHistoryAdapter =
-                                    new TeamHistoryList(MainActivity.this, currentTeam.getTeamHistoryList());
+                                    new TeamHistoryList(MainActivity.this, histArray);
                             teamHistoryList.setAdapter(teamHistoryAdapter);
                         } else if (position == 1) {
                             LeagueRecordsList leagueRecordsAdapter =
@@ -1638,8 +1553,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
         String[] yearLabels = new String[currentTeam.teamHistory.size()];
         for (int i = 0; i < currentTeam.teamHistory.size(); i++) {
-            series.appendData(new DataPoint(Integer.parseInt(currentTeam.teamHistory.get(i).split(": ")[0]), Integer.parseInt(currentTeam.teamHistory.get(i).split("Prs: ")[1].split(" ")[0])), true, i + 1, false);
-            yearLabels[i] = currentTeam.teamHistory.get(i).split(":")[0];
+            series.appendData(new DataPoint(currentTeam.teamHistory.get(i).year, currentTeam.teamHistory.get(i).prestige), true, i + 1, false);
+            yearLabels[i] = Integer.toString(currentTeam.teamHistory.get(i).year);
         }
         graph.addSeries(series);
 
@@ -1679,7 +1594,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         String[] yearLabels = new String[currentTeam.teamHistory.size()];
 
         for (int i = 0; i < currentTeam.teamHistory.size(); i++) {
-            series.appendData(new DataPoint(Integer.parseInt(currentTeam.teamHistory.get(i).split(": ")[0]), simLeague.teamList.size() - Integer.parseInt(currentTeam.teamHistory.get(i).split("#")[1].split(" ")[0])), true, i + 1, false);
+            series.appendData(new DataPoint(currentTeam.teamHistory.get(i).year, simLeague.teamList.size() - currentTeam.teamHistory.get(i).rank), true, i + 1, false);
             yearLabels[i] = Integer.toString(i + seasonStart);
         }
         graph.addSeries(series);
@@ -1735,8 +1650,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void onItemSelected(
                             AdapterView<?> parent, View view, int position, long id) {
                         if (position == 0) {
+                            TeamHistoryRecord[] histArray = hc.getCoachHistory().toArray(new TeamHistoryRecord[0]);
                             TeamHistoryList teamHistoryAdapter =
-                                    new TeamHistoryList(MainActivity.this, hc.getCoachHistory());
+                                    new TeamHistoryList(MainActivity.this, histArray);
                             teamHistoryList.setAdapter(teamHistoryAdapter);
                         } else if (position == 1) {
                             dialog.dismiss();
@@ -2097,16 +2013,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void saveLeague() {
         AlertDialog.Builder save = new AlertDialog.Builder(this);
         save.setTitle("Choose Save File to Overwrite:");
-        final String[] fileInfos = getSaveFileInfos();
+        final String[] fileInfos = saveLoadService.getSaveFileSummaries();
         SaveFilesList saveFilesAdapter = new SaveFilesList(this, fileInfos);
         save.setAdapter(saveFilesAdapter, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
                 final int itemy = item;
                 // Do something with the selection
-                if (fileInfos[itemy].equals("EMPTY")) {
+                if (saveLoadService.isSlotEmpty(itemy)) {
                     // Empty file, don't show dialog confirmation
-                    saveLeagueFile = LeagueSaveStorage.getSlotFile(getFilesDir(), itemy);
-                    simLeague.saveLeague(saveLeagueFile);
+                    saveLoadService.saveToSlot(simLeague, itemy);
                     Toast.makeText(MainActivity.this, "Saved league!",
                             Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
@@ -2118,8 +2033,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     // Actually go back to main menu
-                                    saveLeagueFile = LeagueSaveStorage.getSlotFile(getFilesDir(), itemy);
-                                    simLeague.saveLeague(saveLeagueFile);
+                                    saveLoadService.saveToSlot(simLeague, itemy);
                                     Toast.makeText(MainActivity.this, "Saved league!",
                                             Toast.LENGTH_SHORT).show();
                                     dialog.dismiss();
@@ -2140,6 +2054,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             }
         });
+
         save.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -2152,8 +2067,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Get Save Files from Storage
     private String[] getSaveFileInfos() {
-        return LeagueSaveStorage.getSaveFileInfos(getFilesDir(), simLeague.saveVer);
+        return saveLoadService.getSaveFileSummaries();
     }
+
 
     //Export Save File
 
@@ -3061,8 +2977,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         simLeague.currentWeek = 0;
-                        saveLeagueFile = LeagueSaveStorage.getRecruitingSaveFile(getFilesDir());
-                        simLeague.saveLeague(saveLeagueFile);
+                        saveLoadService.saveForRecruiting(simLeague);
+
 
                         //Get String of user team's players and such
                         StringBuilder sb = new StringBuilder();
@@ -3133,9 +3049,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void startRecruiting(File saveFile, Team userTeam)  throws InterruptedException, IOException {
-        saveLeagueFile = LeagueSaveStorage.getRecruitingSaveFile(getFilesDir());
+        saveLoadService.copyToRecruitingSlot(saveFile);
 
-        copyFile(saveFile, saveLeagueFile);
 
 
 
@@ -3543,26 +3458,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         bindPlayerProfile(dialog, p.name, snapshot);
     }
 
-    private static void copyFile(File source, File dest) throws IOException {
-        InputStream is = null;
-        OutputStream os = null;
-        try {
-            is = new FileInputStream(source);
-            os = new FileOutputStream(dest);
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = is.read(buffer)) > 0) {
-                os.write(buffer, 0, length);
-            }
-        } finally {
-            is.close();
-            os.close();
-        }
-    }
-
-
     @Override
     public void crash() {
+
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setMessage("The DATABASE is invalid or corrupt. Please check for formatting or spelling errors.")
                 .setPositiveButton("Exit to Main Screen", new DialogInterface.OnClickListener() {
