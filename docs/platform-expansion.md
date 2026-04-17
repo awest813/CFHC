@@ -1,41 +1,85 @@
-# Platform Expansion Foundation
+# Platform Expansion
 
-This project is still an Android-first app, but the simulation stack is close to being reusable across platforms. The first portability goal is to treat Android as one shell around a shared game core rather than the place where the sim itself lives.
+CFHC is Android-first today, but the simulation stack is close to being reusable across platforms. The goal is to treat Android as *one shell* around a shared game core rather than the place where the sim itself lives.
 
-## Recommended target shape
+---
 
-- Shared game core: `simulation`, `positions`, `staff`, `comparator`, and the non-Android parts of recruiting/team logic.
-- Android shell: activities, adapters, XML layouts, Android storage, dialogs, and navigation.
-- iPhone shell: SwiftUI/UIKit front end that talks to the shared core through a platform bridge or a serialized state/service layer.
-- Desktop shell: either a Java desktop client, a web/electron client backed by the shared core, or a future server-driven shell.
+## Target Architecture
 
-## First extraction completed
+```
+┌─────────────────────────────────────────────┐
+│                Shared Game Core              │
+│  simulation · positions · staff · comparator │
+│  + portable parts of recruiting / team logic │
+└──────────┬──────────────┬────────────────────┘
+           │              │              │
+    ┌──────▼──────┐ ┌─────▼──────┐ ┌────▼──────────┐
+    │  Android    │ │   iPhone   │ │    Desktop    │
+    │    Shell    │ │   Shell    │ │    Shell      │
+    │ (Activities │ │  (SwiftUI) │ │ (Java/Web/…)  │
+    │  Adapters   │ │            │ │               │
+    │   Dialogs)  │ │            │ │               │
+    └─────────────┘ └────────────┘ └───────────────┘
+```
 
+Each shell communicates with the core through the platform bridge interfaces (`GameUiBridge`, `PlatformResourceProvider`, `GameFlowManager`, `PlatformLog`). No shell should need to reach into simulation internals directly.
+
+---
+
+## Current Status
+
+**Completed:**
 - `League` and `Team` no longer depend directly on `MainActivity`.
-- Simulation-side logging no longer requires `android.util.Log`.
-- A small `GameUiBridge` interface now defines the UI callbacks the core needs:
-  - crash handling
-  - recruiting handoff
-  - transfer decisions
-  - spinner/team refresh after realignment
-  - discipline decision prompts
-- The bridge now has a `NO_OP` implementation plus headless-safe constructor overloads, so non-Android shells can boot the core before their UI workflow is finished.
+- Simulation-side logging replaced with `PlatformLog` (no `android.util.Log` dependency).
+- `GameUiBridge` interface defines all UI callbacks the core needs:
+  - Crash / fatal-error handling
+  - Recruiting hand-off
+  - Transfer decision prompts
+  - Spinner / team-refresh after realignment
+  - Discipline decision prompts
+- `GameUiBridge` ships with a `NO_OP` implementation and headless-safe constructor overloads, so non-Android shells can boot the core before their UI workflow is ready.
+- `PlatformResourceProvider` abstracts asset and string loading away from Android resources.
+- `GameFlowManager` centralises season state-transitions.
 
-## Next steps
+**Still blocking expansion:**
+- Save/load and import/export logic lives in `MainActivity` (see [Roadmap item 7](ROADMAP.md#7--extract-saveload-logic-out-of-mainactivity)).
+- `RecruitingActivity ↔ MainActivity` circular dependency (see [Roadmap item 2](ROADMAP.md#2--break-the-recruitingactivity--mainactivity-circular-dependency)).
+- No headless simulation facade yet (see [Roadmap item 15](ROADMAP.md#15--introduce-a-headless-simulation-facade)).
 
-1. Move save/import/export parsing out of `MainActivity` into shared services so Android is not the only place that understands league bootstrapping.
-2. Replace direct file/UI coupling in recruiting with serializable recruiting state objects and action methods.
-3. Introduce a headless simulation facade for common flows such as:
-   - create new dynasty
-   - load save
-   - advance week
-   - resolve offseason
-   - prepare recruiting data
-4. Once that facade exists, build:
-   - an iPhone shell around the facade/state objects
-   - a desktop shell around the same facade/state objects
+---
 
-## Practical product interpretation
+## Remaining Steps to Enable Other Shells
 
-- iPhone version: aim for a native-feeling SwiftUI app with the same career-mode loop and a touch-first dashboard.
-- Desktop version: aim for a denser management view with wider comparison tables, persistent side navigation, and multi-panel recruiting/team screens.
+1. **Move save / import / export parsing** out of `MainActivity` into shared services in `simulation/` so Android is not the only host that understands league bootstrapping.
+2. **Decouple recruiting** — replace direct file/UI coupling with serializable recruiting-state objects and action methods.
+3. **Introduce a headless simulation facade** with a clean public API for common flows:
+   - `createDynasty(config)`
+   - `loadSave(path)`
+   - `advanceWeek(dynasty)`
+   - `resolveOffseason(dynasty)`
+   - `prepareRecruitingData(dynasty)`
+4. Once the facade exists, build:
+   - An **iPhone shell** around the facade/state objects.
+   - A **desktop shell** around the same facade/state objects.
+
+---
+
+## Shell Design Goals
+
+### iPhone
+- Native SwiftUI app with a touch-first dashboard.
+- Same full career-mode loop as Android.
+- Clean tab-bar navigation (Team · Recruiting · Schedule · History).
+- Communicate with the Java core through a serialized state/service layer or a C-interop bridge (e.g., J2ObjC or a REST microservice for prototyping).
+
+### Desktop
+- Denser management view aimed at mouse/keyboard users.
+- Wider stat comparison tables, persistent side navigation, multi-panel recruiting screens.
+- Possible targets: Java Swing/JavaFX (reuses existing JVM), Electron backed by the shared core, or a web front-end talking to a local simulation server.
+
+---
+
+## Reference
+
+- [Roadmap](ROADMAP.md) — full prioritized action plan
+- [README](../README.md) — project overview and engine audit summary
