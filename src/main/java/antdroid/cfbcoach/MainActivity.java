@@ -69,6 +69,7 @@ import simulation.League;
 import simulation.LeagueExportController;
 import simulation.LeagueLaunchCoordinator;
 import simulation.LeagueSaveStorage;
+import simulation.PlatformLog;
 import simulation.PlatformResourceProvider;
 import simulation.PlaybookDefense;
 import simulation.PlaybookOffense;
@@ -213,9 +214,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
 
         } catch (Exception ex) {
-            System.out.println(
-                    "Error reading file");
-            ex.printStackTrace();
+            PlatformLog.e("MainActivity", "Error reading file", ex);
             crash();
             return;
         }
@@ -442,8 +441,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 seasonGoals();
             }
         } catch (Exception ex) {
-            System.out.println("Error reading file");
-            ex.printStackTrace();
+            PlatformLog.e("MainActivity", "Error reading file", ex);
             crash();
         }
     }
