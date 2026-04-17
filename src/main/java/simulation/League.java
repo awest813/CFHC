@@ -385,12 +385,9 @@ public class League {
                 conferences.add(new Conference(line, this, false, 0, 0));
             }
         } catch (FileNotFoundException ex) {
-            System.out.println(
-                    "Unable to open file");
+            PlatformLog.e("League", "Unable to open file", ex);
         } catch (Exception ex) {
-            System.out.println(
-                    "Error reading file");
-            ex.printStackTrace();
+            PlatformLog.e("League", "Error reading file", ex);
             bridge.crash();
             return;
         }
@@ -447,12 +444,9 @@ public class League {
                 }
             }
         } catch (FileNotFoundException ex) {
-            System.out.println(
-                    "Unable to open file");
+            PlatformLog.e("League", "Unable to open file", ex);
         } catch (IOException ex) {
-            System.out.println(
-                    "Error reading file");
-            ex.printStackTrace();
+            PlatformLog.e("League", "Error reading file", ex);
             bridge.crash();
         }
 
@@ -490,14 +484,10 @@ public class League {
             }
 
         } catch (FileNotFoundException ex) {
-            System.out.println(
-                    "Unable to open file");
-            ex.printStackTrace();
+            PlatformLog.e("League", "Unable to open file", ex);
             bridge.crash();
         } catch (IOException ex) {
-            System.out.println(
-                    "Error reading file");
-            ex.printStackTrace();
+            PlatformLog.e("League", "Error reading file", ex);
             bridge.crash();
         }
 
@@ -789,13 +779,9 @@ public class League {
 
 
         } catch (FileNotFoundException ex) {
-            System.out.println(
-                    "Unable to open file");
-            ex.printStackTrace();
+            PlatformLog.e("League", "Unable to open file", ex);
         } catch (Exception ex) {
-            System.out.println(
-                    "Error reading file");
-            ex.printStackTrace();
+            PlatformLog.e("League", "Error reading file", ex);
         }
 
         //Get longest active win streak
@@ -1035,12 +1021,9 @@ public class League {
 
 
         } catch (FileNotFoundException ex) {
-            System.out.println(
-                    "Unable to open file");
+            PlatformLog.e("League", "Unable to open file", ex);
         } catch (Exception ex) {
-            System.out.println(
-                    "Error reading file");
-            ex.printStackTrace();
+            PlatformLog.e("League", "Error reading file", ex);
             bridge.crash();
         }
 

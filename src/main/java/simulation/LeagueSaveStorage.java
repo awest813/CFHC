@@ -29,7 +29,7 @@ public final class LeagueSaveStorage {
                 try {
                     infos[i] = SaveFileSummary.summarize(saveFile, saveVer);
                 } catch (IOException ex) {
-                    System.out.println("Error reading file");
+                    PlatformLog.e("LeagueSaveStorage", "Error reading save file: slot " + i, ex);
                 }
             }
         }
