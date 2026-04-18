@@ -1843,6 +1843,9 @@ public class League {
 
         } else if (currentWeek == regSeasonWeeks) {
             ArrayList<Player> heismans = getHeisman();
+            if (defPOTYCandidates == null || defPOTYCandidates.isEmpty()) {
+                defPOTYCandidates = getDefPOTY();
+            }
             heismanHistory.add(heismans.get(0).position + " " + heismans.get(0).getInitialName() + " [" + heismans.get(0).getYrStr() + "], "
                     + heismans.get(0).team.abbr + " (" + heismans.get(0).team.wins + "-" + heismans.get(0).team.losses + ")>" +
                     defPOTYCandidates.get(0).position + " " + defPOTYCandidates.get(0).getInitialName() + " [" + defPOTYCandidates.get(0).getYrStr() + "], "

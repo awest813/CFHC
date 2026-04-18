@@ -2,6 +2,8 @@ package simulation;
 
 import java.util.Random;
 
+import positions.Player;
+
 /**
  * Controller for managing the flow of a season.
  * This should be independent of any UI framework.
@@ -64,7 +66,9 @@ public final class SeasonController {
         } else if (league.currentWeek == regSeasonWeeks - 1) {
             buttonText = "Play Conf Championships";
         } else if (league.currentWeek == regSeasonWeeks) {
-            bridge.showAwardsSummary(league.getHeismanWinner().getAwardDescription());
+            String awards = league.getHeismanCeremonyStr();
+            Player heismanWinner = league.getHeismanWinner();
+            bridge.showAwardsSummary(heismanWinner != null ? heismanWinner.getAwardDescription() : awards);
 
             buttonText = league.expPlayoffs ? "Play First Round" : "Play Bowl Week 1";
 
