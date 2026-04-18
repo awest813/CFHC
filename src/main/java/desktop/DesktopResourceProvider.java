@@ -84,8 +84,21 @@ public class DesktopResourceProvider implements PlatformResourceProvider {
         Pattern pattern = Pattern.compile("<string name=\"([^\"]+)\">([^<]+)</string>");
         Matcher matcher = pattern.matcher(content);
         while (matcher.find()) {
-            stringMap.put(matcher.group(1), matcher.group(2).trim());
+            stringMap.put(matcher.group(1), unescapeXmlValue(matcher.group(2)));
         }
+    }
+
+    private static String unescapeXmlValue(String raw) {
+        return raw.trim()
+                .replace("\\'", "'")
+                .replace("\\\"", "\"")
+                .replace("\\n", "\n")
+                .replace("\\t", "\t")
+                .replace("&amp;", "&")
+                .replace("&lt;", "<")
+                .replace("&gt;", ">")
+                .replace("&quot;", "\"")
+                .replace("&apos;", "'");
     }
 
     @Override
@@ -96,7 +109,14 @@ public class DesktopResourceProvider implements PlatformResourceProvider {
     @Override
     public String getString(String key, Object... args) {
         String format = getString(key);
-        return String.format(format.replace("%s", "%1$s"), args);
+        if (args == null || args.length == 0) {
+            return format;
+        }
+        try {
+            return String.format(format, args);
+        } catch (java.util.IllegalFormatException e) {
+            return format;
+        }
     }
 
     @Override
