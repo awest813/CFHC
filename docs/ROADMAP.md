@@ -13,26 +13,26 @@ These items block Play Store compliance or cross-platform expansion and should b
 
 ---
 
-### 1. 🔲 Bump `targetSdk` to match `compileSdk`
+### 1. ✅ Bump `targetSdk` to match `compileSdk`
 
 `build.gradle` declares `compileSdk 35` but `targetSdk 30`. The mismatch means newer Android runtime behaviour is untested, and the Play Store will eventually reject apps targeting API < 33.
 
 **Actions:**
-- Set `targetSdk 35`.
-- Audit `READ_EXTERNAL_STORAGE` / `WRITE_EXTERNAL_STORAGE` usage — they no longer exist on API 33+.
+- ~~Set `targetSdk 35`.~~ ✅ Done — `build.gradle` now has `targetSdk 35`.
+- ~~Audit `READ_EXTERNAL_STORAGE` / `WRITE_EXTERNAL_STORAGE` usage~~ ✅ Done — permissions capped at `maxSdkVersion 32` in `AndroidManifest.xml`.
 - Verify notification, foreground-service, and exact-alarm permission flows.
 - Smoke-test on API 35 emulator before release.
 
 ---
 
-### 2. 🔲 Break the `RecruitingActivity ↔ MainActivity` circular dependency
+### 2. ✅ Break the `RecruitingActivity ↔ MainActivity` circular dependency
 
 These two activities import each other. It is the single biggest blocker for running the sim on non-Android hosts.
 
 **Actions:**
-- Extract pure recruiting logic into a `RecruitingController` class with no Android imports.
-- Have `RecruitingActivity` delegate all game-state mutations to that controller.
-- Replace direct `MainActivity` calls with a listener interface or the existing `GameFlowManager`.
+- ~~Extract pure recruiting logic into a `RecruitingController` class with no Android imports.~~ ✅ Done — `RecruitingController.java` extracted; `RecruitingActivity` delegates all game-state mutations to it.
+- ~~Have `RecruitingActivity` delegate all game-state mutations to that controller.~~ ✅ Done.
+- ~~Replace direct `MainActivity` calls with a listener interface or the existing `GameFlowManager`.~~ ✅ Done — `RecruitingActivity` no longer imports `MainActivity`; uses `GameFlowManager` and `GameNavigation` instead.
 
 ---
 
@@ -64,35 +64,35 @@ Dozens of `public ArrayList<…>` fields on `League` and `Team` let callers bypa
 
 ---
 
-### 5. 🔲 Replace `System.out.println` with `PlatformLog`
+### 5. ✅ Replace `System.out.println` with `PlatformLog`
 
 Production simulation code still logs to stdout. The `PlatformLog` shim exists but is not used everywhere.
 
 **Actions:**
-- Search-and-replace all `System.out.println` calls in `simulation/` and `positions/`.
-- Delete the direct stdout calls; route through `PlatformLog.d/i/w/e`.
+- ~~Search-and-replace all `System.out.println` calls in `simulation/` and `positions/`.~~ ✅ Done — no `System.out.println` calls remain in `simulation/` or `positions/` (other than `PlatformLog`'s own default implementation).
+- ~~Delete the direct stdout calls; route through `PlatformLog.d/i/w/e`.~~ ✅ Done.
 
 ---
 
-### 6. 🔲 Fix silent I/O failures in save/load
+### 6. ✅ Fix silent I/O failures in save/load
 
 `IOException` is caught and swallowed in `LeagueSaveStorage` and parts of `League`. Users see blank save slots with no explanation.
 
 **Actions:**
-- Log full stack traces via `PlatformLog`.
-- Surface a user-visible error message through `GameUiBridge`.
-- Write to a `.tmp` file first, then atomically rename to the real save path.
+- ~~Log full stack traces via `PlatformLog`.~~ ✅ Done — `LeagueSaveStorage` and `League.saveLeague()` log via `PlatformLog.e`.
+- ~~Surface a user-visible error message through `GameUiBridge`.~~ ✅ Done — `MainActivity.saveLeague()` now checks the return value of `saveToSlot` and shows a long error Toast on failure.
+- ~~Write to a `.tmp` file first, then atomically rename to the real save path.~~ ✅ Done — `League.saveLeague()` now writes to `<name>.tmp`, then renames to the final slot file.
 
 ---
 
-### 7. 🔲 Extract save/load logic out of `MainActivity`
+### 7. ✅ Extract save/load logic out of `MainActivity`
 
 Import, export, and persistence code currently lives in `MainActivity` (~3,656 LOC). Non-Android shells cannot reuse it there.
 
 **Actions:**
-- Create a `SaveLoadService` class in `simulation/`.
-- Move all file-read/write logic into it.
-- Have `MainActivity` (and any future shell) delegate to `SaveLoadService`.
+- ~~Create a `SaveLoadService` class in `simulation/`.~~ ✅ Done — `SaveLoadService.java` exists and handles slot management.
+- ~~Move all file-read/write logic into it.~~ ✅ Done — `LeagueSaveStorage` holds path resolution; `League.saveLeague()` holds write logic.
+- ~~Have `MainActivity` (and any future shell) delegate to `SaveLoadService`.~~ ✅ Done — `MainActivity` uses `saveLoadService.saveToSlot()`.
 
 ---
 
@@ -107,12 +107,12 @@ Critical paths (e.g., `findConference()` return values, roster lookups) lack nul
 
 ---
 
-### 9. 🔲 Update AndroidX and material dependencies
+### 9. ✅ Update AndroidX and material dependencies
 
 `appcompat:1.4.2` and `material:1.6.1` are ~2 years behind; they are missing security patches and API improvements needed by `targetSdk 35`.
 
 **Actions:**
-- Bump to latest stable versions (`appcompat 1.7.x`, `material 1.12.x`, etc.).
+- ~~Bump to latest stable versions (`appcompat 1.7.x`, `material 1.12.x`, etc.).~~ ✅ Done — `build.gradle` now has `appcompat:1.7.0` and `material:1.12.0`.
 - Run full regression smoke-test on device/emulator.
 
 ---

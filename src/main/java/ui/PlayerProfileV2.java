@@ -15,7 +15,6 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import antdroid.cfbcoach.MainActivity;
 import antdroid.cfbcoach.R;
 import positions.Player;
 
