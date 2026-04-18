@@ -5,50 +5,66 @@ import static org.junit.Assert.*;
 
 public class RecruitingPlayerRecordTest {
 
-    @Test
-    public void testFromRecruitCsv() {
-        // Sample recruit CSV: Name,Pos,Yr,Stars,Ovr,Pot,Attr,Home,Cost,Scouted
-        String csv = "John Doe,QB,0,5,80,90,80,10,500,F";
-        RecruitingPlayerRecord record = RecruitingPlayerRecord.fromRecruitCsv(csv);
+    // Recruit CSV layout (21 fields):
+    // 0:Pos 1:Name 2:Yr 3:RegionCode 4:Character 5:Intelligence 6:Stars
+    // 7:IsTransfer 8:WasRedshirt 9:Potential 10:Durability 11:RecruitOvr
+    // 12:Cost 13..16:Ratings 17:Height 18:Weight 19:CurrentOvr 20:ScoutFlag
+    private static final String UNSCOUTED_RECRUIT_CSV =
+            "QB,John Doe,1,45,70,75,5,false,false,90,80,80,500,A,B,C,D,72,200,80,F";
 
-        assertEquals("John Doe", record.name());
+    private static final String SCOUTED_RECRUIT_CSV =
+            "QB,John Doe,1,45,70,75,5,false,false,90,80,80,500,A,B,C,D,72,200,80,T";
+
+    // Roster CSV layout (21 fields):
+    // 0:Pos 1:Name 2:Yr 3:Potential 4:Intelligence 5:Durability
+    // 6..9:Ratings 10:(unused) 11:WasRedshirt 12:IsTransfer 13:(unused)
+    // 14:RegionCode 15:Character 16:Stars 17:Height 18:Weight 19:CurrentOvr 20:Improvement
+    private static final String ROSTER_CSV =
+            "LB,Senior Leader,4,88,75,80,A,B,C,D,-,false,false,-,23,70,3,73,220,85,+2";
+
+    @Test
+    public void recruitCsvRoundTrip_parsesCoreFields() {
+        RecruitingPlayerRecord record = RecruitingPlayerRecord.fromRecruitCsv(UNSCOUTED_RECRUIT_CSV);
+
         assertEquals("QB", record.position());
-        assertEquals(0, record.year());
+        assertEquals("John Doe", record.name());
+        assertEquals("1", record.year());
+        assertEquals(45, record.regionCode());
+        assertEquals(4, record.regionBucket());
         assertEquals(5, record.stars());
         assertEquals(80, record.recruitOverall());
         assertEquals(90, record.potential());
-        assertEquals(10, record.regionBucket());
         assertEquals(500, record.cost());
-        assertFalse(record.isScouted());
         assertFalse(record.isTransfer());
+        assertEquals(UNSCOUTED_RECRUIT_CSV, record.raw());
     }
 
     @Test
-    public void testFromRosterCsv() {
-        // Sample roster CSV: Name,Pos,Yr,Ovr,OvrStart,Pot,Attr,Att,Dur,Imp,Prog,Home,Char,Ht,Wt,Susp,Weeks,Times,Talent,Stats...
-        // Index mapping used in fromRosterCsv:
-        // 0:name, 1:pos, 2:yr, 3:ovr, 5:pot, 11:home, 20:graduating
-        String csv = "Senior Leader,LB,3,85,80,88,70,75,80,10,5,2,70,75,220,F,0,0,8.5,0,T"; 
-        RecruitingPlayerRecord record = RecruitingPlayerRecord.fromRosterCsv(csv);
+    public void rosterCsv_parsesSeniorCorrectly() {
+        RecruitingPlayerRecord record = RecruitingPlayerRecord.fromRosterCsv(ROSTER_CSV);
 
-        assertEquals("Senior Leader", record.name());
         assertEquals("LB", record.position());
-        assertEquals(3, record.year());
+        assertEquals("Senior Leader", record.name());
+        assertEquals("4", record.year());
         assertEquals(85, record.currentOverall());
         assertEquals(88, record.potential());
         assertEquals(2, record.regionBucket());
+        assertFalse(record.isGraduating());
+    }
+
+    @Test
+    public void isGraduating_trueForFifthYearFlag() {
+        String graduatingCsv = ROSTER_CSV.replaceFirst(",4,", ",5,");
+        RecruitingPlayerRecord record = RecruitingPlayerRecord.fromRosterCsv(graduatingCsv);
         assertTrue(record.isGraduating());
     }
 
     @Test
-    public void testScoutingToggle() {
-        String csv = "John Doe,QB,0,5,80,90,80,10,500,F";
-        RecruitingPlayerRecord record = RecruitingPlayerRecord.fromRecruitCsv(csv);
-        assertFalse(record.isScouted());
+    public void listKey_dropsScoutFlag() {
+        RecruitingPlayerRecord unscouted = RecruitingPlayerRecord.fromRecruitCsv(UNSCOUTED_RECRUIT_CSV);
+        RecruitingPlayerRecord scouted = RecruitingPlayerRecord.fromRecruitCsv(SCOUTED_RECRUIT_CSV);
 
-        // Scouted version should have 'T' at the end
-        String scoutedCsv = csv.substring(0, csv.length() - 1) + "T";
-        RecruitingPlayerRecord scoutedRecord = RecruitingPlayerRecord.fromRecruitCsv(scoutedCsv);
-        assertTrue(scoutedRecord.isScouted());
+        // listKey() strips the trailing ",F" or ",T" so both records produce the same key.
+        assertEquals(unscouted.listKey(), scouted.listKey());
     }
 }
