@@ -2,6 +2,7 @@ package desktop;
 
 import simulation.League;
 import simulation.LeagueRecord;
+import simulation.PlatformLog;
 import simulation.PlatformResourceProvider;
 import simulation.SaveManager;
 
@@ -15,11 +16,14 @@ import java.io.IOException;
  */
 public class Main {
 
+    private static final String TAG = "desktop.Main";
+
     private static final String HEADER =
             "CFB Coach - Desktop Prototype (Early Alpha)\n" +
             "===========================================";
 
     public static void main(String[] args) {
+        PlatformLog.i(TAG, HEADER.replace("\n", " | "));
         System.out.println(HEADER);
 
         if (args.length == 0) {
@@ -34,7 +38,7 @@ public class Main {
                 break;
             case "inspect":
                 if (args.length < 2) {
-                    System.err.println("Error: Specify a save file to inspect.");
+                    fail("Specify a save file to inspect.");
                     return;
                 }
                 inspectSaveFile(args[1]);
@@ -42,16 +46,26 @@ public class Main {
             case "play":
             case "view":
                 if (args.length < 2) {
-                    System.err.println("Error: Specify a save file to play.");
+                    fail("Specify a save file to play.");
                     return;
                 }
                 launchPlayMode(args[1]);
                 break;
+            case "help":
+            case "--help":
+            case "-h":
+                printUsage();
+                break;
             default:
-                System.err.println("Unknown command: " + command);
+                fail("Unknown command: " + command);
                 printUsage();
                 break;
         }
+    }
+
+    private static void fail(String message) {
+        PlatformLog.e(TAG, message);
+        System.err.println("Error: " + message);
     }
 
     private static void printUsage() {
@@ -60,6 +74,7 @@ public class Main {
         System.out.println("  new                - Launch a new desktop league from bundled resources");
         System.out.println("  inspect <savefile> - Print save metadata to console");
         System.out.println("  play    <savefile> - Launch graphical league home from an existing save");
+        System.out.println("  help               - Show this message");
     }
 
     private static DesktopResourceProvider createResourceProvider() {
@@ -79,17 +94,18 @@ public class Main {
                     false
             );
             league.setPlatformResourceProvider(resources);
+            PlatformLog.i(TAG, "Launching new league UI");
             LeagueHomeView.show(league);
         } catch (Exception e) {
+            PlatformLog.e(TAG, "Error launching new desktop league", e);
             System.err.println("Error launching new desktop league: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
     private static void launchPlayMode(String filePath) {
         File saveFile = new File(filePath);
         if (!saveFile.isFile()) {
-            System.err.println("Error: save file not found: " + filePath);
+            fail("save file not found: " + filePath);
             return;
         }
         try {
@@ -101,17 +117,18 @@ public class Main {
                     false
             );
             league.setPlatformResourceProvider(resources);
-            LeagueHomeView.show(league);
+            PlatformLog.i(TAG, "Launching play UI for " + saveFile.getAbsolutePath());
+            LeagueHomeView.show(league, saveFile);
         } catch (Exception e) {
+            PlatformLog.e(TAG, "Error launching play mode", e);
             System.err.println("Error launching play mode: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 
     private static void inspectSaveFile(String filePath) {
         File saveFile = new File(filePath);
         if (!saveFile.isFile()) {
-            System.err.println("Error: save file not found: " + filePath);
+            fail("save file not found: " + filePath);
             return;
         }
         try (FileInputStream fis = new FileInputStream(saveFile)) {
@@ -122,18 +139,24 @@ public class Main {
             System.out.println("Current Week: " + league.currentWeek());
             System.out.println("Total Conferences: " + league.conferences().size());
 
+            int teams = league.conferences().stream().mapToInt(c -> c.teams().size()).sum();
+            System.out.println("Total Teams: " + teams);
+            System.out.println("Hall of Fame: " + league.leagueHoF().size() + " players");
+
             System.out.println();
             System.out.println("--- Top Teams ---");
             league.conferences().stream()
                     .flatMap(c -> c.teams().stream())
                     .sorted((t1, t2) -> t2.prestige() - t1.prestige())
                     .limit(10)
-                    .forEach(t -> System.out.printf("[%20s] Prestige: %d%n", t.name(), t.prestige()));
+                    .forEach(t -> System.out.printf("[%-20s] Prestige: %d, Roster: %d%n",
+                            t.name(), t.prestige(), t.roster().size()));
         } catch (IOException e) {
+            PlatformLog.e(TAG, "Error reading save file " + filePath, e);
             System.err.println("Error reading save file: " + e.getMessage());
         } catch (RuntimeException e) {
+            PlatformLog.e(TAG, "Error parsing save file " + filePath, e);
             System.err.println("Error parsing save file: " + e.getMessage());
-            e.printStackTrace();
         }
     }
 }
