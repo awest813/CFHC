@@ -24,11 +24,9 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import simulation.LeagueLaunchCoordinator;
 import simulation.LeagueSaveStorage;
-import ui.SaveFilesList;
 
 
 public class Home extends AppCompatActivity {
-    public String saveVer = "v1.4e";
     private int theme = 1;
     private simulation.GameFlowManager flowManager;
     private simulation.PlatformResourceProvider resProvider;
@@ -239,7 +237,7 @@ public class Home extends AppCompatActivity {
      * Get info of the 10 save files for printing in the save file list
      */
     private String[] getSaveFileInfos() {
-        return LeagueSaveStorage.getSaveFileInfos(getFilesDir(), saveVer);
+        return LeagueSaveStorage.getSaveFileInfos(getFilesDir());
     }
 
     /* Checks if external storage is available for read and write */

@@ -110,12 +110,14 @@ import staff.OC;
 import staff.Staff;
 
 public class League {
+    public static final String CURRENT_SAVE_VERSION = "v1.4e";
+
     private static GameUiBridge bridgeOrNoOp(GameUiBridge bridge) {
         return bridge == null ? GameUiBridge.NO_OP : bridge;
     }
 
     public String leagueName = "Custom League";
-    public String saveVer = "v1.4e";
+    public String saveVer = CURRENT_SAVE_VERSION;
 
     public PlatformResourceProvider resProvider;
 
@@ -304,7 +306,15 @@ public class League {
                     c++;
                 } else {
                     String[] teamID = teamText.split("%")[t].split(",");
-                    conferences.get(c).confTeams.add(new Team(teamID[0].substring(1), teamID[1], teamID[2], Integer.parseInt(teamID[3]), teamID[4], Integer.parseInt(teamID[5]), this));
+                    conferences.get(c).confTeams.add(new Team(
+                            normalizeSeedText(teamID[0]),
+                            normalizeSeedText(teamID[1]),
+                            normalizeSeedText(teamID[2]),
+                            Integer.parseInt(normalizeSeedText(teamID[3])),
+                            normalizeSeedText(teamID[4]),
+                            Integer.parseInt(normalizeSeedText(teamID[5])),
+                            this
+                    ));
                     x++;
                 }
             }
@@ -318,7 +328,15 @@ public class League {
                     c++;
                 } else {
                     String[] teamID = teamText.split("%")[t].split(",");
-                    conferences.get(c).confTeams.add(new Team(teamID[0].substring(1), teamID[1], teamID[2], tmPres, teamID[4], Integer.parseInt(teamID[5]), this));
+                    conferences.get(c).confTeams.add(new Team(
+                            normalizeSeedText(teamID[0]),
+                            normalizeSeedText(teamID[1]),
+                            normalizeSeedText(teamID[2]),
+                            tmPres,
+                            normalizeSeedText(teamID[4]),
+                            Integer.parseInt(normalizeSeedText(teamID[5])),
+                            this
+                    ));
                     x++;
                 }
             }
@@ -330,7 +348,15 @@ public class League {
                     c++;
                 } else {
                     String[] teamID = teamText.split("%")[t].split(",");
-                    conferences.get(c).confTeams.add(new Team(teamID[0].substring(1), teamID[1], teamID[2], tmPres, teamID[4], Integer.parseInt(teamID[5]), this));
+                    conferences.get(c).confTeams.add(new Team(
+                            normalizeSeedText(teamID[0]),
+                            normalizeSeedText(teamID[1]),
+                            normalizeSeedText(teamID[2]),
+                            tmPres,
+                            normalizeSeedText(teamID[4]),
+                            Integer.parseInt(normalizeSeedText(teamID[5])),
+                            this
+                    ));
                     x++;
                 }
             }
@@ -350,6 +376,18 @@ public class League {
         checkIndyConfExists();
 
         setupSeason();
+    }
+
+    private static String normalizeSeedText(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        String normalized = value.replace('\uFEFF', ' ').trim();
+        if (normalized.length() >= 2 && normalized.startsWith("\"") && normalized.endsWith("\"")) {
+            normalized = normalized.substring(1, normalized.length() - 1).trim();
+        }
+        return normalized;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -6269,7 +6307,7 @@ Then conferences can see if they want to add them to their list if the teams mee
             SaveManager.save(this.toRecord(), fos);
             return true;
         } catch (IOException e) {
-            e.printStackTrace();
+            PlatformLog.e("League", "Failed to save league to " + saveFile.getAbsolutePath(), e);
             return false;
         }
     }

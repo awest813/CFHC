@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         super.onCreate(savedInstanceState);
         theme = GameNavigation.getTheme(getIntent(), 1);
         flowManager = new AndroidGameFlowManager(this, theme);
-        saveLoadService = new simulation.SaveLoadService(getFilesDir(), "5.0"); // Fixed version for now, should come from simLeague eventually
+        saveLoadService = new simulation.SaveLoadService(getFilesDir());
         if(theme == 1) setTheme(R.style.AppThemeLight);
 
         else setTheme(R.style.AppTheme);

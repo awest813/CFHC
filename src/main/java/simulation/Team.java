@@ -543,12 +543,16 @@ public class Team {
         }
 
         return new LeagueRecord.TeamRecord(
-                name, abbr, teamPrestige,
+                normalizeRecordText(name), normalizeRecordText(abbr), teamPrestige,
                 HC.toRecord(), OC.toRecord(), DC.toRecord(),
                 roster,
                 new ArrayList<>(teamHistory),
                 teamRecords.toRecordList()
         );
+    }
+
+    private static String normalizeRecordText(String value) {
+        return value == null ? "" : value.replaceAll("\\s+", " ").trim();
     }
 
 

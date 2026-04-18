@@ -20,6 +20,10 @@ public final class LeagueSaveStorage {
         return getNamedInternalFile(filesDir, "saveLeagueRecruiting.cfb");
     }
 
+    public static String[] getSaveFileInfos(File filesDir) {
+        return getSaveFileInfos(filesDir, League.CURRENT_SAVE_VERSION);
+    }
+
     public static String[] getSaveFileInfos(File filesDir, String saveVer) {
         String[] infos = new String[20];
         Arrays.fill(infos, "EMPTY");

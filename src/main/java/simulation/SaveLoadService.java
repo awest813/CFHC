@@ -9,18 +9,16 @@ import java.io.IOException;
 public final class SaveLoadService {
 
     private final File filesDir;
-    private final String saveVer;
 
-    public SaveLoadService(File filesDir, String saveVer) {
+    public SaveLoadService(File filesDir) {
         this.filesDir = filesDir;
-        this.saveVer = saveVer;
     }
 
     /**
      * Get summaries for all save slots.
      */
     public String[] getSaveFileSummaries() {
-        return LeagueSaveStorage.getSaveFileInfos(filesDir, saveVer);
+        return LeagueSaveStorage.getSaveFileInfos(filesDir);
     }
 
     /**

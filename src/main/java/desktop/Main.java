@@ -6,7 +6,6 @@ import simulation.SaveManager;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 
@@ -22,25 +21,50 @@ public class Main {
         if (args.length == 0) {
             System.out.println("Usage: java desktop.Main <command> [file]");
             System.out.println("Commands:");
+            System.out.println("  new             - Launch a new desktop league from bundled resources");
             System.out.println("  inspect <savefile> - Print save metadata to console");
-            System.out.println("  view    <savefile> - Launch graphical league home");
+            System.out.println("  play    <savefile> - Launch graphical league home from an existing save");
             return;
         }
 
         String command = args[0];
         
-        if (command.equals("inspect")) {
+        if (command.equals("new")) {
+            launchNewLeague();
+        } else if (command.equals("inspect")) {
             if (args.length < 2) {
                 System.out.println("Error: Specify a save file to inspect.");
                 return;
             }
             inspectSaveFile(args[1]);
-        } else if (command.equals("play")) {
+        } else if (command.equals("play") || command.equals("view")) {
             if (args.length < 2) {
                 System.out.println("Error: Specify a save file to play.");
                 return;
             }
             launchPlayMode(args[1]);
+        } else {
+            System.out.println("Unknown command: " + command);
+        }
+    }
+
+    private static void launchNewLeague() {
+        try {
+            DesktopResourceProvider resProvider = new DesktopResourceProvider(System.getProperty("user.dir"));
+            League league = new League(
+                    resProvider.getString(simulation.PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
+                    resProvider.getString(simulation.PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES),
+                    resProvider.getString(simulation.PlatformResourceProvider.KEY_CONFERENCES),
+                    resProvider.getString(simulation.PlatformResourceProvider.KEY_TEAMS),
+                    resProvider.getString(simulation.PlatformResourceProvider.KEY_BOWLS),
+                    false,
+                    false
+            );
+            league.setPlatformResourceProvider(resProvider);
+            LeagueHomeView.show(league);
+        } catch (Exception e) {
+            System.err.println("Error launching new desktop league: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -64,18 +88,6 @@ public class Main {
             e.printStackTrace();
         }
     }
-
-    private static void launchGui(String filePath) {
-
-        try (FileInputStream fis = new FileInputStream(filePath)) {
-            LeagueRecord league = SaveManager.load(fis);
-            LeagueHomeView.show(league);
-        } catch (Exception e) {
-            System.err.println("Error launching GUI: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
 
     private static void inspectSaveFile(String filePath) {
         try (FileInputStream fis = new FileInputStream(filePath)) {

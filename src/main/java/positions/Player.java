@@ -89,13 +89,17 @@ public class Player {
 
     public simulation.PlayerRecord toRecord() {
         return new simulation.PlayerRecord(
-                position, name, team != null ? team.name : "", year, homeState, character, ratIntelligence, recruitRating,
+                sanitizeRecordText(position), sanitizeRecordText(name), team != null ? sanitizeRecordText(team.name) : "", year, homeState, character, ratIntelligence, recruitRating,
 
                 isTransfer, wasRedshirt, ratPot, ratDurability, ratOvr, cost,
                 new int[]{ratAttr1, ratAttr2, ratAttr3, ratAttr4}, height, weight,
                 isSuspended, weeksSuspended, troubledTimes, talentNFL, stats, careerStats, awards,
                 isRedshirt, isMedicalRS, isGradTransfer, isWalkOn
         );
+    }
+
+    private static String sanitizeRecordText(String value) {
+        return value == null ? "" : value.replaceAll("\\s+", " ").trim();
     }
 
 

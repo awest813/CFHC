@@ -17,6 +17,14 @@ import java.util.regex.Pattern;
  * Locates assets and strings from the local filesystem.
  */
 public class DesktopResourceProvider implements PlatformResourceProvider {
+    private static final String[] VALUE_FILES = {
+            "strings.xml",
+            "first_names.xml",
+            "last_names.xml",
+            "conferences.xml",
+            "teams.xml",
+            "bowls.xml"
+    };
 
     private final String projectRoot;
     private final Map<String, String> stringMap = new HashMap<>();
@@ -27,34 +35,56 @@ public class DesktopResourceProvider implements PlatformResourceProvider {
     }
 
     private void loadStrings() {
-        // Load from res/values/strings.xml, first_names.xml, last_names.xml
-        String resPath = projectRoot + "/src/main/res/values/";
-        loadXmlFile(resPath + "strings.xml");
-        loadXmlFile(resPath + "first_names.xml");
-        loadXmlFile(resPath + "last_names.xml");
-        
-        // Add hardcoded mappings for keys expected by the simulation
-        stringMap.put(KEY_LEAGUE_PLAYER_NAMES, stringMap.getOrDefault("league_player_names", ""));
-        stringMap.put(KEY_LEAGUE_LAST_NAMES, stringMap.getOrDefault("league_last_names", ""));
-        
-        // Default empty strings for others if not found
-        String[] keys = {KEY_CONFERENCES, KEY_TEAMS, KEY_BOWLS};
-        for (String k : keys) {
-            if (!stringMap.containsKey(k)) stringMap.put(k, "");
+        for (String fileName : VALUE_FILES) {
+            String resourcePath = "values/" + fileName;
+            if (!loadXmlFromClasspath(resourcePath)) {
+                loadXmlFromFilesystem(projectRoot + "/src/main/res/" + resourcePath);
+            }
+        }
+
+        String[] requiredKeys = {
+                KEY_LEAGUE_PLAYER_NAMES,
+                KEY_LEAGUE_LAST_NAMES,
+                KEY_CONFERENCES,
+                KEY_TEAMS,
+                KEY_BOWLS
+        };
+
+        for (String key : requiredKeys) {
+            if (!stringMap.containsKey(key)) {
+                throw new IllegalStateException("Missing desktop resource key: " + key);
+            }
         }
     }
 
-    private void loadXmlFile(String path) {
-        try {
-            if (!new File(path).exists()) return;
-            String content = new String(Files.readAllBytes(Paths.get(path)));
-            Pattern pattern = Pattern.compile("<string name=\"([^\"]+)\">([^<]+)</string>");
-            Matcher matcher = pattern.matcher(content);
-            while (matcher.find()) {
-                stringMap.put(matcher.group(1), matcher.group(2).trim());
+    private boolean loadXmlFromClasspath(String resourcePath) {
+        try (InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourcePath)) {
+            if (inputStream == null) {
+                return false;
             }
+            loadXmlContent(new String(inputStream.readAllBytes()));
+            return true;
         } catch (IOException e) {
-            System.err.println("Error loading resource: " + path);
+            throw new IllegalStateException("Error loading classpath resource: " + resourcePath, e);
+        }
+    }
+
+    private void loadXmlFromFilesystem(String path) {
+        try {
+            if (!new File(path).exists()) {
+                return;
+            }
+            loadXmlContent(new String(Files.readAllBytes(Paths.get(path))));
+        } catch (IOException e) {
+            throw new IllegalStateException("Error loading resource: " + path, e);
+        }
+    }
+
+    private void loadXmlContent(String content) {
+        Pattern pattern = Pattern.compile("<string name=\"([^\"]+)\">([^<]+)</string>");
+        Matcher matcher = pattern.matcher(content);
+        while (matcher.find()) {
+            stringMap.put(matcher.group(1), matcher.group(2).trim());
         }
     }
 
@@ -71,6 +101,11 @@ public class DesktopResourceProvider implements PlatformResourceProvider {
 
     @Override
     public InputStream openAsset(String path) throws IOException {
+        InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("assets/" + path);
+        if (inputStream != null) {
+            return inputStream;
+        }
+
         String assetPath = projectRoot + "/src/main/assets/" + path;
         return new FileInputStream(assetPath);
     }

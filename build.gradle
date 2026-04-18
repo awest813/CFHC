@@ -21,6 +21,12 @@ allprojects {
 
 apply plugin: 'com.android.application'
 
+import org.gradle.api.tasks.PathSensitivity
+import org.gradle.api.tasks.compile.JavaCompile
+import org.gradle.api.tasks.Copy
+import org.gradle.api.tasks.JavaExec
+import org.gradle.jvm.tasks.Jar
+
 android {
     namespace 'antdroid.cfbcoach'
     signingConfigs {
@@ -69,5 +75,78 @@ dependencies {
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
     implementation 'com.jjoe64:graphview:4.2.2'
     testImplementation 'junit:junit:4.13.2'
+}
+
+def desktopSourceFiles = fileTree('src/main/java') {
+    include 'comparator/**'
+    include 'desktop/**'
+    include 'positions/**'
+    include 'recruiting/**'
+    include 'simulation/**'
+    include 'staff/**'
+    exclude 'recruiting/RecruitingActivity.java'
+    exclude 'recruiting/RecruitingDialogController.java'
+}
+
+def desktopClassesDir = layout.buildDirectory.dir('desktop/classes')
+def desktopResourcesDir = layout.buildDirectory.dir('desktop/resources')
+
+tasks.register('prepareDesktopResources', Copy) {
+    group = 'desktop'
+    description = 'Copies desktop runtime resources onto a classpath-friendly layout.'
+
+    from('src/main/res/values') {
+        include '*.xml'
+        into 'values'
+    }
+    from('src/main/assets') {
+        into 'assets'
+    }
+
+    into(desktopResourcesDir)
+}
+
+tasks.register('compileDesktopJava', JavaCompile) {
+    group = 'desktop'
+    description = 'Compiles the desktop prototype and shared portable engine classes.'
+
+    source = desktopSourceFiles
+    destinationDirectory = desktopClassesDir
+    classpath = files()
+    options.encoding = 'UTF-8'
+    options.release = 17
+
+    inputs.files(desktopSourceFiles)
+            .withPathSensitivity(PathSensitivity.RELATIVE)
+}
+
+tasks.register('desktopJar', Jar) {
+    group = 'desktop'
+    description = 'Builds a runnable jar for the desktop prototype.'
+    archiveBaseName = 'CFHC-desktop'
+    archiveClassifier = 'prototype'
+
+    dependsOn tasks.named('compileDesktopJava'), tasks.named('prepareDesktopResources')
+
+    from(desktopClassesDir)
+    from(desktopResourcesDir)
+
+    manifest {
+        attributes('Main-Class': 'desktop.Main')
+    }
+}
+
+tasks.register('runDesktop', JavaExec) {
+    group = 'desktop'
+    description = 'Runs the desktop prototype. Pass -PdesktopArgs="new" or -PdesktopArgs="play path/to/save.cfb".'
+
+    dependsOn tasks.named('compileDesktopJava'), tasks.named('prepareDesktopResources')
+
+    mainClass = 'desktop.Main'
+    classpath = files(desktopClassesDir, desktopResourcesDir)
+
+    if (project.hasProperty('desktopArgs') && project.property('desktopArgs')) {
+        args project.property('desktopArgs').toString().split(/\s+/).findAll { !it.isEmpty() }
+    }
 }
 

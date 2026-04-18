@@ -30,9 +30,9 @@ public class SaveManager {
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out));
         
         // Save League Base
-        writer.write(LEAGUE_PREFIX + league.leagueName() + "," + league.year() + "," +
-                     league.currentWeek() + "," + league.heismanWinnerName() + "," +
-                     league.nationalChampName() + "\n");
+        writer.write(LEAGUE_PREFIX + sanitizeInlineValue(league.leagueName()) + "," + league.year() + "," +
+                     league.currentWeek() + "," + sanitizeInlineValue(league.heismanWinnerName()) + "," +
+                     sanitizeInlineValue(league.nationalChampName()) + "\n");
 
         // Global Hall of Fame
         for (PlayerRecord p : league.leagueHoF()) {
@@ -45,9 +45,9 @@ public class SaveManager {
         }
 
         for (LeagueRecord.ConferenceRecord c : league.conferences()) {
-            writer.write(CONF_PREFIX + c.name() + "\n");
+            writer.write(CONF_PREFIX + sanitizeInlineValue(c.name()) + "\n");
             for (LeagueRecord.TeamRecord t : c.teams()) {
-                writer.write(TEAM_PREFIX + t.name() + "," + t.abbr() + "," + t.prestige() + "\n");
+                writer.write(TEAM_PREFIX + sanitizeInlineValue(t.name()) + "," + sanitizeInlineValue(t.abbr()) + "," + t.prestige() + "\n");
                 
                 // Coaches
                 writer.write(COACH_PREFIX + "HC," + Persistence.toCsv(t.headCoach()) + "\n");
@@ -73,6 +73,10 @@ public class SaveManager {
             writer.write(END_TOKEN + "_CONF\n");
         }
         writer.flush();
+    }
+
+    private static String sanitizeInlineValue(String value) {
+        return value == null ? "" : value.replaceAll("\\s+", " ").trim();
     }
 
     public static LeagueRecord load(InputStream in) throws IOException {

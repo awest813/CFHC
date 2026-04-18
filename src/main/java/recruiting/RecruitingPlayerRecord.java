@@ -23,11 +23,6 @@ public final class RecruitingPlayerRecord {
     private final String rat2;
     private final String rat3;
     private final String rat4;
-    private final boolean isTransfer;
-    private final int recruitOverall;
-    private final int cost;
-    private final int currentOverall;
-    private final String improvement;
 
     private RecruitingPlayerRecord(String raw, String[] fields, boolean isRecruitFormat) {
 
@@ -168,10 +163,6 @@ public final class RecruitingPlayerRecord {
 
     public int heightInches() {
         return heightInches;
-    }
-
-    public int weightPounds() {
-        return weightPounds;
     }
 
     public int weightPounds() {

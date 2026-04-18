@@ -213,7 +213,7 @@ public final class RecruitingSessionData {
         removeRecruitFromBoards(recruit);
         playersRecruited.add(recruit);
 
-        addToTeamPositionList(recruit.position(), getReadablePlayerInfo(recruit));
+        addToTeamPositionList(recruit.position(), recruit);
         sortTeamByOverall();
 
         if (autoFilter) {
