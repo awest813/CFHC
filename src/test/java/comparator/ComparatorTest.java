@@ -76,10 +76,11 @@ public class ComparatorTest {
         teamB.teamPrestige = 75;
 
         CompTeamPrestige comp = new CompTeamPrestige();
-        // Symmetry: compare(a,b) and compare(b,a) should have opposite signs (or both 0)
+        // compare(a,b) and compare(b,a) must have opposite signs or both be 0
         int ab = comp.compare(teamA, teamB);
         int ba = comp.compare(teamB, teamA);
-        assertTrue("compare must be antisymmetric", Math.signum(ab) == -Math.signum(ba) || (ab == 0 && ba == 0));
+        assertTrue("compare must be antisymmetric",
+                Math.signum(ab) == -Math.signum(ba));
     }
 
     @Test

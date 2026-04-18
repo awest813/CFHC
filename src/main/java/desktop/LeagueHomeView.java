@@ -587,10 +587,11 @@ public class LeagueHomeView extends JFrame {
      * newsStories list for the current week.
      */
     private String lookupStory(String headline) {
-        if (leagueCore.newsStories == null) return null;
+        if (leagueCore.newsStories == null || leagueCore.newsStories.isEmpty()) return null;
         int week = leagueCore.currentWeek;
         // newsStories has one list per season-week; search around the current week
         int maxWeek = Math.min(week + 1, leagueCore.newsStories.size() - 1);
+        if (maxWeek < 0) return null;
         for (int w = maxWeek; w >= 0; w--) {
             for (String story : leagueCore.newsStories.get(w)) {
                 String[] parts = story.split(">");
@@ -669,10 +670,7 @@ public class LeagueHomeView extends JFrame {
         };
         for (simulation.DataRecord dr : records) {
             if (dr != null) {
-                String holder = dr.holder().contains("%")
-                        ? dr.holder().split("%")[0].trim() + " — " + dr.holder().split("%")[1].trim()
-                        : dr.holder();
-                model.addRow(new Object[]{dr.key(), formatValue(dr.value()), holder, dr.year()});
+                model.addRow(new Object[]{dr.key(), formatValue(dr.value()), formatHolder(dr.holder()), dr.year()});
             }
         }
         JTable table = new JTable(model);
@@ -684,6 +682,20 @@ public class LeagueHomeView extends JFrame {
     private String formatValue(float value) {
         if (value == (int) value) return String.valueOf((int) value);
         return String.format("%.2f", value);
+    }
+
+    /**
+     * Formats a {@link simulation.DataRecord} holder string for display.
+     * Holders are stored as {@code "TeamName%PlayerName"} — this converts the
+     * separator to an em-dash for readability.
+     */
+    static String formatHolder(String holder) {
+        if (holder == null) return "";
+        int pct = holder.indexOf('%');
+        if (pct >= 0) {
+            return holder.substring(0, pct).trim() + " \u2014 " + holder.substring(pct + 1).trim();
+        }
+        return holder;
     }
 
     // -------------------------------------------------------------------------

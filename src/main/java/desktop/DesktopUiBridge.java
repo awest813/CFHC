@@ -25,6 +25,8 @@ import java.io.IOException;
  */
 public class DesktopUiBridge implements GameUiBridge {
 
+    private static final String TRANSFER_PORTAL_HEADER = "Transfer Portal:\n\n";
+
     private final JFrame owner;
     private final League league;
     private boolean newSeasonPending = false;
@@ -149,7 +151,7 @@ public class DesktopUiBridge implements GameUiBridge {
 
     @Override
     public void showTransferList() {
-        StringBuilder sb = new StringBuilder("Transfer Portal:\n\n");
+        StringBuilder sb = new StringBuilder(TRANSFER_PORTAL_HEADER);
         appendTransferGroup(sb, "QB", league.transferQBs);
         appendTransferGroup(sb, "RB", league.transferRBs);
         appendTransferGroup(sb, "WR", league.transferWRs);
@@ -160,7 +162,7 @@ public class DesktopUiBridge implements GameUiBridge {
         appendTransferGroup(sb, "LB", league.transferLBs);
         appendTransferGroup(sb, "CB", league.transferCBs);
         appendTransferGroup(sb, "S",  league.transferSs);
-        if (sb.length() == "Transfer Portal:\n\n".length()) {
+        if (sb.length() == TRANSFER_PORTAL_HEADER.length()) {
             sb.append("No players currently in the transfer portal.");
         }
         showScrollableText("Transfer Portal", sb.toString());

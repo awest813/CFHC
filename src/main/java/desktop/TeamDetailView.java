@@ -192,9 +192,7 @@ public class TeamDetailView extends JDialog {
 
         for (DataRecord dr : records) {
             if (dr == null) continue;
-            String holder = dr.holder().contains("%")
-                    ? dr.holder().split("%")[0].trim() + " — " + dr.holder().split("%")[1].trim()
-                    : dr.holder();
+            String holder = LeagueHomeView.formatHolder(dr.holder());
             String value = dr.value() == (int) dr.value()
                     ? String.valueOf((int) dr.value())
                     : String.format("%.2f", dr.value());
