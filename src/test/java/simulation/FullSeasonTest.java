@@ -4,6 +4,8 @@ import desktop.DesktopResourceProvider;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
+
 import static org.junit.Assert.*;
 
 /**
@@ -49,7 +51,7 @@ public class FullSeasonTest {
         // Build a recording NO_OP bridge so we can count terminal callbacks.
         GameUiBridge bridge = new GameUiBridge() {
             @Override public void crash() {}
-            @Override public void startRecruiting(java.io.File f, Team t) {}
+            @Override public void startRecruiting(File f, Team t) {}
             @Override public void transferPlayer(positions.Player p) {}
             @Override public void updateSpinners() {}
             @Override public void disciplineAction(positions.Player p, String issue, int a, int b) {}
