@@ -1,9 +1,14 @@
 package desktop;
 
 import simulation.Conference;
+import simulation.DataRecord;
+import simulation.GameFlowManager;
 import simulation.League;
+import simulation.LeagueLaunchCoordinator;
 import simulation.LeagueRecord;
 import simulation.PlatformLog;
+import simulation.PlayerRecord;
+import simulation.SeasonController;
 import simulation.Team;
 
 import javax.swing.BorderFactory;
@@ -23,10 +28,12 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableModel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -43,6 +50,9 @@ import java.util.List;
  * Graphical 'League Home' view for the desktop prototype. Displays the top teams,
  * conference standings, and basic league info, and allows the user to advance the
  * simulation one week or a full season at a time.
+ *
+ * <p>The view uses {@link SeasonController} for all week advancement so the full
+ * season–offseason–new-season loop works correctly without any Android dependencies.
  */
 public class LeagueHomeView extends JFrame {
 
@@ -53,9 +63,23 @@ public class LeagueHomeView extends JFrame {
     private static final int HEADER_HEIGHT = 70;
     private static final String SAVE_EXTENSION = "cfb";
 
+    /** No-op {@link GameFlowManager} — all transitions are handled in-process. */
+    private static final GameFlowManager NO_OP_FLOW = new GameFlowManager() {
+        @Override public void startNewGame(LeagueLaunchCoordinator.LaunchRequest.PrestigeMode p, String u) {}
+        @Override public void loadGame(String s) {}
+        @Override public void importSave(String u) {}
+        @Override public void finishRecruiting(String r) {}
+        @Override public void startRecruiting(String u) {}
+        @Override public void showNotification(String t, String m) {}
+        @Override public void returnToMainHub() {}
+    };
+
     private final League leagueCore;
     private LeagueRecord currentRecord;
     private File lastSavePath;
+
+    private DesktopUiBridge bridge;
+    private SeasonController controller;
 
     private JLabel statusLabel;
     private JLabel playedIndicator;
@@ -73,6 +97,9 @@ public class LeagueHomeView extends JFrame {
         setSize(1100, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
+
+        bridge = new DesktopUiBridge(this, leagueCore);
+        controller = new SeasonController(leagueCore, bridge, NO_OP_FLOW);
 
         setJMenuBar(buildMenuBar());
         add(buildHeader(), BorderLayout.NORTH);
@@ -171,15 +198,16 @@ public class LeagueHomeView extends JFrame {
     }
 
     private String playWeekLabel() {
-        int next = currentRecord.currentWeek() + 1;
-        if (next > leagueCore.regSeasonWeeks + 4) {
-            return "Season Complete";
-        }
-        return "Play Week " + next;
-    }
-
-    private int finalWeek() {
-        return leagueCore.regSeasonWeeks + 4;
+        int week = leagueCore.currentWeek;
+        int reg = leagueCore.regSeasonWeeks;
+        if (week >= reg + 13) return "Recruiting…";
+        if (week >= reg + 4)  return "Offseason: Step " + (week - reg - 3);
+        if (week >= reg + 3)  return "Play National Championship";
+        if (week >= reg + 2)  return "Play Semifinals";
+        if (week >= reg + 1)  return "Play Quarterfinals / Bowl Week";
+        if (week == reg)      return "Play Conf. Championships";
+        if (week <= 0)        return "Begin Season";
+        return "Play Week " + (week + 1);
     }
 
     private JPanel buildStatusBar() {
@@ -211,24 +239,43 @@ public class LeagueHomeView extends JFrame {
     }
 
     private void playWeek() {
-        if (currentRecord.currentWeek() >= finalWeek()) {
-            JOptionPane.showMessageDialog(this,
-                    "The season has concluded. Start a new league to continue.",
-                    "Season Complete", JOptionPane.INFORMATION_MESSAGE);
-            return;
-        }
         long start = System.currentTimeMillis();
-        leagueCore.playWeek();
-        PlatformLog.i(TAG, "Week advancement: " + (System.currentTimeMillis() - start) + "ms");
-        refresh();
+        bridge.clearNewSeasonPending();
+        controller.advanceWeek();
+        PlatformLog.i(TAG, "advanceWeek: " + (System.currentTimeMillis() - start) + "ms");
+
+        if (bridge.isNewSeasonPending()) {
+            startNewSeason();
+        } else {
+            refresh();
+        }
     }
 
+    /**
+     * Called when recruiting has been auto-completed and the league should
+     * transition to the next season.
+     */
+    private void startNewSeason() {
+        bridge.clearNewSeasonPending();
+        leagueCore.startNextSeason();
+        bridge = new DesktopUiBridge(this, leagueCore);
+        controller = new SeasonController(leagueCore, bridge, NO_OP_FLOW);
+        refresh();
+        JOptionPane.showMessageDialog(this,
+                "Season " + leagueCore.getYear() + " is ready!\n"
+                        + "All rosters have been filled via auto-recruiting.\n"
+                        + "Press Space or click the Play button to begin.",
+                "New Season", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    /** Advances the regular season (weeks 1 through regSeasonWeeks+4) silently. */
     private void advanceSeason() {
         long start = System.currentTimeMillis();
         int played = 0;
-        int target = finalWeek();
+        int target = leagueCore.regSeasonWeeks + 4;
+        bridge.clearNewSeasonPending();
         while (leagueCore.currentWeek < target) {
-            leagueCore.playWeek();
+            controller.advanceWeek();
             played++;
         }
         PlatformLog.i(TAG, "Advanced " + played + " weeks in "
@@ -306,9 +353,12 @@ public class LeagueHomeView extends JFrame {
 
     private JTabbedPane buildMainContent() {
         JTabbedPane tabs = new JTabbedPane();
-        tabs.addTab("Standings", buildStandingsPanel());
-        tabs.addTab("Week " + currentRecord.currentWeek() + " Scores", buildScoreboardPanel());
-        tabs.addTab("Top 25", buildTop25Panel());
+        tabs.addTab("Standings",  buildStandingsPanel());
+        tabs.addTab("Week " + leagueCore.currentWeek + " Scores", buildScoreboardPanel());
+        tabs.addTab("Top 25",     buildTop25Panel());
+        tabs.addTab("News",       buildNewsPanel());
+        tabs.addTab("Hall of Fame", buildHallOfFamePanel());
+        tabs.addTab("Records",    buildLeagueRecordsPanel());
         return tabs;
     }
 
@@ -377,7 +427,7 @@ public class LeagueHomeView extends JFrame {
         }
         StringBuilder sb = new StringBuilder();
         sb.append("Results for week ").append(week).append('\n');
-        sb.append("=".repeat(Math.min(60, 20 + currentRecord.leagueName().length()))).append("\n\n");
+        sb.append("=".repeat(Math.min(60, 20 + leagueCore.leagueName.length()))).append("\n\n");
         for (String line : lines) {
             int splitIdx = line.indexOf('>');
             if (splitIdx >= 0) {
@@ -484,6 +534,161 @@ public class LeagueHomeView extends JFrame {
         }
         return null;
     }
+
+    // -------------------------------------------------------------------------
+    // News panel
+    // -------------------------------------------------------------------------
+
+    private JPanel buildNewsPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Left: headline list
+        DefaultListModel<String> headlineModel = new DefaultListModel<>();
+        if (leagueCore.newsHeadlines != null) {
+            for (String h : leagueCore.newsHeadlines) {
+                headlineModel.addElement(h);
+            }
+        }
+        if (headlineModel.isEmpty()) {
+            headlineModel.addElement("No news this week.");
+        }
+
+        JList<String> headlineList = new JList<>(headlineModel);
+        headlineList.setPreferredSize(new Dimension(300, 400));
+
+        // Right: full story area
+        JTextArea storyArea = new JTextArea("Select a headline to read the full story.");
+        storyArea.setEditable(false);
+        storyArea.setLineWrap(true);
+        storyArea.setWrapStyleWord(true);
+
+        // Clicking a headline shows the story from newsStories for the current week
+        headlineList.addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                int idx = headlineList.getSelectedIndex();
+                if (idx >= 0) {
+                    String story = lookupStory(headlineList.getSelectedValue());
+                    storyArea.setText(story != null ? story : headlineList.getSelectedValue());
+                    storyArea.setCaretPosition(0);
+                }
+            }
+        });
+
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
+                new JScrollPane(headlineList), new JScrollPane(storyArea));
+        split.setDividerLocation(280);
+        panel.add(split, BorderLayout.CENTER);
+        return panel;
+    }
+
+    /**
+     * Returns the full story text for the given headline by scanning the
+     * newsStories list for the current week.
+     */
+    private String lookupStory(String headline) {
+        if (leagueCore.newsStories == null) return null;
+        int week = leagueCore.currentWeek;
+        // newsStories has one list per season-week; search around the current week
+        int maxWeek = Math.min(week + 1, leagueCore.newsStories.size() - 1);
+        for (int w = maxWeek; w >= 0; w--) {
+            for (String story : leagueCore.newsStories.get(w)) {
+                String[] parts = story.split(">");
+                if (parts.length >= 2 && headline.contains(parts[0])) {
+                    return parts[1];
+                }
+                // Also check if the story title is contained in the headline
+                if (parts.length >= 1 && headline.startsWith(parts[0])) {
+                    return parts.length >= 2 ? parts[1] : parts[0];
+                }
+            }
+        }
+        // Fall back: show all stories for the current week
+        if (week < leagueCore.newsStories.size() && !leagueCore.newsStories.get(week).isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (String s : leagueCore.newsStories.get(week)) {
+                sb.append(s.replace(">", "\n\n")).append("\n\n---\n\n");
+            }
+            return sb.toString();
+        }
+        return null;
+    }
+
+    // -------------------------------------------------------------------------
+    // Hall of Fame panel
+    // -------------------------------------------------------------------------
+
+    private JPanel buildHallOfFamePanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        List<PlayerRecord> hof = currentRecord.leagueHoF();
+        if (hof == null || hof.isEmpty()) {
+            JLabel empty = new JLabel("No players have been inducted into the Hall of Fame yet.",
+                    JLabel.CENTER);
+            panel.add(empty, BorderLayout.CENTER);
+            return panel;
+        }
+
+        String[] columns = {"Name", "Position", "Team", "OVR"};
+        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+        for (PlayerRecord pr : hof) {
+            model.addRow(new Object[]{pr.name(), pr.position(), pr.teamName(), pr.ratOvr()});
+        }
+        JTable table = new JTable(model);
+        table.setFillsViewportHeight(true);
+        panel.add(new JScrollPane(table), BorderLayout.CENTER);
+
+        JLabel count = new JLabel(hof.size() + " inductees", JLabel.RIGHT);
+        count.setBorder(BorderFactory.createEmptyBorder(4, 0, 0, 0));
+        panel.add(count, BorderLayout.SOUTH);
+        return panel;
+    }
+
+    // -------------------------------------------------------------------------
+    // League Records panel
+    // -------------------------------------------------------------------------
+
+    private JPanel buildLeagueRecordsPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        List<simulation.DataRecord> records = currentRecord.leagueRecords();
+        if (records == null || records.isEmpty()) {
+            JLabel empty = new JLabel("No league records have been set yet — play a full season!",
+                    JLabel.CENTER);
+            panel.add(empty, BorderLayout.CENTER);
+            return panel;
+        }
+
+        String[] columns = {"Record", "Value", "Holder", "Year"};
+        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+        for (simulation.DataRecord dr : records) {
+            if (dr != null) {
+                String holder = dr.holder().contains("%")
+                        ? dr.holder().split("%")[0].trim() + " — " + dr.holder().split("%")[1].trim()
+                        : dr.holder();
+                model.addRow(new Object[]{dr.key(), formatValue(dr.value()), holder, dr.year()});
+            }
+        }
+        JTable table = new JTable(model);
+        table.setFillsViewportHeight(true);
+        panel.add(new JScrollPane(table), BorderLayout.CENTER);
+        return panel;
+    }
+
+    private String formatValue(float value) {
+        if (value == (int) value) return String.valueOf((int) value);
+        return String.format("%.2f", value);
+    }
+
+    // -------------------------------------------------------------------------
+    // Static factory methods and snapshot viewer
+    // -------------------------------------------------------------------------
 
     public static void show(League league) {
         show(league, null);

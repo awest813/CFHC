@@ -1,9 +1,12 @@
 package desktop;
 
+import simulation.DataRecord;
 import simulation.Game;
 import simulation.LeagueRecord;
 import simulation.PlayerRecord;
 import simulation.Team;
+import simulation.TeamHistoryRecord;
+import simulation.TeamRecords;
 
 import javax.swing.BorderFactory;
 import javax.swing.JDialog;
@@ -18,15 +21,18 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Font;
 import java.util.Comparator;
+import java.util.List;
 
 /**
- * Detailed dialog for a single team. Combines roster, schedule, and
- * coaching-staff information in a tabbed layout.
+ * Detailed dialog for a single team. Combines roster, schedule, coaching-staff,
+ * season history and team records in a tabbed layout.
  */
 public class TeamDetailView extends JDialog {
 
-    private static final String[] ROSTER_COLUMNS = {"Pos", "Name", "Yr", "OVR", "Pot", "IQ"};
+    private static final String[] ROSTER_COLUMNS   = {"Pos", "Name", "Yr", "OVR", "Pot", "IQ"};
     private static final String[] SCHEDULE_COLUMNS = {"Wk", "Opponent", "Home/Away", "Result"};
+    private static final String[] HISTORY_COLUMNS  = {"Season", "Record", "Final Rank", "Pts For – Pts Against"};
+    private static final String[] RECORDS_COLUMNS  = {"Record", "Value", "Holder", "Year"};
 
     public TeamDetailView(JFrame owner, LeagueRecord.TeamRecord team, Team liveTeam) {
         super(owner, dialogTitle(team, liveTeam), true);
@@ -34,11 +40,17 @@ public class TeamDetailView extends JDialog {
         setLayout(new BorderLayout());
 
         JTabbedPane tabs = new JTabbedPane();
-        tabs.addTab("Roster", buildRosterTab(team));
+        tabs.addTab("Roster",  buildRosterTab(team));
         if (liveTeam != null) {
             tabs.addTab("Schedule", buildScheduleTab(liveTeam));
         }
         tabs.addTab("Coaches", buildCoachesTab(team));
+        if (liveTeam != null && !liveTeam.teamHistory.isEmpty()) {
+            tabs.addTab("History", buildHistoryTab(liveTeam));
+        }
+        if (!team.records().isEmpty()) {
+            tabs.addTab("Records", buildRecordsTab(team.records()));
+        }
 
         add(tabs, BorderLayout.CENTER);
         add(buildFooter(team, liveTeam), BorderLayout.SOUTH);
@@ -145,6 +157,58 @@ public class TeamDetailView extends JDialog {
         label.setFont(new Font("SansSerif", Font.PLAIN, 14));
         return label;
     }
+
+    // -------------------------------------------------------------------------
+    // History tab
+    // -------------------------------------------------------------------------
+
+    private JScrollPane buildHistoryTab(Team liveTeam) {
+        DefaultTableModel model = new DefaultTableModel(HISTORY_COLUMNS, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+
+        List<TeamHistoryRecord> history = liveTeam.teamHistory;
+        // Show most-recent season first
+        for (int i = history.size() - 1; i >= 0; i--) {
+            TeamHistoryRecord hr = history.get(i);
+            String rankStr = hr.rank() > 0 ? "#" + hr.rank() : "—";
+            String pts = hr.pointsFor() + " – " + hr.pointsAgainst();
+            model.addRow(new Object[]{hr.year(), hr.wins() + "-" + hr.losses(), rankStr, pts});
+        }
+
+        JTable table = new JTable(model);
+        table.setRowHeight(22);
+        return new JScrollPane(table);
+    }
+
+    // -------------------------------------------------------------------------
+    // Team Records tab
+    // -------------------------------------------------------------------------
+
+    private JScrollPane buildRecordsTab(List<DataRecord> records) {
+        DefaultTableModel model = new DefaultTableModel(RECORDS_COLUMNS, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+
+        for (DataRecord dr : records) {
+            if (dr == null) continue;
+            String holder = dr.holder().contains("%")
+                    ? dr.holder().split("%")[0].trim() + " — " + dr.holder().split("%")[1].trim()
+                    : dr.holder();
+            String value = dr.value() == (int) dr.value()
+                    ? String.valueOf((int) dr.value())
+                    : String.format("%.2f", dr.value());
+            model.addRow(new Object[]{dr.key(), value, holder, dr.year()});
+        }
+
+        JTable table = new JTable(model);
+        table.setRowHeight(22);
+        return new JScrollPane(table);
+    }
+
+    // -------------------------------------------------------------------------
+    // Footer
+    // -------------------------------------------------------------------------
 
     private JPanel buildFooter(LeagueRecord.TeamRecord team, Team live) {
         JPanel footer = new JPanel();

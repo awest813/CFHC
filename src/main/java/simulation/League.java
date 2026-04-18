@@ -6300,6 +6300,63 @@ Then conferences can see if they want to add them to their list if the teams mee
     //////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
+     * Prepares the league for the next season without requiring a save/load
+     * cycle.  This is the desktop equivalent of the Android save-then-reload
+     * pattern: it resets all current-season state, auto-fills any remaining
+     * roster spots via CPU recruiting, and re-runs the full schedule builder.
+     *
+     * <p>Call this after the offseason has fully completed (i.e. after
+     * {@link #recruitPlayers()} has been called and
+     * {@code currentWeek >= regSeasonWeeks + 13}).
+     */
+    public void startNextSeason() {
+        // Reset league-level per-season state
+        heismanDecided = false;
+        hasScheduledBowls = false;
+        heisman = null;
+        defPOTY = null;
+        freshman = null;
+        coachWinner = null;
+        heismanCandidates = new ArrayList<>();
+        defPOTYCandidates = new ArrayList<>();
+        freshmanCandidates = new ArrayList<>();
+        allAmericans = new ArrayList<>();
+        allAmericans2 = new ArrayList<>();
+        allFreshman = new ArrayList<>();
+        playoffTeams = new ArrayList<>();
+        cfpGames = new Game[15];
+
+        // Clear transfer pools (they were consumed during the offseason)
+        transferQBs = new ArrayList<>();
+        transferRBs = new ArrayList<>();
+        transferWRs = new ArrayList<>();
+        transferTEs = new ArrayList<>();
+        transferKs = new ArrayList<>();
+        transferOLs = new ArrayList<>();
+        transferDLs = new ArrayList<>();
+        transferLBs = new ArrayList<>();
+        transferCBs = new ArrayList<>();
+        transferSs = new ArrayList<>();
+        userTransferList = new ArrayList<>();
+        freshmen = new ArrayList<>();
+        redshirts = new ArrayList<>();
+
+        // Reset per-team season state and conference schedule bookkeeping
+        for (Conference c : conferences) {
+            c.oocWeeks.clear();
+        }
+        for (Team t : teamList) {
+            t.resetSeasonStats();
+        }
+
+        currentWeek = 0;
+        newsHeadlines.clear();
+
+        // Rebuild the schedule for the new season
+        setupSeason();
+    }
+
+    /**
      * Save League in a file.
      *
      * @param saveFile file to be overwritten

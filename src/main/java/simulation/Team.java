@@ -1621,6 +1621,42 @@ public class Team {
         sortPlayers();
     }
 
+    /**
+     * Resets all current-season statistics and schedule state so the team is
+     * ready for a brand-new season.  Call this before {@code League.setupSeason()}
+     * when starting the next season without a full save/load cycle.
+     */
+    public void resetSeasonStats() {
+        wins = 0;
+        losses = 0;
+        teamPoints = 0;
+        teamOppPoints = 0;
+        teamYards = 0;
+        teamOppYards = 0;
+        teamPassYards = 0;
+        teamRushYards = 0;
+        teamOppPassYards = 0;
+        teamOppRushYards = 0;
+        teamTODiff = 0;
+        disciplinePts = 0;
+
+        gameSchedule.clear();
+        oocTeams.clear();
+        oocWeeks.clear();
+        gameWinsAgainst.clear();
+        gameLossesAgainst.clear();
+        gameWLSchedule.clear();
+
+        confChampion = "";
+        sweet16 = "";
+        qtFinalWL = "";
+        semiFinalWL = "";
+        natChampWL = "";
+
+        playersLeaving.clear();
+        if (playersTransferring != null) playersTransferring.clear();
+    }
+
     //Calculates Prestige Change at end of season
     public int[] calcSeasonPrestige() {
 
