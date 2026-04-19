@@ -183,16 +183,16 @@ public class League {
     private ArrayList<PlayerCB> fCBs;
     private ArrayList<PlayerS> fSs;
     //Transfer List
-    public ArrayList<PlayerQB> transferQBs;
-    public ArrayList<PlayerRB> transferRBs;
-    public ArrayList<PlayerWR> transferWRs;
-    public ArrayList<PlayerTE> transferTEs;
-    public ArrayList<PlayerK> transferKs;
-    public ArrayList<PlayerOL> transferOLs;
-    public ArrayList<PlayerDL> transferDLs;
-    public ArrayList<PlayerLB> transferLBs;
-    public ArrayList<PlayerCB> transferCBs;
-    public ArrayList<PlayerS> transferSs;
+    private ArrayList<PlayerQB> transferQBs;
+    private ArrayList<PlayerRB> transferRBs;
+    private ArrayList<PlayerWR> transferWRs;
+    private ArrayList<PlayerTE> transferTEs;
+    private ArrayList<PlayerK> transferKs;
+    private ArrayList<PlayerOL> transferOLs;
+    private ArrayList<PlayerDL> transferDLs;
+    private ArrayList<PlayerLB> transferLBs;
+    private ArrayList<PlayerCB> transferCBs;
+    private ArrayList<PlayerS> transferSs;
     public String userTransfers;
     public String sumTransfers;
     private ArrayList<String> transfersList;
@@ -6514,6 +6514,118 @@ Then conferences can see if they want to add them to their list if the teams mee
             names.add(c.name);
         }
         return sb.toString();
+    }
+
+    // =========================================================================
+    // Transfer Pool Accessors
+    // =========================================================================
+
+    /**
+     * Get an unmodifiable view of the QB transfer pool.
+     * Use {@link #addToTransferPool(Player)} to add players.
+     */
+    public java.util.List<PlayerQB> getTransferQBs() {
+        return java.util.Collections.unmodifiableList(transferQBs);
+    }
+
+    /**
+     * Get an unmodifiable view of the RB transfer pool.
+     * Use {@link #addToTransferPool(Player)} to add players.
+     */
+    public java.util.List<PlayerRB> getTransferRBs() {
+        return java.util.Collections.unmodifiableList(transferRBs);
+    }
+
+    /**
+     * Get an unmodifiable view of the WR transfer pool.
+     * Use {@link #addToTransferPool(Player)} to add players.
+     */
+    public java.util.List<PlayerWR> getTransferWRs() {
+        return java.util.Collections.unmodifiableList(transferWRs);
+    }
+
+    /**
+     * Get an unmodifiable view of the TE transfer pool.
+     * Use {@link #addToTransferPool(Player)} to add players.
+     */
+    public java.util.List<PlayerTE> getTransferTEs() {
+        return java.util.Collections.unmodifiableList(transferTEs);
+    }
+
+    /**
+     * Get an unmodifiable view of the K transfer pool.
+     * Use {@link #addToTransferPool(Player)} to add players.
+     */
+    public java.util.List<PlayerK> getTransferKs() {
+        return java.util.Collections.unmodifiableList(transferKs);
+    }
+
+    /**
+     * Get an unmodifiable view of the OL transfer pool.
+     * Use {@link #addToTransferPool(Player)} to add players.
+     */
+    public java.util.List<PlayerOL> getTransferOLs() {
+        return java.util.Collections.unmodifiableList(transferOLs);
+    }
+
+    /**
+     * Get an unmodifiable view of the DL transfer pool.
+     * Use {@link #addToTransferPool(Player)} to add players.
+     */
+    public java.util.List<PlayerDL> getTransferDLs() {
+        return java.util.Collections.unmodifiableList(transferDLs);
+    }
+
+    /**
+     * Get an unmodifiable view of the LB transfer pool.
+     * Use {@link #addToTransferPool(Player)} to add players.
+     */
+    public java.util.List<PlayerLB> getTransferLBs() {
+        return java.util.Collections.unmodifiableList(transferLBs);
+    }
+
+    /**
+     * Get an unmodifiable view of the CB transfer pool.
+     * Use {@link #addToTransferPool(Player)} to add players.
+     */
+    public java.util.List<PlayerCB> getTransferCBs() {
+        return java.util.Collections.unmodifiableList(transferCBs);
+    }
+
+    /**
+     * Get an unmodifiable view of the S transfer pool.
+     * Use {@link #addToTransferPool(Player)} to add players.
+     */
+    public java.util.List<PlayerS> getTransferSs() {
+        return java.util.Collections.unmodifiableList(transferSs);
+    }
+
+    /**
+     * Add a player to the appropriate transfer pool based on their position.
+     * @param player the player to add to the transfer pool
+     */
+    public void addToTransferPool(Player player) {
+        if (player instanceof PlayerQB) {
+            transferQBs.add((PlayerQB) player);
+        } else if (player instanceof PlayerRB) {
+            transferRBs.add((PlayerRB) player);
+        } else if (player instanceof PlayerWR) {
+            transferWRs.add((PlayerWR) player);
+        } else if (player instanceof PlayerTE) {
+            transferTEs.add((PlayerTE) player);
+        } else if (player instanceof PlayerK) {
+            transferKs.add((PlayerK) player);
+        } else if (player instanceof PlayerOL) {
+            transferOLs.add((PlayerOL) player);
+        } else if (player instanceof PlayerDL) {
+            transferDLs.add((PlayerDL) player);
+        } else if (player instanceof PlayerLB) {
+            transferLBs.add((PlayerLB) player);
+        } else if (player instanceof PlayerCB) {
+            transferCBs.add((PlayerCB) player);
+        } else if (player instanceof PlayerS) {
+            transferSs.add((PlayerS) player);
+        }
     }
 
 }

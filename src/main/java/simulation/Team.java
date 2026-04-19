@@ -2261,70 +2261,70 @@ public class Team {
 
         if(p.position.equals("QB")) {
             for(PlayerQB i : teamQBs) {
-                if(i == p) league.transferQBs.add(i);
+                if(i == p) league.addToTransferPool(i);
                 break;
             }
             teamQBs.remove(p);
         }
         if(p.position.equals("RB")) {
             for(PlayerRB i : teamRBs) {
-                if(i == p) league.transferRBs.add(i);
+                if(i == p) league.addToTransferPool(i);
                 break;
             }
             teamRBs.remove(p);
         }
         if(p.position.equals("WR")) {
             for(PlayerWR i : teamWRs) {
-                if(i == p) league.transferWRs.add(i);
+                if(i == p) league.addToTransferPool(i);
                 break;
             }
             teamWRs.remove(p);
         }
         if(p.position.equals("TE")) {
             for(PlayerTE i : teamTEs) {
-                if(i == p) league.transferTEs.add(i);
+                if(i == p) league.addToTransferPool(i);
                 break;
             }
             teamTEs.remove(p);
         }
         if(p.position.equals("OL")) {
             for(PlayerOL i : teamOLs) {
-                if(i == p) league.transferOLs.add(i);
+                if(i == p) league.addToTransferPool(i);
                 break;
             }
             teamOLs.remove(p);
         }
         if(p.position.equals("K")) {
             for(PlayerK i : teamKs) {
-                if(i == p) league.transferKs.add(i);
+                if(i == p) league.addToTransferPool(i);
                 break;
             }
             teamKs.remove(p);
         }
         if(p.position.equals("DL")) {
             for(PlayerDL i : teamDLs) {
-                if(i == p) league.transferDLs.add(i);
+                if(i == p) league.addToTransferPool(i);
                 break;
             }
             teamDLs.remove(p);
         }
         if(p.position.equals("LB")) {
             for(PlayerLB i : teamLBs) {
-                if(i == p) league.transferLBs.add(i);
+                if(i == p) league.addToTransferPool(i);
                 break;
             }
             teamLBs.remove(p);
         }
         if(p.position.equals("CB")) {
             for(PlayerCB i : teamCBs) {
-                if(i == p) league.transferCBs.add(i);
+                if(i == p) league.addToTransferPool(i);
                 break;
             }
             teamCBs.remove(p);
         }
         if(p.position.equals("S")) {
             for(PlayerS i : teamSs) {
-                if(i == p) league.transferSs.add(i);
+                if(i == p) league.addToTransferPool(i);
                 break;
             }
             teamSs.remove(p);
@@ -2385,7 +2385,7 @@ public class Team {
                     league.newsStories.get(league.currentWeek + 1).add(name + " Grad Transfer>" + name + " QB " + teamQBs.get(i).name + " has announced that he will be leaving the school to attend Grad school elsewhere. He will start his search for a new school immediately.");
                 }
                 playersTransferring.add(teamQBs.get(i));
-                league.transferQBs.add(teamQBs.get(i));
+                league.addToTransferPool(teamQBs.get(i));
                 teamQBs.remove(i);
             }
             ++i;
@@ -2416,7 +2416,7 @@ public class Team {
                         league.newsStories.get(league.currentWeek + 1).add(name + " Grad Transfer>" + name + " RB " + teamRBs.get(i).name + " has announced that he will be leaving the school to attend Grad school elsewhere. He will start his search for a new school immediately.");
                     }
                     playersTransferring.add(teamRBs.get(i));
-                    league.transferRBs.add(teamRBs.get(i));
+                    league.addToTransferPool(teamRBs.get(i));
                     teamRBs.remove(i);
                 }
             }
@@ -2448,7 +2448,7 @@ public class Team {
                         league.newsStories.get(league.currentWeek + 1).add(name + " Grad Transfer>" + name + " WR " + teamWRs.get(i).name + " has announced that he will be leaving the school to attend Grad school elsewhere. He will start his search for a new school immediately.");
                     }
                     playersTransferring.add(teamWRs.get(i));
-                    league.transferWRs.add(teamWRs.get(i));
+                    league.addToTransferPool(teamWRs.get(i));
                     teamWRs.remove(i);
                 }
             }
@@ -2478,7 +2478,7 @@ public class Team {
                     league.newsStories.get(league.currentWeek + 1).add(name + " Grad Transfer>" + name + " TE " + teamTEs.get(i).name + " has announced that he will be leaving the school to attend Grad school elsewhere. He will start his search for a new school immediately.");
                 }
                 playersTransferring.add(teamTEs.get(i));
-                league.transferTEs.add(teamTEs.get(i));
+                league.addToTransferPool(teamTEs.get(i));
                 teamTEs.remove(i);
             }
             ++i;
@@ -2508,7 +2508,7 @@ public class Team {
                         league.newsStories.get(league.currentWeek + 1).add(name + " Grad Transfer>" + name + " OL " + teamOLs.get(i).name + " has announced that he will be leaving the school to attend Grad school elsewhere. He will start his search for a new school immediately.");
                     }
                     playersTransferring.add(teamOLs.get(i));
-                    league.transferOLs.add(teamOLs.get(i));
+                    league.addToTransferPool(teamOLs.get(i));
                     teamOLs.remove(i);
                 }
             }
@@ -2538,7 +2538,7 @@ public class Team {
                     league.newsStories.get(league.currentWeek + 1).add(name + " Grad Transfer>" + name + " K " + teamKs.get(i).name + " has announced that he will be leaving the school to attend Grad school elsewhere. He will start his search for a new school immediately.");
                 }
                 playersTransferring.add(teamKs.get(i));
-                league.transferKs.add(teamKs.get(i));
+                league.addToTransferPool(teamKs.get(i));
                 teamKs.remove(i);
             }
             ++i;
@@ -2569,7 +2569,7 @@ public class Team {
                         league.newsStories.get(league.currentWeek + 1).add(name + " Grad Transfer>" + name + " DL " + teamDLs.get(i).name + " has announced that he will be leaving the school to attend Grad school elsewhere. He will start his search for a new school immediately.");
                     }
                     playersTransferring.add(teamDLs.get(i));
-                    league.transferDLs.add(teamDLs.get(i));
+                    league.addToTransferPool(teamDLs.get(i));
                     teamDLs.remove(i);
                 }
             }
@@ -2600,7 +2600,7 @@ public class Team {
                         league.newsStories.get(league.currentWeek + 1).add(name + " Grad Transfer>" + name + " LB " + teamLBs.get(i).name + " has announced that he will be leaving the school to attend Grad school elsewhere. He will start his search for a new school immediately.");
                     }
                     playersTransferring.add(teamLBs.get(i));
-                    league.transferLBs.add(teamLBs.get(i));
+                    league.addToTransferPool(teamLBs.get(i));
                     teamLBs.remove(i);
                 }
             }
@@ -2632,7 +2632,7 @@ public class Team {
                         league.newsStories.get(league.currentWeek + 1).add(name + " Grad Transfer>" + name + " CB " + teamCBs.get(i).name + " has announced that he will be leaving the school to attend Grad school elsewhere. He will start his search for a new school immediately.");
                     }
                     playersTransferring.add(teamCBs.get(i));
-                    league.transferCBs.add(teamCBs.get(i));
+                    league.addToTransferPool(teamCBs.get(i));
                     teamCBs.remove(i);
                 }
             }
@@ -2663,7 +2663,7 @@ public class Team {
                         league.newsStories.get(league.currentWeek + 1).add(name + " Grad Transfer>" + name + " S " + teamSs.get(i).name + " has announced that he will be leaving the school to attend Grad school elsewhere. He will start his search for a new school immediately.");
                     }
                     playersTransferring.add(teamSs.get(i));
-                    league.transferSs.add(teamSs.get(i));
+                    league.addToTransferPool(teamSs.get(i));
                     teamSs.remove(i);
                 }
             }
