@@ -54,6 +54,23 @@ public class RecruitingView extends JDialog {
     private static final String[] BOARD_COLUMNS = {"Pos", "Name", "Stars", "Cost", "OVR"};
     private static final Font MONO = new Font("Monospaced", Font.PLAIN, 12);
 
+    // Minimum roster sizes per position (used for need calculations)
+    private static final int MIN_QBS = 2;
+    private static final int MIN_RBS = 3;
+    private static final int MIN_WRS = 4;
+    private static final int MIN_TES = 2;
+    private static final int MIN_OLS = 6;
+    private static final int MIN_KS  = 1;
+    private static final int MIN_DLS = 4;
+    private static final int MIN_LBS = 4;
+    private static final int MIN_CBS = 4;
+    private static final int MIN_SS  = 2;
+
+    /** Minimum total roster size used for budget bonuses. */
+    private static final int MIN_ROSTER_SIZE = 55;
+    /** Maximum roster size shown in recruit confirmation dialog. */
+    private static final int MAX_ROSTER_SIZE = 70;
+
     private final League league;
     private final RecruitingController controller;
     private final RecruitingSessionData sessionData;
@@ -86,10 +103,11 @@ public class RecruitingView extends JDialog {
         this.league = league;
         this.sessionData = buildSessionData(league.userTeam);
         this.controller = new RecruitingController(sessionData, flowManager);
-        this.needs = sessionData.calculateNeeds(2, 3, 4, 2, 6, 1, 4, 4, 4, 2);
+        this.needs = sessionData.calculateNeeds(MIN_QBS, MIN_RBS, MIN_WRS, MIN_TES, MIN_OLS,
+                MIN_KS, MIN_DLS, MIN_LBS, MIN_CBS, MIN_SS);
         this.positionLabels = sessionData.buildPositionLabels(needs);
 
-        sessionData.applyBudgetBonuses(55);
+        sessionData.applyBudgetBonuses(MIN_ROSTER_SIZE);
         setSize(1100, 700);
         setLayout(new BorderLayout());
 
@@ -272,7 +290,8 @@ public class RecruitingView extends JDialog {
 
         // Refresh filter labels to update counts
         RecruitingSessionData.PositionNeeds currentNeeds =
-                sessionData.calculateNeeds(2, 3, 4, 2, 6, 1, 4, 4, 4, 2);
+                sessionData.calculateNeeds(MIN_QBS, MIN_RBS, MIN_WRS, MIN_TES, MIN_OLS,
+                        MIN_KS, MIN_DLS, MIN_LBS, MIN_CBS, MIN_SS);
         ArrayList<String> newLabels = sessionData.buildPositionLabels(currentNeeds);
         int sel = filterBox.getSelectedIndex();
         filterBox.removeAllItems();
@@ -286,7 +305,8 @@ public class RecruitingView extends JDialog {
 
     private void updateRoster() {
         RecruitingSessionData.PositionNeeds currentNeeds =
-                sessionData.calculateNeeds(2, 3, 4, 2, 6, 1, 4, 4, 4, 2);
+                sessionData.calculateNeeds(MIN_QBS, MIN_RBS, MIN_WRS, MIN_TES, MIN_OLS,
+                        MIN_KS, MIN_DLS, MIN_LBS, MIN_CBS, MIN_SS);
         rosterArea.setText(RecruitingPresentation.buildRosterText(sessionData, currentNeeds));
         rosterArea.setCaretPosition(0);
     }
@@ -358,7 +378,7 @@ public class RecruitingView extends JDialog {
             return;
         }
 
-        String msg = RecruitingPresentation.buildRecruitConfirmMessage(sessionData, 70, recruit);
+        String msg = RecruitingPresentation.buildRecruitConfirmMessage(sessionData, MAX_ROSTER_SIZE, recruit);
         int choice = JOptionPane.showConfirmDialog(this, msg, "Confirm Recruit", JOptionPane.YES_NO_OPTION);
         if (choice != JOptionPane.YES_OPTION) return;
 
