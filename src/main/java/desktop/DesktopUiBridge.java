@@ -138,12 +138,12 @@ public class DesktopUiBridge implements GameUiBridge {
 
     @Override
     public void showRedshirtList() {
-        if (league.redshirts == null || league.redshirts.isEmpty()) {
+        if (league.redshirts == null || league.getRedshirts().isEmpty()) {
             showInfo("Redshirt List", "No players are currently on the redshirt list.");
             return;
         }
         StringBuilder sb = new StringBuilder("Players on the redshirt list:\n\n");
-        for (positions.Player p : league.redshirts) {
+        for (positions.Player p : league.getRedshirts()) {
             sb.append(p.position).append("  ").append(p.name).append("\n");
         }
         showScrollableText("Redshirt List", sb.toString());
@@ -211,7 +211,7 @@ public class DesktopUiBridge implements GameUiBridge {
               .append("  (").append(t.wins).append("-").append(t.losses).append(")\n\n");
         }
         sb.append("Top 5 by prestige:\n");
-        league.teamList.stream()
+        league.getTeamList().stream()
                 .sorted(java.util.Comparator.comparingInt((simulation.Team t) -> t.teamPrestige).reversed())
                 .limit(5)
                 .forEach(t -> sb.append("  ").append(t.name)

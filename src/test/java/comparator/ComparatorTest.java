@@ -46,10 +46,10 @@ public class ComparatorTest {
         league.setPlatformResourceProvider(res);
 
         // Use the first three teams in the league for controlled comparisons
-        assertTrue("League must have at least 3 teams", league.teamList.size() >= 3);
-        teamA = league.teamList.get(0);
-        teamB = league.teamList.get(1);
-        teamC = league.teamList.get(2);
+        assertTrue("League must have at least 3 teams", league.getTeamList().size() >= 3);
+        teamA = league.getTeamList().get(0);
+        teamB = league.getTeamList().get(1);
+        teamC = league.getTeamList().get(2);
     }
 
     // -------------------------------------------------------------------------
@@ -238,8 +238,8 @@ public class ComparatorTest {
 
     @Test
     public void compConfPrestige_higherPrestige_sortsFirst() {
-        simulation.Conference confA = league.conferences.get(0);
-        simulation.Conference confB = league.conferences.get(1);
+        simulation.Conference confA = league.getConferences().get(0);
+        simulation.Conference confB = league.getConferences().get(1);
 
         confA.confPrestige = 90;
         confB.confPrestige = 50;

@@ -442,8 +442,8 @@ public class Game implements Serializable {
     public void playGame() {
         if (gameName.equals("BYE WEEK") && !hasPlayed) {
             hasPlayed = true;
-            homeTeam.gameWLSchedule.add("BYE");
-            awayTeam.gameWLSchedule.add("BYE");
+            homeTeam.addToGameWLSchedule("BYE");
+            awayTeam.addToGameWLSchedule("BYE");
             homeTeam.healInjury(1);
             awayTeam.healInjury(1);
         }
@@ -511,11 +511,11 @@ public class Game implements Serializable {
             //game over, add wins
             if (homeScore > awayScore) {
                 homeTeam.wins++;
-                homeTeam.gameWLSchedule.add("W");
+                homeTeam.addToGameWLSchedule("W");
                 awayTeam.losses++;
-                awayTeam.gameWLSchedule.add("L");
-                homeTeam.gameWinsAgainst.add(awayTeam);
-                awayTeam.gameLossesAgainst.add(homeTeam);
+                awayTeam.addToGameWLSchedule("L");
+                homeTeam.addGameWinAgainst(awayTeam);
+                awayTeam.addGameLossAgainst(homeTeam);
                 homeTeam.winStreak.addWin(homeTeam.league.getYear());
                 homeTeam.league.checkLongestWinStreak(homeTeam.winStreak);
                 awayTeam.winStreak.resetStreak(awayTeam.league.getYear());
@@ -523,11 +523,11 @@ public class Game implements Serializable {
                 awayTeam.HC.recordLosses(1);
             } else {
                 homeTeam.losses++;
-                homeTeam.gameWLSchedule.add("L");
+                homeTeam.addToGameWLSchedule("L");
                 awayTeam.wins++;
-                awayTeam.gameWLSchedule.add("W");
-                awayTeam.gameWinsAgainst.add(homeTeam);
-                homeTeam.gameLossesAgainst.add(awayTeam);
+                awayTeam.addToGameWLSchedule("W");
+                awayTeam.addGameWinAgainst(homeTeam);
+                homeTeam.addGameLossAgainst(awayTeam);
                 awayTeam.winStreak.addWin(awayTeam.league.getYear());
                 awayTeam.league.checkLongestWinStreak(awayTeam.winStreak);
                 homeTeam.winStreak.resetStreak(homeTeam.league.getYear());
@@ -2768,7 +2768,7 @@ public class Game implements Serializable {
                     if (z.injury != null && !z.isSuspended && !z.isTransfer) {
                         numInjured++;
                         if (z.injury == null) {
-                            t.playersInjured.remove(z);
+                            t.removePlayerInjured(z);
                         }
                     }
                 }
@@ -2778,7 +2778,7 @@ public class Game implements Serializable {
                     if (Math.random() < Math.pow(1 - (double) p.ratDurability / 125, 3) && numInjured < numStarters) {
                         // injury!
                         p.injury = new Injury(p);
-                        t.playersInjured.add(p);
+                        t.addPlayerInjured(p);
                         //Collections.sort(players, new CompPlayer());
                         Collections.sort(players, new CompPlayerPosDepth());
                         gameEventLog += getEventLog() + "MAJOR INJURY!\n" + t.abbr + " " + p.position + " " + p.name + " is out of the game with an injury.";
@@ -3496,9 +3496,9 @@ public class Game implements Serializable {
 
         //Weekly Scoreboard Update
         if (gameName.equals("Conference"))
-            homeTeam.league.weeklyScores.get(homeTeam.league.currentWeek + 1).add(homeTeam.conference + " " + gameName + ">#" + awayTeam.rankTeamPollScore + " " + awayTeam.name + " " + awayScore + "\n" + "#" + homeTeam.rankTeamPollScore + " " + homeTeam.name + " " + homeScore);
+            homeTeam.league.addWeeklyScore(homeTeam.league.currentWeek + 1, homeTeam.conference + " " + gameName + ">#" + awayTeam.rankTeamPollScore + " " + awayTeam.name + " " + awayScore + "\n" + "#" + homeTeam.rankTeamPollScore + " " + homeTeam.name + " " + homeScore);
         else
-            homeTeam.league.weeklyScores.get(homeTeam.league.currentWeek + 1).add(gameName + ">#" + awayTeam.rankTeamPollScore + " " + awayTeam.name + " " + awayScore + "\n" + "#" + homeTeam.rankTeamPollScore + " " + homeTeam.name + " " + homeScore);
+            homeTeam.league.addWeeklyScore(homeTeam.league.currentWeek + 1, gameName + ">#" + awayTeam.rankTeamPollScore + " " + awayTeam.name + " " + awayScore + "\n" + "#" + homeTeam.rankTeamPollScore + " " + homeTeam.name + " " + homeScore);
 
 
         if (numOT >= 3) {
@@ -3517,80 +3517,80 @@ public class Game implements Serializable {
                 loseScore = awayScore;
             }
 
-            homeTeam.league.newsStories.get(homeTeam.league.currentWeek + 1).add(
+            homeTeam.league.addNewsStory(homeTeam.league.currentWeek + 1,
                     numOT + "OT Thriller!>" + winner.getStrAbbrWL() + " and " + loser.getStrAbbrWL() + " played an absolutely thrilling game " +
                             "that went to " + numOT + " overtimes, with " + winner.name + " finally emerging victorious " + winScore + " to " + loseScore + ".");
         } else if (homeScore > awayScore && awayTeam.losses == 1 && awayTeam.league.currentWeek > 5 && awayTeam.rankTeamPollScore < awayTeam.league.countTeam) {
             // 5-0 or better team given first loss
-            awayTeam.league.newsStories.get(homeTeam.league.currentWeek + 1).add(
+            awayTeam.league.addNewsStory(homeTeam.league.currentWeek + 1,
                     "Undefeated no more! " + awayTeam.name + " suffers first loss!" +
                             ">" + homeTeam.getStrAbbrWL() + " hands " + awayTeam.getStrAbbrWL() +
                             " their first loss of the season, winning " + homeScore + " to " + awayScore + ".");
-            awayTeam.league.newsHeadlines.add("Undefeated no more! " + awayTeam.name + " suffers first loss!");
+            awayTeam.league.addNewsHeadline("Undefeated no more! " + awayTeam.name + " suffers first loss!");
 
         } else if (awayScore > homeScore && homeTeam.losses == 1 && homeTeam.league.currentWeek > 5 && homeTeam.rankTeamPollScore < homeTeam.league.countTeam) {
             // 5-0 or better team given first loss
-            homeTeam.league.newsStories.get(homeTeam.league.currentWeek + 1).add(
+            homeTeam.league.addNewsStory(homeTeam.league.currentWeek + 1,
                     "Undefeated no more! " + homeTeam.name + " suffers first loss!" +
                             ">" + awayTeam.getStrAbbrWL() + " hands " + homeTeam.getStrAbbrWL() +
                             " their first loss of the season, winning " + awayScore + " to " + homeScore + ".");
-            homeTeam.league.newsHeadlines.add("Undefeated no more! " + homeTeam.name + " suffers first loss!");
+            homeTeam.league.addNewsHeadline("Undefeated no more! " + homeTeam.name + " suffers first loss!");
 
         } else if (awayScore > homeScore && homeTeam.rankTeamPollScore < 20 &&
                 (awayTeam.rankTeamPollScore - homeTeam.rankTeamPollScore) > 20 && !awayTeam.name.contains("FCS") && !homeTeam.name.contains("FCS")) {
             // Upset!
-            awayTeam.league.newsStories.get(awayTeam.league.currentWeek + 1).add(
+            awayTeam.league.addNewsStory(awayTeam.league.currentWeek + 1,
                     "Upset! " + awayTeam.getStrAbbrWL() + " beats " + homeTeam.getStrAbbrWL() +
                             ">#" + awayTeam.rankTeamPollScore + " " + awayTeam.name + " was able to pull off the upset on the road against #" +
                             homeTeam.rankTeamPollScore + " " + homeTeam.name + ", winning " + awayScore + " to " + homeScore + ".");
-            awayTeam.league.newsHeadlines.add("Upset! " + awayTeam.getStrAbbrWL() + " beats " + homeTeam.getStrAbbrWL());
+            awayTeam.league.addNewsHeadline("Upset! " + awayTeam.getStrAbbrWL() + " beats " + homeTeam.getStrAbbrWL());
 
         } else if (homeScore > awayScore && awayTeam.rankTeamPollScore < 20 &&
                 (homeTeam.rankTeamPollScore - awayTeam.rankTeamPollScore) > 20 && !awayTeam.name.contains("FCS") && !homeTeam.name.contains("FCS")) {
             // Upset!
-            homeTeam.league.newsStories.get(homeTeam.league.currentWeek + 1).add(
+            homeTeam.league.addNewsStory(homeTeam.league.currentWeek + 1,
                     "Upset! " + homeTeam.getStrAbbrWL() + " beats " + awayTeam.getStrAbbrWL() +
                             ">#" + homeTeam.rankTeamPollScore + " " + homeTeam.name + " was able to pull off the upset at home against #" +
                             awayTeam.rankTeamPollScore + " " + awayTeam.name + ", winning " + homeScore + " to " + awayScore + ".");
-            homeTeam.league.newsHeadlines.add("Upset! " + homeTeam.getStrAbbrWL() + " beats " + awayTeam.getStrAbbrWL());
+            homeTeam.league.addNewsHeadline("Upset! " + homeTeam.getStrAbbrWL() + " beats " + awayTeam.getStrAbbrWL());
 
         } else if (awayScore > homeScore && homeTeam.rankTeamPollScore < 40 && awayTeam.name.contains("FCS") && !homeTeam.name.contains("FCS")) {
             // Upset!
-            awayTeam.league.newsStories.get(awayTeam.league.currentWeek + 1).add(
+            awayTeam.league.addNewsStory(awayTeam.league.currentWeek + 1,
                     "Upset! " + awayTeam.getStrAbbrWL() + " beats " + homeTeam.getStrAbbrWL() +
                             ">#" + awayTeam.rankTeamPollScore + " " + awayTeam.name + " was able to pull off the upset on the road against #" +
                             homeTeam.rankTeamPollScore + " " + homeTeam.name + ", winning " + awayScore + " to " + homeScore + ".");
-            awayTeam.league.newsHeadlines.add("Upset! " + awayTeam.getStrAbbrWL() + " beats " + homeTeam.getStrAbbrWL());
+            awayTeam.league.addNewsHeadline("Upset! " + awayTeam.getStrAbbrWL() + " beats " + homeTeam.getStrAbbrWL());
 
         } else if (homeScore > awayScore && awayTeam.rankTeamPollScore < 20 && awayTeam.name.contains("FCS") && !homeTeam.name.contains("FCS")) {
             // Upset!
-            homeTeam.league.newsStories.get(homeTeam.league.currentWeek + 1).add(
+            homeTeam.league.addNewsStory(homeTeam.league.currentWeek + 1,
                     "Upset! " + homeTeam.getStrAbbrWL() + " beats " + awayTeam.getStrAbbrWL() +
                             ">#" + homeTeam.rankTeamPollScore + " " + homeTeam.name + " was able to pull off the upset at home against #" +
                             awayTeam.rankTeamPollScore + " " + awayTeam.name + ", winning " + homeScore + " to " + awayScore + ".");
-            homeTeam.league.newsHeadlines.add("Upset! " + homeTeam.getStrAbbrWL() + " beats " + awayTeam.getStrAbbrWL());
+            homeTeam.league.addNewsHeadline("Upset! " + homeTeam.getStrAbbrWL() + " beats " + awayTeam.getStrAbbrWL());
         }
 
 
         if (homeTeam.league.currentWeek < 12) {
             if (awayTeam.rankTeamPollScore < 11 && homeTeam.rankTeamPollScore < 11) {
                 if (awayScore > homeScore) {
-                    homeTeam.league.newsStories.get(homeTeam.league.currentWeek + 1).add("#" + awayTeam.rankTeamPollScore + " " + awayTeam.name + " defeats #" +
+                    homeTeam.league.addNewsStory(homeTeam.league.currentWeek + 1, "#" + awayTeam.rankTeamPollScore + " " + awayTeam.name + " defeats #" +
                             homeTeam.rankTeamPollScore + " " + homeTeam.name + ">" + awayTeam.getStrAbbrWL() + " went on the road and beat " + homeTeam.getStrAbbrWL() + " today, " + awayScore + " - " + homeScore + ", in the Game of the Week.");
-                    homeTeam.league.newsHeadlines.add("#" + awayTeam.rankTeamPollScore + " " + awayTeam.name + " defeats #" + homeTeam.rankTeamPollScore + " " + homeTeam.name);
+                    homeTeam.league.addNewsHeadline("#" + awayTeam.rankTeamPollScore + " " + awayTeam.name + " defeats #" + homeTeam.rankTeamPollScore + " " + homeTeam.name);
 
                 } else {
-                    homeTeam.league.newsStories.get(homeTeam.league.currentWeek + 1).add("#" + homeTeam.rankTeamPollScore + " " + homeTeam.name + " defeats #" +
+                    homeTeam.league.addNewsStory(homeTeam.league.currentWeek + 1, "#" + homeTeam.rankTeamPollScore + " " + homeTeam.name + " defeats #" +
                             awayTeam.rankTeamPollScore + " " + awayTeam.name + ">" + homeTeam.getStrAbbrWL() + " defeated " + awayTeam.getStrAbbrWL() + " at home today, " + homeScore + " - " + awayScore + ", in an important game of the season between two Top 10 schools.");
-                    awayTeam.league.newsHeadlines.add("#" + homeTeam.rankTeamPollScore + " " + homeTeam.name + " defeats #" + awayTeam.rankTeamPollScore + " " + awayTeam.name);
+                    awayTeam.league.addNewsHeadline("#" + homeTeam.rankTeamPollScore + " " + homeTeam.name + " defeats #" + awayTeam.rankTeamPollScore + " " + awayTeam.name);
 
                 }
             } else if (awayTeam.rankTeamPollScore < 26 && homeTeam.rankTeamPollScore < 26) {
                 if (awayScore > homeScore) {
-                    homeTeam.league.newsStories.get(homeTeam.league.currentWeek + 1).add("#" + awayTeam.rankTeamPollScore + " " + awayTeam.name + " defeats #" +
+                    homeTeam.league.addNewsStory(homeTeam.league.currentWeek + 1, "#" + awayTeam.rankTeamPollScore + " " + awayTeam.name + " defeats #" +
                             homeTeam.rankTeamPollScore + " " + homeTeam.name + ">" + awayTeam.getStrAbbrWL() + " defeated " + homeTeam.getStrAbbrWL() + " today, " + awayScore + " - " + homeScore + ", in a battle of two Top 25 ranked teams.");
                 } else {
-                    homeTeam.league.newsStories.get(homeTeam.league.currentWeek + 1).add("#" + homeTeam.rankTeamPollScore + " " + homeTeam.name + " defeats #" +
+                    homeTeam.league.addNewsStory(homeTeam.league.currentWeek + 1, "#" + homeTeam.rankTeamPollScore + " " + homeTeam.name + " defeats #" +
                             awayTeam.rankTeamPollScore + " " + awayTeam.name + ">" + homeTeam.getStrAbbrWL() + " defeated " + awayTeam.getStrAbbrWL() + " at home today, " + homeScore + " - " + awayScore + ", in one of the big match-ups of the week.");
                 }
             }
@@ -3600,37 +3600,37 @@ public class Game implements Serializable {
     public void addUpcomingGames(Team name) {
         if (name == awayTeam) {
             if (awayTeam.rankTeamPollScore < 11 && homeTeam.rankTeamPollScore < 11 && !awayTeam.name.contains("FCS") && !homeTeam.name.contains("FCS")) {
-                homeTeam.league.newsStories.get(homeTeam.league.currentWeek + 1).add("Upcoming Game: #" + awayTeam.rankTeamPollScore + " " + awayTeam.name + " vs #" +
+                homeTeam.league.addNewsStory(homeTeam.league.currentWeek + 1, "Upcoming Game: #" + awayTeam.rankTeamPollScore + " " + awayTeam.name + " vs #" +
                         homeTeam.rankTeamPollScore + " " + homeTeam.name + ">The premier game of the week has " + awayTeam.getStrAbbrWL() + " visiting " + homeTeam.getStrAbbrWL() + ", as these two Top Ten teams fight for a crucial playoff spot. " +
                         awayTeam.name + " plays a " + awayTeam.playbookOff.getStratName() + " offense, which is averaging " + (awayTeam.teamYards / awayTeam.numGames()) + " yards per game. " + homeTeam.name + " plays a " +
                         homeTeam.playbookOff.getStratName() + " offense, averaging " + (homeTeam.teamYards / homeTeam.numGames()) + " yards per game.");
             } else if (awayTeam.rankTeamPollScore < 26 && homeTeam.rankTeamPollScore < 26 && !awayTeam.name.contains("FCS") && !homeTeam.name.contains("FCS")) {
-                homeTeam.league.newsStories.get(homeTeam.league.currentWeek + 1).add("Upcoming Game: #" + awayTeam.rankTeamPollScore + " " + awayTeam.name + " vs #" +
+                homeTeam.league.addNewsStory(homeTeam.league.currentWeek + 1, "Upcoming Game: #" + awayTeam.rankTeamPollScore + " " + awayTeam.name + " vs #" +
                         homeTeam.rankTeamPollScore + " " + homeTeam.name + ">Next week, " + awayTeam.getStrAbbrWL() + " visits " + homeTeam.getStrAbbrWL() + " in a battle of two ranked schools. " +
                         awayTeam.name + " plays a " + awayTeam.playbookOff.getStratName() + " offense, which is averaging " + (awayTeam.teamYards / awayTeam.numGames()) + " yards per game. " + homeTeam.name + " plays a " +
                         homeTeam.playbookOff.getStratName() + " offense, averaging " + (homeTeam.teamYards / homeTeam.numGames()) + " yards per game.");
             }
             if (awayTeam.league.currentWeek + 2 < awayTeam.league.regSeasonWeeks + 5)
-                awayTeam.league.weeklyScores.get(homeTeam.league.currentWeek + 2).add(gameName + ">" + awayTeam.strRankTeamRecord() + "\n" + homeTeam.strRankTeamRecord());
+                awayTeam.league.addWeeklyScore(homeTeam.league.currentWeek + 2, gameName + ">" + awayTeam.strRankTeamRecord() + "\n" + homeTeam.strRankTeamRecord());
         }
     }
 
     public void addNewSeasonGames(Team name) {
         if (name == awayTeam) {
             if (awayTeam.rankTeamPollScore < 11 && homeTeam.rankTeamPollScore < 11 && !awayTeam.name.contains("FCS") && !homeTeam.name.contains("FCS")) {
-                homeTeam.league.newsStories.get(0).add("Kick-Off: #" + awayTeam.rankTeamPollScore + " " + awayTeam.name + " vs #" +
+                homeTeam.league.addNewsStory(0, "Kick-Off: #" + awayTeam.rankTeamPollScore + " " + awayTeam.name + " vs #" +
                         homeTeam.rankTeamPollScore + " " + homeTeam.name + ">The season kicks off with an exciting game between vistors " + awayTeam.name + " and home team, " + homeTeam.name + ". " +
                         "These two teams are in the pre-season Top Ten, and both are expected to have big seasons this year. " + awayTeam.name + " plays a " + awayTeam.playbookOff.getStratName() + " offense, while " + homeTeam.name + " plays a " +
                         homeTeam.playbookOff.getStratName() + " offense.");
 
             } else if (awayTeam.rankTeamPollScore < 26 && homeTeam.rankTeamPollScore < 26 && !awayTeam.name.contains("FCS") && !homeTeam.name.contains("FCS")) {
-                homeTeam.league.newsStories.get(0).add("Kick-Off: #" + awayTeam.rankTeamPollScore + " " + awayTeam.name + " vs #" +
+                homeTeam.league.addNewsStory(0, "Kick-Off: #" + awayTeam.rankTeamPollScore + " " + awayTeam.name + " vs #" +
                         homeTeam.rankTeamPollScore + " " + homeTeam.name + ">The " + homeTeam.league.getYear() + " season starts off with " + awayTeam.name + " visiting " + homeTeam.name
                         + " in one of the interesting early season games pitting two ranked teams. " + awayTeam.name + " plays a " + awayTeam.playbookOff.getStratName() + " offense, while " + homeTeam.name + " plays a " +
                         homeTeam.playbookOff.getStratName() + " offense.");
             }
         }
-        awayTeam.league.weeklyScores.get(1).add(gameName + ">" + awayTeam.strRankTeamRecord() + "\n" + homeTeam.strRankTeamRecord());
+        awayTeam.league.addWeeklyScore(1, gameName + ">" + awayTeam.strRankTeamRecord() + "\n" + homeTeam.strRankTeamRecord());
 
     }
 

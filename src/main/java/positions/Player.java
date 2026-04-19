@@ -531,7 +531,7 @@ public class Player {
     public void checkRedshirt() {
 
         if(isRedshirt || isMedicalRS) {
-            team.redshirtList.add(position + " " + name + "  [" + ratOvr + "]");
+            team.addRedshirt(position + " " + name + "  [" + ratOvr + "]");
         }
 
         if (isTransfer || isRedshirt || isMedicalRS) {
@@ -540,7 +540,7 @@ public class Player {
             isMedicalRS = false;
             wasRedshirt = true;
         } else if (getGames() <= 4 && !wasRedshirt) {
-            team.redshirtList.add(position + " " + name + "  [" + ratOvr + "]");
+            team.addRedshirt(position + " " + name + "  [" + ratOvr + "]");
             wasRedshirt = true;
         } else {
             seasonStatstoCareer();
