@@ -6,9 +6,11 @@ import simulation.DataRecord;
 import simulation.Game;
 import simulation.GameFlowManager;
 import simulation.League;
+import simulation.LeagueExportController;
 import simulation.LeagueLaunchCoordinator;
 import simulation.LeagueRecord;
 import simulation.PlatformLog;
+import simulation.PlatformResourceProvider;
 import simulation.PlayerRecord;
 import simulation.SeasonController;
 import simulation.Team;
@@ -161,6 +163,13 @@ public class LeagueHomeView extends JFrame {
         JMenu file = new JMenu("File");
         file.setMnemonic(KeyEvent.VK_F);
 
+        JMenuItem openItem = new JMenuItem("Open\u2026");
+        openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
+        openItem.addActionListener(e -> openSaveFile());
+        file.add(openItem);
+
+        file.addSeparator();
+
         JMenuItem saveItem = new JMenuItem("Save");
         saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
         saveItem.addActionListener(e -> saveLeague(false));
@@ -171,6 +180,12 @@ public class LeagueHomeView extends JFrame {
                 KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK));
         saveAsItem.addActionListener(e -> saveLeague(true));
         file.add(saveAsItem);
+
+        file.addSeparator();
+
+        JMenuItem exportItem = new JMenuItem("Export Save\u2026");
+        exportItem.addActionListener(e -> exportLeague());
+        file.add(exportItem);
 
         file.addSeparator();
 
@@ -202,6 +217,16 @@ public class LeagueHomeView extends JFrame {
         season.add(advanceFull);
 
         bar.add(season);
+
+        JMenu team = new JMenu("Team");
+        team.setMnemonic(KeyEvent.VK_T);
+
+        JMenuItem playbookItem = new JMenuItem("Playbooks\u2026");
+        playbookItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_DOWN_MASK));
+        playbookItem.addActionListener(e -> showPlaybookDialog());
+        team.add(playbookItem);
+
+        bar.add(team);
 
         JMenu view = new JMenu("View");
         view.setMnemonic(KeyEvent.VK_V);
@@ -456,6 +481,81 @@ public class LeagueHomeView extends JFrame {
     }
 
     // =========================================================================
+    // Open / Import / Export
+    // =========================================================================
+
+    private void openSaveFile() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Open Save File");
+        chooser.setFileFilter(new FileNameExtensionFilter(
+                "CFB Save (*." + SAVE_EXTENSION + ", *.txt)",
+                SAVE_EXTENSION, "txt"));
+        int result = chooser.showOpenDialog(this);
+        if (result != JFileChooser.APPROVE_OPTION) return;
+
+        File file = chooser.getSelectedFile();
+        if (!file.isFile()) {
+            JOptionPane.showMessageDialog(this, "File not found:\n" + file.getAbsolutePath(),
+                    "Open Failed", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        try {
+            DesktopResourceProvider resources = new DesktopResourceProvider(System.getProperty("user.dir"));
+            League league = new League(
+                    file,
+                    resources.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
+                    resources.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES),
+                    false
+            );
+            league.setPlatformResourceProvider(resources);
+            PlatformLog.i(TAG, "Loaded save from " + file.getAbsolutePath());
+            LeagueHomeView.show(league, file);
+        } catch (Exception ex) {
+            PlatformLog.e(TAG, "Error opening save file", ex);
+            JOptionPane.showMessageDialog(this,
+                    "Failed to open save file:\n" + ex.getMessage(),
+                    "Open Failed", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void exportLeague() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Export League Save");
+        chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        int result = chooser.showDialog(this, "Export Here");
+        if (result != JFileChooser.APPROVE_OPTION) return;
+
+        File exportDir = chooser.getSelectedFile();
+        try {
+            File exported = LeagueExportController.exportPrimarySave(exportDir, leagueCore);
+            PlatformLog.i(TAG, "Exported to " + exported.getAbsolutePath());
+            JOptionPane.showMessageDialog(this,
+                    "League exported to:\n" + exported.getAbsolutePath(),
+                    "Export Successful", JOptionPane.INFORMATION_MESSAGE);
+        } catch (Exception ex) {
+            PlatformLog.e(TAG, "Error exporting league", ex);
+            JOptionPane.showMessageDialog(this,
+                    "Failed to export league:\n" + ex.getMessage(),
+                    "Export Failed", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    // =========================================================================
+    // Team menu
+    // =========================================================================
+
+    private void showPlaybookDialog() {
+        if (leagueCore.userTeam == null) {
+            JOptionPane.showMessageDialog(this,
+                    "No user team selected. Start a new game with a team to access playbooks.",
+                    "No Team", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        PlaybookDialog.show(this, leagueCore.userTeam);
+    }
+
+    // =========================================================================
     // View menu dialogs
     // =========================================================================
 
@@ -467,8 +567,10 @@ public class LeagueHomeView extends JFrame {
                         + "  Space\t\t\tPlay next week\n"
                         + "  Ctrl+A\t\tAdvance regular season\n"
                         + "  Ctrl+Shift+A\tAdvance full year\n"
+                        + "  Ctrl+O\t\tOpen save file\n"
                         + "  Ctrl+S\t\tSave league\n"
                         + "  Ctrl+Shift+S\tSave As\u2026\n"
+                        + "  Ctrl+P\t\tPlaybooks\n"
                         + "  Ctrl+Q\t\tExit\n",
                 "About CFB Coach",
                 JOptionPane.INFORMATION_MESSAGE);

@@ -185,8 +185,18 @@ public class DesktopUiBridge implements GameUiBridge {
 
     @Override
     public void startRecruitingFlow() {
-        // Auto-recruit all CPU teams (including the user's team in desktop mode).
+        // Auto-recruit all CPU teams first.
         league.recruitPlayers();
+
+        // If there is a user-controlled team, show the interactive recruiting UI.
+        if (league.userTeam != null && league.userTeam.isUserControlled()) {
+            String recruitsData = RecruitingView.showRecruiting(owner, league);
+            if (recruitsData != null && !recruitsData.isEmpty()) {
+                league.userTeam.recruitPlayersFromStr(recruitsData);
+                league.updateTeamTalentRatings();
+            }
+        }
+
         newSeasonPending = true;
     }
 
