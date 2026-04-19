@@ -175,7 +175,7 @@ public final class LeagueLaunchCoordinator {
                     if (userTeam == null) {
                         throw new IOException("Loaded recruiting resume save without a user team");
                     }
-                    userTeam.HC.user = true;
+                    userTeam.getHeadCoach().user = true;
                     if (request.recruits != null && !request.recruits.isEmpty()) {
                         userTeam.recruitPlayersFromStr(request.recruits);
                     }
@@ -192,7 +192,7 @@ public final class LeagueLaunchCoordinator {
                     if (userTeam == null) {
                         throw new IOException("Imported save did not contain a user team");
                     }
-                    userTeam.HC.user = true;
+                    userTeam.getHeadCoach().user = true;
                     league.updateTeamTalentRatings();
                     return new LaunchResult(league, userTeam, userTeam, league.getYear(), true, false, false);
                 }
@@ -204,7 +204,7 @@ public final class LeagueLaunchCoordinator {
                     if (userTeam == null) {
                         throw new IOException("Loaded save did not contain a user team");
                     }
-                    userTeam.HC.user = true;
+                    userTeam.getHeadCoach().user = true;
                     league.updateTeamTalentRatings();
                     return new LaunchResult(league, userTeam, userTeam, league.getYear(), true, false, league.getYear() == seasonStart);
                 }

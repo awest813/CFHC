@@ -7,7 +7,7 @@ import simulation.Team;
 public class CompTeamHoFCount implements Comparator<Team> {
     @Override
     public int compare(Team a, Team b) {
-        return a.HoFCount > b.HoFCount ? -1 : a.HoFCount == b.HoFCount ? 0 : 1;
+        return a.getHoFCount() > b.getHoFCount() ? -1 : a.getHoFCount() == b.getHoFCount() ? 0 : 1;
     }
 }
 

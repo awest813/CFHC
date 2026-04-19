@@ -57,18 +57,18 @@ final class LeagueHistoryDialogController {
                             AdapterView<?> parent, View view, int position, long id) {
                         if (position == 1) {
                             final LeagueRecordsList leagueRecordsAdapter =
-                                    new LeagueRecordsList(activity, simLeague.getLeagueRecordsStr().split("\n"), userTeam.abbr, userTeam.name);
+                                    new LeagueRecordsList(activity, simLeague.getLeagueRecordsStr().split("\n"), userTeam.getAbbr(), userTeam.getName());
                             leagueHistoryList.setAdapter(leagueRecordsAdapter);
                         } else if (position == 2) {
                             showLeagueHistoryStats(activity, simLeague, userTeam);
                         } else if (position == 3) {
-                            HallofFameList hofAdapter = new HallofFameList(activity, hofPlayers, userTeam.name, false, activity);
+                            HallofFameList hofAdapter = new HallofFameList(activity, hofPlayers, userTeam.getName(), false, activity);
                             leagueHistoryList.setAdapter(hofAdapter);
                         } else if (position == 4) {
                             showCoachDatabase(activity, simLeague, userTeam);
                         } else {
                             final LeagueHistoryList leagueHistoryAdapter =
-                                    new LeagueHistoryList(activity, simLeague.getLeagueHistoryStr().split("%"), userTeam.abbr);
+                                    new LeagueHistoryList(activity, simLeague.getLeagueHistoryStr().split("%"), userTeam.getAbbr());
                             leagueHistoryList.setAdapter(leagueHistoryAdapter);
                         }
                     }
@@ -106,7 +106,7 @@ final class LeagueHistoryDialogController {
 
         final ListView teamRankingsList = dialog.findViewById(R.id.listViewTeamRankings);
         final ui.TeamRankingsList teamRankingsAdapter =
-                new ui.TeamRankingsList(activity, rankings, userTeam.name);
+                new ui.TeamRankingsList(activity, rankings, userTeam.getName());
         teamRankingsList.setAdapter(teamRankingsAdapter);
 
         teamRankingsSpinner.setOnItemSelectedListener(
@@ -114,7 +114,7 @@ final class LeagueHistoryDialogController {
                     public void onItemSelected(
                             AdapterView<?> parent, View view, int position, long id) {
                         ArrayList<String> rankings = simLeague.getLeagueHistoryStats(position);
-                        teamRankingsAdapter.setUserTeamStrRep(userTeam.name);
+                        teamRankingsAdapter.setUserTeamStrRep(userTeam.getName());
                         teamRankingsAdapter.clear();
                         teamRankingsAdapter.addAll(rankings);
                         teamRankingsAdapter.notifyDataSetChanged();
@@ -154,7 +154,7 @@ final class LeagueHistoryDialogController {
 
         final ListView teamRankingsList = dialog.findViewById(R.id.listViewTeamRankings);
         final CoachDatabase coachDatabase =
-                new CoachDatabase(activity, rankings, userTeam.name, activity, userNames);
+                new CoachDatabase(activity, rankings, userTeam.getName(), activity, userNames);
         teamRankingsList.setAdapter(coachDatabase);
 
         teamRankingsSpinner.setOnItemSelectedListener(
@@ -162,7 +162,7 @@ final class LeagueHistoryDialogController {
                     public void onItemSelected(
                             AdapterView<?> parent, View view, int position, long id) {
                         ArrayList<String> rankings = simLeague.getCoachDatabase(position);
-                        coachDatabase.setupUserHC(userTeam.HC.name + " (" + userTeam.abbr + ")");
+                        coachDatabase.setupUserHC(userTeam.getHeadCoach().getName() + " (" + userTeam.getAbbr() + ")");
                         coachDatabase.clear();
                         coachDatabase.addAll(rankings);
                         coachDatabase.notifyDataSetChanged();

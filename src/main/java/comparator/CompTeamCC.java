@@ -11,6 +11,6 @@ import simulation.Team;
 public class CompTeamCC implements Comparator<Team> {
     @Override
     public int compare(Team a, Team b) {
-        return a.totalCCs > b.totalCCs ? -1 : a.totalCCs == b.totalCCs ? 0 : 1;
+        return a.getTotalCCs() > b.getTotalCCs() ? -1 : a.getTotalCCs() == b.getTotalCCs() ? 0 : 1;
     }
 }

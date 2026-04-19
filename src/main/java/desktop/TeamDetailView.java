@@ -58,7 +58,7 @@ public class TeamDetailView extends JDialog {
 
     private static String dialogTitle(LeagueRecord.TeamRecord team, Team live) {
         if (live != null) {
-            return team.name() + "  \u2014  " + live.wins + "-" + live.losses;
+            return team.name() + "  \u2014  " + live.getWins() + "-" + live.getLosses();
         }
         return team.name() + " Roster";
     }
@@ -104,18 +104,18 @@ public class TeamDetailView extends JDialog {
             }
         };
 
-        for (int i = 0; i < liveTeam.gameSchedule.size(); i++) {
-            Game g = liveTeam.gameSchedule.get(i);
+        for (int i = 0; i < liveTeam.getGameSchedule().size(); i++) {
+            Game g = liveTeam.getGameSchedule().get(i);
             String opponent;
             String site;
             if ("BYE WEEK".equals(g.gameName)) {
                 opponent = "BYE";
                 site = "";
             } else if (g.homeTeam == liveTeam) {
-                opponent = g.awayTeam.name;
+                opponent = g.awayTeam.getName();
                 site = "Home";
             } else {
-                opponent = g.homeTeam.name;
+                opponent = g.homeTeam.getName();
                 site = "Away";
             }
             String result = formatResult(g, liveTeam);
@@ -213,7 +213,7 @@ public class TeamDetailView extends JDialog {
         footer.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10));
         String recordText = live != null
                 ? String.format("%s (%s)  \u2022  Record %d-%d  \u2022  Prestige %d  \u2022  Roster %d",
-                        team.name(), team.abbr(), live.wins, live.losses, team.prestige(), team.roster().size())
+                        team.name(), team.abbr(), live.getWins(), live.getLosses(), team.prestige(), team.roster().size())
                 : String.format("%s (%s)  \u2022  Prestige %d  \u2022  Roster %d",
                         team.name(), team.abbr(), team.prestige(), team.roster().size());
         footer.add(new JLabel(recordText));

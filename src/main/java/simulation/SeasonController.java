@@ -144,7 +144,7 @@ public final class SeasonController {
     }
 
     private void handleHireAssistants() {
-        if (league.userTeam.userControlled) {
+        if (league.userTeam.isUserControlled()) {
             // This usually triggers a separate flow/activity
             // flowManager.hireStaff(league.userTeam.strRep());
         }

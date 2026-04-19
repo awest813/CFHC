@@ -47,7 +47,7 @@ final class TeamRankingsDialogController {
 
         final ListView teamRankingsList = dialog.findViewById(R.id.listViewTeamRankings);
         final TeamRankingsList teamRankingsAdapter =
-                new TeamRankingsList(activity, rankings, userTeam.name);
+                new TeamRankingsList(activity, rankings, userTeam.getName());
         teamRankingsList.setAdapter(teamRankingsAdapter);
 
         teamRankingsSpinner.setOnItemSelectedListener(
@@ -56,9 +56,9 @@ final class TeamRankingsDialogController {
                             AdapterView<?> parent, View view, int position, long id) {
                         ArrayList<String> rankings = simLeague.getTeamRankingsStr(position);
 
-                        teamRankingsAdapter.setUserTeamStrRep(userTeam.name);
+                        teamRankingsAdapter.setUserTeamStrRep(userTeam.getName());
                         if (position == 16)
-                            teamRankingsAdapter.setUserTeamStrRep(userTeam.name + "\n" + userTeam.getTopRecruit());
+                            teamRankingsAdapter.setUserTeamStrRep(userTeam.getName() + "\n" + userTeam.getTopRecruit());
 
                         teamRankingsAdapter.clear();
                         teamRankingsAdapter.addAll(rankings);

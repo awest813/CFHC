@@ -11,6 +11,6 @@ import simulation.Team;
 public class CompTeamPYPG implements Comparator<Team> {
     @Override
     public int compare(Team a, Team b) {
-        return (float) a.teamPassYards / a.numGames() > (float) b.teamPassYards / b.numGames() ? -1 : (float) a.teamPassYards / a.numGames() == (float) b.teamPassYards / b.numGames() ? 0 : 1;
+        return (float) a.getTeamPassYards() / a.numGames() > (float) b.getTeamPassYards() / b.numGames() ? -1 : (float) a.getTeamPassYards() / a.numGames() == (float) b.getTeamPassYards() / b.numGames() ? 0 : 1;
     }
 }

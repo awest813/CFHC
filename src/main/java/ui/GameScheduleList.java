@@ -67,8 +67,8 @@ public class GameScheduleList extends ArrayAdapter<Game> {
                 // Do something on click
                 if (!games[position].gameName.equals("BYE WEEK")) {
                     if (games[position].awayTeam == team)
-                        mainAct.examineTeam(games[position].homeTeam.name);
-                    else mainAct.examineTeam(games[position].awayTeam.name);
+                        mainAct.examineTeam(games[position].homeTeam.getName());
+                    else mainAct.examineTeam(games[position].awayTeam.getName());
                 }
             }
         });

@@ -48,7 +48,7 @@ final class PlayerRankingsDialogController {
 
         final ListView playerRankingsList = dialog.findViewById(R.id.listViewTeamRankings);
         final PlayerRankingsList playerRankingsAdapter =
-                new PlayerRankingsList(activity, rankings, userTeam.abbr, activity);
+                new PlayerRankingsList(activity, rankings, userTeam.getAbbr(), activity);
         playerRankingsList.setAdapter(playerRankingsAdapter);
 
         playerRankingsSpinner.setOnItemSelectedListener(
@@ -56,7 +56,7 @@ final class PlayerRankingsDialogController {
                     public void onItemSelected(
                             AdapterView<?> parent, View view, int position, long id) {
                         ArrayList<String> rankings = simLeague.getPlayerRankStr(position);
-                        playerRankingsAdapter.setUserTeamStrRep(userTeam.abbr);
+                        playerRankingsAdapter.setUserTeamStrRep(userTeam.getAbbr());
                         playerRankingsAdapter.clear();
                         playerRankingsAdapter.addAll(rankings);
                         playerRankingsAdapter.notifyDataSetChanged();

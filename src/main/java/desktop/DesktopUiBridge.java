@@ -76,7 +76,7 @@ public class DesktopUiBridge implements GameUiBridge {
     public void disciplineAction(positions.Player player, String issue, int gamesA, int gamesB) {
         if (player == null) return;
         showInfo("Discipline",
-                player.name + " (" + player.position + ", " + player.team.name + ")\n"
+                player.name + " (" + player.position + ", " + player.team.getName() + ")\n"
                         + "Issue: " + issue + "\n"
                         + "Suspended " + gamesA + " to " + gamesB + " games.");
     }
@@ -118,7 +118,7 @@ public class DesktopUiBridge implements GameUiBridge {
         if (league.userTeam != null) {
             showInfo("Contract Status",
                     "Off-Season: Contract review is in progress for your staff.\n\n"
-                            + league.userTeam.contractString);
+                            + league.userTeam.getContractString());
         }
     }
 
@@ -138,7 +138,7 @@ public class DesktopUiBridge implements GameUiBridge {
 
     @Override
     public void showRedshirtList() {
-        if (league.redshirts == null || league.getRedshirts().isEmpty()) {
+        if (league.getRedshirts() == null || league.getRedshirts().isEmpty()) {
             showInfo("Redshirt List", "No players are currently on the redshirt list.");
             return;
         }
@@ -207,15 +207,15 @@ public class DesktopUiBridge implements GameUiBridge {
         StringBuilder sb = new StringBuilder("Mid-Season Summary\n\n");
         if (league.userTeam != null) {
             simulation.Team t = league.userTeam;
-            sb.append("Your team: ").append(t.name)
-              .append("  (").append(t.wins).append("-").append(t.losses).append(")\n\n");
+            sb.append("Your team: ").append(t.getName())
+              .append("  (").append(t.getWins()).append("-").append(t.getLosses()).append(")\n\n");
         }
         sb.append("Top 5 by prestige:\n");
         league.getTeamList().stream()
-                .sorted(java.util.Comparator.comparingInt((simulation.Team t) -> t.teamPrestige).reversed())
+                .sorted(java.util.Comparator.comparingInt((simulation.Team t) -> t.getTeamPrestige()).reversed())
                 .limit(5)
-                .forEach(t -> sb.append("  ").append(t.name)
-                        .append("  ").append(t.wins).append("-").append(t.losses).append("\n"));
+                .forEach(t -> sb.append("  ").append(t.getName())
+                        .append("  ").append(t.getWins()).append("-").append(t.getLosses()).append("\n"));
         return sb.toString();
     }
 

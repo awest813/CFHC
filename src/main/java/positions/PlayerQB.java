@@ -43,7 +43,7 @@ public class PlayerQB extends Player {
 
         recruitRating = getScoutingGrade();
 
-        recruitTolerance = (int) ((60 - team.teamPrestige) / qbImportance);
+        recruitTolerance = (int) ((60 - team.getTeamPrestige()) / qbImportance);
         cost = getInitialCost();
         cost = (int) (cost / qbImportance);
 
@@ -140,11 +140,11 @@ public class PlayerQB extends Player {
 
     @Override
     public String getAwardDescription() {
-        return team.name +
+        return team.getName() +
                 " QB " + name + " [" + getYrStr() + "], who had " +
                 getPassTD() + " TDs, just " + getPassInt() + " interceptions, and " +
-                getPassYards() + " passing yards. In addition, he ran for " + getRushYards() + " rushing yards and scored " + getRushTDs() + " touchdowns. He led " + team.name +
-                " to a " + team.wins + "-" + team.losses + " record and a #" + team.rankTeamPollScore +
+                getPassYards() + " passing yards. In addition, he ran for " + getRushYards() + " rushing yards and scored " + getRushTDs() + " touchdowns. He led " + team.getName() +
+                " to a " + team.getWins() + "-" + team.getLosses() + " record and a #" + team.getRankTeamPollScore() +
                 " poll ranking.";
     }
 
@@ -187,8 +187,8 @@ public class PlayerQB extends Player {
     @Override
     public String getInfoForLineup() {
         if (injury != null)
-            return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.HC.ratTalent) + " " + injury.toString();
-        return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.HC.ratTalent) + " (" +
+            return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.getHeadCoach().ratTalent) + " " + injury.toString();
+        return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.getHeadCoach().ratTalent) + " (" +
                 getRatPassPow() + ", " + getRatPassAcc() + ", " + getRatEvasion() + ", " + getRatSpeed() + ")";
 }
 }

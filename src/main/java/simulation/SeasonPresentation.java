@@ -41,7 +41,7 @@ public final class SeasonPresentation {
     }
 
     public static String getSeasonTitleText(Team currentTeam, int season) {
-        return currentTeam.name + " " + season;
+        return currentTeam.getName() + " " + season;
     }
 
     public static String getSeasonSubtitleText() {

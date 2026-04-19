@@ -39,7 +39,7 @@ public final class LeagueCustomDataImporter {
                 }
 
                 for (Team team : league.getTeamList()) {
-                    if (!fileSplit[0].equals(team.name)) {
+                    if (!fileSplit[0].equals(team.getName())) {
                         continue;
                     }
 
@@ -62,7 +62,7 @@ public final class LeagueCustomDataImporter {
                     } else if (fileSplit.length > 2) {
                         team.newCustomHeadCoach(fileSplit[1], Integer.parseInt(fileSplit[2]), 0);
                     } else {
-                        team.HC.name = fileSplit[1];
+                        team.getHeadCoach().getName() = fileSplit[1];
                     }
                 }
             }
@@ -86,7 +86,7 @@ public final class LeagueCustomDataImporter {
                 }
 
                 for (Team team : league.getTeamList()) {
-                    if (!fileSplit[0].equals(team.name)) {
+                    if (!fileSplit[0].equals(team.getName())) {
                         continue;
                     }
 

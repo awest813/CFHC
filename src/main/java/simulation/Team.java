@@ -5646,6 +5646,13 @@ public class Team {
     }
 
     /**
+     * Add an out-of-conference week.
+     */
+    public void addOocWeek(int week) {
+        oocWeeks.add(week);
+    }
+
+    /**
      * Get an unmodifiable view of game W/L schedule.
      */
     public java.util.List<String> getGameWLSchedule() {
@@ -5664,6 +5671,27 @@ public class Team {
      */
     public java.util.List<Team> getGameLossesAgainst() {
         return java.util.Collections.unmodifiableList(gameLossesAgainst);
+    }
+
+    /**
+     * Add a result to the game W/L schedule.
+     */
+    public void addToGameWLSchedule(String result) {
+        gameWLSchedule.add(result);
+    }
+
+    /**
+     * Record a win against the given team.
+     */
+    public void addGameWinAgainst(Team team) {
+        gameWinsAgainst.add(team);
+    }
+
+    /**
+     * Record a loss against the given team.
+     */
+    public void addGameLossAgainst(Team team) {
+        gameLossesAgainst.add(team);
     }
 
     /**

@@ -28,7 +28,7 @@ public class HeadCoach extends Staff {
 
         createStaffStats();
         history = new ArrayList<>();
-        baselinePrestige = team.teamPrestige;
+        baselinePrestige = team.getTeamPrestige();
     }
 
     //New User Coach
@@ -41,7 +41,7 @@ public class HeadCoach extends Staff {
 
         createStaffStats();
         history = new ArrayList<>();
-        baselinePrestige = team.teamPrestige;
+        baselinePrestige = team.getTeamPrestige();
     }
 
     //New Loading Feature
@@ -88,7 +88,7 @@ public class HeadCoach extends Staff {
         year = staff.year;
         contractYear = staff.contractYear;
         contractLength = staff.contractLength;
-        baselinePrestige = team.teamPrestige;
+        baselinePrestige = team.getTeamPrestige();
         ratOff = staff.ratOff;
         ratDef = staff.ratDef;
         ratTalent = staff.ratTalent;

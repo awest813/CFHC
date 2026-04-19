@@ -12,8 +12,8 @@ public class CompTeamWins implements Comparator<Team> {
     @Override
     public int compare(Team a, Team b) {
         if (a.league.currentWeek > 15)
-            return a.totalWins > b.totalWins ? -1 : a.totalWins == b.totalWins ? 0 : 1;
+            return a.getTotalWins() > b.getTotalWins() ? -1 : a.getTotalWins() == b.getTotalWins() ? 0 : 1;
         else
-            return a.totalWins + a.wins > b.totalWins + b.wins ? -1 : a.totalWins + a.wins == b.totalWins + b.wins ? 0 : 1;
+            return a.getTotalWins() + a.getWins() > b.getTotalWins() + b.getWins() ? -1 : a.getTotalWins() + a.getWins() == b.getTotalWins() + b.getWins() ? 0 : 1;
     }
 }

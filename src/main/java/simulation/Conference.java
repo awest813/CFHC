@@ -248,7 +248,7 @@ public class Conference {
             if(confTVContract <= 0) confTV = false;
 
             for(Team t : confTeams) {
-                t.teamBudget += confTVBonus;
+                t.setTeamBudget(t.getTeamBudget() + confTVBonus);
             }
 
         }
@@ -366,7 +366,7 @@ public class Conference {
         Team ooc1 = new Team("OOC1", "OOC", "OOC", 0, "OOC", 0, league);
         Team ooc2 = new Team("OOC2", "OOC", "OOC", 0, "OOC", 0, league);
         Team bye = new Team("BYE", "BYE", "BYE", 0, "BYE", 0, league);
-        bye.rankTeamPollScore = league.getTeamList().size();
+        bye.setRankTeamPollScore(league.getTeamList().size());
 
         if (confTeams.size() % 2 != 0 && confTeams.size() >= minConfTeams) {
 /*            if(confTeams.size() >= 13) {
@@ -391,12 +391,12 @@ public class Conference {
 
                 Game gm;
 
-                if(a.abbr.equals("OOC") || b.abbr.equals("OOC")) {
-                    a.oocWeeks.add(r);
-                    b.oocWeeks.add(r);
+                if(a.getAbbr().equals("OOC") || b.getAbbr().equals("OOC")) {
+                    a.addOocWeek(r);
+                    b.addOocWeek(r);
                 } else {
 
-                    if (a.name.equals("BYE") || b.name.equals("BYE")) {
+                    if (a.getName().equals("BYE") || b.getName().equals("BYE")) {
                         gm = new Game(a, b, "BYE WEEK");
                     } else {
                         if (r % 2 == 0 && confSize >= minConfTeams) {
@@ -406,8 +406,8 @@ public class Conference {
                         }
                     }
 
-                    a.gameSchedule.add(gm);
-                    b.gameSchedule.add(gm);
+                    a.addGameToSchedule(gm);
+                    b.addGameToSchedule(gm);
                 }
 
             }
@@ -439,7 +439,7 @@ public class Conference {
         if(confTeams.size() >= 12) {
             String divAName = divisions.get(0).divName;
             for (int i = 0; i < confTeams.size(); i++) {
-                if (confTeams.get(i).division.equals(divAName)) {
+                if (confTeams.get(i).getDivision().equals(divAName)) {
                     divisions.get(0).divTeams.add(confTeams.get(i));
                 } else {
                     divisions.get(1).divTeams.add(confTeams.get(i));
@@ -537,7 +537,7 @@ public class Conference {
             playConfChamp();
         } else {
             for (int i = 0; i < confTeams.size(); ++i) {
-                confTeams.get(i).gameSchedule.get(league.currentWeek).playGame();
+                confTeams.get(i).getGameSchedule().get(league.currentWeek).playGame();
             }
             if (league.currentWeek == league.regSeasonWeeks-2) schedConfChamp();
         }
@@ -549,8 +549,8 @@ public class Conference {
             return;
         } else {
             for (int i = 0; i < confTeams.size(); ++i) {
-                PlatformLog.d("conf","conf: " + confName + " team: " + confTeams.get(i).name + " gameSchedule size "+ confTeams.get(i).gameSchedule.size());
-                confTeams.get(i).gameSchedule.get(league.currentWeek+1).addUpcomingGames(confTeams.get(i));
+                PlatformLog.d("conf","conf: " + confName + " team: " + confTeams.get(i).getName() + " gameSchedule size "+ confTeams.get(i).getGameSchedule().size());
+                confTeams.get(i).getGameSchedule().get(league.currentWeek+1).addUpcomingGames(confTeams.get(i));
             }
         }
     }
@@ -560,7 +560,7 @@ public class Conference {
             return;
         } else {
             for (int i = 0; i < confTeams.size(); ++i) {
-                confTeams.get(i).gameSchedule.get(league.currentWeek).addNewSeasonGames(confTeams.get(i));
+                confTeams.get(i).getGameSchedule().get(league.currentWeek).addNewSeasonGames(confTeams.get(i));
             }
         }
     }
@@ -568,7 +568,7 @@ public class Conference {
     public void updateConfPrestige() {
         int CP = 0;
         for (int i = 0; i < confTeams.size(); ++i) {
-            CP += confTeams.get(i).teamPrestige;
+            CP += confTeams.get(i).getTeamPrestige();
         }
 
         if(confTeams.size() > 0 && confTeams.size() >= minConfTeams) {
@@ -576,11 +576,11 @@ public class Conference {
             confPromoteMin = (int) (CP / confTeams.size() * promotionFactor);
             confRelegateMin = (int) (CP / confTeams.size() * relegationFactor);
             for(Team t : confTeams) {
-                t.confPrestige = confPrestige;
+                t.setConfPrestige(confPrestige);
             }
         } else {
             for(int i = 0; i < confTeams.size(); i++) {
-                confTeams.get(i).confPrestige = (int)(confTeams.get(i).teamPrestige * .85);
+                confTeams.get(i).setConfPrestige((int)(confTeams.get(i).getTeamPrestige() * .85));
             }
             if(confTeams.size() <= 0) confPrestige = 0;
             else confPrestige = CP / (confTeams.size());
@@ -605,7 +605,7 @@ public class Conference {
 
             ArrayList<Team> teams = new ArrayList<>();
             for (int i = 0; i < confTeams.size(); ++i) {
-                if (!confTeams.get(i).bowlBan)
+                if (!confTeams.get(i).isBowlBan())
                     teams.add(confTeams.get(i));
             }
 
@@ -664,29 +664,29 @@ public class Conference {
         // Play CCG between top 2 teams
         ccg.playGame();
         if (ccg.homeScore > ccg.awayScore) {
-            ccg.homeTeam.confChampion = "CC";
-            ccg.homeTeam.totalCCs++;
-            ccg.awayTeam.totalCCLosses++;
-            ccg.homeTeam.HC.recordConfWins(1);
-            ccg.awayTeam.HC.recordConfLosses(1);
+            ccg.homeTeam.setConfChampion("CC");
+            ccg.homeTeam.incrementTotalCCs();
+            ccg.awayTeam.incrementTotalCCLosses();
+            ccg.homeTeam.getHeadCoach().recordConfWins(1);
+            ccg.awayTeam.getHeadCoach().recordConfLosses(1);
             league.addNewsStory(13,
-                    ccg.homeTeam.name + " wins the " + confName + "!>" +
+                    ccg.homeTeam.getName() + " wins the " + confName + "!>" +
                             ccg.homeTeam.strRep() + " took care of business in the conference championship against " + ccg.awayTeam.strRep() +
                             ", winning at home with a score of " + ccg.homeScore + " to " + ccg.awayScore + "."
             );
-            league.addNewsHeadline(ccg.homeTeam.name + " wins the " + confName + "!");
+            league.addNewsHeadline(ccg.homeTeam.getName() + " wins the " + confName + "!");
         } else {
-            ccg.awayTeam.confChampion = "CC";
-            ccg.awayTeam.totalCCs++;
-            ccg.homeTeam.totalCCLosses++;
-            ccg.awayTeam.HC.recordConfWins(1);
-            ccg.homeTeam.HC.recordConfLosses(1);
+            ccg.awayTeam.setConfChampion("CC");
+            ccg.awayTeam.incrementTotalCCs();
+            ccg.homeTeam.incrementTotalCCLosses();
+            ccg.awayTeam.getHeadCoach().recordConfWins(1);
+            ccg.homeTeam.getHeadCoach().recordConfLosses(1);
             league.addNewsStory(13,
-                    ccg.awayTeam.name + " wins the " + confName + "!>" +
+                    ccg.awayTeam.getName() + " wins the " + confName + "!>" +
                             ccg.awayTeam.strRep() + " surprised many in the conference championship against " + ccg.homeTeam.strRep() +
                             ", winning on the road with a score of " + ccg.awayScore + " to " + ccg.homeScore + "."
             );
-            league.addNewsHeadline(ccg.awayTeam.name + " wins the " + confName + "!");
+            league.addNewsHeadline(ccg.awayTeam.getName() + " wins the " + confName + "!");
 
         }
         Collections.sort(confTeams, new CompTeamPoll());
@@ -769,7 +769,7 @@ public class Conference {
 
 
             for (Team t : confTeams) {
-                hc.add(t.HC);
+                hc.add(t.getHeadCoach());
                 qbs.addAll(t.getTeamQBs());
                 rbs.addAll(t.getTeamRBs());
                 wrs.addAll(t.getTeamWRs());
@@ -800,51 +800,51 @@ public class Conference {
             hc.get(0).recordConfCOTY(1);
             allConfPlayers.add(qbs.get(0));
             qbs.get(0).wonAllConference = true;
-            qbs.get(0).team.HC.recordAllConference(1);
+            qbs.get(0).team.getHeadCoach().recordAllConference(1);
             allConfPlayers.add(rbs.get(0));
             rbs.get(0).wonAllConference = true;
-            rbs.get(0).team.HC.recordAllConference(1);
+            rbs.get(0).team.getHeadCoach().recordAllConference(1);
             allConfPlayers.add(rbs.get(1));
             rbs.get(1).wonAllConference = true;
-            rbs.get(1).team.HC.recordAllConference(1);
+            rbs.get(1).team.getHeadCoach().recordAllConference(1);
             for (int i = 0; i < 3; ++i) {
                 allConfPlayers.add(wrs.get(i));
                 wrs.get(i).wonAllConference = true;
-                wrs.get(i).team.HC.recordAllConference(1);
+                wrs.get(i).team.getHeadCoach().recordAllConference(1);
             }
             allConfPlayers.add(tes.get(0));
             tes.get(0).wonAllConference = true;
-            tes.get(0).team.HC.recordAllConference(1);
+            tes.get(0).team.getHeadCoach().recordAllConference(1);
 
             for (int i = 0; i < 5; ++i) {
                 allConfPlayers.add(ols.get(i));
                 ols.get(i).wonAllConference = true;
-                ols.get(i).team.HC.recordAllConference(1);
+                ols.get(i).team.getHeadCoach().recordAllConference(1);
             }
 
             allConfPlayers.add(ks.get(0));
             ks.get(0).wonAllConference = true;
-            ks.get(0).team.HC.recordAllConference(1);
+            ks.get(0).team.getHeadCoach().recordAllConference(1);
 
             for (int i = 0; i < 4; ++i) {
                 allConfPlayers.add(dls.get(i));
                 dls.get(i).wonAllConference = true;
-                dls.get(i).team.HC.recordAllConference(1);
+                dls.get(i).team.getHeadCoach().recordAllConference(1);
             }
             for (int i = 0; i < 3; ++i) {
                 allConfPlayers.add(lbs.get(i));
                 lbs.get(i).wonAllConference = true;
-                lbs.get(i).team.HC.recordAllConference(1);
+                lbs.get(i).team.getHeadCoach().recordAllConference(1);
             }
             for (int i = 0; i < 3; ++i) {
                 allConfPlayers.add(cbs.get(i));
                 cbs.get(i).wonAllConference = true;
-                cbs.get(i).team.HC.recordAllConference(1);
+                cbs.get(i).team.getHeadCoach().recordAllConference(1);
             }
             for (int i = 0; i < 2; ++i) {
                 allConfPlayers.add(ss.get(i));
                 ss.get(i).wonAllConference = true;
-                ss.get(i).team.HC.recordAllConference(1);
+                ss.get(i).team.getHeadCoach().recordAllConference(1);
             }
         }
 

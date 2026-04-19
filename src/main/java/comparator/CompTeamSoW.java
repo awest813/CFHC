@@ -12,6 +12,6 @@ import simulation.Team;
 public class CompTeamSoW implements Comparator<Team> {
     @Override
     public int compare(Team a, Team b) {
-        return a.teamStrengthOfWins > b.teamStrengthOfWins ? -1 : a.teamStrengthOfWins == b.teamStrengthOfWins ? 0 : 1;
+        return a.getTeamStrengthOfWins() > b.getTeamStrengthOfWins() ? -1 : a.getTeamStrengthOfWins() == b.getTeamStrengthOfWins() ? 0 : 1;
     }
 }

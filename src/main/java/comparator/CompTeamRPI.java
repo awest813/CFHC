@@ -12,6 +12,6 @@ public class CompTeamRPI implements Comparator<Team> {
     @Override
 
     public int compare(Team a, Team b) {
-        return a.teamRPI > b.teamRPI ? -1 : a.teamRPI == b.teamRPI ? 0 : 1;
+        return a.getTeamRPI() > b.getTeamRPI() ? -1 : a.getTeamRPI() == b.getTeamRPI() ? 0 : 1;
     }
 }

@@ -11,14 +11,14 @@ import simulation.Team;
 public class CompTeamPoll implements Comparator<Team> {
     @Override
     public int compare(Team a, Team b) {
-        if (a.teamPollScore > b.teamPollScore) {
+        if (a.getTeamPollScore() > b.getTeamPollScore()) {
             return -1;
 
-        } else if (b.teamPollScore == a.teamPollScore) {
+        } else if (b.getTeamPollScore() == a.getTeamPollScore()) {
             //check for  tiebreaker
-            if (a.teamStrengthOfWins > b.teamStrengthOfWins) {
+            if (a.getTeamStrengthOfWins() > b.getTeamStrengthOfWins()) {
                 return -1;
-            } else if (a.teamStrengthOfWins < b.teamStrengthOfWins) {
+            } else if (a.getTeamStrengthOfWins() < b.getTeamStrengthOfWins()) {
                 return 1;
             } else return 0;
 

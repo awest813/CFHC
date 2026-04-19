@@ -7,8 +7,8 @@ import simulation.Team;
 public class CompTeamDivWins implements Comparator<Team> {
     @Override
     public int compare(Team a, Team b) {
-        if (a.confChampion.equals("CC")) return -1;
-        else if (b.confChampion.equals("CC")) return 1;
+        if (a.getConfChampion().equals("CC")) return -1;
+        else if (b.getConfChampion().equals("CC")) return 1;
         else if (a.getDivWins() > b.getDivWins()) {
             return -1;
         } else if (a.getDivWins() == b.getDivWins()) {

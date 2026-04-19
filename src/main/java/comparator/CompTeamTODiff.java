@@ -11,6 +11,6 @@ import simulation.Team;
 public class CompTeamTODiff implements Comparator<Team> {
     @Override
     public int compare(Team a, Team b) {
-        return a.teamTODiff > b.teamTODiff ? -1 : a.teamTODiff == b.teamTODiff ? 0 : 1;
+        return a.getTeamTODiff() > b.getTeamTODiff() ? -1 : a.getTeamTODiff() == b.getTeamTODiff() ? 0 : 1;
     }
 }

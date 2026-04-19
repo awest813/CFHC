@@ -11,6 +11,6 @@ import simulation.Team;
 public class CompTeamOPPG implements Comparator<Team> {
     @Override
     public int compare(Team a, Team b) {
-        return (float) a.teamOppPoints / a.numGames() < (float) b.teamOppPoints / b.numGames() ? -1 : (float) a.teamOppPoints / a.numGames() == (float) b.teamOppPoints / b.numGames() ? 0 : 1;
+        return (float) a.getTeamOppPoints() / a.numGames() < (float) b.getTeamOppPoints() / b.numGames() ? -1 : (float) a.getTeamOppPoints() / a.numGames() == (float) b.getTeamOppPoints() / b.numGames() ? 0 : 1;
     }
 }
