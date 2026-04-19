@@ -1,7 +1,9 @@
 package desktop;
 
+import positions.Player;
 import simulation.Conference;
 import simulation.DataRecord;
+import simulation.Game;
 import simulation.GameFlowManager;
 import simulation.League;
 import simulation.LeagueLaunchCoordinator;
@@ -15,6 +17,7 @@ import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -39,17 +42,24 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Graphical 'League Home' view for the desktop prototype. Displays the top teams,
- * conference standings, and basic league info, and allows the user to advance the
- * simulation one week or a full season at a time.
+ * Graphical 'League Home' view for the desktop prototype. Displays standings,
+ * poll rankings, team/player statistics, scoreboard with week navigation, news,
+ * hall of fame, league records, and coach database.
  *
  * <p>The view uses {@link SeasonController} for all week advancement so the full
  * season–offseason–new-season loop works correctly without any Android dependencies.
@@ -59,9 +69,11 @@ public class LeagueHomeView extends JFrame {
     private static final String TAG = "LeagueHomeView";
     private static final Color HEADER_BG = new Color(33, 37, 41);
     private static final Color CONF_HEADER_BG = new Color(52, 58, 64);
+    private static final Color USER_TEAM_BG = new Color(25, 60, 100);
     private static final Color STATUS_BG = new Color(240, 240, 240);
-    private static final int HEADER_HEIGHT = 70;
+    private static final int HEADER_HEIGHT = 80;
     private static final String SAVE_EXTENSION = "cfb";
+    private static final DecimalFormat DF2 = new DecimalFormat("#.##");
 
     /** No-op {@link GameFlowManager} — all transitions are handled in-process. */
     private static final GameFlowManager NO_OP_FLOW = new GameFlowManager() {
@@ -74,12 +86,28 @@ public class LeagueHomeView extends JFrame {
         @Override public void returnToMainHub() {}
     };
 
+    /** Team ranking category names matching League.getTeamRankingsStr(selection). */
+    private static final String[] TEAM_RANKING_CATEGORIES = {
+            "Poll Score", "Prestige", "RPI", "Strength of Schedule", "Strength of Wins",
+            "Points/Game", "Opp Points/Game", "Yards/Game", "Opp Yards/Game",
+            "Pass Yards/Game", "Rush Yards/Game", "Opp Pass YPG", "Opp Rush YPG",
+            "Turnover Diff", "Off. Talent", "Def. Talent", "Chemistry",
+            "Recruiting Class", "Discipline", "Budget", "Facilities",
+            "Coach Overall", "Coach Score"
+    };
+
     private final League leagueCore;
     private LeagueRecord currentRecord;
     private File lastSavePath;
 
+    /** Lookup from team name → live Team for O(1) access. */
+    private Map<String, Team> liveTeamMap;
+
     private DesktopUiBridge bridge;
     private SeasonController controller;
+
+    /** Currently viewed scoreboard week (0-based). */
+    private int scoreboardWeek;
 
     private JLabel statusLabel;
     private JLabel playedIndicator;
@@ -92,14 +120,16 @@ public class LeagueHomeView extends JFrame {
         this.leagueCore = league;
         this.currentRecord = league.toRecord();
         this.lastSavePath = loadedFrom;
+        rebuildLiveTeamMap();
 
         setTitle(buildWindowTitle());
-        setSize(1100, 800);
+        setSize(1200, 850);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
         bridge = new DesktopUiBridge(this, leagueCore);
         controller = new SeasonController(leagueCore, bridge, NO_OP_FLOW);
+        scoreboardWeek = Math.max(0, leagueCore.currentWeek);
 
         setJMenuBar(buildMenuBar());
         add(buildHeader(), BorderLayout.NORTH);
@@ -107,10 +137,23 @@ public class LeagueHomeView extends JFrame {
         add(buildStatusBar(), BorderLayout.SOUTH);
     }
 
+    private void rebuildLiveTeamMap() {
+        liveTeamMap = new HashMap<>();
+        for (Conference c : leagueCore.getConferences()) {
+            for (Team t : c.confTeams) {
+                liveTeamMap.put(t.getName(), t);
+            }
+        }
+    }
+
     private String buildWindowTitle() {
         String suffix = lastSavePath != null ? " \u2014 " + lastSavePath.getName() : "";
         return "CFB Coach \u2014 " + currentRecord.leagueName() + " (" + currentRecord.year() + ")" + suffix;
     }
+
+    // =========================================================================
+    // Menu bar
+    // =========================================================================
 
     private JMenuBar buildMenuBar() {
         JMenuBar bar = new JMenuBar();
@@ -123,7 +166,7 @@ public class LeagueHomeView extends JFrame {
         saveItem.addActionListener(e -> saveLeague(false));
         file.add(saveItem);
 
-        JMenuItem saveAsItem = new JMenuItem("Save As...");
+        JMenuItem saveAsItem = new JMenuItem("Save As\u2026");
         saveAsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
                 KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK));
         saveAsItem.addActionListener(e -> saveLeague(true));
@@ -140,7 +183,7 @@ public class LeagueHomeView extends JFrame {
         bar.add(file);
 
         JMenu season = new JMenu("Season");
-        season.setMnemonic(KeyEvent.VK_S);
+        season.setMnemonic(KeyEvent.VK_E);
 
         JMenuItem playWeek = new JMenuItem("Play Next Week");
         playWeek.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0));
@@ -152,7 +195,30 @@ public class LeagueHomeView extends JFrame {
         advance.addActionListener(e -> advanceSeason());
         season.add(advance);
 
+        JMenuItem advanceFull = new JMenuItem("Advance Through Offseason");
+        advanceFull.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,
+                KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK));
+        advanceFull.addActionListener(e -> advanceFullYear());
+        season.add(advanceFull);
+
         bar.add(season);
+
+        JMenu view = new JMenu("View");
+        view.setMnemonic(KeyEvent.VK_V);
+
+        JMenuItem bowlWatch = new JMenuItem("Bowl Watch");
+        bowlWatch.addActionListener(e -> showBowlWatch());
+        view.add(bowlWatch);
+
+        JMenuItem ccg = new JMenuItem("Conference Championships");
+        ccg.addActionListener(e -> showConfChamps());
+        view.add(ccg);
+
+        JMenuItem mockDraft = new JMenuItem("Mock Draft");
+        mockDraft.addActionListener(e -> showMockDraft());
+        view.add(mockDraft);
+
+        bar.add(view);
 
         JMenu help = new JMenu("Help");
         help.setMnemonic(KeyEvent.VK_H);
@@ -164,17 +230,39 @@ public class LeagueHomeView extends JFrame {
         return bar;
     }
 
+    // =========================================================================
+    // Header with user-team info
+    // =========================================================================
+
     private JPanel buildHeader() {
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(HEADER_BG);
         header.setPreferredSize(new Dimension(getWidth(), HEADER_HEIGHT));
 
-        JLabel title = new JLabel("  " + currentRecord.leagueName() + " \u2014 Season " + currentRecord.year());
-        title.setForeground(Color.WHITE);
-        title.setFont(new Font("SansSerif", Font.BOLD, 24));
-        header.add(title, BorderLayout.WEST);
+        // Left: league title + optional user-team summary
+        JPanel leftPanel = new JPanel(new GridLayout(0, 1));
+        leftPanel.setOpaque(false);
+        leftPanel.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10));
 
-        JPanel controls = new JPanel();
+        JLabel title = new JLabel(currentRecord.leagueName() + " \u2014 Season " + currentRecord.year());
+        title.setForeground(Color.WHITE);
+        title.setFont(new Font("SansSerif", Font.BOLD, 22));
+        leftPanel.add(title);
+
+        if (leagueCore.userTeam != null) {
+            Team ut = leagueCore.userTeam;
+            String userInfo = "\u25B6 " + ut.getName() + "  (" + ut.getWins() + "-" + ut.getLosses()
+                    + ")  \u2022  Prestige " + ut.getTeamPrestige()
+                    + "  \u2022  Poll #" + ut.getRankTeamPollScore();
+            JLabel userLabel = new JLabel(userInfo);
+            userLabel.setForeground(new Color(100, 200, 255));
+            userLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
+            leftPanel.add(userLabel);
+        }
+        header.add(leftPanel, BorderLayout.WEST);
+
+        // Right: action buttons
+        JPanel controls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 14));
         controls.setOpaque(false);
 
         JButton playWeekBtn = new JButton(playWeekLabel());
@@ -182,7 +270,7 @@ public class LeagueHomeView extends JFrame {
         playWeekBtn.addActionListener(e -> playWeek());
 
         JButton advanceBtn = new JButton("Advance Season");
-        advanceBtn.setToolTipText("Simulate through the rest of the regular season (Ctrl+A)");
+        advanceBtn.setToolTipText("Simulate through the regular season + bowls (Ctrl+A)");
         advanceBtn.addActionListener(e -> advanceSeason());
 
         JButton saveBtn = new JButton("Save");
@@ -200,7 +288,7 @@ public class LeagueHomeView extends JFrame {
     private String playWeekLabel() {
         int week = leagueCore.currentWeek;
         int reg = leagueCore.regSeasonWeeks;
-        if (week >= reg + 13) return "Recruiting…";
+        if (week >= reg + 13) return "Recruiting\u2026";
         if (week >= reg + 4)  return "Offseason: Step " + (week - reg - 3);
         if (week >= reg + 3)  return "Play National Championship";
         if (week >= reg + 2)  return "Play Semifinals";
@@ -209,6 +297,10 @@ public class LeagueHomeView extends JFrame {
         if (week <= 0)        return "Begin Season";
         return "Play Week " + (week + 1);
     }
+
+    // =========================================================================
+    // Status bar
+    // =========================================================================
 
     private JPanel buildStatusBar() {
         JPanel status = new JPanel(new BorderLayout());
@@ -231,12 +323,18 @@ public class LeagueHomeView extends JFrame {
 
     private String buildStatusText() {
         int teams = currentRecord.conferences().stream().mapToInt(c -> c.teams().size()).sum();
-        return String.format("Week %d  \u2022  %d conferences  \u2022  %d teams  \u2022  %d players in Hall of Fame",
-                currentRecord.currentWeek(),
-                currentRecord.conferences().size(),
-                teams,
-                currentRecord.leagueHoF().size());
+        String base = String.format("Week %d  \u2022  %d conferences  \u2022  %d teams",
+                currentRecord.currentWeek(), currentRecord.conferences().size(), teams);
+        int hofSize = currentRecord.leagueHoF() != null ? currentRecord.leagueHoF().size() : 0;
+        if (hofSize > 0) {
+            base += "  \u2022  " + hofSize + " in Hall of Fame";
+        }
+        return base;
     }
+
+    // =========================================================================
+    // Season advancement
+    // =========================================================================
 
     private void playWeek() {
         long start = System.currentTimeMillis();
@@ -247,6 +345,7 @@ public class LeagueHomeView extends JFrame {
         if (bridge.isNewSeasonPending()) {
             startNewSeason();
         } else {
+            scoreboardWeek = leagueCore.currentWeek;
             refresh();
         }
     }
@@ -260,6 +359,7 @@ public class LeagueHomeView extends JFrame {
         leagueCore.startNextSeason();
         bridge = new DesktopUiBridge(this, leagueCore);
         controller = new SeasonController(leagueCore, bridge, NO_OP_FLOW);
+        scoreboardWeek = 0;
         refresh();
         JOptionPane.showMessageDialog(this,
                 "Season " + leagueCore.getYear() + " is ready!\n"
@@ -274,14 +374,43 @@ public class LeagueHomeView extends JFrame {
         int played = 0;
         int target = leagueCore.regSeasonWeeks + 4;
         bridge.clearNewSeasonPending();
-        while (leagueCore.currentWeek < target) {
+        while (leagueCore.currentWeek < target && !bridge.isNewSeasonPending()) {
             controller.advanceWeek();
             played++;
         }
         PlatformLog.i(TAG, "Advanced " + played + " weeks in "
                 + (System.currentTimeMillis() - start) + "ms");
-        refresh();
+        if (bridge.isNewSeasonPending()) {
+            startNewSeason();
+        } else {
+            scoreboardWeek = leagueCore.currentWeek;
+            refresh();
+        }
     }
+
+    /** Advances through the entire season including offseason and recruiting. */
+    private void advanceFullYear() {
+        long start = System.currentTimeMillis();
+        int played = 0;
+        bridge.clearNewSeasonPending();
+        while (!bridge.isNewSeasonPending()) {
+            controller.advanceWeek();
+            played++;
+            if (played > 200) break; // safety valve
+        }
+        PlatformLog.i(TAG, "Advanced full year (" + played + " steps) in "
+                + (System.currentTimeMillis() - start) + "ms");
+        if (bridge.isNewSeasonPending()) {
+            startNewSeason();
+        } else {
+            scoreboardWeek = leagueCore.currentWeek;
+            refresh();
+        }
+    }
+
+    // =========================================================================
+    // Save / Load
+    // =========================================================================
 
     private void saveLeague(boolean forceChooser) {
         File target = lastSavePath;
@@ -326,22 +455,70 @@ public class LeagueHomeView extends JFrame {
         return base + "_" + currentRecord.year() + "." + SAVE_EXTENSION;
     }
 
+    // =========================================================================
+    // View menu dialogs
+    // =========================================================================
+
     private void showAbout() {
         JOptionPane.showMessageDialog(this,
                 "CFB Coach \u2014 Desktop Prototype\n"
                         + "Portable Java build of the CFHC simulation engine.\n\n"
                         + "Hotkeys:\n"
-                        + "  Space\t\tPlay next week\n"
-                        + "  Ctrl+A\tAdvance full season\n"
-                        + "  Ctrl+S\tSave league\n"
-                        + "  Ctrl+Shift+S\tSave As...\n"
-                        + "  Ctrl+Q\tExit\n",
+                        + "  Space\t\t\tPlay next week\n"
+                        + "  Ctrl+A\t\tAdvance regular season\n"
+                        + "  Ctrl+Shift+A\tAdvance full year\n"
+                        + "  Ctrl+S\t\tSave league\n"
+                        + "  Ctrl+Shift+S\tSave As\u2026\n"
+                        + "  Ctrl+Q\t\tExit\n",
                 "About CFB Coach",
                 JOptionPane.INFORMATION_MESSAGE);
     }
 
+    private void showBowlWatch() {
+        String text = leagueCore.getBowlGameWatchStr();
+        if (text == null || text.isEmpty()) text = "No bowl projections available yet.";
+        showScrollableText("Bowl Watch", text);
+    }
+
+    private void showConfChamps() {
+        String text = leagueCore.getCCGsStr();
+        if (text == null || text.isEmpty()) text = "Conference championship matchups not set yet.";
+        showScrollableText("Conference Championship Games", text);
+    }
+
+    private void showMockDraft() {
+        String[] draft = leagueCore.getMockDraftPlayersList();
+        if (draft == null || draft.length == 0) {
+            showScrollableText("Mock Draft", "No mock draft data available.");
+            return;
+        }
+        StringBuilder sb = new StringBuilder("Mock Draft Board\n");
+        sb.append("=".repeat(40)).append("\n\n");
+        for (int i = 0; i < draft.length; i++) {
+            sb.append(String.format("%3d. %s%n", i + 1, draft[i]));
+        }
+        showScrollableText("Mock Draft", sb.toString());
+    }
+
+    private void showScrollableText(String title, String text) {
+        JTextArea area = new JTextArea(text);
+        area.setEditable(false);
+        area.setFont(new Font("Monospaced", Font.PLAIN, 13));
+        area.setLineWrap(true);
+        area.setWrapStyleWord(true);
+        area.setCaretPosition(0);
+        JScrollPane scroll = new JScrollPane(area);
+        scroll.setPreferredSize(new Dimension(650, 450));
+        JOptionPane.showMessageDialog(this, scroll, title, JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    // =========================================================================
+    // Main content refresh
+    // =========================================================================
+
     private void refresh() {
         this.currentRecord = leagueCore.toRecord();
+        rebuildLiveTeamMap();
         setTitle(buildWindowTitle());
         getContentPane().removeAll();
         add(buildHeader(), BorderLayout.NORTH);
@@ -353,14 +530,20 @@ public class LeagueHomeView extends JFrame {
 
     private JTabbedPane buildMainContent() {
         JTabbedPane tabs = new JTabbedPane();
-        tabs.addTab("Standings",  buildStandingsPanel());
-        tabs.addTab("Week " + leagueCore.currentWeek + " Scores", buildScoreboardPanel());
-        tabs.addTab("Top 25",     buildTop25Panel());
-        tabs.addTab("News",       buildNewsPanel());
+        tabs.addTab("Standings", buildStandingsPanel());
+        tabs.addTab("Scoreboard", buildScoreboardPanel());
+        tabs.addTab("Poll Rankings", buildPollRankingsPanel());
+        tabs.addTab("Team Rankings", buildTeamRankingsPanel());
+        tabs.addTab("News", buildNewsPanel());
+        tabs.addTab("Coaches", buildCoachDatabasePanel());
         tabs.addTab("Hall of Fame", buildHallOfFamePanel());
-        tabs.addTab("Records",    buildLeagueRecordsPanel());
+        tabs.addTab("Records", buildLeagueRecordsPanel());
         return tabs;
     }
+
+    // =========================================================================
+    // Standings tab
+    // =========================================================================
 
     private JSplitPane buildStandingsPanel() {
         JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
@@ -370,37 +553,240 @@ public class LeagueHomeView extends JFrame {
         return splitPane;
     }
 
-    private JPanel buildTop25Panel() {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+    private JPanel buildTopTeamsSidebar() {
+        JPanel sidebar = new JPanel(new BorderLayout());
+        sidebar.setBorder(BorderFactory.createTitledBorder("Top 25 (Poll)"));
 
-        DefaultListModel<LeagueRecord.TeamRecord> model = new DefaultListModel<>();
-        currentRecord.conferences().stream()
-                .flatMap(c -> c.teams().stream())
-                .sorted(Comparator.comparingInt(LeagueRecord.TeamRecord::prestige).reversed())
+        DefaultListModel<Team> teamModel = new DefaultListModel<>();
+        leagueCore.getTeamList().stream()
+                .sorted(Comparator.comparingInt(Team::getRankTeamPollScore))
                 .limit(25)
-                .forEach(model::addElement);
+                .forEach(teamModel::addElement);
 
-        JList<LeagueRecord.TeamRecord> list = new JList<>(model);
-        list.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        list.setCellRenderer(new DefaultListCellRenderer() {
+        JList<Team> teamList = new JList<>(teamModel);
+        teamList.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        teamList.setCellRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                           boolean isSelected, boolean cellHasFocus) {
-                LeagueRecord.TeamRecord t = (LeagueRecord.TeamRecord) value;
-                String label = String.format("  #%-3d %-28s prestige %d    roster %d",
-                        index + 1, t.name(), t.prestige(), t.roster().size());
-                return super.getListCellRendererComponent(list, label, index, isSelected, cellHasFocus);
+                Team t = (Team) value;
+                String label = String.format("#%-3d %-22s (%d-%d)  Pres %d",
+                        t.getRankTeamPollScore(), t.getName(), t.getWins(), t.getLosses(), t.getTeamPrestige());
+                Component c = super.getListCellRendererComponent(list, label, index, isSelected, cellHasFocus);
+                if (!isSelected && t == leagueCore.userTeam) {
+                    c.setBackground(new Color(220, 235, 255));
+                }
+                return c;
             }
         });
-        list.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting() && list.getSelectedValue() != null) {
-                openTeamDialog(list.getSelectedValue());
+        teamList.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    Team sel = teamList.getSelectedValue();
+                    if (sel != null) openTeamDialogFromLive(sel);
+                }
+            }
+        });
+
+        sidebar.add(new JScrollPane(teamList), BorderLayout.CENTER);
+        return sidebar;
+    }
+
+    private JPanel buildConferenceGrid() {
+        JPanel content = new JPanel(new GridLayout(0, 2, 10, 10));
+        content.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        for (Conference conf : leagueCore.getConferences()) {
+            content.add(buildConferencePanel(conf));
+        }
+        return content;
+    }
+
+    private JPanel buildConferencePanel(Conference conf) {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+
+        // Conference header with TV info
+        String headerText = " " + conf.confName;
+        if (conf.confTV) {
+            headerText += "  (" + conf.getTVName() + ")";
+        }
+        JLabel label = new JLabel(headerText);
+        label.setOpaque(true);
+        label.setBackground(CONF_HEADER_BG);
+        label.setForeground(Color.WHITE);
+        label.setFont(new Font("SansSerif", Font.BOLD, 15));
+        panel.add(label, BorderLayout.NORTH);
+
+        // Sort teams by conference wins then overall record
+        List<Team> sorted = new ArrayList<>(conf.confTeams);
+        sorted.sort((a, b) -> {
+            int cmp = Integer.compare(b.getConfWins(), a.getConfWins());
+            if (cmp != 0) return cmp;
+            cmp = Integer.compare(a.getConfLosses(), b.getConfLosses());
+            if (cmp != 0) return cmp;
+            return Integer.compare(b.getWins(), a.getWins());
+        });
+
+        DefaultListModel<Team> model = new DefaultListModel<>();
+        sorted.forEach(model::addElement);
+
+        JList<Team> list = new JList<>(model);
+        list.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        list.setCellRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> jlist, Object value, int index,
+                                                          boolean isSelected, boolean cellHasFocus) {
+                Team t = (Team) value;
+                String pollStr = t.getRankTeamPollScore() <= 25 ? "#" + t.getRankTeamPollScore() + " " : "";
+                String display = String.format("%-2s%-20s %d-%d  (%d-%d conf)  P%d",
+                        pollStr, t.getName(), t.getWins(), t.getLosses(),
+                        t.getConfWins(), t.getConfLosses(), t.getTeamPrestige());
+                Component c = super.getListCellRendererComponent(jlist, display, index, isSelected, cellHasFocus);
+                if (!isSelected && t == leagueCore.userTeam) {
+                    c.setBackground(new Color(220, 235, 255));
+                }
+                return c;
+            }
+        });
+        list.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    Team sel = list.getSelectedValue();
+                    if (sel != null) openTeamDialogFromLive(sel);
+                }
             }
         });
         panel.add(new JScrollPane(list), BorderLayout.CENTER);
         return panel;
     }
+
+    // =========================================================================
+    // Poll Rankings tab (Top 25 with full details)
+    // =========================================================================
+
+    private JPanel buildPollRankingsPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        String[] columns = {"Rank", "Team", "Record", "Conf", "Poll Score", "Prestige", "Off Tal", "Def Tal"};
+        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+            @Override public Class<?> getColumnClass(int col) {
+                return switch (col) {
+                    case 0, 5 -> Integer.class;
+                    case 4, 6, 7 -> Float.class;
+                    default -> String.class;
+                };
+            }
+        };
+
+        leagueCore.getTeamList().stream()
+                .sorted(Comparator.comparingInt(Team::getRankTeamPollScore))
+                .forEach(t -> model.addRow(new Object[]{
+                        t.getRankTeamPollScore(),
+                        t.getName(),
+                        t.getWins() + "-" + t.getLosses(),
+                        t.getConfWins() + "-" + t.getConfLosses(),
+                        t.getTeamPollScore(),
+                        t.getTeamPrestige(),
+                        t.getOffTalent(),
+                        t.getDefTalent()
+                }));
+
+        JTable table = new JTable(model);
+        table.setAutoCreateRowSorter(true);
+        table.setRowHeight(22);
+        table.setFillsViewportHeight(true);
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int row = table.rowAtPoint(e.getPoint());
+                    if (row >= 0) {
+                        String name = (String) table.getValueAt(row, 1);
+                        Team t = liveTeamMap.get(name);
+                        if (t != null) openTeamDialogFromLive(t);
+                    }
+                }
+            }
+        });
+
+        panel.add(new JScrollPane(table), BorderLayout.CENTER);
+        panel.add(new JLabel("Double-click a team for details. Teams are sortable by column."),
+                BorderLayout.SOUTH);
+        return panel;
+    }
+
+    // =========================================================================
+    // Team Rankings tab (23 categories via combo box)
+    // =========================================================================
+
+    private JPanel buildTeamRankingsPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JComboBox<String> categoryBox = new JComboBox<>(TEAM_RANKING_CATEGORIES);
+        categoryBox.setFont(new Font("SansSerif", Font.PLAIN, 13));
+
+        String[] columns = {"Rank", "Team", "Value"};
+        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+
+        JTable table = new JTable(model);
+        table.setRowHeight(22);
+        table.setFillsViewportHeight(true);
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int row = table.rowAtPoint(e.getPoint());
+                    if (row >= 0) {
+                        String cellVal = String.valueOf(table.getValueAt(row, 1));
+                        // Team name may have newline chars from recruiting class view
+                        String teamName = cellVal.split("\n")[0].trim();
+                        Team t = liveTeamMap.get(teamName);
+                        if (t != null) openTeamDialogFromLive(t);
+                    }
+                }
+            }
+        });
+
+        Runnable loadRankings = () -> {
+            int sel = categoryBox.getSelectedIndex();
+            model.setRowCount(0);
+            try {
+                ArrayList<String> rankings = leagueCore.getTeamRankingsStr(sel);
+                if (rankings != null) {
+                    for (String line : rankings) {
+                        String[] parts = line.split(",", 3);
+                        if (parts.length >= 3) {
+                            model.addRow(new Object[]{parts[0].trim(), parts[1].trim(), parts[2].trim()});
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                PlatformLog.e(TAG, "Error loading team rankings", ex);
+            }
+        };
+
+        categoryBox.addActionListener(e -> loadRankings.run());
+        loadRankings.run(); // initial load
+
+        JPanel topBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        topBar.add(new JLabel("Category: "));
+        topBar.add(categoryBox);
+        panel.add(topBar, BorderLayout.NORTH);
+        panel.add(new JScrollPane(table), BorderLayout.CENTER);
+        return panel;
+    }
+
+    // =========================================================================
+    // Scoreboard tab (with week navigation)
+    // =========================================================================
 
     private JPanel buildScoreboardPanel() {
         JPanel panel = new JPanel(new BorderLayout());
@@ -409,16 +795,48 @@ public class LeagueHomeView extends JFrame {
         JTextArea scores = new JTextArea();
         scores.setEditable(false);
         scores.setFont(new Font("Monospaced", Font.PLAIN, 13));
-        scores.setText(buildScoresText());
-        scores.setCaretPosition(0);
 
+        // Week navigation controls
+        JPanel navPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 4));
+        JButton prevBtn = new JButton("\u25C0 Prev Week");
+        JButton nextBtn = new JButton("Next Week \u25B6");
+        JLabel weekLabel = new JLabel();
+        weekLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+        Runnable updateScoreboard = () -> {
+            weekLabel.setText("Week " + scoreboardWeek);
+            scores.setText(buildScoresTextForWeek(scoreboardWeek));
+            scores.setCaretPosition(0);
+            prevBtn.setEnabled(scoreboardWeek > 1);
+            nextBtn.setEnabled(scoreboardWeek < leagueCore.currentWeek);
+        };
+
+        prevBtn.addActionListener(e -> {
+            if (scoreboardWeek > 1) {
+                scoreboardWeek--;
+                updateScoreboard.run();
+            }
+        });
+        nextBtn.addActionListener(e -> {
+            if (scoreboardWeek < leagueCore.currentWeek) {
+                scoreboardWeek++;
+                updateScoreboard.run();
+            }
+        });
+
+        navPanel.add(prevBtn);
+        navPanel.add(weekLabel);
+        navPanel.add(nextBtn);
+        panel.add(navPanel, BorderLayout.NORTH);
         panel.add(new JScrollPane(scores), BorderLayout.CENTER);
+
+        updateScoreboard.run();
         return panel;
     }
 
-    private String buildScoresText() {
-        int week = leagueCore.currentWeek;
-        if (week <= 0 || week >= leagueCore.getWeeklyScores().size()) {
+    private String buildScoresTextForWeek(int week) {
+        if (week <= 0 || leagueCore.getWeeklyScores() == null
+                || week >= leagueCore.getWeeklyScores().size()) {
             return "No games have been played yet. Press Space or click Play Week to simulate.";
         }
         List<String> lines = leagueCore.getWeeklyScores().get(week);
@@ -441,109 +859,14 @@ public class LeagueHomeView extends JFrame {
         return sb.toString();
     }
 
-    private JPanel buildTopTeamsSidebar() {
-        JPanel sidebar = new JPanel(new BorderLayout());
-        sidebar.setBorder(BorderFactory.createTitledBorder("Top Teams (Prestige)"));
-
-        DefaultListModel<LeagueRecord.TeamRecord> teamModel = new DefaultListModel<>();
-        currentRecord.conferences().stream()
-                .flatMap(c -> c.teams().stream())
-                .sorted(Comparator.comparingInt(LeagueRecord.TeamRecord::prestige).reversed())
-                .limit(25)
-                .forEach(teamModel::addElement);
-
-        JList<LeagueRecord.TeamRecord> teamList = new JList<>(teamModel);
-        teamList.setCellRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                                                          boolean isSelected, boolean cellHasFocus) {
-                LeagueRecord.TeamRecord t = (LeagueRecord.TeamRecord) value;
-                String label = "#" + (index + 1) + " " + t.name() + " (" + t.prestige() + ")";
-                return super.getListCellRendererComponent(list, label, index, isSelected, cellHasFocus);
-            }
-        });
-        teamList.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting() && teamList.getSelectedValue() != null) {
-                openTeamDialog(teamList.getSelectedValue());
-            }
-        });
-
-        sidebar.add(new JScrollPane(teamList), BorderLayout.CENTER);
-        return sidebar;
-    }
-
-    private JPanel buildConferenceGrid() {
-        JPanel content = new JPanel(new GridLayout(0, 2, 10, 10));
-        content.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        for (LeagueRecord.ConferenceRecord conf : currentRecord.conferences()) {
-            content.add(buildConferencePanel(conf));
-        }
-        return content;
-    }
-
-    private JPanel buildConferencePanel(LeagueRecord.ConferenceRecord conf) {
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
-
-        JLabel label = new JLabel(" " + conf.name());
-        label.setOpaque(true);
-        label.setBackground(CONF_HEADER_BG);
-        label.setForeground(Color.WHITE);
-        label.setFont(new Font("SansSerif", Font.BOLD, 16));
-        panel.add(label, BorderLayout.NORTH);
-
-        DefaultListModel<LeagueRecord.TeamRecord> model = new DefaultListModel<>();
-        conf.teams().stream()
-                .sorted(Comparator.comparingInt(LeagueRecord.TeamRecord::prestige).reversed())
-                .forEach(model::addElement);
-
-        JList<LeagueRecord.TeamRecord> list = new JList<>(model);
-        list.setCellRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> jlist, Object value, int index,
-                                                          boolean isSelected, boolean cellHasFocus) {
-                LeagueRecord.TeamRecord t = (LeagueRecord.TeamRecord) value;
-                Team live = findLiveTeam(t.name());
-                String record = live != null ? " (" + live.getWins() + "-" + live.getLosses() + ")" : "";
-                String label2 = t.name() + record + "  \u2014  prestige " + t.prestige();
-                return super.getListCellRendererComponent(jlist, label2, index, isSelected, cellHasFocus);
-            }
-        });
-        list.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting() && list.getSelectedValue() != null) {
-                openTeamDialog(list.getSelectedValue());
-            }
-        });
-        panel.add(new JScrollPane(list), BorderLayout.CENTER);
-        return panel;
-    }
-
-    private void openTeamDialog(LeagueRecord.TeamRecord team) {
-        Team live = findLiveTeam(team.name());
-        TeamDetailView.show(this, team, live);
-    }
-
-    private Team findLiveTeam(String teamName) {
-        for (Conference c : leagueCore.getConferences()) {
-            for (Team t : c.confTeams) {
-                if (t.getName().equals(teamName)) {
-                    return t;
-                }
-            }
-        }
-        return null;
-    }
-
-    // -------------------------------------------------------------------------
-    // News panel
-    // -------------------------------------------------------------------------
+    // =========================================================================
+    // News tab
+    // =========================================================================
 
     private JPanel buildNewsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Left: headline list
         DefaultListModel<String> headlineModel = new DefaultListModel<>();
         if (leagueCore.getNewsHeadlines() != null) {
             for (String h : leagueCore.getNewsHeadlines()) {
@@ -555,15 +878,14 @@ public class LeagueHomeView extends JFrame {
         }
 
         JList<String> headlineList = new JList<>(headlineModel);
-        headlineList.setPreferredSize(new Dimension(300, 400));
+        headlineList.setFont(new Font("SansSerif", Font.PLAIN, 13));
 
-        // Right: full story area
         JTextArea storyArea = new JTextArea("Select a headline to read the full story.");
         storyArea.setEditable(false);
         storyArea.setLineWrap(true);
         storyArea.setWrapStyleWord(true);
+        storyArea.setFont(new Font("SansSerif", Font.PLAIN, 13));
 
-        // Clicking a headline shows the story from newsStories for the current week
         headlineList.addListSelectionListener(e -> {
             if (!e.getValueIsAdjusting()) {
                 int idx = headlineList.getSelectedIndex();
@@ -577,47 +899,99 @@ public class LeagueHomeView extends JFrame {
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
                 new JScrollPane(headlineList), new JScrollPane(storyArea));
-        split.setDividerLocation(280);
+        split.setDividerLocation(320);
         panel.add(split, BorderLayout.CENTER);
         return panel;
     }
 
-    /**
-     * Returns the full story text for the given headline by scanning the
-     * newsStories list for the current week.
-     */
     private String lookupStory(String headline) {
         if (leagueCore.getNewsStories() == null || leagueCore.getNewsStories().isEmpty()) return null;
         int week = leagueCore.currentWeek;
-        // newsStories has one list per season-week; search around the current week
         int maxWeek = Math.min(week + 1, leagueCore.getNewsStories().size() - 1);
         if (maxWeek < 0) return null;
         for (int w = maxWeek; w >= 0; w--) {
-            for (String story : leagueCore.getNewsStories().get(w)) {
+            List<String> weekStories = leagueCore.getNewsStories().get(w);
+            if (weekStories == null) continue;
+            for (String story : weekStories) {
                 String[] parts = story.split(">");
                 if (parts.length >= 2 && headline.contains(parts[0])) {
                     return parts[1];
                 }
-                // Also check if the story title is contained in the headline
                 if (parts.length >= 1 && headline.startsWith(parts[0])) {
                     return parts.length >= 2 ? parts[1] : parts[0];
                 }
             }
         }
-        // Fall back: show all stories for the current week
-        if (week < leagueCore.getNewsStories().size() && !leagueCore.getNewsStories().get(week).isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            for (String s : leagueCore.getNewsStories().get(week)) {
-                sb.append(s.replace(">", "\n\n")).append("\n\n---\n\n");
+        if (week >= 0 && week < leagueCore.getNewsStories().size()) {
+            List<String> weekStories = leagueCore.getNewsStories().get(week);
+            if (weekStories != null && !weekStories.isEmpty()) {
+                StringBuilder sb = new StringBuilder();
+                for (String s : weekStories) {
+                    sb.append(s.replace(">", "\n\n")).append("\n\n---\n\n");
+                }
+                return sb.toString();
             }
-            return sb.toString();
         }
         return null;
     }
 
-    // -------------------------------------------------------------------------
-    // Hall of Fame panel
-    // -------------------------------------------------------------------------
+    // =========================================================================
+    // Coach Database tab
+    // =========================================================================
+
+    private JPanel buildCoachDatabasePanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        String[] categories = {
+                "National Champs", "Conf. Champs", "Bowl Wins", "Total Wins", "Win %",
+                "Coach of the Year", "Conf COTY", "All-Americans", "All-Conference",
+                "Career Score", "Career Prestige"
+        };
+        JComboBox<String> categoryBox = new JComboBox<>(categories);
+        categoryBox.setFont(new Font("SansSerif", Font.PLAIN, 13));
+
+        String[] columns = {"Rank", "Coach", "Value"};
+        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+
+        JTable table = new JTable(model);
+        table.setRowHeight(22);
+        table.setFillsViewportHeight(true);
+
+        Runnable loadCoaches = () -> {
+            int sel = categoryBox.getSelectedIndex();
+            model.setRowCount(0);
+            try {
+                ArrayList<String> rankings = leagueCore.getCoachDatabase(sel);
+                if (rankings != null) {
+                    for (String line : rankings) {
+                        String[] parts = line.split(",", 3);
+                        if (parts.length >= 3) {
+                            model.addRow(new Object[]{parts[0].trim(), parts[1].trim(), parts[2].trim()});
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                PlatformLog.e(TAG, "Error loading coach database", ex);
+            }
+        };
+
+        categoryBox.addActionListener(e -> loadCoaches.run());
+        loadCoaches.run();
+
+        JPanel topBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        topBar.add(new JLabel("Sort by: "));
+        topBar.add(categoryBox);
+        panel.add(topBar, BorderLayout.NORTH);
+        panel.add(new JScrollPane(table), BorderLayout.CENTER);
+        return panel;
+    }
+
+    // =========================================================================
+    // Hall of Fame tab
+    // =========================================================================
 
     private JPanel buildHallOfFamePanel() {
         JPanel panel = new JPanel(new BorderLayout());
@@ -634,11 +1008,16 @@ public class LeagueHomeView extends JFrame {
         String[] columns = {"Name", "Position", "Team", "OVR"};
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
+            @Override public Class<?> getColumnClass(int col) {
+                return col == 3 ? Integer.class : String.class;
+            }
         };
         for (PlayerRecord pr : hof) {
             model.addRow(new Object[]{pr.name(), pr.position(), pr.teamName(), pr.ratOvr()});
         }
         JTable table = new JTable(model);
+        table.setAutoCreateRowSorter(true);
+        table.setRowHeight(22);
         table.setFillsViewportHeight(true);
         panel.add(new JScrollPane(table), BorderLayout.CENTER);
 
@@ -648,17 +1027,17 @@ public class LeagueHomeView extends JFrame {
         return panel;
     }
 
-    // -------------------------------------------------------------------------
-    // League Records panel
-    // -------------------------------------------------------------------------
+    // =========================================================================
+    // League Records tab
+    // =========================================================================
 
     private JPanel buildLeagueRecordsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        List<simulation.DataRecord> records = currentRecord.leagueRecords();
+        List<DataRecord> records = currentRecord.leagueRecords();
         if (records == null || records.isEmpty()) {
-            JLabel empty = new JLabel("No league records have been set yet — play a full season!",
+            JLabel empty = new JLabel("No league records have been set yet \u2014 play a full season!",
                     JLabel.CENTER);
             panel.add(empty, BorderLayout.CENTER);
             return panel;
@@ -668,24 +1047,26 @@ public class LeagueHomeView extends JFrame {
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
-        for (simulation.DataRecord dr : records) {
+        for (DataRecord dr : records) {
             if (dr != null) {
                 model.addRow(new Object[]{dr.key(), formatValue(dr.value()), formatHolder(dr.holder()), dr.year()});
             }
         }
         JTable table = new JTable(model);
+        table.setAutoCreateRowSorter(true);
+        table.setRowHeight(22);
         table.setFillsViewportHeight(true);
         panel.add(new JScrollPane(table), BorderLayout.CENTER);
         return panel;
     }
 
-    private String formatValue(float value) {
+    private static String formatValue(float value) {
         if (value == (int) value) return String.valueOf((int) value);
         return String.format("%.2f", value);
     }
 
     /**
-     * Formats a {@link simulation.DataRecord} holder string for display.
+     * Formats a {@link DataRecord} holder string for display.
      * Holders are stored as {@code "TeamName%PlayerName"} — this converts the
      * separator to an em-dash for readability.
      */
@@ -698,9 +1079,34 @@ public class LeagueHomeView extends JFrame {
         return holder;
     }
 
-    // -------------------------------------------------------------------------
+    // =========================================================================
+    // Team dialog helpers
+    // =========================================================================
+
+    private void openTeamDialog(LeagueRecord.TeamRecord team) {
+        Team live = liveTeamMap.get(team.name());
+        TeamDetailView.show(this, team, live);
+    }
+
+    private void openTeamDialogFromLive(Team live) {
+        LeagueRecord.TeamRecord teamRec = findTeamRecord(live.getName());
+        if (teamRec != null) {
+            TeamDetailView.show(this, teamRec, live);
+        }
+    }
+
+    private LeagueRecord.TeamRecord findTeamRecord(String teamName) {
+        for (LeagueRecord.ConferenceRecord c : currentRecord.conferences()) {
+            for (LeagueRecord.TeamRecord t : c.teams()) {
+                if (t.name().equals(teamName)) return t;
+            }
+        }
+        return null;
+    }
+
+    // =========================================================================
     // Static factory methods and snapshot viewer
-    // -------------------------------------------------------------------------
+    // =========================================================================
 
     public static void show(League league) {
         show(league, null);
