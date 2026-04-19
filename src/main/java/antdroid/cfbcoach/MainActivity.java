@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -2019,9 +2018,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 // Do something with the selection
                 if (saveLoadService.isSlotEmpty(itemy)) {
                     // Empty file, don't show dialog confirmation
-                    saveLoadService.saveToSlot(simLeague, itemy);
-                    Toast.makeText(MainActivity.this, "Saved league!",
-                            Toast.LENGTH_SHORT).show();
+                    boolean saved = saveLoadService.saveToSlot(simLeague, itemy);
+                    Toast.makeText(MainActivity.this,
+                            saved ? "Saved league!" : "Error: Failed to save league!",
+                            saved ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG).show();
                     dialog.dismiss();
                 } else {
                     // Ask for confirmation to overwrite file
@@ -2031,9 +2031,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     // Actually go back to main menu
-                                    saveLoadService.saveToSlot(simLeague, itemy);
-                                    Toast.makeText(MainActivity.this, "Saved league!",
-                                            Toast.LENGTH_SHORT).show();
+                                    boolean saved = saveLoadService.saveToSlot(simLeague, itemy);
+                                    Toast.makeText(MainActivity.this,
+                                            saved ? "Saved league!" : "Error: Failed to save league!",
+                                            saved ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG).show();
                                     dialog.dismiss();
                                 }
                             })

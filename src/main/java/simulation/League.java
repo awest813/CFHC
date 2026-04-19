@@ -1594,7 +1594,7 @@ public class League {
      * @return reference to the Conference object
      */
     public Conference findConference(String name) {
-        for (int i = 0; i < teamList.size(); i++) {
+        for (int i = 0; i < conferences.size(); i++) {
             if (conferences.get(i).confName.equals(name)) {
                 return conferences.get(i);
             }
@@ -6363,13 +6363,24 @@ Then conferences can see if they want to add them to their list if the teams mee
      * @return true if successful
      */
     public boolean saveLeague(File saveFile) {
-        try (FileOutputStream fos = new FileOutputStream(saveFile)) {
+        File tmp = new File(saveFile.getAbsolutePath() + ".tmp");
+        try (FileOutputStream fos = new FileOutputStream(tmp)) {
             SaveManager.save(this.toRecord(), fos);
-            return true;
         } catch (IOException e) {
-            PlatformLog.e("League", "Failed to save league to " + saveFile.getAbsolutePath(), e);
+            PlatformLog.e("League", "Failed to write temp save file " + tmp.getAbsolutePath(), e);
+            if (!tmp.delete()) {
+                PlatformLog.w("League", "Could not delete temp save file " + tmp.getAbsolutePath());
+            }
             return false;
         }
+        if (!tmp.renameTo(saveFile)) {
+            PlatformLog.e("League", "Failed to rename temp save file to " + saveFile.getAbsolutePath());
+            if (!tmp.delete()) {
+                PlatformLog.w("League", "Could not delete temp save file " + tmp.getAbsolutePath());
+            }
+            return false;
+        }
+        return true;
     }
 
 
