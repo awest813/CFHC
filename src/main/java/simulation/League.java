@@ -3367,7 +3367,7 @@ public class League {
         }
 
         if (teamVacancies.isEmpty()) {
-            teamVacancies = getCoachList();
+            teamVacancies = getCoachVacancies();
         }
         return teamVacancies;
     }
@@ -3385,7 +3385,7 @@ public class League {
     }
 
     //If there are no vacancies for user head coach...
-    public ArrayList<Team> getCoachList() {
+    public ArrayList<Team> getCoachVacancies() {
         ArrayList<Team> teamVacancies = new ArrayList<>();
 
         for (int c = 0; c < conferences.size(); c++) {
@@ -6708,6 +6708,15 @@ Then conferences can see if they want to add them to their list if the teams mee
      */
     public java.util.List<Staff> getCoachFreeAgents() {
         return java.util.Collections.unmodifiableList(coachFreeAgents);
+    }
+
+    /**
+     * Add a coach to the unemployed coach list.
+     */
+    public void addCoach(Staff coach) {
+        if (coach != null) {
+            coachList.add(coach);
+        }
     }
 
     /**

@@ -27,7 +27,7 @@ public final class SeasonController {
     }
 
     public void advanceWeek() {
-        league.newsHeadlines.clear();
+        league.clearNewsHeadlines();
 
         if (league.currentWeek == 0 && !redshirtComplete) {
             handlePreseasonTransition();

@@ -42,8 +42,8 @@ public class FullSeasonTest {
         league.setPlatformResourceProvider(resources);
 
         // Assign the first team as the user-controlled team.
-        assertFalse("League must have at least one team", league.teamList.isEmpty());
-        league.userTeam = league.teamList.get(0);
+        assertFalse("League must have at least one team", league.getTeamList().isEmpty());
+        league.userTeam = league.getTeamList().get(0);
         league.userTeam.userControlled = true;
 
         recruitingFlowCount = 0;
@@ -87,7 +87,7 @@ public class FullSeasonTest {
 
     @Test
     public void fullSeason_completesWithoutErrors() {
-        int initialTeamCount = league.teamList.size();
+        int initialTeamCount = league.getTeamList().size();
         int initialYear = league.getYear();
 
         // --- Phase 1: Preseason (week 0 → walk-ons + preseason news) ---
@@ -124,12 +124,12 @@ public class FullSeasonTest {
         // --- Basic invariant checks ---
         // Team count should be unchanged (no teams lost during season).
         assertEquals("Team count should remain the same",
-                initialTeamCount, league.teamList.size());
+                initialTeamCount, league.getTeamList().size());
 
         // Every team should have played their regular-season schedule.
         // Not all teams reach the conference championship or bowls, so the
         // minimum is regWeeks - 1 (12 games in a 13-week season).
-        for (Team t : league.teamList) {
+        for (Team t : league.getTeamList()) {
             int totalGames = t.wins + t.losses;
             assertTrue("Team " + t.name + " should have played at least " + (regWeeks - 1)
                             + " games but played " + totalGames,
@@ -142,12 +142,12 @@ public class FullSeasonTest {
 
         // League history should have gained one entry from updateLeagueHistory().
         assertTrue("League history should have at least one entry",
-                league.leagueHistory.size() >= 1);
+                league.getLeagueHistory().size() >= 1);
 
         // The national championship game was played — every season has a champion.
         // Check that at least one team has a national championship win.
         boolean hasChampion = false;
-        for (Team t : league.teamList) {
+        for (Team t : league.getTeamList()) {
             if (t.totalNCs > 0) {
                 hasChampion = true;
                 break;

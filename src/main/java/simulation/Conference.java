@@ -130,7 +130,7 @@ public class Conference {
         for (LeagueRecord.TeamRecord tr : record.teams()) {
             Team t = new Team(tr, league);
             confTeams.add(t);
-            league.teamList.add(t);
+            league.getTeamList().add(t);
         }
     }
 
@@ -191,46 +191,46 @@ public class Conference {
                 confTVContract = (int) (Math.random() * 5) + 4;
                 confTVBonus = (int)(confPrestige * 17.5);
 
-                league.newsStories.get(league.currentWeek + 1).add(TV + " TV Contract>A new television contract has been worked out with the "
+                league.addNewsStory(league.currentWeek + 1, TV + " TV Contract>A new television contract has been worked out with the "
                         + confName + " conference. The new television contract is for " + confTVContract + " years starting next season, and will provide bonuses of up to $" + confTVBonus + " every season to each team.");
 
-                league.newsTV.add(TV + " TV Contract:\n\tA new TV contract has been worked out with the "
+                league.getNewsTV().add(TV + " TV Contract:\n\tA new TV contract has been worked out with the "
                         + confName + " conference. The new television contract is for " + confTVContract + " years starting next season, and will provide bonuses of up to $" + confTVBonus + " every season to each team.");
 
-                league.newsHeadlines.add(confName + " TV Contract Reached for " + confTVContract + " years.");
+                league.addNewsHeadline(confName + " TV Contract Reached for " + confTVContract + " years.");
                 league.updateTV = true;
                 if(Math.random() < 0.15) {
                     TV = getTVName();
-                    league.newsStories.get(league.currentWeek + 1).add(confName + " TV Re-Branding>The " + confName + " conference has announced today that they will be re-branding their network branding to go along with the new network contract. The conference television channel will now be known as The "
+                    league.addNewsStory(league.currentWeek + 1, confName + " TV Re-Branding>The " + confName + " conference has announced today that they will be re-branding their network branding to go along with the new network contract. The conference television channel will now be known as The "
                     + TV + ".");
 
-                    league.newsTV.add(confName + " TV Re-Branding:\n\tThe " + confName + " conference has announced today that they will be re-branding their network branding to go along with the new network contract. The conference television channel will now be known as The "
+                    league.getNewsTV().add(confName + " TV Re-Branding:\n\tThe " + confName + " conference has announced today that they will be re-branding their network branding to go along with the new network contract. The conference television channel will now be known as The "
                             + TV + ".");
 
-                    league.newsHeadlines.add(confName + " Re-Brands Network to The " + TV + ".");
+                    league.addNewsHeadline(confName + " Re-Brands Network to The " + TV + ".");
                 }
             } else if (Math.random() < 0.50 && confPrestige < league.getAverageConfPrestige()) {
                 confTV = true;
                 confTVContract = (int) (Math.random() * 5) + 3;
                 confTVBonus = confPrestige * 6;
 
-                league.newsStories.get(league.currentWeek + 1).add(TV + " TV Contract>A new television contract has been worked out with the "
+                league.addNewsStory(league.currentWeek + 1, TV + " TV Contract>A new television contract has been worked out with the "
                         + confName + " conference. The new television contract is for " + confTVContract + " years, and will provide bonuses of up to $" + confTVBonus + " every season to each team.");
 
-                league.newsTV.add(TV + " Contract:\n\tA new television contract has been worked out with the "
+                league.getNewsTV().add(TV + " Contract:\n\tA new television contract has been worked out with the "
                         + confName + " conference. The new television contract is for " + confTVContract + " years, and will provide bonuses of up to $" + confTVBonus + " every season to each team.");
 
-                league.newsHeadlines.add(confName + " TV Contract Reached for " + confTVContract + " years.");
+                league.addNewsHeadline(confName + " TV Contract Reached for " + confTVContract + " years.");
                 league.updateTV = true;
                 if(Math.random() < 0.15) {
                     TV = getTVName();
-                    league.newsStories.get(league.currentWeek + 1).add(confName + " TV Re-Branding>The " + confName + " conference has announced today that they will be re-branding their network branding to go along with the new network contract. The conference television channel will now be known as The "
+                    league.addNewsStory(league.currentWeek + 1, confName + " TV Re-Branding>The " + confName + " conference has announced today that they will be re-branding their network branding to go along with the new network contract. The conference television channel will now be known as The "
                             + TV + ".");
 
-                    league.newsTV.add(confName + " TV Re-Branding:\n\tThe " + confName + " conference has announced today that they will be re-branding their network branding to go along with the new network contract. The conference television channel will now be known as The "
+                    league.getNewsTV().add(confName + " TV Re-Branding:\n\tThe " + confName + " conference has announced today that they will be re-branding their network branding to go along with the new network contract. The conference television channel will now be known as The "
                             + TV + ".");
 
-                    league.newsHeadlines.add(confName + " Re-Brands Network to The " + TV + ".");
+                    league.addNewsHeadline(confName + " Re-Brands Network to The " + TV + ".");
 
                 }
             }
@@ -241,9 +241,9 @@ public class Conference {
     private void confTVprofitSharing() {
         if (confTV && confTVContract > 0) {
             confTVContract--;
-            league.newsStories.get(league.currentWeek + 1).add(TV + " Annual Distribution>Each member of the " + confName + " Conference will be receiving $" + confTVBonus + " this off-season as part of their network contract. The current contract will expire in " + confTVContract + " years.");
+            league.addNewsStory(league.currentWeek + 1, TV + " Annual Distribution>Each member of the " + confName + " Conference will be receiving $" + confTVBonus + " this off-season as part of their network contract. The current contract will expire in " + confTVContract + " years.");
 
-            league.newsTV.add(TV + " Annual Profit Sharing:\n\t+$" + confTVBonus + " budget bonus.\nCurrent contract will expire in " + confTVContract + " years.");
+            league.getNewsTV().add(TV + " Annual Profit Sharing:\n\t+$" + confTVBonus + " budget bonus.\nCurrent contract will expire in " + confTVContract + " years.");
             league.updateTV = true;
             if(confTVContract <= 0) confTV = false;
 
@@ -260,9 +260,9 @@ public class Conference {
             confTV = false;
             confTVContract = 0;
             confTVBonus = 0;
-            league.newsStories.get(league.currentWeek + 1).add(TV + " TV Contract Expires>The parent company of the " + confName + " Network and the " + confName + " conference were unable to come to an agreement on a new contract. The contract is now expired and will have to wait until the end of next season for renegotiations to begin again.");
+            league.addNewsStory(league.currentWeek + 1, TV + " TV Contract Expires>The parent company of the " + confName + " Network and the " + confName + " conference were unable to come to an agreement on a new contract. The contract is now expired and will have to wait until the end of next season for renegotiations to begin again.");
 
-            league.newsTV.add(TV + " Contract Expires:\n\tThe parent company of the " + confName + " Network and the " + confName + " conference were unable to come to an agreement on a new contract. The contract is now expired and will have to wait until the end of next season for renegotiations to begin again.");
+            league.getNewsTV().add(TV + " Contract Expires:\n\tThe parent company of the " + confName + " Network and the " + confName + " conference were unable to come to an agreement on a new contract. The contract is now expired and will have to wait until the end of next season for renegotiations to begin again.");
             league.updateTV = true;
         }
     }
@@ -366,7 +366,7 @@ public class Conference {
         Team ooc1 = new Team("OOC1", "OOC", "OOC", 0, "OOC", 0, league);
         Team ooc2 = new Team("OOC2", "OOC", "OOC", 0, "OOC", 0, league);
         Team bye = new Team("BYE", "BYE", "BYE", 0, "BYE", 0, league);
-        bye.rankTeamPollScore = league.teamList.size();
+        bye.rankTeamPollScore = league.getTeamList().size();
 
         if (confTeams.size() % 2 != 0 && confTeams.size() >= minConfTeams) {
 /*            if(confTeams.size() >= 13) {
@@ -651,8 +651,8 @@ public class Conference {
             ccg = new Game(teams.get(0), teams.get(1), confName + " CCG");
             teams.get(0).gameSchedule.add(ccg);
             teams.get(1).gameSchedule.add(ccg);
-            league.newsStories.get(league.currentWeek + 1).add("Upcoming: " + confName + " Championship Game>" + teams.get(0).strRankTeamRecord() + " will host " + teams.get(1).strRankTeamRecord() + " in the conference championship game next week.");
-            league.weeklyScores.get(league.currentWeek + 2).add(ccg.gameName + ">" + ccg.awayTeam.strRankTeamRecord() + "\n" + ccg.homeTeam.strRankTeamRecord());
+            league.addNewsStory(league.currentWeek + 1, "Upcoming: " + confName + " Championship Game>" + teams.get(0).strRankTeamRecord() + " will host " + teams.get(1).strRankTeamRecord() + " in the conference championship game next week.");
+            league.addWeeklyScore(league.currentWeek + 2, ccg.gameName + ">" + ccg.awayTeam.strRankTeamRecord() + "\n" + ccg.homeTeam.strRankTeamRecord());
 
         }
     }
@@ -669,24 +669,24 @@ public class Conference {
             ccg.awayTeam.totalCCLosses++;
             ccg.homeTeam.HC.recordConfWins(1);
             ccg.awayTeam.HC.recordConfLosses(1);
-            league.newsStories.get(13).add(
+            league.addNewsStory(13,
                     ccg.homeTeam.name + " wins the " + confName + "!>" +
                             ccg.homeTeam.strRep() + " took care of business in the conference championship against " + ccg.awayTeam.strRep() +
                             ", winning at home with a score of " + ccg.homeScore + " to " + ccg.awayScore + "."
             );
-            league.newsHeadlines.add(ccg.homeTeam.name + " wins the " + confName + "!");
+            league.addNewsHeadline(ccg.homeTeam.name + " wins the " + confName + "!");
         } else {
             ccg.awayTeam.confChampion = "CC";
             ccg.awayTeam.totalCCs++;
             ccg.homeTeam.totalCCLosses++;
             ccg.awayTeam.HC.recordConfWins(1);
             ccg.homeTeam.HC.recordConfLosses(1);
-            league.newsStories.get(13).add(
+            league.addNewsStory(13,
                     ccg.awayTeam.name + " wins the " + confName + "!>" +
                             ccg.awayTeam.strRep() + " surprised many in the conference championship against " + ccg.homeTeam.strRep() +
                             ", winning on the road with a score of " + ccg.awayScore + " to " + ccg.homeScore + "."
             );
-            league.newsHeadlines.add(ccg.awayTeam.name + " wins the " + confName + "!");
+            league.addNewsHeadline(ccg.awayTeam.name + " wins the " + confName + "!");
 
         }
         Collections.sort(confTeams, new CompTeamPoll());

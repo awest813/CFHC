@@ -38,7 +38,7 @@ public final class LeagueCustomDataImporter {
                     continue;
                 }
 
-                for (Team team : league.teamList) {
+                for (Team team : league.getTeamList()) {
                     if (!fileSplit[0].equals(team.name)) {
                         continue;
                     }
@@ -85,7 +85,7 @@ public final class LeagueCustomDataImporter {
                     continue;
                 }
 
-                for (Team team : league.teamList) {
+                for (Team team : league.getTeamList()) {
                     if (!fileSplit[0].equals(team.name)) {
                         continue;
                     }

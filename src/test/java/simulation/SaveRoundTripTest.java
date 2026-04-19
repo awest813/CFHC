@@ -171,7 +171,7 @@ public class SaveRoundTripTest {
     }
 
     private Team findTeam(League league, String name) {
-        return league.teamList.stream()
+        return league.getTeamList().stream()
                 .filter(t -> t.name.equals(name))
                 .findFirst()
                 .orElse(null);
