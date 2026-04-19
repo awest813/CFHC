@@ -200,12 +200,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         try {
             if (!loadedLeague) {
                 // Set it to 1st team until one selected
-                userTeam = simLeague.teamList.get(0);
+                userTeam = simLeague.getTeamList().get(0);
                 simLeague.userTeam = userTeam;
                 userTeam.userControlled = true;
                 userTeamStr = userTeam.name;
-                currentTeam = simLeague.teamList.get(0);
-                currentConference = simLeague.conferences.get(0);
+                currentTeam = simLeague.getTeamList().get(0);
+                currentConference = simLeague.getConferences().get(0);
 
                 LeagueLaunchCoordinator.LaunchRequest launchRequest = getLaunchRequest();
                 if (launchRequest != null && launchRequest.isCustomUniverse()) importDataPrompt();
@@ -227,8 +227,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         PlatformUiHelper.avoidSpinnerDropdownFocus(examineConfSpinner);
 
         confList = new ArrayList<>();
-        for (int i = 0; i < simLeague.conferences.size(); i++) {
-            if(simLeague.conferences.get(i).confTeams.size() > 0) confList.add(simLeague.conferences.get(i).confName);
+        for (int i = 0; i < simLeague.getConferences().size(); i++) {
+            if(simLeague.getConferences().get(i).confTeams.size() > 0) confList.add(simLeague.getConferences().get(i).confName);
         }
         dataAdapterConf = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, confList);
@@ -250,8 +250,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         examineTeamSpinner = findViewById(R.id.examineTeamSpinner);
         PlatformUiHelper.avoidSpinnerDropdownFocus(examineTeamSpinner);
         teamList = new ArrayList<>();
-        for (int i = 0; i < simLeague.teamList.size(); i++) {
-            teamList.add(simLeague.teamList.get(i).strRep());
+        for (int i = 0; i < simLeague.getTeamList().size(); i++) {
+            teamList.add(simLeague.getTeamList().get(i).strRep());
         }
 
         dataAdapterTeam = new ArrayAdapter<>(this,
@@ -483,10 +483,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         builder.setItems(teams, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
                 // Do something with the selection
-                simLeague.teamList.get(item).HC.team = null;
-                simLeague.coachFreeAgents.add(simLeague.teamList.get(item).HC);
+                simLeague.getTeamList().get(item).HC.team = null;
+                simLeague.getCoachFreeAgents().add(simLeague.getTeamList().get(item).HC);
                 userTeam.userControlled = false;
-                userTeam = simLeague.teamList.get(item);
+                userTeam = simLeague.getTeamList().get(item);
                 simLeague.userTeam = userTeam;
                 userTeam.userControlled = true;
                 userTeamStr = userTeam.name;
@@ -732,8 +732,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void updateSpinners() {
         confList.clear();
-        for (int i = 0; i < simLeague.conferences.size(); i++) {
-            if(simLeague.conferences.get(i).confTeams.size() > 0) confList.add(simLeague.conferences.get(i).confName);
+        for (int i = 0; i < simLeague.getConferences().size(); i++) {
+            if(simLeague.getConferences().get(i).confTeams.size() > 0) confList.add(simLeague.getConferences().get(i).confName);
         }
 
         dataAdapterConf.notifyDataSetChanged();
@@ -830,8 +830,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void examineTeam(String teamName) {
         wantUpdateConf = false;
         // Find team
-        Team tempT = simLeague.teamList.get(0);
-        for (Team t : simLeague.teamList) {
+        Team tempT = simLeague.getTeamList().get(0);
+        for (Team t : simLeague.getTeamList()) {
             if (t.name.equals(teamName)) {
                 currentTeam = t;
                 tempT = t;
@@ -839,8 +839,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
         // Find conference
-        for (int i = 0; i < simLeague.conferences.size(); ++i) {
-            Conference c = simLeague.conferences.get(i);
+        for (int i = 0; i < simLeague.getConferences().size(); ++i) {
+            Conference c = simLeague.getConferences().get(i);
             if (c.confName.equals(currentTeam.conference)) {
                 if (c == currentConference) wantUpdateConf = true;
                 currentConference = c;
@@ -892,8 +892,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void updateCurrConference() {
         confList.clear();
-        for (int i = 0; i < simLeague.conferences.size(); i++) {
-            if(simLeague.conferences.get(i).confTeams.size() > 0) confList.add(simLeague.conferences.get(i).confName);
+        for (int i = 0; i < simLeague.getConferences().size(); i++) {
+            if(simLeague.getConferences().get(i).confTeams.size() > 0) confList.add(simLeague.getConferences().get(i).confName);
         }
         dataAdapterConf.notifyDataSetChanged();
 
@@ -1153,15 +1153,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Staff p = null;
         String[] nameSplit = name.split(" ");
         String nameHC = nameSplit[0] + " " + nameSplit[1];
-        for(int i = 0; i < simLeague.teamList.size(); i++) {
-            if(simLeague.teamList.get(i).HC != null && simLeague.teamList.get(i).HC.name.equals(nameHC)) return simLeague.teamList.get(i).HC;
-            if(simLeague.teamList.get(i).OC != null && simLeague.teamList.get(i).OC.name.equals(nameHC)) return simLeague.teamList.get(i).OC;
-            if(simLeague.teamList.get(i).DC != null && simLeague.teamList.get(i).DC.name.equals(nameHC)) return simLeague.teamList.get(i).DC;
+        for(int i = 0; i < simLeague.getTeamList().size(); i++) {
+            if(simLeague.getTeamList().get(i).HC != null && simLeague.getTeamList().get(i).HC.name.equals(nameHC)) return simLeague.getTeamList().get(i).HC;
+            if(simLeague.getTeamList().get(i).OC != null && simLeague.getTeamList().get(i).OC.name.equals(nameHC)) return simLeague.getTeamList().get(i).OC;
+            if(simLeague.getTeamList().get(i).DC != null && simLeague.getTeamList().get(i).DC.name.equals(nameHC)) return simLeague.getTeamList().get(i).DC;
 
         }
 
-        for(int i = 0; i < simLeague.coachDatabase.size(); i++) {
-            if(simLeague.coachDatabase.get(i).name.equals(nameHC)) return simLeague.coachDatabase.get(i);
+        for(int i = 0; i < simLeague.getCoachDatabase().size(); i++) {
+            if(simLeague.getCoachDatabase().get(i).name.equals(nameHC)) return simLeague.getCoachDatabase().get(i);
         }
         return p;
     }
@@ -1446,8 +1446,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             top25Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             top25hisSpinner.setAdapter(top25Adapter);
         } else {
-            String[] selection = new String[simLeague.leagueHistory.size()];
-            for (int i = 0; i < simLeague.leagueHistory.size(); ++i) {
+            String[] selection = new String[simLeague.getLeagueHistory().size()];
+            for (int i = 0; i < simLeague.getLeagueHistory().size(); ++i) {
                 selection[i] = Integer.toString(seasonStart + i);
             }
             Spinner top25hisSpinner = dialog.findViewById(R.id.spinnerBowlCCG);
@@ -1566,7 +1566,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         graph.getViewport().setScrollable(true);
         graph.getViewport().setYAxisBoundsManual(true);
         simLeague.sortTeamList();
-        graph.getViewport().setMaxY(simLeague.teamList.get(0).teamPrestige + 10);
+        graph.getViewport().setMaxY(simLeague.getTeamList().get(0).teamPrestige + 10);
         graph.getViewport().setMinY(0);
     }
 
@@ -1591,14 +1591,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         String[] yearLabels = new String[currentTeam.getTeamHistory().size()];
 
         for (int i = 0; i < currentTeam.getTeamHistory().size(); i++) {
-            series.appendData(new DataPoint(currentTeam.getTeamHistory().get(i).year, simLeague.teamList.size() - currentTeam.getTeamHistory().get(i).rank), true, i + 1, false);
+            series.appendData(new DataPoint(currentTeam.getTeamHistory().get(i).year, simLeague.getTeamList().size() - currentTeam.getTeamHistory().get(i).rank), true, i + 1, false);
             yearLabels[i] = Integer.toString(i + seasonStart);
         }
         graph.addSeries(series);
 
-        String[] rankLabels = new String[simLeague.teamList.size()+1];
-        for (int i = simLeague.teamList.size(); i >= 0; i--) {
-            rankLabels[simLeague.teamList.size() - i] = Integer.toString(i);
+        String[] rankLabels = new String[simLeague.getTeamList().size()+1];
+        for (int i = simLeague.getTeamList().size(); i >= 0; i--) {
+            rankLabels[simLeague.getTeamList().size() - i] = Integer.toString(i);
         }
 
         if (yearLabels.length > 1) {
@@ -1612,7 +1612,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         graph.getViewport().setScalable(true);
         graph.getViewport().setScrollable(true);
         graph.getViewport().setYAxisBoundsManual(true);
-        graph.getViewport().setMaxY(simLeague.teamList.size());
+        graph.getViewport().setMaxY(simLeague.getTeamList().size());
         graph.getViewport().setMinY(0);
     }
 
@@ -1703,7 +1703,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         graph.getViewport().setScrollable(true);
         graph.getViewport().setYAxisBoundsManual(true);
         simLeague.sortTeamList();
-        graph.getViewport().setMaxY(simLeague.teamList.get(0).teamPrestige + 10);
+        graph.getViewport().setMaxY(simLeague.getTeamList().get(0).teamPrestige + 10);
         graph.getViewport().setMinY(0);
     }
 
@@ -1727,15 +1727,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         String[] yearLabels = new String[hc.history.size()];
         for (int i = 0; i < hc.history.size(); i++) {
             if (!hc.history.get(i).equals("")) {
-                series.appendData(new DataPoint(Integer.parseInt(hc.history.get(i).split(": ")[0]), simLeague.teamList.size() - Integer.parseInt(hc.history.get(i).split("#")[1].split(" ")[0])), true, i + 1, false);
+                series.appendData(new DataPoint(Integer.parseInt(hc.history.get(i).split(": ")[0]), simLeague.getTeamList().size() - Integer.parseInt(hc.history.get(i).split("#")[1].split(" ")[0])), true, i + 1, false);
                 yearLabels[i] = hc.history.get(i).split(":")[0];
             }
         }
         graph.addSeries(series);
 
-        String[] rankLabels = new String[simLeague.teamList.size()+1];
-        for (int i = simLeague.teamList.size(); i >= 0; i--) {
-            rankLabels[simLeague.teamList.size() - i] = Integer.toString(i);
+        String[] rankLabels = new String[simLeague.getTeamList().size()+1];
+        for (int i = simLeague.getTeamList().size(); i >= 0; i--) {
+            rankLabels[simLeague.getTeamList().size() - i] = Integer.toString(i);
         }
 
         if (yearLabels.length > 1) {
@@ -1749,7 +1749,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         graph.getViewport().setScalable(true);
         graph.getViewport().setScrollable(true);
         graph.getViewport().setYAxisBoundsManual(true);
-        graph.getViewport().setMaxY(simLeague.teamList.size());
+        graph.getViewport().setMaxY(simLeague.getTeamList().size());
         graph.getViewport().setMinY(0);
     }
 
@@ -1903,8 +1903,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             selection[0] = "Offensive Player of the Year";
         } else {
             int confNum = 0;
-            for (int i = 0; i < simLeague.conferences.size(); ++i) {
-                if(simLeague.conferences.get(i).confTeams.size() >= simLeague.conferences.get(i).minConfTeams) confNum++;
+            for (int i = 0; i < simLeague.getConferences().size(); ++i) {
+                if(simLeague.getConferences().get(i).confTeams.size() >= simLeague.getConferences().get(i).minConfTeams) confNum++;
             }
             selection = new String[6 + confNum];
             selection[0] = "Offensive Player of the Year";
@@ -1915,9 +1915,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             selection[5] = "All-Freshman Team";
 
             confNum = 0;
-            for (int i = 0; i < simLeague.conferences.size(); ++i) {
-                if(simLeague.conferences.get(i).confTeams.size() >= simLeague.conferences.get(i).minConfTeams) {
-                    selection[confNum + 6] = simLeague.conferences.get(i).confName + " All-Conf Team";
+            for (int i = 0; i < simLeague.getConferences().size(); ++i) {
+                if(simLeague.getConferences().get(i).confTeams.size() >= simLeague.getConferences().get(i).minConfTeams) {
+                    selection[confNum + 6] = simLeague.getConferences().get(i).confName + " All-Conf Team";
                     confNum++;
                 }
             }
@@ -1938,11 +1938,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final String[] freshmanAwardList = simLeague.getFreshmanCeremonyStr().split(">");
         final String[] allAmericans = simLeague.getAllAmericanStr().split(">");
         final String[] allFreshman = simLeague.getAllFreshmanStr().split(">");
-        final String[][] allConference = new String[simLeague.conferences.size()][];
+        final String[][] allConference = new String[simLeague.getConferences().size()][];
 
         int confNum = 0;
-        for (int i = 0; i < simLeague.conferences.size(); ++i) {
-            if(simLeague.conferences.get(i).confTeams.size() >= simLeague.conferences.get(i).minConfTeams) {
+        for (int i = 0; i < simLeague.getConferences().size(); ++i) {
+            if(simLeague.getConferences().get(i).confTeams.size() >= simLeague.getConferences().get(i).minConfTeams) {
                 allConference[confNum] = simLeague.getAllConfStr(i).split(">");
                 confNum++;
             }
@@ -2134,8 +2134,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         goals = "";
         int confPos = 0;
 
-        for (int i = 0; i < simLeague.conferences.size(); ++i) {
-            Conference c = simLeague.conferences.get(i);
+        for (int i = 0; i < simLeague.getConferences().size(); ++i) {
+            Conference c = simLeague.getConferences().get(i);
             if (c.confName.equals(userTeam.conference)) {
                 for (int x = 0; x < c.confTeams.size(); x++) {
                     if (c.confTeams.get(x).name.equals(userTeam.name)) {
@@ -2157,7 +2157,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         goals += "This season your team is projected to finish ranked #" + userTeam.projectedPollRank + "!\n\n";
 
-        int num = (int)(simLeague.teamList.size()*.875);
+        int num = (int)(simLeague.getTeamList().size()*.875);
         if (userTeam.projectedPollRank > num) {
             goals += "Despite being projected at #" + userTeam.projectedPollRank + ", your goal is to finish in the Top " + num + ".\n\n";
         }
@@ -2194,7 +2194,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
 
-        simLeague.newsStories.get(simLeague.currentWeek).add("Season Goals>" + goals);
+        simLeague.getNewsStories().get(simLeague.currentWeek).add("Season Goals>" + goals);
         showSeasonGoalsDialog();
 
     }
@@ -2304,8 +2304,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         TextView textView = dialog.findViewById(android.R.id.message);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
 
-        simLeague.newsStories.get(simLeague.currentWeek + 1).add("Season Summary>" + simLeague.seasonSummaryStr());
-        simLeague.newsHeadlines.add("That wraps up the " + simLeague.getYear() + " Season");
+        simLeague.getNewsStories().get(simLeague.currentWeek + 1).add("Season Summary>" + simLeague.seasonSummaryStr());
+        simLeague.getNewsHeadlines().add("That wraps up the " + simLeague.getYear() + " Season");
     }
 
     //Show Prestige Change
@@ -2497,7 +2497,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //get user team from list dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Choose your new team:");
-        jobList = simLeague.teamList;
+        jobList = simLeague.getTeamList();
 
         final String[] teams = simLeague.getTeamListStr();
         builder.setItems(teams, new DialogInterface.OnClickListener() {
@@ -2618,7 +2618,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         userHC.contractLength = 6;
         userHC.baselinePrestige = userTeam.teamPrestige;
         userHC.promotionCandidate = false;
-        simLeague.newsStories.get(simLeague.currentWeek + 1).add("Coaching Hire: " + currentTeam.name + ">After an extensive search for a new head coach, " + currentTeam.name + " has hired " + userHC.name +
+        simLeague.getNewsStories().get(simLeague.currentWeek + 1).add("Coaching Hire: " + currentTeam.name + ">After an extensive search for a new head coach, " + currentTeam.name + " has hired " + userHC.name +
                 " to lead the team.");
         updateHeaderBar();
         examineTeam(currentTeam.name);
@@ -2666,12 +2666,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     userTeam.OC.baselinePrestige = 0;
                 } else {
                     userTeam.OC = new OC(list.get(item), userTeam);
-                    simLeague.newsHeadlines.add(userTeam.name + " adds new Off Coord " + userTeam.OC.name);
-                    simLeague.newsStories.get(simLeague.currentWeek).add("Off Coord Change: " + userTeam.name + ">After an extensive search for a new coordinator, " + userTeam.name + " has hired " + userTeam.OC.name +
+                    simLeague.getNewsHeadlines().add(userTeam.name + " adds new Off Coord " + userTeam.OC.name);
+                    simLeague.getNewsStories().get(simLeague.currentWeek).add("Off Coord Change: " + userTeam.name + ">After an extensive search for a new coordinator, " + userTeam.name + " has hired " + userTeam.OC.name +
                             " to lead the offense.");
                     userTeam.OC.contractLength = 3;
                     userTeam.OC.contractYear = 0;
-                    simLeague.coachFreeAgents.remove(list.get(item));
+                    simLeague.getCoachFreeAgents().remove(list.get(item));
 
                     if (userTeam.DC == null || userTeam.DC.contractYear >= userTeam.DC.contractLength) hireDC();
                     else simLeague.coordinatorCarousel();
@@ -2711,12 +2711,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     userTeam.DC.baselinePrestige = 0;
                 } else {
                     userTeam.DC = new DC(list.get(item), userTeam);
-                    simLeague.newsHeadlines.add(userTeam.name + " adds new Def Coord " + userTeam.DC.name);
-                    simLeague.newsStories.get(simLeague.currentWeek).add("Def Coord Change: " + userTeam.name + ">After an extensive search for a new coordinator, " + userTeam.name + " has hired " + userTeam.DC.name +
+                    simLeague.getNewsHeadlines().add(userTeam.name + " adds new Def Coord " + userTeam.DC.name);
+                    simLeague.getNewsStories().get(simLeague.currentWeek).add("Def Coord Change: " + userTeam.name + ">After an extensive search for a new coordinator, " + userTeam.name + " has hired " + userTeam.DC.name +
                             " to lead the defense.");
                     userTeam.DC.contractLength = 3;
                     userTeam.DC.contractYear = 0;
-                    simLeague.coachFreeAgents.remove(list.get(item));
+                    simLeague.getCoachFreeAgents().remove(list.get(item));
                     simLeague.coordinatorCarousel();
                 }
                 resetUI();
@@ -2754,12 +2754,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     userTeam.OC.baselinePrestige = 0;
                 } else {
                     userTeam.OC = new OC(list.get(item), userTeam);
-                    simLeague.newsHeadlines.add(userTeam.name + " adds new Off Coord " + userTeam.OC.name);
-                    simLeague.newsStories.get(simLeague.currentWeek).add("Off Coord Change: " + userTeam.name + ">After an extensive search for a new coordinator, " + userTeam.name + " has hired " + userTeam.OC.name +
+                    simLeague.getNewsHeadlines().add(userTeam.name + " adds new Off Coord " + userTeam.OC.name);
+                    simLeague.getNewsStories().get(simLeague.currentWeek).add("Off Coord Change: " + userTeam.name + ">After an extensive search for a new coordinator, " + userTeam.name + " has hired " + userTeam.OC.name +
                             " to lead the offense.");
                     userTeam.OC.contractLength = 3;
                     userTeam.OC.contractYear = 0;
-                    simLeague.coachFreeAgents.remove(list.get(item));
+                    simLeague.getCoachFreeAgents().remove(list.get(item));
                     dialog.dismiss();
                     hireDCNewTeam();
                 }
@@ -2799,12 +2799,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     userTeam.DC.baselinePrestige = 0;
                 } else {
                     userTeam.DC = new DC(list.get(item), userTeam);
-                    simLeague.newsHeadlines.add(userTeam.name + " adds new Def Coord " + userTeam.DC.name);
-                    simLeague.newsStories.get(simLeague.currentWeek).add("Def Coord Change: " + userTeam.name + ">After an extensive search for a new coordinator, " + userTeam.name + " has hired " + userTeam.DC.name +
+                    simLeague.getNewsHeadlines().add(userTeam.name + " adds new Def Coord " + userTeam.DC.name);
+                    simLeague.getNewsStories().get(simLeague.currentWeek).add("Def Coord Change: " + userTeam.name + ">After an extensive search for a new coordinator, " + userTeam.name + " has hired " + userTeam.DC.name +
                             " to lead the defense.");
                     userTeam.DC.contractLength = 3;
                     userTeam.DC.contractYear = 0;
-                    simLeague.coachFreeAgents.remove(list.get(item));
+                    simLeague.getCoachFreeAgents().remove(list.get(item));
                     simLeague.coordinatorCarousel();
                 }
                 resetUI();
@@ -3181,7 +3181,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         userTeam.newCoachTeamChanges();
                         userHC.retired = true;
                         userHC.team = null;
-                        simLeague.coachFreeAgents.add(new HeadCoach(userHC, userTeam));
+                        simLeague.getCoachFreeAgents().add(new HeadCoach(userHC, userTeam));
                         userTeam.setupUserCoach(userHC.name);
                         newGame = true;
                         userNameDialog();
@@ -3196,7 +3196,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         reincarnate = true;
                         userHC.retired = true;
                         userHC.team = null;
-                        simLeague.coachFreeAgents.add(new HeadCoach(userHC, userTeam));
+                        simLeague.getCoachFreeAgents().add(new HeadCoach(userHC, userTeam));
 
                         jobOffers(userHC);
 

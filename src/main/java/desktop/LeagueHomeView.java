@@ -418,10 +418,10 @@ public class LeagueHomeView extends JFrame {
 
     private String buildScoresText() {
         int week = leagueCore.currentWeek;
-        if (week <= 0 || week >= leagueCore.weeklyScores.size()) {
+        if (week <= 0 || week >= leagueCore.getWeeklyScores().size()) {
             return "No games have been played yet. Press Space or click Play Week to simulate.";
         }
-        List<String> lines = leagueCore.weeklyScores.get(week);
+        List<String> lines = leagueCore.getWeeklyScores().get(week);
         if (lines == null || lines.isEmpty()) {
             return "No recorded games for week " + week + ".";
         }
@@ -525,7 +525,7 @@ public class LeagueHomeView extends JFrame {
     }
 
     private Team findLiveTeam(String teamName) {
-        for (Conference c : leagueCore.conferences) {
+        for (Conference c : leagueCore.getConferences()) {
             for (Team t : c.confTeams) {
                 if (t.name.equals(teamName)) {
                     return t;
@@ -545,8 +545,8 @@ public class LeagueHomeView extends JFrame {
 
         // Left: headline list
         DefaultListModel<String> headlineModel = new DefaultListModel<>();
-        if (leagueCore.newsHeadlines != null) {
-            for (String h : leagueCore.newsHeadlines) {
+        if (leagueCore.getNewsHeadlines() != null) {
+            for (String h : leagueCore.getNewsHeadlines()) {
                 headlineModel.addElement(h);
             }
         }
@@ -587,13 +587,13 @@ public class LeagueHomeView extends JFrame {
      * newsStories list for the current week.
      */
     private String lookupStory(String headline) {
-        if (leagueCore.newsStories == null || leagueCore.newsStories.isEmpty()) return null;
+        if (leagueCore.getNewsStories() == null || leagueCore.getNewsStories().isEmpty()) return null;
         int week = leagueCore.currentWeek;
         // newsStories has one list per season-week; search around the current week
-        int maxWeek = Math.min(week + 1, leagueCore.newsStories.size() - 1);
+        int maxWeek = Math.min(week + 1, leagueCore.getNewsStories().size() - 1);
         if (maxWeek < 0) return null;
         for (int w = maxWeek; w >= 0; w--) {
-            for (String story : leagueCore.newsStories.get(w)) {
+            for (String story : leagueCore.getNewsStories().get(w)) {
                 String[] parts = story.split(">");
                 if (parts.length >= 2 && headline.contains(parts[0])) {
                     return parts[1];
@@ -605,9 +605,9 @@ public class LeagueHomeView extends JFrame {
             }
         }
         // Fall back: show all stories for the current week
-        if (week < leagueCore.newsStories.size() && !leagueCore.newsStories.get(week).isEmpty()) {
+        if (week < leagueCore.getNewsStories().size() && !leagueCore.getNewsStories().get(week).isEmpty()) {
             StringBuilder sb = new StringBuilder();
-            for (String s : leagueCore.newsStories.get(week)) {
+            for (String s : leagueCore.getNewsStories().get(week)) {
                 sb.append(s.replace(">", "\n\n")).append("\n\n---\n\n");
             }
             return sb.toString();
