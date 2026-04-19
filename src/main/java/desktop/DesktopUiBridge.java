@@ -152,16 +152,16 @@ public class DesktopUiBridge implements GameUiBridge {
     @Override
     public void showTransferList() {
         StringBuilder sb = new StringBuilder(TRANSFER_PORTAL_HEADER);
-        appendTransferGroup(sb, "QB", league.transferQBs);
-        appendTransferGroup(sb, "RB", league.transferRBs);
-        appendTransferGroup(sb, "WR", league.transferWRs);
-        appendTransferGroup(sb, "TE", league.transferTEs);
-        appendTransferGroup(sb, "OL", league.transferOLs);
-        appendTransferGroup(sb, "K",  league.transferKs);
-        appendTransferGroup(sb, "DL", league.transferDLs);
-        appendTransferGroup(sb, "LB", league.transferLBs);
-        appendTransferGroup(sb, "CB", league.transferCBs);
-        appendTransferGroup(sb, "S",  league.transferSs);
+        appendTransferGroup(sb, "QB", league.getTransferQBs());
+        appendTransferGroup(sb, "RB", league.getTransferRBs());
+        appendTransferGroup(sb, "WR", league.getTransferWRs());
+        appendTransferGroup(sb, "TE", league.getTransferTEs());
+        appendTransferGroup(sb, "OL", league.getTransferOLs());
+        appendTransferGroup(sb, "K",  league.getTransferKs());
+        appendTransferGroup(sb, "DL", league.getTransferDLs());
+        appendTransferGroup(sb, "LB", league.getTransferLBs());
+        appendTransferGroup(sb, "CB", league.getTransferCBs());
+        appendTransferGroup(sb, "S",  league.getTransferSs());
         if (sb.length() == TRANSFER_PORTAL_HEADER.length()) {
             sb.append("No players currently in the transfer portal.");
         }
@@ -220,7 +220,7 @@ public class DesktopUiBridge implements GameUiBridge {
     }
 
     private <T extends positions.Player> void appendTransferGroup(
-            StringBuilder sb, String label, java.util.ArrayList<T> list) {
+            StringBuilder sb, String label, java.util.List<T> list) {
         if (list == null || list.isEmpty()) return;
         for (T p : list) {
             sb.append(label).append("  ").append(p.name)
