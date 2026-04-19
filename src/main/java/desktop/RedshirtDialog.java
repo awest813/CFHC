@@ -130,6 +130,8 @@ public class RedshirtDialog extends JDialog {
     }
 
     private DefaultTableModel createModel() {
+        // COLUMNS order: {"Pos", "Name", "Yr", "OVR", "Team"}
+        // col 2 = Yr uses a String label ("FR"/"SO"/…) via yearLabel(); col 3 = OVR is Integer.
         return new DefaultTableModel(COLUMNS, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
             @Override public Class<?> getColumnClass(int col) {

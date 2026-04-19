@@ -98,6 +98,9 @@ public class LeagueHomeView extends JFrame {
             "Coach Overall", "Coach Score"
     };
 
+    /** Hint shown below the player rankings table. */
+    private static final String PLAYER_RANKINGS_HINT = "Statistics update after each simulated week.";
+
     /** Player ranking category names matching League.getPlayerRankStr(selection). */
     private static final String[] PLAYER_RANKING_CATEGORIES = {
             "QB Pass Rating", "QB Pass Yards", "QB Pass TDs", "QB INTs", "QB Completion %",
@@ -964,7 +967,7 @@ public class LeagueHomeView extends JFrame {
         topBar.add(categoryBox);
         panel.add(topBar, BorderLayout.NORTH);
         panel.add(new JScrollPane(table), BorderLayout.CENTER);
-        panel.add(new JLabel("Statistics update after each simulated week."), BorderLayout.SOUTH);
+        panel.add(new JLabel(PLAYER_RANKINGS_HINT), BorderLayout.SOUTH);
         return panel;
     }
 
