@@ -89,7 +89,7 @@ public class Player {
 
     public simulation.PlayerRecord toRecord() {
         return new simulation.PlayerRecord(
-                sanitizeRecordText(position), sanitizeRecordText(name), team != null ? sanitizeRecordText(team.name) : "", year, homeState, character, ratIntelligence, recruitRating,
+                sanitizeRecordText(position), sanitizeRecordText(name), team != null ? sanitizeRecordText(team.getName()) : "", year, homeState, character, ratIntelligence, recruitRating,
 
                 isTransfer, wasRedshirt, ratPot, ratDurability, ratOvr, cost,
                 new int[]{ratAttr1, ratAttr2, ratAttr3, ratAttr4}, height, weight,
@@ -230,7 +230,7 @@ public class Player {
 
         recruitRating = getScoutingGrade();
 
-        recruitTolerance = (int) ((60 - team.teamPrestige) / qbImportance);
+        recruitTolerance = (int) ((60 - team.getTeamPrestige()) / qbImportance);
         cost = getInitialCost();
         cost = (int) (cost / qbImportance);
 
@@ -289,7 +289,7 @@ public class Player {
     }
 
     int getLocationCost() {
-        double locFactor = Math.abs(team.location - (homeState / 10)) - 2.5;
+        double locFactor = Math.abs(team.getLocation() - (homeState / 10)) - 2.5;
         cost = cost + (int) (Math.random() * (locFactor * locationDiscount));
         if (cost < 0) cost = (int) Math.random() * 5 + 1;
         return cost;
@@ -578,16 +578,16 @@ public class Player {
     public int getHeismanScore() {
         int adjGames = getGamesStarted();
         if (adjGames > 11) adjGames = 11;
-        return ratOvr * adjGames + team.confPrestige * 5;
+        return ratOvr * adjGames + team.getConfPrestige() * 5;
     }
 
     public int getCareerScore() {
         int adjGames = getCareerGames();
-        return ratOvr * adjGames + team.confPrestige * 5;
+        return ratOvr * adjGames + team.getConfPrestige() * 5;
     }
 
     int getConfPrestigeBonus() {
-        return team.teamPrestige * 3 + team.confPrestige * 7 + ((120 - team.rankTeamPollScore) * 3);
+        return team.getTeamPrestige() * 3 + team.getConfPrestige() * 7 + ((120 - team.getRankTeamPollScore()) * 3);
     }
 
     int getScoutingGrade() {
@@ -623,17 +623,17 @@ public class Player {
 
 
     public int getProgression() {
-        int num = (ratPot * 2 + team.HC.ratTalent * 1 + 3 * team.teamFacilities + (int) (Math.random() * getChemistryProgression())) / 3;
+        int num = (ratPot * 2 + team.getHeadCoach().ratTalent * 1 + 3 * team.getTeamFacilities() + (int) (Math.random() * getChemistryProgression())) / 3;
         return num;
     }
 
     public int getProgressionOff() {
-        int num = (ratPot * 4 + team.HC.ratTalent * 2 + team.OC.ratOff + 7 * team.teamFacilities + (int) (Math.random() * getChemistryProgression())) / 7;
+        int num = (ratPot * 4 + team.getHeadCoach().ratTalent * 2 + team.getOC().ratOff + 7 * team.getTeamFacilities() + (int) (Math.random() * getChemistryProgression())) / 7;
         return num;
     }
 
     public int getProgressionDef() {
-        int num = (ratPot * 4 + team.HC.ratTalent * 2 + team.DC.ratDef + 7 * team.teamFacilities + (int) (Math.random() * getChemistryProgression())) / 7;
+        int num = (ratPot * 4 + team.getHeadCoach().ratTalent * 2 + team.getDC().ratDef + 7 * team.getTeamFacilities() + (int) (Math.random() * getChemistryProgression())) / 7;
         return num;
     }
 
@@ -650,7 +650,7 @@ public class Player {
     }
 
     public double getChemistryProgression() {
-        return team.teamChemistry - team.league.getAverageTeamChemistry();
+        return team.getTeamChemistry() - team.league.getAverageTeamChemistry();
     }
 
     public void durabilityProgression() {
@@ -817,7 +817,7 @@ public class Player {
         if (injury != null) {
             return getInitialName() + " [" + getYrStr() + "] " + injury.toString();
         }
-        return getInitialName() + " [" + getYrStr() + "] " + "Ovr: " + ratOvr + ", Pot: " + getPotRating(team.HC.ratTalent);
+        return getInitialName() + " [" + getYrStr() + "] " + "Ovr: " + ratOvr + ", Pot: " + getPotRating(team.getHeadCoach().ratTalent);
     }
 
     public String getInfoLineupTransfer() {
@@ -845,13 +845,13 @@ public class Player {
     }
 
     public String getPosNameYrOvr_Str() {
-        return team.name + ": " + position + " " + name + " [" + getYrStr() + "] Ovr: " + ratOvr;
+        return team.getName() + ": " + position + " " + name + " [" + getYrStr() + "] Ovr: " + ratOvr;
     }
 
 
     public String getMockDraftStr(int round, int selection, String nflTeam) {
         return "Round " + round + ", Pick " + selection + " : " + nflTeam + "\n" + position + " " + name + "\n" + getFullYrStr()
-                + ">\n" + team.name + "\n" + "Overall: " + ratOvr;
+                + ">\n" + team.getName() + "\n" + "Overall: " + ratOvr;
     }
 
     public String getAwardStats() {
@@ -907,7 +907,7 @@ public class Player {
 
     public ArrayList<String> stringPlayerInfo() {
         ArrayList<String> pAttr = new ArrayList<>();
-        pAttr.add("Team: " + team.name + ">Overall: " + ratOvr);
+        pAttr.add("Team: " + team.getName() + ">Overall: " + ratOvr);
         pAttr.add("Height " + getHeight() + ">Weight: " + getWeight());
         pAttr.add("Home State: " + getHomeState(homeState) + ">Scout Grade: " + getScoutingGradeString());
         return pAttr;
@@ -937,7 +937,7 @@ public class Player {
     public String getProfileBasics() {
         String rs ="";
         if(wasRedshirt) rs = "RS ";
-        return position + "," + rs + getFullYrStr() + "," + team.name + "," + getHomeState(homeState) + "," + getScoutingGradeString() + "," + getHeight() + "," + getWeight() + "," + ratOvr + "," + character + "," + ratIntelligence + "," + getStatus() + "," + ratDurability;
+        return position + "," + rs + getFullYrStr() + "," + team.getName() + "," + getHomeState(homeState) + "," + getScoutingGradeString() + "," + getHeight() + "," + getWeight() + "," + ratOvr + "," + character + "," + ratIntelligence + "," + getStatus() + "," + ratDurability;
     }
 
 

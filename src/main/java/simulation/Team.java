@@ -36,36 +36,36 @@ public class Team {
     private final DecimalFormat df2 = new DecimalFormat("#.##", symbols);
     private final DecimalFormat df3 = new DecimalFormat("#.###", symbols);
     public final League league;
-    public String name;
-    public String abbr;
-    public String conference;
-    public String division;
-    public int location;
+    private String name;
+    private String abbr;
+    private String conference;
+    private String division;
+    private int location;
     private ArrayList<TeamHistoryRecord> teamHistory;
     private ArrayList<PlayerRecord> hallOfFame;
 
-    public TeamRecords teamRecords;
-    public boolean userControlled;
-    public boolean showPopups;
-    public boolean penalized;
-    public boolean bowlBan;
-    public boolean recentPenalty;
-    public boolean facilityUpgrade;
-    public boolean disciplineAction;
+    private TeamRecords teamRecords;
+    private boolean userControlled;
+    private boolean showPopups;
+    private boolean penalized;
+    private boolean bowlBan;
+    private boolean recentPenalty;
+    private boolean facilityUpgrade;
+    private boolean disciplineAction;
 
 
-    public PlaybookOffense playbookOff;
-    public PlaybookDefense playbookDef;
-    public int playbookOffNum;
-    public int playbookDefNum;
+    private PlaybookOffense playbookOff;
+    private PlaybookDefense playbookDef;
+    private int playbookOffNum;
+    private int playbookDefNum;
 
     //Future Implementation?
-    public int teamBudget;
-    public int teamRecruitBudget;
-    public int teamDiscplineBudget;
-    public int teamDisciplineScore;
-    public int teamFacilities;
-    public int teamStadium;
+    private int teamBudget;
+    private int teamRecruitBudget;
+    private int teamDiscplineBudget;
+    private int teamDisciplineScore;
+    private int teamFacilities;
+    private int teamStadium;
 
     //Game Log variables
     private ArrayList<Game> gameSchedule;
@@ -74,92 +74,92 @@ public class Team {
     private ArrayList<String> gameWLSchedule;
     private ArrayList<Team> gameWinsAgainst;
     private ArrayList<Team> gameLossesAgainst;
-    public String confChampion;
-    public String sweet16;
-    public String qtFinalWL;
-    public String semiFinalWL;
-    public String natChampWL;
+    private String confChampion;
+    private String sweet16;
+    private String qtFinalWL;
+    private String semiFinalWL;
+    private String natChampWL;
 
     //Team stats
-    public int wins;
-    public int losses;
-    public int totalWins;
-    public int totalLosses;
-    public int totalCCs;
-    public int totalNCs;
-    public int totalCCLosses;
-    public int totalNCLosses;
-    public int totalBowls;
-    public int totalBowlLosses;
+    private int wins;
+    private int losses;
+    private int totalWins;
+    private int totalLosses;
+    private int totalCCs;
+    private int totalNCs;
+    private int totalCCLosses;
+    private int totalNCLosses;
+    private int totalBowls;
+    private int totalBowlLosses;
 
-    public TeamStreak winStreak;
+    private TeamStreak winStreak;
 
     //Season Stats
-    public int teamPoints;
-    public int teamOppPoints;
-    public int teamYards;
-    public int teamOppYards;
-    public int teamPassYards;
-    public int teamRushYards;
-    public int teamOppPassYards;
-    public int teamOppRushYards;
-    public int teamTODiff;
-    public int teamPrestige;
-    public int teamPrestigeStart;
-    public int teamDiscipline;
-    public double teamChemistry;
+    private int teamPoints;
+    private int teamOppPoints;
+    private int teamYards;
+    private int teamOppYards;
+    private int teamPassYards;
+    private int teamRushYards;
+    private int teamOppPassYards;
+    private int teamOppRushYards;
+    private int teamTODiff;
+    private int teamPrestige;
+    private int teamPrestigeStart;
+    private int teamDiscipline;
+    private double teamChemistry;
 
     //Calculated Stats
-    public float teamOffTalent;
-    public float teamDefTalent;
+    private float teamOffTalent;
+    private float teamDefTalent;
     private int[] prestigePts;
-    public float teamPollScore;
-    public int teamStrengthOfWins;
+    private float teamPollScore;
+    private int teamStrengthOfWins;
     private int teamStrengthOfLosses;
-    public double teamSOS;
-    public float teamRPI;
+    private double teamSOS;
+    private float teamRPI;
 
     //Calculated Ranks
-    public int rankTeamPoints;
-    public int rankTeamOppPoints;
-    public int rankTeamYards;
-    public int rankTeamOppYards;
-    public int rankTeamPassYards;
-    public int rankTeamRushYards;
-    public int rankTeamOppPassYards;
-    public int rankTeamOppRushYards;
-    public int rankTeamTODiff;
-    public int rankTeamOffTalent;
-    public int rankTeamDefTalent;
-    public int rankTeamPrestige;
+    private int rankTeamPoints;
+    private int rankTeamOppPoints;
+    private int rankTeamYards;
+    private int rankTeamOppYards;
+    private int rankTeamPassYards;
+    private int rankTeamRushYards;
+    private int rankTeamOppPassYards;
+    private int rankTeamOppRushYards;
+    private int rankTeamTODiff;
+    private int rankTeamOffTalent;
+    private int rankTeamDefTalent;
+    private int rankTeamPrestige;
     private int rankTeamPrestigeStart;
-    public int rankTeamRecruitClass;
-    public int rankTeamPollScore;
-    public int rankTeamStrengthOfWins;
-    public int rankTeamSOS;
-    public int rankTeamDisciplineScore;
-    public int rankTeamBudget;
-    public int rankTeamFacilities;
-    public int rankTeamChemistry;
-    public int rankTeamRPI;
+    private int rankTeamRecruitClass;
+    private int rankTeamPollScore;
+    private int rankTeamStrengthOfWins;
+    private int rankTeamSOS;
+    private int rankTeamDisciplineScore;
+    private int rankTeamBudget;
+    private int rankTeamFacilities;
+    private int rankTeamChemistry;
+    private int rankTeamRPI;
 
     //prestige/talent improvements
-    public int confPrestige;
-    public int disciplinePts;
-    public int projectedWins;
-    public int projectedPollRank;
-    public float projectedPollScore;
-    public float teamStartOffTal;
-    public float teamStartDefTal;
+    private int confPrestige;
+    private int disciplinePts;
+    private int projectedWins;
+    private int projectedPollRank;
+    private float projectedPollScore;
+    private float teamStartOffTal;
+    private float teamStartDefTal;
 
     //Head HeadCoach
-    public HeadCoach HC;
-    public staff.OC OC;
-    public staff.DC DC;
-    public boolean fired;
+    private HeadCoach HC;
+    private staff.OC OC;
+    private staff.DC DC;
+    private boolean fired;
     private boolean newContract;
     private boolean retired;
-    public String contractString;
+    private String contractString;
 
     //players on team
     //offense
@@ -182,10 +182,10 @@ public class Team {
     private ArrayList<Player> playersInjured;
     private ArrayList<Player> playersDis;
 
-    public String suspensionNews;
-    public boolean suspension;
+    private String suspensionNews;
+    private boolean suspension;
 
-    public int HoFCount = 0;
+    private int HoFCount = 0;
     //Defined Variables
 
     public final int startersQB = RosterRules.STARTERS_QB;
@@ -231,7 +231,7 @@ public class Team {
 
     private final int ratTransfer = 70;
     private final int promotionNum = 0;
-    public int qbtransferNum = 0;
+    private int qbtransferNum = 0;
 
     public final int five = 80;
     public final int four = 74;
@@ -5897,6 +5897,248 @@ public class Team {
     public java.util.List<Player> getPlayersInjured() {
         return java.util.Collections.unmodifiableList(playersInjured);
     }
+
+    // -------------------------------------------------------------------------
+    // Encapsulated field accessors
+    // -------------------------------------------------------------------------
+
+    // Identity
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getAbbr() { return abbr; }
+    public void setAbbr(String abbr) { this.abbr = abbr; }
+    public String getConference() { return conference; }
+    public void setConference(String conference) { this.conference = conference; }
+    public String getDivision() { return division; }
+    public void setDivision(String division) { this.division = division; }
+    public int getLocation() { return location; }
+    public void setLocation(int location) { this.location = location; }
+
+    // Config flags
+    public TeamRecords getTeamRecords() { return teamRecords; }
+    public void setTeamRecords(TeamRecords tr) { this.teamRecords = tr; }
+    public boolean isUserControlled() { return userControlled; }
+    public boolean getUserControlled() { return userControlled; }
+    public void setUserControlled(boolean uc) { this.userControlled = uc; }
+    public boolean isShowPopups() { return showPopups; }
+    public void setShowPopups(boolean sp) { this.showPopups = sp; }
+    public boolean isPenalized() { return penalized; }
+    public void setPenalized(boolean p) { this.penalized = p; }
+    public boolean isBowlBan() { return bowlBan; }
+    public void setBowlBan(boolean bb) { this.bowlBan = bb; }
+    public boolean isRecentPenalty() { return recentPenalty; }
+    public void setRecentPenalty(boolean rp) { this.recentPenalty = rp; }
+    public boolean isFacilityUpgrade() { return facilityUpgrade; }
+    public void setFacilityUpgrade(boolean fu) { this.facilityUpgrade = fu; }
+    public boolean isDisciplineAction() { return disciplineAction; }
+    public void setDisciplineAction(boolean da) { this.disciplineAction = da; }
+    public boolean isFired() { return fired; }
+    public void setFired(boolean fired) { this.fired = fired; }
+    public boolean isSuspension() { return suspension; }
+    public void setSuspension(boolean suspension) { this.suspension = suspension; }
+
+    // Playbook
+    public PlaybookOffense getPlaybookOffense() { return playbookOff; }
+    public void setPlaybookOffense(PlaybookOffense pb) { this.playbookOff = pb; }
+    public PlaybookDefense getPlaybookDefense() { return playbookDef; }
+    public void setPlaybookDefense(PlaybookDefense pb) { this.playbookDef = pb; }
+    public int getPlaybookOffNum() { return playbookOffNum; }
+    public void setPlaybookOffNum(int n) { this.playbookOffNum = n; }
+    public int getPlaybookDefNum() { return playbookDefNum; }
+    public void setPlaybookDefNum(int n) { this.playbookDefNum = n; }
+
+    // Budget/facilities
+    public int getTeamBudget() { return teamBudget; }
+    public void setTeamBudget(int budget) { this.teamBudget = budget; }
+    public int getTeamRecruitBudget() { return teamRecruitBudget; }
+    public void setTeamRecruitBudget(int budget) { this.teamRecruitBudget = budget; }
+    public int getTeamDisciplineBudget() { return teamDiscplineBudget; }
+    public void setTeamDisciplineBudget(int budget) { this.teamDiscplineBudget = budget; }
+    public int getTeamDisciplineScore() { return teamDisciplineScore; }
+    public void setTeamDisciplineScore(int score) { this.teamDisciplineScore = score; }
+    public int getTeamFacilities() { return teamFacilities; }
+    public void setTeamFacilities(int f) { this.teamFacilities = f; }
+    public int getTeamStadium() { return teamStadium; }
+    public void setTeamStadium(int s) { this.teamStadium = s; }
+
+    // Postseason result strings
+    public String getConfChampion() { return confChampion; }
+    public void setConfChampion(String s) { this.confChampion = s; }
+    public String getSweet16() { return sweet16; }
+    public void setSweet16(String s) { this.sweet16 = s; }
+    public String getQtFinalWL() { return qtFinalWL; }
+    public void setQtFinalWL(String s) { this.qtFinalWL = s; }
+    public String getSemiFinalWL() { return semiFinalWL; }
+    public void setSemiFinalWL(String s) { this.semiFinalWL = s; }
+    public String getNatChampWL() { return natChampWL; }
+    public void setNatChampWL(String s) { this.natChampWL = s; }
+
+    // Season/career record stats
+    public int getWins() { return wins; }
+    public void setWins(int wins) { this.wins = wins; }
+    public void incrementWins() { wins++; }
+    public int getLosses() { return losses; }
+    public void setLosses(int losses) { this.losses = losses; }
+    public void incrementLosses() { losses++; }
+    public int getTotalWins() { return totalWins; }
+    public void setTotalWins(int tw) { this.totalWins = tw; }
+    public void incrementTotalWins() { totalWins++; }
+    public int getTotalLosses() { return totalLosses; }
+    public void setTotalLosses(int tl) { this.totalLosses = tl; }
+    public void incrementTotalLosses() { totalLosses++; }
+    public int getTotalCCs() { return totalCCs; }
+    public void setTotalCCs(int n) { this.totalCCs = n; }
+    public void incrementTotalCCs() { totalCCs++; }
+    public int getTotalNCs() { return totalNCs; }
+    public void setTotalNCs(int n) { this.totalNCs = n; }
+    public void incrementTotalNCs() { totalNCs++; }
+    public int getTotalCCLosses() { return totalCCLosses; }
+    public void setTotalCCLosses(int n) { this.totalCCLosses = n; }
+    public void incrementTotalCCLosses() { totalCCLosses++; }
+    public int getTotalNCLosses() { return totalNCLosses; }
+    public void setTotalNCLosses(int n) { this.totalNCLosses = n; }
+    public void incrementTotalNCLosses() { totalNCLosses++; }
+    public int getTotalBowls() { return totalBowls; }
+    public void setTotalBowls(int n) { this.totalBowls = n; }
+    public void incrementTotalBowls() { totalBowls++; }
+    public int getTotalBowlLosses() { return totalBowlLosses; }
+    public void setTotalBowlLosses(int n) { this.totalBowlLosses = n; }
+    public void incrementTotalBowlLosses() { totalBowlLosses++; }
+    public TeamStreak getWinStreak() { return winStreak; }
+    public void setWinStreak(TeamStreak ws) { this.winStreak = ws; }
+
+    // Season performance stats
+    public int getTeamPoints() { return teamPoints; }
+    public void setTeamPoints(int pts) { this.teamPoints = pts; }
+    public void addTeamPoints(int pts) { teamPoints += pts; }
+    public int getTeamOppPoints() { return teamOppPoints; }
+    public void setTeamOppPoints(int pts) { this.teamOppPoints = pts; }
+    public void addTeamOppPoints(int pts) { teamOppPoints += pts; }
+    public int getTeamYards() { return teamYards; }
+    public void setTeamYards(int y) { this.teamYards = y; }
+    public void addTeamYards(int y) { teamYards += y; }
+    public int getTeamOppYards() { return teamOppYards; }
+    public void setTeamOppYards(int y) { this.teamOppYards = y; }
+    public void addTeamOppYards(int y) { teamOppYards += y; }
+    public int getTeamPassYards() { return teamPassYards; }
+    public void setTeamPassYards(int y) { this.teamPassYards = y; }
+    public void addTeamPassYards(int y) { teamPassYards += y; }
+    public int getTeamRushYards() { return teamRushYards; }
+    public void setTeamRushYards(int y) { this.teamRushYards = y; }
+    public void addTeamRushYards(int y) { teamRushYards += y; }
+    public int getTeamOppPassYards() { return teamOppPassYards; }
+    public void setTeamOppPassYards(int y) { this.teamOppPassYards = y; }
+    public void addTeamOppPassYards(int y) { teamOppPassYards += y; }
+    public int getTeamOppRushYards() { return teamOppRushYards; }
+    public void setTeamOppRushYards(int y) { this.teamOppRushYards = y; }
+    public void addTeamOppRushYards(int y) { teamOppRushYards += y; }
+    public int getTeamTODiff() { return teamTODiff; }
+    public void setTeamTODiff(int v) { this.teamTODiff = v; }
+    public void addTeamTODiff(int v) { teamTODiff += v; }
+    public int getTeamPrestige() { return teamPrestige; }
+    public void setTeamPrestige(int prestige) { this.teamPrestige = prestige; }
+    public int getTeamPrestigeStart() { return teamPrestigeStart; }
+    public void setTeamPrestigeStart(int ps) { this.teamPrestigeStart = ps; }
+    public void setTeamDiscipline(int d) { this.teamDiscipline = d; }
+    public void setTeamChemistry(double c) { this.teamChemistry = c; }
+
+    // Calculated stats field accessors (distinct from computed methods getSOS/getRPI/getOffTalent/getDefTalent/getTeamDiscipline/getTeamChemistry)
+    public float getTeamOffTalent() { return teamOffTalent; }
+    public void setTeamOffTalent(float t) { this.teamOffTalent = t; }
+    public float getTeamDefTalent() { return teamDefTalent; }
+    public void setTeamDefTalent(float t) { this.teamDefTalent = t; }
+    public float getTeamPollScore() { return teamPollScore; }
+    public void setTeamPollScore(float s) { this.teamPollScore = s; }
+    public int getTeamStrengthOfWins() { return teamStrengthOfWins; }
+    public void setTeamStrengthOfWins(int s) { this.teamStrengthOfWins = s; }
+    public double getTeamSOS() { return teamSOS; }
+    public void setTeamSOS(double s) { this.teamSOS = s; }
+    public float getTeamRPI() { return teamRPI; }
+    public void setTeamRPI(float r) { this.teamRPI = r; }
+
+    // Rankings
+    public int getRankTeamPoints() { return rankTeamPoints; }
+    public void setRankTeamPoints(int r) { this.rankTeamPoints = r; }
+    public int getRankTeamOppPoints() { return rankTeamOppPoints; }
+    public void setRankTeamOppPoints(int r) { this.rankTeamOppPoints = r; }
+    public int getRankTeamYards() { return rankTeamYards; }
+    public void setRankTeamYards(int r) { this.rankTeamYards = r; }
+    public int getRankTeamOppYards() { return rankTeamOppYards; }
+    public void setRankTeamOppYards(int r) { this.rankTeamOppYards = r; }
+    public int getRankTeamPassYards() { return rankTeamPassYards; }
+    public void setRankTeamPassYards(int r) { this.rankTeamPassYards = r; }
+    public int getRankTeamRushYards() { return rankTeamRushYards; }
+    public void setRankTeamRushYards(int r) { this.rankTeamRushYards = r; }
+    public int getRankTeamOppPassYards() { return rankTeamOppPassYards; }
+    public void setRankTeamOppPassYards(int r) { this.rankTeamOppPassYards = r; }
+    public int getRankTeamOppRushYards() { return rankTeamOppRushYards; }
+    public void setRankTeamOppRushYards(int r) { this.rankTeamOppRushYards = r; }
+    public int getRankTeamTODiff() { return rankTeamTODiff; }
+    public void setRankTeamTODiff(int r) { this.rankTeamTODiff = r; }
+    public int getRankTeamOffTalent() { return rankTeamOffTalent; }
+    public void setRankTeamOffTalent(int r) { this.rankTeamOffTalent = r; }
+    public int getRankTeamDefTalent() { return rankTeamDefTalent; }
+    public void setRankTeamDefTalent(int r) { this.rankTeamDefTalent = r; }
+    public int getRankTeamPrestige() { return rankTeamPrestige; }
+    public void setRankTeamPrestige(int r) { this.rankTeamPrestige = r; }
+    public int getRankTeamRecruitClass() { return rankTeamRecruitClass; }
+    public void setRankTeamRecruitClass(int r) { this.rankTeamRecruitClass = r; }
+    public int getRankTeamPollScore() { return rankTeamPollScore; }
+    public void setRankTeamPollScore(int r) { this.rankTeamPollScore = r; }
+    public int getRankTeamStrengthOfWins() { return rankTeamStrengthOfWins; }
+    public void setRankTeamStrengthOfWins(int r) { this.rankTeamStrengthOfWins = r; }
+    public int getRankTeamSOS() { return rankTeamSOS; }
+    public void setRankTeamSOS(int r) { this.rankTeamSOS = r; }
+    public int getRankTeamDisciplineScore() { return rankTeamDisciplineScore; }
+    public void setRankTeamDisciplineScore(int r) { this.rankTeamDisciplineScore = r; }
+    public int getRankTeamBudget() { return rankTeamBudget; }
+    public void setRankTeamBudget(int r) { this.rankTeamBudget = r; }
+    public int getRankTeamFacilities() { return rankTeamFacilities; }
+    public void setRankTeamFacilities(int r) { this.rankTeamFacilities = r; }
+    public int getRankTeamChemistry() { return rankTeamChemistry; }
+    public void setRankTeamChemistry(int r) { this.rankTeamChemistry = r; }
+    public int getRankTeamRPI() { return rankTeamRPI; }
+    public void setRankTeamRPI(int r) { this.rankTeamRPI = r; }
+
+    // Projections/misc
+    public int getConfPrestige() { return confPrestige; }
+    public void setConfPrestige(int cp) { this.confPrestige = cp; }
+    public int getDisciplinePts() { return disciplinePts; }
+    public void setDisciplinePts(int dp) { this.disciplinePts = dp; }
+    public int getProjectedWins() { return projectedWins; }
+    public void setProjectedWins(int pw) { this.projectedWins = pw; }
+    public int getProjectedPollRank() { return projectedPollRank; }
+    public void setProjectedPollRank(int pr) { this.projectedPollRank = pr; }
+    public float getProjectedPollScore() { return projectedPollScore; }
+    public void setProjectedPollScore(float ps) { this.projectedPollScore = ps; }
+    public float getTeamStartOffTal() { return teamStartOffTal; }
+    public void setTeamStartOffTal(float t) { this.teamStartOffTal = t; }
+    public float getTeamStartDefTal() { return teamStartDefTal; }
+    public void setTeamStartDefTal(float t) { this.teamStartDefTal = t; }
+
+    // Staff references
+    public HeadCoach getHeadCoach() { return HC; }
+    public void setHeadCoach(HeadCoach hc) { this.HC = hc; }
+    public staff.OC getOC() { return OC; }
+    public void setOC(staff.OC oc) { this.OC = oc; }
+    public staff.DC getDC() { return DC; }
+    public void setDC(staff.DC dc) { this.DC = dc; }
+    public String getContractString() { return contractString; }
+    public void setContractString(String cs) { this.contractString = cs; }
+
+    // Misc
+    public String getSuspensionNews() { return suspensionNews; }
+    public void setSuspensionNews(String sn) { this.suspensionNews = sn; }
+    public int getHoFCount() { return HoFCount; }
+    public void setHoFCount(int count) { this.HoFCount = count; }
+    public void incrementHoFCount() { HoFCount++; }
+    public int getQbTransferNum() { return qbtransferNum; }
+    public void setQbTransferNum(int n) { this.qbtransferNum = n; }
+    public void incrementQbTransferNum() { qbtransferNum++; }
+
+    // -------------------------------------------------------------------------
+    // End encapsulated field accessors
+    // -------------------------------------------------------------------------
 
     /**
      * Add a player to the injured list.

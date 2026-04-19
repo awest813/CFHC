@@ -366,10 +366,10 @@ public class League {
         for (int i = 0; i < conferences.size(); ++i) {
             for (int j = 0; j < conferences.get(i).confTeams.size(); ++j) {
                 teamList.add(conferences.get(i).confTeams.get(j));
-                teamList.get(i).playbookOffNum = teamList.get(i).getCPUOffense();
-                teamList.get(i).playbookDefNum = teamList.get(i).getCPUDefense();
-                teamList.get(i).playbookOff = teamList.get(i).getPlaybookOff()[teamList.get(i).playbookOffNum];
-                teamList.get(i).playbookDef = teamList.get(i).getPlaybookDef()[teamList.get(i).playbookDefNum];
+                teamList.get(i).setPlaybookOffNum(teamList.get(i).getCPUOffense());
+                teamList.get(i).setPlaybookDefNum(teamList.get(i).getCPUDefense());
+                teamList.get(i).setPlaybookOffense(teamList.get(i).getPlaybookOff()[teamList.get(i).getPlaybookOffNum()]);
+                teamList.get(i).setPlaybookDefense(teamList.get(i).getPlaybookDef()[teamList.get(i).getPlaybookDefNum()]);
             }
         }
 
@@ -492,14 +492,13 @@ public class League {
         for (int i = 0; i < conferences.size(); ++i) {
             for (int j = 0; j < conferences.get(i).confTeams.size(); ++j) {
                 teamList.add(conferences.get(i).confTeams.get(j));
-                teamList.get(i).playbookOffNum = teamList.get(i).getCPUOffense();
-                teamList.get(i).playbookDefNum = teamList.get(i).getCPUDefense();
-                teamList.get(i).playbookOff = teamList.get(i).getPlaybookOff()[teamList.get(i).playbookOffNum];
-                teamList.get(i).playbookDef = teamList.get(i).getPlaybookDef()[teamList.get(i).playbookDefNum];
+                teamList.get(i).setPlaybookOffNum(teamList.get(i).getCPUOffense());
+                teamList.get(i).setPlaybookDefNum(teamList.get(i).getCPUDefense());
+                teamList.get(i).setPlaybookOffense(teamList.get(i).getPlaybookOff()[teamList.get(i).getPlaybookOffNum()]);
+                teamList.get(i).setPlaybookDefense(teamList.get(i).getPlaybookDef()[teamList.get(i).getPlaybookDefNum()]);
             }
         }
 
-        //Create new Bowl Game Names from TXT
         try {
             // Always wrap FileReader in BufferedReader.
             BufferedReader bufferedReader = new BufferedReader(new FileReader(customBowl));
@@ -549,7 +548,7 @@ public class League {
             if (conferences.get(c).confTeams.size() < conferences.get(c).minConfTeams) {
                 conferences.get(c).confName = "Independent";
                 for (int i = 0; i < conferences.get(c).confTeams.size(); i++) {
-                    conferences.get(c).confTeams.get(i).conference = "Independent";
+                    conferences.get(c).confTeams.get(i).setConference("Independent");
                 }
             }
         }
@@ -628,20 +627,20 @@ public class League {
                     sbTeam.append(line);
                 }
                 Team t = new Team(sbTeam.toString(), this);
-                conferences.get(getConfNumber(t.conference)).confTeams.add(t);
+                conferences.get(getConfNumber(t.getConference())).confTeams.add(t);
                 teamList.add(t);
-                teamList.get(i).playbookOffNum = teamList.get(i).getCPUOffense();
-                teamList.get(i).playbookDefNum = teamList.get(i).getCPUDefense();
-                teamList.get(i).playbookOff = teamList.get(i).getPlaybookOff()[teamList.get(i).playbookOffNum];
-                teamList.get(i).playbookDef = teamList.get(i).getPlaybookDef()[teamList.get(i).playbookDefNum];
+                teamList.get(i).setPlaybookOffNum(teamList.get(i).getCPUOffense());
+                teamList.get(i).setPlaybookDefNum(teamList.get(i).getCPUDefense());
+                teamList.get(i).setPlaybookOffense(teamList.get(i).getPlaybookOff()[teamList.get(i).getPlaybookOffNum()]);
+                teamList.get(i).setPlaybookDefense(teamList.get(i).getPlaybookDef()[teamList.get(i).getPlaybookDefNum()]);
             }
 
             //Set up user team
             if ((line = bufferedReader.readLine()) != null) {
                 for (Team t : teamList) {
-                    if (t.name.equals(line)) {
+                    if (t.getName().equals(line)) {
                         userTeam = t;
-                        userTeam.userControlled = true;
+                        userTeam.setUserControlled(true);
                         break;
                     }
                 }
@@ -659,17 +658,17 @@ public class League {
             while ((line = bufferedReader.readLine()) != null && !line.equals("END_COACH_HISTORY")) {
                 for (int i = 0; i < teamList.size(); ++i) { //Do for every team
                     while ((line = bufferedReader.readLine()) != null && !line.equals("END_COACH")) {
-                        teamList.get(i).HC.history.add(line);
+                        teamList.get(i).getHeadCoach().history.add(line);
                     }
                 }
                 for (int i = 0; i < teamList.size(); ++i) { //Do for every team
                     while ((line = bufferedReader.readLine()) != null && !line.equals("END_COACH")) {
-                        teamList.get(i).OC.history.add(line);
+                        teamList.get(i).getOC().history.add(line);
                     }
                 }
                 for (int i = 0; i < teamList.size(); ++i) { //Do for every team
                     while ((line = bufferedReader.readLine()) != null && !line.equals("END_COACH")) {
-                        teamList.get(i).DC.history.add(line);
+                        teamList.get(i).getDC().history.add(line);
                     }
                 }
             }
@@ -729,7 +728,7 @@ public class League {
                     while ((line = bufferedReader.readLine()) != null && !line.equals("END_TEAM")) {
                         record = line.split(",");
                         if (!record[1].equals("-1"))
-                            teamList.get(i).teamRecords.checkRecord(record[0], Float.parseFloat(record[1]), record[2], Integer.parseInt(record[3]));
+                            teamList.get(i).getTeamRecords().checkRecord(record[0], Float.parseFloat(record[1]), record[2], Integer.parseInt(record[3]));
                     }
                 }
             }
@@ -739,11 +738,11 @@ public class League {
                 leagueHoF.add(pr);
 
                 for (Team t : teamList) {
-                    if (t.name.equals(pr.teamName())) {
+                    if (t.getName().equals(pr.teamName())) {
                         t.addToHallOfFame(pr);
 
 
-                        t.HoFCount++;
+                        t.incrementHoFCount();
                     }
                 }
             }
@@ -886,20 +885,20 @@ public class League {
                     sbTeam.append(line);
                 }
                 Team t = new Team(sbTeam.toString(), this);
-                conferences.get(getConfNumber(t.conference)).confTeams.add(t);
+                conferences.get(getConfNumber(t.getConference())).confTeams.add(t);
                 teamList.add(t);
-                teamList.get(i).playbookOffNum = teamList.get(i).getCPUOffense();
-                teamList.get(i).playbookDefNum = teamList.get(i).getCPUDefense();
-                teamList.get(i).playbookOff = teamList.get(i).getPlaybookOff()[teamList.get(i).playbookOffNum];
-                teamList.get(i).playbookDef = teamList.get(i).getPlaybookDef()[teamList.get(i).playbookDefNum];
+                teamList.get(i).setPlaybookOffNum(teamList.get(i).getCPUOffense());
+                teamList.get(i).setPlaybookDefNum(teamList.get(i).getCPUDefense());
+                teamList.get(i).setPlaybookOffense(teamList.get(i).getPlaybookOff()[teamList.get(i).getPlaybookOffNum()]);
+                teamList.get(i).setPlaybookDefense(teamList.get(i).getPlaybookDef()[teamList.get(i).getPlaybookDefNum()]);
             }
 
             //Set up user team
             if ((line = bufferedReader.readLine()) != null) {
                 for (Team t : teamList) {
-                    if (t.name.equals(line)) {
+                    if (t.getName().equals(line)) {
                         userTeam = t;
-                        userTeam.userControlled = true;
+                        userTeam.setUserControlled(true);
                     }
                 }
             }
@@ -916,17 +915,17 @@ public class League {
             while ((line = bufferedReader.readLine()) != null && !line.equals("END_COACH_HISTORY")) {
                 for (int i = 0; i < teamList.size(); ++i) { //Do for every team
                     while ((line = bufferedReader.readLine()) != null && !line.equals("END_COACH")) {
-                        teamList.get(i).HC.history.add(line);
+                        teamList.get(i).getHeadCoach().history.add(line);
                     }
                 }
                 for (int i = 0; i < teamList.size(); ++i) { //Do for every team
                     while ((line = bufferedReader.readLine()) != null && !line.equals("END_COACH")) {
-                        teamList.get(i).OC.history.add(line);
+                        teamList.get(i).getOC().history.add(line);
                     }
                 }
                 for (int i = 0; i < teamList.size(); ++i) { //Do for every team
                     while ((line = bufferedReader.readLine()) != null && !line.equals("END_COACH")) {
-                        teamList.get(i).DC.history.add(line);
+                        teamList.get(i).getDC().history.add(line);
                     }
                 }
             }
@@ -998,10 +997,10 @@ public class League {
 
                 String[] fileSplit = line.split(":");
                 for (int i = 0; i < teamList.size(); ++i) {
-                    if (teamList.get(i).name.equals(fileSplit[0])) {
+                    if (teamList.get(i).getName().equals(fileSplit[0])) {
                         teamList.get(i).addToHallOfFame(PlayerRecord.fromCsv(line));
 
-                        teamList.get(i).HoFCount++;
+                        teamList.get(i).incrementHoFCount();
                     }
                 }
             }
@@ -1071,10 +1070,10 @@ public class League {
                 conferences.get(c).divisions.add(new Division("A", this));
                 conferences.get(c).divisions.add(new Division("B", this));
                 if (i % 2 == 0) {
-                    conferences.get(c).confTeams.get(i).division = conferences.get(c).divisions.get(1).divName;
+                    conferences.get(c).confTeams.get(i).setDivision(conferences.get(c).divisions.get(1).divName);
                     conferences.get(c).divisions.get(0).divTeams.add(conferences.get(c).confTeams.get(i));
                 } else {
-                    conferences.get(c).confTeams.get(i).division = conferences.get(c).divisions.get(2).divName;
+                    conferences.get(c).confTeams.get(i).setDivision(conferences.get(c).divisions.get(2).divName);
                     conferences.get(c).divisions.get(1).divTeams.add(conferences.get(c).confTeams.get(i));
                 }
             }
@@ -1201,8 +1200,8 @@ public class League {
         
         // Finalize setup
         for (Team t : teamList) {
-            t.playbookOffNum = t.getCPUOffense();
-            t.playbookDefNum = t.getCPUDefense();
+            t.setPlaybookOffNum(t.getCPUOffense());
+            t.setPlaybookDefNum(t.getCPUDefense());
         }
     }
 
@@ -1223,7 +1222,7 @@ public class League {
 
     public void hireMissingCoaches() {
         for(Team t : teamList) {
-            if(t.HC == null) coachHiringSingleTeam(t);
+            if(t.getHeadCoach() == null) coachHiringSingleTeam(t);
         }
         coordinatorCarousel();
     }
@@ -1270,7 +1269,7 @@ public class League {
                         if (!conferences.get(c).oocWeeks.contains(week)) {
                             conferences.get(c).oocWeeks.add(week);
                             for (int t = 0; t < conferences.get(c).confTeams.size(); t++) {
-                                conferences.get(c).confTeams.get(t).oocWeeks.add(week);
+                                conferences.get(c).confTeams.get(t).getOocWeeks().add(week);
                             }
                             scheduled = true;
                         } else {
@@ -1280,7 +1279,7 @@ public class League {
                     j++;
                 } else if (conferences.get(c).confTeams.size() < conferences.get(c).minConfTeams && r < conferences.get(c).oocGames) {
                     for (int t = 0; t < conferences.get(c).confTeams.size(); t++) {
-                        conferences.get(c).confTeams.get(t).oocWeeks.add(r);
+                        conferences.get(c).confTeams.get(t).getOocWeeks().add(r);
                     }
                 }
             }
@@ -1291,7 +1290,7 @@ public class League {
         //get list of team names
         ArrayList<String> leagueTeams = new ArrayList<>();
         for(int i = 0; i < teamList.size(); i++) {
-            leagueTeams.add(teamList.get(i).name);
+            leagueTeams.add(teamList.get(i).getName());
         }
 
         teamsFCSList = new ArrayList<>();
@@ -1316,7 +1315,7 @@ public class League {
 
                     ArrayList<Team> availTeamsB = new ArrayList<>();
                     for (int k = 0; k < availTeams.size(); k++) {
-                        if (!availTeams.get(k).conference.equals(a.conference) && !a.getOocTeams().contains(availTeams.get(k))) {
+                        if (!availTeams.get(k).getConference().equals(a.getConference()) && !a.getOocTeams().contains(availTeams.get(k))) {
                             availTeamsB.add(availTeams.get(k));
                         }
                     }
@@ -1336,19 +1335,19 @@ public class League {
                     gm = new Game(a, b, "OOC");
 
                     if(a.getGameSchedule().size() != b.getGameSchedule().size())
-                    PlatformLog.d("league", "setupSeason: week " + week + " " + a.name + " size" + a.getGameSchedule().size() + " vs " + b.name + " size" + b.getGameSchedule().size());
+                    PlatformLog.d("league", "setupSeason: week " + week + " " + a.getName() + " size" + a.getGameSchedule().size() + " vs " + b.getName() + " size" + b.getGameSchedule().size());
 
-                    if (!a.conference.contains("Independent") && !a.conference.contains("FCS")) {
+                    if (!a.getConference().contains("Independent") && !a.getConference().contains("FCS")) {
                         a.addGameToSchedule(week, gm);
                     }
-                    if (!b.conference.contains("Independent") && !b.conference.contains("FCS"))  {
+                    if (!b.getConference().contains("Independent") && !b.getConference().contains("FCS"))  {
                         b.addGameToSchedule(week, gm);
                     }
 
-                    if (a.conference.contains("Independent")) {
+                    if (a.getConference().contains("Independent")) {
                         a.addGameToSchedule(gm);
                     }
-                    if (b.conference.contains("Independent")) {
+                    if (b.getConference().contains("Independent")) {
                         b.addGameToSchedule(gm);
                     }
 
@@ -1366,7 +1365,7 @@ public class League {
                 for (int c = 0; c < conferences.size(); c++) {
                     if (conferences.get(c).confTeams.size() < conferences.get(c).minConfTeams) {
                         Team bye = new Team("BYE", "BYE", "BYE", 0, "BYE", 0, this);
-                        bye.rankTeamPollScore = teamList.size();
+                        bye.setRankTeamPollScore(teamList.size());
                         for (int g = 0; g < conferences.get(c).confTeams.size(); ++g) {
                             Team a = conferences.get(c).confTeams.get(g);
                             a.addGameToSchedule(new Game(a, bye, "BYE WEEK"));
@@ -1379,7 +1378,7 @@ public class League {
                 for (int c = 0; c < conferences.size(); c++) {
                     if (conferences.get(c).confTeams.size() < conferences.get(c).minConfTeams) {
                         Team bye = new Team("BYE", "BYE", "BYE", 0, "BYE", 0, this);
-                        bye.rankTeamPollScore = teamList.size();
+                        bye.setRankTeamPollScore(teamList.size());
                         for (int g = 0; g < conferences.get(c).confTeams.size(); ++g) {
                             Team a = conferences.get(c).confTeams.get(g);
                             a.addGameToSchedule(new Game(a, bye, "BYE WEEK"));
@@ -1418,8 +1417,8 @@ public class League {
 
         sb = new StringBuilder();
         for (int i = 0; i < teamList.size(); i++) {
-            if (teamList.get(i).bowlBan) {
-                sb.append(teamList.get(i).name + "\n");
+            if (teamList.get(i).isBowlBan()) {
+                sb.append(teamList.get(i).getName() + "\n");
             }
         }
 
@@ -1430,8 +1429,8 @@ public class League {
 
         sb = new StringBuilder();
         for (int i = 0; i < teamList.size(); i++) {
-            if (teamList.get(i).penalized) {
-                sb.append(teamList.get(i).name + "\n");
+            if (teamList.get(i).isPenalized()) {
+                sb.append(teamList.get(i).getName() + "\n");
             }
         }
 
@@ -1444,8 +1443,8 @@ public class League {
 
         sb = new StringBuilder();
         for (int i = 0; i < teamList.size(); i++) {
-            if (teamList.get(i).facilityUpgrade) {
-                sb.append(teamList.get(i).name + " : Level " + teamList.get(i).teamFacilities + "\n");
+            if (teamList.get(i).isFacilityUpgrade()) {
+                sb.append(teamList.get(i).getName() + " : Level " + teamList.get(i).getTeamFacilities() + "\n");
             }
         }
 
@@ -1511,7 +1510,7 @@ public class League {
 
         Collections.sort(teamList, new CompTeamProjPoll());
         for (int i = 0; i < teamList.size(); ++i) {
-            teamList.get(i).projectedPollRank = i + 1;
+            teamList.get(i).setProjectedPollRank(i + 1);
         }
 
         leagueOffTal = getAverageOffTalent();
@@ -1552,7 +1551,7 @@ public class League {
     public String[] getTeamListStr() {
         String[] teams = new String[teamList.size()];
         for (int i = 0; i < teamList.size(); ++i) {
-            teams[i] = teamList.get(i).conference + ":  " + teamList.get(i).name + "  [" + teamList.get(i).teamPrestige + "]";
+            teams[i] = teamList.get(i).getConference() + ":  " + teamList.get(i).getName() + "  [" + teamList.get(i).getTeamPrestige() + "]";
         }
         return teams;
     }
@@ -1580,7 +1579,7 @@ public class League {
      */
     public Team findTeamAbbr(String abbr) {
         for (int i = 0; i < teamList.size(); i++) {
-            if (teamList.get(i).abbr.equals(abbr)) {
+            if (teamList.get(i).getAbbr().equals(abbr)) {
                 return teamList.get(i);
             }
         }
@@ -1604,8 +1603,8 @@ public class League {
 
     public void updateTeamConf(String newConf, String oldConf, int x) {
         for (int i = 0; i < teamList.size(); i++) {
-            if (teamList.get(i).conference.equals(oldConf)) {
-                teamList.get(i).conference = newConf;
+            if (teamList.get(i).getConference().equals(oldConf)) {
+                teamList.get(i).setConference(newConf);
             }
         }
         conferences.get(x).confName = newConf;
@@ -1653,10 +1652,10 @@ public class League {
     //Reset Team Playbooks to Head Coach after Loading Custom Data
     public void resetPlaybooks() {
         for(Team t : teamList) {
-            t.playbookOffNum = t.OC.offStrat;
-            t.playbookDefNum = t.DC.defStrat;
-            t.playbookOff = t.getPlaybookOff()[t.playbookOffNum];
-            t.playbookDef = t.getPlaybookDef()[t.playbookDefNum];
+            t.setPlaybookOffNum(t.getOC().offStrat);
+            t.setPlaybookDefNum(t.getDC().defStrat);
+            t.setPlaybookOffense(t.getPlaybookOff()[t.getPlaybookOffNum()]);
+            t.setPlaybookDefense(t.getPlaybookDef()[t.getPlaybookDefNum()]);
         }
     }
 
@@ -1664,7 +1663,7 @@ public class League {
     public int getAverageYards() {
         int average = 0;
         for (int i = 0; i < teamList.size(); ++i) {
-            average += teamList.get(i).teamYards;
+            average += teamList.get(i).getTeamYards();
         }
         average = average / teamList.size();
         return average;
@@ -1712,7 +1711,7 @@ public class League {
     public double getAverageTeamChemistry() {
         double avg = 0;
         for (int i = 0; i < teamList.size(); ++i) {
-            avg += teamList.get(i).teamChemistry;
+            avg += teamList.get(i).getTeamChemistry();
         }
         return avg / teamList.size();
     }
@@ -1744,11 +1743,11 @@ public class League {
 
         StringBuilder newsFreshman = new StringBuilder();
         for (int i = 0; i < 25; ++i) {
-            newsFreshman.append((i + 1) + ". " + freshmen.get(i).position + " " + freshmen.get(i).name + ", " + freshmen.get(i).team.name + " : Ovr: " + freshmen.get(i).ratOvr + "\n\n");
+            newsFreshman.append((i + 1) + ". " + freshmen.get(i).position + " " + freshmen.get(i).name + ", " + freshmen.get(i).team.getName() + " : Ovr: " + freshmen.get(i).ratOvr + "\n\n");
         }
         StringBuilder newsRedshirts = new StringBuilder();
         for (int i = 0; i < 25; ++i) {
-            newsRedshirts.append((i + 1) + ". " + redshirts.get(i).position + " " + redshirts.get(i).name + ", " + redshirts.get(i).team.name + " : Ovr: " + redshirts.get(i).ratOvr + "\n\n");
+            newsRedshirts.append((i + 1) + ". " + redshirts.get(i).position + " " + redshirts.get(i).name + ", " + redshirts.get(i).team.getName() + " : Ovr: " + redshirts.get(i).ratOvr + "\n\n");
         }
 
         newsStories.get(0).add("Impact Freshmen>This year's top freshmen who are expected to play right away:\n\n" + newsFreshman);
@@ -1764,29 +1763,29 @@ public class League {
         //If Discipline score drops below threshold, penalties ensue
 
         for (int i = 0; i < teamList.size(); i++) {
-            if (teamList.get(i).teamDisciplineScore < 25 && !teamList.get(i).recentPenalty) {
-                teamList.get(i).penalized = true;
-                teamList.get(i).recentPenalty = true;
-                teamList.get(i).teamPrestige -= teamList.get(i).teamPrestige * 0.12;
-                teamList.get(i).teamBudget -= teamList.get(i).teamBudget * 0.12;
+            if (teamList.get(i).getTeamDisciplineScore() < 25 && !teamList.get(i).isRecentPenalty()) {
+                teamList.get(i).setPenalized(true);
+                teamList.get(i).setRecentPenalty(true);
+                teamList.get(i).setTeamPrestige((int)(teamList.get(i).getTeamPrestige() - teamList.get(i).getTeamPrestige() * 0.12));
+                teamList.get(i).setTeamBudget((int)(teamList.get(i).getTeamBudget() - teamList.get(i).getTeamBudget() * 0.12));
 
-                teamList.get(i).HC.contractLength = Math.max(1, teamList.get(i).HC.contractLength - 2);
-                if(!teamList.get(i).userControlled && Math.random() < .15) {
+                teamList.get(i).getHeadCoach().contractLength = Math.max(1, teamList.get(i).getHeadCoach().contractLength - 2);
+                if(!teamList.get(i).isUserControlled() && Math.random() < .15) {
                     teamList.get(i).midSeasonFiring();
                 }
 
-            } else if (teamList.get(i).teamDisciplineScore <= 0) {
-                teamList.get(i).bowlBan = true;
-                teamList.get(i).teamPrestige -= teamList.get(i).teamPrestige * 0.25;
-                teamList.get(i).teamBudget -= teamList.get(i).teamBudget * 0.25;
-                teamList.get(i).teamDisciplineScore = 60;
-                teamList.get(i).penalized = false;
-                teamList.get(i).recentPenalty = false;
+            } else if (teamList.get(i).getTeamDisciplineScore() <= 0) {
+                teamList.get(i).setBowlBan(true);
+                teamList.get(i).setTeamPrestige((int)(teamList.get(i).getTeamPrestige() - teamList.get(i).getTeamPrestige() * 0.25));
+                teamList.get(i).setTeamBudget((int)(teamList.get(i).getTeamBudget() - teamList.get(i).getTeamBudget() * 0.25));
+                teamList.get(i).setTeamDisciplineScore(60);
+                teamList.get(i).setPenalized(false);
+                teamList.get(i).setRecentPenalty(false);
 
-                if(!teamList.get(i).userControlled) {
+                if(!teamList.get(i).isUserControlled()) {
                     teamList.get(i).midSeasonFiring();
                 } else {
-                    teamList.get(i).HC.contractLength = 1;
+                    teamList.get(i).getHeadCoach().contractLength = 1;
                 }
 
             }
@@ -1799,13 +1798,13 @@ public class League {
         //Team Facilities Upgrade -- if teams have enough cash, they will spend on this. helps progression of players
         int baselineCost = 17500;
         for (int i = 0; i < teamList.size(); i++) {
-            if (teamList.get(i).teamBudget > baselineCost * (teamList.get(i).teamFacilities + 1)) {
+            if (teamList.get(i).getTeamBudget() > baselineCost * (teamList.get(i).getTeamFacilities() + 1)) {
                 //spend cash, upgrade facilities
-                teamList.get(i).teamBudget -= baselineCost * (teamList.get(i).teamFacilities + 1);
-                teamList.get(i).facilityUpgrade = true;
-                teamList.get(i).teamFacilities++;
-                teamList.get(i).teamPrestige += teamList.get(i).teamFacilities;
-                teamList.get(i).HC.baselinePrestige += teamList.get(i).teamFacilities;
+                teamList.get(i).setTeamBudget(teamList.get(i).getTeamBudget() - baselineCost * (teamList.get(i).getTeamFacilities() + 1));
+                teamList.get(i).setFacilityUpgrade(true);
+                teamList.get(i).setTeamFacilities(teamList.get(i).getTeamFacilities() + 1);
+                teamList.get(i).setTeamPrestige(teamList.get(i).getTeamPrestige() + teamList.get(i).getTeamFacilities());
+                teamList.get(i).getHeadCoach().baselinePrestige += teamList.get(i).getTeamFacilities();
             }
         }
     }
@@ -1847,9 +1846,9 @@ public class League {
                 defPOTYCandidates = getDefPOTY();
             }
             heismanHistory.add(heismans.get(0).position + " " + heismans.get(0).getInitialName() + " [" + heismans.get(0).getYrStr() + "], "
-                    + heismans.get(0).team.abbr + " (" + heismans.get(0).team.wins + "-" + heismans.get(0).team.losses + ")>" +
+                    + heismans.get(0).team.getAbbr() + " (" + heismans.get(0).team.getWins() + "-" + heismans.get(0).team.getLosses() + ")>" +
                     defPOTYCandidates.get(0).position + " " + defPOTYCandidates.get(0).getInitialName() + " [" + defPOTYCandidates.get(0).getYrStr() + "], "
-                    + defPOTYCandidates.get(0).team.abbr + " (" + defPOTYCandidates.get(0).team.wins + "-" + defPOTYCandidates.get(0).team.losses + ")");
+                    + defPOTYCandidates.get(0).team.getAbbr() + " (" + defPOTYCandidates.get(0).team.getWins() + "-" + defPOTYCandidates.get(0).team.getLosses() + ")");
 
             if (expPlayoffs) playExpandedPlayoffFirstRound();
             else playBowlWeek1();
@@ -1865,38 +1864,38 @@ public class League {
         } else if (currentWeek == regSeasonWeeks+3) {
             ncg.playGame();
             if (ncg.homeScore > ncg.awayScore) {
-                ncg.homeTeam.semiFinalWL = "";
-                ncg.awayTeam.semiFinalWL = "";
-                ncg.homeTeam.natChampWL = "NCW";
-                ncg.awayTeam.natChampWL = "NCL";
-                ncg.homeTeam.totalNCs++;
-                ncg.awayTeam.totalNCLosses++;
-                ncg.homeTeam.HC.recordNCWins(1);
-                ncg.awayTeam.HC.recordNCLosses(1);
+                ncg.homeTeam.setSemiFinalWL("");
+                ncg.awayTeam.setSemiFinalWL("");
+                ncg.homeTeam.setNatChampWL("NCW");
+                ncg.awayTeam.setNatChampWL("NCL");
+                ncg.homeTeam.incrementTotalNCs();
+                ncg.awayTeam.incrementTotalNCLosses();
+                ncg.homeTeam.getHeadCoach().recordNCWins(1);
+                ncg.awayTeam.getHeadCoach().recordNCLosses(1);
                 newsStories.get(currentWeek + 1).add(
-                        ncg.homeTeam.name + " wins the National Championship!>" +
-                                ncg.homeTeam.name + " defeats " + ncg.awayTeam.name +
+                        ncg.homeTeam.getName() + " wins the National Championship!>" +
+                                ncg.homeTeam.getName() + " defeats " + ncg.awayTeam.getName() +
                                 " in the national championship game " + ncg.homeScore + " to " + ncg.awayScore + "." +
-                                " Congratulations " + ncg.homeTeam.name + "!"
+                                " Congratulations " + ncg.homeTeam.getName() + "!"
                 );
-                newsHeadlines.add(ncg.homeTeam.name + " wins the National Championship!");
+                newsHeadlines.add(ncg.homeTeam.getName() + " wins the National Championship!");
 
             } else {
-                ncg.homeTeam.semiFinalWL = "";
-                ncg.awayTeam.semiFinalWL = "";
-                ncg.awayTeam.natChampWL = "NCW";
-                ncg.homeTeam.natChampWL = "NCL";
-                ncg.awayTeam.totalNCs++;
-                ncg.homeTeam.totalNCLosses++;
-                ncg.awayTeam.HC.recordNCWins(1);
-                ncg.homeTeam.HC.recordNCLosses(1);
+                ncg.homeTeam.setSemiFinalWL("");
+                ncg.awayTeam.setSemiFinalWL("");
+                ncg.awayTeam.setNatChampWL("NCW");
+                ncg.homeTeam.setNatChampWL("NCL");
+                ncg.awayTeam.incrementTotalNCs();
+                ncg.homeTeam.incrementTotalNCLosses();
+                ncg.awayTeam.getHeadCoach().recordNCWins(1);
+                ncg.homeTeam.getHeadCoach().recordNCLosses(1);
                 newsStories.get(currentWeek + 1).add(
-                        ncg.awayTeam.name + " wins the National Championship!>" +
-                                ncg.awayTeam.name + " defeats " + ncg.homeTeam.name +
+                        ncg.awayTeam.getName() + " wins the National Championship!>" +
+                                ncg.awayTeam.getName() + " defeats " + ncg.homeTeam.getName() +
                                 " in the national championship game " + ncg.awayScore + " to " + ncg.homeScore + "." +
-                                " Congratulations " + ncg.awayTeam.name + "!"
+                                " Congratulations " + ncg.awayTeam.getName() + "!"
                 );
-                newsHeadlines.add(ncg.awayTeam.name + " wins the National Championship!");
+                newsHeadlines.add(ncg.awayTeam.getName() + " wins the National Championship!");
 
             }
         }
@@ -1925,14 +1924,14 @@ public class League {
         String news = "";
         for (int t = 0; t < teamList.size(); ++t) {
             double disChance = disciplineChance;
-            if(teamList.get(t).teamDisciplineScore < 50 || teamList.get(t).rankTeamPrestige < teamList.size()*.20) disChance += disciplineScrutiny;
+            if(teamList.get(t).getTeamDisciplineScore() < 50 || teamList.get(t).getRankTeamPrestige() < teamList.size()*.20) disChance += disciplineScrutiny;
             else if(Math.random() < 0.33) disChance += disciplineScrutiny;
 
             if (Math.random() < disChance) {
                 int teamDis = teamList.get(t).getTeamDiscipline();
 
-                if ((int) (Math.random() * (100 - teamDis)) > (int) (Math.random() * teamList.get(t).HC.ratDiscipline)) {
-                    teamDiscipline.add(teamList.get(t).name);
+                if ((int) (Math.random() * (100 - teamDis)) > (int) (Math.random() * teamList.get(t).getHeadCoach().ratDiscipline)) {
+                    teamDiscipline.add(teamList.get(t).getName());
                     teamList.get(t).disciplineFailure();
                 } else {
                     teamList.get(t).disciplineSuccess();
@@ -1962,47 +1961,47 @@ public class League {
         ArrayList<PlayerCB> CB = rankCB();
         ArrayList<PlayerS> S = rankS();
         if (currentWeek == 5) {
-            newsStories.get(currentWeek + 1).add("Player Spotlight>" + S.get(0).getYrStr() + " safety, " + S.get(0).name + ", has been cleaning up in the back this year helping " + S.get(0).team.name +
+            newsStories.get(currentWeek + 1).add("Player Spotlight>" + S.get(0).getYrStr() + " safety, " + S.get(0).name + ", has been cleaning up in the back this year helping " + S.get(0).team.getName() +
                     " to a record of " + S.get(0).team.strTeamRecord() + ". The safety has made " + S.get(0).getTackles() + " tackles and sacked the QB " + S.get(0).getSacks() + " times this year. In coverage, he's recovered " +
                     S.get(0).getFumblesRec() + " fumbles and intercepted opposing QBs " + S.get(0).getInterceptions() + " times this year. Look for him to be in the year end running for Player of the Year.");
-            newsHeadlines.add("Player Spotlight: " + S.get(0).team.name + " " + S.get(0).getYrStr() + " Safety, " + S.get(0).name);
+            newsHeadlines.add("Player Spotlight: " + S.get(0).team.getName() + " " + S.get(0).getYrStr() + " Safety, " + S.get(0).name);
 
         } else if (currentWeek == 6) {
-            newsStories.get(currentWeek + 1).add("Player Spotlight>" + QB.get(0).getYrStr() + " quarterback, " + QB.get(0).name + ", is one of the top players at his position in the nation this year. He has led " + QB.get(0).team.name +
+            newsStories.get(currentWeek + 1).add("Player Spotlight>" + QB.get(0).getYrStr() + " quarterback, " + QB.get(0).name + ", is one of the top players at his position in the nation this year. He has led " + QB.get(0).team.getName() +
                     " to a record of " + QB.get(0).team.strTeamRecord() + ". He has passed for " + QB.get(0).getPassYards() + " yards this season, and thrown " + QB.get(0).getPassTD() + " touchdowns. " +
                     "He's also carried the ball for " + QB.get(0).getRushYards() + " yards this season. Look for him to be in the year end running for Player of the Year.");
-            newsHeadlines.add("Player Spotlight: " + QB.get(0).team.name + " " + QB.get(0).getYrStr() + " QB, " + QB.get(0).name);
+            newsHeadlines.add("Player Spotlight: " + QB.get(0).team.getName() + " " + QB.get(0).getYrStr() + " QB, " + QB.get(0).name);
             
         } else if (currentWeek == 7) {
-            newsStories.get(currentWeek + 1).add("Player Spotlight>" + WR.get(0).getYrStr() + " wide receiver, " + WR.get(0).name + ", has been flying pass defensive coverages this year helping " + WR.get(0).team.name +
+            newsStories.get(currentWeek + 1).add("Player Spotlight>" + WR.get(0).getYrStr() + " wide receiver, " + WR.get(0).name + ", has been flying pass defensive coverages this year helping " + WR.get(0).team.getName() +
                     " to a record of " + WR.get(0).team.strTeamRecord() + ". The receiver has caught " + WR.get(0).getReceptions() + " for " + WR.get(0).getRecYards() + " yards this year. He's found the end zone " + WR.get(0).getRecTDs() +
                     " times. Look for him to be in the year end running for Player of the Year.");
-            newsHeadlines.add("Player Spotlight: " + WR.get(0).team.name + " " + WR.get(0).getYrStr() + " WR, " + WR.get(0).name);
+            newsHeadlines.add("Player Spotlight: " + WR.get(0).team.getName() + " " + WR.get(0).getYrStr() + " WR, " + WR.get(0).name);
             
         } else if (currentWeek == 8) {
-            newsStories.get(currentWeek + 1).add("Player Spotlight>" + LB.get(0).getYrStr() + " linebacker, " + LB.get(0).name + ", has been blowing up offenses this year helping " + LB.get(0).team.name +
+            newsStories.get(currentWeek + 1).add("Player Spotlight>" + LB.get(0).getYrStr() + " linebacker, " + LB.get(0).name + ", has been blowing up offenses this year helping " + LB.get(0).team.getName() +
                     " to a record of " + LB.get(0).team.strTeamRecord() + ". The linebacker has made " + LB.get(0).getTackles() + " tackles and sacked the QB " + LB.get(0).getSacks() + " times this year. In coverage, he's recovered " +
                     LB.get(0).getFumblesRec() + " fumbles and intercepted opposing QBs " + LB.get(0).getInterceptions() + " times this year. Look for him to be in the year end running for Player of the Year.");
-            newsHeadlines.add("Player Spotlight: " + LB.get(0).team.name + " " + LB.get(0).getYrStr() + " LB, " + LB.get(0).name);
+            newsHeadlines.add("Player Spotlight: " + LB.get(0).team.getName() + " " + LB.get(0).getYrStr() + " LB, " + LB.get(0).name);
 
         } else if (currentWeek == 9) {
-            newsStories.get(currentWeek + 1).add("Player Spotlight>" + DL.get(0).getYrStr() + " defensive lineman, " + DL.get(0).name + ", has been disrupting offensive lines this year helping " + DL.get(0).team.name +
+            newsStories.get(currentWeek + 1).add("Player Spotlight>" + DL.get(0).getYrStr() + " defensive lineman, " + DL.get(0).name + ", has been disrupting offensive lines this year helping " + DL.get(0).team.getName() +
                     " to a record of " + DL.get(0).team.strTeamRecord() + ". The lineman has made " + DL.get(0).getTackles() + " tackles and sacked the QB " + DL.get(0).getSacks() + " times this year.He's also recovered " +
                     DL.get(0).getFumblesRec() + " fumbles this year. Look for him to be in the year end running for Player of the Year.");
-            newsHeadlines.add("Player Spotlight: " + DL.get(0).team.name + " " + DL.get(0).getYrStr() + " Defensive Lineman, " + DL.get(0).name);
+            newsHeadlines.add("Player Spotlight: " + DL.get(0).team.getName() + " " + DL.get(0).getYrStr() + " Defensive Lineman, " + DL.get(0).name);
 
         } else if (currentWeek == 10) {
-            newsStories.get(currentWeek + 1).add("Player Spotlight>" + RB.get(0).getYrStr() + " running back, " + RB.get(0).name + ", has been finding holes in opposing defenses this season for " + RB.get(0).team.name +
+            newsStories.get(currentWeek + 1).add("Player Spotlight>" + RB.get(0).getYrStr() + " running back, " + RB.get(0).name + ", has been finding holes in opposing defenses this season for " + RB.get(0).team.getName() +
                     " as they compiled a record of " + RB.get(0).team.strTeamRecord() + ". The running back has rushed for " + RB.get(0).getRushYards() + " yards and scored " + RB.get(0).getRushTDs() + " times this year. " +
                     "In the passing game, he's caught " + RB.get(0).getReceptions() + " for " + RB.get(0).getRecYards() + " and scored " + RB.get(0).getRecTDs() + " touchdowns in the air this year. " +
                     "Look for him to be in the year end running for Player of the Year.");
-            newsHeadlines.add("Player Spotlight: " + RB.get(0).team.name + " " + RB.get(0).getYrStr() + " RB, " + RB.get(0).name);
+            newsHeadlines.add("Player Spotlight: " + RB.get(0).team.getName() + " " + RB.get(0).getYrStr() + " RB, " + RB.get(0).name);
 
         } else if (currentWeek == 11) {
-            newsStories.get(currentWeek + 1).add("Player Spotlight>" + CB.get(0).getYrStr() + " cornerback, " + CB.get(0).name + ", has been shutting down opposing receivers this year helping " + CB.get(0).team.name +
+            newsStories.get(currentWeek + 1).add("Player Spotlight>" + CB.get(0).getYrStr() + " cornerback, " + CB.get(0).name + ", has been shutting down opposing receivers this year helping " + CB.get(0).team.getName() +
                     " to a record of " + CB.get(0).team.strTeamRecord() + ". The corner has made " + CB.get(0).getTackles() + " tackles and sacked the QB " + CB.get(0).getSacks() + " times this year. In coverage, he's recovered " +
                     CB.get(0).getFumblesRec() + " fumbles and intercepted opposing QBs " + CB.get(0).getInterceptions() + " times this year. Look for him to be in the year end running for Player of the Year.");
-            newsHeadlines.add("Player Spotlight: " + CB.get(0).team.name + " " + CB.get(0).getYrStr() + " CB, " + CB.get(0).name);
+            newsHeadlines.add("Player Spotlight: " + CB.get(0).team.getName() + " " + CB.get(0).getYrStr() + " CB, " + CB.get(0).name);
         }
     }
 
@@ -2014,7 +2013,7 @@ public class League {
 
         if (currentWeek == 8) {
             newsStories.get(currentWeek + 1).add("Committee Announces First Playoff Rankings>The College Football Playoffs Committee has set ther initial rankings for this season's playoffs. The first look at the playoffs have " +
-                    teams.get(0).name + " at the top of the list. The rest of the playoff order looks like this:\n\n" + "1. " + teams.get(0).getStrAbbrWL() + "\n" + "2. " + teams.get(1).getStrAbbrWL() + "\n" + "3. " +
+                    teams.get(0).getName() + " at the top of the list. The rest of the playoff order looks like this:\n\n" + "1. " + teams.get(0).getStrAbbrWL() + "\n" + "2. " + teams.get(1).getStrAbbrWL() + "\n" + "3. " +
                     teams.get(2).getStrAbbrWL() + "\n" + "4. " + teams.get(3).getStrAbbrWL() + "\n" + "5. " + teams.get(4).getStrAbbrWL() + "\n" + "6. " + teams.get(5).getStrAbbrWL() + "\n" + "7. " +
                     teams.get(6).getStrAbbrWL() + "\n" + "8. " + teams.get(7).getStrAbbrWL() + "\n");
         }
@@ -2072,7 +2071,7 @@ public class League {
             heisman = heismanCandidates.get(0);
             heisman.wonHeisman = true;
             heisman.recordHeismans(1);
-            heisman.team.HC.recordHeismans(1);
+            heisman.team.getHeadCoach().recordHeismans(1);
             putNewsStory = true;
             //full results string
             String heismanTop5 = "\n";
@@ -2087,7 +2086,7 @@ public class League {
             // Add news story
             if (putNewsStory) {
                 newsStories.get(currentWeek + 1).add(heisman.name + " is the Offensive Player of the Year!>" + heismanWinnerStr);
-                newsHeadlines.add(heisman.team.name + " " + " " + heisman.position + " " + heisman.name + " is the Offensive Player of the Year!");
+                newsHeadlines.add(heisman.team.getName() + " " + " " + heisman.position + " " + heisman.name + " is the Offensive Player of the Year!");
                 heismanWinnerStrFull = heismanStats;
             }
 
@@ -2141,7 +2140,7 @@ public class League {
             defPOTY = defPOTYCandidates.get(0);
             defPOTY.wonHeisman = true;
             defPOTY.recordHeismans(1);
-            defPOTY.team.HC.recordHeismans(1);
+            defPOTY.team.getHeadCoach().recordHeismans(1);
             putNewsStory = true;
             //full results string
             String heismanTop5 = "\n";
@@ -2156,7 +2155,7 @@ public class League {
             // Add news story
             if (putNewsStory) {
                 newsStories.get(currentWeek + 1).add(defPOTY.name + " is the Defensive Player of the Year!>" + heismanWinnerStr);
-                newsHeadlines.add(defPOTY.team.name + " " + " " + defPOTY.position + " " + defPOTY.name + " is the Defensive Player of the Year!");
+                newsHeadlines.add(defPOTY.team.getName() + " " + " " + defPOTY.position + " " + defPOTY.name + " is the Defensive Player of the Year!");
                 defPOTYWinnerStrFull = heismanStats;
             }
 
@@ -2222,10 +2221,10 @@ public class League {
             }
 
             //k
-            for (int k = 0; k < teamList.get(i).teamKs.size(); ++k) {
-                if (teamList.get(i).teamKs.get(k).year == 1) {
-                    freshmanCandidates.add(teamList.get(i).teamKs.get(k));
-                    fKs.add(teamList.get(i).teamKs.get(k));
+            for (int k = 0; k < teamList.get(i).getTeamKs().size(); ++k) {
+                if (teamList.get(i).getTeamKs().get(k).year == 1) {
+                    freshmanCandidates.add(teamList.get(i).getTeamKs().get(k));
+                    fKs.add(teamList.get(i).getTeamKs().get(k));
                 }
             }
 
@@ -2288,17 +2287,17 @@ public class League {
             if (fQBs.size() > 0) {
                 allFreshman.add(fQBs.get(0));
                 fQBs.get(0).wonAllFreshman = true;
-                fQBs.get(0).team.HC.recordAllFreshman(1);
+                fQBs.get(0).team.getHeadCoach().recordAllFreshman(1);
             }
 
             if (fRBs.size() > 1) {
                 allFreshman.add(fRBs.get(0));
                 fRBs.get(0).wonAllFreshman = true;
-                fRBs.get(0).team.HC.recordAllFreshman(1);
+                fRBs.get(0).team.getHeadCoach().recordAllFreshman(1);
 
                 allFreshman.add(fRBs.get(1));
                 fRBs.get(1).wonAllFreshman = true;
-                fRBs.get(1).team.HC.recordAllFreshman(1);
+                fRBs.get(1).team.getHeadCoach().recordAllFreshman(1);
 
             }
 
@@ -2306,7 +2305,7 @@ public class League {
                 for (int i = 0; i < 3; ++i) {
                     allFreshman.add(fWRs.get(i));
                     fWRs.get(i).wonAllFreshman = true;
-                    fWRs.get(i).team.HC.recordAllFreshman(1);
+                    fWRs.get(i).team.getHeadCoach().recordAllFreshman(1);
 
                 }
             }
@@ -2314,7 +2313,7 @@ public class League {
             if (fTEs.size() > 0) {
                 allFreshman.add(fTEs.get(0));
                 fTEs.get(0).wonAllFreshman = true;
-                fTEs.get(0).team.HC.recordAllFreshman(1);
+                fTEs.get(0).team.getHeadCoach().recordAllFreshman(1);
 
             }
 
@@ -2322,21 +2321,21 @@ public class League {
                 for (int i = 0; i < 5; ++i) {
                     allFreshman.add(fOLs.get(i));
                     fOLs.get(i).wonAllFreshman = true;
-                    fOLs.get(i).team.HC.recordAllFreshman(1);
+                    fOLs.get(i).team.getHeadCoach().recordAllFreshman(1);
                 }
             }
 
             if (fKs.size() > 0) {
                 allFreshman.add(fKs.get(0));
                 fKs.get(0).wonAllFreshman = true;
-                fKs.get(0).team.HC.recordAllFreshman(1);
+                fKs.get(0).team.getHeadCoach().recordAllFreshman(1);
             }
 
             if (fDLs.size() > 3) {
                 for (int i = 0; i < 4; ++i) {
                     allFreshman.add(fDLs.get(i));
                     fDLs.get(i).wonAllFreshman = true;
-                    fDLs.get(i).team.HC.recordAllFreshman(1);
+                    fDLs.get(i).team.getHeadCoach().recordAllFreshman(1);
                 }
             }
 
@@ -2344,7 +2343,7 @@ public class League {
                 for (int i = 0; i < 3; ++i) {
                     allFreshman.add(fLBs.get(i));
                     fLBs.get(i).wonAllFreshman = true;
-                    fLBs.get(i).team.HC.recordAllFreshman(1);
+                    fLBs.get(i).team.getHeadCoach().recordAllFreshman(1);
                 }
             }
 
@@ -2352,14 +2351,14 @@ public class League {
                 for (int i = 0; i < 3; ++i) {
                     allFreshman.add(fCBs.get(i));
                     fCBs.get(i).wonAllFreshman = true;
-                    fCBs.get(i).team.HC.recordAllFreshman(1);
+                    fCBs.get(i).team.getHeadCoach().recordAllFreshman(1);
                 }
             }
             if (fSs.size() > 1) {
                 for (int i = 0; i < 2; ++i) {
                     allFreshman.add(fSs.get(i));
                     fSs.get(i).wonAllFreshman = true;
-                    fSs.get(i).team.HC.recordAllFreshman(1);
+                    fSs.get(i).team.getHeadCoach().recordAllFreshman(1);
                 }
             }
         }
@@ -2367,7 +2366,7 @@ public class League {
         StringBuilder allFreshmanTeam = new StringBuilder();
         for (int i = 0; i < allFreshman.size(); ++i) {
             Player p = allFreshman.get(i);
-            allFreshmanTeam.append(p.team.abbr + " (" + p.team.wins + "-" + p.team.losses + ")" + " - ");
+            allFreshmanTeam.append(p.team.getAbbr() + " (" + p.team.getWins() + "-" + p.team.getLosses() + ")" + " - ");
             allFreshmanTeam.append(" " + p.getAllTeamStats());
             allFreshmanTeam.append(" \t\tOverall: " + p.ratOvr + "\n\n>");
         }
@@ -2386,7 +2385,7 @@ public class League {
             freshmanCandidates = getTopFreshman();
             freshman = freshmanCandidates.get(0);
             freshman.wonTopFreshman = true;
-            freshman.team.HC.recordTopFreshman(1);
+            freshman.team.getHeadCoach().recordTopFreshman(1);
             putNewsStory = true;
             //full results string
             String heismanTop5 = "\n";
@@ -2401,7 +2400,7 @@ public class League {
             // Add news story
             if (putNewsStory) {
                 newsStories.get(currentWeek + 1).add(freshman.name + " is the Freshman Player of the Year!>" + heismanWinnerStr);
-                newsHeadlines.add(freshman.team.name + " " + " " + freshman.position + " " + freshman.name + " is the Freshman Player of the Year!");
+                newsHeadlines.add(freshman.team.getName() + " " + " " + freshman.position + " " + freshman.name + " is the Freshman Player of the Year!");
                 freshmanWinnerStrFull = heismanStats;
             }
 
@@ -2421,19 +2420,19 @@ public class League {
                 HeadCoach p = coachCandidates.get(i);
                 HeadCoach hc = (HeadCoach) p;
                 coachAwardTopList += (i + 1) + ". " + hc.name + ": " + ((HeadCoach) p).getCoachScore() + " votes\n";
-                coachAwardTopList += p.team.name + " (" + p.team.wins + "-" + p.team.losses + ")  Overall: " + hc.ratOvr + "\n\n";
+                coachAwardTopList += p.team.getName() + " (" + p.team.getWins() + "-" + p.team.getLosses() + ")  Overall: " + hc.ratOvr + "\n\n";
             }
             String coachStats = "";
             String coachWinnerStr = "";
-            coachWinnerStr = "Congratulations to the Head Coach of the Year, " + coachWinner.name + "!\n\nHe led " + coachWinner.team.name +
-                    " to a " + coachWinner.team.wins + "-" + coachWinner.team.losses + " record and a #" + coachWinner.team.rankTeamPollScore +
+            coachWinnerStr = "Congratulations to the Head Coach of the Year, " + coachWinner.name + "!\n\nHe led " + coachWinner.team.getName() +
+                    " to a " + coachWinner.team.getWins() + "-" + coachWinner.team.getLosses() + " record and a #" + coachWinner.team.getRankTeamPollScore() +
                     " poll ranking.";
             coachStats = coachWinnerStr + "\n\nFull Results:\n\n" + coachAwardTopList;
 
             newsStories.get(currentWeek + 1).add("Head Coach of the Year Announced>This year's top head coach award was given to " + coachWinner.name +
-                    " of " + coachWinner.team.name + ".");
+                    " of " + coachWinner.team.getName() + ".");
 
-            newsHeadlines.add(coachWinner.team.name + " " + coachWinner.name + " is the Head Coach of the Year!");
+            newsHeadlines.add(coachWinner.team.getName() + " " + coachWinner.name + " is the Head Coach of the Year!");
             coachCandidates.get(0).recordCOTY(1);
             coachWinnerStrFull = coachStats;
             coachCandidates.get(0).wonTopHC = true;
@@ -2470,7 +2469,7 @@ public class League {
                 wrs.addAll(tm.getTeamWRs());
                 tes.addAll(tm.getTeamTEs());
                 ols.addAll(tm.getTeamOLs());
-                ks.addAll(tm.teamKs);
+                ks.addAll(tm.getTeamKs());
                 dls.addAll(tm.getTeamDLs());
                 lbs.addAll(tm.getTeamLBs());
                 cbs.addAll(tm.getTeamCBs());
@@ -2490,94 +2489,94 @@ public class League {
 
             allAmericans.add(qbs.get(0));
             qbs.get(0).wonAllAmerican = true;
-            qbs.get(0).team.HC.recordAllAmericans(1);
+            qbs.get(0).team.getHeadCoach().recordAllAmericans(1);
             allAmericans.add(rbs.get(0));
             rbs.get(0).wonAllAmerican = true;
-            rbs.get(0).team.HC.recordAllAmericans(1);
+            rbs.get(0).team.getHeadCoach().recordAllAmericans(1);
             allAmericans.add(rbs.get(1));
             rbs.get(1).wonAllAmerican = true;
-            rbs.get(1).team.HC.recordAllAmericans(1);
+            rbs.get(1).team.getHeadCoach().recordAllAmericans(1);
             for (int i = 0; i < 3; ++i) {
                 allAmericans.add(wrs.get(i));
                 wrs.get(i).wonAllAmerican = true;
-                wrs.get(i).team.HC.recordAllAmericans(1);
+                wrs.get(i).team.getHeadCoach().recordAllAmericans(1);
             }
             allAmericans.add(tes.get(0));
             tes.get(0).wonAllAmerican = true;
-            tes.get(0).team.HC.recordAllAmericans(1);
+            tes.get(0).team.getHeadCoach().recordAllAmericans(1);
             for (int i = 0; i < 5; ++i) {
                 allAmericans.add(ols.get(i));
                 ols.get(i).wonAllAmerican = true;
-                ols.get(i).team.HC.recordAllAmericans(1);
+                ols.get(i).team.getHeadCoach().recordAllAmericans(1);
             }
             allAmericans.add(ks.get(0));
             ks.get(0).wonAllAmerican = true;
-            ks.get(0).team.HC.recordAllAmericans(1);
+            ks.get(0).team.getHeadCoach().recordAllAmericans(1);
             for (int i = 0; i < 4; ++i) {
                 allAmericans.add(dls.get(i));
                 dls.get(i).wonAllAmerican = true;
-                dls.get(i).team.HC.recordAllAmericans(1);
+                dls.get(i).team.getHeadCoach().recordAllAmericans(1);
             }
             for (int i = 0; i < 3; ++i) {
                 allAmericans.add(lbs.get(i));
                 lbs.get(i).wonAllAmerican = true;
-                lbs.get(i).team.HC.recordAllAmericans(1);
+                lbs.get(i).team.getHeadCoach().recordAllAmericans(1);
             }
             for (int i = 0; i < 3; ++i) {
                 allAmericans.add(cbs.get(i));
                 cbs.get(i).wonAllAmerican = true;
-                cbs.get(i).team.HC.recordAllAmericans(1);
+                cbs.get(i).team.getHeadCoach().recordAllAmericans(1);
             }
             for (int i = 0; i < 2; ++i) {
                 allAmericans.add(ss.get(i));
                 ss.get(i).wonAllAmerican = true;
-                ss.get(i).team.HC.recordAllAmericans(1);
+                ss.get(i).team.getHeadCoach().recordAllAmericans(1);
             }
             
             allAmericans2.add(qbs.get(1));
             qbs.get(1).wonAllAmerican = true;
-            qbs.get(1).team.HC.recordAllAmericans(1);
+            qbs.get(1).team.getHeadCoach().recordAllAmericans(1);
             allAmericans2.add(rbs.get(2));
             rbs.get(2).wonAllAmerican = true;
-            rbs.get(2).team.HC.recordAllAmericans(1);
+            rbs.get(2).team.getHeadCoach().recordAllAmericans(1);
             allAmericans2.add(rbs.get(3));
             rbs.get(3).wonAllAmerican = true;
-            rbs.get(3).team.HC.recordAllAmericans(1);
+            rbs.get(3).team.getHeadCoach().recordAllAmericans(1);
             for (int i = 3; i < 6; ++i) {
                 allAmericans2.add(wrs.get(i));
                 wrs.get(i).wonAllAmerican = true;
-                wrs.get(i).team.HC.recordAllAmericans(1);
+                wrs.get(i).team.getHeadCoach().recordAllAmericans(1);
             }
             allAmericans2.add(tes.get(1));
             tes.get(1).wonAllAmerican = true;
-            tes.get(1).team.HC.recordAllAmericans(1);
+            tes.get(1).team.getHeadCoach().recordAllAmericans(1);
             for (int i = 5; i < 10; ++i) {
                 allAmericans2.add(ols.get(i));
                 ols.get(i).wonAllAmerican = true;
-                ols.get(i).team.HC.recordAllAmericans(1);
+                ols.get(i).team.getHeadCoach().recordAllAmericans(1);
             }
             allAmericans2.add(ks.get(1));
             ks.get(1).wonAllAmerican = true;
-            ks.get(1).team.HC.recordAllAmericans(1);
+            ks.get(1).team.getHeadCoach().recordAllAmericans(1);
             for (int i = 4; i < 8; ++i) {
                 allAmericans2.add(dls.get(i));
                 dls.get(i).wonAllAmerican = true;
-                dls.get(i).team.HC.recordAllAmericans(1);
+                dls.get(i).team.getHeadCoach().recordAllAmericans(1);
             }
             for (int i = 3; i < 6; ++i) {
                 allAmericans2.add(lbs.get(i));
                 lbs.get(i).wonAllAmerican = true;
-                lbs.get(i).team.HC.recordAllAmericans(1);
+                lbs.get(i).team.getHeadCoach().recordAllAmericans(1);
             }
             for (int i = 3; i < 6; ++i) {
                 allAmericans2.add(cbs.get(i));
                 cbs.get(i).wonAllAmerican = true;
-                cbs.get(i).team.HC.recordAllAmericans(1);
+                cbs.get(i).team.getHeadCoach().recordAllAmericans(1);
             }
             for (int i = 2; i < 4; ++i) {
                 allAmericans2.add(ss.get(i));
                 ss.get(i).wonAllAmerican = true;
-                ss.get(i).team.HC.recordAllAmericans(1);
+                ss.get(i).team.getHeadCoach().recordAllAmericans(1);
             }
         }
 
@@ -2585,14 +2584,14 @@ public class League {
         allAmerican.append("[FIRST TEAM ALL-AMERICANS]\n\n>");
         for (int i = 0; i < allAmericans.size(); ++i) {
             Player p = allAmericans.get(i);
-            allAmerican.append(p.team.abbr + " (" + p.team.wins + "-" + p.team.losses + ")" + " - ");
+            allAmerican.append(p.team.getAbbr() + " (" + p.team.getWins() + "-" + p.team.getLosses() + ")" + " - ");
             allAmerican.append(" " + p.getAllTeamStats());
             allAmerican.append(" \t\tOverall: " + p.ratOvr + "\n\n>");
         }
         allAmerican.append("[SECOND TEAM ALL-AMERICANS]\n\n>");
         for (int i = 0; i < allAmericans2.size(); ++i) {
             Player p = allAmericans2.get(i);
-            allAmerican.append(p.team.abbr + " (" + p.team.wins + "-" + p.team.losses + ")" + " - ");
+            allAmerican.append(p.team.getAbbr() + " (" + p.team.getWins() + "-" + p.team.getLosses() + ")" + " - ");
             allAmerican.append(" " + p.getAllTeamStats());
             allAmerican.append(" \t\tOverall: " + p.ratOvr + "\n\n>");
         }
@@ -2616,7 +2615,7 @@ public class League {
 
         for (int i = 0; i < allConfCoaches.size(); ++i) {
             HeadCoach p = allConfCoaches.get(i);
-            sb.append(p.team.abbr + " (" + p.team.wins + "-" + p.team.losses + ")" + " - ");
+            sb.append(p.team.getAbbr() + " (" + p.team.getWins() + "-" + p.team.getLosses() + ")" + " - ");
             if (p instanceof HeadCoach) {
                 HeadCoach hc = (HeadCoach) p;
                 sb.append(" HC " + hc.name + "\n \t\tAge: " + hc.age + " Season " + hc.year + "\n");
@@ -2627,7 +2626,7 @@ public class League {
 
         for (int i = 0; i < allConfPlayers.size(); ++i) {
             Player p = allConfPlayers.get(i);
-            sb.append(p.team.abbr + " (" + p.team.wins + "-" + p.team.losses + ")" + " - ");
+            sb.append(p.team.getAbbr() + " (" + p.team.getWins() + "-" + p.team.getLosses() + ")" + " - ");
             sb.append(" " + p.getAllTeamStats());
             sb.append(" \t\tOverall: " + p.ratOvr + "\n\n>");
 
@@ -2665,8 +2664,8 @@ public class League {
                 setTeamRanks();
                 for (int i = 0; i < teamList.size(); ++i) {
                     teamList.get(i).updatePollScore();
-                    if (teamList.get(i).bowlBan)
-                        teamList.get(i).teamPollScore = 0;
+                    if (teamList.get(i).isBowlBan())
+                        teamList.get(i).setTeamPollScore(0);
                 }
                 Collections.sort(teamList, new CompTeamPoll());
 
@@ -2763,7 +2762,7 @@ public class League {
         sb.append("The following teams are expected to make it to the Football Playoffs!\n\n");
         int i = 1;
         for (Team t : playoffTeams) {
-            sb.append(i + ". " + t.strRankTeamRecord() + "   [" + t.conference + "]\n");
+            sb.append(i + ". " + t.strRankTeamRecord() + "   [" + t.getConference() + "]\n");
             i++;
         }
         postseason = sb.toString();
@@ -2782,9 +2781,9 @@ public class League {
 
         if (currentWeek > regSeasonWeeks) {
             for (Team qualifiedTeam : qualifiedTeams) {
-                if ("CC".equals(qualifiedTeam.confChampion)
-                        && !qualifiedTeam.conference.equals("Independent")
-                        && !qualifiedTeam.conference.equals("FCS Division")) {
+                if ("CC".equals(qualifiedTeam.getConfChampion())
+                        && !qualifiedTeam.getConference().equals("Independent")
+                        && !qualifiedTeam.getConference().equals("FCS Division")) {
                     conferenceLeaders.add(qualifiedTeam);
                 }
             }
@@ -2824,9 +2823,9 @@ public class League {
             cfpGames[i].homeTeam.addGameToSchedule(cfpGames[i]);
             cfpGames[i].awayTeam.addGameToSchedule(cfpGames[i]);
             newsStories.get(currentWeek + 1).add("Upcoming First Round Playoff Game!>#"
-                    + cfpGames[i].awayTeam.rankTeamPollScore + " " + cfpGames[i].awayTeam.getStrAbbrWL()
+                    + cfpGames[i].awayTeam.getRankTeamPollScore() + " " + cfpGames[i].awayTeam.getStrAbbrWL()
                     + " will battle with #"
-                    + cfpGames[i].homeTeam.rankTeamPollScore + " " + cfpGames[i].homeTeam.getStrAbbrWL()
+                    + cfpGames[i].homeTeam.getRankTeamPollScore() + " " + cfpGames[i].homeTeam.getStrAbbrWL()
                     + " in the " + getYear() + " College Football Playoff first round!");
             weeklyScores.get(currentWeek + 2).add(cfpGames[i].gameName + ">"
                     + cfpGames[i].awayTeam.strRankTeamRecord() + "\n" + cfpGames[i].homeTeam.strRankTeamRecord());
@@ -2852,8 +2851,8 @@ public class League {
                     + cfpGames[i].homeTeam.getStrAbbrWL() + " in the "
                     + getYear() + " College Football Playoff quarterfinals!");
             weeklyScores.get(currentWeek + 2).add(cfpGames[i].gameName + ">#"
-                    + cfpGames[i].awayTeam.rankTeamPollScore + " " + cfpGames[i].awayTeam.name + "\n#"
-                    + cfpGames[i].homeTeam.rankTeamPollScore + " " + cfpGames[i].homeTeam.name);
+                    + cfpGames[i].awayTeam.getRankTeamPollScore() + " " + cfpGames[i].awayTeam.getName() + "\n#"
+                    + cfpGames[i].homeTeam.getRankTeamPollScore() + " " + cfpGames[i].homeTeam.getName());
         }
     }
 
@@ -2925,95 +2924,95 @@ public class League {
 
         if (playoffWeek == 1) {
             if (g.homeScore > g.awayScore) {
-                g.homeTeam.sweet16 = "FRW";
-                g.awayTeam.sweet16 = "FRL";
-                g.homeTeam.totalBowls++;
-                g.awayTeam.totalBowlLosses++;
-                g.homeTeam.HC.recordBowlWins(1);
-                g.awayTeam.HC.recordBowlLosses(1);
+                g.homeTeam.setSweet16("FRW");
+                g.awayTeam.setSweet16("FRL");
+                g.homeTeam.incrementTotalBowls();
+                g.awayTeam.incrementTotalBowlLosses();
+                g.homeTeam.getHeadCoach().recordBowlWins(1);
+                g.awayTeam.getHeadCoach().recordBowlLosses(1);
                 newsStories.get(currentWeek + 1).add(
-                        g.homeTeam.name + " wins the " + g.gameName + "!>" +
+                        g.homeTeam.getName() + " wins the " + g.gameName + "!>" +
                                 g.homeTeam.strRep() + " defeats " + g.awayTeam.strRep() +
                                 " in the " + g.gameName + ", winning " + g.homeScore + " to " + g.awayScore + "."
                 );
-                newsHeadlines.add(g.homeTeam.name + " wins first-round playoff game!");
+                newsHeadlines.add(g.homeTeam.getName() + " wins first-round playoff game!");
             } else {
-                g.homeTeam.sweet16 = "FRL";
-                g.awayTeam.sweet16 = "FRW";
-                g.homeTeam.totalBowlLosses++;
-                g.awayTeam.totalBowls++;
-                g.awayTeam.HC.recordBowlWins(1);
-                g.homeTeam.HC.recordBowlLosses(1);
+                g.homeTeam.setSweet16("FRL");
+                g.awayTeam.setSweet16("FRW");
+                g.homeTeam.incrementTotalBowlLosses();
+                g.awayTeam.incrementTotalBowls();
+                g.awayTeam.getHeadCoach().recordBowlWins(1);
+                g.homeTeam.getHeadCoach().recordBowlLosses(1);
                 newsStories.get(currentWeek + 1).add(
-                        g.awayTeam.name + " wins the " + g.gameName + "!>" +
+                        g.awayTeam.getName() + " wins the " + g.gameName + "!>" +
                                 g.awayTeam.strRep() + " defeats " + g.homeTeam.strRep() +
                                 " in the " + g.gameName + ", winning " + g.awayScore + " to " + g.homeScore + "."
                 );
-                newsHeadlines.add(g.awayTeam.name + " advances in the playoffs!");
+                newsHeadlines.add(g.awayTeam.getName() + " advances in the playoffs!");
             }
         }
 
         if (playoffWeek == 2) {
-            g.homeTeam.sweet16 = "";
-            g.awayTeam.sweet16 = "";
+            g.homeTeam.setSweet16("");
+            g.awayTeam.setSweet16("");
             if (g.homeScore > g.awayScore) {
-                g.homeTeam.qtFinalWL = "QTW";
-                g.awayTeam.qtFinalWL = "QTL";
-                g.homeTeam.totalBowls++;
-                g.awayTeam.totalBowlLosses++;
-                g.homeTeam.HC.recordBowlWins(1);
-                g.awayTeam.HC.recordBowlLosses(1);
+                g.homeTeam.setQtFinalWL("QTW");
+                g.awayTeam.setQtFinalWL("QTL");
+                g.homeTeam.incrementTotalBowls();
+                g.awayTeam.incrementTotalBowlLosses();
+                g.homeTeam.getHeadCoach().recordBowlWins(1);
+                g.awayTeam.getHeadCoach().recordBowlLosses(1);
                 newsStories.get(currentWeek + 1).add(
-                        g.homeTeam.name + " wins the " + g.gameName + "!>" +
+                        g.homeTeam.getName() + " wins the " + g.gameName + "!>" +
                                 g.homeTeam.strRep() + " defeats " + g.awayTeam.strRep() +
                                 " in the " + g.gameName + ", winning " + g.homeScore + " to " + g.awayScore + "."
                 );
-                newsHeadlines.add(g.homeTeam.name + " advances to the semifinals!");
+                newsHeadlines.add(g.homeTeam.getName() + " advances to the semifinals!");
             } else {
-                g.homeTeam.qtFinalWL = "QTL";
-                g.awayTeam.qtFinalWL = "QTW";
-                g.homeTeam.totalBowlLosses++;
-                g.awayTeam.totalBowls++;
-                g.awayTeam.HC.recordBowlWins(1);
-                g.homeTeam.HC.recordBowlLosses(1);
+                g.homeTeam.setQtFinalWL("QTL");
+                g.awayTeam.setQtFinalWL("QTW");
+                g.homeTeam.incrementTotalBowlLosses();
+                g.awayTeam.incrementTotalBowls();
+                g.awayTeam.getHeadCoach().recordBowlWins(1);
+                g.homeTeam.getHeadCoach().recordBowlLosses(1);
                 newsStories.get(currentWeek + 1).add(
-                        g.awayTeam.name + " wins the " + g.gameName + "!>" +
+                        g.awayTeam.getName() + " wins the " + g.gameName + "!>" +
                                 g.awayTeam.strRep() + " defeats " + g.homeTeam.strRep() +
                                 " in the " + g.gameName + ", winning " + g.awayScore + " to " + g.homeScore + "."
                 );
-                newsHeadlines.add(g.awayTeam.name + " advances to the semifinals!");
+                newsHeadlines.add(g.awayTeam.getName() + " advances to the semifinals!");
             }
         }
 
         if (playoffWeek == 3) {
-            g.homeTeam.qtFinalWL = "";
-            g.awayTeam.qtFinalWL = "";
+            g.homeTeam.setQtFinalWL("");
+            g.awayTeam.setQtFinalWL("");
             if (g.homeScore > g.awayScore) {
-                g.homeTeam.semiFinalWL = "SFW";
-                g.awayTeam.semiFinalWL = "SFL";
-                g.homeTeam.totalBowls++;
-                g.awayTeam.totalBowlLosses++;
-                g.homeTeam.HC.recordBowlWins(1);
-                g.awayTeam.HC.recordBowlLosses(1);
+                g.homeTeam.setSemiFinalWL("SFW");
+                g.awayTeam.setSemiFinalWL("SFL");
+                g.homeTeam.incrementTotalBowls();
+                g.awayTeam.incrementTotalBowlLosses();
+                g.homeTeam.getHeadCoach().recordBowlWins(1);
+                g.awayTeam.getHeadCoach().recordBowlLosses(1);
                 newsStories.get(currentWeek + 1).add(
-                        g.homeTeam.name + " wins the " + g.gameName + "!>" +
+                        g.homeTeam.getName() + " wins the " + g.gameName + "!>" +
                                 g.homeTeam.strRep() + " defeats " + g.awayTeam.strRep() +
                                 " in the " + g.gameName + ", winning " + g.homeScore + " to " + g.awayScore + "."
                 );
-                newsHeadlines.add(g.homeTeam.name + " reaches the national title game!");
+                newsHeadlines.add(g.homeTeam.getName() + " reaches the national title game!");
             } else {
-                g.homeTeam.semiFinalWL = "SFL";
-                g.awayTeam.semiFinalWL = "SFW";
-                g.homeTeam.totalBowlLosses++;
-                g.awayTeam.totalBowls++;
-                g.awayTeam.HC.recordBowlWins(1);
-                g.homeTeam.HC.recordBowlLosses(1);
+                g.homeTeam.setSemiFinalWL("SFL");
+                g.awayTeam.setSemiFinalWL("SFW");
+                g.homeTeam.incrementTotalBowlLosses();
+                g.awayTeam.incrementTotalBowls();
+                g.awayTeam.getHeadCoach().recordBowlWins(1);
+                g.homeTeam.getHeadCoach().recordBowlLosses(1);
                 newsStories.get(currentWeek + 1).add(
-                        g.awayTeam.name + " wins the " + g.gameName + "!>" +
+                        g.awayTeam.getName() + " wins the " + g.gameName + "!>" +
                                 g.awayTeam.strRep() + " defeats " + g.homeTeam.strRep() +
                                 " in the " + g.gameName + ", winning " + g.awayScore + " to " + g.homeScore + "."
                 );
-                newsHeadlines.add(g.awayTeam.name + " reaches the national title game!");
+                newsHeadlines.add(g.awayTeam.getName() + " reaches the national title game!");
             }
         }
 
@@ -3032,7 +3031,7 @@ public class League {
         Collections.sort(teamList, new CompTeamPoll());
 
         for (int i = 0; i < teamList.size(); ++i) {
-            if (!teamList.get(i).bowlBan && teamList.get(i).wins >= 6)
+            if (!teamList.get(i).isBowlBan() && teamList.get(i).getWins() >= 6)
                 bowlTeams.add(teamList.get(i));
         }
 
@@ -3053,8 +3052,8 @@ public class League {
         bowlTeams.get(1).addGameToSchedule(semiG23);
         bowlTeams.get(2).addGameToSchedule(semiG23);
 
-        newsStories.get(currentWeek + 1).add("Playoff Teams Announced!>"  + "#" + bowlTeams.get(0).rankTeamPollScore + bowlTeams.get(0).getStrAbbrWL() + " will play #" + bowlTeams.get(3).rankTeamPollScore + bowlTeams.get(3).getStrAbbrWL() +
-                " , while " + "#" + bowlTeams.get(1).rankTeamPollScore + bowlTeams.get(1).getStrAbbrWL() + " will play #" + bowlTeams.get(2).rankTeamPollScore + bowlTeams.get(2).getStrAbbrWL() + " in next week's College Football Playoff semi-final round. The winners will compete for this year's National Title!");
+        newsStories.get(currentWeek + 1).add("Playoff Teams Announced!>"  + "#" + bowlTeams.get(0).getRankTeamPollScore() + bowlTeams.get(0).getStrAbbrWL() + " will play #" + bowlTeams.get(3).getRankTeamPollScore() + bowlTeams.get(3).getStrAbbrWL() +
+                " , while " + "#" + bowlTeams.get(1).getRankTeamPollScore() + bowlTeams.get(1).getStrAbbrWL() + " will play #" + bowlTeams.get(2).getRankTeamPollScore() + bowlTeams.get(2).getStrAbbrWL() + " in next week's College Football Playoff semi-final round. The winners will compete for this year's National Title!");
 
         weeklyScores.get(currentWeek + 4).add(semiG14.gameName + ">" + semiG14.awayTeam.strRankTeamRecord() + "\n" + semiG14.homeTeam.strRankTeamRecord());
         weeklyScores.get(currentWeek + 4).add(semiG23.gameName + ">" + semiG23.awayTeam.strRankTeamRecord() + "\n" + semiG23.homeTeam.strRankTeamRecord());
@@ -3083,7 +3082,7 @@ public class League {
                 bowlGames[g] = new Game(bowlTeams.get(i), bowlTeams.get(i + 4), bowlNames[g]);
                 bowlTeams.get(i).addGameToSchedule(bowlGames[g]);
                 bowlTeams.get(i + 4).addGameToSchedule(bowlGames[g]);
-                newsStories.get(currentWeek + 1).add(bowlGames[g].gameName + " Announced!>" + "#" + bowlTeams.get(i).rankTeamPollScore + " " + bowlTeams.get(i).getStrAbbrWL() + " will compete with " + "#" + bowlTeams.get(i + 4).rankTeamPollScore + " " + bowlTeams.get(i + 4).getStrAbbrWL() +
+                newsStories.get(currentWeek + 1).add(bowlGames[g].gameName + " Announced!>" + "#" + bowlTeams.get(i).getRankTeamPollScore() + " " + bowlTeams.get(i).getStrAbbrWL() + " will compete with " + "#" + bowlTeams.get(i + 4).getRankTeamPollScore() + " " + bowlTeams.get(i + 4).getStrAbbrWL() +
                         " in the " + getYear() + " " + bowlGames[g].gameName + "!");
                 if(g < 6) weeklyScores.get(currentWeek + 4).add(bowlGames[g].gameName + ">" + bowlGames[g].awayTeam.strRankTeamRecord() + "\n" + bowlGames[g].homeTeam.strRankTeamRecord());
                 else if(g < 16) weeklyScores.get(currentWeek + 3).add(bowlGames[g].gameName + ">" + bowlGames[g].awayTeam.strRankTeamRecord() + "\n" + bowlGames[g].homeTeam.strRankTeamRecord());
@@ -3153,65 +3152,65 @@ public class League {
             Team semi14winner;
             Team semi23winner;
             if (semiG14.homeScore > semiG14.awayScore) {
-                semiG14.homeTeam.semiFinalWL = "SFW";
-                semiG14.awayTeam.semiFinalWL = "SFL";
-                semiG14.awayTeam.totalBowlLosses++;
-                semiG14.homeTeam.totalBowls++;
-                semiG14.homeTeam.HC.recordBowlWins(1);
-                semiG14.awayTeam.HC.recordBowlLosses(1);
+                semiG14.homeTeam.setSemiFinalWL("SFW");
+                semiG14.awayTeam.setSemiFinalWL("SFL");
+                semiG14.awayTeam.incrementTotalBowlLosses();
+                semiG14.homeTeam.incrementTotalBowls();
+                semiG14.homeTeam.getHeadCoach().recordBowlWins(1);
+                semiG14.awayTeam.getHeadCoach().recordBowlLosses(1);
                 semi14winner = semiG14.homeTeam;
                 newsStories.get(currentWeek + 1).add(
-                        semiG14.homeTeam.name + " wins the " + semiG14.gameName + "!>" +
+                        semiG14.homeTeam.getName() + " wins the " + semiG14.gameName + "!>" +
                                 semiG14.homeTeam.strRep() + " defeats " + semiG14.awayTeam.strRep() +
                                 " in the semifinals, winning " + semiG14.homeScore + " to " + semiG14.awayScore + ". " +
-                                semiG14.homeTeam.name + " advances to the National Championship!");
-                newsHeadlines.add(semiG14.homeTeam.strRep() + " defeats " + semiG14.awayTeam.strRep() + " in the semifinals, winning " + semiG14.homeScore + " to " + semiG14.awayScore + ". " + semiG14.homeTeam.name + " advances to the National Championship!");
+                                semiG14.homeTeam.getName() + " advances to the National Championship!");
+                newsHeadlines.add(semiG14.homeTeam.strRep() + " defeats " + semiG14.awayTeam.strRep() + " in the semifinals, winning " + semiG14.homeScore + " to " + semiG14.awayScore + ". " + semiG14.homeTeam.getName() + " advances to the National Championship!");
             } else {
-                semiG14.homeTeam.semiFinalWL = "SFL";
-                semiG14.awayTeam.semiFinalWL = "SFW";
-                semiG14.homeTeam.totalBowlLosses++;
-                semiG14.awayTeam.totalBowls++;
-                semiG14.awayTeam.HC.recordBowlWins(1);
-                semiG14.homeTeam.HC.recordBowlLosses(1);
+                semiG14.homeTeam.setSemiFinalWL("SFL");
+                semiG14.awayTeam.setSemiFinalWL("SFW");
+                semiG14.homeTeam.incrementTotalBowlLosses();
+                semiG14.awayTeam.incrementTotalBowls();
+                semiG14.awayTeam.getHeadCoach().recordBowlWins(1);
+                semiG14.homeTeam.getHeadCoach().recordBowlLosses(1);
                 semi14winner = semiG14.awayTeam;
                 newsStories.get(currentWeek + 1).add(
-                        semiG14.awayTeam.name + " wins the " + semiG14.gameName + "!>" +
+                        semiG14.awayTeam.getName() + " wins the " + semiG14.gameName + "!>" +
                                 semiG14.awayTeam.strRep() + " defeats " + semiG14.homeTeam.strRep() +
                                 " in the semifinals, winning " + semiG14.awayScore + " to " + semiG14.homeScore + ". " +
-                                semiG14.awayTeam.name + " advances to the National Championship!");
-                newsHeadlines.add(semiG14.awayTeam.strRep() + " defeats " + semiG14.homeTeam.strRep() + " in the semifinals, winning " + semiG14.awayScore + " to " + semiG14.homeScore + ". " + semiG14.awayTeam.name + " advances to the National Championship!");
+                                semiG14.awayTeam.getName() + " advances to the National Championship!");
+                newsHeadlines.add(semiG14.awayTeam.strRep() + " defeats " + semiG14.homeTeam.strRep() + " in the semifinals, winning " + semiG14.awayScore + " to " + semiG14.homeScore + ". " + semiG14.awayTeam.getName() + " advances to the National Championship!");
             }
 
             if (semiG23.homeScore > semiG23.awayScore) {
-                semiG23.homeTeam.semiFinalWL = "SFW";
-                semiG23.awayTeam.semiFinalWL = "SFL";
-                semiG23.homeTeam.totalBowls++;
-                semiG23.awayTeam.totalBowlLosses++;
-                semiG23.homeTeam.HC.recordBowlWins(1);
-                semiG23.awayTeam.HC.recordBowlLosses(1);
+                semiG23.homeTeam.setSemiFinalWL("SFW");
+                semiG23.awayTeam.setSemiFinalWL("SFL");
+                semiG23.homeTeam.incrementTotalBowls();
+                semiG23.awayTeam.incrementTotalBowlLosses();
+                semiG23.homeTeam.getHeadCoach().recordBowlWins(1);
+                semiG23.awayTeam.getHeadCoach().recordBowlLosses(1);
                 semi23winner = semiG23.homeTeam;
                 newsStories.get(currentWeek + 1).add(
-                        semiG23.homeTeam.name + " wins the " + semiG23.gameName + "!>" +
+                        semiG23.homeTeam.getName() + " wins the " + semiG23.gameName + "!>" +
                                 semiG23.homeTeam.strRep() + " defeats " + semiG23.awayTeam.strRep() +
                         " in the semifinals, winning " + semiG23.homeScore + " to " + semiG23.awayScore + ". " +
-                        semiG23.homeTeam.name + " advances to the National Championship!"
+                        semiG23.homeTeam.getName() + " advances to the National Championship!"
 
                 );
-                newsHeadlines.add(semiG23.homeTeam.strRep() + " defeats " + semiG23.awayTeam.strRep() + " in the semifinals, winning " + semiG23.homeScore + " to " + semiG23.awayScore + ". " + semiG23.homeTeam.name + " advances to the National Championship!");
+                newsHeadlines.add(semiG23.homeTeam.strRep() + " defeats " + semiG23.awayTeam.strRep() + " in the semifinals, winning " + semiG23.homeScore + " to " + semiG23.awayScore + ". " + semiG23.homeTeam.getName() + " advances to the National Championship!");
             } else {
-                semiG23.homeTeam.semiFinalWL = "SFL";
-                semiG23.awayTeam.semiFinalWL = "SFW";
-                semiG23.awayTeam.totalBowls++;
-                semiG23.homeTeam.totalBowlLosses++;
-                semiG23.awayTeam.HC.recordBowlWins(1);
-                semiG23.homeTeam.HC.recordBowlLosses(1);
+                semiG23.homeTeam.setSemiFinalWL("SFL");
+                semiG23.awayTeam.setSemiFinalWL("SFW");
+                semiG23.awayTeam.incrementTotalBowls();
+                semiG23.homeTeam.incrementTotalBowlLosses();
+                semiG23.awayTeam.getHeadCoach().recordBowlWins(1);
+                semiG23.homeTeam.getHeadCoach().recordBowlLosses(1);
                 semi23winner = semiG23.awayTeam;
                 newsStories.get(currentWeek + 1).add(
-                        semiG23.awayTeam.name + " wins the " + semiG23.gameName + "!>" +
+                        semiG23.awayTeam.getName() + " wins the " + semiG23.gameName + "!>" +
                                 semiG23.awayTeam.strRep() + " defeats " + semiG23.homeTeam.strRep() +
                                 " in the semifinals, winning " + semiG23.awayScore + " to " + semiG23.homeScore + ". " +
-                                semiG23.awayTeam.name + " advances to the National Championship!");
-                newsHeadlines.add(semiG23.awayTeam.strRep() + " defeats " + semiG23.homeTeam.strRep() + " in the semifinals, winning " + semiG23.awayScore + " to " + semiG23.homeScore + ". " + semiG23.awayTeam.name + " advances to the National Championship!");
+                                semiG23.awayTeam.getName() + " advances to the National Championship!");
+                newsHeadlines.add(semiG23.awayTeam.strRep() + " defeats " + semiG23.homeTeam.strRep() + " in the semifinals, winning " + semiG23.awayScore + " to " + semiG23.homeScore + ". " + semiG23.awayTeam.getName() + " advances to the National Championship!");
 
             }
 
@@ -3235,31 +3234,31 @@ public class League {
         if(!g.hasPlayed) {
             g.playGame();
             if (g.homeScore > g.awayScore) {
-                g.homeTeam.semiFinalWL = "BW";
-                g.awayTeam.semiFinalWL = "BL";
-                g.homeTeam.totalBowls++;
-                g.awayTeam.totalBowlLosses++;
-                g.homeTeam.HC.recordBowlWins(1);
-                g.awayTeam.HC.recordBowlLosses(1);
+                g.homeTeam.setSemiFinalWL("BW");
+                g.awayTeam.setSemiFinalWL("BL");
+                g.homeTeam.incrementTotalBowls();
+                g.awayTeam.incrementTotalBowlLosses();
+                g.homeTeam.getHeadCoach().recordBowlWins(1);
+                g.awayTeam.getHeadCoach().recordBowlLosses(1);
                 newsStories.get(currentWeek + 1).add(
-                        g.homeTeam.name + " wins the " + g.gameName + "!>" +
+                        g.homeTeam.getName() + " wins the " + g.gameName + "!>" +
                                 g.homeTeam.strRep() + " defeats " + g.awayTeam.strRep() +
                                 " in the " + g.gameName + ", winning " + g.homeScore + " to " + g.awayScore + "."
                 );
-                newsHeadlines.add(g.homeTeam.name + " wins the " + g.gameName + "!");
+                newsHeadlines.add(g.homeTeam.getName() + " wins the " + g.gameName + "!");
             } else {
-                g.homeTeam.semiFinalWL = "BL";
-                g.awayTeam.semiFinalWL = "BW";
-                g.homeTeam.totalBowlLosses++;
-                g.awayTeam.totalBowls++;
-                g.awayTeam.HC.recordBowlWins(1);
-                g.homeTeam.HC.recordBowlLosses(1);
+                g.homeTeam.setSemiFinalWL("BL");
+                g.awayTeam.setSemiFinalWL("BW");
+                g.homeTeam.incrementTotalBowlLosses();
+                g.awayTeam.incrementTotalBowls();
+                g.awayTeam.getHeadCoach().recordBowlWins(1);
+                g.homeTeam.getHeadCoach().recordBowlLosses(1);
                 newsStories.get(currentWeek + 1).add(
-                        g.awayTeam.name + " wins the " + g.gameName + "!>" +
+                        g.awayTeam.getName() + " wins the " + g.gameName + "!>" +
                                 g.awayTeam.strRep() + " defeats " + g.homeTeam.strRep() +
                                 " in the " + g.gameName + ", winning " + g.awayScore + " to " + g.homeScore + "."
                 );
-                newsHeadlines.add(g.awayTeam.name + " wins the " + g.gameName + "!");
+                newsHeadlines.add(g.awayTeam.getName() + " wins the " + g.gameName + "!");
             }
         }
     }
@@ -3303,12 +3302,12 @@ public class League {
     private String ncgSummaryStr() {
         // Give summary of what happened in the NCG
         if (ncg.homeScore > ncg.awayScore) {
-            return ncg.homeTeam.name + " (" + ncg.homeTeam.wins + "-" + ncg.homeTeam.losses + ") won the National Championship, " +
-                    "winning against " + ncg.awayTeam.name + " (" + ncg.awayTeam.wins + "-" + ncg.awayTeam.losses + ") in the NCG " +
+            return ncg.homeTeam.getName() + " (" + ncg.homeTeam.getWins() + "-" + ncg.homeTeam.getLosses() + ") won the National Championship, " +
+                    "winning against " + ncg.awayTeam.getName() + " (" + ncg.awayTeam.getWins() + "-" + ncg.awayTeam.getLosses() + ") in the NCG " +
                     ncg.homeScore + "-" + ncg.awayScore + ".";
         } else {
-            return ncg.awayTeam.name + " (" + ncg.awayTeam.wins + "-" + ncg.awayTeam.losses + ") won the National Championship, " +
-                    "winning against " + ncg.homeTeam.name + " (" + ncg.homeTeam.wins + "-" + ncg.homeTeam.losses + ") in the NCG " +
+            return ncg.awayTeam.getName() + " (" + ncg.awayTeam.getWins() + "-" + ncg.awayTeam.getLosses() + ") won the National Championship, " +
+                    "winning against " + ncg.homeTeam.getName() + " (" + ncg.homeTeam.getWins() + "-" + ncg.homeTeam.getLosses() + ") in the NCG " +
                     ncg.awayScore + "-" + ncg.homeScore + ".";
         }
     }
@@ -3330,8 +3329,8 @@ public class League {
         sb.append(ncgSummaryStr());
         sb.append("\n\n" + userTeam.seasonSummaryStr());
         if (getYear() > seasonStart) {
-            sb.append("\n\nLEAGUE RECORDS BROKEN:\n" + leagueRecords.brokenRecordsStr(getYear(), userTeam.abbr));
-            sb.append("\n\nTEAM RECORDS BROKEN:\n" + userTeam.teamRecords.brokenRecordsStr(getYear(), userTeam.abbr));
+            sb.append("\n\nLEAGUE RECORDS BROKEN:\n" + leagueRecords.brokenRecordsStr(getYear(), userTeam.getAbbr()));
+            sb.append("\n\nTEAM RECORDS BROKEN:\n" + userTeam.getTeamRecords().brokenRecordsStr(getYear(), userTeam.getAbbr()));
         }
         return sb.toString();
     }
@@ -3342,7 +3341,7 @@ public class League {
         coachStarList.clear();
         Collections.sort(teamList, new CompTeamPrestige());
         for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).advanceHC(leagueRecords, teamList.get(t).teamRecords);
+            teamList.get(t).advanceHC(leagueRecords, teamList.get(t).getTeamRecords());
             teamList.get(t).advanceCoordinator();
             teamList.get(t).checkFacilitiesUpgradeBonus();
         }
@@ -3350,9 +3349,9 @@ public class League {
 
     public void updateHCHistory() {
         for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).updateCoachHistory(teamList.get(t).HC);
-            teamList.get(t).updateCoachHistory(teamList.get(t).OC);
-            teamList.get(t).updateCoachHistory(teamList.get(t).DC);
+            teamList.get(t).updateCoachHistory(teamList.get(t).getHeadCoach());
+            teamList.get(t).updateCoachHistory(teamList.get(t).getOC());
+            teamList.get(t).updateCoachHistory(teamList.get(t).getDC());
         }
 
     }
@@ -3361,7 +3360,7 @@ public class League {
     public ArrayList<Team> getCoachListFired(int rating, String oldTeam) {
         ArrayList<Team> teamVacancies = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            if (teamList.get(i).getMinCoachHireReq() < rating && teamList.get(i).HC == null && !teamList.get(i).name.equals(oldTeam)) {
+            if (teamList.get(i).getMinCoachHireReq() < rating && teamList.get(i).getHeadCoach() == null && !teamList.get(i).getName().equals(oldTeam)) {
                 teamVacancies.add(teamList.get(i));
             }
         }
@@ -3376,7 +3375,7 @@ public class League {
     public ArrayList<Team> getCoachPromotionList(int rating, double offers, String oldTeam) {
         ArrayList<Team> teamVacancies = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            if (teamList.get(i).getMinCoachHireReq() < rating && teamList.get(i).HC == null && !teamList.get(i).name.equals(oldTeam) && offers > 0.50) {
+            if (teamList.get(i).getMinCoachHireReq() < rating && teamList.get(i).getHeadCoach() == null && !teamList.get(i).getName().equals(oldTeam) && offers > 0.50) {
                 teamVacancies.add(teamList.get(i));
             }
         }
@@ -3400,8 +3399,8 @@ public class League {
     //Transferring Jobs
     public void newJobtransfer(String coachTeam) {
         for (int i = 0; i < teamList.size(); ++i) {
-            if (teamList.get(i).name.equals(coachTeam)) {
-                teamList.get(i).userControlled = true;
+            if (teamList.get(i).getName().equals(coachTeam)) {
+                teamList.get(i).setUserControlled(true);
                 userTeam = teamList.get(i);
             }
         }
@@ -3414,48 +3413,48 @@ public class League {
         Collections.sort(teamList, new CompTeamPrestige());
         //Rising Star Coaches
         for (int i = 0; i < coachStarList.size(); ++i) {
-            final String tmName = coachStarList.get(i).team.name;
+            final String tmName = coachStarList.get(i).team.getName();
             final String pos = coachStarList.get(i).position;
-            int tmPres = coachStarList.get(i).team.teamPrestige;
-            int cPres = coachStarList.get(i).team.confPrestige;
+            int tmPres = coachStarList.get(i).team.getTeamPrestige();
+            int cPres = coachStarList.get(i).team.getConfPrestige();
 
             for (int t = 0; t < teamList.size(); ++t) {
-                if (teamList.get(t).HC == null && coachStarList.get(i).getStaffOverall(ovr) >= teamList.get(t).getMinCoachHireReq() && !teamList.get(t).name.equals(tmName) && Math.random() > 0.66) {
-                    if (!coachStarList.get(i).position.equals("HC") || teamList.get(t).teamPrestige > tmPres && teamList.get(t).confPrestige > cPres || teamList.get(t).teamPrestige > tmPres + 5 || teamList.get(t).confPrestige + 10 > cPres) {
+                if (teamList.get(t).getHeadCoach() == null && coachStarList.get(i).getStaffOverall(ovr) >= teamList.get(t).getMinCoachHireReq() && !teamList.get(t).getName().equals(tmName) && Math.random() > 0.66) {
+                    if (!coachStarList.get(i).position.equals("HC") || teamList.get(t).getTeamPrestige() > tmPres && teamList.get(t).getConfPrestige() > cPres || teamList.get(t).getTeamPrestige() > tmPres + 5 || teamList.get(t).getConfPrestige() + 10 > cPres) {
                         final Staff hiredHC = coachStarList.get(i);
-                        teamList.get(t).HC = new HeadCoach(hiredHC, teamList.get(t));;
-                        teamList.get(t).HC.contractLength = 6;
-                        teamList.get(t).HC.contractYear = 0;
-                        teamList.get(t).HC.baselinePrestige = teamList.get(t).teamPrestige;
-                        teamList.get(t).HC.team = teamList.get(t);
+                        teamList.get(t).setHeadCoach(new HeadCoach(hiredHC, teamList.get(t)));
+                        teamList.get(t).getHeadCoach().contractLength = 6;
+                        teamList.get(t).getHeadCoach().contractYear = 0;
+                        teamList.get(t).getHeadCoach().baselinePrestige = teamList.get(t).getTeamPrestige();
+                        teamList.get(t).getHeadCoach().team = teamList.get(t);
                         coachStarList.remove(hiredHC);
-                        newsStories.get(currentWeek + 1).add("Rising Star Head Coach Hired: " + teamList.get(t).name + ">Coach " + teamList.get(t).HC.name + " has announced his departure from " +
+                        newsStories.get(currentWeek + 1).add("Rising Star Head Coach Hired: " + teamList.get(t).getName() + ">Coach " + teamList.get(t).getHeadCoach().name + " has announced his departure from " +
                                 tmName + " after being selected by " + teamList.get(t).strRankTeamRecord() + " as their new head coach. His previous track record has had him on the top list of many schools.");
-                        newsHeadlines.add(teamList.get(t).HC.name + " has announced his departure from " + tmName + " after being selected by " + teamList.get(t).strRankTeamRecord());
+                        newsHeadlines.add(teamList.get(t).getHeadCoach().name + " has announced his departure from " + tmName + " after being selected by " + teamList.get(t).strRankTeamRecord());
                         for (int j = 0; j < teamList.size(); ++j) {
-                            if (teamList.get(j).name.equals(tmName)) {
+                            if (teamList.get(j).getName().equals(tmName)) {
                                 if(pos.equals("HC")) {
-                                    teamList.get(j).HC = null;
+                                    teamList.get(j).setHeadCoach(null);
                                     if (Math.random() > 0.20) {
                                         teamList.get(j).promoteCoach();
-                                        teamList.get(j).HC.history.add("");
-                                        newsStories.get(currentWeek + 1).add("Replacement Promoted: " + teamList.get(j).name + ">" + teamList.get(j).strRankTeamRecord() +
-                                                " hopes to continue their recent success, despite the recent loss of coach " + teamList.get(t).HC.name + ". The team has promoted his Coordinator " + teamList.get(j).HC.name + " to the head coaching job at the school.");
-                                        newsHeadlines.add(teamList.get(j).name + " has promoted coordinator " + teamList.get(t).HC.name + " to Head Coach position.");
+                                        teamList.get(j).getHeadCoach().history.add("");
+                                        newsStories.get(currentWeek + 1).add("Replacement Promoted: " + teamList.get(j).getName() + ">" + teamList.get(j).strRankTeamRecord() +
+                                                " hopes to continue their recent success, despite the recent loss of coach " + teamList.get(t).getHeadCoach().name + ". The team has promoted his Coordinator " + teamList.get(j).getHeadCoach().name + " to the head coaching job at the school.");
+                                        newsHeadlines.add(teamList.get(j).getName() + " has promoted coordinator " + teamList.get(t).getHeadCoach().name + " to Head Coach position.");
                                     }
                                 } else if (pos.equals("OC")) {
-                                    teamList.get(j).OC = null;
-                                    if(!teamList.get(j).userControlled) {
-                                        teamList.get(j).OC = new OC(getRandName(), teamList.get(j).rankTeamPrestige / (teamList.size() / 8));
-                                        newsStories.get(currentWeek + 1).add("Replacement Promoted: " + teamList.get(j).name + ">" + teamList.get(j).strRankTeamRecord() +
-                                                " hopes to continue their recent success, despite the recent loss of OC " + teamList.get(t).HC.name + ". The team has promoted his assistant coach " + teamList.get(j).OC.name + " to the Off Coordinator job at the school.");
+                                    teamList.get(j).setOC(null);
+                                    if(!teamList.get(j).isUserControlled()) {
+                                        teamList.get(j).setOC(new OC(getRandName(), teamList.get(j).getRankTeamPrestige() / (teamList.size() / 8)));
+                                        newsStories.get(currentWeek + 1).add("Replacement Promoted: " + teamList.get(j).getName() + ">" + teamList.get(j).strRankTeamRecord() +
+                                                " hopes to continue their recent success, despite the recent loss of OC " + teamList.get(t).getHeadCoach().name + ". The team has promoted his assistant coach " + teamList.get(j).getOC().name + " to the Off Coordinator job at the school.");
                                     }
                                 } else if (pos.equals("DC")) {
-                                    teamList.get(j).DC = null;
-                                    if (!teamList.get(j).userControlled) {
-                                        teamList.get(j).DC = new DC(getRandName(), teamList.get(j).rankTeamPrestige / (teamList.size() / 8));
-                                        newsStories.get(currentWeek + 1).add("Replacement Promoted: " + teamList.get(j).name + ">" + teamList.get(j).strRankTeamRecord() +
-                                                " hopes to continue their recent success, despite the recent loss of DC " + teamList.get(t).HC.name + ". The team has promoted his assistant coach " + teamList.get(j).DC.name + " to the Def Coordinator job at the school.");
+                                    teamList.get(j).setDC(null);
+                                    if (!teamList.get(j).isUserControlled()) {
+                                        teamList.get(j).setDC(new DC(getRandName(), teamList.get(j).getRankTeamPrestige() / (teamList.size() / 8)));
+                                        newsStories.get(currentWeek + 1).add("Replacement Promoted: " + teamList.get(j).getName() + ">" + teamList.get(j).strRankTeamRecord() +
+                                                " hopes to continue their recent success, despite the recent loss of DC " + teamList.get(t).getHeadCoach().name + ". The team has promoted his assistant coach " + teamList.get(j).getDC().name + " to the Def Coordinator job at the school.");
                                     }
                                 }
                             }
@@ -3472,16 +3471,16 @@ public class League {
         for (int i = 0; i < coachFreeAgents.size(); ++i) {
             final Staff c = coachFreeAgents.get(i);
             for (int t = 0; t < teamList.size(); ++t) {
-                if (teamList.get(t).HC == null && coachFreeAgents.get(i).getStaffOverall(ovr) >= teamList.get(t).getMinCoachHireReq() && Math.random() < 0.60 && !coachFreeAgents.get(i).retired) {
-                    teamList.get(t).HC = new HeadCoach(c, teamList.get(t));;
-                    teamList.get(t).HC.contractLength = 6;
-                    teamList.get(t).HC.contractYear = 0;
-                    teamList.get(t).HC.baselinePrestige = teamList.get(t).teamPrestige;
-                    teamList.get(t).HC.team = teamList.get(t);
+                if (teamList.get(t).getHeadCoach() == null && coachFreeAgents.get(i).getStaffOverall(ovr) >= teamList.get(t).getMinCoachHireReq() && Math.random() < 0.60 && !coachFreeAgents.get(i).retired) {
+                    teamList.get(t).setHeadCoach(new HeadCoach(c, teamList.get(t)));
+                    teamList.get(t).getHeadCoach().contractLength = 6;
+                    teamList.get(t).getHeadCoach().contractYear = 0;
+                    teamList.get(t).getHeadCoach().baselinePrestige = teamList.get(t).getTeamPrestige();
+                    teamList.get(t).getHeadCoach().team = teamList.get(t);
                     coachFreeAgents.remove(c);
-                    newsStories.get(currentWeek + 1).add("Return to the Sidelines: " + teamList.get(t).name + ">After an extensive search for a new head coach, " + teamList.get(t).strRankTeamRecord() + " has hired " + teamList.get(t).HC.name +
-                            " to lead the team. Head Coach " + teamList.get(t).HC.name + " has been out of football, but is returning this season!");
-                    newsHeadlines.add(teamList.get(t).strRankTeamRecord() + " has hired unemployed " + teamList.get(t).HC.name + " to lead the team.");
+                    newsStories.get(currentWeek + 1).add("Return to the Sidelines: " + teamList.get(t).getName() + ">After an extensive search for a new head coach, " + teamList.get(t).strRankTeamRecord() + " has hired " + teamList.get(t).getHeadCoach().name +
+                            " to lead the team. Head Coach " + teamList.get(t).getHeadCoach().name + " has been out of football, but is returning this season!");
+                    newsHeadlines.add(teamList.get(t).strRankTeamRecord() + " has hired unemployed " + teamList.get(t).getHeadCoach().name + " to lead the team.");
 
                     teamList.get(t).newCoachDecisions();
                     break;
@@ -3491,12 +3490,12 @@ public class League {
 
         //Assistants Promoted
         for (int t = 0; t < teamList.size(); ++t) {
-            if (teamList.get(t).HC == null && Math.random() > 0.60) {
+            if (teamList.get(t).getHeadCoach() == null && Math.random() > 0.60) {
                 teamList.get(t).promoteCoach();
-                teamList.get(t).HC.history.add("");
-                newsStories.get(currentWeek + 1).add("Coaching Promotion: " + teamList.get(t).name + ">Following the departure of their previous head coach, " + teamList.get(t).strRankTeamRecord() + " has promoted assistant " + teamList.get(t).HC.name +
+                teamList.get(t).getHeadCoach().history.add("");
+                newsStories.get(currentWeek + 1).add("Coaching Promotion: " + teamList.get(t).getName() + ">Following the departure of their previous head coach, " + teamList.get(t).strRankTeamRecord() + " has promoted assistant " + teamList.get(t).getHeadCoach().name +
                         " to lead the team.");
-                newsHeadlines.add(teamList.get(t).name + " has promoted coordinator " + teamList.get(t).HC.name + " to Head Coach position.");
+                newsHeadlines.add(teamList.get(t).getName() + " has promoted coordinator " + teamList.get(t).getHeadCoach().name + " to Head Coach position.");
             }
         }
 
@@ -3505,16 +3504,16 @@ public class League {
         for (int i = 0; i < coachList.size(); ++i) {
             final Staff c = coachList.get(i);
             for (int t = 0; t < teamList.size(); ++t) {
-                if (teamList.get(t).HC == null && coachList.get(i).getStaffOverall(ovr) >= teamList.get(t).getMinCoachHireReq() && !teamList.get(t).name.equals(coachList.get(i).team.name) && Math.random() > 0.60) {
+                if (teamList.get(t).getHeadCoach() == null && coachList.get(i).getStaffOverall(ovr) >= teamList.get(t).getMinCoachHireReq() && !teamList.get(t).getName().equals(coachList.get(i).team.getName()) && Math.random() > 0.60) {
 
-                    newsStories.get(currentWeek + 1).add("Coaching Switch: " + teamList.get(t).name + ">After an extensive search for a new head coach, " + teamList.get(t).strRankTeamRecord() + " has hired " + coachList.get(i).name +
-                            " to lead the team. Head Coach " + coachList.get(i).name + " previously coached at " + coachList.get(i).team.name + ", before being let go this past season.");
+                    newsStories.get(currentWeek + 1).add("Coaching Switch: " + teamList.get(t).getName() + ">After an extensive search for a new head coach, " + teamList.get(t).strRankTeamRecord() + " has hired " + coachList.get(i).name +
+                            " to lead the team. Head Coach " + coachList.get(i).name + " previously coached at " + coachList.get(i).team.getName() + ", before being let go this past season.");
                     newsHeadlines.add(teamList.get(t).strRankTeamRecord() + " has hired recently fired " + coachList.get(i).name + ".");
-                    teamList.get(t).HC = new HeadCoach(c, teamList.get(t));
-                    teamList.get(t).HC.contractLength = 6;
-                    teamList.get(t).HC.contractYear = 0;
-                    teamList.get(t).HC.baselinePrestige = teamList.get(t).teamPrestige;
-                    teamList.get(t).HC.team = teamList.get(t);
+                    teamList.get(t).setHeadCoach(new HeadCoach(c, teamList.get(t)));
+                    teamList.get(t).getHeadCoach().contractLength = 6;
+                    teamList.get(t).getHeadCoach().contractYear = 0;
+                    teamList.get(t).getHeadCoach().baselinePrestige = teamList.get(t).getTeamPrestige();
+                    teamList.get(t).getHeadCoach().team = teamList.get(t);
                     coachList.remove(c);
 
                     teamList.get(t).newCoachDecisions();
@@ -3525,12 +3524,12 @@ public class League {
 
         //Assistants Promoted
         for (int t = 0; t < teamList.size(); ++t) {
-            if (teamList.get(t).HC == null) {
+            if (teamList.get(t).getHeadCoach() == null) {
                 teamList.get(t).promoteCoach();
-                teamList.get(t).HC.history.add("");
-                newsStories.get(currentWeek + 1).add("Coaching Promotion: " + teamList.get(t).name + ">Following the departure of their previous head coach, " + teamList.get(t).strRankTeamRecord() + " has promoted assistant " + teamList.get(t).HC.name +
+                teamList.get(t).getHeadCoach().history.add("");
+                newsStories.get(currentWeek + 1).add("Coaching Promotion: " + teamList.get(t).getName() + ">Following the departure of their previous head coach, " + teamList.get(t).strRankTeamRecord() + " has promoted assistant " + teamList.get(t).getHeadCoach().name +
                         " to lead the team.");
-                newsHeadlines.add(teamList.get(t).name + " has promoted coordinator " + teamList.get(t).HC.name + " to Head Coach position.");
+                newsHeadlines.add(teamList.get(t).getName() + " has promoted coordinator " + teamList.get(t).getHeadCoach().name + " to Head Coach position.");
             }
         }
 
@@ -3545,49 +3544,49 @@ public class League {
             final Staff c = coachStarList.get(i);
 
             String tmName = "N/A";
-            if(coachStarList.get(i).team.name != null) tmName = coachStarList.get(i).team.name;
+            if(coachStarList.get(i).team.getName() != null) tmName = coachStarList.get(i).team.getName();
             final String pos = coachStarList.get(i).position;
-            int tmPres = coachStarList.get(i).team.teamPrestige;
-            int cPres = coachStarList.get(i).team.confPrestige;
+            int tmPres = coachStarList.get(i).team.getTeamPrestige();
+            int cPres = coachStarList.get(i).team.getConfPrestige();
 
-            if (coachStarList.get(i).getStaffOverall(ovr) >= school.getMinCoachHireReq() && !school.name.equals(tmName) && Math.random() > 0.60) {
-                if (school.teamPrestige > tmPres && school.confPrestige > cPres || school.teamPrestige > tmPres + 5 || school.confPrestige + 10 > cPres) {
-                    school.HC = new HeadCoach(c, school);
-                    school.HC.contractLength = 6;
-                    school.HC.contractYear = 0;
-                    school.HC.baselinePrestige = school.teamPrestige;
-                    school.HC.team = school;
+            if (coachStarList.get(i).getStaffOverall(ovr) >= school.getMinCoachHireReq() && !school.getName().equals(tmName) && Math.random() > 0.60) {
+                if (school.getTeamPrestige() > tmPres && school.getConfPrestige() > cPres || school.getTeamPrestige() > tmPres + 5 || school.getConfPrestige() + 10 > cPres) {
+                    school.setHeadCoach(new HeadCoach(c, school));
+                    school.getHeadCoach().contractLength = 6;
+                    school.getHeadCoach().contractYear = 0;
+                    school.getHeadCoach().baselinePrestige = school.getTeamPrestige();
+                    school.getHeadCoach().team = school;
                     coachStarList.remove(c);
-                    newsStories.get(currentWeek + 1).add("Rising Star Head Coach Hired: " + school.name + ">Rising star head coach " + school.HC.name + " has announced his departure from " +
-                            tmName + " after being selected by " + school.name + " as their new head coach. His previous track record has had him on the top list of many schools.");
-                    newsHeadlines.add(school.HC.name + " has announced his departure from " + tmName + " after being selected by " + school.name);
+                    newsStories.get(currentWeek + 1).add("Rising Star Head Coach Hired: " + school.getName() + ">Rising star head coach " + school.getHeadCoach().name + " has announced his departure from " +
+                            tmName + " after being selected by " + school.getName() + " as their new head coach. His previous track record has had him on the top list of many schools.");
+                    newsHeadlines.add(school.getHeadCoach().name + " has announced his departure from " + tmName + " after being selected by " + school.getName());
 
                     for (int j = 0; j < teamList.size(); ++j) {
-                        if (teamList.get(j).name.equals(tmName)) {
+                        if (teamList.get(j).getName().equals(tmName)) {
                             if (pos.equals("HC")) {
-                                teamList.get(j).HC = null;
+                                teamList.get(j).setHeadCoach(null);
                                 if (Math.random() > 0.25) {
                                     teamList.get(j).promoteCoach();
-                                    teamList.get(j).HC.history.add("");
-                                    newsStories.get(currentWeek + 1).add("Replacement Promoted: " + teamList.get(j).name + ">" + teamList.get(j).strRankTeamRecord() +
-                                            " hopes to continue their recent success, despite the recent loss of coach " + school.HC.name + ". The team has promoted his Coordinator " + teamList.get(j).HC.name + " to the head coaching job at the school.");
-                                    newsHeadlines.add(teamList.get(j).name + " has promoted coordinator " + school.HC.name + " to Head Coach position.");
+                                    teamList.get(j).getHeadCoach().history.add("");
+                                    newsStories.get(currentWeek + 1).add("Replacement Promoted: " + teamList.get(j).getName() + ">" + teamList.get(j).strRankTeamRecord() +
+                                            " hopes to continue their recent success, despite the recent loss of coach " + school.getHeadCoach().name + ". The team has promoted his Coordinator " + teamList.get(j).getHeadCoach().name + " to the head coaching job at the school.");
+                                    newsHeadlines.add(teamList.get(j).getName() + " has promoted coordinator " + school.getHeadCoach().name + " to Head Coach position.");
                                 } else {
                                     coachHiringSingleTeam(teamList.get(j));
                                 }
                             } else if (pos.equals("OC")) {
-                                teamList.get(j).OC = null;
-                                if(!teamList.get(j).userControlled) {
-                                    teamList.get(j).OC = new OC(getRandName(), teamList.get(j).rankTeamPrestige / (teamList.size() / 8), 0, teamList.get(j));
-                                    newsStories.get(currentWeek + 1).add("Replacement Promoted: " + teamList.get(j).name + ">" + teamList.get(j).strRankTeamRecord() +
-                                            " hopes to continue their recent success, despite the recent loss of OC " + school.HC.name + ". The team has promoted his assistant coach " + teamList.get(j).OC.name + " to the Off Coordinator job at the school.");
+                                teamList.get(j).setOC(null);
+                                if(!teamList.get(j).isUserControlled()) {
+                                    teamList.get(j).setOC(new OC(getRandName(), teamList.get(j).getRankTeamPrestige() / (teamList.size() / 8), 0, teamList.get(j)));
+                                    newsStories.get(currentWeek + 1).add("Replacement Promoted: " + teamList.get(j).getName() + ">" + teamList.get(j).strRankTeamRecord() +
+                                            " hopes to continue their recent success, despite the recent loss of OC " + school.getHeadCoach().name + ". The team has promoted his assistant coach " + teamList.get(j).getOC().name + " to the Off Coordinator job at the school.");
                                 }
                             } else if (pos.equals("DC")) {
-                                teamList.get(j).DC = null;
-                                if (!teamList.get(j).userControlled) {
-                                    teamList.get(j).DC = new DC(getRandName(), teamList.get(j).rankTeamPrestige / (teamList.size() / 8), 0, teamList.get(j));
-                                    newsStories.get(currentWeek + 1).add("Replacement Promoted: " + teamList.get(j).name + ">" + teamList.get(j).strRankTeamRecord() +
-                                            " hopes to continue their recent success, despite the recent loss of DC " + school.HC.name + ". The team has promoted his assistant coach " + teamList.get(j).DC.name + " to the Def Coordinator job at the school.");
+                                teamList.get(j).setDC(null);
+                                if (!teamList.get(j).isUserControlled()) {
+                                    teamList.get(j).setDC(new DC(getRandName(), teamList.get(j).getRankTeamPrestige() / (teamList.size() / 8), 0, teamList.get(j)));
+                                    newsStories.get(currentWeek + 1).add("Replacement Promoted: " + teamList.get(j).getName() + ">" + teamList.get(j).strRankTeamRecord() +
+                                            " hopes to continue their recent success, despite the recent loss of DC " + school.getHeadCoach().name + ". The team has promoted his assistant coach " + teamList.get(j).getDC().name + " to the Def Coordinator job at the school.");
                                 }
                             }
                         }
@@ -3599,42 +3598,42 @@ public class League {
             }
         }
 
-        if (school.HC == null) {
+        if (school.getHeadCoach() == null) {
             //Coaches who were fired previous years
             Collections.sort(coachFreeAgents, new CompCoachOvr());
             for (int i = 0; i < coachFreeAgents.size(); ++i) {
                 final Staff c = coachFreeAgents.get(i);
-                if (school.HC == null && coachFreeAgents.get(i).getStaffOverall(ovr) >= school.getMinCoachHireReq() && Math.random() < 0.65 && !coachFreeAgents.get(i).retired) {
-                    school.HC = new HeadCoach(c, school);
-                    school.HC.contractLength = 6;
-                    school.HC.contractYear = 0;
-                    school.HC.baselinePrestige = school.teamPrestige;
-                    school.HC.team = school;
+                if (school.getHeadCoach() == null && coachFreeAgents.get(i).getStaffOverall(ovr) >= school.getMinCoachHireReq() && Math.random() < 0.65 && !coachFreeAgents.get(i).retired) {
+                    school.setHeadCoach(new HeadCoach(c, school));
+                    school.getHeadCoach().contractLength = 6;
+                    school.getHeadCoach().contractYear = 0;
+                    school.getHeadCoach().baselinePrestige = school.getTeamPrestige();
+                    school.getHeadCoach().team = school;
                     coachFreeAgents.remove(c);
-                    newsStories.get(currentWeek + 1).add("Back to Coaching: " + school.name + ">After an extensive search for a new head coach, " + school.name + " has hired " + school.HC.name +
-                            " to lead the team. Head Coach " + school.HC.name + " has been out of football, but is returning this upcoming season!");
-                    newsHeadlines.add(school.name + " has hired unemployed " + school.HC.name + " to lead the team.");
+                    newsStories.get(currentWeek + 1).add("Back to Coaching: " + school.getName() + ">After an extensive search for a new head coach, " + school.getName() + " has hired " + school.getHeadCoach().name +
+                            " to lead the team. Head Coach " + school.getHeadCoach().name + " has been out of football, but is returning this upcoming season!");
+                    newsHeadlines.add(school.getName() + " has hired unemployed " + school.getHeadCoach().name + " to lead the team.");
                     school.newCoachDecisions();
                     break;
                 }
             }
         }
 
-        if (school.HC == null) {
+        if (school.getHeadCoach() == null) {
             //Coaches who were fired
             Collections.sort(coachList, new CompCoachOvr());
             for (int i = 0; i < coachList.size(); ++i) {
                 final Staff c = coachList.get(i);
-                if (school.HC == null && coachList.get(i).getStaffOverall(ovr) + 5 >= school.getMinCoachHireReq() && !school.name.equals(coachList.get(i).team.name) && Math.random() > 0.45) {
-                    school.HC = new HeadCoach(c, school);
-                    school.HC.contractLength = 6;
-                    school.HC.contractYear = 0;
-                    school.HC.baselinePrestige = school.teamPrestige;
-                    school.HC.team = school;
+                if (school.getHeadCoach() == null && coachList.get(i).getStaffOverall(ovr) + 5 >= school.getMinCoachHireReq() && !school.getName().equals(coachList.get(i).team.getName()) && Math.random() > 0.45) {
+                    school.setHeadCoach(new HeadCoach(c, school));
+                    school.getHeadCoach().contractLength = 6;
+                    school.getHeadCoach().contractYear = 0;
+                    school.getHeadCoach().baselinePrestige = school.getTeamPrestige();
+                    school.getHeadCoach().team = school;
                     coachList.remove(c);
-                    newsStories.get(currentWeek + 1).add("Coaching Change: " + school.name + ">After an extensive search for a new head coach, " + school.name + " has hired " + school.HC.name +
-                            " to lead the team. Head Coach " + school.HC.name + " previously coached at " + coachList.get(i).team.name + ", before being let go this past season.");
-                    newsHeadlines.add(school.name + " has hired recently unemployed " + school.HC.name + ".");
+                    newsStories.get(currentWeek + 1).add("Coaching Change: " + school.getName() + ">After an extensive search for a new head coach, " + school.getName() + " has hired " + school.getHeadCoach().name +
+                            " to lead the team. Head Coach " + school.getHeadCoach().name + " previously coached at " + coachList.get(i).team.getName() + ", before being let go this past season.");
+                    newsHeadlines.add(school.getName() + " has hired recently unemployed " + school.getHeadCoach().name + ".");
 
                     school.newCoachDecisions();
                     break;
@@ -3642,10 +3641,10 @@ public class League {
             }
         }
 
-        if (school.HC == null) {
+        if (school.getHeadCoach() == null) {
             school.promoteCoach();
-            school.HC.history.add("");
-            newsStories.get(currentWeek + 1).add("Coaching Promotion: " + school.name + ">Following the departure of their previous head coach, " + school.name + " has promoted assistant " + school.HC.name +
+            school.getHeadCoach().history.add("");
+            newsStories.get(currentWeek + 1).add("Coaching Promotion: " + school.getName() + ">Following the departure of their previous head coach, " + school.getName() + " has promoted assistant " + school.getHeadCoach().name +
                     " to lead the team.");
         }
     }
@@ -3656,20 +3655,20 @@ public class League {
         if (currentWeek == 0) {
             newsHeadlines.add("Coaching Hot Seat: The Names with Something to Prove");
             for (int i = 0; i < teamList.size(); ++i) {
-                if (teamList.get(i).HC.baselinePrestige < teamList.get(i).teamPrestige && teamList.get(i).HC.contractYear == teamList.get(i).HC.contractLength) {
-                    newsStories.get(0).add("Coaching Hot Seat: " + teamList.get(i).name + ">Head Head Coach " + teamList.get(i).HC.name + " has struggled over the course of his current contract with " +
+                if (teamList.get(i).getHeadCoach().baselinePrestige < teamList.get(i).getTeamPrestige() && teamList.get(i).getHeadCoach().contractYear == teamList.get(i).getHeadCoach().contractLength) {
+                    newsStories.get(0).add("Coaching Hot Seat: " + teamList.get(i).getName() + ">Head Head Coach " + teamList.get(i).getHeadCoach().name + " has struggled over the course of his current contract with " +
                             teamList.get(i).strRankTeamRecord() + " and has failed to raise the team prestige. Because this is his final contract year, the team will be evaluating whether to continue with the coach at the end of " +
                             "this season. He'll remain on the hot seat throughout this year.");
-                } else if (teamList.get(i).teamPrestige > (teamList.get(i).HC.baselinePrestige + 10) && teamList.get(i).teamPrestige < teamList.get((int) (teamList.size() * 0.35)).teamPrestige) {
-                    newsStories.get(0).add("Coaching Rising Star: " + teamList.get(i).HC.name + ">" + teamList.get(i).strRankTeamRecord() + " head coach " + teamList.get(i).HC.name +
+                } else if (teamList.get(i).getTeamPrestige() > (teamList.get(i).getHeadCoach().baselinePrestige + 10) && teamList.get(i).getTeamPrestige() < teamList.get((int) (teamList.size() * 0.35)).getTeamPrestige()) {
+                    newsStories.get(0).add("Coaching Rising Star: " + teamList.get(i).getHeadCoach().name + ">" + teamList.get(i).strRankTeamRecord() + " head coach " + teamList.get(i).getHeadCoach().name +
                             " has been building a strong program and if he continues this path, he'll be on the top of the wishlist at a major program in the future.");
                 }
             }
         } else if (currentWeek == 7) {
             newsHeadlines.add("Coaching Hot Seat: Who's On the Brink of Being Fired?");
             for (int i = 0; i < teamList.size(); ++i) {
-                if (teamList.get(i).HC.baselinePrestige < teamList.get(i).teamPrestige && teamList.get(i).HC.contractYear == teamList.get(i).HC.contractLength && teamList.get(i).rankTeamPollScore > (100 - teamList.get(i).HC.baselinePrestige)) {
-                    newsStories.get(currentWeek + 1).add("Coaching Hot Seat: " + teamList.get(i).name + ">Head Head Coach " + teamList.get(i).HC.name + " future is in jeopardy at  " +
+                if (teamList.get(i).getHeadCoach().baselinePrestige < teamList.get(i).getTeamPrestige() && teamList.get(i).getHeadCoach().contractYear == teamList.get(i).getHeadCoach().contractLength && teamList.get(i).getRankTeamPollScore() > (100 - teamList.get(i).getHeadCoach().baselinePrestige)) {
+                    newsStories.get(currentWeek + 1).add("Coaching Hot Seat: " + teamList.get(i).getName() + ">Head Head Coach " + teamList.get(i).getHeadCoach().name + " future is in jeopardy at  " +
                             teamList.get(i).strRankTeamRecord() + ". The coach has failed to get out of the hot seat this season with disappointing losses and failing to live up to the school's standards.");
                 }
             }
@@ -3721,7 +3720,7 @@ public class League {
 
     public void coordinatorCarousel() {
         for(Team t : teamList) {
-            if(t.HC == null) coachHiringSingleTeam(t);
+            if(t.getHeadCoach() == null) coachHiringSingleTeam(t);
         }
         OCCarousel();
     }
@@ -3729,21 +3728,21 @@ public class League {
     public void OCCarousel() {
         Collections.sort(teamList, new CompTeamPrestige());
         for (Team t : teamList) {
-            if (t.OC == null) {
+            if (t.getOC() == null) {
                 for (Staff c : coachFreeAgents) {
-                    if(c.offStrat == t.HC.offStrat && c.ratOff >= c.ratDef && !c.retired) {
+                    if(c.offStrat == t.getHeadCoach().offStrat && c.ratOff >= c.ratDef && !c.retired) {
                         final Staff hire = c;
-                        t.OC = new OC(hire, t);
+                        t.setOC(new OC(hire, t));
                         coachFreeAgents.remove(hire);
                         break;
                     }
                 }
-                if(t.OC == null) t.OC = new OC(getRandName(), 6);
-                newsStories.get(currentWeek).add("Off Coord Change: " + t.name + ">After an extensive search for a new coordinator, " + t.name + " has hired " + t.OC.name +
+                if(t.getOC() == null) t.setOC(new OC(getRandName(), 6));
+                newsStories.get(currentWeek).add("Off Coord Change: " + t.getName() + ">After an extensive search for a new coordinator, " + t.getName() + " has hired " + t.getOC().name +
                         " to lead the offense.");
-                newsHeadlines.add(t.name + " adds new Off Coord " + t.OC.name);
-                t.OC.contractLength = 3;
-                t.OC.contractYear = 0;
+                newsHeadlines.add(t.getName() + " adds new Off Coord " + t.getOC().name);
+                t.getOC().contractLength = 3;
+                t.getOC().contractYear = 0;
             }
         }
         DCCarousel();
@@ -3752,21 +3751,21 @@ public class League {
     public void DCCarousel() {
         Collections.sort(teamList, new CompTeamPrestige());
         for(Team t : teamList) {
-            if (t.DC == null) {
+            if (t.getDC() == null) {
                 for (Staff c : coachFreeAgents) {
-                    if(c.defStrat == t.HC.defStrat && c.ratDef >= c.ratOff && !c.retired) {
+                    if(c.defStrat == t.getHeadCoach().defStrat && c.ratDef >= c.ratOff && !c.retired) {
                         final Staff hire = c;
-                        t.DC = new DC(hire, t);
+                        t.setDC(new DC(hire, t));
                         coachFreeAgents.remove(hire);
                         break;
                     }
                 }
-                if(t.DC == null) t.DC = new DC(getRandName(), 6);
-                newsStories.get(currentWeek).add("Def Coord Change: " + t.name + ">After an extensive search for a new coordinator, " + t.name + " has hired " + t.DC.name +
+                if(t.getDC() == null) t.setDC(new DC(getRandName(), 6));
+                newsStories.get(currentWeek).add("Def Coord Change: " + t.getName() + ">After an extensive search for a new coordinator, " + t.getName() + " has hired " + t.getDC().name +
                         " to lead the defense.");
-                newsHeadlines.add(t.name + " adds new Def Coord " + t.DC.name);
-                t.DC.contractLength = 3;
-                t.DC.contractYear = 0;
+                newsHeadlines.add(t.getName() + " adds new Def Coord " + t.getDC().name);
+                t.getDC().contractLength = 3;
+                t.getDC().contractYear = 0;
             }
         }
     }
@@ -3794,25 +3793,25 @@ public class League {
                 rand = random.nextInt((max - min) + 1) + min;
                 for (int t = rand; t < teamList.size() - rand; ++t) {
                     if (teamList.get(t).getTeamQBs().size() < 1 || teamList.get(t).getTeamQBs().get(0).ratOvr < transferQBs.get(i).ratOvr) {
-                        if (Math.abs(teamList.get(t).location - transferQBs.get(i).getRegion()) < loc) {
+                        if (Math.abs(teamList.get(t).getLocation() - transferQBs.get(i).getRegion()) < loc) {
                             int qbTransfers = 0;
                             for (int x = 0; x < teamList.get(t).getTeamQBs().size(); ++x) {
                                 if (teamList.get(t).getTeamQBs().get(x).isTransfer) qbTransfers++;
                             }
-                            if (qbTransfers == 0 && !teamList.get(t).userControlled) {
-                                newsStories.get(currentWeek + 1).add(teamList.get(t).name + " Transfer News>" + transferQBs.get(i).getYrStr() + " QB " + transferQBs.get(i).name + "(" + transferQBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ". He was previously enrolled at " +
-                                        transferQBs.get(i).team.abbr + " .");
-                                newsHeadlines.add(transferQBs.get(i).getYrStr() + " QB " + transferQBs.get(i).name + " (" + transferQBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ".");
+                            if (qbTransfers == 0 && !teamList.get(t).isUserControlled()) {
+                                newsStories.get(currentWeek + 1).add(teamList.get(t).getName() + " Transfer News>" + transferQBs.get(i).getYrStr() + " QB " + transferQBs.get(i).name + "(" + transferQBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ". He was previously enrolled at " +
+                                        transferQBs.get(i).team.getAbbr() + " .");
+                                newsHeadlines.add(transferQBs.get(i).getYrStr() + " QB " + transferQBs.get(i).name + " (" + transferQBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ".");
                                 
-                                if (transferQBs.get(i).team.abbr.equals(userTeam.abbr)) {
-                                    tOut.append(transferQBs.get(i).position + " " + transferQBs.get(i).name + ", " + transferQBs.get(i).getYrStr() + "  Ovr: " + transferQBs.get(i).ratOvr + " (" + teamList.get(t).name + ")\n\n");
+                                if (transferQBs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                                    tOut.append(transferQBs.get(i).position + " " + transferQBs.get(i).name + ", " + transferQBs.get(i).getYrStr() + "  Ovr: " + transferQBs.get(i).ratOvr + " (" + teamList.get(t).getName() + ")\n\n");
                                 }
-                                transfersList.add(transferQBs.get(i).ratOvr + " " + transferQBs.get(i).position + " " + transferQBs.get(i).name + " [" + transferQBs.get(i).getTransferStatus() + "] " + teamList.get(t).name + " (" + transferQBs.get(i).team.abbr + ")");
+                                transfersList.add(transferQBs.get(i).ratOvr + " " + transferQBs.get(i).position + " " + transferQBs.get(i).name + " [" + transferQBs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferQBs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerQB(transferQBs.get(i));
                                 transferQBs.remove(i);
                                 break;
-                            } else if (userTeam.qbtransferNum == 0) {
-                                userTeam.qbtransferNum++;
+                            } else if (userTeam.getQbTransferNum() == 0) {
+                                userTeam.incrementQbTransferNum();
                                 bridge.transferPlayer(transferQBs.get(i));
                                 transferQBs.remove(i);
                                 break;
@@ -3826,16 +3825,16 @@ public class League {
                 rand = random.nextInt((max - min) + 1) + min;
                 for (int t = rand; t < teamList.size() - rand; ++t) {
                     if (teamList.get(t).getTeamRBs().size() < 2 || teamList.get(t).getTeamRBs().get(0).ratOvr < transferRBs.get(i).ratOvr) {
-                        if (Math.abs(teamList.get(t).location - transferRBs.get(i).getRegion()) < loc) {
-                            if (!teamList.get(t).userControlled) {
-                                newsStories.get(currentWeek + 1).add(teamList.get(t).name + " Transfer News>" + transferRBs.get(i).getYrStr() + " RB " + transferRBs.get(i).name + "(" + transferRBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ". He was previously enrolled at " +
-                                        transferRBs.get(i).team.abbr + " .");
-                                newsHeadlines.add(transferRBs.get(i).getYrStr() + " RB " + transferRBs.get(i).name + " (" + transferRBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ".");
+                        if (Math.abs(teamList.get(t).getLocation() - transferRBs.get(i).getRegion()) < loc) {
+                            if (!teamList.get(t).isUserControlled()) {
+                                newsStories.get(currentWeek + 1).add(teamList.get(t).getName() + " Transfer News>" + transferRBs.get(i).getYrStr() + " RB " + transferRBs.get(i).name + "(" + transferRBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ". He was previously enrolled at " +
+                                        transferRBs.get(i).team.getAbbr() + " .");
+                                newsHeadlines.add(transferRBs.get(i).getYrStr() + " RB " + transferRBs.get(i).name + " (" + transferRBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ".");
 
-                                if (transferRBs.get(i).team.abbr.equals(userTeam.abbr)) {
-                                    tOut.append(transferRBs.get(i).position + " " + transferRBs.get(i).name + ", " + transferRBs.get(i).getYrStr() + "  Ovr: " + transferRBs.get(i).ratOvr + " (" + teamList.get(t).name + ")\n\n");
+                                if (transferRBs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                                    tOut.append(transferRBs.get(i).position + " " + transferRBs.get(i).name + ", " + transferRBs.get(i).getYrStr() + "  Ovr: " + transferRBs.get(i).ratOvr + " (" + teamList.get(t).getName() + ")\n\n");
                                 }
-                                transfersList.add(transferRBs.get(i).ratOvr + " " + transferRBs.get(i).position + " " + transferRBs.get(i).name + " [" + transferRBs.get(i).getTransferStatus() + "] " + teamList.get(t).name + " (" + transferRBs.get(i).team.abbr + ")");
+                                transfersList.add(transferRBs.get(i).ratOvr + " " + transferRBs.get(i).position + " " + transferRBs.get(i).name + " [" + transferRBs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferRBs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerRB(transferRBs.get(i));
                                 transferRBs.remove(i);
                                 break;
@@ -3853,16 +3852,16 @@ public class League {
                 rand = random.nextInt((max - min) + 1) + min;
                 for (int t = rand; t < teamList.size() - rand; ++t) {
                     if (teamList.get(t).getTeamWRs().size() < 3 || teamList.get(t).getTeamWRs().get(0).ratOvr < transferWRs.get(i).ratOvr) {
-                        if (Math.abs(teamList.get(t).location - transferWRs.get(i).getRegion()) < 1) {
-                            if (!teamList.get(t).userControlled) {
-                                newsStories.get(currentWeek + 1).add(teamList.get(t).name + " Transfer News>" + transferWRs.get(i).getYrStr() + " WR " + transferWRs.get(i).name + "(" + transferWRs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ". He was previously enrolled at " +
-                                        transferWRs.get(i).team.abbr + " .");
-                                newsHeadlines.add(transferWRs.get(i).getYrStr() + " WR " + transferWRs.get(i).name + " (" + transferWRs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ".");
+                        if (Math.abs(teamList.get(t).getLocation() - transferWRs.get(i).getRegion()) < 1) {
+                            if (!teamList.get(t).isUserControlled()) {
+                                newsStories.get(currentWeek + 1).add(teamList.get(t).getName() + " Transfer News>" + transferWRs.get(i).getYrStr() + " WR " + transferWRs.get(i).name + "(" + transferWRs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ". He was previously enrolled at " +
+                                        transferWRs.get(i).team.getAbbr() + " .");
+                                newsHeadlines.add(transferWRs.get(i).getYrStr() + " WR " + transferWRs.get(i).name + " (" + transferWRs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ".");
 
-                                if (transferWRs.get(i).team.abbr.equals(userTeam.abbr)) {
-                                    tOut.append(transferWRs.get(i).position + " " + transferWRs.get(i).name + ", " + transferWRs.get(i).getYrStr() + "  Ovr: " + transferWRs.get(i).ratOvr + " (" + teamList.get(t).name + ")\n\n");
+                                if (transferWRs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                                    tOut.append(transferWRs.get(i).position + " " + transferWRs.get(i).name + ", " + transferWRs.get(i).getYrStr() + "  Ovr: " + transferWRs.get(i).ratOvr + " (" + teamList.get(t).getName() + ")\n\n");
                                 }
-                                transfersList.add(transferWRs.get(i).ratOvr + " " + transferWRs.get(i).position + " " + transferWRs.get(i).name + " [" + transferWRs.get(i).getTransferStatus() + "] " + teamList.get(t).name + " (" + transferWRs.get(i).team.abbr + ")");
+                                transfersList.add(transferWRs.get(i).ratOvr + " " + transferWRs.get(i).position + " " + transferWRs.get(i).name + " [" + transferWRs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferWRs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerWR(transferWRs.get(i));
                                 transferWRs.remove(i);
                                 break;
@@ -3880,16 +3879,16 @@ public class League {
                 rand = random.nextInt((max - min) + 1) + min;
                 for (int t = rand; t < teamList.size() - rand; ++t) {
                     if (teamList.get(t).getTeamTEs().size() < 1 || teamList.get(t).getTeamTEs().get(0).ratOvr < transferTEs.get(i).ratOvr) {
-                        if (Math.abs(teamList.get(t).location - transferTEs.get(i).getRegion()) < loc) {
-                            if (!teamList.get(t).userControlled) {
-                                newsStories.get(currentWeek + 1).add(teamList.get(t).name + " Transfer News>" + transferTEs.get(i).getYrStr() + " TE " + transferTEs.get(i).name + "(" + transferTEs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ". He was previously enrolled at " +
-                                        transferTEs.get(i).team.abbr + " .");
-                                newsHeadlines.add(transferTEs.get(i).getYrStr() + " TE " + transferTEs.get(i).name + " (" + transferTEs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ".");
+                        if (Math.abs(teamList.get(t).getLocation() - transferTEs.get(i).getRegion()) < loc) {
+                            if (!teamList.get(t).isUserControlled()) {
+                                newsStories.get(currentWeek + 1).add(teamList.get(t).getName() + " Transfer News>" + transferTEs.get(i).getYrStr() + " TE " + transferTEs.get(i).name + "(" + transferTEs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ". He was previously enrolled at " +
+                                        transferTEs.get(i).team.getAbbr() + " .");
+                                newsHeadlines.add(transferTEs.get(i).getYrStr() + " TE " + transferTEs.get(i).name + " (" + transferTEs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ".");
 
-                                if (transferTEs.get(i).team.abbr.equals(userTeam.abbr)) {
-                                    tOut.append(transferTEs.get(i).position + " " + transferTEs.get(i).name + ", " + transferTEs.get(i).getYrStr() + "  Ovr: " + transferTEs.get(i).ratOvr + " (" + teamList.get(t).name + ")\n\n");
+                                if (transferTEs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                                    tOut.append(transferTEs.get(i).position + " " + transferTEs.get(i).name + ", " + transferTEs.get(i).getYrStr() + "  Ovr: " + transferTEs.get(i).ratOvr + " (" + teamList.get(t).getName() + ")\n\n");
                                 }
-                                transfersList.add(transferTEs.get(i).ratOvr + " " + transferTEs.get(i).position + " " + transferTEs.get(i).name + " [" + transferTEs.get(i).getTransferStatus() + "] " + teamList.get(t).name + " (" + transferTEs.get(i).team.abbr + ")");
+                                transfersList.add(transferTEs.get(i).ratOvr + " " + transferTEs.get(i).position + " " + transferTEs.get(i).name + " [" + transferTEs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferTEs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerTE(transferTEs.get(i));
                                 transferTEs.remove(i);
                                 break;
@@ -3906,16 +3905,16 @@ public class League {
             for (int i = 0; i < transferOLs.size(); ++i) {
                 rand = random.nextInt((max - min) + 1) + min;
                 for (int t = rand; t < teamList.size() - rand; ++t) {
-                    if (teamList.get(t).getTeamOLs().size() < 5 || teamList.get(t).getTeamOLs().get(0).ratOvr < transferOLs.get(i).ratOvr && Math.abs(teamList.get(t).location - transferOLs.get(i).getRegion()) < loc) {
-                        if (!teamList.get(t).userControlled) {
-                            newsStories.get(currentWeek + 1).add(teamList.get(t).name + " Transfer News>" + transferOLs.get(i).getYrStr() + " OL " + transferOLs.get(i).name + "(" + transferOLs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ". He was previously enrolled at " +
-                                    transferOLs.get(i).team.abbr + " .");
-                            newsHeadlines.add(transferOLs.get(i).getYrStr() + " OL " + transferOLs.get(i).name + " (" + transferOLs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ".");
+                    if (teamList.get(t).getTeamOLs().size() < 5 || teamList.get(t).getTeamOLs().get(0).ratOvr < transferOLs.get(i).ratOvr && Math.abs(teamList.get(t).getLocation() - transferOLs.get(i).getRegion()) < loc) {
+                        if (!teamList.get(t).isUserControlled()) {
+                            newsStories.get(currentWeek + 1).add(teamList.get(t).getName() + " Transfer News>" + transferOLs.get(i).getYrStr() + " OL " + transferOLs.get(i).name + "(" + transferOLs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ". He was previously enrolled at " +
+                                    transferOLs.get(i).team.getAbbr() + " .");
+                            newsHeadlines.add(transferOLs.get(i).getYrStr() + " OL " + transferOLs.get(i).name + " (" + transferOLs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ".");
 
-                            if (transferOLs.get(i).team.abbr.equals(userTeam.abbr)) {
-                                tOut.append(transferOLs.get(i).position + " " + transferOLs.get(i).name + ", " + transferOLs.get(i).getYrStr() + "  Ovr: " + transferOLs.get(i).ratOvr + " (" + teamList.get(t).name + ")\n\n");
+                            if (transferOLs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                                tOut.append(transferOLs.get(i).position + " " + transferOLs.get(i).name + ", " + transferOLs.get(i).getYrStr() + "  Ovr: " + transferOLs.get(i).ratOvr + " (" + teamList.get(t).getName() + ")\n\n");
                             }
-                            transfersList.add(transferOLs.get(i).ratOvr + " " + transferOLs.get(i).position + " " + transferOLs.get(i).name + " [" + transferOLs.get(i).getTransferStatus() + "] " + teamList.get(t).name + " (" + transferOLs.get(i).team.abbr + ")");
+                            transfersList.add(transferOLs.get(i).ratOvr + " " + transferOLs.get(i).position + " " + transferOLs.get(i).name + " [" + transferOLs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferOLs.get(i).team.getAbbr() + ")");
                             teamList.get(t).addPlayerOL(transferOLs.get(i));
                             transferOLs.remove(i);
                             break;
@@ -3931,17 +3930,17 @@ public class League {
             for (int i = 0; i < transferKs.size(); ++i) {
                 rand = random.nextInt((max - min) + 1) + min;
                 for (int t = rand; t < teamList.size() - rand; ++t) {
-                    if (teamList.get(t).teamKs.size() < 1 || teamList.get(t).teamKs.get(0).ratOvr < transferKs.get(i).ratOvr) {
-                        if (Math.abs(teamList.get(t).location - transferKs.get(i).getRegion()) < loc) {
-                            if (!teamList.get(t).userControlled) {
-                                newsStories.get(currentWeek + 1).add(teamList.get(t).name + " Transfer News>" + transferKs.get(i).getYrStr() + " K " + transferKs.get(i).name + "(" + transferKs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ". He was previously enrolled at " +
-                                        transferKs.get(i).team.abbr + " .");
-                                newsHeadlines.add(transferKs.get(i).getYrStr() + " K " + transferKs.get(i).name + " (" + transferKs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ".");
+                    if (teamList.get(t).getTeamKs().size() < 1 || teamList.get(t).getTeamKs().get(0).ratOvr < transferKs.get(i).ratOvr) {
+                        if (Math.abs(teamList.get(t).getLocation() - transferKs.get(i).getRegion()) < loc) {
+                            if (!teamList.get(t).isUserControlled()) {
+                                newsStories.get(currentWeek + 1).add(teamList.get(t).getName() + " Transfer News>" + transferKs.get(i).getYrStr() + " K " + transferKs.get(i).name + "(" + transferKs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ". He was previously enrolled at " +
+                                        transferKs.get(i).team.getAbbr() + " .");
+                                newsHeadlines.add(transferKs.get(i).getYrStr() + " K " + transferKs.get(i).name + " (" + transferKs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ".");
 
-                                if (transferKs.get(i).team.abbr.equals(userTeam.abbr)) {
-                                    tOut.append(transferKs.get(i).position + " " + transferKs.get(i).name + ", " + transferKs.get(i).getYrStr() + "  Ovr: " + transferKs.get(i).ratOvr + " (" + teamList.get(t).name + ")\n\n");
+                                if (transferKs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                                    tOut.append(transferKs.get(i).position + " " + transferKs.get(i).name + ", " + transferKs.get(i).getYrStr() + "  Ovr: " + transferKs.get(i).ratOvr + " (" + teamList.get(t).getName() + ")\n\n");
                                 }
-                                transfersList.add(transferKs.get(i).ratOvr + " " + transferKs.get(i).position + " " + transferKs.get(i).name + " [" + transferKs.get(i).getTransferStatus() + "] " + teamList.get(t).name + " (" + transferKs.get(i).team.abbr + ")");
+                                transfersList.add(transferKs.get(i).ratOvr + " " + transferKs.get(i).position + " " + transferKs.get(i).name + " [" + transferKs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferKs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerK(transferKs.get(i));
                                 transferKs.remove(i);
                                 break;
@@ -3959,16 +3958,16 @@ public class League {
                 rand = random.nextInt((max - min) + 1) + min;
                 for (int t = rand; t < teamList.size() - rand; ++t) {
                     if (teamList.get(t).getTeamDLs().size() < 4 || teamList.get(t).getTeamDLs().get(0).ratOvr < transferDLs.get(i).ratOvr) {
-                        if (Math.abs(teamList.get(t).location - transferDLs.get(i).getRegion()) < loc) {
-                            if (!teamList.get(t).userControlled) {
-                                newsStories.get(currentWeek + 1).add(teamList.get(t).name + " Transfer News>" + transferDLs.get(i).getYrStr() + " DL " + transferDLs.get(i).name + "(" + transferDLs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ". He was previously enrolled at " +
-                                        transferDLs.get(i).team.abbr + " .");
-                                newsHeadlines.add(transferDLs.get(i).getYrStr() + " DL " + transferDLs.get(i).name + " (" + transferDLs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ".");
+                        if (Math.abs(teamList.get(t).getLocation() - transferDLs.get(i).getRegion()) < loc) {
+                            if (!teamList.get(t).isUserControlled()) {
+                                newsStories.get(currentWeek + 1).add(teamList.get(t).getName() + " Transfer News>" + transferDLs.get(i).getYrStr() + " DL " + transferDLs.get(i).name + "(" + transferDLs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ". He was previously enrolled at " +
+                                        transferDLs.get(i).team.getAbbr() + " .");
+                                newsHeadlines.add(transferDLs.get(i).getYrStr() + " DL " + transferDLs.get(i).name + " (" + transferDLs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ".");
 
-                                if (transferDLs.get(i).team.abbr.equals(userTeam.abbr)) {
-                                    tOut.append(transferDLs.get(i).position + " " + transferDLs.get(i).name + ", " + transferDLs.get(i).getYrStr() + "  Ovr: " + transferDLs.get(i).ratOvr + " (" + teamList.get(t).name + ")\n\n");
+                                if (transferDLs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                                    tOut.append(transferDLs.get(i).position + " " + transferDLs.get(i).name + ", " + transferDLs.get(i).getYrStr() + "  Ovr: " + transferDLs.get(i).ratOvr + " (" + teamList.get(t).getName() + ")\n\n");
                                 }
-                                transfersList.add(transferDLs.get(i).ratOvr + " " + transferDLs.get(i).position + " " + transferDLs.get(i).name + " [" + transferDLs.get(i).getTransferStatus() + "] " + teamList.get(t).name + " (" + transferDLs.get(i).team.abbr + ")");
+                                transfersList.add(transferDLs.get(i).ratOvr + " " + transferDLs.get(i).position + " " + transferDLs.get(i).name + " [" + transferDLs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferDLs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerDL(transferDLs.get(i));
                                 transferDLs.remove(i);
                                 break;
@@ -3986,16 +3985,16 @@ public class League {
                 rand = random.nextInt((max - min) + 1) + min;
                 for (int t = rand; t < teamList.size() - rand; ++t) {
                     if (teamList.get(t).getTeamLBs().size() < 3 || teamList.get(t).getTeamLBs().get(0).ratOvr < transferLBs.get(i).ratOvr) {
-                        if (Math.abs(teamList.get(t).location - transferLBs.get(i).getRegion()) < loc) {
-                            if (!teamList.get(t).userControlled) {
-                                newsStories.get(currentWeek + 1).add(teamList.get(t).name + " Transfer News>" + transferLBs.get(i).getYrStr() + " LB " + transferLBs.get(i).name + "(" + transferLBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ". He was previously enrolled at " +
-                                        transferLBs.get(i).team.abbr + " .");
-                                newsHeadlines.add(transferLBs.get(i).getYrStr() + " LB " + transferLBs.get(i).name + " (" + transferLBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ".");
+                        if (Math.abs(teamList.get(t).getLocation() - transferLBs.get(i).getRegion()) < loc) {
+                            if (!teamList.get(t).isUserControlled()) {
+                                newsStories.get(currentWeek + 1).add(teamList.get(t).getName() + " Transfer News>" + transferLBs.get(i).getYrStr() + " LB " + transferLBs.get(i).name + "(" + transferLBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ". He was previously enrolled at " +
+                                        transferLBs.get(i).team.getAbbr() + " .");
+                                newsHeadlines.add(transferLBs.get(i).getYrStr() + " LB " + transferLBs.get(i).name + " (" + transferLBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ".");
 
-                                if (transferLBs.get(i).team.abbr.equals(userTeam.abbr)) {
-                                    tOut.append(transferLBs.get(i).position + " " + transferLBs.get(i).name + ", " + transferLBs.get(i).getYrStr() + "  Ovr: " + transferLBs.get(i).ratOvr + " (" + teamList.get(t).name + ")\n\n");
+                                if (transferLBs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                                    tOut.append(transferLBs.get(i).position + " " + transferLBs.get(i).name + ", " + transferLBs.get(i).getYrStr() + "  Ovr: " + transferLBs.get(i).ratOvr + " (" + teamList.get(t).getName() + ")\n\n");
                                 }
-                                transfersList.add(transferLBs.get(i).ratOvr + " " + transferLBs.get(i).position + " " + transferLBs.get(i).name + " [" + transferLBs.get(i).getTransferStatus() + "] " + teamList.get(t).name + " (" + transferLBs.get(i).team.abbr + ")");
+                                transfersList.add(transferLBs.get(i).ratOvr + " " + transferLBs.get(i).position + " " + transferLBs.get(i).name + " [" + transferLBs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferLBs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerLB(transferLBs.get(i));
                                 transferLBs.remove(i);
                                 break;
@@ -4013,16 +4012,16 @@ public class League {
                 rand = random.nextInt((max - min) + 1) + min;
                 for (int t = rand; t < teamList.size() - rand; ++t) {
                     if (teamList.get(t).getTeamCBs().size() < 3 || teamList.get(t).getTeamCBs().get(0).ratOvr < transferCBs.get(i).ratOvr) {
-                        if (Math.abs(teamList.get(t).location - transferCBs.get(i).getRegion()) < loc) {
-                            if (!teamList.get(t).userControlled) {
-                                newsStories.get(currentWeek + 1).add(teamList.get(t).name + " Transfer News>" + transferCBs.get(i).getYrStr() + " CB " + transferCBs.get(i).name + "(" + transferCBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ". He was previously enrolled at " +
-                                        transferCBs.get(i).team.abbr + " .");
-                                newsHeadlines.add(transferCBs.get(i).getYrStr() + " CB " + transferCBs.get(i).name + " (" + transferCBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ".");
+                        if (Math.abs(teamList.get(t).getLocation() - transferCBs.get(i).getRegion()) < loc) {
+                            if (!teamList.get(t).isUserControlled()) {
+                                newsStories.get(currentWeek + 1).add(teamList.get(t).getName() + " Transfer News>" + transferCBs.get(i).getYrStr() + " CB " + transferCBs.get(i).name + "(" + transferCBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ". He was previously enrolled at " +
+                                        transferCBs.get(i).team.getAbbr() + " .");
+                                newsHeadlines.add(transferCBs.get(i).getYrStr() + " CB " + transferCBs.get(i).name + " (" + transferCBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ".");
 
-                                if (transferCBs.get(i).team.abbr.equals(userTeam.abbr)) {
-                                    tOut.append(transferCBs.get(i).position + " " + transferCBs.get(i).name + ", " + transferCBs.get(i).getYrStr() + "  Ovr: " + transferCBs.get(i).ratOvr + " (" + teamList.get(t).name + ")\n\n");
+                                if (transferCBs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                                    tOut.append(transferCBs.get(i).position + " " + transferCBs.get(i).name + ", " + transferCBs.get(i).getYrStr() + "  Ovr: " + transferCBs.get(i).ratOvr + " (" + teamList.get(t).getName() + ")\n\n");
                                 }
-                                transfersList.add(transferCBs.get(i).ratOvr + " " + transferCBs.get(i).position + " " + transferCBs.get(i).name + " [" + transferCBs.get(i).getTransferStatus() + "] " + teamList.get(t).name + " (" + transferCBs.get(i).team.abbr + ")");
+                                transfersList.add(transferCBs.get(i).ratOvr + " " + transferCBs.get(i).position + " " + transferCBs.get(i).name + " [" + transferCBs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferCBs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerCB(transferCBs.get(i));
                                 transferCBs.remove(i);
                                 break;
@@ -4040,16 +4039,16 @@ public class League {
                 rand = random.nextInt((max - min) + 1) + min;
                 for (int t = rand; t < teamList.size() - rand; ++t) {
                     if (teamList.get(t).getTeamSs().size() < 1 || teamList.get(t).getTeamSs().get(0).ratOvr < transferSs.get(i).ratOvr) {
-                        if (Math.abs(teamList.get(t).location - transferSs.get(i).getRegion()) < loc) {
-                            if (!teamList.get(t).userControlled) {
-                                newsStories.get(currentWeek + 1).add(teamList.get(t).name + " Transfer News>" + transferSs.get(i).getYrStr() + " S " + transferSs.get(i).name + "(" + transferSs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ". He was previously enrolled at " +
-                                        transferSs.get(i).team.abbr + " .");
-                                newsHeadlines.add(transferSs.get(i).getYrStr() + " S " + transferSs.get(i).name + " (" + transferSs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ".");
+                        if (Math.abs(teamList.get(t).getLocation() - transferSs.get(i).getRegion()) < loc) {
+                            if (!teamList.get(t).isUserControlled()) {
+                                newsStories.get(currentWeek + 1).add(teamList.get(t).getName() + " Transfer News>" + transferSs.get(i).getYrStr() + " S " + transferSs.get(i).name + "(" + transferSs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ". He was previously enrolled at " +
+                                        transferSs.get(i).team.getAbbr() + " .");
+                                newsHeadlines.add(transferSs.get(i).getYrStr() + " S " + transferSs.get(i).name + " (" + transferSs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ".");
 
-                                if (transferSs.get(i).team.abbr.equals(userTeam.abbr)) {
-                                    tOut.append(transferSs.get(i).position + " " + transferSs.get(i).name + ", " + transferSs.get(i).getYrStr() + "  Ovr: " + transferSs.get(i).ratOvr + " (" + teamList.get(t).name + ")\n\n");
+                                if (transferSs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                                    tOut.append(transferSs.get(i).position + " " + transferSs.get(i).name + ", " + transferSs.get(i).getYrStr() + "  Ovr: " + transferSs.get(i).ratOvr + " (" + teamList.get(t).getName() + ")\n\n");
                                 }
-                                transfersList.add(transferSs.get(i).ratOvr + " " + transferSs.get(i).position + " " + transferSs.get(i).name + " [" + transferSs.get(i).getTransferStatus() + "] " + teamList.get(t).name + " (" + transferSs.get(i).team.abbr + ")");
+                                transfersList.add(transferSs.get(i).ratOvr + " " + transferSs.get(i).position + " " + transferSs.get(i).name + " [" + transferSs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferSs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerS(transferSs.get(i));
                                 transferSs.remove(i);
                                 break;
@@ -4068,8 +4067,7 @@ public class League {
 
         for (int i = 0; i < transferQBs.size(); ++i) {
             if(Math.random() > .50) {
-                if (transferQBs.get(i).team.abbr.equals(userTeam.abbr)) {
-                    tOut.append(transferQBs.get(i).position + " " + transferQBs.get(i).name + ", " + transferQBs.get(i).getYrStr() + "  Ovr: " + transferQBs.get(i).ratOvr + " (FCS)\n\n");
+                if (transferQBs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
                 }
             } else {
                 transferQBs.get(i).isTransfer = false;
@@ -4078,7 +4076,7 @@ public class League {
         }
         for (int i = 0; i < transferRBs.size(); ++i) {
             if (Math.random() > .50) {
-                if (transferRBs.get(i).team.abbr.equals(userTeam.abbr)) {
+                if (transferRBs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
                     tOut.append(transferRBs.get(i).position + " " + transferRBs.get(i).name + ", " + transferRBs.get(i).getYrStr() + "  Ovr: " + transferRBs.get(i).ratOvr + " (FCS)\n\n");
                 }
             } else {
@@ -4088,7 +4086,7 @@ public class League {
         }
         for (int i = 0; i < transferWRs.size(); ++i) {
             if (Math.random() > .50) {
-                if (transferWRs.get(i).team.abbr.equals(userTeam.abbr)) {
+                if (transferWRs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
                     tOut.append(transferWRs.get(i).position + " " + transferWRs.get(i).name + ", " + transferWRs.get(i).getYrStr() + "  Ovr: " + transferWRs.get(i).ratOvr + " (FCS)\n\n");
                 }
             } else {
@@ -4098,7 +4096,7 @@ public class League {
         }
         for (int i = 0; i < transferTEs.size(); ++i) {
             if (Math.random() > .50) {
-                if (transferTEs.get(i).team.abbr.equals(userTeam.abbr)) {
+                if (transferTEs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
                     tOut.append(transferTEs.get(i).position + " " + transferTEs.get(i).name + ", " + transferTEs.get(i).getYrStr() + "  Ovr: " + transferTEs.get(i).ratOvr + " (FCS)\n\n");
                 }
             } else {
@@ -4108,7 +4106,7 @@ public class League {
         }
         for (int i = 0; i < transferOLs.size(); ++i) {
             if (Math.random() > .50) {
-                if (transferOLs.get(i).team.abbr.equals(userTeam.abbr)) {
+                if (transferOLs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
                     tOut.append(transferOLs.get(i).position + " " + transferOLs.get(i).name + ", " + transferOLs.get(i).getYrStr() + "  Ovr: " + transferOLs.get(i).ratOvr + " (FCS)\n\n");
                 }
             } else {
@@ -4118,7 +4116,7 @@ public class League {
         }
         for (int i = 0; i < transferKs.size(); ++i) {
             if (Math.random() > .50) {
-                if (transferKs.get(i).team.abbr.equals(userTeam.abbr)) {
+                if (transferKs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
                     tOut.append(transferKs.get(i).position + " " + transferKs.get(i).name + ", " + transferKs.get(i).getYrStr() + "  Ovr: " + transferKs.get(i).ratOvr + " (FCS)\n\n");
                 }
             } else {
@@ -4128,7 +4126,7 @@ public class League {
         }
         for (int i = 0; i < transferDLs.size(); ++i) {
             if (Math.random() > .50) {
-                if (transferDLs.get(i).team.abbr.equals(userTeam.abbr)) {
+                if (transferDLs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
                     tOut.append(transferDLs.get(i).position + " " + transferDLs.get(i).name + ", " + transferDLs.get(i).getYrStr() + "  Ovr: " + transferDLs.get(i).ratOvr + " (FCS)\n\n");
                 }
             } else {
@@ -4138,7 +4136,7 @@ public class League {
         }
         for (int i = 0; i < transferLBs.size(); ++i) {
             if (Math.random() > .50) {
-                if (transferLBs.get(i).team.abbr.equals(userTeam.abbr)) {
+                if (transferLBs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
                     tOut.append(transferLBs.get(i).position + " " + transferLBs.get(i).name + ", " + transferLBs.get(i).getYrStr() + "  Ovr: " + transferLBs.get(i).ratOvr + " (FCS)\n\n");
                 }
             } else {
@@ -4148,7 +4146,7 @@ public class League {
         }
         for (int i = 0; i < transferCBs.size(); ++i) {
             if (Math.random() > .50) {
-                if (transferCBs.get(i).team.abbr.equals(userTeam.abbr)) {
+                if (transferCBs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
                     tOut.append(transferCBs.get(i).position + " " + transferCBs.get(i).name + ", " + transferCBs.get(i).getYrStr() + "  Ovr: " + transferCBs.get(i).ratOvr + " (FCS)\n\n");
                 }
             } else {
@@ -4158,7 +4156,7 @@ public class League {
         }
         for (int i = 0; i < transferSs.size(); ++i) {
             if (Math.random() > .50) {
-                if (transferSs.get(i).team.abbr.equals(userTeam.abbr)) {
+                if (transferSs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
                     tOut.append(transferSs.get(i).position + " " + transferSs.get(i).name + ", " + transferSs.get(i).getYrStr() + "  Ovr: " + transferSs.get(i).ratOvr + " (FCS)\n\n");
                 }
             } else {
@@ -4253,17 +4251,17 @@ Then conferences can see if they want to add them to their list if the teams mee
                 if (conferences.get(c).confTeams.size() < maxConfTeams && conferences.get(c).confTeams.size() >= conferences.get(c).minConfTeams) {
                     Conference conf = conferences.get(c);
                     for (int i = 0; i < promoteTeamList.size(); i++) {
-                        if (promoteTeamList.get(i).teamPrestige > (conf.confRelegateMin * 1.2) && Math.random() < realignmentChance && Math.abs(promoteTeamList.get(i).location - conf.confTeams.get(0).location) < 2) {
+                        if (promoteTeamList.get(i).getTeamPrestige() > (conf.confRelegateMin * 1.2) && Math.random() < realignmentChance && Math.abs(promoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2) {
                             final Team teamA = promoteTeamList.get(i);
-                            conferences.get(getConfNumber(teamA.conference)).confTeams.remove(teamA);
-                            teamA.conference = conf.confName;
+                            conferences.get(getConfNumber(teamA.getConference())).confTeams.remove(teamA);
+                            teamA.setConference(conf.confName);
                             conf.confTeams.add(teamA);
 
                             //break the news
-                            newsStories.get(currentWeek + 1).add("No More Independence!>The " + conf.confName + " conference announced today they will be adding " + teamA.name + " to their conference next season! " + teamA.name + " used to be unaffiliated as an Independent.");
+                            newsStories.get(currentWeek + 1).add("No More Independence!>The " + conf.confName + " conference announced today they will be adding " + teamA.getName() + " to their conference next season! " + teamA.getName() + " used to be unaffiliated as an Independent.");
 
-                            newsRealignment += ("The " + conf.confName + " conference announced today they will be adding " + teamA.name + " to their conference next season! " + teamA.name + " used to be unaffiliated as an Independent.\n\n");
-                            newsHeadlines.add("The " + conf.confName + " conference announced today they will be adding Indpendent " + teamA.name + " to their conference next season!");
+                            newsRealignment += ("The " + conf.confName + " conference announced today they will be adding " + teamA.getName() + " to their conference next season! " + teamA.getName() + " used to be unaffiliated as an Independent.\n\n");
+                            newsHeadlines.add("The " + conf.confName + " conference announced today they will be adding Indpendent " + teamA.getName() + " to their conference next season!");
                             countRealignment++;
                             promoteTeamList.remove(teamA);
                         }
@@ -4298,17 +4296,17 @@ Then conferences can see if they want to add them to their list if the teams mee
                 if (conferences.get(c).confTeams.size() < maxConfTeams && conferences.get(c).confTeams.size() >= conferences.get(c).minConfTeams) {
                     Conference conf = conferences.get(c);
                     for (int i = 0; i < promoteTeamList.size(); i++) {
-                        if (promoteTeamList.get(i).teamPrestige > (conf.confRelegateMin * 1.2) && Math.random() < realignmentChance && Math.abs(promoteTeamList.get(i).location - conf.confTeams.get(0).location) < 2) {
+                        if (promoteTeamList.get(i).getTeamPrestige() > (conf.confRelegateMin * 1.2) && Math.random() < realignmentChance && Math.abs(promoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2) {
                             final Team teamA = promoteTeamList.get(i);
-                            conferences.get(getConfNumber(teamA.conference)).confTeams.remove(teamA);
-                            teamA.conference = conf.confName;
+                            conferences.get(getConfNumber(teamA.getConference())).confTeams.remove(teamA);
+                            teamA.setConference(conf.confName);
                             conf.confTeams.add(teamA);
 
                             //break the news
-                            newsStories.get(currentWeek + 1).add("No More Independence!>The " + conf.confName + " conference announced today they will be adding " + teamA.name + " to their conference next season! " + teamA.name + " used to be unaffiliated as an Independent.");
+                            newsStories.get(currentWeek + 1).add("No More Independence!>The " + conf.confName + " conference announced today they will be adding " + teamA.getName() + " to their conference next season! " + teamA.getName() + " used to be unaffiliated as an Independent.");
 
-                            newsRealignment += ("The " + conf.confName + " conference announced today they will be adding " + teamA.name + " to their conference next season! " + teamA.name + " used to be unaffiliated as an Independent.\n\n");
-                            newsHeadlines.add("The " + conf.confName + " conference announced today they will be adding " + teamA.name + " to their conference next season!");
+                            newsRealignment += ("The " + conf.confName + " conference announced today they will be adding " + teamA.getName() + " to their conference next season! " + teamA.getName() + " used to be unaffiliated as an Independent.\n\n");
+                            newsHeadlines.add("The " + conf.confName + " conference announced today they will be adding " + teamA.getName() + " to their conference next season!");
                             countRealignment++;
                             promoteTeamList.remove(teamA);
                         }
@@ -4324,7 +4322,7 @@ Then conferences can see if they want to add them to their list if the teams mee
             for (int c = 0; c < confList.size(); c++) {
                 if (confList.get(c).confTeams.size() >= confList.get(c).minConfTeams && confList.get(c).confTeams.size() > minConfTeams) {
                     for (int i = 0; i < confList.get(c).confTeams.size(); i++) {
-                        if (confList.get(c).confTeams.get(i).teamPrestige < confList.get(c).confRelegateMin) {
+                        if (confList.get(c).confTeams.get(i).getTeamPrestige() < confList.get(c).confRelegateMin) {
                             demoteTeamList.add(confList.get(c).confTeams.get(i));
                         }
                     }
@@ -4339,19 +4337,19 @@ Then conferences can see if they want to add them to their list if the teams mee
                 if (conferences.get(c).confTeams.size() < maxConfTeams && conferences.get(c).confTeams.size() >= conferences.get(c).minConfTeams) {
                     Conference conf = conferences.get(c);
                     for (int i = 0; i < demoteTeamList.size(); i++) {
-                        if (demoteTeamList.get(i).teamPrestige > conf.confPromoteMin && Math.random() < realignmentChance && Math.abs(demoteTeamList.get(i).location - conf.confTeams.get(0).location) < 2 && !demoteTeamList.get(i).conference.equals(conferences.get(c).confName)) {
+                        if (demoteTeamList.get(i).getTeamPrestige() > conf.confPromoteMin && Math.random() < realignmentChance && Math.abs(demoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2 && !demoteTeamList.get(i).getConference().equals(conferences.get(c).confName)) {
                             final Team teamA = demoteTeamList.get(i);
-                            final String oldConf = teamA.conference;
-                            if (conferences.get(getConfNumber(teamA.conference)).confTeams.size() > conferences.get(getConfNumber(teamA.conference)).minConfTeams && conferences.get(getConfNumber(teamA.conference)).confTeams.size() > minConfTeams) {
-                                conferences.get(getConfNumber(teamA.conference)).confTeams.remove(teamA);
-                                teamA.conference = conf.confName;
+                            final String oldConf = teamA.getConference();
+                            if (conferences.get(getConfNumber(teamA.getConference())).confTeams.size() > conferences.get(getConfNumber(teamA.getConference())).minConfTeams && conferences.get(getConfNumber(teamA.getConference())).confTeams.size() > minConfTeams) {
+                                conferences.get(getConfNumber(teamA.getConference())).confTeams.remove(teamA);
+                                teamA.setConference(conf.confName);
                                 conf.confTeams.add(teamA);
 
                                 //break the news
-                                newsStories.get(currentWeek + 1).add("Conference Growth!>The " + conf.confName + " conference announced today they will be adding " + teamA.name + " to their conference next season! " + teamA.name + " used to part of the " + oldConf + " Conference.");
+                                newsStories.get(currentWeek + 1).add("Conference Growth!>The " + conf.confName + " conference announced today they will be adding " + teamA.getName() + " to their conference next season! " + teamA.getName() + " used to part of the " + oldConf + " Conference.");
 
-                                newsRealignment += ("The " + conf.confName + " conference announced today they will be adding " + teamA.name + " to their conference next season! " + teamA.name + " used to part of the " + oldConf + " Conference.\n\n");
-                                newsHeadlines.add("The " + conf.confName + " conference announced today they will be adding " + teamA.name + " to their conference next season!");
+                                newsRealignment += ("The " + conf.confName + " conference announced today they will be adding " + teamA.getName() + " to their conference next season! " + teamA.getName() + " used to part of the " + oldConf + " Conference.\n\n");
+                                newsHeadlines.add("The " + conf.confName + " conference announced today they will be adding " + teamA.getName() + " to their conference next season!");
                                 countRealignment++;
                                 demoteTeamList.remove(teamA);
                             }
@@ -4364,7 +4362,7 @@ Then conferences can see if they want to add them to their list if the teams mee
             for (int c = 0; c < confList.size(); c++) {
                 if (confList.get(c).confTeams.size() >= confList.get(c).minConfTeams && confList.get(c).confTeams.size() > minConfTeams) {
                     for (int i = 0; i < confList.get(c).confTeams.size(); i++) {
-                        if (confList.get(c).confTeams.get(i).teamPrestige > confList.get(c).confPromoteMin) {
+                        if (confList.get(c).confTeams.get(i).getTeamPrestige() > confList.get(c).confPromoteMin) {
                             promoteTeamList.add(confList.get(c).confTeams.get(i));
                         }
                     }
@@ -4379,19 +4377,19 @@ Then conferences can see if they want to add them to their list if the teams mee
                 if (conferences.get(c).confTeams.size() < maxConfTeams && conferences.get(c).confTeams.size() >= conferences.get(c).minConfTeams) {
                     Conference conf = conferences.get(c);
                     for (int i = 0; i < promoteTeamList.size(); i++) {
-                        if (promoteTeamList.get(i).teamPrestige > conf.confPromoteMin && Math.random() < realignmentChance && Math.abs(promoteTeamList.get(i).location - conf.confTeams.get(0).location) < 2 && !promoteTeamList.get(i).conference.equals(conferences.get(c).confName) && conferences.get(getConfNumber(promoteTeamList.get(i).conference)).confPrestige < conf.confPrestige) {
+                        if (promoteTeamList.get(i).getTeamPrestige() > conf.confPromoteMin && Math.random() < realignmentChance && Math.abs(promoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2 && !promoteTeamList.get(i).getConference().equals(conferences.get(c).confName) && conferences.get(getConfNumber(promoteTeamList.get(i).getConference())).confPrestige < conf.confPrestige) {
                             final Team teamA = promoteTeamList.get(i);
-                            final String oldConf = teamA.conference;
-                            if (conferences.get(getConfNumber(teamA.conference)).confTeams.size() > conferences.get(getConfNumber(teamA.conference)).minConfTeams && conferences.get(getConfNumber(teamA.conference)).confTeams.size() > minConfTeams) {
-                                conferences.get(getConfNumber(teamA.conference)).confTeams.remove(teamA);
-                                teamA.conference = conf.confName;
+                            final String oldConf = teamA.getConference();
+                            if (conferences.get(getConfNumber(teamA.getConference())).confTeams.size() > conferences.get(getConfNumber(teamA.getConference())).minConfTeams && conferences.get(getConfNumber(teamA.getConference())).confTeams.size() > minConfTeams) {
+                                conferences.get(getConfNumber(teamA.getConference())).confTeams.remove(teamA);
+                                teamA.setConference(conf.confName);
                                 conf.confTeams.add(teamA);
 
                                 //break the news
-                                newsStories.get(currentWeek + 1).add("Conference Growth!>The " + conf.confName + " conference announced today they will be adding " + teamA.name + " to their conference next season! " + teamA.name + " used to part of the " + oldConf + " Conference.");
+                                newsStories.get(currentWeek + 1).add("Conference Growth!>The " + conf.confName + " conference announced today they will be adding " + teamA.getName() + " to their conference next season! " + teamA.getName() + " used to part of the " + oldConf + " Conference.");
 
-                                newsRealignment += ("The " + conf.confName + " conference announced today they will be adding " + teamA.name + " to their conference next season! " + teamA.name + " used to part of the " + oldConf + " Conference.\n\n");
-                                newsHeadlines.add("The " + conf.confName + " conference announced today they will be adding " + teamA.name + " to their conference next season!");
+                                newsRealignment += ("The " + conf.confName + " conference announced today they will be adding " + teamA.getName() + " to their conference next season! " + teamA.getName() + " used to part of the " + oldConf + " Conference.\n\n");
+                                newsHeadlines.add("The " + conf.confName + " conference announced today they will be adding " + teamA.getName() + " to their conference next season!");
                                 countRealignment++;
                                 promoteTeamList.remove(teamA);
                             }
@@ -4412,20 +4410,20 @@ Then conferences can see if they want to add them to their list if the teams mee
             if (indSpace) {
                 Conference indy = conferences.get(indConf);
                 for (int i = 0; i < demoteTeamList.size(); i++) {
-                    if (Math.random() < realignmentChance && indy.confTeams.size() < (indy.minConfTeams - 1) && !demoteTeamList.get(i).conference.equals("Independent")) {
+                    if (Math.random() < realignmentChance && indy.confTeams.size() < (indy.minConfTeams - 1) && !demoteTeamList.get(i).getConference().equals("Independent")) {
                         final Team teamA = demoteTeamList.get(i);
-                        final String oldConf = teamA.conference;
+                        final String oldConf = teamA.getConference();
 
-                        if (conferences.get(getConfNumber(teamA.conference)).confTeams.size() > conferences.get(getConfNumber(teamA.conference)).minConfTeams && conferences.get(getConfNumber(teamA.conference)).confTeams.size() > minConfTeams) {
-                            conferences.get(getConfNumber(teamA.conference)).confTeams.remove(teamA);
-                            teamA.conference = indy.confName;
+                        if (conferences.get(getConfNumber(teamA.getConference())).confTeams.size() > conferences.get(getConfNumber(teamA.getConference())).minConfTeams && conferences.get(getConfNumber(teamA.getConference())).confTeams.size() > minConfTeams) {
+                            conferences.get(getConfNumber(teamA.getConference())).confTeams.remove(teamA);
+                            teamA.setConference(indy.confName);
                             indy.confTeams.add(teamA);
 
                             //break the news
-                            newsStories.get(currentWeek + 1).add("Conference and Team Part Ways!>The " + oldConf + " conference announced today they will be removing " + teamA.name + " from their conference next season! " + teamA.name + " will become an Independent school until picked up by a new conference.");
+                            newsStories.get(currentWeek + 1).add("Conference and Team Part Ways!>The " + oldConf + " conference announced today they will be removing " + teamA.getName() + " from their conference next season! " + teamA.getName() + " will become an Independent school until picked up by a new conference.");
 
-                            newsRealignment += ("The " + oldConf + " conference announced today they will be removing " + teamA.name + " from their conference next season! " + teamA.name + " will become and Independent school until picked up by a new conference\n\n");
-                            newsHeadlines.add("The " + oldConf + " conference announced today they will be removing " + teamA.name + " from their conference next season!");
+                            newsRealignment += ("The " + oldConf + " conference announced today they will be removing " + teamA.getName() + " from their conference next season! " + teamA.getName() + " will become and Independent school until picked up by a new conference\n\n");
+                            newsHeadlines.add("The " + oldConf + " conference announced today they will be removing " + teamA.getName() + " from their conference next season!");
                             countRealignment++;
                             demoteTeamList.remove(teamA);
                         }
@@ -4440,7 +4438,7 @@ Then conferences can see if they want to add them to their list if the teams mee
             int matches = 0;
             for (int t = 0; t < teamsFCSList.size(); t++) {
                 for (int x = 0; x < teamList.size(); x++) {
-                    if (teamList.get(x).name.equals(teamsFCSList.get(t))) {
+                    if (teamList.get(x).getName().equals(teamsFCSList.get(t))) {
                         matches++;
                     }
                 }
@@ -4463,7 +4461,7 @@ Then conferences can see if they want to add them to their list if the teams mee
                         int nameTest = 0;
                         fcsName = teamsFCSList.get((int) (teamsFCSList.size() * Math.random()));
                         for (int i = 0; i < teamList.size(); i++) {
-                            if (teamList.get(i).name.equals(fcsName)) {
+                            if (teamList.get(i).getName().equals(fcsName)) {
                                 nameTest++;
                             }
                         }
@@ -4474,16 +4472,16 @@ Then conferences can see if they want to add them to their list if the teams mee
 
 
                     Team FCS = new Team(fcsName, "FCS", "Independent", 35, "A", (int) (Math.random() * 6), this, true);
-                    FCS.abbr = FCS.name.substring(0, 3);
-                    FCS.rankTeamPollScore = teamList.size();
+                    FCS.setAbbr(FCS.getName().substring(0, 3));
+                    FCS.setRankTeamPollScore(teamList.size());
                     teamList.add(FCS);
                     indy.confTeams.add(FCS);
 
                     //break the news
-                    newsStories.get(currentWeek + 1).add("Lower Division School Promoted!>Today is a special day at " + FCS.name + ". They have been promoted to Division I College Football today, and will be listed as an Independent team!");
+                    newsStories.get(currentWeek + 1).add("Lower Division School Promoted!>Today is a special day at " + FCS.getName() + ". They have been promoted to Division I College Football today, and will be listed as an Independent team!");
 
-                    newsRealignment += (FCS.name + " have been promoted to Division I College Football today, and will be listed as an Independent team!\n\n");
-                    newsHeadlines.add(FCS.name + " have been promoted to Division I College Football today, and will be listed as an Independent team!\n\n");
+                    newsRealignment += (FCS.getName() + " have been promoted to Division I College Football today, and will be listed as an Independent team!\n\n");
+                    newsHeadlines.add(FCS.getName() + " have been promoted to Division I College Football today, and will be listed as an Independent team!\n\n");
                     countRealignment++;
                 }
             }
@@ -4501,7 +4499,7 @@ Then conferences can see if they want to add them to their list if the teams mee
                 matches = 0;
                 for (int t = 0; t < teamsFCSList.size(); t++) {
                     for (int x = 0; x < teamList.size(); x++) {
-                        if (teamList.get(x).name.equals(teamsFCSList.get(t))) {
+                        if (teamList.get(x).getName().equals(teamsFCSList.get(t))) {
                             matches++;
                         }
                     }
@@ -4524,7 +4522,7 @@ Then conferences can see if they want to add them to their list if the teams mee
 
                     //Move Independent Teams to new Conf & remove from independents
                     for (int i = 0; i < indy.confTeams.size(); i++) {
-                        indy.confTeams.get(i).conference = "Antdroid";
+                        indy.confTeams.get(i).setConference("Antdroid");
                         antdroid.confTeams.add(indy.confTeams.get(i));
                     }
                     for (int i = 0; i < antdroid.confTeams.size(); i++) {
@@ -4541,7 +4539,7 @@ Then conferences can see if they want to add them to their list if the teams mee
                             int nameTest = 0;
                             fcsName = teamsFCSList.get((int) (teamsFCSList.size() * Math.random()));
                             for (int i = 0; i < teamList.size(); i++) {
-                                if (teamList.get(i).name.equals(fcsName)) {
+                                if (teamList.get(i).getName().equals(fcsName)) {
                                     nameTest++;
                                 }
                             }
@@ -4551,8 +4549,8 @@ Then conferences can see if they want to add them to their list if the teams mee
                         }
 
                         Team FCS = new Team(fcsName, "FCS", "Antdroid", 35, "A", (int) (Math.random() * 6), this, true);
-                        FCS.abbr = FCS.name.substring(0, 3);
-                        FCS.rankTeamPollScore = teamList.size();
+                        FCS.setAbbr(FCS.getName().substring(0, 3));
+                        FCS.setRankTeamPollScore(teamList.size());
                         teamList.add(FCS);
                         antdroid.confTeams.add(FCS);
                         count++;
@@ -4582,7 +4580,7 @@ Then conferences can see if they want to add them to their list if the teams mee
             for (int c = 0; c < confList.size(); c++) {
                 if (confList.get(c).confTeams.size() < confList.get(c).minConfTeams) {
                     for (int i = 0; i < confList.get(c).confTeams.size(); i++) {
-                        if (confList.get(c).confTeams.get(i).teamPrestige < confList.get(c).confRelegateMin) {
+                        if (confList.get(c).confTeams.get(i).getTeamPrestige() < confList.get(c).confRelegateMin) {
                             demoteTeamList.add(confList.get(c).confTeams.get(i));
                         }
                     }
@@ -4595,24 +4593,24 @@ Then conferences can see if they want to add them to their list if the teams mee
                     Conference conf = conferences.get(c);
                     ArrayList<Team> qualified = new ArrayList<>();
                     for (int i = 0; i < demoteTeamList.size(); i++) {
-                        if (demoteTeamList.get(i).teamPrestige > conf.confRelegateMin && Math.random() < realignmentChance * 2 && Math.abs(demoteTeamList.get(i).location - conf.confTeams.get(0).location) < 2) {
+                        if (demoteTeamList.get(i).getTeamPrestige() > conf.confRelegateMin && Math.random() < realignmentChance * 2 && Math.abs(demoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2) {
                             qualified.add(demoteTeamList.get(i));
                         }
                         if (qualified.size() >= 2) {
                             final Team teamA = qualified.get(0);
                             final Team teamB = qualified.get(1);
-                            conferences.get(getConfNumber(teamA.conference)).confTeams.remove(teamA);
-                            conferences.get(getConfNumber(teamB.conference)).confTeams.remove(teamB);
-                            teamA.conference = conf.confName;
-                            teamB.conference = conf.confName;
+                            conferences.get(getConfNumber(teamA.getConference())).confTeams.remove(teamA);
+                            conferences.get(getConfNumber(teamB.getConference())).confTeams.remove(teamB);
+                            teamA.setConference(conf.confName);
+                            teamB.setConference(conf.confName);
                             conf.confTeams.add(teamA);
                             conf.confTeams.add(teamB);
 
                             //break the news
-                            newsStories.get(currentWeek + 1).add("Conference Addition!>The " + conf.confName + " conference announced today they will be adding " + teamA.name + " and " + teamB.name + " from the " + conf.confName + " to their conference next season!");
+                            newsStories.get(currentWeek + 1).add("Conference Addition!>The " + conf.confName + " conference announced today they will be adding " + teamA.getName() + " and " + teamB.getName() + " from the " + conf.confName + " to their conference next season!");
 
-                            newsRealignment += ("The " + conf.confName + " conference announced today they will be adding " + teamA.name + " and " + teamB.name + " from the " + conf.confName + " to their conference next season!\n\n");
-                            newsHeadlines.add("The " + conf.confName + " conference announced today they will be adding " + teamA.name + " and " + teamB.name + " from the " + conf.confName + " to their conference next season!");
+                            newsRealignment += ("The " + conf.confName + " conference announced today they will be adding " + teamA.getName() + " and " + teamB.getName() + " from the " + conf.confName + " to their conference next season!\n\n");
+                            newsHeadlines.add("The " + conf.confName + " conference announced today they will be adding " + teamA.getName() + " and " + teamB.getName() + " from the " + conf.confName + " to their conference next season!");
                             countRealignment++;
                             demoteTeamList.remove(teamA);
                             demoteTeamList.remove(teamB);
@@ -4625,7 +4623,7 @@ Then conferences can see if they want to add them to their list if the teams mee
             for (int c = confList.size() / 2; c < confList.size(); c++) {
                 if (confList.get(c).confTeams.size() >= confList.get(c).minConfTeams) {
                     for (int i = 0; i < confList.get(c).confTeams.size(); i++) {
-                        if (confList.get(c).confTeams.get(i).teamPrestige > confList.get(c).confPromoteMin) {
+                        if (confList.get(c).confTeams.get(i).getTeamPrestige() > confList.get(c).confPromoteMin) {
                             promoteTeamList.add(confList.get(c).confTeams.get(i));
                         }
                     }
@@ -4642,19 +4640,19 @@ Then conferences can see if they want to add them to their list if the teams mee
             //Bigger Conferences will extend Invites
             for (int i = 0; i < promoteTeamList.size(); i++) {
                 int randomConf = (int) (Math.random() * (confList.size() / 2));
-                if (promoteTeamList.get(i).teamPrestige > confList.get(randomConf).confPromoteMin && confList.get(randomConf).confTeams.size() >= confList.get(randomConf).minConfTeams) {
+                if (promoteTeamList.get(i).getTeamPrestige() > confList.get(randomConf).confPromoteMin && confList.get(randomConf).confTeams.size() >= confList.get(randomConf).minConfTeams) {
                     for (int k = confList.get(randomConf).confTeams.size() - 1; k >= 0; k--) {
-                        if (confList.get(randomConf).confTeams.get(k).teamPrestige < confList.get(randomConf).confRelegateMin) {
-                            if (Math.random() < realignmentChance && Math.abs(confList.get(randomConf).confTeams.get(k).location - promoteTeamList.get(i).location) < 2) {
+                        if (confList.get(randomConf).confTeams.get(k).getTeamPrestige() < confList.get(randomConf).confRelegateMin) {
+                            if (Math.random() < realignmentChance && Math.abs(confList.get(randomConf).confTeams.get(k).getLocation() - promoteTeamList.get(i).getLocation()) < 2) {
 
                                 final String teamAconf = confList.get(randomConf).confName;
-                                final String teamBconf = promoteTeamList.get(i).conference;
+                                final String teamBconf = promoteTeamList.get(i).getConference();
                                 final Team teamA = confList.get(randomConf).confTeams.get(k);
                                 final Team teamB = promoteTeamList.get(i);
 
                                 //transfer conf data
-                                teamB.conference = teamAconf;
-                                teamA.conference = teamBconf;
+                                teamB.setConference(teamAconf);
+                                teamA.setConference(teamBconf);
 
                                 //remove + transfer teams
                                 confList.get(getConfNumber(teamAconf)).confTeams.remove(teamA);
@@ -4664,23 +4662,20 @@ Then conferences can see if they want to add them to their list if the teams mee
                                 confList.get(getConfNumber(teamBconf)).confTeams.add(teamA);
 
                                 //Remove some prestige from demoted teams
-                                teamA.teamPrestige -= (int) Math.random() * 4;
-
+                                teamA.setTeamPrestige(teamA.getTeamPrestige() - (int) Math.random() * 4);
 
                                 //break the news
-                                newsStories.get(currentWeek + 1).add("Conference Realignment News>The " + teamAconf + " conference announced today they will be adding " + teamB.name + " to their conference next season! The " + teamBconf + " conference has agreed to add " + teamA.name + " as part of the realignment.");
+                                newsStories.get(currentWeek + 1).add("Conference Realignment News>The " + teamAconf + " conference announced today they will be adding " + teamB.getName() + " to their conference next season! The " + teamBconf + " conference has agreed to add " + teamA.getName() + " as part of the realignment.");
 
-                                newsRealignment += ("The " + teamAconf + " announced today they will be adding " + teamB.name + " to their conference next season! The " + teamBconf + " conference has agreed to add " + teamA.name + " as part of the realignment.\n\n");
-                                newsHeadlines.add("The " + teamAconf + " announced today they will be adding " + teamB.name + " to their conference next season! The " + teamBconf + " conference has agreed to add " + teamA.name + " as part of the realignment.");
+                                newsRealignment += ("The " + teamAconf + " announced today they will be adding " + teamB.getName() + " to their conference next season! The " + teamBconf + " conference has agreed to add " + teamA.getName() + " as part of the realignment.\n\n");
+                                newsHeadlines.add("The " + teamAconf + " announced today they will be adding " + teamB.getName() + " to their conference next season! The " + teamBconf + " conference has agreed to add " + teamA.getName() + " as part of the realignment.");
 
                                 countRealignment++;
                                 promoteTeamList.remove(teamA);
                                 break;
                             }
                         }
-
                     }
-
                 }
             }
         }
@@ -4725,8 +4720,8 @@ Then conferences can see if they want to add them to their list if the teams mee
                 next = 0;
                 c++;
             }
-            teamList.get(t).conference = conferences.get(c).confName;
-            teamList.get(t).division = "A";
+            teamList.get(t).setConference(conferences.get(c).confName);
+            teamList.get(t).setDivision("A");
             teamList.get(t).clearGameSchedule();
             conferences.get(c).confTeams.add(teamList.get(t));
             next++;
@@ -4767,7 +4762,7 @@ Then conferences can see if they want to add them to their list if the teams mee
 
         //Remove more prestige from teams
         for (int i = 0; i < relegatedTeams.size(); i++) {
-            relegatedTeams.get(i).teamPrestige -= 3;
+            relegatedTeams.get(i).setTeamPrestige(relegatedTeams.get(i).getTeamPrestige() - 3);
         }
 
         StringBuilder string = new StringBuilder();
@@ -4778,10 +4773,10 @@ Then conferences can see if they want to add them to their list if the teams mee
             string.append("[ " + PConf.confName + " || " + RConf.confName + " ]\n");
 
             //change team conferences
-            promotedTeams.get(2 * i).conference = PConf.confName;
-            promotedTeams.get(2 * i + 1).conference = PConf.confName;
-            relegatedTeams.get(2 * i).conference = RConf.confName;
-            relegatedTeams.get(2 * i + 1).conference = RConf.confName;
+            promotedTeams.get(2 * i).setConference(PConf.confName);
+            promotedTeams.get(2 * i + 1).setConference(PConf.confName);
+            relegatedTeams.get(2 * i).setConference(RConf.confName);
+            relegatedTeams.get(2 * i + 1).setConference(RConf.confName);
 
             //Remove teams from Conferences
             PConf.confTeams.remove(relegatedTeams.get(2 * i));
@@ -4801,9 +4796,9 @@ Then conferences can see if they want to add them to their list if the teams mee
 
             //break the news
             string.append("Promoted to " + PConf.confName + " Conference (" + PConf.confPrestige + ")\n");
-            string.append(" + " + promotedTeams.get(2 * i).name + " (" + promotedTeams.get(2 * i).teamPrestige + ")\n" + " + " + promotedTeams.get(2 * i + 1).name + " (" + promotedTeams.get(2 * i + 1).teamPrestige + ")\n");
+            string.append(" + " + promotedTeams.get(2 * i).getName() + " (" + promotedTeams.get(2 * i).getTeamPrestige() + ")\n" + " + " + promotedTeams.get(2 * i + 1).getName() + " (" + promotedTeams.get(2 * i + 1).getTeamPrestige() + ")\n");
             string.append("Relegated to " + RConf.confName + " Conference\n");
-            string.append(" - " + relegatedTeams.get(2 * i).name + " (" + relegatedTeams.get(2 * i).teamPrestige + ")\n" + " - " + relegatedTeams.get(2 * i + 1).name + " (" + relegatedTeams.get(2 * i + 1).teamPrestige + ")\n");
+            string.append(" - " + relegatedTeams.get(2 * i).getName() + " (" + relegatedTeams.get(2 * i).getTeamPrestige() + ")\n" + " - " + relegatedTeams.get(2 * i + 1).getName() + " (" + relegatedTeams.get(2 * i + 1).getTeamPrestige() + ")\n");
             string.append("\n");
 
         }
@@ -4818,7 +4813,7 @@ Then conferences can see if they want to add them to their list if the teams mee
     public String[] getMockDraftPlayersList() {
         ArrayList<Player> allPlayersLeaving = new ArrayList<>();
         for (Team t : teamList) {
-            for (Player p : t.playersLeaving) {
+            for (Player p : t.getPlayersLeaving()) {
                 allPlayersLeaving.add(p);
             }
         }
@@ -4873,7 +4868,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         for (int t = 0; t < teamList.size(); ++t) {
 
             //temp fix.....
-            if(teamList.get(t).OC == null || teamList.get(t).DC == null) coordinatorCarousel();
+            if(teamList.get(t).getOC() == null || teamList.get(t).getDC() == null) coordinatorCarousel();
 
             teamList.get(t).advanceTeamPlayers();
         }
@@ -4904,8 +4899,8 @@ Then conferences can see if they want to add them to their list if the teams mee
      */
     private void updateLongestActiveWinStreak() {
         for (Team t : teamList) {
-            if (t.winStreak.getStreakLength() > longestActiveWinStreak.getStreakLength()) {
-                longestActiveWinStreak = t.winStreak;
+            if (t.getWinStreak().getStreakLength() > longestActiveWinStreak.getStreakLength()) {
+                longestActiveWinStreak = t.getWinStreak();
             }
         }
     }
@@ -4940,9 +4935,9 @@ Then conferences can see if they want to add them to their list if the teams mee
      */
     public void changeAbbrHistoryRecords(String oldAbbr, String newAbbr) {
         // check records and win streaks
-        leagueRecords.changeAbbrRecords(userTeam.abbr, newAbbr);
-        changeAbbrWinStreaks(userTeam.abbr, newAbbr);
-        userTeam.winStreak.changeAbbr(newAbbr);
+        leagueRecords.changeAbbrRecords(userTeam.getAbbr(), newAbbr);
+        changeAbbrWinStreaks(userTeam.getAbbr(), newAbbr);
+        userTeam.getWinStreak().changeAbbr(newAbbr);
 
         // check league and POTY history
         for (String[] yr : leagueHistory) {
@@ -5001,7 +4996,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         Team tt;
         for (int i = 0; i < 25; ++i) {
             tt = teamList.get(i);
-            yearTop25[i] = tt.name + " (" + tt.wins + "-" + tt.losses + ")";
+            yearTop25[i] = tt.getName() + " (" + tt.getWins() + "-" + tt.getLosses() + ")";
         }
         leagueHistory.add(yearTop25);
     }
@@ -5062,7 +5057,7 @@ Then conferences can see if they want to add them to their list if the teams mee
 
         Collections.sort(teamList, new CompTeamPoll());
         for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).rankTeamPollScore = t + 1;
+            teamList.get(t).setRankTeamPollScore(t + 1);
         }
 
         for (int i = 0; i < teamList.size(); ++i) {
@@ -5189,7 +5184,7 @@ Then conferences can see if they want to add them to their list if the teams mee
 
         ArrayList<HeadCoach> HC = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            if (teamList.get(i).HC != null) HC.add(teamList.get(i).HC);
+            if (teamList.get(i).getHeadCoach() != null) HC.add(teamList.get(i).getHeadCoach());
         }
 
         ArrayList<String> rankings = new ArrayList<>();
@@ -5199,134 +5194,134 @@ Then conferences can see if they want to add them to their list if the teams mee
                 Collections.sort(teams, new CompTeamPoll());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + df2.format(t.teamPollScore));
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + df2.format(t.getTeamPollScore()));
                 }
                 break;
             case 1:
                 Collections.sort(teams, new CompTeamPrestige());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    if (currentWeek > 15 && (t.teamPrestige - t.teamPrestigeStart) > 0)
-                        rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + t.teamPrestige + "  (+" + (t.teamPrestige - t.teamPrestigeStart) + ")");
-                    else if (currentWeek > 15 && (t.teamPrestige - t.teamPrestigeStart) < 0)
-                        rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + t.teamPrestige + "  (" + (t.teamPrestige - t.teamPrestigeStart) + ")");
+                    if (currentWeek > 15 && (t.getTeamPrestige() - t.getTeamPrestigeStart()) > 0)
+                        rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + t.getTeamPrestige() + "  (+" + (t.getTeamPrestige() - t.getTeamPrestigeStart()) + ")");
+                    else if (currentWeek > 15 && (t.getTeamPrestige() - t.getTeamPrestigeStart()) < 0)
+                        rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + t.getTeamPrestige() + "  (" + (t.getTeamPrestige() - t.getTeamPrestigeStart()) + ")");
                     else
-                        rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + t.teamPrestige);
+                        rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + t.getTeamPrestige());
                 }
                 break;
             case 2:
                 Collections.sort(teams, new CompTeamRPI());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + df3.format(t.teamRPI));
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + df3.format(t.getTeamRPI()));
                 }
                 break;
             case 3:
                 Collections.sort(teams, new CompTeamSoS());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + df3.format(t.teamSOS));
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + df3.format(t.getTeamSOS()));
                 }
                 break;
             case 4:
                 Collections.sort(teams, new CompTeamSoW());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + t.teamStrengthOfWins);
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + t.getTeamStrengthOfWins());
                 }
                 break;
             case 5:
                 Collections.sort(teams, new CompTeamPPG());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + df2.format((float) t.teamPoints / t.numGames()));
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + df2.format((float) t.getTeamPoints() / t.numGames()));
                 }
                 break;
             case 6:
                 Collections.sort(teams, new CompTeamOPPG());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + df2.format((float) t.teamOppPoints / t.numGames()));
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + df2.format((float) t.getTeamOppPoints() / t.numGames()));
                 }
                 break;
             case 7:
                 Collections.sort(teams, new CompTeamYPG());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + df2.format((float) t.teamYards / t.numGames()));
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + df2.format((float) t.getTeamYards() / t.numGames()));
                 }
                 break;
             case 8:
                 Collections.sort(teams, new CompTeamOYPG());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + df2.format((float) t.teamOppYards / t.numGames()));
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + df2.format((float) t.getTeamOppYards() / t.numGames()));
                 }
                 break;
             case 9:
                 Collections.sort(teams, new CompTeamPYPG());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + df2.format((float) t.teamPassYards / t.numGames()));
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + df2.format((float) t.getTeamPassYards() / t.numGames()));
                 }
                 break;
             case 10:
                 Collections.sort(teams, new CompTeamRYPG());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + df2.format((float) t.teamRushYards / t.numGames()));
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + df2.format((float) t.getTeamRushYards() / t.numGames()));
                 }
                 break;
             case 11:
                 Collections.sort(teams, new CompTeamOPYPG());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + df2.format((float) t.teamOppPassYards / t.numGames()));
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + df2.format((float) t.getTeamOppPassYards() / t.numGames()));
                 }
                 break;
             case 12:
                 Collections.sort(teams, new CompTeamORYPG());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + df2.format((float) t.teamOppRushYards / t.numGames()));
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + df2.format((float) t.getTeamOppRushYards() / t.numGames()));
                 }
                 break;
             case 13:
                 Collections.sort(teams, new CompTeamTODiff());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    if (t.teamTODiff > 0)
-                        rankings.add(t.getRankStr(i + 1) + "," + t.name + ",+" + t.teamTODiff);
+                    if (t.getTeamTODiff() > 0)
+                        rankings.add(t.getRankStr(i + 1) + "," + t.getName() + ",+" + t.getTeamTODiff());
                     else
-                        rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + t.teamTODiff);
+                        rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + t.getTeamTODiff());
                 }
                 break;
             case 14:
                 Collections.sort(teams, new CompTeamOffTalent());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + df2.format(t.teamOffTalent));
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + df2.format(t.getTeamOffTalent()));
                 }
                 break;
             case 15:
                 Collections.sort(teams, new CompTeamDefTalent());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + df2.format(t.teamDefTalent));
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + df2.format(t.getTeamDefTalent()));
                 }
                 break;
             case 16:
                 Collections.sort(teams, new CompTeamChemistry());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + df2.format(t.getTeamChemistry()));
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + df2.format(t.getTeamChemistry()));
                 }
                 break;
             case 17:
                 Collections.sort(teams, new CompTeamRecruitClass());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + "\n" + t.getTopRecruit() + "," + df2.format(t.getRecruitingClassRat()));
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "\n" + t.getTopRecruit() + "," + df2.format(t.getRecruitingClassRat()));
 
                 }
                 break;
@@ -5334,33 +5329,33 @@ Then conferences can see if they want to add them to their list if the teams mee
                 Collections.sort(teams, new CompTeamDisciplineScore());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + (t.teamDisciplineScore) + "%");
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + (t.getTeamDisciplineScore()) + "%");
                 }
                 break;
             case 19:
                 Collections.sort(teams, new CompTeamBudget());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + ",$" + t.teamBudget);
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + ",$" + t.getTeamBudget());
                 }
                 break;
             case 20:
                 Collections.sort(teams, new CompTeamFacilities());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + ",L" + t.teamFacilities);
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + ",L" + t.getTeamFacilities());
                 }
                 break;
             case 21:
                 Collections.sort(HC, new CompCoachOvr());
                 for (int i = 0; i < HC.size(); ++i) {
-                    rankings.add((i + 1) + ". ," + HC.get(i).team.name + "," + HC.get(i).getStaffOverall(HC.get(i).overallWt));
+                    rankings.add((i + 1) + ". ," + HC.get(i).team.getName() + "," + HC.get(i).getStaffOverall(HC.get(i).overallWt));
                 }
                 break;
             case 22:
                 Collections.sort(HC, new CompCoachScore());
                 for (int i = 0; i < HC.size(); ++i) {
-                    rankings.add((i + 1) + ". ," + HC.get(i).team.name + "," + HC.get(i).getCoachScore());
+                    rankings.add((i + 1) + ". ," + HC.get(i).team.getName() + "," + HC.get(i).getCoachScore());
                 }
                 break;
 
@@ -5368,7 +5363,7 @@ Then conferences can see if they want to add them to their list if the teams mee
                 Collections.sort(teams, new CompTeamPoll());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + t.teamPollScore);
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + t.getTeamPollScore());
                 }
                 break;
         }
@@ -5385,7 +5380,7 @@ Then conferences can see if they want to add them to their list if the teams mee
 
         ArrayList<HeadCoach> HC = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            if (teamList.get(i).HC != null) HC.add(teamList.get(i).HC);
+            if (teamList.get(i).getHeadCoach() != null) HC.add(teamList.get(i).getHeadCoach());
         }
 
         switch (selection) {
@@ -5393,35 +5388,35 @@ Then conferences can see if they want to add them to their list if the teams mee
                 Collections.sort(teams, new CompTeamNC());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + t.totalNCs);
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + t.getTotalNCs());
                 }
                 break;
             case 1:
                 Collections.sort(teams, new CompTeamCC());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + t.totalCCs);
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + t.getTotalCCs());
                 }
                 break;
             case 2:
                 Collections.sort(teams, new CompTeamBowls());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + t.totalBowls);
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + t.getTotalBowls());
                 }
                 break;
             case 3:
                 Collections.sort(teams, new CompTeamWins());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + (t.totalWins + t.wins));
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + (t.getTotalWins() + t.getWins()));
                 }
                 break;
             case 4:
                 Collections.sort(teams, new CompTeamHoFCount());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + t.HoFCount);
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + t.getHoFCount());
                 }
                 break;
         }
@@ -5436,9 +5431,9 @@ Then conferences can see if they want to add them to their list if the teams mee
         }
 
         for (int i = 0; i < teamList.size(); ++i) {
-            if (teamList.get(i).HC != null) coachDatabase.add(teamList.get(i).HC);
-            if (teamList.get(i).OC != null && teamList.get(i).OC.getWins() > 0) coachDatabase.add(teamList.get(i).OC);
-            if (teamList.get(i).DC != null && teamList.get(i).DC.getWins() > 0) coachDatabase.add(teamList.get(i).DC);
+            if (teamList.get(i).getHeadCoach() != null) coachDatabase.add(teamList.get(i).getHeadCoach());
+            if (teamList.get(i).getOC() != null && teamList.get(i).getOC().getWins() > 0) coachDatabase.add(teamList.get(i).getOC());
+            if (teamList.get(i).getDC() != null && teamList.get(i).getDC().getWins() > 0) coachDatabase.add(teamList.get(i).getDC());
 
         }
 
