@@ -125,20 +125,20 @@ public class League {
         this.resProvider = resProvider;
     }
 
-    public ArrayList<String[]> leagueHistory;
+    private ArrayList<String[]> leagueHistory;
     private ArrayList<String> heismanHistory;
-    public ArrayList<PlayerRecord> leagueHoF;
-    public ArrayList<Conference> conferences;
-    public ArrayList<Team> teamList;
-    public ArrayList<Staff> coachList;
-    public ArrayList<Staff> coachStarList;
-    public ArrayList<Staff> coachFreeAgents;
-    public ArrayList<Staff> coachDatabase;
+    private ArrayList<PlayerRecord> leagueHoF;
+    private ArrayList<Conference> conferences;
+    private ArrayList<Team> teamList;
+    private ArrayList<Staff> coachList;
+    private ArrayList<Staff> coachStarList;
+    private ArrayList<Staff> coachFreeAgents;
+    private ArrayList<Staff> coachDatabase;
     private ArrayList<String> nameList;
     private ArrayList<String> lastNameList;
-    public ArrayList<ArrayList<String>> newsStories;
-    public ArrayList<String> newsHeadlines;
-    public ArrayList<ArrayList<String>> weeklyScores;
+    private ArrayList<ArrayList<String>> newsStories;
+    private ArrayList<String> newsHeadlines;
+    private ArrayList<ArrayList<String>> weeklyScores;
     private ArrayList<String> teamDiscipline;
     private double disciplineChance = 0.085;
     private double disciplineScrutiny = 0.035;
@@ -196,9 +196,9 @@ public class League {
     public String userTransfers;
     public String sumTransfers;
     private ArrayList<String> transfersList;
-    public ArrayList<Player> userTransferList;
-    public ArrayList<Player> freshmen;
-    public ArrayList<Player> redshirts;
+    private ArrayList<Player> userTransferList;
+    private ArrayList<Player> freshmen;
+    private ArrayList<Player> redshirts;
     public String[] bowlNames;
 
     //Game Options
@@ -213,8 +213,8 @@ public class League {
     public int countRealignment;
     public String newsRealignment;
     public boolean updateTV;
-    public ArrayList<String> newsTV;
-    public ArrayList<Team> playoffTeams;
+    private ArrayList<String> newsTV;
+    private ArrayList<Team> playoffTeams;
     public String postseason;
 
     private static final int DEFAULT_NEW_SAVE_YEAR = 2026;
@@ -248,7 +248,7 @@ public class League {
 
 
 
-    public ArrayList<String> teamsFCSList;
+    private ArrayList<String> teamsFCSList;
 
     private final String[] proTeams = {"New England", "Buffalo", "New Jersey", "Miami", "Pittsburgh", "Baltimore", "Cincinnati", "Cleveland", "Jacksonville", "Indianapolis", "Houston", "Tennessee", "Kansas City", "Oakland", "Anaheim", "Denver",
             "New York", "Philadelphia", "Dallas", "Washington", "Minnesota", "Chicago", "Green Bay", "Detroit", "New Orleans", "Carolina", "Tampa Bay", "Atlanta", "Seattle", "Los Angeles", "San Francisco", "Arizona"};
@@ -6626,6 +6626,238 @@ Then conferences can see if they want to add them to their list if the teams mee
         } else if (player instanceof PlayerS) {
             transferSs.add((PlayerS) player);
         }
+    }
+
+    // =========================================================================
+    // League Collections Accessors (Phase 2)
+    // =========================================================================
+
+    /**
+     * Get an unmodifiable view of the league history.
+     */
+    public java.util.List<String[]> getLeagueHistory() {
+        return java.util.Collections.unmodifiableList(leagueHistory);
+    }
+
+    /**
+     * Get an unmodifiable view of the Hall of Fame players.
+     * Use {@link #addToHallOfFame(PlayerRecord)} to add players.
+     */
+    public java.util.List<PlayerRecord> getLeagueHoF() {
+        return java.util.Collections.unmodifiableList(leagueHoF);
+    }
+
+    /**
+     * Add a player to the Hall of Fame.
+     */
+    public void addToHallOfFame(PlayerRecord record) {
+        if (record != null) {
+            leagueHoF.add(record);
+        }
+    }
+
+    /**
+     * Get an unmodifiable view of conferences.
+     */
+    public java.util.List<Conference> getConferences() {
+        return java.util.Collections.unmodifiableList(conferences);
+    }
+
+    /**
+     * Add a conference to the league.
+     */
+    public void addConference(Conference conference) {
+        if (conference != null) {
+            conferences.add(conference);
+        }
+    }
+
+    /**
+     * Get an unmodifiable view of all teams.
+     */
+    public java.util.List<Team> getTeamList() {
+        return java.util.Collections.unmodifiableList(teamList);
+    }
+
+    /**
+     * Add a team to the league.
+     */
+    public void addTeam(Team team) {
+        if (team != null) {
+            teamList.add(team);
+        }
+    }
+
+    /**
+     * Get an unmodifiable view of the coach list.
+     */
+    public java.util.List<Staff> getCoachList() {
+        return java.util.Collections.unmodifiableList(coachList);
+    }
+
+    /**
+     * Get an unmodifiable view of star coaches.
+     */
+    public java.util.List<Staff> getCoachStarList() {
+        return java.util.Collections.unmodifiableList(coachStarList);
+    }
+
+    /**
+     * Get an unmodifiable view of free agent coaches.
+     * Use {@link #addCoachFreeAgent(Staff)} and {@link #removeCoachFreeAgent(Staff)} to modify.
+     */
+    public java.util.List<Staff> getCoachFreeAgents() {
+        return java.util.Collections.unmodifiableList(coachFreeAgents);
+    }
+
+    /**
+     * Add a coach to free agency.
+     */
+    public void addCoachFreeAgent(Staff coach) {
+        if (coach != null) {
+            coachFreeAgents.add(coach);
+        }
+    }
+
+    /**
+     * Remove a coach from free agency.
+     */
+    public void removeCoachFreeAgent(Staff coach) {
+        coachFreeAgents.remove(coach);
+    }
+
+    /**
+     * Get an unmodifiable view of the coach database.
+     */
+    public java.util.List<Staff> getCoachDatabase() {
+        return java.util.Collections.unmodifiableList(coachDatabase);
+    }
+
+    /**
+     * Get an unmodifiable view of news stories for the current week.
+     * Use {@link #addNewsStory(int, String)} to add stories.
+     */
+    public java.util.List<java.util.List<String>> getNewsStories() {
+        java.util.List<java.util.List<String>> unmodifiable = new java.util.ArrayList<>();
+        for (java.util.List<String> week : newsStories) {
+            unmodifiable.add(java.util.Collections.unmodifiableList(week));
+        }
+        return java.util.Collections.unmodifiableList(unmodifiable);
+    }
+
+    /**
+     * Get the news stories for a specific week.
+     */
+    public java.util.List<String> getNewsStoriesForWeek(int week) {
+        if (week >= 0 && week < newsStories.size()) {
+            return java.util.Collections.unmodifiableList(newsStories.get(week));
+        }
+        return java.util.Collections.emptyList();
+    }
+
+    /**
+     * Add a news story for a specific week.
+     */
+    public void addNewsStory(int week, String story) {
+        if (week >= 0 && week < newsStories.size() && story != null) {
+            newsStories.get(week).add(story);
+        }
+    }
+
+    /**
+     * Get an unmodifiable view of news headlines.
+     * Use {@link #addNewsHeadline(String)} and {@link #clearNewsHeadlines()} to modify.
+     */
+    public java.util.List<String> getNewsHeadlines() {
+        return java.util.Collections.unmodifiableList(newsHeadlines);
+    }
+
+    /**
+     * Add a news headline.
+     */
+    public void addNewsHeadline(String headline) {
+        if (headline != null) {
+            newsHeadlines.add(headline);
+        }
+    }
+
+    /**
+     * Clear all news headlines.
+     */
+    public void clearNewsHeadlines() {
+        newsHeadlines.clear();
+    }
+
+    /**
+     * Get an unmodifiable view of weekly scores.
+     */
+    public java.util.List<java.util.List<String>> getWeeklyScores() {
+        java.util.List<java.util.List<String>> unmodifiable = new java.util.ArrayList<>();
+        for (java.util.List<String> week : weeklyScores) {
+            unmodifiable.add(java.util.Collections.unmodifiableList(week));
+        }
+        return java.util.Collections.unmodifiableList(unmodifiable);
+    }
+
+    /**
+     * Get the weekly scores for a specific week.
+     */
+    public java.util.List<String> getWeeklyScoresForWeek(int week) {
+        if (week >= 0 && week < weeklyScores.size()) {
+            return java.util.Collections.unmodifiableList(weeklyScores.get(week));
+        }
+        return java.util.Collections.emptyList();
+    }
+
+    /**
+     * Add a score entry for a specific week.
+     */
+    public void addWeeklyScore(int week, String score) {
+        if (week >= 0 && week < weeklyScores.size() && score != null) {
+            weeklyScores.get(week).add(score);
+        }
+    }
+
+    /**
+     * Get an unmodifiable view of the user's transfer list.
+     */
+    public java.util.List<Player> getUserTransferList() {
+        return java.util.Collections.unmodifiableList(userTransferList);
+    }
+
+    /**
+     * Get an unmodifiable view of freshmen players.
+     */
+    public java.util.List<Player> getFreshmen() {
+        return java.util.Collections.unmodifiableList(freshmen);
+    }
+
+    /**
+     * Get an unmodifiable view of redshirted players.
+     */
+    public java.util.List<Player> getRedshirts() {
+        return java.util.Collections.unmodifiableList(redshirts);
+    }
+
+    /**
+     * Get an unmodifiable view of TV news entries.
+     */
+    public java.util.List<String> getNewsTV() {
+        return java.util.Collections.unmodifiableList(newsTV);
+    }
+
+    /**
+     * Get an unmodifiable view of playoff teams.
+     */
+    public java.util.List<Team> getPlayoffTeams() {
+        return java.util.Collections.unmodifiableList(playoffTeams);
+    }
+
+    /**
+     * Get an unmodifiable view of FCS teams list.
+     */
+    public java.util.List<String> getTeamsFCSList() {
+        return java.util.Collections.unmodifiableList(teamsFCSList);
     }
 
 }
