@@ -75,8 +75,9 @@ public class DesktopUiBridge implements GameUiBridge {
     @Override
     public void disciplineAction(positions.Player player, String issue, int gamesA, int gamesB) {
         if (player == null) return;
+        String teamName = player.team != null ? player.team.getName() : "Unknown";
         showInfo("Discipline",
-                player.name + " (" + player.position + ", " + player.team.getName() + ")\n"
+                player.name + " (" + player.position + ", " + teamName + ")\n"
                         + "Issue: " + issue + "\n"
                         + "Suspended " + gamesA + " to " + gamesB + " games.");
     }
@@ -138,13 +139,18 @@ public class DesktopUiBridge implements GameUiBridge {
 
     @Override
     public void showRedshirtList() {
-        if (league.getRedshirts() == null || league.getRedshirts().isEmpty()) {
+        java.util.List<positions.Player> redshirts = league.getRedshirts();
+        if (redshirts == null || redshirts.isEmpty()) {
             showInfo("Redshirt List", "No players are currently on the redshirt list.");
             return;
         }
         StringBuilder sb = new StringBuilder("Players on the redshirt list:\n\n");
-        for (positions.Player p : league.getRedshirts()) {
-            sb.append(p.position).append("  ").append(p.name).append("\n");
+        for (positions.Player p : redshirts) {
+            if (p == null) continue;
+            String teamName = p.team != null ? p.team.getName() : "";
+            sb.append(p.position).append("  ").append(p.name);
+            if (!teamName.isEmpty()) sb.append("  (").append(teamName).append(")");
+            sb.append("\n");
         }
         showScrollableText("Redshirt List", sb.toString());
     }
@@ -211,11 +217,14 @@ public class DesktopUiBridge implements GameUiBridge {
               .append("  (").append(t.getWins()).append("-").append(t.getLosses()).append(")\n\n");
         }
         sb.append("Top 5 by prestige:\n");
-        league.getTeamList().stream()
-                .sorted(java.util.Comparator.comparingInt((simulation.Team t) -> t.getTeamPrestige()).reversed())
-                .limit(5)
-                .forEach(t -> sb.append("  ").append(t.getName())
-                        .append("  ").append(t.getWins()).append("-").append(t.getLosses()).append("\n"));
+        java.util.List<simulation.Team> teams = league.getTeamList();
+        if (teams != null) {
+            teams.stream()
+                    .sorted(java.util.Comparator.comparingInt((simulation.Team t) -> t.getTeamPrestige()).reversed())
+                    .limit(5)
+                    .forEach(t -> sb.append("  ").append(t.getName())
+                            .append("  ").append(t.getWins()).append("-").append(t.getLosses()).append("\n"));
+        }
         return sb.toString();
     }
 

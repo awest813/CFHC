@@ -1,12 +1,12 @@
 package desktop;
 
+import positions.Player;
 import simulation.DataRecord;
 import simulation.Game;
 import simulation.LeagueRecord;
 import simulation.PlayerRecord;
 import simulation.Team;
 import simulation.TeamHistoryRecord;
-import simulation.TeamRecords;
 
 import javax.swing.BorderFactory;
 import javax.swing.JDialog;
@@ -20,31 +20,46 @@ import javax.swing.table.DefaultTableModel;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Comparator;
 import java.util.List;
 
 /**
  * Detailed dialog for a single team. Combines roster, schedule, coaching-staff,
- * season history and team records in a tabbed layout.
+ * season history, team records, and depth chart in a tabbed layout.
+ *
+ * <p>Double-click a roster row to view player details. Double-click a schedule
+ * row to view the game box score.
  */
 public class TeamDetailView extends JDialog {
 
     private static final String[] ROSTER_COLUMNS   = {"Pos", "Name", "Yr", "OVR", "Pot", "IQ"};
     private static final String[] SCHEDULE_COLUMNS = {"Wk", "Opponent", "Home/Away", "Result"};
-    private static final String[] HISTORY_COLUMNS  = {"Season", "Record", "Final Rank", "Pts For – Pts Against"};
+    private static final String[] HISTORY_COLUMNS  = {"Season", "Record", "Final Rank", "Pts For \u2013 Pts Against"};
     private static final String[] RECORDS_COLUMNS  = {"Record", "Value", "Holder", "Year"};
+    private static final String[] DEPTH_COLUMNS    = {"Depth", "Pos", "Name", "Yr", "OVR"};
+
+    private final JFrame ownerFrame;
+    private final Team liveTeam;
 
     public TeamDetailView(JFrame owner, LeagueRecord.TeamRecord team, Team liveTeam) {
         super(owner, dialogTitle(team, liveTeam), true);
-        setSize(860, 600);
+        this.ownerFrame = owner;
+        this.liveTeam = liveTeam;
+        setSize(920, 640);
         setLayout(new BorderLayout());
 
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Roster",  buildRosterTab(team));
         if (liveTeam != null) {
             tabs.addTab("Schedule", buildScheduleTab(liveTeam));
+            tabs.addTab("Depth Chart", buildDepthChartTab(liveTeam));
         }
         tabs.addTab("Coaches", buildCoachesTab(team));
+        if (liveTeam != null) {
+            tabs.addTab("Team Stats", buildTeamStatsTab(liveTeam));
+        }
         if (liveTeam != null && !liveTeam.getTeamHistory().isEmpty()) {
             tabs.addTab("History", buildHistoryTab(liveTeam));
         }
@@ -58,10 +73,15 @@ public class TeamDetailView extends JDialog {
 
     private static String dialogTitle(LeagueRecord.TeamRecord team, Team live) {
         if (live != null) {
-            return team.name() + "  \u2014  " + live.getWins() + "-" + live.getLosses();
+            return team.name() + "  \u2014  " + live.getWins() + "-" + live.getLosses()
+                    + "  (Poll #" + live.getRankTeamPollScore() + ")";
         }
         return team.name() + " Roster";
     }
+
+    // -------------------------------------------------------------------------
+    // Roster tab (double-click for player detail)
+    // -------------------------------------------------------------------------
 
     private JScrollPane buildRosterTab(LeagueRecord.TeamRecord team) {
         DefaultTableModel model = new DefaultTableModel(ROSTER_COLUMNS, 0) {
@@ -93,10 +113,34 @@ public class TeamDetailView extends JDialog {
         JTable table = new JTable(model);
         table.setAutoCreateRowSorter(true);
         table.setRowHeight(22);
+
+        // Double-click to show player detail (from live team)
+        if (liveTeam != null) {
+            table.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (e.getClickCount() == 2) {
+                        int row = table.rowAtPoint(e.getPoint());
+                        if (row >= 0) {
+                            String name = (String) table.getValueAt(row, 1);
+                            Player p = findPlayerByName(liveTeam, name);
+                            if (p != null) {
+                                PlayerDetailView.show(ownerFrame, p);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
         return new JScrollPane(table);
     }
 
-    private JScrollPane buildScheduleTab(Team liveTeam) {
+    // -------------------------------------------------------------------------
+    // Schedule tab (double-click for box score)
+    // -------------------------------------------------------------------------
+
+    private JScrollPane buildScheduleTab(Team team) {
         DefaultTableModel model = new DefaultTableModel(SCHEDULE_COLUMNS, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -104,26 +148,41 @@ public class TeamDetailView extends JDialog {
             }
         };
 
-        for (int i = 0; i < liveTeam.getGameSchedule().size(); i++) {
-            Game g = liveTeam.getGameSchedule().get(i);
+        for (int i = 0; i < team.getGameSchedule().size(); i++) {
+            Game g = team.getGameSchedule().get(i);
             String opponent;
             String site;
             if ("BYE WEEK".equals(g.gameName)) {
                 opponent = "BYE";
                 site = "";
-            } else if (g.homeTeam == liveTeam) {
+            } else if (g.homeTeam == team) {
                 opponent = g.awayTeam.getName();
                 site = "Home";
             } else {
                 opponent = g.homeTeam.getName();
                 site = "Away";
             }
-            String result = formatResult(g, liveTeam);
+            String result = formatResult(g, team);
             model.addRow(new Object[]{i + 1, opponent, site, result});
         }
 
         JTable table = new JTable(model);
         table.setRowHeight(22);
+
+        // Double-click a game row to show box score
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int row = table.rowAtPoint(e.getPoint());
+                    if (row >= 0 && row < team.getGameSchedule().size()) {
+                        Game g = team.getGameSchedule().get(row);
+                        GameBoxScoreView.show(ownerFrame, g, team);
+                    }
+                }
+            }
+        });
+
         return new JScrollPane(table);
     }
 
@@ -137,6 +196,65 @@ public class TeamDetailView extends JDialog {
         String outcome = forScore > againstScore ? "W" : (forScore < againstScore ? "L" : "T");
         return outcome + " " + forScore + "-" + againstScore;
     }
+
+    // -------------------------------------------------------------------------
+    // Depth Chart tab
+    // -------------------------------------------------------------------------
+
+    private JScrollPane buildDepthChartTab(Team team) {
+        DefaultTableModel model = new DefaultTableModel(DEPTH_COLUMNS, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+
+        addDepthRow(model, team.getAllPlayers(), "QB");
+        addDepthRow(model, team.getAllPlayers(), "RB");
+        addDepthRow(model, team.getAllPlayers(), "WR");
+        addDepthRow(model, team.getAllPlayers(), "TE");
+        addDepthRow(model, team.getAllPlayers(), "OL");
+        addDepthRow(model, team.getAllPlayers(), "DL");
+        addDepthRow(model, team.getAllPlayers(), "LB");
+        addDepthRow(model, team.getAllPlayers(), "CB");
+        addDepthRow(model, team.getAllPlayers(), "S");
+        addDepthRow(model, team.getAllPlayers(), "K");
+
+        JTable table = new JTable(model);
+        table.setRowHeight(22);
+
+        if (liveTeam != null) {
+            table.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    if (e.getClickCount() == 2) {
+                        int row = table.rowAtPoint(e.getPoint());
+                        if (row >= 0) {
+                            String name = (String) table.getValueAt(row, 2);
+                            Player p = findPlayerByName(liveTeam, name);
+                            if (p != null) PlayerDetailView.show(ownerFrame, p);
+                        }
+                    }
+                }
+            });
+        }
+
+        return new JScrollPane(table);
+    }
+
+    private void addDepthRow(DefaultTableModel model, List<Player> allPlayers, String pos) {
+        int depth = 1;
+        for (Player p : allPlayers) {
+            if (p.position.equals(pos)) {
+                model.addRow(new Object[]{
+                        depth == 1 ? "Starter" : "Backup " + depth,
+                        pos, p.name, yearLabel(p.year), p.ratOvr
+                });
+                depth++;
+            }
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // Coaches tab
+    // -------------------------------------------------------------------------
 
     private JPanel buildCoachesTab(LeagueRecord.TeamRecord team) {
         JPanel panel = new JPanel();
@@ -159,20 +277,58 @@ public class TeamDetailView extends JDialog {
     }
 
     // -------------------------------------------------------------------------
+    // Team Stats tab
+    // -------------------------------------------------------------------------
+
+    private JScrollPane buildTeamStatsTab(Team team) {
+        DefaultTableModel model = new DefaultTableModel(new String[]{"Stat", "Value", "Rank"}, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+
+        int games = Math.max(1, team.numGames());
+        model.addRow(new Object[]{"Record", team.getWins() + "-" + team.getLosses(), ""});
+        model.addRow(new Object[]{"Conf Record", team.getConfWins() + "-" + team.getConfLosses(), ""});
+        model.addRow(new Object[]{"Poll Rank", "#" + team.getRankTeamPollScore(), ""});
+        model.addRow(new Object[]{"Prestige", team.getTeamPrestige(), "#" + team.getRankTeamPrestige()});
+        model.addRow(new Object[]{"", "", ""});
+        model.addRow(new Object[]{"Points/Game", String.format("%.1f", (float) team.getTeamPoints() / games), "#" + team.getRankTeamPoints()});
+        model.addRow(new Object[]{"Opp Points/Game", String.format("%.1f", (float) team.getTeamOppPoints() / games), "#" + team.getRankTeamOppPoints()});
+        model.addRow(new Object[]{"Total Yards/Game", String.format("%.1f", (float) team.getTeamYards() / games), "#" + team.getRankTeamYards()});
+        model.addRow(new Object[]{"Opp Yards/Game", String.format("%.1f", (float) team.getTeamOppYards() / games), "#" + team.getRankTeamOppYards()});
+        model.addRow(new Object[]{"Pass Yards/Game", String.format("%.1f", (float) team.getTeamPassYards() / games), "#" + team.getRankTeamPassYards()});
+        model.addRow(new Object[]{"Rush Yards/Game", String.format("%.1f", (float) team.getTeamRushYards() / games), "#" + team.getRankTeamRushYards()});
+        model.addRow(new Object[]{"", "", ""});
+        model.addRow(new Object[]{"Offensive Talent", String.format("%.1f", team.getOffTalent()), "#" + team.getRankTeamOffTalent()});
+        model.addRow(new Object[]{"Defensive Talent", String.format("%.1f", team.getDefTalent()), "#" + team.getRankTeamDefTalent()});
+        model.addRow(new Object[]{"Chemistry", String.format("%.1f", team.getTeamChemistry()), "#" + team.getRankTeamChemistry()});
+        model.addRow(new Object[]{"Discipline", team.getTeamDisciplineScore() + "%", "#" + team.getRankTeamDisciplineScore()});
+        model.addRow(new Object[]{"", "", ""});
+        model.addRow(new Object[]{"SOS", String.format("%.3f", team.getSOS()), "#" + team.getRankTeamSOS()});
+        model.addRow(new Object[]{"RPI", String.format("%.3f", team.getRPI()), "#" + team.getRankTeamRPI()});
+
+        JTable table = new JTable(model);
+        table.setRowHeight(24);
+        table.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        table.getColumnModel().getColumn(0).setPreferredWidth(200);
+        table.getColumnModel().getColumn(1).setPreferredWidth(100);
+        table.getColumnModel().getColumn(2).setPreferredWidth(80);
+        return new JScrollPane(table);
+    }
+
+    // -------------------------------------------------------------------------
     // History tab
     // -------------------------------------------------------------------------
 
-    private JScrollPane buildHistoryTab(Team liveTeam) {
+    private JScrollPane buildHistoryTab(Team team) {
         DefaultTableModel model = new DefaultTableModel(HISTORY_COLUMNS, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
 
-        List<TeamHistoryRecord> history = liveTeam.getTeamHistory();
-        // Show most-recent season first
+        List<TeamHistoryRecord> history = team.getTeamHistory();
         for (int i = history.size() - 1; i >= 0; i--) {
             TeamHistoryRecord hr = history.get(i);
-            String rankStr = hr.rank() > 0 ? "#" + hr.rank() : "—";
-            String pts = hr.pointsFor() + " – " + hr.pointsAgainst();
+            String rankStr = hr.rank() > 0 ? "#" + hr.rank() : "\u2014";
+            String pts = hr.pointsFor() + " \u2013 " + hr.pointsAgainst();
             model.addRow(new Object[]{hr.year(), hr.wins() + "-" + hr.losses(), rankStr, pts});
         }
 
@@ -211,14 +367,23 @@ public class TeamDetailView extends JDialog {
     private JPanel buildFooter(LeagueRecord.TeamRecord team, Team live) {
         JPanel footer = new JPanel();
         footer.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10));
-        String recordText = live != null
-                ? String.format("%s (%s)  \u2022  Record %d-%d  \u2022  Prestige %d  \u2022  Roster %d",
-                        team.name(), team.abbr(), live.getWins(), live.getLosses(), team.prestige(), team.roster().size())
-                : String.format("%s (%s)  \u2022  Prestige %d  \u2022  Roster %d",
-                        team.name(), team.abbr(), team.prestige(), team.roster().size());
+        String recordText;
+        if (live != null) {
+            recordText = String.format(
+                    "%s (%s)  \u2022  Record %d-%d  \u2022  Conf %d-%d  \u2022  Prestige %d  \u2022  Roster %d  \u2022  Double-click rows for details",
+                    team.name(), team.abbr(), live.getWins(), live.getLosses(),
+                    live.getConfWins(), live.getConfLosses(), team.prestige(), team.roster().size());
+        } else {
+            recordText = String.format("%s (%s)  \u2022  Prestige %d  \u2022  Roster %d",
+                    team.name(), team.abbr(), team.prestige(), team.roster().size());
+        }
         footer.add(new JLabel(recordText));
         return footer;
     }
+
+    // -------------------------------------------------------------------------
+    // Utilities
+    // -------------------------------------------------------------------------
 
     private static String yearLabel(int year) {
         return switch (year) {
@@ -230,6 +395,14 @@ public class TeamDetailView extends JDialog {
             case 5 -> "5SR";
             default -> String.valueOf(year);
         };
+    }
+
+    private static Player findPlayerByName(Team team, String name) {
+        if (team == null || name == null) return null;
+        for (Player p : team.getAllPlayers()) {
+            if (name.equals(p.name)) return p;
+        }
+        return null;
     }
 
     public static void show(JFrame owner, LeagueRecord.TeamRecord team, Team live) {
