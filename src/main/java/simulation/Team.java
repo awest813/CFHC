@@ -41,8 +41,8 @@ public class Team {
     public String conference;
     public String division;
     public int location;
-    public ArrayList<TeamHistoryRecord> teamHistory;
-    public ArrayList<PlayerRecord> hallOfFame;
+    private ArrayList<TeamHistoryRecord> teamHistory;
+    private ArrayList<PlayerRecord> hallOfFame;
 
     public TeamRecords teamRecords;
     public boolean userControlled;
@@ -68,12 +68,12 @@ public class Team {
     public int teamStadium;
 
     //Game Log variables
-    public ArrayList<Game> gameSchedule;
-    public ArrayList<Team> oocTeams;
-    public ArrayList<Integer> oocWeeks;
-    public ArrayList<String> gameWLSchedule;
-    public ArrayList<Team> gameWinsAgainst;
-    public ArrayList<Team> gameLossesAgainst;
+    private ArrayList<Game> gameSchedule;
+    private ArrayList<Team> oocTeams;
+    private ArrayList<Integer> oocWeeks;
+    private ArrayList<String> gameWLSchedule;
+    private ArrayList<Team> gameWinsAgainst;
+    private ArrayList<Team> gameLossesAgainst;
     public String confChampion;
     public String sweet16;
     public String qtFinalWL;
@@ -163,23 +163,23 @@ public class Team {
 
     //players on team
     //offense
-    public ArrayList<PlayerQB> teamQBs;
-    public ArrayList<PlayerRB> teamRBs;
-    public ArrayList<PlayerWR> teamWRs;
-    public ArrayList<PlayerTE> teamTEs;
-    public ArrayList<PlayerK> teamKs;
-    public ArrayList<PlayerOL> teamOLs;
+    private ArrayList<PlayerQB> teamQBs;
+    private ArrayList<PlayerRB> teamRBs;
+    private ArrayList<PlayerWR> teamWRs;
+    private ArrayList<PlayerTE> teamTEs;
+    private ArrayList<PlayerK> teamKs;
+    private ArrayList<PlayerOL> teamOLs;
     //defense
-    public ArrayList<PlayerDL> teamDLs;
-    public ArrayList<PlayerLB> teamLBs;
-    public ArrayList<PlayerCB> teamCBs;
-    public ArrayList<PlayerS> teamSs;
+    private ArrayList<PlayerDL> teamDLs;
+    private ArrayList<PlayerLB> teamLBs;
+    private ArrayList<PlayerCB> teamCBs;
+    private ArrayList<PlayerS> teamSs;
 
-    public ArrayList<Player> playersLeaving;
+    private ArrayList<Player> playersLeaving;
     private ArrayList<Player> playersTransferring;
-    public ArrayList<String> redshirtList;
+    private ArrayList<String> redshirtList;
 
-    public ArrayList<Player> playersInjured;
+    private ArrayList<Player> playersInjured;
     private ArrayList<Player> playersDis;
 
     public String suspensionNews;
@@ -5552,5 +5552,374 @@ public class Team {
         teamSs.add(new PlayerS(this, data));
     }
 
+    // =========================================================================
+    // Team Collections Accessors (Phase 2)
+    // =========================================================================
+
+    /**
+     * Get an unmodifiable view of team history.
+     */
+    public java.util.List<TeamHistoryRecord> getTeamHistory() {
+        return java.util.Collections.unmodifiableList(teamHistory);
+    }
+
+    /**
+     * Add a team history record.
+     */
+    public void addTeamHistory(TeamHistoryRecord record) {
+        if (record != null) {
+            teamHistory.add(record);
+        }
+    }
+
+    /**
+     * Get an unmodifiable view of Hall of Fame players.
+     * Use {@link #addToHallOfFame(PlayerRecord)} to add players.
+     */
+    public java.util.List<PlayerRecord> getHallOfFame() {
+        return java.util.Collections.unmodifiableList(hallOfFame);
+    }
+
+    /**
+     * Add a player to the team's Hall of Fame.
+     */
+    public void addToHallOfFame(PlayerRecord record) {
+        if (record != null) {
+            hallOfFame.add(record);
+        }
+    }
+
+    /**
+     * Get an unmodifiable view of the game schedule.
+     * Use {@link #addGameToSchedule(Game)} and {@link #addGameToSchedule(int, Game)} to modify.
+     */
+    public java.util.List<Game> getGameSchedule() {
+        return java.util.Collections.unmodifiableList(gameSchedule);
+    }
+
+    /**
+     * Add a game to the schedule.
+     */
+    public void addGameToSchedule(Game game) {
+        if (game != null) {
+            gameSchedule.add(game);
+        }
+    }
+
+    /**
+     * Add a game to the schedule at a specific week.
+     */
+    public void addGameToSchedule(int week, Game game) {
+        if (game != null && week >= 0 && week <= gameSchedule.size()) {
+            gameSchedule.add(week, game);
+        }
+    }
+
+    /**
+     * Clear the game schedule.
+     */
+    public void clearGameSchedule() {
+        gameSchedule.clear();
+    }
+
+    /**
+     * Get an unmodifiable view of out-of-conference teams.
+     */
+    public java.util.List<Team> getOocTeams() {
+        return java.util.Collections.unmodifiableList(oocTeams);
+    }
+
+    /**
+     * Add an out-of-conference opponent.
+     */
+    public void addOocTeam(Team team) {
+        if (team != null) {
+            oocTeams.add(team);
+        }
+    }
+
+    /**
+     * Get an unmodifiable view of out-of-conference weeks.
+     */
+    public java.util.List<Integer> getOocWeeks() {
+        return java.util.Collections.unmodifiableList(oocWeeks);
+    }
+
+    /**
+     * Get an unmodifiable view of game W/L schedule.
+     */
+    public java.util.List<String> getGameWLSchedule() {
+        return java.util.Collections.unmodifiableList(gameWLSchedule);
+    }
+
+    /**
+     * Get an unmodifiable view of teams beaten.
+     */
+    public java.util.List<Team> getGameWinsAgainst() {
+        return java.util.Collections.unmodifiableList(gameWinsAgainst);
+    }
+
+    /**
+     * Get an unmodifiable view of teams lost to.
+     */
+    public java.util.List<Team> getGameLossesAgainst() {
+        return java.util.Collections.unmodifiableList(gameLossesAgainst);
+    }
+
+    /**
+     * Get an unmodifiable view of QBs on the team.
+     * Use {@link #addPlayerQB(PlayerQB)} to add players.
+     */
+    public java.util.List<PlayerQB> getTeamQBs() {
+        return java.util.Collections.unmodifiableList(teamQBs);
+    }
+
+    /**
+     * Add a QB to the team.
+     */
+    public void addPlayerQB(PlayerQB player) {
+        if (player != null) {
+            teamQBs.add(player);
+        }
+    }
+
+    /**
+     * Get an unmodifiable view of RBs on the team.
+     * Use {@link #addPlayerRB(PlayerRB)} to add players.
+     */
+    public java.util.List<PlayerRB> getTeamRBs() {
+        return java.util.Collections.unmodifiableList(teamRBs);
+    }
+
+    /**
+     * Add a RB to the team.
+     */
+    public void addPlayerRB(PlayerRB player) {
+        if (player != null) {
+            teamRBs.add(player);
+        }
+    }
+
+    /**
+     * Get an unmodifiable view of WRs on the team.
+     * Use {@link #addPlayerWR(PlayerWR)} to add players.
+     */
+    public java.util.List<PlayerWR> getTeamWRs() {
+        return java.util.Collections.unmodifiableList(teamWRs);
+    }
+
+    /**
+     * Add a WR to the team.
+     */
+    public void addPlayerWR(PlayerWR player) {
+        if (player != null) {
+            teamWRs.add(player);
+        }
+    }
+
+    /**
+     * Get an unmodifiable view of TEs on the team.
+     * Use {@link #addPlayerTE(PlayerTE)} to add players.
+     */
+    public java.util.List<PlayerTE> getTeamTEs() {
+        return java.util.Collections.unmodifiableList(teamTEs);
+    }
+
+    /**
+     * Add a TE to the team.
+     */
+    public void addPlayerTE(PlayerTE player) {
+        if (player != null) {
+            teamTEs.add(player);
+        }
+    }
+
+    /**
+     * Get an unmodifiable view of Ks on the team.
+     * Use {@link #addPlayerK(PlayerK)} to add players.
+     */
+    public java.util.List<PlayerK> getTeamKs() {
+        return java.util.Collections.unmodifiableList(teamKs);
+    }
+
+    /**
+     * Add a K to the team.
+     */
+    public void addPlayerK(PlayerK player) {
+        if (player != null) {
+            teamKs.add(player);
+        }
+    }
+
+    /**
+     * Get an unmodifiable view of OLs on the team.
+     * Use {@link #addPlayerOL(PlayerOL)} to add players.
+     */
+    public java.util.List<PlayerOL> getTeamOLs() {
+        return java.util.Collections.unmodifiableList(teamOLs);
+    }
+
+    /**
+     * Add an OL to the team.
+     */
+    public void addPlayerOL(PlayerOL player) {
+        if (player != null) {
+            teamOLs.add(player);
+        }
+    }
+
+    /**
+     * Get an unmodifiable view of DLs on the team.
+     * Use {@link #addPlayerDL(PlayerDL)} to add players.
+     */
+    public java.util.List<PlayerDL> getTeamDLs() {
+        return java.util.Collections.unmodifiableList(teamDLs);
+    }
+
+    /**
+     * Add a DL to the team.
+     */
+    public void addPlayerDL(PlayerDL player) {
+        if (player != null) {
+            teamDLs.add(player);
+        }
+    }
+
+    /**
+     * Get an unmodifiable view of LBs on the team.
+     * Use {@link #addPlayerLB(PlayerLB)} to add players.
+     */
+    public java.util.List<PlayerLB> getTeamLBs() {
+        return java.util.Collections.unmodifiableList(teamLBs);
+    }
+
+    /**
+     * Add a LB to the team.
+     */
+    public void addPlayerLB(PlayerLB player) {
+        if (player != null) {
+            teamLBs.add(player);
+        }
+    }
+
+    /**
+     * Get an unmodifiable view of CBs on the team.
+     * Use {@link #addPlayerCB(PlayerCB)} to add players.
+     */
+    public java.util.List<PlayerCB> getTeamCBs() {
+        return java.util.Collections.unmodifiableList(teamCBs);
+    }
+
+    /**
+     * Add a CB to the team.
+     */
+    public void addPlayerCB(PlayerCB player) {
+        if (player != null) {
+            teamCBs.add(player);
+        }
+    }
+
+    /**
+     * Get an unmodifiable view of Ss on the team.
+     * Use {@link #addPlayerS(PlayerS)} to add players.
+     */
+    public java.util.List<PlayerS> getTeamSs() {
+        return java.util.Collections.unmodifiableList(teamSs);
+    }
+
+    /**
+     * Add an S to the team.
+     */
+    public void addPlayerS(PlayerS player) {
+        if (player != null) {
+            teamSs.add(player);
+        }
+    }
+
+    /**
+     * Clear all position rosters (for roster reload).
+     */
+    public void clearAllRosters() {
+        teamQBs.clear();
+        teamRBs.clear();
+        teamWRs.clear();
+        teamTEs.clear();
+        teamKs.clear();
+        teamOLs.clear();
+        teamDLs.clear();
+        teamLBs.clear();
+        teamCBs.clear();
+        teamSs.clear();
+    }
+
+    /**
+     * Get an unmodifiable view of players leaving the team.
+     */
+    public java.util.List<Player> getPlayersLeaving() {
+        return java.util.Collections.unmodifiableList(playersLeaving);
+    }
+
+    /**
+     * Add a player to the leaving list.
+     */
+    public void addPlayerLeaving(Player player) {
+        if (player != null) {
+            playersLeaving.add(player);
+        }
+    }
+
+    /**
+     * Clear the players leaving list.
+     */
+    public void clearPlayersLeaving() {
+        playersLeaving.clear();
+    }
+
+    /**
+     * Get an unmodifiable view of the redshirt list.
+     */
+    public java.util.List<String> getRedshirtList() {
+        return java.util.Collections.unmodifiableList(redshirtList);
+    }
+
+    /**
+     * Add a player to the redshirt list.
+     */
+    public void addRedshirt(String redshirtInfo) {
+        if (redshirtInfo != null) {
+            redshirtList.add(redshirtInfo);
+        }
+    }
+
+    /**
+     * Get an unmodifiable view of injured players.
+     */
+    public java.util.List<Player> getPlayersInjured() {
+        return java.util.Collections.unmodifiableList(playersInjured);
+    }
+
+    /**
+     * Add a player to the injured list.
+     */
+    public void addPlayerInjured(Player player) {
+        if (player != null) {
+            playersInjured.add(player);
+        }
+    }
+
+    /**
+     * Remove a player from the injured list.
+     */
+    public void removePlayerInjured(Player player) {
+        playersInjured.remove(player);
+    }
+
+    /**
+     * Clear the injured players list.
+     */
+    public void clearPlayersInjured() {
+        playersInjured.clear();
+    }
 
 }
+
