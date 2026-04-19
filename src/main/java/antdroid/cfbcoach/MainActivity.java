@@ -202,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 // Set it to 1st team until one selected
                 userTeam = simLeague.getTeamList().get(0);
                 simLeague.userTeam = userTeam;
-                userTeam.isUserControlled() = true;
+                userTeam.setUserControlled(true);
                 userTeamStr = userTeam.getName();
                 currentTeam = simLeague.getTeamList().get(0);
                 currentConference = simLeague.getConferences().get(0);
@@ -483,12 +483,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         builder.setItems(teams, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
                 // Do something with the selection
-                simLeague.getTeamList().get(item).HC.team = null;
-                simLeague.getCoachFreeAgents().add(simLeague.getTeamList().get(item).HC);
-                userTeam.isUserControlled() = false;
+                simLeague.getTeamList().get(item).getHeadCoach().team = null;
+                simLeague.getCoachFreeAgents().add(simLeague.getTeamList().get(item).getHeadCoach());
+                userTeam.setUserControlled(false);
                 userTeam = simLeague.getTeamList().get(item);
                 simLeague.userTeam = userTeam;
-                userTeam.isUserControlled() = true;
+                userTeam.setUserControlled(true);
                 userTeamStr = userTeam.getName();
                 currentTeam = userTeam;
                 userNameDialog();
@@ -568,7 +568,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 // Perform action on click
                 String newHC = changeHCEditText.getText().toString().trim();
                 if (isNameValid((newHC))) {
-                    userTeam.getHeadCoach().getName() = newHC;
+                    userTeam.getHeadCoach().name = newHC;
                     examineTeam(currentTeam.getName());
                     dialog.dismiss();
                     setupCoachStyle();
@@ -1154,7 +1154,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         String[] nameSplit = name.split(" ");
         String nameHC = nameSplit[0] + " " + nameSplit[1];
         for(int i = 0; i < simLeague.getTeamList().size(); i++) {
-            if(simLeague.getTeamList().get(i).HC != null && simLeague.getTeamList().get(i).HC.getName().equals(nameHC)) return simLeague.getTeamList().get(i).HC;
+            if(simLeague.getTeamList().get(i).getHeadCoach() != null && simLeague.getTeamList().get(i).getHeadCoach().name.equals(nameHC)) return simLeague.getTeamList().get(i).getHeadCoach();
             if(simLeague.getTeamList().get(i).OC != null && simLeague.getTeamList().get(i).OC.getName().equals(nameHC)) return simLeague.getTeamList().get(i).OC;
             if(simLeague.getTeamList().get(i).DC != null && simLeague.getTeamList().get(i).DC.getName().equals(nameHC)) return simLeague.getTeamList().get(i).DC;
 
@@ -2146,7 +2146,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
 
-        goals = "Welcome to the " + simLeague.getYear() + " College Football season, Coach " + userTeam.getHeadCoach().getName() + "!\n\n";
+        goals = "Welcome to the " + simLeague.getYear() + " College Football season, Coach " + userTeam.getHeadCoach().name + "!\n\n";
         if (simLeague.isCareerMode()) {
             goals += "Your head coaching career begins at " + userTeam.getName() + ". Job security, performance swings, and future opportunities will all respond to the seasons you build here.\n\n";
         }
@@ -2594,14 +2594,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Method to actually switch teams
     private void changeTeams(ArrayList<Team> teamList, int item) {
         userTeam.newCoachTeamChanges();
-        userTeam.isUserControlled() = false;
-        userTeam.getHeadCoach() = null;
+        userTeam.setUserControlled(false);
+        userTeam.setHeadCoach(null);
         simLeague.coachHiringSingleTeam(userTeam);
         simLeague.newJobtransfer(teamList.get(item).name);
         userTeam = simLeague.userTeam;
         userTeamStr = userTeam.getName();
         currentTeam = userTeam;
-        userTeam.getHeadCoach() = null;
+        userTeam.setHeadCoach(null);
 
         if(reincarnate) {
             userTeam.setupUserCoach(userHC.getName());
@@ -2609,7 +2609,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             reincarnate = false;
             userNameDialog();
         } else {
-            userTeam.getHeadCoach() = userHC;
+            userTeam.setHeadCoach(userHC);
         }
 
         userHC.team = userTeam;
@@ -3172,9 +3172,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void reincarnation() {
-        userTeam.getTeamPrestige() = (int)(userTeam.getTeamPrestige()* Team.knockdownRet);
+        userTeam.setTeamPrestige((int)(userTeam.getTeamPrestige() * Team.knockdownRet));
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Head Coach History: " + currentTeam.getHeadCoach().getName())
+        builder.setTitle("Head Coach History: " + currentTeam.getHeadCoach().name)
                 .setPositiveButton("Use Same Team", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

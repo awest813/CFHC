@@ -62,7 +62,7 @@ public final class LeagueCustomDataImporter {
                     } else if (fileSplit.length > 2) {
                         team.newCustomHeadCoach(fileSplit[1], Integer.parseInt(fileSplit[2]), 0);
                     } else {
-                        team.getHeadCoach().getName() = fileSplit[1];
+                        team.getHeadCoach().name = fileSplit[1];
                     }
                 }
             }
