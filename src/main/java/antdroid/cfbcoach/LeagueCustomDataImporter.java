@@ -102,7 +102,7 @@ public final class LeagueCustomDataImporter {
 
     private static Map<Team, TeamRosterImportBuffer> createRosterBuffers(League league) {
         Map<Team, TeamRosterImportBuffer> buffers = new LinkedHashMap<>();
-        for (Team team : league.teamList) {
+        for (Team team : league.getTeamList()) {
             buffers.put(team, new TeamRosterImportBuffer());
         }
         return buffers;
@@ -129,7 +129,7 @@ public final class LeagueCustomDataImporter {
     }
 
     private static void refillMinimumRosters(League league) {
-        for (Team team : league.teamList) {
+        for (Team team : league.getTeamList()) {
             if (team.getAllPlayers().isEmpty()) {
                 team.newRoster(team.minQBs, team.minRBs, team.minWRs, team.minTEs, team.minOLs, team.minKs, team.minDLs, team.minLBs, team.minCBs, team.minSs, true);
             } else {

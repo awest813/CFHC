@@ -46,9 +46,9 @@ final class LeagueHistoryDialogController {
         leagueHistorySpinner.setAdapter(leagueHistorySpinnerAdapter);
 
         final ListView leagueHistoryList = dialog.findViewById(R.id.listViewTeamRankings);
-        final String[] hofPlayers = new String[simLeague.leagueHoF.size()];
-        for (int i = 0; i < simLeague.leagueHoF.size(); ++i) {
-            hofPlayers[i] = simLeague.leagueHoF.get(i);
+        final String[] hofPlayers = new String[simLeague.getLeagueHoF().size()];
+        for (int i = 0; i < simLeague.getLeagueHoF().size(); ++i) {
+            hofPlayers[i] = simLeague.getLeagueHoF().get(i);
         }
 
         leagueHistorySpinner.setOnItemSelectedListener(

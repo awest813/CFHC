@@ -25,7 +25,7 @@ public final class LeagueEditorDialogController {
 
     public static void show(final MainActivity activity, final League simLeague) {
         final Team[] currentTeam = {activity.userTeam};
-        final Conference[] currentConference = {simLeague.conferences.get(simLeague.getConfNumber(activity.userTeam.conference))};
+        final Conference[] currentConference = {simLeague.getConferences().get(simLeague.getConfNumber(activity.userTeam.conference))};
 
         AlertDialog.Builder GameEditor = new AlertDialog.Builder(activity);
         GameEditor.setTitle("Game Universe Editor v2 (BETA)")
@@ -57,8 +57,8 @@ public final class LeagueEditorDialogController {
         editorAdaptorTeam.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         teamListSpinner.setAdapter(editorAdaptorTeam);
 
-        for (int i = 0; i < simLeague.conferences.size(); i++) {
-            confEditorList.add(simLeague.conferences.get(i).confName);
+        for (int i = 0; i < simLeague.getConferences().size(); i++) {
+            confEditorList.add(simLeague.getConferences().get(i).confName);
         }
         for (int i = 0; i < currentConference[0].confTeams.size(); i++) {
             teamEditorList.add(currentConference[0].confTeams.get(i).name);
@@ -75,7 +75,7 @@ public final class LeagueEditorDialogController {
                 if (changeHCEditText != null) changeHCEditText.clearComposingText();
                 if (changePrestigeEditText != null) changePrestigeEditText.clearComposingText();
 
-                currentConference[0] = simLeague.conferences.get(position);
+                currentConference[0] = simLeague.getConferences().get(position);
                 teamEditorList.clear();
                 for (int i = 0; i < currentConference[0].confTeams.size(); i++) {
                     teamEditorList.add(currentConference[0].confTeams.get(i).name);

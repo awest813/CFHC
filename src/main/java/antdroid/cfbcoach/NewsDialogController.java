@@ -68,7 +68,7 @@ final class NewsDialogController {
                 new AdapterView.OnItemSelectedListener() {
                     public void onItemSelected(
                             AdapterView<?> parent, View view, int position, long id) {
-                        ArrayList<String> rankings = simLeague.newsStories.get(position);
+                        ArrayList<String> rankings = simLeague.getNewsStories().get(position);
                         boolean isempty = false;
                         if (simLeague.currentWeek == simLeague.regSeasonWeeks + 11 && rankings.size() == 0) {
                             rankings.add("National Letter of Intention Day!>Today marks the first day of open recruitment. Teams are now allowed to sign incoming freshmen to their schools.");

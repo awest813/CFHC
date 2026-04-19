@@ -1305,7 +1305,7 @@ public class League {
 
                 ArrayList<Team> availTeams = new ArrayList<>();
                 for (int t = 0; t < teamList.size(); t++) {
-                    if (teamList.get(t).getOocWeeks().contains(week) && teamList.get(t).gameSchedule.size() >= week) {
+                    if (teamList.get(t).getOocWeeks().contains(week) && teamList.get(t).getGameSchedule().size() >= week) {
                         availTeams.add(teamList.get(t));
                     }
                 }
@@ -1335,8 +1335,8 @@ public class League {
                     Game gm;
                     gm = new Game(a, b, "OOC");
 
-                    if(a.gameSchedule.size() != b.gameSchedule.size())
-                    PlatformLog.d("league", "setupSeason: week " + week + " " + a.name + " size" + a.gameSchedule.size() + " vs " + b.name + " size" + b.gameSchedule.size());
+                    if(a.getGameSchedule().size() != b.getGameSchedule().size())
+                    PlatformLog.d("league", "setupSeason: week " + week + " " + a.name + " size" + a.getGameSchedule().size() + " vs " + b.name + " size" + b.getGameSchedule().size());
 
                     if (!a.conference.contains("Independent") && !a.conference.contains("FCS")) {
                         a.addGameToSchedule(week, gm);
@@ -2035,23 +2035,23 @@ public class League {
         ArrayList<Player> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             //qb
-            for (int qb = 0; qb < teamList.get(i).teamQBs.size(); ++qb) {
-                heismanCandidates.add(teamList.get(i).teamQBs.get(qb));
+            for (int qb = 0; qb < teamList.get(i).getTeamQBs().size(); ++qb) {
+                heismanCandidates.add(teamList.get(i).getTeamQBs().get(qb));
             }
 
             //rb
-            for (int rb = 0; rb < teamList.get(i).teamRBs.size(); ++rb) {
-                heismanCandidates.add(teamList.get(i).teamRBs.get(rb));
+            for (int rb = 0; rb < teamList.get(i).getTeamRBs().size(); ++rb) {
+                heismanCandidates.add(teamList.get(i).getTeamRBs().get(rb));
             }
 
             //wr
-            for (int wr = 0; wr < teamList.get(i).teamWRs.size(); ++wr) {
-                heismanCandidates.add(teamList.get(i).teamWRs.get(wr));
+            for (int wr = 0; wr < teamList.get(i).getTeamWRs().size(); ++wr) {
+                heismanCandidates.add(teamList.get(i).getTeamWRs().get(wr));
             }
 
             //te
-            for (int te = 0; te < teamList.get(i).teamTEs.size(); ++te) {
-                heismanCandidates.add(teamList.get(i).teamTEs.get(te));
+            for (int te = 0; te < teamList.get(i).getTeamTEs().size(); ++te) {
+                heismanCandidates.add(teamList.get(i).getTeamTEs().get(te));
             }
         }
         Collections.sort(heismanCandidates, new CompPlayerHeisman());
@@ -2106,22 +2106,22 @@ public class League {
         ArrayList<Player> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             //dl
-            for (int dl = 0; dl < teamList.get(i).teamDLs.size(); ++dl) {
-                heismanCandidates.add(teamList.get(i).teamDLs.get(dl));
+            for (int dl = 0; dl < teamList.get(i).getTeamDLs().size(); ++dl) {
+                heismanCandidates.add(teamList.get(i).getTeamDLs().get(dl));
             }
             //lb
-            for (int lb = 0; lb < teamList.get(i).teamLBs.size(); ++lb) {
-                heismanCandidates.add(teamList.get(i).teamLBs.get(lb));
+            for (int lb = 0; lb < teamList.get(i).getTeamLBs().size(); ++lb) {
+                heismanCandidates.add(teamList.get(i).getTeamLBs().get(lb));
             }
 
             //cb
-            for (int cb = 0; cb < teamList.get(i).teamCBs.size(); ++cb) {
-                heismanCandidates.add(teamList.get(i).teamCBs.get(cb));
+            for (int cb = 0; cb < teamList.get(i).getTeamCBs().size(); ++cb) {
+                heismanCandidates.add(teamList.get(i).getTeamCBs().get(cb));
             }
 
             //s
-            for (int s = 0; s < teamList.get(i).teamSs.size(); ++s) {
-                heismanCandidates.add(teamList.get(i).teamSs.get(s));
+            for (int s = 0; s < teamList.get(i).getTeamSs().size(); ++s) {
+                heismanCandidates.add(teamList.get(i).getTeamSs().get(s));
             }
         }
         Collections.sort(heismanCandidates, new CompPlayerHeisman());
@@ -2182,42 +2182,42 @@ public class League {
 
         for (int i = 0; i < teamList.size(); ++i) {
             //qb
-            for (int qb = 0; qb < teamList.get(i).teamQBs.size(); ++qb) {
-                if (teamList.get(i).teamQBs.get(qb).year == 1) {
-                    freshmanCandidates.add(teamList.get(i).teamQBs.get(qb));
-                    fQBs.add(teamList.get(i).teamQBs.get(qb));
+            for (int qb = 0; qb < teamList.get(i).getTeamQBs().size(); ++qb) {
+                if (teamList.get(i).getTeamQBs().get(qb).year == 1) {
+                    freshmanCandidates.add(teamList.get(i).getTeamQBs().get(qb));
+                    fQBs.add(teamList.get(i).getTeamQBs().get(qb));
                 }
             }
 
             //rb
-            for (int rb = 0; rb < teamList.get(i).teamRBs.size(); ++rb) {
-                if (teamList.get(i).teamRBs.get(rb).year == 1) {
-                    freshmanCandidates.add(teamList.get(i).teamRBs.get(rb));
-                    fRBs.add(teamList.get(i).teamRBs.get(rb));
+            for (int rb = 0; rb < teamList.get(i).getTeamRBs().size(); ++rb) {
+                if (teamList.get(i).getTeamRBs().get(rb).year == 1) {
+                    freshmanCandidates.add(teamList.get(i).getTeamRBs().get(rb));
+                    fRBs.add(teamList.get(i).getTeamRBs().get(rb));
                 }
             }
 
             //wr
-            for (int wr = 0; wr < teamList.get(i).teamWRs.size(); ++wr) {
-                if (teamList.get(i).teamWRs.get(wr).year == 1) {
-                    freshmanCandidates.add(teamList.get(i).teamWRs.get(wr));
-                    fWRs.add(teamList.get(i).teamWRs.get(wr));
+            for (int wr = 0; wr < teamList.get(i).getTeamWRs().size(); ++wr) {
+                if (teamList.get(i).getTeamWRs().get(wr).year == 1) {
+                    freshmanCandidates.add(teamList.get(i).getTeamWRs().get(wr));
+                    fWRs.add(teamList.get(i).getTeamWRs().get(wr));
                 }
             }
 
             //te
-            for (int te = 0; te < teamList.get(i).teamTEs.size(); ++te) {
-                if (teamList.get(i).teamTEs.get(te).year == 1) {
-                    freshmanCandidates.add(teamList.get(i).teamTEs.get(te));
-                    fTEs.add(teamList.get(i).teamTEs.get(te));
+            for (int te = 0; te < teamList.get(i).getTeamTEs().size(); ++te) {
+                if (teamList.get(i).getTeamTEs().get(te).year == 1) {
+                    freshmanCandidates.add(teamList.get(i).getTeamTEs().get(te));
+                    fTEs.add(teamList.get(i).getTeamTEs().get(te));
                 }
             }
 
             //ol
-            for (int ol = 0; ol < teamList.get(i).teamOLs.size(); ++ol) {
-                if (teamList.get(i).teamOLs.get(ol).year == 1) {
-                    //freshmanCandidates.add(teamList.get(i).teamOLs.get(ol));
-                    fOLs.add(teamList.get(i).teamOLs.get(ol));
+            for (int ol = 0; ol < teamList.get(i).getTeamOLs().size(); ++ol) {
+                if (teamList.get(i).getTeamOLs().get(ol).year == 1) {
+                    //freshmanCandidates.add(teamList.get(i).getTeamOLs().get(ol));
+                    fOLs.add(teamList.get(i).getTeamOLs().get(ol));
                 }
             }
 
@@ -2231,34 +2231,34 @@ public class League {
 
 
             //dl
-            for (int dl = 0; dl < teamList.get(i).teamDLs.size(); ++dl) {
-                if (teamList.get(i).teamDLs.get(dl).year == 1) {
-                    freshmanCandidates.add(teamList.get(i).teamDLs.get(dl));
-                    fDLs.add(teamList.get(i).teamDLs.get(dl));
+            for (int dl = 0; dl < teamList.get(i).getTeamDLs().size(); ++dl) {
+                if (teamList.get(i).getTeamDLs().get(dl).year == 1) {
+                    freshmanCandidates.add(teamList.get(i).getTeamDLs().get(dl));
+                    fDLs.add(teamList.get(i).getTeamDLs().get(dl));
                 }
             }
 
             //lb
-            for (int lb = 0; lb < teamList.get(i).teamLBs.size(); ++lb) {
-                if (teamList.get(i).teamLBs.get(lb).year == 1) {
-                    freshmanCandidates.add(teamList.get(i).teamLBs.get(lb));
-                    fLBs.add(teamList.get(i).teamLBs.get(lb));
+            for (int lb = 0; lb < teamList.get(i).getTeamLBs().size(); ++lb) {
+                if (teamList.get(i).getTeamLBs().get(lb).year == 1) {
+                    freshmanCandidates.add(teamList.get(i).getTeamLBs().get(lb));
+                    fLBs.add(teamList.get(i).getTeamLBs().get(lb));
                 }
             }
 
             //cb
-            for (int cb = 0; cb < teamList.get(i).teamCBs.size(); ++cb) {
-                if (teamList.get(i).teamCBs.get(cb).year == 1) {
-                    freshmanCandidates.add(teamList.get(i).teamCBs.get(cb));
-                    fCBs.add(teamList.get(i).teamCBs.get(cb));
+            for (int cb = 0; cb < teamList.get(i).getTeamCBs().size(); ++cb) {
+                if (teamList.get(i).getTeamCBs().get(cb).year == 1) {
+                    freshmanCandidates.add(teamList.get(i).getTeamCBs().get(cb));
+                    fCBs.add(teamList.get(i).getTeamCBs().get(cb));
                 }
             }
 
             //s
-            for (int s = 0; s < teamList.get(i).teamSs.size(); ++s) {
-                if (teamList.get(i).teamSs.get(s).year == 1) {
-                    freshmanCandidates.add(teamList.get(i).teamSs.get(s));
-                    fSs.add(teamList.get(i).teamSs.get(s));
+            for (int s = 0; s < teamList.get(i).getTeamSs().size(); ++s) {
+                if (teamList.get(i).getTeamSs().get(s).year == 1) {
+                    freshmanCandidates.add(teamList.get(i).getTeamSs().get(s));
+                    fSs.add(teamList.get(i).getTeamSs().get(s));
                 }
             }
         }
@@ -2465,16 +2465,16 @@ public class League {
 
             for (int t = 0; t < teamList.size(); t++) {
                 Team tm = teamList.get(t);
-                qbs.addAll(tm.teamQBs);
-                rbs.addAll(tm.teamRBs);
-                wrs.addAll(tm.teamWRs);
-                tes.addAll(tm.teamTEs);
-                ols.addAll(tm.teamOLs);
+                qbs.addAll(tm.getTeamQBs());
+                rbs.addAll(tm.getTeamRBs());
+                wrs.addAll(tm.getTeamWRs());
+                tes.addAll(tm.getTeamTEs());
+                ols.addAll(tm.getTeamOLs());
                 ks.addAll(tm.teamKs);
-                dls.addAll(tm.teamDLs);
-                lbs.addAll(tm.teamLBs);
-                cbs.addAll(tm.teamCBs);
-                ss.addAll(tm.teamSs);
+                dls.addAll(tm.getTeamDLs());
+                lbs.addAll(tm.getTeamLBs());
+                cbs.addAll(tm.getTeamCBs());
+                ss.addAll(tm.getTeamSs());
             }
 
             Collections.sort(qbs, new CompPlayerHeisman());
@@ -3793,11 +3793,11 @@ public class League {
             for (int i = 0; i < transferQBs.size(); ++i) {
                 rand = random.nextInt((max - min) + 1) + min;
                 for (int t = rand; t < teamList.size() - rand; ++t) {
-                    if (teamList.get(t).teamQBs.size() < 1 || teamList.get(t).teamQBs.get(0).ratOvr < transferQBs.get(i).ratOvr) {
+                    if (teamList.get(t).getTeamQBs().size() < 1 || teamList.get(t).getTeamQBs().get(0).ratOvr < transferQBs.get(i).ratOvr) {
                         if (Math.abs(teamList.get(t).location - transferQBs.get(i).getRegion()) < loc) {
                             int qbTransfers = 0;
-                            for (int x = 0; x < teamList.get(t).teamQBs.size(); ++x) {
-                                if (teamList.get(t).teamQBs.get(x).isTransfer) qbTransfers++;
+                            for (int x = 0; x < teamList.get(t).getTeamQBs().size(); ++x) {
+                                if (teamList.get(t).getTeamQBs().get(x).isTransfer) qbTransfers++;
                             }
                             if (qbTransfers == 0 && !teamList.get(t).userControlled) {
                                 newsStories.get(currentWeek + 1).add(teamList.get(t).name + " Transfer News>" + transferQBs.get(i).getYrStr() + " QB " + transferQBs.get(i).name + "(" + transferQBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ". He was previously enrolled at " +
@@ -3825,7 +3825,7 @@ public class League {
             for (int i = 0; i < transferRBs.size(); ++i) {
                 rand = random.nextInt((max - min) + 1) + min;
                 for (int t = rand; t < teamList.size() - rand; ++t) {
-                    if (teamList.get(t).teamRBs.size() < 2 || teamList.get(t).teamRBs.get(0).ratOvr < transferRBs.get(i).ratOvr) {
+                    if (teamList.get(t).getTeamRBs().size() < 2 || teamList.get(t).getTeamRBs().get(0).ratOvr < transferRBs.get(i).ratOvr) {
                         if (Math.abs(teamList.get(t).location - transferRBs.get(i).getRegion()) < loc) {
                             if (!teamList.get(t).userControlled) {
                                 newsStories.get(currentWeek + 1).add(teamList.get(t).name + " Transfer News>" + transferRBs.get(i).getYrStr() + " RB " + transferRBs.get(i).name + "(" + transferRBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ". He was previously enrolled at " +
@@ -3852,7 +3852,7 @@ public class League {
             for (int i = 0; i < transferWRs.size(); ++i) {
                 rand = random.nextInt((max - min) + 1) + min;
                 for (int t = rand; t < teamList.size() - rand; ++t) {
-                    if (teamList.get(t).teamWRs.size() < 3 || teamList.get(t).teamWRs.get(0).ratOvr < transferWRs.get(i).ratOvr) {
+                    if (teamList.get(t).getTeamWRs().size() < 3 || teamList.get(t).getTeamWRs().get(0).ratOvr < transferWRs.get(i).ratOvr) {
                         if (Math.abs(teamList.get(t).location - transferWRs.get(i).getRegion()) < 1) {
                             if (!teamList.get(t).userControlled) {
                                 newsStories.get(currentWeek + 1).add(teamList.get(t).name + " Transfer News>" + transferWRs.get(i).getYrStr() + " WR " + transferWRs.get(i).name + "(" + transferWRs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ". He was previously enrolled at " +
@@ -3879,7 +3879,7 @@ public class League {
             for (int i = 0; i < transferTEs.size(); ++i) {
                 rand = random.nextInt((max - min) + 1) + min;
                 for (int t = rand; t < teamList.size() - rand; ++t) {
-                    if (teamList.get(t).teamTEs.size() < 1 || teamList.get(t).teamTEs.get(0).ratOvr < transferTEs.get(i).ratOvr) {
+                    if (teamList.get(t).getTeamTEs().size() < 1 || teamList.get(t).getTeamTEs().get(0).ratOvr < transferTEs.get(i).ratOvr) {
                         if (Math.abs(teamList.get(t).location - transferTEs.get(i).getRegion()) < loc) {
                             if (!teamList.get(t).userControlled) {
                                 newsStories.get(currentWeek + 1).add(teamList.get(t).name + " Transfer News>" + transferTEs.get(i).getYrStr() + " TE " + transferTEs.get(i).name + "(" + transferTEs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ". He was previously enrolled at " +
@@ -3906,7 +3906,7 @@ public class League {
             for (int i = 0; i < transferOLs.size(); ++i) {
                 rand = random.nextInt((max - min) + 1) + min;
                 for (int t = rand; t < teamList.size() - rand; ++t) {
-                    if (teamList.get(t).teamOLs.size() < 5 || teamList.get(t).teamOLs.get(0).ratOvr < transferOLs.get(i).ratOvr && Math.abs(teamList.get(t).location - transferOLs.get(i).getRegion()) < loc) {
+                    if (teamList.get(t).getTeamOLs().size() < 5 || teamList.get(t).getTeamOLs().get(0).ratOvr < transferOLs.get(i).ratOvr && Math.abs(teamList.get(t).location - transferOLs.get(i).getRegion()) < loc) {
                         if (!teamList.get(t).userControlled) {
                             newsStories.get(currentWeek + 1).add(teamList.get(t).name + " Transfer News>" + transferOLs.get(i).getYrStr() + " OL " + transferOLs.get(i).name + "(" + transferOLs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ". He was previously enrolled at " +
                                     transferOLs.get(i).team.abbr + " .");
@@ -3958,7 +3958,7 @@ public class League {
             for (int i = 0; i < transferDLs.size(); ++i) {
                 rand = random.nextInt((max - min) + 1) + min;
                 for (int t = rand; t < teamList.size() - rand; ++t) {
-                    if (teamList.get(t).teamDLs.size() < 4 || teamList.get(t).teamDLs.get(0).ratOvr < transferDLs.get(i).ratOvr) {
+                    if (teamList.get(t).getTeamDLs().size() < 4 || teamList.get(t).getTeamDLs().get(0).ratOvr < transferDLs.get(i).ratOvr) {
                         if (Math.abs(teamList.get(t).location - transferDLs.get(i).getRegion()) < loc) {
                             if (!teamList.get(t).userControlled) {
                                 newsStories.get(currentWeek + 1).add(teamList.get(t).name + " Transfer News>" + transferDLs.get(i).getYrStr() + " DL " + transferDLs.get(i).name + "(" + transferDLs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ". He was previously enrolled at " +
@@ -3985,7 +3985,7 @@ public class League {
             for (int i = 0; i < transferLBs.size(); ++i) {
                 rand = random.nextInt((max - min) + 1) + min;
                 for (int t = rand; t < teamList.size() - rand; ++t) {
-                    if (teamList.get(t).teamLBs.size() < 3 || teamList.get(t).teamLBs.get(0).ratOvr < transferLBs.get(i).ratOvr) {
+                    if (teamList.get(t).getTeamLBs().size() < 3 || teamList.get(t).getTeamLBs().get(0).ratOvr < transferLBs.get(i).ratOvr) {
                         if (Math.abs(teamList.get(t).location - transferLBs.get(i).getRegion()) < loc) {
                             if (!teamList.get(t).userControlled) {
                                 newsStories.get(currentWeek + 1).add(teamList.get(t).name + " Transfer News>" + transferLBs.get(i).getYrStr() + " LB " + transferLBs.get(i).name + "(" + transferLBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ". He was previously enrolled at " +
@@ -4012,7 +4012,7 @@ public class League {
             for (int i = 0; i < transferCBs.size(); ++i) {
                 rand = random.nextInt((max - min) + 1) + min;
                 for (int t = rand; t < teamList.size() - rand; ++t) {
-                    if (teamList.get(t).teamCBs.size() < 3 || teamList.get(t).teamCBs.get(0).ratOvr < transferCBs.get(i).ratOvr) {
+                    if (teamList.get(t).getTeamCBs().size() < 3 || teamList.get(t).getTeamCBs().get(0).ratOvr < transferCBs.get(i).ratOvr) {
                         if (Math.abs(teamList.get(t).location - transferCBs.get(i).getRegion()) < loc) {
                             if (!teamList.get(t).userControlled) {
                                 newsStories.get(currentWeek + 1).add(teamList.get(t).name + " Transfer News>" + transferCBs.get(i).getYrStr() + " CB " + transferCBs.get(i).name + "(" + transferCBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ". He was previously enrolled at " +
@@ -4039,7 +4039,7 @@ public class League {
             for (int i = 0; i < transferSs.size(); ++i) {
                 rand = random.nextInt((max - min) + 1) + min;
                 for (int t = rand; t < teamList.size() - rand; ++t) {
-                    if (teamList.get(t).teamSs.size() < 1 || teamList.get(t).teamSs.get(0).ratOvr < transferSs.get(i).ratOvr) {
+                    if (teamList.get(t).getTeamSs().size() < 1 || teamList.get(t).getTeamSs().get(0).ratOvr < transferSs.get(i).ratOvr) {
                         if (Math.abs(teamList.get(t).location - transferSs.get(i).getRegion()) < loc) {
                             if (!teamList.get(t).userControlled) {
                                 newsStories.get(currentWeek + 1).add(teamList.get(t).name + " Transfer News>" + transferSs.get(i).getYrStr() + " S " + transferSs.get(i).name + "(" + transferSs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).name + ". He was previously enrolled at " +
@@ -4754,7 +4754,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         }
         for (int i = 1; i < confSize; ++i) {
             for (int t = 0; t < conferences.get(i).confTeams.size(); t++) {
-                if (conferences.get(i).confTeams.get(t).gameSchedule.size() > 12 && conferences.get(i).confTeams.get(t).gameSchedule.get(12).gameName.contains("CCG"))
+                if (conferences.get(i).confTeams.get(t).getGameSchedule().size() > 12 && conferences.get(i).confTeams.get(t).getGameSchedule().get(12).gameName.contains("CCG"))
                     promotedTeams.add(conferences.get(i).confTeams.get(t));
             }
         }
@@ -5590,8 +5590,8 @@ Then conferences can see if they want to add them to their list if the teams mee
         heisman = null;
         ArrayList<PlayerQB> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int qb = 0; qb < teamList.get(i).teamQBs.size(); ++qb) {
-                heismanCandidates.add(teamList.get(i).teamQBs.get(qb));
+            for (int qb = 0; qb < teamList.get(i).getTeamQBs().size(); ++qb) {
+                heismanCandidates.add(teamList.get(i).getTeamQBs().get(qb));
             }
         }
         Collections.sort(heismanCandidates, new CompPlayerHeisman());
@@ -5602,8 +5602,8 @@ Then conferences can see if they want to add them to their list if the teams mee
         heisman = null;
         ArrayList<PlayerRB> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int rb = 0; rb < teamList.get(i).teamRBs.size(); ++rb) {
-                heismanCandidates.add(teamList.get(i).teamRBs.get(rb));
+            for (int rb = 0; rb < teamList.get(i).getTeamRBs().size(); ++rb) {
+                heismanCandidates.add(teamList.get(i).getTeamRBs().get(rb));
             }
         }
         Collections.sort(heismanCandidates, new CompPlayerHeisman());
@@ -5614,8 +5614,8 @@ Then conferences can see if they want to add them to their list if the teams mee
         heisman = null;
         ArrayList<PlayerWR> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int wr = 0; wr < teamList.get(i).teamWRs.size(); ++wr) {
-                heismanCandidates.add(teamList.get(i).teamWRs.get(wr));
+            for (int wr = 0; wr < teamList.get(i).getTeamWRs().size(); ++wr) {
+                heismanCandidates.add(teamList.get(i).getTeamWRs().get(wr));
             }
         }
         Collections.sort(heismanCandidates, new CompPlayerHeisman());
@@ -5626,8 +5626,8 @@ Then conferences can see if they want to add them to their list if the teams mee
         heisman = null;
         ArrayList<PlayerTE> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int te = 0; te < teamList.get(i).teamTEs.size(); ++te) {
-                heismanCandidates.add(teamList.get(i).teamTEs.get(te));
+            for (int te = 0; te < teamList.get(i).getTeamTEs().size(); ++te) {
+                heismanCandidates.add(teamList.get(i).getTeamTEs().get(te));
             }
         }
         Collections.sort(heismanCandidates, new CompPlayerHeisman());
@@ -5638,8 +5638,8 @@ Then conferences can see if they want to add them to their list if the teams mee
         heisman = null;
         ArrayList<PlayerOL> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int te = 0; te < teamList.get(i).teamOLs.size(); ++te) {
-                heismanCandidates.add(teamList.get(i).teamOLs.get(te));
+            for (int te = 0; te < teamList.get(i).getTeamOLs().size(); ++te) {
+                heismanCandidates.add(teamList.get(i).getTeamOLs().get(te));
             }
         }
         Collections.sort(heismanCandidates, new CompPlayerHeisman());
@@ -5662,8 +5662,8 @@ Then conferences can see if they want to add them to their list if the teams mee
         heisman = null;
         ArrayList<PlayerDL> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int dl = 0; dl < teamList.get(i).teamDLs.size(); ++dl) {
-                heismanCandidates.add(teamList.get(i).teamDLs.get(dl));
+            for (int dl = 0; dl < teamList.get(i).getTeamDLs().size(); ++dl) {
+                heismanCandidates.add(teamList.get(i).getTeamDLs().get(dl));
             }
         }
         Collections.sort(heismanCandidates, new CompPlayerHeisman());
@@ -5674,8 +5674,8 @@ Then conferences can see if they want to add them to their list if the teams mee
         heisman = null;
         ArrayList<PlayerLB> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int lb = 0; lb < teamList.get(i).teamLBs.size(); ++lb) {
-                heismanCandidates.add(teamList.get(i).teamLBs.get(lb));
+            for (int lb = 0; lb < teamList.get(i).getTeamLBs().size(); ++lb) {
+                heismanCandidates.add(teamList.get(i).getTeamLBs().get(lb));
             }
         }
         Collections.sort(heismanCandidates, new CompPlayerHeisman());
@@ -5686,8 +5686,8 @@ Then conferences can see if they want to add them to their list if the teams mee
         heisman = null;
         ArrayList<PlayerCB> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int cb = 0; cb < teamList.get(i).teamCBs.size(); ++cb) {
-                heismanCandidates.add(teamList.get(i).teamCBs.get(cb));
+            for (int cb = 0; cb < teamList.get(i).getTeamCBs().size(); ++cb) {
+                heismanCandidates.add(teamList.get(i).getTeamCBs().get(cb));
             }
         }
         Collections.sort(heismanCandidates, new CompPlayerHeisman());
@@ -5698,8 +5698,8 @@ Then conferences can see if they want to add them to their list if the teams mee
         heisman = null;
         ArrayList<PlayerS> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int s = 0; s < teamList.get(i).teamSs.size(); ++s) {
-                heismanCandidates.add(teamList.get(i).teamSs.get(s));
+            for (int s = 0; s < teamList.get(i).getTeamSs().size(); ++s) {
+                heismanCandidates.add(teamList.get(i).getTeamSs().get(s));
             }
         }
         Collections.sort(heismanCandidates, new CompPlayerHeisman());
@@ -5725,35 +5725,35 @@ Then conferences can see if they want to add them to their list if the teams mee
         int rankNum = 0;
         ArrayList<PlayerQB> pQB = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int p = 0; p < teamList.get(i).teamQBs.size(); ++p) {
-                if (teamList.get(i).teamQBs.get(p).getPassAtt() >= (10 * currentWeek)) {
+            for (int p = 0; p < teamList.get(i).getTeamQBs().size(); ++p) {
+                if (teamList.get(i).getTeamQBs().get(p).getPassAtt() >= (10 * currentWeek)) {
                     rankNum++;
-                    pQB.add(teamList.get(i).teamQBs.get(p));
+                    pQB.add(teamList.get(i).getTeamQBs().get(p));
                 }
             }
         }
         ArrayList<PlayerRB> pRB = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int p = 0; p < teamList.get(i).teamRBs.size(); ++p) {
-                pRB.add(teamList.get(i).teamRBs.get(p));
+            for (int p = 0; p < teamList.get(i).getTeamRBs().size(); ++p) {
+                pRB.add(teamList.get(i).getTeamRBs().get(p));
             }
         }
         ArrayList<PlayerWR> pWR = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int p = 0; p < teamList.get(i).teamWRs.size(); ++p) {
-                pWR.add(teamList.get(i).teamWRs.get(p));
+            for (int p = 0; p < teamList.get(i).getTeamWRs().size(); ++p) {
+                pWR.add(teamList.get(i).getTeamWRs().get(p));
             }
         }
         ArrayList<PlayerTE> pTE = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int p = 0; p < teamList.get(i).teamTEs.size(); ++p) {
-                pTE.add(teamList.get(i).teamTEs.get(p));
+            for (int p = 0; p < teamList.get(i).getTeamTEs().size(); ++p) {
+                pTE.add(teamList.get(i).getTeamTEs().get(p));
             }
         }
         ArrayList<PlayerOL> pOL = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int p = 0; p < teamList.get(i).teamOLs.size(); ++p) {
-                pOL.add(teamList.get(i).teamOLs.get(p));
+            for (int p = 0; p < teamList.get(i).getTeamOLs().size(); ++p) {
+                pOL.add(teamList.get(i).getTeamOLs().get(p));
             }
         }
         ArrayList<PlayerK> pK = new ArrayList<>();
@@ -5764,26 +5764,26 @@ Then conferences can see if they want to add them to their list if the teams mee
         }
         ArrayList<PlayerDL> pDL = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int p = 0; p < teamList.get(i).teamDLs.size(); ++p) {
-                pDL.add(teamList.get(i).teamDLs.get(p));
+            for (int p = 0; p < teamList.get(i).getTeamDLs().size(); ++p) {
+                pDL.add(teamList.get(i).getTeamDLs().get(p));
             }
         }
         ArrayList<PlayerLB> pLB = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int p = 0; p < teamList.get(i).teamLBs.size(); ++p) {
-                pLB.add(teamList.get(i).teamLBs.get(p));
+            for (int p = 0; p < teamList.get(i).getTeamLBs().size(); ++p) {
+                pLB.add(teamList.get(i).getTeamLBs().get(p));
             }
         }
         ArrayList<PlayerCB> pCB = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int p = 0; p < teamList.get(i).teamCBs.size(); ++p) {
-                pCB.add(teamList.get(i).teamCBs.get(p));
+            for (int p = 0; p < teamList.get(i).getTeamCBs().size(); ++p) {
+                pCB.add(teamList.get(i).getTeamCBs().get(p));
             }
         }
         ArrayList<PlayerS> pS = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int p = 0; p < teamList.get(i).teamSs.size(); ++p) {
-                pS.add(teamList.get(i).teamSs.get(p));
+            for (int p = 0; p < teamList.get(i).getTeamSs().size(); ++p) {
+                pS.add(teamList.get(i).getTeamSs().get(p));
             }
         }
         ArrayList<HeadCoach> HC = new ArrayList<>();
@@ -5793,144 +5793,144 @@ Then conferences can see if they want to add them to their list if the teams mee
 
         ArrayList<PlayerOffense> off = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int p = 0; p < teamList.get(i).teamQBs.size(); ++p) {
+            for (int p = 0; p < teamList.get(i).getTeamQBs().size(); ++p) {
                 off.add(new PlayerOffense(teamList.get(i),
-                        teamList.get(i).teamQBs.get(p).name,
+                        teamList.get(i).getTeamQBs().get(p).name,
                         "QB",
-                        teamList.get(i).teamQBs.get(p).year,
-                        teamList.get(i).teamQBs.get(p).getRushYards(),
-                        teamList.get(i).teamQBs.get(p).getRushTDs(),
+                        teamList.get(i).getTeamQBs().get(p).year,
+                        teamList.get(i).getTeamQBs().get(p).getRushYards(),
+                        teamList.get(i).getTeamQBs().get(p).getRushTDs(),
                         0, 0, 0,
-                        teamList.get(i).teamQBs.get(p).getFumbles()));
+                        teamList.get(i).getTeamQBs().get(p).getFumbles()));
             }
         }
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int p = 0; p < teamList.get(i).teamRBs.size(); ++p) {
+            for (int p = 0; p < teamList.get(i).getTeamRBs().size(); ++p) {
                 off.add(new PlayerOffense(teamList.get(i),
-                        teamList.get(i).teamRBs.get(p).name,
+                        teamList.get(i).getTeamRBs().get(p).name,
                         "RB",
-                        teamList.get(i).teamRBs.get(p).year,
-                        teamList.get(i).teamRBs.get(p).getRushYards(),
-                        teamList.get(i).teamRBs.get(p).getRushTDs(),
-                        teamList.get(i).teamRBs.get(p).getReceptions(),
-                        teamList.get(i).teamRBs.get(p).getRecYards(),
-                        teamList.get(i).teamRBs.get(p).getRecTDs(),
-                        teamList.get(i).teamRBs.get(p).getFumbles()));
+                        teamList.get(i).getTeamRBs().get(p).year,
+                        teamList.get(i).getTeamRBs().get(p).getRushYards(),
+                        teamList.get(i).getTeamRBs().get(p).getRushTDs(),
+                        teamList.get(i).getTeamRBs().get(p).getReceptions(),
+                        teamList.get(i).getTeamRBs().get(p).getRecYards(),
+                        teamList.get(i).getTeamRBs().get(p).getRecTDs(),
+                        teamList.get(i).getTeamRBs().get(p).getFumbles()));
             }
         }
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int p = 0; p < teamList.get(i).teamWRs.size(); ++p) {
+            for (int p = 0; p < teamList.get(i).getTeamWRs().size(); ++p) {
                 off.add(new PlayerOffense(teamList.get(i),
-                        teamList.get(i).teamWRs.get(p).name,
+                        teamList.get(i).getTeamWRs().get(p).name,
                         "WR",
-                        teamList.get(i).teamWRs.get(p).year,
+                        teamList.get(i).getTeamWRs().get(p).year,
                         0, 0,
-                        teamList.get(i).teamWRs.get(p).getReceptions(),
-                        teamList.get(i).teamWRs.get(p).getRecYards(),
-                        teamList.get(i).teamWRs.get(p).getRecTDs(),
-                        teamList.get(i).teamWRs.get(p).getFumbles()));
+                        teamList.get(i).getTeamWRs().get(p).getReceptions(),
+                        teamList.get(i).getTeamWRs().get(p).getRecYards(),
+                        teamList.get(i).getTeamWRs().get(p).getRecTDs(),
+                        teamList.get(i).getTeamWRs().get(p).getFumbles()));
             }
         }
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int p = 0; p < teamList.get(i).teamTEs.size(); ++p) {
+            for (int p = 0; p < teamList.get(i).getTeamTEs().size(); ++p) {
                 off.add(new PlayerOffense(teamList.get(i),
-                        teamList.get(i).teamTEs.get(p).name,
+                        teamList.get(i).getTeamTEs().get(p).name,
                         "TE",
-                        teamList.get(i).teamTEs.get(p).year,
+                        teamList.get(i).getTeamTEs().get(p).year,
                         0, 0,
-                        teamList.get(i).teamTEs.get(p).getReceptions(),
-                        teamList.get(i).teamTEs.get(p).getRecYards(),
-                        teamList.get(i).teamTEs.get(p).getRecTDs(),
-                        teamList.get(i).teamTEs.get(p).getFumbles()));
+                        teamList.get(i).getTeamTEs().get(p).getReceptions(),
+                        teamList.get(i).getTeamTEs().get(p).getRecYards(),
+                        teamList.get(i).getTeamTEs().get(p).getRecTDs(),
+                        teamList.get(i).getTeamTEs().get(p).getFumbles()));
             }
         }
 
         ArrayList<PlayerDefense> def = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int p = 0; p < teamList.get(i).teamDLs.size(); ++p) {
+            for (int p = 0; p < teamList.get(i).getTeamDLs().size(); ++p) {
                 def.add(new PlayerDefense(teamList.get(i),
-                        teamList.get(i).teamDLs.get(p).name,
+                        teamList.get(i).getTeamDLs().get(p).name,
                         "DL",
-                        teamList.get(i).teamDLs.get(p).year,
-                        teamList.get(i).teamDLs.get(p).getTackles(),
-                        teamList.get(i).teamDLs.get(p).getSacks(),
-                        teamList.get(i).teamDLs.get(p).getFumblesRec(),
-                        teamList.get(i).teamDLs.get(p).getInterceptions()));
+                        teamList.get(i).getTeamDLs().get(p).year,
+                        teamList.get(i).getTeamDLs().get(p).getTackles(),
+                        teamList.get(i).getTeamDLs().get(p).getSacks(),
+                        teamList.get(i).getTeamDLs().get(p).getFumblesRec(),
+                        teamList.get(i).getTeamDLs().get(p).getInterceptions()));
             }
-            for (int p = 0; p < teamList.get(i).teamLBs.size(); ++p) {
+            for (int p = 0; p < teamList.get(i).getTeamLBs().size(); ++p) {
                 def.add(new PlayerDefense(teamList.get(i),
-                        teamList.get(i).teamLBs.get(p).name,
+                        teamList.get(i).getTeamLBs().get(p).name,
                         "LB",
-                        teamList.get(i).teamLBs.get(p).year,
-                        teamList.get(i).teamLBs.get(p).getTackles(),
-                        teamList.get(i).teamLBs.get(p).getSacks(),
-                        teamList.get(i).teamLBs.get(p).getFumblesRec(),
-                        teamList.get(i).teamLBs.get(p).getInterceptions()));
+                        teamList.get(i).getTeamLBs().get(p).year,
+                        teamList.get(i).getTeamLBs().get(p).getTackles(),
+                        teamList.get(i).getTeamLBs().get(p).getSacks(),
+                        teamList.get(i).getTeamLBs().get(p).getFumblesRec(),
+                        teamList.get(i).getTeamLBs().get(p).getInterceptions()));
             }
-            for (int p = 0; p < teamList.get(i).teamCBs.size(); ++p) {
+            for (int p = 0; p < teamList.get(i).getTeamCBs().size(); ++p) {
                 def.add(new PlayerDefense(teamList.get(i),
-                        teamList.get(i).teamCBs.get(p).name,
+                        teamList.get(i).getTeamCBs().get(p).name,
                         "CB",
-                        teamList.get(i).teamCBs.get(p).year,
-                        teamList.get(i).teamCBs.get(p).getTackles(),
-                        teamList.get(i).teamCBs.get(p).getSacks(),
-                        teamList.get(i).teamCBs.get(p).getFumblesRec(),
-                        teamList.get(i).teamCBs.get(p).getInterceptions()));
+                        teamList.get(i).getTeamCBs().get(p).year,
+                        teamList.get(i).getTeamCBs().get(p).getTackles(),
+                        teamList.get(i).getTeamCBs().get(p).getSacks(),
+                        teamList.get(i).getTeamCBs().get(p).getFumblesRec(),
+                        teamList.get(i).getTeamCBs().get(p).getInterceptions()));
             }
-            for (int p = 0; p < teamList.get(i).teamSs.size(); ++p) {
+            for (int p = 0; p < teamList.get(i).getTeamSs().size(); ++p) {
                 def.add(new PlayerDefense(teamList.get(i),
-                        teamList.get(i).teamSs.get(p).name,
+                        teamList.get(i).getTeamSs().get(p).name,
                         "S",
-                        teamList.get(i).teamSs.get(p).year,
-                        teamList.get(i).teamSs.get(p).getTackles(),
-                        teamList.get(i).teamSs.get(p).getSacks(),
-                        teamList.get(i).teamSs.get(p).getFumblesRec(),
-                        teamList.get(i).teamSs.get(p).getInterceptions()));
+                        teamList.get(i).getTeamSs().get(p).year,
+                        teamList.get(i).getTeamSs().get(p).getTackles(),
+                        teamList.get(i).getTeamSs().get(p).getSacks(),
+                        teamList.get(i).getTeamSs().get(p).getFumblesRec(),
+                        teamList.get(i).getTeamSs().get(p).getInterceptions()));
             }
         }
 
         ArrayList<PlayerReturner> returner = new ArrayList<>();
         int retNum = 0;
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int p = 0; p < teamList.get(i).teamRBs.size(); ++p) {
-                if (teamList.get(i).teamRBs.get(p).getKORets() > 0 || teamList.get(i).teamRBs.get(p).getPuntRets() > 0) {
+            for (int p = 0; p < teamList.get(i).getTeamRBs().size(); ++p) {
+                if (teamList.get(i).getTeamRBs().get(p).getKORets() > 0 || teamList.get(i).getTeamRBs().get(p).getPuntRets() > 0) {
                     returner.add(new PlayerReturner(teamList.get(i).abbr,
-                            teamList.get(i).teamRBs.get(p).name,
+                            teamList.get(i).getTeamRBs().get(p).name,
                             "RB",
-                            teamList.get(i).teamRBs.get(p).getKORets(),
-                            teamList.get(i).teamRBs.get(p).getKOYards(),
-                            teamList.get(i).teamRBs.get(p).getKOTDs(),
-                            teamList.get(i).teamRBs.get(p).getPuntRets(),
-                            teamList.get(i).teamRBs.get(p).getPuntYards(),
-                            teamList.get(i).teamRBs.get(p).getPuntTDs()));
+                            teamList.get(i).getTeamRBs().get(p).getKORets(),
+                            teamList.get(i).getTeamRBs().get(p).getKOYards(),
+                            teamList.get(i).getTeamRBs().get(p).getKOTDs(),
+                            teamList.get(i).getTeamRBs().get(p).getPuntRets(),
+                            teamList.get(i).getTeamRBs().get(p).getPuntYards(),
+                            teamList.get(i).getTeamRBs().get(p).getPuntTDs()));
                     retNum++;
                 }
             }
-            for (int p = 0; p < teamList.get(i).teamWRs.size(); ++p) {
-                if (teamList.get(i).teamWRs.get(p).getKORets() > 0 || teamList.get(i).teamWRs.get(p).getPuntRets() > 0) {
+            for (int p = 0; p < teamList.get(i).getTeamWRs().size(); ++p) {
+                if (teamList.get(i).getTeamWRs().get(p).getKORets() > 0 || teamList.get(i).getTeamWRs().get(p).getPuntRets() > 0) {
                     returner.add(new PlayerReturner(teamList.get(i).abbr,
-                            teamList.get(i).teamWRs.get(p).name,
+                            teamList.get(i).getTeamWRs().get(p).name,
                             "WR",
-                            teamList.get(i).teamWRs.get(p).getKORets(),
-                            teamList.get(i).teamWRs.get(p).getKOYards(),
-                            teamList.get(i).teamWRs.get(p).getKOTDs(),
-                            teamList.get(i).teamWRs.get(p).getPuntRets(),
-                            teamList.get(i).teamWRs.get(p).getPuntYards(),
-                            teamList.get(i).teamWRs.get(p).getPuntTDs()));
+                            teamList.get(i).getTeamWRs().get(p).getKORets(),
+                            teamList.get(i).getTeamWRs().get(p).getKOYards(),
+                            teamList.get(i).getTeamWRs().get(p).getKOTDs(),
+                            teamList.get(i).getTeamWRs().get(p).getPuntRets(),
+                            teamList.get(i).getTeamWRs().get(p).getPuntYards(),
+                            teamList.get(i).getTeamWRs().get(p).getPuntTDs()));
                     retNum++;
                 }
             }
-            for (int p = 0; p < teamList.get(i).teamCBs.size(); ++p) {
-                if (teamList.get(i).teamCBs.get(p).getKORets() > 0 || teamList.get(i).teamCBs.get(p).getPuntRets() > 0) {
+            for (int p = 0; p < teamList.get(i).getTeamCBs().size(); ++p) {
+                if (teamList.get(i).getTeamCBs().get(p).getKORets() > 0 || teamList.get(i).getTeamCBs().get(p).getPuntRets() > 0) {
                     returner.add(new PlayerReturner(teamList.get(i).abbr,
-                            teamList.get(i).teamCBs.get(p).name,
+                            teamList.get(i).getTeamCBs().get(p).name,
                             "CB",
-                            teamList.get(i).teamCBs.get(p).getKORets(),
-                            teamList.get(i).teamCBs.get(p).getKOYards(),
-                            teamList.get(i).teamCBs.get(p).getKOTDs(),
-                            teamList.get(i).teamCBs.get(p).getPuntRets(),
-                            teamList.get(i).teamCBs.get(p).getPuntYards(),
-                            teamList.get(i).teamCBs.get(p).getPuntTDs()));
+                            teamList.get(i).getTeamCBs().get(p).getKORets(),
+                            teamList.get(i).getTeamCBs().get(p).getKOYards(),
+                            teamList.get(i).getTeamCBs().get(p).getKOTDs(),
+                            teamList.get(i).getTeamCBs().get(p).getPuntRets(),
+                            teamList.get(i).getTeamCBs().get(p).getPuntYards(),
+                            teamList.get(i).getTeamCBs().get(p).getPuntTDs()));
                     retNum++;
                 }
             }
