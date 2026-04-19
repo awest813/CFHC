@@ -21,9 +21,9 @@ public class DC extends Staff {
         history = new ArrayList<>();
         baselinePrestige = 0;
 
-        if (team != null && team.HC != null  ) {
-            offStrat = team.HC.offStrat;
-            defStrat = team.HC.defStrat;
+        if (team != null && team.getHeadCoach() != null  ) {
+            offStrat = team.getHeadCoach().offStrat;
+            defStrat = team.getHeadCoach().defStrat;
         }
     }
 
@@ -133,7 +133,7 @@ public class DC extends Staff {
         if (ratDiscipline < 15) ratDiscipline = 15;
 
 
-        if (age > 60 && !team.userControlled) {
+        if (age > 60 && !team.isUserControlled()) {
             ratOff -= (int) (Math.random() * (age / 10));
             ratDef -= (int) (Math.random() * (age / 10));
             ratTalent -= (int)(Math.random() * (age / 10));

@@ -7,14 +7,14 @@ import simulation.Team;
 public class CompTeamProjPoll implements Comparator<Team> {
     @Override
     public int compare(Team a, Team b) {
-        if (a.projectedPollScore > b.projectedPollScore) {
+        if (a.getProjectedPollScore() > b.getProjectedPollScore()) {
             return -1;
 
-        } else if (b.projectedPollScore == a.projectedPollScore) {
+        } else if (b.getProjectedPollScore() == a.getProjectedPollScore()) {
             //check for  tiebreaker
-            if (a.teamOffTalent + a.teamDefTalent > b.teamOffTalent + b.teamDefTalent) {
+            if (a.getTeamOffTalent() + a.getTeamDefTalent() > b.getTeamOffTalent() + b.getTeamDefTalent()) {
                 return -1;
-            } else if (a.teamOffTalent + a.teamDefTalent < b.teamOffTalent + b.teamDefTalent) {
+            } else if (a.getTeamOffTalent() + a.getTeamDefTalent() < b.getTeamOffTalent() + b.getTeamDefTalent()) {
                 return 1;
             } else return 0;
 

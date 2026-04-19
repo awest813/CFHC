@@ -1269,7 +1269,7 @@ public class League {
                         if (!conferences.get(c).oocWeeks.contains(week)) {
                             conferences.get(c).oocWeeks.add(week);
                             for (int t = 0; t < conferences.get(c).confTeams.size(); t++) {
-                                conferences.get(c).confTeams.get(t).getOocWeeks().add(week);
+                                conferences.get(c).confTeams.get(t).addOocWeek(week);
                             }
                             scheduled = true;
                         } else {
@@ -1279,7 +1279,7 @@ public class League {
                     j++;
                 } else if (conferences.get(c).confTeams.size() < conferences.get(c).minConfTeams && r < conferences.get(c).oocGames) {
                     for (int t = 0; t < conferences.get(c).confTeams.size(); t++) {
-                        conferences.get(c).confTeams.get(t).getOocWeeks().add(r);
+                        conferences.get(c).confTeams.get(t).addOocWeek(r);
                     }
                 }
             }

@@ -29,7 +29,7 @@ final class GameDialogController {
         final String[] gameStr = g.getGameSummaryStr();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle(g.awayTeam.name + " @ " + g.homeTeam.name + ": " + g.gameName)
+        builder.setTitle(g.awayTeam.getName() + " @ " + g.homeTeam.getName() + ": " + g.gameName)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -65,13 +65,13 @@ final class GameDialogController {
         final TextView homeOT = dialog.findViewById(R.id.homeOT);
         final TextView scoreOT = dialog.findViewById(R.id.scoreOT);
 
-        awayTeam.setText(g.awayTeam.abbr);
+        awayTeam.setText(g.awayTeam.getAbbr());
         awayQT1.setText(Integer.toString(g.awayQScore[0]));
         awayQT2.setText(Integer.toString(g.awayQScore[1]));
         awayQT3.setText(Integer.toString(g.awayQScore[2]));
         awayQT4.setText(Integer.toString(g.awayQScore[3]));
 
-        homeTeam.setText(g.homeTeam.abbr);
+        homeTeam.setText(g.homeTeam.getAbbr());
         homeQT1.setText(Integer.toString(g.homeQScore[0]));
         homeQT2.setText(Integer.toString(g.homeQScore[1]));
         homeQT3.setText(Integer.toString(g.homeQScore[2]));
@@ -175,7 +175,7 @@ final class GameDialogController {
         final String[] gameStr = g.getGameScoutStr();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle(g.awayTeam.name + " @ " + g.homeTeam.name + ": " + g.gameName)
+        builder.setTitle(g.awayTeam.getName() + " @ " + g.homeTeam.getName() + ": " + g.gameName)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -193,8 +193,8 @@ final class GameDialogController {
         ((TextView)dialog.findViewById(R.id.gameScoutDialogBottom)).setText(gameStr[3]);
 
         if (g.awayTeam == userTeam || g.homeTeam == userTeam) {
-            ((TextView)dialog.findViewById(R.id.textScoutOffenseStrategy)).setText(userTeam.abbr + " Off Strategy:");
-            ((TextView)dialog.findViewById(R.id.textScoutDefenseStrategy)).setText(userTeam.abbr + " Def Strategy:");
+            ((TextView)dialog.findViewById(R.id.textScoutOffenseStrategy)).setText(userTeam.getAbbr() + " Off Strategy:");
+            ((TextView)dialog.findViewById(R.id.textScoutDefenseStrategy)).setText(userTeam.getAbbr() + " Def Strategy:");
 
             final PlaybookOffense[] tsOff = userTeam.getPlaybookOff();
             final PlaybookDefense[] tsDef = userTeam.getPlaybookDef();

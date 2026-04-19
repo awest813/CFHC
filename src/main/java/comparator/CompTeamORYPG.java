@@ -11,6 +11,6 @@ import simulation.Team;
 public class CompTeamORYPG implements Comparator<Team> {
     @Override
     public int compare(Team a, Team b) {
-        return (float) a.teamOppRushYards / a.numGames() < (float) b.teamOppRushYards / b.numGames() ? -1 : (float) a.teamOppRushYards / a.numGames() == (float) b.teamOppRushYards / b.numGames() ? 0 : 1;
+        return (float) a.getTeamOppRushYards() / a.numGames() < (float) b.getTeamOppRushYards() / b.numGames() ? -1 : (float) a.getTeamOppRushYards() / a.numGames() == (float) b.getTeamOppRushYards() / b.numGames() ? 0 : 1;
     }
 }

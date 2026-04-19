@@ -7,6 +7,6 @@ import simulation.Team;
 public class CompTeamFacilities implements Comparator<Team> {
     @Override
     public int compare(Team a, Team b) {
-        return a.teamFacilities > b.teamFacilities ? -1 : a.teamFacilities == b.teamFacilities ? 0 : 1;
+        return a.getTeamFacilities() > b.getTeamFacilities() ? -1 : a.getTeamFacilities() == b.getTeamFacilities() ? 0 : 1;
     }
 }

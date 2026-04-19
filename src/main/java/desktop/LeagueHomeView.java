@@ -505,7 +505,7 @@ public class LeagueHomeView extends JFrame {
                                                           boolean isSelected, boolean cellHasFocus) {
                 LeagueRecord.TeamRecord t = (LeagueRecord.TeamRecord) value;
                 Team live = findLiveTeam(t.name());
-                String record = live != null ? " (" + live.wins + "-" + live.losses + ")" : "";
+                String record = live != null ? " (" + live.getWins() + "-" + live.getLosses() + ")" : "";
                 String label2 = t.name() + record + "  \u2014  prestige " + t.prestige();
                 return super.getListCellRendererComponent(jlist, label2, index, isSelected, cellHasFocus);
             }
@@ -527,7 +527,7 @@ public class LeagueHomeView extends JFrame {
     private Team findLiveTeam(String teamName) {
         for (Conference c : leagueCore.getConferences()) {
             for (Team t : c.confTeams) {
-                if (t.name.equals(teamName)) {
+                if (t.getName().equals(teamName)) {
                     return t;
                 }
             }

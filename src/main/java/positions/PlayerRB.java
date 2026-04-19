@@ -48,7 +48,7 @@ public class PlayerRB extends Player {
 
         recruitRating = getScoutingGrade();
 
-        recruitTolerance = (int) ((60 - team.teamPrestige) / rbImportance);
+        recruitTolerance = (int) ((60 - team.getTeamPrestige()) / rbImportance);
         cost = getInitialCost();
         cost = (int) (cost / rbImportance);
 
@@ -148,10 +148,10 @@ public class PlayerRB extends Player {
     
     @Override
     public String getAwardDescription() {
-        return team.name + " RB " + name + " [" + getYrStr() + "], who had " +
+        return team.getName() + " RB " + name + " [" + getYrStr() + "], who had " +
                 getRushTDs() + " TDs, just " + getFumbles() + " fumbles, and " +
-                getRushYards() + " rushing yards. He led " + team.name +
-                " to a " + team.wins + "-" + team.losses + " record and a #" + team.rankTeamPollScore +
+                getRushYards() + " rushing yards. He led " + team.getName() +
+                " to a " + team.getWins() + "-" + team.getLosses() + " record and a #" + team.getRankTeamPollScore() +
                 " poll ranking.";
     }
 
@@ -199,8 +199,8 @@ public class PlayerRB extends Player {
     @Override
     public String getInfoForLineup() {
         if (injury != null)
-            return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.HC.ratTalent) + " " + injury.toString();
-        return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.HC.ratTalent) + " (" +
+            return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.getHeadCoach().ratTalent) + " " + injury.toString();
+        return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.getHeadCoach().ratTalent) + " (" +
                 getRatRushPower() + ", " + getRatSpeed() + ", " + getRatEvasion() + ", " + getRatCatch() + ")";
     }
 

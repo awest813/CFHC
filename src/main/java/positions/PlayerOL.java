@@ -47,7 +47,7 @@ public class PlayerOL extends Player {
         createGenericAttributes(stars, attrDropper1, attDropper2, attDropper3, attDropper4, overallWt);
         recruitRating = getScoutingGrade();
 
-        recruitTolerance = (int) ((60 - team.teamPrestige) / olImportance);
+        recruitTolerance = (int) ((60 - team.getTeamPrestige()) / olImportance);
         cost = getInitialCost();
         cost = (int) (cost / olImportance);
 
@@ -163,8 +163,8 @@ public class PlayerOL extends Player {
     @Override
     public String getInfoForLineup() {
         if (injury != null)
-            return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.HC.ratTalent) + " " + injury.toString();
-        return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.HC.ratTalent) + " (" +
+            return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.getHeadCoach().ratTalent) + " " + injury.toString();
+        return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.getHeadCoach().ratTalent) + " (" +
                 getRatStrength() + ", " + getRatRunBlock() + ", " + getRatPassBlock() + ", " + getRatVision() + ")";
     }
 

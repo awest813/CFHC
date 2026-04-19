@@ -47,7 +47,7 @@ public class PlayerS extends Player {
         createGenericAttributes(stars, attrDropper1, attDropper2, attDropper3, attDropper4, overallWt);
         recruitRating = getScoutingGrade();
 
-        recruitTolerance = (int) ((60 - team.teamPrestige) / sImportance);
+        recruitTolerance = (int) ((60 - team.getTeamPrestige()) / sImportance);
         cost = getInitialCost();
         cost = (int) (cost / sImportance);
 
@@ -141,10 +141,10 @@ public class PlayerS extends Player {
 
     @Override
     public String getAwardDescription() {
-        return team.name +
+        return team.getName() +
                 " S " + name + " [" + getYrStr() + "], who had " +
-                getTackles() + " tackles, " + getSacks() + " sacks, and forced " + getFumblesRec() + " fumbles. He led " + team.name +
-                " to a " + team.wins + "-" + team.losses + " record and a #" + team.rankTeamPollScore +
+                getTackles() + " tackles, " + getSacks() + " sacks, and forced " + getFumblesRec() + " fumbles. He led " + team.getName() +
+                " to a " + team.getWins() + "-" + team.getLosses() + " record and a #" + team.getRankTeamPollScore() +
                 " poll ranking.";
     }
 
@@ -183,8 +183,8 @@ public class PlayerS extends Player {
     @Override
     public String getInfoForLineup() {
         if (injury != null)
-            return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.HC.ratTalent) + " " + injury.toString();
-        return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.HC.ratTalent) + " (" +
+            return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.getHeadCoach().ratTalent) + " " + injury.toString();
+        return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.getHeadCoach().ratTalent) + " (" +
                 getRatCoverage() + ", " + getRatSpeed() + ", " + getRatTackle() + ", " + getRatRunStop() + ")";
     }
     

@@ -12,19 +12,19 @@ public class CompTeamPrestige implements Comparator<Team> {
     @Override
 
     public int compare(Team a, Team b) {
-        if (a.teamPrestige > b.teamPrestige) {
+        if (a.getTeamPrestige() > b.getTeamPrestige()) {
             return -1;
 
-        } else if (b.teamPrestige == a.teamPrestige) {
+        } else if (b.getTeamPrestige() == a.getTeamPrestige()) {
             //check for  tiebreaker
-            if (a.confPrestige > b.confPrestige) {
+            if (a.getConfPrestige() > b.getConfPrestige()) {
                 return -1;
-            } else if (a.confPrestige < b.confPrestige) {
+            } else if (a.getConfPrestige() < b.getConfPrestige()) {
                 return 1;
             } else {
-                if (a.teamOffTalent + a.teamDefTalent > b.teamOffTalent + b.teamDefTalent) {
+                if (a.getTeamOffTalent() + a.getTeamDefTalent() > b.getTeamOffTalent() + b.getTeamDefTalent()) {
                     return -1;
-                } else if (a.teamOffTalent + a.teamDefTalent < b.teamOffTalent + b.teamDefTalent) {
+                } else if (a.getTeamOffTalent() + a.getTeamDefTalent() < b.getTeamOffTalent() + b.getTeamDefTalent()) {
                     return 1;
                 } else return 0;
             }

@@ -25,7 +25,7 @@ public final class LeagueEditorDialogController {
 
     public static void show(final MainActivity activity, final League simLeague) {
         final Team[] currentTeam = {activity.userTeam};
-        final Conference[] currentConference = {simLeague.getConferences().get(simLeague.getConfNumber(activity.userTeam.conference))};
+        final Conference[] currentConference = {simLeague.getConferences().get(simLeague.getConfNumber(activity.userTeam.getConference()))};
 
         AlertDialog.Builder GameEditor = new AlertDialog.Builder(activity);
         GameEditor.setTitle("Game Universe Editor v2 (BETA)")
@@ -92,12 +92,12 @@ public final class LeagueEditorDialogController {
                 Team tm = currentConference[0].confTeams.get(position);
                 currentTeam[0] = tm;
 
-                if (changeNameEditText != null) changeNameEditText.setText(currentTeam[0].name);
+                if (changeNameEditText != null) changeNameEditText.setText(currentTeam[0].getName());
                 if (changeAbbrEditText != null) changeAbbrEditText.setText(currentTeam[0].abbr);
                 if (changeLocationText != null) changeLocationText.setText(Integer.toString(currentTeam[0].location));
                 if (changeConfEditText != null) changeConfEditText.setText(currentConference[0].confName);
-                if (changeHCEditText != null) changeHCEditText.setText(currentTeam[0].HC.name);
-                if (changePrestigeEditText != null) changePrestigeEditText.setText(Integer.toString(currentTeam[0].teamPrestige));
+                if (changeHCEditText != null) changeHCEditText.setText(currentTeam[0].getHeadCoach().name);
+                if (changePrestigeEditText != null) changePrestigeEditText.setText(Integer.toString(currentTeam[0].getTeamPrestige()));
             }
 
             public void onNothingSelected(AdapterView<?> parent) {
@@ -135,8 +135,8 @@ public final class LeagueEditorDialogController {
                         
                         simLeague.changeAbbrHistoryRecords(currentTeam[0].abbr, newAbbr);
 
-                        if (!newName.equals(currentTeam[0].name)) {
-                            currentTeam[0].name = newName;
+                        if (!newName.equals(currentTeam[0].getName())) {
+                            currentTeam[0].setName(newName);
                             teamEditorList.clear();
                             for (int i = 0; i < currentConference[0].confTeams.size(); i++) {
                                 teamEditorList.add(currentConference[0].confTeams.get(i).name);
@@ -147,8 +147,8 @@ public final class LeagueEditorDialogController {
                         currentTeam[0].abbr = newAbbr;
                         currentTeam[0].location = Integer.parseInt(newLocation);
                         currentConference[0].confName = newConf;
-                        currentTeam[0].HC.name = newHC;
-                        currentTeam[0].teamPrestige = newPrestige;
+                        currentTeam[0].getHeadCoach().name = newHC;
+                        currentTeam[0].setTeamPrestige(newPrestige);
                     }
                 }
             });
