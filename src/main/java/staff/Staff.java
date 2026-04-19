@@ -188,14 +188,14 @@ public class Staff {
     //////////////////////////////////////////
 
     public void advanceSeason(double offpts, double defpts) {
-        int prestigeDiff = team.teamPrestige - team.teamPrestigeStart - team.disciplinePts;
+        int prestigeDiff = team.getTeamPrestige() - team.getTeamPrestigeStart() - team.getDisciplinePts();
 
         int oldOvr = getStaffOverall(overallWt);
         age++;
         year++;
         contractYear++;
 
-        double coachScore = (getCoachScore() - team.confPrestige)/10;
+        double coachScore = (getCoachScore() - team.getConfPrestige())/10;
         if (coachScore < -4) coachScore = -4;
 
 
@@ -215,14 +215,14 @@ public class Staff {
         if (ratDiscipline < 15) ratDiscipline = 15;
 
 
-        if (age > 60 && !team.userControlled) {
+        if (age > 60 && !team.isUserControlled()) {
             ratOff -= (int) (Math.random() * (age / 10));
             ratDef -= (int) (Math.random() * (age / 10));
             ratTalent -= (int)(Math.random() * (age / 10));
             ratDiscipline -= (int) (Math.random() * (age / 10));
         }
 
-        if (age > 60 && team.userControlled && team.league.isCareerMode() && !team.league.neverRetire ) {
+        if (age > 60 && team.isUserControlled() && team.league.isCareerMode() && !team.league.neverRetire ) {
             ratOff -= (int) (Math.random() * (age / 10));
             ratDef -= (int) (Math.random() * (age / 10));
             ratTalent -= (int)(Math.random() * (age / 10));
@@ -240,12 +240,12 @@ public class Staff {
         int prestigeDiff;
         if (team.league.currentWeek < 15) {
             int[] newPrestige = team.calcSeasonPrestige();
-            prestigeDiff = newPrestige[0] - team.teamPrestige;
+            prestigeDiff = newPrestige[0] - team.getTeamPrestige();
         } else {
-            prestigeDiff = team.teamPrestige - team.teamPrestigeStart;
+            prestigeDiff = team.getTeamPrestige() - team.getTeamPrestigeStart();
         }
 
-        return prestigeDiff * 10 + (team.teamStrengthOfWins / 20) + 3 * team.wins - 1 * team.losses + team.confPrestige;
+        return prestigeDiff * 10 + (team.getTeamStrengthOfWins() / 20) + 3 * team.getWins() - 1 * team.getLosses() + team.getConfPrestige();
     }
 
     //For future implementation: tally up the total prestige change over the years for scoring
@@ -274,7 +274,7 @@ public class Staff {
         String tm = "none";
         if(getCoachStatus().contains("Active")) {
             status = coachStatus();
-            tm = team.name;
+            tm = team.getName();
         }
 
         return position + ",Age: " + age + "," + tm + "," + ratOvr + "," + getWins() + "," + getLosses() + "," + status + ",Year " + (contractYear+1) + " of " + contractLength;
@@ -304,7 +304,7 @@ public class Staff {
         pStats.add("Prestige Change");
         StringBuilder sb = new StringBuilder();
 
-        if(team != null && position.equals("HC")) sb.append(" Current: " + (team.teamPrestige - baselinePrestige) + " (" + (baselinePrestige) + ")");
+        if(team != null && position.equals("HC")) sb.append(" Current: " + (team.getTeamPrestige() - baselinePrestige) + " (" + (baselinePrestige) + ")");
         else if(team != null && position.equals("OC")) sb.append(" Current: " + baselinePrestige);
         else if(team != null && position.equals("DC")) sb.append(" Current: " + baselinePrestige);
 
@@ -356,14 +356,14 @@ public class Staff {
     public String coachStatus() {
         String status = "Normal";
         if(team == null) return "";
-        if(baselinePrestige > (team.teamPrestige + 5)) status = "Hot Seat";
-        else if(baselinePrestige + 7 < (team.teamPrestige)) status = "Secure";
-        else if(baselinePrestige + 3 < (team.teamPrestige)) status = "Safe";
-        else if (baselinePrestige > (team.teamPrestige + 3)) status = "Unsafe";
+        if(baselinePrestige > (team.getTeamPrestige() + 5)) status = "Hot Seat";
+        else if(baselinePrestige + 7 < (team.getTeamPrestige())) status = "Secure";
+        else if(baselinePrestige + 3 < (team.getTeamPrestige())) status = "Safe";
+        else if (baselinePrestige > (team.getTeamPrestige() + 3)) status = "Unsafe";
         else status = "OK";
 
-        if(team.teamDisciplineScore < 35) status = "Losing Control";
-        if(team.teamDisciplineScore < 15) status = "Dysfunctional";
+        if(team.getTeamDisciplineScore() < 35) status = "Losing Control";
+        if(team.getTeamDisciplineScore() < 15) status = "Dysfunctional";
         return status;
     }
 

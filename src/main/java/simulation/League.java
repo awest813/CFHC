@@ -4969,7 +4969,7 @@ Then conferences can see if they want to add them to their list if the teams mee
     public void checkLeagueRecords() {
         for (Team t : teamList) {
             t.checkLeagueRecords(leagueRecords);
-            t.checkTeamRecords(t.teamRecords);
+            t.checkTeamRecords(t.getTeamRecords());
         }
     }
 
@@ -5066,7 +5066,7 @@ Then conferences can see if they want to add them to their list if the teams mee
 
         Collections.sort(teamList, new CompTeamRPI());
         for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).rankTeamRPI = t + 1;
+            teamList.get(t).setRankTeamRPI(t + 1);
         }
 
         for (int i = 0; i < teamList.size(); ++i) {
@@ -5075,98 +5075,98 @@ Then conferences can see if they want to add them to their list if the teams mee
 
         Collections.sort(teamList, new CompTeamSoS());
         for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).rankTeamSOS = t + 1;
+            teamList.get(t).setRankTeamSOS(t + 1);
         }
 
         Collections.sort(teamList, new CompTeamSoW());
         for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).rankTeamStrengthOfWins = t + 1;
+            teamList.get(t).setRankTeamStrengthOfWins(t + 1);
         }
 
         Collections.sort(teamList, new CompTeamPPG());
         for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).rankTeamPoints = t + 1;
+            teamList.get(t).setRankTeamPoints(t + 1);
         }
 
         Collections.sort(teamList, new CompTeamOPPG());
         for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).rankTeamOppPoints = t + 1;
+            teamList.get(t).setRankTeamOppPoints(t + 1);
         }
 
         Collections.sort(teamList, new CompTeamYPG());
         for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).rankTeamYards = t + 1;
+            teamList.get(t).setRankTeamYards(t + 1);
         }
 
         Collections.sort(teamList, new CompTeamOYPG());
         for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).rankTeamOppYards = t + 1;
+            teamList.get(t).setRankTeamOppYards(t + 1);
         }
 
         Collections.sort(teamList, new CompTeamPYPG());
         for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).rankTeamPassYards = t + 1;
+            teamList.get(t).setRankTeamPassYards(t + 1);
         }
 
         Collections.sort(teamList, new CompTeamRYPG());
         for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).rankTeamRushYards = t + 1;
+            teamList.get(t).setRankTeamRushYards(t + 1);
         }
 
         Collections.sort(teamList, new CompTeamOPYPG());
         for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).rankTeamOppPassYards = t + 1;
+            teamList.get(t).setRankTeamOppPassYards(t + 1);
         }
 
         Collections.sort(teamList, new CompTeamORYPG());
         for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).rankTeamOppRushYards = t + 1;
+            teamList.get(t).setRankTeamOppRushYards(t + 1);
         }
 
         Collections.sort(teamList, new CompTeamTODiff());
         for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).rankTeamTODiff = t + 1;
+            teamList.get(t).setRankTeamTODiff(t + 1);
         }
 
         Collections.sort(teamList, new CompTeamOffTalent());
         for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).rankTeamOffTalent = t + 1;
+            teamList.get(t).setRankTeamOffTalent(t + 1);
         }
 
         Collections.sort(teamList, new CompTeamDefTalent());
         for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).rankTeamDefTalent = t + 1;
+            teamList.get(t).setRankTeamDefTalent(t + 1);
         }
 
         Collections.sort(teamList, new CompTeamPrestige());
         for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).rankTeamPrestige = t + 1;
+            teamList.get(t).setRankTeamPrestige(t + 1);
         }
 
         Collections.sort(teamList, new CompTeamDisciplineScore());
         for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).rankTeamDisciplineScore = t + 1;
+            teamList.get(t).setRankTeamDisciplineScore(t + 1);
         }
 
         Collections.sort(teamList, new CompTeamBudget());
         for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).rankTeamBudget = t + 1;
+            teamList.get(t).setRankTeamBudget(t + 1);
         }
 
         Collections.sort(teamList, new CompTeamFacilities());
         for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).rankTeamFacilities = t + 1;
+            teamList.get(t).setRankTeamFacilities(t + 1);
         }
 
         Collections.sort(teamList, new CompTeamChemistry());
         for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).rankTeamChemistry = t + 1;
+            teamList.get(t).setRankTeamChemistry(t + 1);
         }
 
         if (currentWeek == 0) {
             Collections.sort(teamList, new CompTeamRecruitClass());
             for (int t = 0; t < teamList.size(); ++t) {
-                teamList.get(t).rankTeamRecruitClass = t + 1;
+                teamList.get(t).setRankTeamRecruitClass(t + 1);
             }
         }
     }
@@ -5541,7 +5541,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         String s = "";
         if(c.retired) s = " [R]";
         else if (c.team == null) s = " [U]";
-        else s = " (" + c.team.abbr +")";
+        else s = " (" + c.team.getAbbr() +")";
 
         return s;
     }
@@ -5576,7 +5576,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         Collections.sort(teams, new CompTeamPoll());
         for (int i = 0; i < teams.size(); ++i) {
             t = teams.get(i);
-            rankings.add(t.getRankStr(i + 1) + "," + t.name + "," + t.strTeamRecord() + "," + df2.format(t.teamPollScore));
+            rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "," + t.strTeamRecord() + "," + df2.format(t.getTeamPollScore()));
         }
         return rankings;
     }
@@ -5645,8 +5645,8 @@ Then conferences can see if they want to add them to their list if the teams mee
         heisman = null;
         ArrayList<PlayerK> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int te = 0; te < teamList.get(i).teamKs.size(); ++te) {
-                heismanCandidates.add(teamList.get(i).teamKs.get(te));
+            for (int te = 0; te < teamList.get(i).getTeamKs().size(); ++te) {
+                heismanCandidates.add(teamList.get(i).getTeamKs().get(te));
             }
         }
         Collections.sort(heismanCandidates, new CompPlayerHeisman());
@@ -5705,8 +5705,8 @@ Then conferences can see if they want to add them to their list if the teams mee
         heisman = null;
         ArrayList<HeadCoach> coachCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            if (teamList.get(i).HC != null) {
-                coachCandidates.add(teamList.get(i).HC);
+            if (teamList.get(i).getHeadCoach() != null) {
+                coachCandidates.add(teamList.get(i).getHeadCoach());
             }
         }
         Collections.sort(coachCandidates, new CompCoachScore());
@@ -5753,8 +5753,8 @@ Then conferences can see if they want to add them to their list if the teams mee
         }
         ArrayList<PlayerK> pK = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            for (int p = 0; p < teamList.get(i).teamKs.size(); ++p) {
-                pK.add(teamList.get(i).teamKs.get(p));
+            for (int p = 0; p < teamList.get(i).getTeamKs().size(); ++p) {
+                pK.add(teamList.get(i).getTeamKs().get(p));
             }
         }
         ArrayList<PlayerDL> pDL = new ArrayList<>();
@@ -5783,7 +5783,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         }
         ArrayList<HeadCoach> HC = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
-            if (teamList.get(i).HC != null) HC.add(teamList.get(i).HC);
+            if (teamList.get(i).getHeadCoach() != null) HC.add(teamList.get(i).getHeadCoach());
         }
 
         ArrayList<PlayerOffense> off = new ArrayList<>();
@@ -5889,7 +5889,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         for (int i = 0; i < teamList.size(); ++i) {
             for (int p = 0; p < teamList.get(i).getTeamRBs().size(); ++p) {
                 if (teamList.get(i).getTeamRBs().get(p).getKORets() > 0 || teamList.get(i).getTeamRBs().get(p).getPuntRets() > 0) {
-                    returner.add(new PlayerReturner(teamList.get(i).abbr,
+                    returner.add(new PlayerReturner(teamList.get(i).getAbbr(),
                             teamList.get(i).getTeamRBs().get(p).name,
                             "RB",
                             teamList.get(i).getTeamRBs().get(p).getKORets(),
@@ -5903,7 +5903,7 @@ Then conferences can see if they want to add them to their list if the teams mee
             }
             for (int p = 0; p < teamList.get(i).getTeamWRs().size(); ++p) {
                 if (teamList.get(i).getTeamWRs().get(p).getKORets() > 0 || teamList.get(i).getTeamWRs().get(p).getPuntRets() > 0) {
-                    returner.add(new PlayerReturner(teamList.get(i).abbr,
+                    returner.add(new PlayerReturner(teamList.get(i).getAbbr(),
                             teamList.get(i).getTeamWRs().get(p).name,
                             "WR",
                             teamList.get(i).getTeamWRs().get(p).getKORets(),
@@ -5917,7 +5917,7 @@ Then conferences can see if they want to add them to their list if the teams mee
             }
             for (int p = 0; p < teamList.get(i).getTeamCBs().size(); ++p) {
                 if (teamList.get(i).getTeamCBs().get(p).getKORets() > 0 || teamList.get(i).getTeamCBs().get(p).getPuntRets() > 0) {
-                    returner.add(new PlayerReturner(teamList.get(i).abbr,
+                    returner.add(new PlayerReturner(teamList.get(i).getAbbr(),
                             teamList.get(i).getTeamCBs().get(p).name,
                             "CB",
                             teamList.get(i).getTeamCBs().get(p).getKORets(),
@@ -5937,97 +5937,97 @@ Then conferences can see if they want to add them to their list if the teams mee
             case 0:
                 Collections.sort(pQB, new CompPlayerPassRating());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + pQB.get(i).name + "," + pQB.get(i).team.abbr + "," + df2.format(pQB.get(i).getPasserRating()));
+                    rankings.add((i + 1) + ". ," + pQB.get(i).name + "," + pQB.get(i).team.getAbbr() + "," + df2.format(pQB.get(i).getPasserRating()));
                 }
                 break;
             case 1:
                 Collections.sort(pQB, new CompPlayerPassYards());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + pQB.get(i).name + "," + pQB.get(i).team.abbr + "," + pQB.get(i).getPassYards());
+                    rankings.add((i + 1) + ". ," + pQB.get(i).name + "," + pQB.get(i).team.getAbbr() + "," + pQB.get(i).getPassYards());
                 }
                 break;
             case 2:
                 Collections.sort(pQB, new CompPlayerPassTDs());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + pQB.get(i).name + "," + pQB.get(i).team.abbr + "," + pQB.get(i).getPassTD());
+                    rankings.add((i + 1) + ". ," + pQB.get(i).name + "," + pQB.get(i).team.getAbbr() + "," + pQB.get(i).getPassTD());
                 }
                 break;
             case 3:
                 Collections.sort(pQB, new CompPlayerPassInts());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + pQB.get(i).name + "," + pQB.get(i).team.abbr + "," + pQB.get(i).getPassInt());
+                    rankings.add((i + 1) + ". ," + pQB.get(i).name + "," + pQB.get(i).team.getAbbr() + "," + pQB.get(i).getPassInt());
                 }
                 break;
             case 4:
                 Collections.sort(pQB, new CompPlayerPassPCT());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + pQB.get(i).name + "," + pQB.get(i).team.abbr + "," + df2.format(pQB.get(i).getPassPCT()) + "%");
+                    rankings.add((i + 1) + ". ," + pQB.get(i).name + "," + pQB.get(i).team.getAbbr() + "," + df2.format(pQB.get(i).getPassPCT()) + "%");
                 }
                 break;
             case 5:
                 Collections.sort(off, new CompPlayerRushYards());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + off.get(i).position + " " + off.get(i).name + "," + off.get(i).team.abbr + "," + off.get(i).rushYards);
+                    rankings.add((i + 1) + ". ," + off.get(i).position + " " + off.get(i).name + "," + off.get(i).team.getAbbr() + "," + off.get(i).rushYards);
                 }
                 break;
             case 6:
                 Collections.sort(off, new CompPlayerRushTDs());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + off.get(i).position + " " + off.get(i).name + "," + off.get(i).team.abbr + "," + off.get(i).rushTDs);
+                    rankings.add((i + 1) + ". ," + off.get(i).position + " " + off.get(i).name + "," + off.get(i).team.getAbbr() + "," + off.get(i).rushTDs);
                 }
                 break;
             case 7:
                 Collections.sort(off, new CompPlayerReceptions());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + off.get(i).position + " " + off.get(i).name + "," + off.get(i).team.abbr + "," + off.get(i).receptions);
+                    rankings.add((i + 1) + ". ," + off.get(i).position + " " + off.get(i).name + "," + off.get(i).team.getAbbr() + "," + off.get(i).receptions);
                 }
                 break;
             case 8:
                 Collections.sort(off, new CompPlayerRecYards());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + off.get(i).position + " " + off.get(i).name + "," + off.get(i).team.abbr + "," + off.get(i).receptionYards);
+                    rankings.add((i + 1) + ". ," + off.get(i).position + " " + off.get(i).name + "," + off.get(i).team.getAbbr() + "," + off.get(i).receptionYards);
                 }
                 break;
             case 9:
                 Collections.sort(off, new CompPlayerRecTDs());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + off.get(i).position + " " + off.get(i).name + "," + off.get(i).team.abbr + "," + off.get(i).receptionTDs);
+                    rankings.add((i + 1) + ". ," + off.get(i).position + " " + off.get(i).name + "," + off.get(i).team.getAbbr() + "," + off.get(i).receptionTDs);
                 }
                 break;
             case 10:
                 Collections.sort(def, new CompPlayerTackles());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + def.get(i).position + " " + def.get(i).name + "," + def.get(i).team.abbr + "," + def.get(i).tackles);
+                    rankings.add((i + 1) + ". ," + def.get(i).position + " " + def.get(i).name + "," + def.get(i).team.getAbbr() + "," + def.get(i).tackles);
                 }
                 break;
             case 11:
                 Collections.sort(def, new CompPlayerSacks());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + def.get(i).position + " " + def.get(i).name + "," + def.get(i).team.abbr + "," + def.get(i).sacks);
+                    rankings.add((i + 1) + ". ," + def.get(i).position + " " + def.get(i).name + "," + def.get(i).team.getAbbr() + "," + def.get(i).sacks);
                 }
                 break;
             case 12:
                 Collections.sort(def, new CompPlayerFumblesRec());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + def.get(i).position + " " + def.get(i).name + "," + def.get(i).team.abbr + "," + def.get(i).fumbles);
+                    rankings.add((i + 1) + ". ," + def.get(i).position + " " + def.get(i).name + "," + def.get(i).team.getAbbr() + "," + def.get(i).fumbles);
                 }
                 break;
             case 13:
                 Collections.sort(def, new CompPlayerInterceptions());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + def.get(i).position + " " + def.get(i).name + "," + def.get(i).team.abbr + "," + def.get(i).interceptions);
+                    rankings.add((i + 1) + ". ," + def.get(i).position + " " + def.get(i).name + "," + def.get(i).team.getAbbr() + "," + def.get(i).interceptions);
                 }
                 break;
             case 14:
                 Collections.sort(pK, new CompPlayerFGMade());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + pK.get(i).name + "," + pK.get(i).team.abbr + "," + pK.get(i).getFGMade());
+                    rankings.add((i + 1) + ". ," + pK.get(i).name + "," + pK.get(i).team.getAbbr() + "," + pK.get(i).getFGMade());
                 }
                 break;
             case 15:
                 Collections.sort(pK, new CompPlayerFGpct());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + pK.get(i).name + "," + pK.get(i).team.abbr + "," + pK.get(i).getFGpct() + "%");
+                    rankings.add((i + 1) + ". ," + pK.get(i).name + "," + pK.get(i).team.getAbbr() + "," + pK.get(i).getFGpct() + "%");
                 }
                 break;
             case 16:
@@ -6057,13 +6057,13 @@ Then conferences can see if they want to add them to their list if the teams mee
             case 20:
                 Collections.sort(HC, new CompCoachOvr());
                 for (int i = 0; i < HC.size(); ++i) {
-                    rankings.add((i + 1) + ". ," + HC.get(i).name + "," + HC.get(i).team.abbr + "," + HC.get(i).getStaffOverall(HC.get(i).overallWt));
+                    rankings.add((i + 1) + ". ," + HC.get(i).name + "," + HC.get(i).team.getAbbr() + "," + HC.get(i).getStaffOverall(HC.get(i).overallWt));
                 }
                 break;
             case 21:
                 Collections.sort(HC, new CompCoachScore());
                 for (int i = 0; i < HC.size(); ++i) {
-                    rankings.add((i + 1) + ". ," + HC.get(i).name + "," + HC.get(i).team.abbr + "," + HC.get(i).getCoachScore());
+                    rankings.add((i + 1) + ". ," + HC.get(i).name + "," + HC.get(i).team.getAbbr() + "," + HC.get(i).getCoachScore());
                 }
                 break;
         }
@@ -6078,77 +6078,77 @@ Then conferences can see if they want to add them to their list if the teams mee
                 ArrayList<HeadCoach> HC = rankHC();
                 Collections.sort(HC, new CompCoachScore());
                 for (int i = 0; i < HC.size(); ++i) {
-                    rankings.add((i + 1) + ". ," + HC.get(i).name + " (" + HC.get(i).team.abbr + ")," + HC.get(i).getCoachScore());
+                    rankings.add((i + 1) + ". ," + HC.get(i).name + " (" + HC.get(i).team.getAbbr() + ")," + HC.get(i).getCoachScore());
                 }
                 break;
             case 1:
                 ArrayList<PlayerQB> pQB = rankQB();
                 Collections.sort(pQB, new CompPlayerHeisman());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + pQB.get(i).name + " (" + pQB.get(i).team.abbr + ")," + pQB.get(i).getHeismanScore());
+                    rankings.add((i + 1) + ". ," + pQB.get(i).name + " (" + pQB.get(i).team.getAbbr() + ")," + pQB.get(i).getHeismanScore());
                 }
                 break;
             case 2:
                 ArrayList<PlayerRB> pRB = rankRB();
                 Collections.sort(pRB, new CompPlayerHeisman());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + pRB.get(i).name + " (" + pRB.get(i).team.abbr + ")," + pRB.get(i).getHeismanScore());
+                    rankings.add((i + 1) + ". ," + pRB.get(i).name + " (" + pRB.get(i).team.getAbbr() + ")," + pRB.get(i).getHeismanScore());
                 }
                 break;
             case 3:
                 ArrayList<PlayerWR> pWR = rankWR();
                 Collections.sort(pWR, new CompPlayerHeisman());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + pWR.get(i).name + " (" + pWR.get(i).team.abbr + ")," + pWR.get(i).getHeismanScore());
+                    rankings.add((i + 1) + ". ," + pWR.get(i).name + " (" + pWR.get(i).team.getAbbr() + ")," + pWR.get(i).getHeismanScore());
                 }
                 break;
             case 4:
                 ArrayList<PlayerTE> pTE = rankTE();
                 Collections.sort(pTE, new CompPlayerHeisman());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + pTE.get(i).name + " (" + pTE.get(i).team.abbr + ")," + pTE.get(i).getHeismanScore());
+                    rankings.add((i + 1) + ". ," + pTE.get(i).name + " (" + pTE.get(i).team.getAbbr() + ")," + pTE.get(i).getHeismanScore());
                 }
                 break;
             case 5:
                 ArrayList<PlayerOL> pOL = rankOL();
                 Collections.sort(pOL, new CompPlayerHeisman());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + pOL.get(i).name + " (" + pOL.get(i).team.abbr + ")," + pOL.get(i).getHeismanScore());
+                    rankings.add((i + 1) + ". ," + pOL.get(i).name + " (" + pOL.get(i).team.getAbbr() + ")," + pOL.get(i).getHeismanScore());
                 }
                 break;
             case 6:
                 ArrayList<PlayerK> pK = rankK();
                 Collections.sort(pK, new CompPlayerHeisman());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + pK.get(i).name + " (" + pK.get(i).team.abbr + ")," + pK.get(i).getHeismanScore());
+                    rankings.add((i + 1) + ". ," + pK.get(i).name + " (" + pK.get(i).team.getAbbr() + ")," + pK.get(i).getHeismanScore());
                 }
                 break;
             case 7:
                 ArrayList<PlayerDL> pDL = rankDL();
                 Collections.sort(pDL, new CompPlayerHeisman());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + pDL.get(i).name + " (" + pDL.get(i).team.abbr + ")," + pDL.get(i).getHeismanScore());
+                    rankings.add((i + 1) + ". ," + pDL.get(i).name + " (" + pDL.get(i).team.getAbbr() + ")," + pDL.get(i).getHeismanScore());
                 }
                 break;
             case 8:
                 ArrayList<PlayerLB> pLB = rankLB();
                 Collections.sort(pLB, new CompPlayerHeisman());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + pLB.get(i).name + " (" + pLB.get(i).team.abbr + ")," + pLB.get(i).getHeismanScore());
+                    rankings.add((i + 1) + ". ," + pLB.get(i).name + " (" + pLB.get(i).team.getAbbr() + ")," + pLB.get(i).getHeismanScore());
                 }
                 break;
             case 9:
                 ArrayList<PlayerCB> pCB = rankCB();
                 Collections.sort(pCB, new CompPlayerHeisman());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + pCB.get(i).name + " (" + pCB.get(i).team.abbr + ")," + pCB.get(i).getHeismanScore());
+                    rankings.add((i + 1) + ". ," + pCB.get(i).name + " (" + pCB.get(i).team.getAbbr() + ")," + pCB.get(i).getHeismanScore());
                 }
                 break;
             case 10:
                 ArrayList<PlayerS> pS = rankS();
                 Collections.sort(pS, new CompPlayerHeisman());
                 for (int i = 0; i < rankNum; ++i) {
-                    rankings.add((i + 1) + ". ," + pS.get(i).name + " (" + pS.get(i).team.abbr + ")," + pS.get(i).getHeismanScore());
+                    rankings.add((i + 1) + ". ," + pS.get(i).name + " (" + pS.get(i).team.getAbbr() + ")," + pS.get(i).getHeismanScore());
                 }
                 break;
         }
@@ -6217,8 +6217,8 @@ Then conferences can see if they want to add them to their list if the teams mee
     public int getAvgCoachTal() {
         int avg = 0;
         for (int i = 0; i < teamList.size(); i++) {
-            if (teamList.get(i) != userTeam && teamList.get(i).HC != null)
-                avg += teamList.get(i).HC.ratTalent;
+            if (teamList.get(i) != userTeam && teamList.get(i).getHeadCoach() != null)
+                avg += teamList.get(i).getHeadCoach().ratTalent;
         }
         return avg / (teamList.size() - 1);
     }
@@ -6226,8 +6226,8 @@ Then conferences can see if they want to add them to their list if the teams mee
     public int getAvgCoachDis() {
         int avg = 0;
         for (int i = 0; i < teamList.size(); i++) {
-            if (teamList.get(i) != userTeam && teamList.get(i).HC != null)
-                avg += teamList.get(i).HC.ratDiscipline;
+            if (teamList.get(i) != userTeam && teamList.get(i).getHeadCoach() != null)
+                avg += teamList.get(i).getHeadCoach().ratDiscipline;
         }
         return avg / (teamList.size() - 1);
     }
@@ -6235,8 +6235,8 @@ Then conferences can see if they want to add them to their list if the teams mee
     public int getAvgCoachOff() {
         int avg = 0;
         for (int i = 0; i < teamList.size(); i++) {
-            if (teamList.get(i) != userTeam && teamList.get(i).HC != null)
-                avg += teamList.get(i).HC.ratOff;
+            if (teamList.get(i) != userTeam && teamList.get(i).getHeadCoach() != null)
+                avg += teamList.get(i).getHeadCoach().ratOff;
         }
         return avg / (teamList.size() - 1);
     }
@@ -6244,8 +6244,8 @@ Then conferences can see if they want to add them to their list if the teams mee
     public int getAvgCoachDef() {
         int avg = 0;
         for (int i = 0; i < teamList.size(); i++) {
-            if (teamList.get(i) != userTeam && teamList.get(i).HC != null)
-                avg += teamList.get(i).HC.ratDef;
+            if (teamList.get(i) != userTeam && teamList.get(i).getHeadCoach() != null)
+                avg += teamList.get(i).getHeadCoach().ratDef;
         }
         return avg / (teamList.size() - 1);
     }
@@ -6493,12 +6493,12 @@ Then conferences can see if they want to add them to their list if the teams mee
         sb.append("\n\nReplicated Names:\n\n");
         ArrayList<String> names = new ArrayList<>();
         for(Team t : teamList) {
-            if(t.HC != null && names.contains(t.HC.name)) sb.append(t.name + " " + t.HC.position + " " + t.HC.name +"\n");
-            if(t.OC != null && names.contains(t.OC.name)) sb.append(t.name + " " + t.OC.position + " " + t.OC.name +"\n");
-            if(t.DC != null && names.contains(t.DC.name)) sb.append(t.name + " " + t.DC.position + " " + t.DC.name +"\n");
-            if(t.HC != null) names.add(t.HC.name);
-            if(t.OC != null) names.add(t.OC.name);
-            if(t.DC != null) names.add(t.DC.name);
+            if(t.getHeadCoach() != null && names.contains(t.getHeadCoach().name)) sb.append(t.getName() + " " + t.getHeadCoach().position + " " + t.getHeadCoach().name +"\n");
+            if(t.getOC() != null && names.contains(t.getOC().name)) sb.append(t.getName() + " " + t.getOC().position + " " + t.getOC().name +"\n");
+            if(t.getDC() != null && names.contains(t.getDC().name)) sb.append(t.getName() + " " + t.getDC().position + " " + t.getDC().name +"\n");
+            if(t.getHeadCoach() != null) names.add(t.getHeadCoach().name);
+            if(t.getOC() != null) names.add(t.getOC().name);
+            if(t.getDC() != null) names.add(t.getDC().name);
         }
         for (Staff c : coachFreeAgents) {
             if(names.contains(c.name)) sb.append("Free Agents " + c.position + " " + c.name +"\n");
