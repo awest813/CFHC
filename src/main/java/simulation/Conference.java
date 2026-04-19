@@ -750,6 +750,15 @@ public class Conference {
     }
 
     /**
+     * Returns an unmodifiable view of the teams in this conference.
+     * Prefer this over direct {@code confTeams} field access so that callers
+     * are ready for the planned encapsulation of public collections (roadmap #4).
+     */
+    public java.util.List<Team> getTeams() {
+        return java.util.Collections.unmodifiableList(confTeams);
+    }
+
+    /**
      * Get the allConfPlayers by sorting all the conf's players by their Heisman score
      * Should be only called after week 13
      */

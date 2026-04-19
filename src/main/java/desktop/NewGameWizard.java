@@ -206,7 +206,7 @@ public class NewGameWizard extends JDialog {
             Conference selected = confList.getSelectedValue();
             if (selected == null) return;
             teamModel.clear();
-            List<Team> sorted = new ArrayList<>(selected.confTeams);
+            List<Team> sorted = new ArrayList<>(selected.getTeams());
             sorted.sort(Comparator.comparingInt(Team::getTeamPrestige).reversed());
             for (Team t : sorted) {
                 teamModel.addElement(t);

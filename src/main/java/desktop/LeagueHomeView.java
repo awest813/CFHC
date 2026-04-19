@@ -98,6 +98,26 @@ public class LeagueHomeView extends JFrame {
             "Coach Overall", "Coach Score"
     };
 
+    /** Player ranking category names matching League.getPlayerRankStr(selection). */
+    private static final String[] PLAYER_RANKING_CATEGORIES = {
+            "QB Pass Rating", "QB Pass Yards", "QB Pass TDs", "QB INTs", "QB Completion %",
+            "Rush Yards", "Rush TDs",
+            "Receptions", "Receiving Yards", "Receiving TDs",
+            "Tackles", "Sacks", "Fumbles Recovered", "Interceptions",
+            "FG Made", "FG %",
+            "KO Return Yards", "KO Return TDs", "Punt Return Yards", "Punt Return TDs",
+            "Coach Overall", "Coach Score"
+    };
+
+    /** League history stat category names matching League.getLeagueHistoryStats(selection). */
+    private static final String[] LEAGUE_HISTORY_STAT_CATEGORIES = {
+            "National Championships", "Conference Championships", "Bowl Wins",
+            "Total Wins", "Hall of Fame Players"
+    };
+
+    /** Maximum simulation steps for advanceFullYear() before surfacing an error. */
+    private static final int MAX_FULL_YEAR_STEPS = 200;
+
     private final League leagueCore;
     private LeagueRecord currentRecord;
     private File lastSavePath;
@@ -142,7 +162,7 @@ public class LeagueHomeView extends JFrame {
     private void rebuildLiveTeamMap() {
         liveTeamMap = new HashMap<>();
         for (Conference c : leagueCore.getConferences()) {
-            for (Team t : c.confTeams) {
+            for (Team t : c.getTeams()) {
                 liveTeamMap.put(t.getName(), t);
             }
         }
@@ -421,7 +441,13 @@ public class LeagueHomeView extends JFrame {
         while (!bridge.isNewSeasonPending()) {
             controller.advanceWeek();
             played++;
-            if (played > 200) break; // safety valve
+            if (played >= MAX_FULL_YEAR_STEPS) {
+                JOptionPane.showMessageDialog(this,
+                        "Simulation stopped after " + MAX_FULL_YEAR_STEPS + " steps without completing the season.\n"
+                                + "This may indicate a simulation bug. Save your league and report the issue.",
+                        "Simulation Limit Reached", JOptionPane.WARNING_MESSAGE);
+                break;
+            }
         }
         PlatformLog.i(TAG, "Advanced full year (" + played + " steps) in "
                 + (System.currentTimeMillis() - start) + "ms");
@@ -511,6 +537,7 @@ public class LeagueHomeView extends JFrame {
             league.setPlatformResourceProvider(resources);
             PlatformLog.i(TAG, "Loaded save from " + file.getAbsolutePath());
             LeagueHomeView.show(league, file);
+            dispose(); // close the current window so only one LeagueHomeView is open
         } catch (Exception ex) {
             PlatformLog.e(TAG, "Error opening save file", ex);
             JOptionPane.showMessageDialog(this,
@@ -636,6 +663,8 @@ public class LeagueHomeView extends JFrame {
         tabs.addTab("Scoreboard", buildScoreboardPanel());
         tabs.addTab("Poll Rankings", buildPollRankingsPanel());
         tabs.addTab("Team Rankings", buildTeamRankingsPanel());
+        tabs.addTab("Player Stats", buildPlayerRankingsPanel());
+        tabs.addTab("League History", buildLeagueHistoryPanel());
         tabs.addTab("News", buildNewsPanel());
         tabs.addTab("Coaches", buildCoachDatabasePanel());
         tabs.addTab("Hall of Fame", buildHallOfFamePanel());
@@ -722,7 +751,7 @@ public class LeagueHomeView extends JFrame {
         panel.add(label, BorderLayout.NORTH);
 
         // Sort teams by conference wins then overall record
-        List<Team> sorted = new ArrayList<>(conf.confTeams);
+        List<Team> sorted = new ArrayList<>(conf.getTeams());
         sorted.sort((a, b) -> {
             int cmp = Integer.compare(b.getConfWins(), a.getConfWins());
             if (cmp != 0) return cmp;
@@ -883,6 +912,147 @@ public class LeagueHomeView extends JFrame {
         topBar.add(categoryBox);
         panel.add(topBar, BorderLayout.NORTH);
         panel.add(new JScrollPane(table), BorderLayout.CENTER);
+        return panel;
+    }
+
+    // =========================================================================
+    // Player Rankings tab (22 stat categories via League.getPlayerRankStr)
+    // =========================================================================
+
+    private JPanel buildPlayerRankingsPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JComboBox<String> categoryBox = new JComboBox<>(PLAYER_RANKING_CATEGORIES);
+        categoryBox.setFont(new Font("SansSerif", Font.PLAIN, 13));
+
+        String[] columns = {"Rank", "Player", "Team", "Value"};
+        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+
+        JTable table = new JTable(model);
+        table.setRowHeight(22);
+        table.setFillsViewportHeight(true);
+
+        Runnable loadPlayerRankings = () -> {
+            int sel = categoryBox.getSelectedIndex();
+            model.setRowCount(0);
+            try {
+                ArrayList<String> rankings = leagueCore.getPlayerRankStr(sel);
+                if (rankings != null) {
+                    for (String line : rankings) {
+                        String[] parts = line.split(",", 4);
+                        if (parts.length >= 4) {
+                            model.addRow(new Object[]{
+                                    parts[0].trim(), parts[1].trim(),
+                                    parts[2].trim(), parts[3].trim()
+                            });
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                PlatformLog.e(TAG, "Error loading player rankings", ex);
+            }
+        };
+
+        categoryBox.addActionListener(e -> loadPlayerRankings.run());
+        loadPlayerRankings.run();
+
+        JPanel topBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        topBar.add(new JLabel("Category: "));
+        topBar.add(categoryBox);
+        panel.add(topBar, BorderLayout.NORTH);
+        panel.add(new JScrollPane(table), BorderLayout.CENTER);
+        panel.add(new JLabel("Statistics update after each simulated week."), BorderLayout.SOUTH);
+        return panel;
+    }
+
+    // =========================================================================
+    // League History tab (season champions + all-time team stats)
+    // =========================================================================
+
+    private JPanel buildLeagueHistoryPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Top: season-by-season champion history
+        JTextArea historyArea = new JTextArea();
+        historyArea.setEditable(false);
+        historyArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        historyArea.setLineWrap(false);
+        String historyText = leagueCore.getLeagueHistoryStr();
+        if (historyText == null || historyText.trim().isEmpty()) {
+            historyText = "No season history yet — play at least one full season.";
+        } else {
+            // The engine uses '%' as a line-end sentinel; replace for readability
+            historyText = historyText.replace("%", "");
+        }
+        historyArea.setText(historyText);
+        historyArea.setCaretPosition(0);
+        JScrollPane historyScroll = new JScrollPane(historyArea);
+        historyScroll.setBorder(BorderFactory.createTitledBorder("Season Champions"));
+        historyScroll.setPreferredSize(new Dimension(0, 200));
+
+        // Bottom: all-time team stats with category selector
+        JPanel statsPanel = new JPanel(new BorderLayout());
+        statsPanel.setBorder(BorderFactory.createTitledBorder("All-Time Team Records"));
+
+        JComboBox<String> categoryBox = new JComboBox<>(LEAGUE_HISTORY_STAT_CATEGORIES);
+        categoryBox.setFont(new Font("SansSerif", Font.PLAIN, 13));
+
+        String[] columns = {"Rank", "Team", "Total"};
+        DefaultTableModel model = new DefaultTableModel(columns, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+
+        JTable table = new JTable(model);
+        table.setRowHeight(22);
+        table.setFillsViewportHeight(true);
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int row = table.rowAtPoint(e.getPoint());
+                    if (row >= 0) {
+                        String teamName = String.valueOf(table.getValueAt(row, 1));
+                        Team t = liveTeamMap.get(teamName);
+                        if (t != null) openTeamDialogFromLive(t);
+                    }
+                }
+            }
+        });
+
+        Runnable loadHistoryStats = () -> {
+            int sel = categoryBox.getSelectedIndex();
+            model.setRowCount(0);
+            try {
+                ArrayList<String> rankings = leagueCore.getLeagueHistoryStats(sel);
+                if (rankings != null) {
+                    for (String line : rankings) {
+                        String[] parts = line.split(",", 3);
+                        if (parts.length >= 3) {
+                            model.addRow(new Object[]{parts[0].trim(), parts[1].trim(), parts[2].trim()});
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                PlatformLog.e(TAG, "Error loading league history stats", ex);
+            }
+        };
+
+        categoryBox.addActionListener(e -> loadHistoryStats.run());
+        loadHistoryStats.run();
+
+        JPanel topBar = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        topBar.add(new JLabel("Category: "));
+        topBar.add(categoryBox);
+        statsPanel.add(topBar, BorderLayout.NORTH);
+        statsPanel.add(new JScrollPane(table), BorderLayout.CENTER);
+
+        JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, historyScroll, statsPanel);
+        split.setDividerLocation(220);
+        panel.add(split, BorderLayout.CENTER);
         return panel;
     }
 

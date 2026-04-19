@@ -25,8 +25,6 @@ import java.io.IOException;
  */
 public class DesktopUiBridge implements GameUiBridge {
 
-    private static final String TRANSFER_PORTAL_HEADER = "Transfer Portal:\n\n";
-
     private final JFrame owner;
     private final League league;
     private boolean newSeasonPending = false;
@@ -99,7 +97,7 @@ public class DesktopUiBridge implements GameUiBridge {
 
     @Override
     public void showAwardsSummary(String summaryText) {
-        showScrollableText("End-of-Season Awards", summaryText);
+        SeasonAwardsDialog.show(owner, league, summaryText);
     }
 
     @Override
@@ -139,39 +137,12 @@ public class DesktopUiBridge implements GameUiBridge {
 
     @Override
     public void showRedshirtList() {
-        java.util.List<positions.Player> redshirts = league.getRedshirts();
-        if (redshirts == null || redshirts.isEmpty()) {
-            showInfo("Redshirt List", "No players are currently on the redshirt list.");
-            return;
-        }
-        StringBuilder sb = new StringBuilder("Players on the redshirt list:\n\n");
-        for (positions.Player p : redshirts) {
-            if (p == null) continue;
-            String teamName = p.team != null ? p.team.getName() : "";
-            sb.append(p.position).append("  ").append(p.name);
-            if (!teamName.isEmpty()) sb.append("  (").append(teamName).append(")");
-            sb.append("\n");
-        }
-        showScrollableText("Redshirt List", sb.toString());
+        RedshirtDialog.show(owner, league);
     }
 
     @Override
     public void showTransferList() {
-        StringBuilder sb = new StringBuilder(TRANSFER_PORTAL_HEADER);
-        appendTransferGroup(sb, "QB", league.getTransferQBs());
-        appendTransferGroup(sb, "RB", league.getTransferRBs());
-        appendTransferGroup(sb, "WR", league.getTransferWRs());
-        appendTransferGroup(sb, "TE", league.getTransferTEs());
-        appendTransferGroup(sb, "OL", league.getTransferOLs());
-        appendTransferGroup(sb, "K",  league.getTransferKs());
-        appendTransferGroup(sb, "DL", league.getTransferDLs());
-        appendTransferGroup(sb, "LB", league.getTransferLBs());
-        appendTransferGroup(sb, "CB", league.getTransferCBs());
-        appendTransferGroup(sb, "S",  league.getTransferSs());
-        if (sb.length() == TRANSFER_PORTAL_HEADER.length()) {
-            sb.append("No players currently in the transfer portal.");
-        }
-        showScrollableText("Transfer Portal", sb.toString());
+        TransferPortalDialog.show(owner, league);
     }
 
     @Override
@@ -236,14 +207,5 @@ public class DesktopUiBridge implements GameUiBridge {
                             .append("  ").append(t.getWins()).append("-").append(t.getLosses()).append("\n"));
         }
         return sb.toString();
-    }
-
-    private <T extends positions.Player> void appendTransferGroup(
-            StringBuilder sb, String label, java.util.List<T> list) {
-        if (list == null || list.isEmpty()) return;
-        for (T p : list) {
-            sb.append(label).append("  ").append(p.name)
-              .append("  OVR ").append(p.ratOvr).append("\n");
-        }
     }
 }
