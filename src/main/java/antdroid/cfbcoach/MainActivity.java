@@ -1497,14 +1497,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         teamHistSpinner.setAdapter(teamHistAdapter);
 
         final ListView teamHistoryList = dialog.findViewById(R.id.listViewTeamRankings);
-        final PlayerRecord[] hofPlayers = currentTeam.hallOfFame.toArray(new PlayerRecord[0]);
+        final PlayerRecord[] hofPlayers = currentTeam.getHallOfFame().toArray(new PlayerRecord[0]);
 
         teamHistSpinner.setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {
                     public void onItemSelected(
                             AdapterView<?> parent, View view, int position, long id) {
                         if (position == 0) {
-                            TeamHistoryRecord[] histArray = currentTeam.teamHistory.toArray(new TeamHistoryRecord[0]);
+                            TeamHistoryRecord[] histArray = currentTeam.getTeamHistory().toArray(new TeamHistoryRecord[0]);
                             TeamHistoryList teamHistoryAdapter =
                                     new TeamHistoryList(MainActivity.this, histArray);
                             teamHistoryList.setAdapter(teamHistoryAdapter);
@@ -1548,10 +1548,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         PlatformUiHelper.bindGraphDialogShell(dialog, currentTeam.name + " Prestige Trend", "See how program prestige has risen and fallen across your team's historical arc.");
         GraphView graph = dialog.findViewById(R.id.graph);
         LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
-        String[] yearLabels = new String[currentTeam.teamHistory.size()];
-        for (int i = 0; i < currentTeam.teamHistory.size(); i++) {
-            series.appendData(new DataPoint(currentTeam.teamHistory.get(i).year, currentTeam.teamHistory.get(i).prestige), true, i + 1, false);
-            yearLabels[i] = Integer.toString(currentTeam.teamHistory.get(i).year);
+        String[] yearLabels = new String[currentTeam.getTeamHistory().size()];
+        for (int i = 0; i < currentTeam.getTeamHistory().size(); i++) {
+            series.appendData(new DataPoint(currentTeam.getTeamHistory().get(i).year, currentTeam.getTeamHistory().get(i).prestige), true, i + 1, false);
+            yearLabels[i] = Integer.toString(currentTeam.getTeamHistory().get(i).year);
         }
         graph.addSeries(series);
 
@@ -1588,10 +1588,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         PlatformUiHelper.bindGraphDialogShell(dialog, currentTeam.name + " Ranking Trend", "Track where your program has landed in the national pecking order over time.");
         GraphView graph = dialog.findViewById(R.id.graph);
         LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
-        String[] yearLabels = new String[currentTeam.teamHistory.size()];
+        String[] yearLabels = new String[currentTeam.getTeamHistory().size()];
 
-        for (int i = 0; i < currentTeam.teamHistory.size(); i++) {
-            series.appendData(new DataPoint(currentTeam.teamHistory.get(i).year, simLeague.teamList.size() - currentTeam.teamHistory.get(i).rank), true, i + 1, false);
+        for (int i = 0; i < currentTeam.getTeamHistory().size(); i++) {
+            series.appendData(new DataPoint(currentTeam.getTeamHistory().get(i).year, simLeague.teamList.size() - currentTeam.getTeamHistory().get(i).rank), true, i + 1, false);
             yearLabels[i] = Integer.toString(i + seasonStart);
         }
         graph.addSeries(series);

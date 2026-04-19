@@ -348,8 +348,8 @@ public class Conference {
                     gm = new Game(b, a, "Conference");
                 }
 
-                a.gameSchedule.add(gm);
-                b.gameSchedule.add(gm);
+                a.addGameToSchedule(gm);
+                b.addGameToSchedule(gm);
 
             }
         }
@@ -420,14 +420,14 @@ public class Conference {
         if (confTeams.size() % 2 == 0 && confTeams.size() >= minConfTeams) {
             for (int g = 0; g < confTeams.size(); ++g) {
                 Team a = confTeams.get(g);
-                a.gameSchedule.add(new Game(a, bye, "BYE WEEK"));
+                a.addGameToSchedule(new Game(a, bye, "BYE WEEK"));
             }
         }
 
         if (league.regSeasonWeeks >= 15 && confTeams.size() >= minConfTeams) {
             for (int g = 0; g < confTeams.size(); ++g) {
                 Team a = confTeams.get(g);
-                a.gameSchedule.add(new Game(a, bye, "BYE WEEK"));
+                a.addGameToSchedule(new Game(a, bye, "BYE WEEK"));
             }
         }
 
@@ -472,8 +472,8 @@ public class Conference {
                     gm = new Game(b, a,"Conference");
                 }
 
-                a.gameSchedule.add(gm);
-                b.gameSchedule.add(gm);
+                a.addGameToSchedule(gm);
+                b.addGameToSchedule(gm);
             }
         }
     }
@@ -498,7 +498,7 @@ public class Conference {
         Team bye = new Team("BYE", "BYE", "BYE", 0, "BYE", 0, league);
         for (int t = 0; t < confTeams.size(); ++t) {
             Team a = confTeams.get(t);
-            a.gameSchedule.add(new Game(a, bye, "BYE WEEK"));
+            a.addGameToSchedule(new Game(a, bye, "BYE WEEK"));
         }
 
 
@@ -520,8 +520,8 @@ public class Conference {
                     gm = new Game(b, a, "Conference");
                 }
 
-                a.gameSchedule.add(gm);
-                b.gameSchedule.add(gm);
+                a.addGameToSchedule(gm);
+                b.addGameToSchedule(gm);
 
             }
         }
@@ -649,8 +649,8 @@ public class Conference {
             }
 
             ccg = new Game(teams.get(0), teams.get(1), confName + " CCG");
-            teams.get(0).gameSchedule.add(ccg);
-            teams.get(1).gameSchedule.add(ccg);
+            teams.get(0).addGameToSchedule(ccg);
+            teams.get(1).addGameToSchedule(ccg);
             league.addNewsStory(league.currentWeek + 1, "Upcoming: " + confName + " Championship Game>" + teams.get(0).strRankTeamRecord() + " will host " + teams.get(1).strRankTeamRecord() + " in the conference championship game next week.");
             league.addWeeklyScore(league.currentWeek + 2, ccg.gameName + ">" + ccg.awayTeam.strRankTeamRecord() + "\n" + ccg.homeTeam.strRankTeamRecord());
 
@@ -770,16 +770,16 @@ public class Conference {
 
             for (Team t : confTeams) {
                 hc.add(t.HC);
-                qbs.addAll(t.teamQBs);
-                rbs.addAll(t.teamRBs);
-                wrs.addAll(t.teamWRs);
-                tes.addAll(t.teamTEs);
-                ols.addAll(t.teamOLs);
-                ks.addAll(t.teamKs);
-                dls.addAll(t.teamDLs);
-                lbs.addAll(t.teamLBs);
-                cbs.addAll(t.teamCBs);
-                ss.addAll(t.teamSs);
+                qbs.addAll(t.getTeamQBs());
+                rbs.addAll(t.getTeamRBs());
+                wrs.addAll(t.getTeamWRs());
+                tes.addAll(t.getTeamTEs());
+                ols.addAll(t.getTeamOLs());
+                ks.addAll(t.getTeamKs());
+                dls.addAll(t.getTeamDLs());
+                lbs.addAll(t.getTeamLBs());
+                cbs.addAll(t.getTeamCBs());
+                ss.addAll(t.getTeamSs());
 
             }
 

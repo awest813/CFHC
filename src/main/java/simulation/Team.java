@@ -1085,9 +1085,9 @@ public class Team {
         for(Team t : gameWinsAgainst) {
             oppWP += (float)t.wins/(t.wins+t.losses);
 
-            for (int i = 0; i < t.gameWinsAgainst.size(); i++) {
-                for (int j = 0; j <t.gameWinsAgainst.get(i).gameWinsAgainst.size(); j++) {
-                    Team teamX = t.gameWinsAgainst.get(i).gameWinsAgainst.get(j);
+            for (int i = 0; i < t.getGameWinsAgainst().size(); i++) {
+                for (int j = 0; j <t.getGameWinsAgainst().get(i).getGameWinsAgainst().size(); j++) {
+                    Team teamX = t.getGameWinsAgainst().get(i).getGameWinsAgainst().get(j);
                     oppoppWP += (float)teamX.wins/(teamX.wins+teamX.losses);
                     teamOPWP++;
                 }
@@ -1096,9 +1096,9 @@ public class Team {
         for(Team t : gameLossesAgainst) {
             oppWP += (float)t.wins/(t.wins+t.losses);
 
-            for (int i = 0; i < t.gameLossesAgainst.size(); i++) {
-                for (int j = 0; j <t.gameLossesAgainst.get(i).gameLossesAgainst.size(); j++) {
-                    Team teamX = t.gameLossesAgainst.get(i).gameLossesAgainst.get(j);
+            for (int i = 0; i < t.getGameLossesAgainst().size(); i++) {
+                for (int j = 0; j <t.getGameLossesAgainst().get(i).getGameLossesAgainst().size(); j++) {
+                    Team teamX = t.getGameLossesAgainst().get(i).getGameLossesAgainst().get(j);
                     oppoppWP += (float)teamX.wins/(teamX.wins+teamX.losses);
                     teamOPWP++;
                 }
@@ -1207,9 +1207,9 @@ public class Team {
         for(Team t : gameWinsAgainst) {
             oppWP += (float)t.wins/(t.wins+t.losses);
 
-            for (int i = 0; i < t.gameWinsAgainst.size(); i++) {
-                for (int j = 0; j <t.gameWinsAgainst.get(i).gameWinsAgainst.size(); j++) {
-                    Team teamX = t.gameWinsAgainst.get(i).gameWinsAgainst.get(j);
+            for (int i = 0; i < t.getGameWinsAgainst().size(); i++) {
+                for (int j = 0; j <t.getGameWinsAgainst().get(i).getGameWinsAgainst().size(); j++) {
+                    Team teamX = t.getGameWinsAgainst().get(i).getGameWinsAgainst().get(j);
                     oppoppWP += (float)teamX.wins/(teamX.wins+teamX.losses);
                     teamOPWP++;
                 }
@@ -1218,9 +1218,9 @@ public class Team {
         for(Team t : gameLossesAgainst) {
             oppWP += (float)t.wins/(t.wins+t.losses);
 
-            for (int i = 0; i < t.gameLossesAgainst.size(); i++) {
-                for (int j = 0; j <t.gameLossesAgainst.get(i).gameLossesAgainst.size(); j++) {
-                    Team teamX = t.gameLossesAgainst.get(i).gameLossesAgainst.get(j);
+            for (int i = 0; i < t.getGameLossesAgainst().size(); i++) {
+                for (int j = 0; j <t.getGameLossesAgainst().get(i).getGameLossesAgainst().size(); j++) {
+                    Team teamX = t.getGameLossesAgainst().get(i).getGameLossesAgainst().get(j);
                     oppoppWP += (float)teamX.wins/(teamX.wins+teamX.losses);
                     teamOPWP++;
                 }

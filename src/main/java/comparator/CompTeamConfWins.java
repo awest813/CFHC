@@ -19,9 +19,9 @@ public class CompTeamConfWins implements Comparator<Team> {
             return -1;
         } else if (a.getConfWins() == b.getConfWins()) {
             //check for h2h tiebreaker
-            if (a.gameWinsAgainst.contains(b)) {
+            if (a.getGameWinsAgainst().contains(b)) {
                 return -1;
-            } else if (b.gameWinsAgainst.contains(a)) {
+            } else if (b.getGameWinsAgainst().contains(a)) {
                 return 1;
             } else {
                 return 0;

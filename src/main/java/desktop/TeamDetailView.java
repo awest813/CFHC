@@ -45,7 +45,7 @@ public class TeamDetailView extends JDialog {
             tabs.addTab("Schedule", buildScheduleTab(liveTeam));
         }
         tabs.addTab("Coaches", buildCoachesTab(team));
-        if (liveTeam != null && !liveTeam.teamHistory.isEmpty()) {
+        if (liveTeam != null && !liveTeam.getTeamHistory().isEmpty()) {
             tabs.addTab("History", buildHistoryTab(liveTeam));
         }
         if (!team.records().isEmpty()) {
@@ -167,7 +167,7 @@ public class TeamDetailView extends JDialog {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
 
-        List<TeamHistoryRecord> history = liveTeam.teamHistory;
+        List<TeamHistoryRecord> history = liveTeam.getTeamHistory();
         // Show most-recent season first
         for (int i = history.size() - 1; i >= 0; i--) {
             TeamHistoryRecord hr = history.get(i);

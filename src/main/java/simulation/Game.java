@@ -442,8 +442,8 @@ public class Game implements Serializable {
     public void playGame() {
         if (gameName.equals("BYE WEEK") && !hasPlayed) {
             hasPlayed = true;
-            homeTeam.gameWLSchedule.add("BYE");
-            awayTeam.gameWLSchedule.add("BYE");
+            homeTeam.addToGameWLSchedule("BYE");
+            awayTeam.addToGameWLSchedule("BYE");
             homeTeam.healInjury(1);
             awayTeam.healInjury(1);
         }
@@ -511,11 +511,11 @@ public class Game implements Serializable {
             //game over, add wins
             if (homeScore > awayScore) {
                 homeTeam.wins++;
-                homeTeam.gameWLSchedule.add("W");
+                homeTeam.addToGameWLSchedule("W");
                 awayTeam.losses++;
-                awayTeam.gameWLSchedule.add("L");
-                homeTeam.gameWinsAgainst.add(awayTeam);
-                awayTeam.gameLossesAgainst.add(homeTeam);
+                awayTeam.addToGameWLSchedule("L");
+                homeTeam.addGameWinAgainst(awayTeam);
+                awayTeam.addGameLossAgainst(homeTeam);
                 homeTeam.winStreak.addWin(homeTeam.league.getYear());
                 homeTeam.league.checkLongestWinStreak(homeTeam.winStreak);
                 awayTeam.winStreak.resetStreak(awayTeam.league.getYear());
@@ -523,11 +523,11 @@ public class Game implements Serializable {
                 awayTeam.HC.recordLosses(1);
             } else {
                 homeTeam.losses++;
-                homeTeam.gameWLSchedule.add("L");
+                homeTeam.addToGameWLSchedule("L");
                 awayTeam.wins++;
-                awayTeam.gameWLSchedule.add("W");
-                awayTeam.gameWinsAgainst.add(homeTeam);
-                homeTeam.gameLossesAgainst.add(awayTeam);
+                awayTeam.addToGameWLSchedule("W");
+                awayTeam.addGameWinAgainst(homeTeam);
+                homeTeam.addGameLossAgainst(awayTeam);
                 awayTeam.winStreak.addWin(awayTeam.league.getYear());
                 awayTeam.league.checkLongestWinStreak(awayTeam.winStreak);
                 homeTeam.winStreak.resetStreak(homeTeam.league.getYear());
@@ -2768,7 +2768,7 @@ public class Game implements Serializable {
                     if (z.injury != null && !z.isSuspended && !z.isTransfer) {
                         numInjured++;
                         if (z.injury == null) {
-                            t.playersInjured.remove(z);
+                            t.removePlayerInjured(z);
                         }
                     }
                 }
@@ -2778,7 +2778,7 @@ public class Game implements Serializable {
                     if (Math.random() < Math.pow(1 - (double) p.ratDurability / 125, 3) && numInjured < numStarters) {
                         // injury!
                         p.injury = new Injury(p);
-                        t.playersInjured.add(p);
+                        t.addPlayerInjured(p);
                         //Collections.sort(players, new CompPlayer());
                         Collections.sort(players, new CompPlayerPosDepth());
                         gameEventLog += getEventLog() + "MAJOR INJURY!\n" + t.abbr + " " + p.position + " " + p.name + " is out of the game with an injury.";

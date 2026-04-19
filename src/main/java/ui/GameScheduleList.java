@@ -42,12 +42,12 @@ public class GameScheduleList extends ArrayAdapter<Game> {
         gameButton.setText(gameSummary[1]);
         textRight.setText(gameSummary[2]);
 
-        if (team.gameWLSchedule.size() > position) {
-            if (team.gameWLSchedule.get(position).equals("W")) {
+        if (team.getGameWLSchedule().size() > position) {
+            if (team.getGameWLSchedule().get(position).equals("W")) {
                 gameButton.setBackgroundColor(Color.parseColor("#FF5994DE"));
-            } else if (team.gameWLSchedule.get(position).equals("L")) {
+            } else if (team.getGameWLSchedule().get(position).equals("L")) {
                 gameButton.setBackgroundColor(Color.RED);
-            } else if (team.gameWLSchedule.get(position).equals("BYE")) {
+            } else if (team.getGameWLSchedule().get(position).equals("BYE")) {
 
             }
         }

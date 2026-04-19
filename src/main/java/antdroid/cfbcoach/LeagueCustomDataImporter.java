@@ -113,27 +113,18 @@ public final class LeagueCustomDataImporter {
             Team team = entry.getKey();
             TeamRosterImportBuffer buffer = entry.getValue();
 
-            team.teamQBs.clear();
-            team.teamRBs.clear();
-            team.teamWRs.clear();
-            team.teamTEs.clear();
-            team.teamOLs.clear();
-            team.teamKs.clear();
-            team.teamDLs.clear();
-            team.teamLBs.clear();
-            team.teamCBs.clear();
-            team.teamSs.clear();
+            team.clearAllRosters();
 
-            team.teamQBs.addAll(buffer.qbs);
-            team.teamRBs.addAll(buffer.rbs);
-            team.teamWRs.addAll(buffer.wrs);
-            team.teamTEs.addAll(buffer.tes);
-            team.teamOLs.addAll(buffer.ols);
-            team.teamKs.addAll(buffer.ks);
-            team.teamDLs.addAll(buffer.dls);
-            team.teamLBs.addAll(buffer.lbs);
-            team.teamCBs.addAll(buffer.cbs);
-            team.teamSs.addAll(buffer.ss);
+            team.getTeamQBs().addAll(buffer.qbs);
+            team.getTeamRBs().addAll(buffer.rbs);
+            team.getTeamWRs().addAll(buffer.wrs);
+            team.getTeamTEs().addAll(buffer.tes);
+            team.getTeamOLs().addAll(buffer.ols);
+            team.getTeamKs().addAll(buffer.ks);
+            team.getTeamDLs().addAll(buffer.dls);
+            team.getTeamLBs().addAll(buffer.lbs);
+            team.getTeamCBs().addAll(buffer.cbs);
+            team.getTeamSs().addAll(buffer.ss);
         }
     }
 
@@ -142,9 +133,9 @@ public final class LeagueCustomDataImporter {
             if (team.getAllPlayers().isEmpty()) {
                 team.newRoster(team.minQBs, team.minRBs, team.minWRs, team.minTEs, team.minOLs, team.minKs, team.minDLs, team.minLBs, team.minCBs, team.minSs, true);
             } else {
-                team.newRoster(team.minQBs - team.teamQBs.size(), team.minRBs - team.teamRBs.size(), team.minWRs - team.teamWRs.size(),
-                        team.minTEs - team.teamTEs.size(), team.minOLs - team.teamOLs.size(), team.minKs - team.teamKs.size(),
-                        team.minDLs - team.teamDLs.size(), team.minLBs - team.teamLBs.size(), team.minCBs - team.teamCBs.size(), team.minSs - team.teamSs.size(), false);
+                team.newRoster(team.minQBs - team.getTeamQBs().size(), team.minRBs - team.getTeamRBs().size(), team.minWRs - team.getTeamWRs().size(),
+                        team.minTEs - team.getTeamTEs().size(), team.minOLs - team.getTeamOLs().size(), team.minKs - team.getTeamKs().size(),
+                        team.minDLs - team.getTeamDLs().size(), team.minLBs - team.getTeamLBs().size(), team.minCBs - team.getTeamCBs().size(), team.minSs - team.getTeamSs().size(), false);
             }
         }
     }

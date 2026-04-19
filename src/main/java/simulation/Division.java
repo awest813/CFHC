@@ -45,8 +45,8 @@ public class Division {
                     gm = new Game(b, a, "Division");
                 }
 
-                a.gameSchedule.add(gm);
-                b.gameSchedule.add(gm);
+                a.addGameToSchedule(gm);
+                b.addGameToSchedule(gm);
 
             }
         }
@@ -56,7 +56,7 @@ public class Division {
         if(divSize % 2 == 0) {
             for (int g = 0; g < divSize; ++g) {
                 Team a = divTeams.get(g);
-                a.gameSchedule.add(new Game(a, bye, "BYE WEEK"));
+                a.addGameToSchedule(new Game(a, bye, "BYE WEEK"));
             }
         }
     }
