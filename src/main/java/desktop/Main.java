@@ -84,17 +84,14 @@ public class Main {
     private static void launchNewLeague() {
         try {
             DesktopResourceProvider resources = createResourceProvider();
-            League league = new League(
-                    resources.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
-                    resources.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES),
-                    resources.getString(PlatformResourceProvider.KEY_CONFERENCES),
-                    resources.getString(PlatformResourceProvider.KEY_TEAMS),
-                    resources.getString(PlatformResourceProvider.KEY_BOWLS),
-                    false,
-                    false
-            );
-            league.setPlatformResourceProvider(resources);
-            PlatformLog.i(TAG, "Launching new league UI");
+            League league = NewGameWizard.showWizard(null, resources);
+            if (league == null) {
+                PlatformLog.i(TAG, "New-game wizard cancelled");
+                System.out.println("New-game wizard cancelled.");
+                return;
+            }
+            PlatformLog.i(TAG, "Launching new league UI — user team: "
+                    + (league.userTeam != null ? league.userTeam.getName() : "none"));
             LeagueHomeView.show(league);
         } catch (Exception e) {
             PlatformLog.e(TAG, "Error launching new desktop league", e);
