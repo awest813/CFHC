@@ -44,6 +44,8 @@ public class JobOffersDialog extends JDialog {
     private static final String[] COLUMNS = {"Team", "Prestige", "Conf", "Off Tal", "Def Tal", "Fit Req"};
     private static final Font BODY_FONT = new Font("SansSerif", Font.PLAIN, 13);
     private static final DecimalFormat DF = new DecimalFormat("#0.0");
+    private static final int MIN_COACH_RATING = 40;
+    private static final int NEW_JOB_CONTRACT_LENGTH = 6;
 
     private final JFrame ownerFrame;
     private final League league;
@@ -78,7 +80,7 @@ public class JobOffersDialog extends JDialog {
 
     private ArrayList<Team> getVacancies() {
         int ratOvr = userHC.getStaffOverall(userHC.overallWt);
-        if (ratOvr < 40) ratOvr = 40;
+        if (ratOvr < MIN_COACH_RATING) ratOvr = MIN_COACH_RATING;
         String oldTeam = userHC.team != null ? userHC.team.getName() : "NO TEAM";
 
         if (isPromotion) {
@@ -235,7 +237,7 @@ public class JobOffersDialog extends JDialog {
         sb.append("Coach Fit Threshold: ").append(team.getMinCoachHireReq()).append("\n");
         sb.append("Career Swing: ").append(direction).append(prestigeDelta).append(" prestige\n\n");
         sb.append("If you accept, your head coach contract resets to a\n");
-        sb.append("fresh 6-year deal and your AD expectations will be\n");
+        sb.append("fresh ").append(NEW_JOB_CONTRACT_LENGTH).append("-year deal and your AD expectations will be\n");
         sb.append("recalibrated to this program.\n\n");
 
         // Show roster summary
@@ -252,7 +254,7 @@ public class JobOffersDialog extends JDialog {
     private void confirmAcceptJob(Team selectedTeam) {
         int confirm = JOptionPane.showConfirmDialog(this,
                 "Accept the head coaching position at " + selectedTeam.getName() + "?\n\n"
-                        + "Your contract will reset to 6 years.\n"
+                        + "Your contract will reset to " + NEW_JOB_CONTRACT_LENGTH + " years.\n"
                         + "Baseline prestige set to " + selectedTeam.getTeamPrestige() + ".",
                 "Confirm Job Change", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
@@ -279,7 +281,7 @@ public class JobOffersDialog extends JDialog {
         userHC.team = freshTeam;
         freshTeam.setFired(false);
         userHC.contractYear = 0;
-        userHC.contractLength = 6;
+        userHC.contractLength = NEW_JOB_CONTRACT_LENGTH;
         userHC.baselinePrestige = freshTeam.getTeamPrestige();
         userHC.promotionCandidate = false;
 

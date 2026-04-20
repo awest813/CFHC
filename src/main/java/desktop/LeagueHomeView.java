@@ -724,6 +724,16 @@ public class LeagueHomeView extends JFrame {
             JOptionPane.showMessageDialog(this,
                     "Failed to import custom universe:\n" + ex.getMessage(),
                     "Import Failed", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            // Clean up temp files
+            File tempDir = new File(System.getProperty("java.io.tmpdir"), "cfhc_import");
+            if (tempDir.exists()) {
+                File[] temps = tempDir.listFiles();
+                if (temps != null) {
+                    for (File f : temps) f.delete();
+                }
+                tempDir.delete();
+            }
         }
     }
 

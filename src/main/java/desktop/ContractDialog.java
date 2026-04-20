@@ -43,7 +43,7 @@ public class ContractDialog extends JDialog {
         HeadCoach hc = userTeam != null ? userTeam.getHeadCoach() : null;
 
         // Handle retirement check first
-        if (league.isCareerMode() && hc != null && hc.age > RETIREMENT_AGE && !league.neverRetire) {
+        if (league.isCareerMode() && hc != null && hc.age >= RETIREMENT_AGE && !league.neverRetire) {
             buildRetirementPanel(hc);
         } else {
             buildContractPanel(userTeam, hc);

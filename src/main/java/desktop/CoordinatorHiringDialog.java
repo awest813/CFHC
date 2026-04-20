@@ -35,6 +35,7 @@ import java.util.ArrayList;
 public class CoordinatorHiringDialog extends JDialog {
 
     private static final Font BODY_FONT = new Font("SansSerif", Font.PLAIN, 13);
+    private static final int COORDINATOR_CONTRACT_LENGTH = 3;
 
     private final League league;
     private final Team userTeam;
@@ -249,7 +250,7 @@ public class CoordinatorHiringDialog extends JDialog {
     private void hireOC(ArrayList<Staff> candidates, int selectedIdx) {
         if (selectedIdx == 0 && userTeam.getOC() != null) {
             // Re-sign current OC
-            userTeam.getOC().contractLength = 3;
+            userTeam.getOC().contractLength = COORDINATOR_CONTRACT_LENGTH;
             userTeam.getOC().contractYear = 0;
             userTeam.getOC().baselinePrestige = 0;
         } else {
@@ -261,7 +262,7 @@ public class CoordinatorHiringDialog extends JDialog {
                             + ">After an extensive search for a new coordinator, "
                             + userTeam.getName() + " has hired " + userTeam.getOC().name
                             + " to lead the offense.");
-            userTeam.getOC().contractLength = 3;
+            userTeam.getOC().contractLength = COORDINATOR_CONTRACT_LENGTH;
             userTeam.getOC().contractYear = 0;
             league.getCoachFreeAgents().remove(hired);
         }
@@ -270,7 +271,7 @@ public class CoordinatorHiringDialog extends JDialog {
     private void hireDC(ArrayList<Staff> candidates, int selectedIdx) {
         if (selectedIdx == 0 && userTeam.getDC() != null) {
             // Re-sign current DC
-            userTeam.getDC().contractLength = 3;
+            userTeam.getDC().contractLength = COORDINATOR_CONTRACT_LENGTH;
             userTeam.getDC().contractYear = 0;
             userTeam.getDC().baselinePrestige = 0;
         } else {
@@ -282,7 +283,7 @@ public class CoordinatorHiringDialog extends JDialog {
                             + ">After an extensive search for a new coordinator, "
                             + userTeam.getName() + " has hired " + userTeam.getDC().name
                             + " to lead the defense.");
-            userTeam.getDC().contractLength = 3;
+            userTeam.getDC().contractLength = COORDINATOR_CONTRACT_LENGTH;
             userTeam.getDC().contractYear = 0;
             league.getCoachFreeAgents().remove(hired);
         }
