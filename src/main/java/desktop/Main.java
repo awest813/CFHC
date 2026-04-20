@@ -23,6 +23,15 @@ public class Main {
             "===========================================";
 
     public static void main(String[] args) {
+        // Enable HiDPI scaling and system look-and-feel for a native desktop appearance
+        System.setProperty("sun.java2d.uiScale.enabled", "true");
+        try {
+            javax.swing.UIManager.setLookAndFeel(
+                    javax.swing.UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception ignored) {
+            // Fall back to default Metal LAF if system LAF is not available
+        }
+
         PlatformLog.i(TAG, HEADER.replace("\n", " | "));
         System.out.println(HEADER);
 

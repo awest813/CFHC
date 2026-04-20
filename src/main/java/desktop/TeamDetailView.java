@@ -9,6 +9,8 @@ import simulation.Team;
 import simulation.TeamHistoryRecord;
 
 import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -198,24 +200,25 @@ public class TeamDetailView extends JDialog {
     }
 
     // -------------------------------------------------------------------------
-    // Depth Chart tab
+    // Depth Chart tab (editable for user-controlled teams)
     // -------------------------------------------------------------------------
 
-    private JScrollPane buildDepthChartTab(Team team) {
+    /** All position groups in display order. */
+    private static final String[] POSITION_ORDER = {"QB", "RB", "WR", "TE", "OL", "DL", "LB", "CB", "S", "K"};
+
+    private JPanel buildDepthChartTab(Team team) {
+        JPanel wrapper = new JPanel(new BorderLayout());
         DefaultTableModel model = new DefaultTableModel(DEPTH_COLUMNS, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
 
-        addDepthRow(model, team.getAllPlayers(), "QB");
-        addDepthRow(model, team.getAllPlayers(), "RB");
-        addDepthRow(model, team.getAllPlayers(), "WR");
-        addDepthRow(model, team.getAllPlayers(), "TE");
-        addDepthRow(model, team.getAllPlayers(), "OL");
-        addDepthRow(model, team.getAllPlayers(), "DL");
-        addDepthRow(model, team.getAllPlayers(), "LB");
-        addDepthRow(model, team.getAllPlayers(), "CB");
-        addDepthRow(model, team.getAllPlayers(), "S");
-        addDepthRow(model, team.getAllPlayers(), "K");
+        Runnable reloadDepthChart = () -> {
+            model.setRowCount(0);
+            for (String pos : POSITION_ORDER) {
+                addDepthRow(model, team.getAllPlayers(), pos);
+            }
+        };
+        reloadDepthChart.run();
 
         JTable table = new JTable(model);
         table.setRowHeight(22);
@@ -236,7 +239,64 @@ public class TeamDetailView extends JDialog {
             });
         }
 
-        return new JScrollPane(table);
+        wrapper.add(new JScrollPane(table), BorderLayout.CENTER);
+
+        // Add move-up/move-down buttons only for the user's team
+        if (team.isUserControlled()) {
+            JPanel buttonPanel = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 6, 4));
+            JButton upBtn = new JButton("\u25B2 Move Up");
+            upBtn.setToolTipText("Promote the selected player one depth-chart slot");
+            JButton downBtn = new JButton("\u25BC Move Down");
+            downBtn.setToolTipText("Demote the selected player one depth-chart slot");
+
+            upBtn.addActionListener(e -> {
+                int row = table.getSelectedRow();
+                if (row < 0) return;
+                String pos = (String) table.getValueAt(row, 1);
+                String name = (String) table.getValueAt(row, 2);
+                moveDepthChart(team, pos, name, -1);
+                reloadDepthChart.run();
+                if (row > 0) table.setRowSelectionInterval(row - 1, row - 1);
+            });
+            downBtn.addActionListener(e -> {
+                int row = table.getSelectedRow();
+                if (row < 0) return;
+                String pos = (String) table.getValueAt(row, 1);
+                String name = (String) table.getValueAt(row, 2);
+                moveDepthChart(team, pos, name, 1);
+                reloadDepthChart.run();
+                if (row < table.getRowCount() - 1) table.setRowSelectionInterval(row + 1, row + 1);
+            });
+
+            buttonPanel.add(upBtn);
+            buttonPanel.add(downBtn);
+            buttonPanel.add(new JLabel("  Select a row and use the buttons to reorder the depth chart."));
+            wrapper.add(buttonPanel, BorderLayout.SOUTH);
+        }
+
+        return wrapper;
+    }
+
+    /**
+     * Moves a player up or down one slot in their position's depth chart.
+     *
+     * @param team      the team whose depth chart to modify
+     * @param pos       the position group abbreviation
+     * @param name      the player's name
+     * @param direction -1 for up (promote), +1 for down (demote)
+     */
+    private void moveDepthChart(Team team, String pos, String name, int direction) {
+        java.util.List<? extends Player> posList = team.getPositionList(pos);
+        if (posList == null) return;
+        for (int i = 0; i < posList.size(); i++) {
+            if (posList.get(i).name.equals(name)) {
+                int target = i + direction;
+                if (target >= 0 && target < posList.size()) {
+                    team.swapDepthChartOrder(pos, i, target);
+                }
+                return;
+            }
+        }
     }
 
     private void addDepthRow(DefaultTableModel model, List<Player> allPlayers, String pos) {
