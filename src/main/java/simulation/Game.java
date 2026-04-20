@@ -2732,34 +2732,34 @@ public class Game implements Serializable {
                 java.util.List<? extends Player> players = new ArrayList<>();
 
                 if (p.position.equals("QB")) {
-                    players = t.getTeamQBs();
+                    players = new ArrayList<>(t.getTeamQBs());
                     numStarters = t.startersQB + t.subQB;
                 } else if (p.position.equals("RB")) {
-                    players = t.getTeamRBs();
+                    players = new ArrayList<>(t.getTeamRBs());
                     numStarters = t.startersRB + t.subRB;
                 } else if (p.position.equals("WR")) {
-                    players = t.getTeamWRs();
+                    players = new ArrayList<>(t.getTeamWRs());
                     numStarters = t.startersWR + t.subWR;
                 } else if (p.position.equals("TE")) {
-                    players = t.getTeamTEs();
+                    players = new ArrayList<>(t.getTeamTEs());
                     numStarters = t.startersTE + t.subTE;
                 } else if (p.position.equals("OL")) {
-                    players = t.getTeamOLs();
+                    players = new ArrayList<>(t.getTeamOLs());
                     numStarters = t.startersOL + t.subOL;
                 } else if (p.position.equals("K")) {
-                    players = t.getTeamKs();
+                    players = new ArrayList<>(t.getTeamKs());
                     numStarters = t.startersK + t.subK;
                 } else if (p.position.equals("DL")) {
-                    players = t.getTeamDLs();
+                    players = new ArrayList<>(t.getTeamDLs());
                     numStarters = t.startersDL + t.subDL;
                 } else if (p.position.equals("LB")) {
-                    players = t.getTeamLBs();
+                    players = new ArrayList<>(t.getTeamLBs());
                     numStarters = t.startersLB + t.subLB;
                 } else if (p.position.equals("CB")) {
-                    players = t.getTeamCBs();
+                    players = new ArrayList<>(t.getTeamCBs());
                     numStarters = t.startersCB + t.subCB;
                 } else if (p.position.equals("S")) {
-                    players = t.getTeamSs();
+                    players = new ArrayList<>(t.getTeamSs());
                     numStarters = t.startersS + t.subS;
                 }
 
@@ -3622,13 +3622,13 @@ public class Game implements Serializable {
             if (awayTeam.getRankTeamPollScore() < 11 && homeTeam.getRankTeamPollScore() < 11 && !awayTeam.getName().contains("FCS") && !homeTeam.getName().contains("FCS")) {
                 homeTeam.league.addNewsStory(homeTeam.league.currentWeek + 1, "Upcoming Game: #" + awayTeam.getRankTeamPollScore() + " " + awayTeam.getName() + " vs #" +
                         homeTeam.getRankTeamPollScore() + " " + homeTeam.getName() + ">The premier game of the week has " + awayTeam.getStrAbbrWL() + " visiting " + homeTeam.getStrAbbrWL() + ", as these two Top Ten teams fight for a crucial playoff spot. " +
-                        awayTeam.getName() + " plays a " + awayTeam.getPlaybookOffense().getStratName() + " offense, which is averaging " + (awayTeam.getTeamYards() / awayTeam.numGames()) + " yards per game. " + homeTeam.getName() + " plays a " +
-                        homeTeam.getPlaybookOffense().getStratName() + " offense, averaging " + (homeTeam.getTeamYards() / homeTeam.numGames()) + " yards per game.");
+                        awayTeam.getName() + " plays a " + awayTeam.getPlaybookOffense().getStratName() + " offense, which is averaging " + (awayTeam.getTeamYards() / Math.max(1, awayTeam.numGames())) + " yards per game. " + homeTeam.getName() + " plays a " +
+                        homeTeam.getPlaybookOffense().getStratName() + " offense, averaging " + (homeTeam.getTeamYards() / Math.max(1, homeTeam.numGames())) + " yards per game.");
             } else if (awayTeam.getRankTeamPollScore() < 26 && homeTeam.getRankTeamPollScore() < 26 && !awayTeam.getName().contains("FCS") && !homeTeam.getName().contains("FCS")) {
                 homeTeam.league.addNewsStory(homeTeam.league.currentWeek + 1, "Upcoming Game: #" + awayTeam.getRankTeamPollScore() + " " + awayTeam.getName() + " vs #" +
                         homeTeam.getRankTeamPollScore() + " " + homeTeam.getName() + ">Next week, " + awayTeam.getStrAbbrWL() + " visits " + homeTeam.getStrAbbrWL() + " in a battle of two ranked schools. " +
-                        awayTeam.getName() + " plays a " + awayTeam.getPlaybookOffense().getStratName() + " offense, which is averaging " + (awayTeam.getTeamYards() / awayTeam.numGames()) + " yards per game. " + homeTeam.getName() + " plays a " +
-                        homeTeam.getPlaybookOffense().getStratName() + " offense, averaging " + (homeTeam.getTeamYards() / homeTeam.numGames()) + " yards per game.");
+                        awayTeam.getName() + " plays a " + awayTeam.getPlaybookOffense().getStratName() + " offense, which is averaging " + (awayTeam.getTeamYards() / Math.max(1, awayTeam.numGames())) + " yards per game. " + homeTeam.getName() + " plays a " +
+                        homeTeam.getPlaybookOffense().getStratName() + " offense, averaging " + (homeTeam.getTeamYards() / Math.max(1, homeTeam.numGames())) + " yards per game.");
             }
             if (awayTeam.league.currentWeek + 2 < awayTeam.league.regSeasonWeeks + 5)
                 awayTeam.league.addWeeklyScore(homeTeam.league.currentWeek + 2, gameName + ">" + awayTeam.strRankTeamRecord() + "\n" + homeTeam.strRankTeamRecord());

@@ -1823,6 +1823,7 @@ public class League {
 
         if (currentWeek <= regSeasonWeeks-1) {
             for (int i = 0; i < conferences.size(); ++i) {
+                System.out.println("DEBUG: Playing conference " + conferences.get(i).confName);
                 conferences.get(i).playWeek();
             }
         }
@@ -1908,13 +1909,17 @@ public class League {
         }
 
 
+        System.out.println("DEBUG: Entering coachingHotSeat");
         coachingHotSeat();
 
-
+        System.out.println("DEBUG: Entering setTeamRanks");
         setTeamRanks();
+        
+        System.out.println("DEBUG: Entering updateWinStreak");
         updateLongestActiveWinStreak();
 
         currentWeek++;
+        System.out.println("DEBUG: Week advanced to " + currentWeek);
     }
 
 
@@ -3413,10 +3418,13 @@ public class League {
         Collections.sort(teamList, new CompTeamPrestige());
         //Rising Star Coaches
         for (int i = 0; i < coachStarList.size(); ++i) {
-            final String tmName = coachStarList.get(i).team.getName();
-            final String pos = coachStarList.get(i).position;
-            int tmPres = coachStarList.get(i).team.getTeamPrestige();
-            int cPres = coachStarList.get(i).team.getConfPrestige();
+            Staff coach = coachStarList.get(i);
+            if (coach.team == null) continue;
+            
+            final String tmName = coach.team.getName();
+            final String pos = coach.position;
+            int tmPres = coach.team.getTeamPrestige();
+            int cPres = coach.team.getConfPrestige();
 
             for (int t = 0; t < teamList.size(); ++t) {
                 if (teamList.get(t).getHeadCoach() == null && coachStarList.get(i).getStaffOverall(ovr) >= teamList.get(t).getMinCoachHireReq() && !teamList.get(t).getName().equals(tmName) && Math.random() > 0.66) {
@@ -6694,7 +6702,7 @@ Then conferences can see if they want to add them to their list if the teams mee
      * Get an unmodifiable view of star coaches.
      */
     public java.util.List<Staff> getCoachStarList() {
-        return java.util.Collections.unmodifiableList(coachStarList);
+        return coachStarList;
     }
 
     /**
@@ -6702,7 +6710,7 @@ Then conferences can see if they want to add them to their list if the teams mee
      * Use {@link #addCoachFreeAgent(Staff)} and {@link #removeCoachFreeAgent(Staff)} to modify.
      */
     public java.util.List<Staff> getCoachFreeAgents() {
-        return java.util.Collections.unmodifiableList(coachFreeAgents);
+        return coachFreeAgents;
     }
 
     /**
@@ -6833,21 +6841,39 @@ Then conferences can see if they want to add them to their list if the teams mee
      * Get an unmodifiable view of freshmen players.
      */
     public java.util.List<Player> getFreshmen() {
-        return java.util.Collections.unmodifiableList(freshmen);
+        return freshmen;
+    }
+
+    /**
+     * Add a player to the season's freshman tracking list.
+     */
+    public void addFreshman(Player p) {
+        if (p != null) {
+            freshmen.add(p);
+        }
     }
 
     /**
      * Get an unmodifiable view of redshirted players.
      */
     public java.util.List<Player> getRedshirts() {
-        return java.util.Collections.unmodifiableList(redshirts);
+        return redshirts;
+    }
+
+    /**
+     * Add a player to the season's redshirt tracking list.
+     */
+    public void addRedshirt(Player p) {
+        if (p != null) {
+            redshirts.add(p);
+        }
     }
 
     /**
      * Get an unmodifiable view of TV news entries.
      */
     public java.util.List<String> getNewsTV() {
-        return java.util.Collections.unmodifiableList(newsTV);
+        return newsTV;
     }
 
     /**

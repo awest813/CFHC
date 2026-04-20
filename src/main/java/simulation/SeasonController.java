@@ -44,6 +44,7 @@ public final class SeasonController {
         redshirtComplete = true;
         league.userTeam.recruitWalkOns();
         league.preseasonNews();
+        league.currentWeek++; // Advance to Week 1
         bridge.updateSimStatus("Preseason", "Play Week 1", true);
     }
 

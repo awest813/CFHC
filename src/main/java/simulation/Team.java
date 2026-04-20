@@ -1080,36 +1080,41 @@ public class Team {
         float rpi = 0;
 
 
-        float teamWP = (float)(wins /(wins + losses));
+        float teamWP = 0;
+        if (wins + losses > 0) teamWP = (float)wins / (wins + losses);
 
         for(Team t : gameWinsAgainst) {
-            oppWP += (float)t.wins/(t.wins+t.losses);
+            if (t.wins + t.losses > 0) oppWP += (float)t.wins/(t.wins+t.losses);
 
             for (int i = 0; i < t.getGameWinsAgainst().size(); i++) {
                 for (int j = 0; j <t.getGameWinsAgainst().get(i).getGameWinsAgainst().size(); j++) {
                     Team teamX = t.getGameWinsAgainst().get(i).getGameWinsAgainst().get(j);
-                    oppoppWP += (float)teamX.wins/(teamX.wins+teamX.losses);
+                    if (teamX.wins + teamX.losses > 0) oppoppWP += (float)teamX.wins/(teamX.wins+teamX.losses);
                     teamOPWP++;
                 }
             }
         }
         for(Team t : gameLossesAgainst) {
-            oppWP += (float)t.wins/(t.wins+t.losses);
+            if (t.wins + t.losses > 0) oppWP += (float)t.wins/(t.wins+t.losses);
 
             for (int i = 0; i < t.getGameLossesAgainst().size(); i++) {
                 for (int j = 0; j <t.getGameLossesAgainst().get(i).getGameLossesAgainst().size(); j++) {
                     Team teamX = t.getGameLossesAgainst().get(i).getGameLossesAgainst().get(j);
-                    oppoppWP += (float)teamX.wins/(teamX.wins+teamX.losses);
+                    if (teamX.wins + teamX.losses > 0) oppoppWP += (float)teamX.wins/(teamX.wins+teamX.losses);
                     teamOPWP++;
                 }
             }
         }
 
-        oppWP = (float) oppWP / (gameWinsAgainst.size()+gameLossesAgainst.size());
+        if (gameWinsAgainst.size() + gameLossesAgainst.size() > 0) {
+            oppWP = (float) oppWP / (gameWinsAgainst.size() + gameLossesAgainst.size());
+        }
 
-        oppoppWP = (float) oppoppWP / teamOPWP;
+        if (teamOPWP > 0) {
+            oppoppWP = (float) oppoppWP / teamOPWP;
+        }
 
-        sos = (float)(.67 * oppWP + .33* oppoppWP);
+        sos = (float)(0.67 * oppWP + 0.33 * oppoppWP);
 
         return sos;
     }
@@ -1205,34 +1210,37 @@ public class Team {
         int teamOPWP=0;
 
         for(Team t : gameWinsAgainst) {
-            oppWP += (float)t.wins/(t.wins+t.losses);
+            if (t.wins + t.losses > 0) oppWP += (float)t.wins/(t.wins+t.losses);
 
             for (int i = 0; i < t.getGameWinsAgainst().size(); i++) {
                 for (int j = 0; j <t.getGameWinsAgainst().get(i).getGameWinsAgainst().size(); j++) {
                     Team teamX = t.getGameWinsAgainst().get(i).getGameWinsAgainst().get(j);
-                    oppoppWP += (float)teamX.wins/(teamX.wins+teamX.losses);
+                    if (teamX.wins + teamX.losses > 0) oppoppWP += (float)teamX.wins/(teamX.wins+teamX.losses);
                     teamOPWP++;
                 }
             }
         }
         for(Team t : gameLossesAgainst) {
-            oppWP += (float)t.wins/(t.wins+t.losses);
+            if (t.wins + t.losses > 0) oppWP += (float)t.wins/(t.wins+t.losses);
 
             for (int i = 0; i < t.getGameLossesAgainst().size(); i++) {
                 for (int j = 0; j <t.getGameLossesAgainst().get(i).getGameLossesAgainst().size(); j++) {
                     Team teamX = t.getGameLossesAgainst().get(i).getGameLossesAgainst().get(j);
-                    oppoppWP += (float)teamX.wins/(teamX.wins+teamX.losses);
+                    if (teamX.wins + teamX.losses > 0) oppoppWP += (float)teamX.wins/(teamX.wins+teamX.losses);
                     teamOPWP++;
                 }
             }
         }
 
-        oppWP = (float) oppWP / (gameWinsAgainst.size()+gameLossesAgainst.size());
+        if (gameWinsAgainst.size() + gameLossesAgainst.size() > 0) {
+            oppWP = (float) oppWP / (gameWinsAgainst.size() + gameLossesAgainst.size());
+        }
 
-        oppoppWP = (float) oppoppWP / teamOPWP;
+        if (teamOPWP > 0) {
+            oppoppWP = (float) oppoppWP / teamOPWP;
+        }
 
-        rpi = (float)(.25* teamWP + .5 * oppWP + .25* oppoppWP);
-
+        rpi = (float)(0.25 * teamWP + 0.5 * oppWP + 0.25 * oppoppWP);
 
         return rpi;
     }
@@ -3427,10 +3435,10 @@ public class Team {
         ArrayList<Player> teamPlayers = getAllPlayers();
         for (int p = 0; p < teamPlayers.size(); ++p) {
             if (teamPlayers.get(p).year == 1 && !teamPlayers.get(p).isRedshirt) {
-                league.getFreshmen().add(teamPlayers.get(p));
+                league.addFreshman(teamPlayers.get(p));
             }
             if (teamPlayers.get(p).year == 1 && teamPlayers.get(p).isRedshirt) {
-                league.getRedshirts().add(teamPlayers.get(p));
+                league.addRedshirt(teamPlayers.get(p));
             }
         }
     }
