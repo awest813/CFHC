@@ -43,6 +43,7 @@ public class GameBoxScoreView extends JDialog {
             JTabbedPane tabs = new JTabbedPane();
             tabs.addTab("Box Score", buildBoxScorePanel());
             tabs.addTab("Detailed Stats", buildDetailedStatsPanel());
+            tabs.addTab("Play-by-Play", buildPlayByPlayPanel());
             add(tabs, BorderLayout.CENTER);
         }
         add(buildFooter(), BorderLayout.SOUTH);
@@ -158,6 +159,26 @@ public class GameBoxScoreView extends JDialog {
         area.setFont(MONO);
         area.setCaretPosition(0);
         panel.add(new JScrollPane(area), BorderLayout.CENTER);
+        return panel;
+    }
+
+    private JPanel buildPlayByPlayPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+
+        String pbp = game.getPlayByPlayLog();
+        JTextArea area = new JTextArea(pbp);
+        area.setEditable(false);
+        area.setFont(MONO);
+        area.setLineWrap(true);
+        area.setWrapStyleWord(true);
+        area.setCaretPosition(0);
+        panel.add(new JScrollPane(area), BorderLayout.CENTER);
+
+        JLabel hint = new JLabel("Full play-by-play event log for this game.");
+        hint.setFont(new Font("SansSerif", Font.ITALIC, 11));
+        hint.setBorder(BorderFactory.createEmptyBorder(4, 0, 0, 0));
+        panel.add(hint, BorderLayout.SOUTH);
         return panel;
     }
 

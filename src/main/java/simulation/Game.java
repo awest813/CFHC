@@ -3312,8 +3312,26 @@ public class Game implements Serializable {
     }
 
 
-    private String getPlaybyPlay() {
+    /**
+     * Returns the full play-by-play event log for this game.
+     * The log is built incrementally during simulation and contains
+     * scoring plays, turnovers, injuries, and other key events.
+     *
+     * @return formatted play-by-play text, or a placeholder if the game
+     *         has not been played yet
+     */
+    public String getPlayByPlayLog() {
+        if (gameEventLog == null || gameEventLog.isEmpty()) {
+            return "No play-by-play data available for this game.";
+        }
         return "GAME PLAY-BY-PLAY LOG\n" + gameEventLog;
+    }
+
+    /** @deprecated Use {@link #getPlayByPlayLog()} instead. */
+    @Deprecated
+    @SuppressWarnings("unused")
+    private String getPlaybyPlay() {
+        return getPlayByPlayLog();
     }
 
     public String[] getGameScoutStr() {
