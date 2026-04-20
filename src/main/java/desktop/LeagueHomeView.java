@@ -249,6 +249,11 @@ public class LeagueHomeView extends JFrame {
         exportItem.addActionListener(e -> exportLeague());
         file.add(exportItem);
 
+        JMenuItem importItem = new JMenuItem("Import Custom Universe\u2026");
+        importItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, KeyEvent.CTRL_DOWN_MASK));
+        importItem.addActionListener(e -> importCustomUniverse());
+        file.add(importItem);
+
         file.addSeparator();
 
         JMenuItem settingsItem = new JMenuItem("Settings\u2026");
@@ -652,6 +657,83 @@ public class LeagueHomeView extends JFrame {
             JOptionPane.showMessageDialog(this,
                     "Failed to export league:\n" + ex.getMessage(),
                     "Export Failed", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void importCustomUniverse() {
+        JFileChooser chooser = new JFileChooser();
+        chooser.setDialogTitle("Import Custom Universe File");
+        chooser.setFileFilter(new FileNameExtensionFilter("Custom Universe Files (*.txt, *.csv)", "txt", "csv"));
+        int result = chooser.showOpenDialog(this);
+        if (result != JFileChooser.APPROVE_OPTION) return;
+
+        File importFile = chooser.getSelectedFile();
+        try {
+            // Create temp files for parsed output
+            File tempDir = new File(System.getProperty("java.io.tmpdir"), "cfhc_import");
+            if (!tempDir.exists()) tempDir.mkdirs();
+            File confFile = new File(tempDir, "conferences.txt");
+            File teamsFile = new File(tempDir, "teams.txt");
+            File bowlsFile = new File(tempDir, "bowls.txt");
+
+            java.io.FileInputStream fis = new java.io.FileInputStream(importFile);
+            simulation.CustomUniverseParser.parse(fis, confFile, teamsFile, bowlsFile);
+            fis.close();
+
+            // Get resource strings
+            DesktopResourceProvider res = null;
+            PlatformResourceProvider provider = leagueCore.resProvider;
+            if (provider instanceof DesktopResourceProvider) {
+                res = (DesktopResourceProvider) provider;
+            }
+            if (res == null) {
+                JOptionPane.showMessageDialog(this,
+                        "Cannot resolve resource provider for custom universe import.",
+                        "Import Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            String playerNames = res.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES);
+            String lastNames = res.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES);
+
+            LeagueLaunchCoordinator.CustomUniverseFiles customFiles =
+                    new LeagueLaunchCoordinator.CustomUniverseFiles(confFile, teamsFile, bowlsFile);
+
+            League newLeague = new League(playerNames, lastNames,
+                    customFiles.conferences, customFiles.teams, customFiles.bowls,
+                    false, false, bridge);
+            newLeague.setPlatformResourceProvider(res);
+
+            // Run team selection wizard on the new league
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "Custom universe imported successfully!\n"
+                            + "Conferences: " + newLeague.getConferences().size() + "\n"
+                            + "Teams: " + newLeague.getTeamList().size() + "\n\n"
+                            + "This will replace your current league. Continue?",
+                    "Import Custom Universe",
+                    JOptionPane.YES_NO_OPTION);
+            if (confirm != JOptionPane.YES_OPTION) return;
+
+            // Reopen with new league
+            dispose();
+            show(newLeague);
+
+            PlatformLog.i(TAG, "Custom universe imported from " + importFile.getAbsolutePath());
+        } catch (Exception ex) {
+            PlatformLog.e(TAG, "Error importing custom universe", ex);
+            JOptionPane.showMessageDialog(this,
+                    "Failed to import custom universe:\n" + ex.getMessage(),
+                    "Import Failed", JOptionPane.ERROR_MESSAGE);
+        } finally {
+            // Clean up temp files
+            File tempDir = new File(System.getProperty("java.io.tmpdir"), "cfhc_import");
+            if (tempDir.exists()) {
+                File[] temps = tempDir.listFiles();
+                if (temps != null) {
+                    for (File f : temps) f.delete();
+                }
+                tempDir.delete();
+            }
         }
     }
 

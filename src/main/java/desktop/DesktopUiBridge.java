@@ -62,7 +62,34 @@ public class DesktopUiBridge implements GameUiBridge {
 
     @Override
     public void transferPlayer(positions.Player player) {
-        // Auto-handled by League.transferPlayers() during the offseason.
+        if (player == null || league.userTeam == null) return;
+
+        // Show accept/decline dialog for user team transfer offer
+        int choice = javax.swing.JOptionPane.showOptionDialog(owner,
+                buildTransferOfferText(player),
+                "Transfer Offer: " + player.position + " " + player.name,
+                javax.swing.JOptionPane.YES_NO_OPTION,
+                javax.swing.JOptionPane.QUESTION_MESSAGE,
+                null,
+                new String[]{"Accept", "Decline"},
+                "Accept");
+
+        if (choice == 0) {
+            // Accept
+            league.userTransfers = league.userTransfers
+                    + player.position + " " + player.name + " " + player.getYrStr()
+                    + " Ovr: " + player.ratOvr + " (" + player.team.getName() + ")\n";
+            league.sumTransfers = league.sumTransfers
+                    + player.ratOvr + " " + player.position + " " + player.name
+                    + " [" + player.getTransferStatus() + "] "
+                    + league.userTeam.getName() + " (" + player.team.getAbbr() + ")";
+            player.team = league.userTeam;
+            league.userTeam.addPlayer(player);
+        } else {
+            // Decline — return player to their original team
+            player.isTransfer = false;
+            player.team.addPlayer(player);
+        }
     }
 
     @Override
@@ -114,25 +141,34 @@ public class DesktopUiBridge implements GameUiBridge {
 
     @Override
     public void showContractDialog() {
-        if (league.userTeam != null) {
-            showInfo("Contract Status",
-                    "Off-Season: Contract review is in progress for your staff.\n\n"
-                            + league.userTeam.getContractString());
+        if (league.isCareerMode() && league.userTeam != null) {
+            ContractDialog.show(owner, league);
         }
     }
 
     @Override
     public void showJobOffersDialog() {
-        showInfo("Job Openings",
-                "Off-Season: Coaching job openings across the league are being processed.\n"
-                        + "CPU teams will fill vacant head-coach positions automatically.");
+        if (league.isCareerMode()) {
+            boolean accepted = JobOffersDialog.showJobOffers(owner, league);
+            if (accepted) {
+                // After accepting a new job, hire coordinators for the new team
+                CoordinatorHiringDialog.show(owner, league);
+            }
+        }
     }
 
     @Override
     public void showPromotionsDialog() {
-        showInfo("Coordinator Changes",
-                "Off-Season: Offensive and defensive coordinator contracts are being evaluated.\n"
-                        + "CPU coordinators will be re-assigned automatically.");
+        if (league.isCareerMode()) {
+            boolean accepted = JobOffersDialog.showPromotions(owner, league);
+            if (accepted) {
+                league.coachCarousel();
+                CoordinatorHiringDialog.show(owner, league);
+            } else {
+                // Still need to hire coordinators if contracts expired
+                CoordinatorHiringDialog.show(owner, league);
+            }
+        }
     }
 
     @Override
@@ -177,6 +213,15 @@ public class DesktopUiBridge implements GameUiBridge {
 
     private void showInfo(String title, String message) {
         JOptionPane.showMessageDialog(owner, message, title, JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private String buildTransferOfferText(positions.Player player) {
+        return "Transfer " + (player.isTransfer ? player.getTransferStatus() : "") + " Request\n\n"
+                + "Player: " + player.position + " " + player.name + "\n"
+                + "Year: " + player.getYrStr() + "\n"
+                + "Overall: " + player.ratOvr + "\n"
+                + "From: " + (player.team != null ? player.team.getName() : "Unknown") + "\n\n"
+                + "Accept this transfer to your roster?";
     }
 
     private void showScrollableText(String title, String text) {
