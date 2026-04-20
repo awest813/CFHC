@@ -115,7 +115,9 @@ public class TeamDetailView extends JDialog {
 
         JTable table = new JTable(model);
         table.setAutoCreateRowSorter(true);
-        table.setRowHeight(22);
+        table.setRowHeight(24);
+        table.setDefaultRenderer(Object.class, new StripedRowRenderer());
+        table.setDefaultRenderer(Integer.class, new StripedRowRenderer());
 
         // Double-click to show player detail (from live team)
         if (liveTeam != null) {
@@ -170,7 +172,9 @@ public class TeamDetailView extends JDialog {
         }
 
         JTable table = new JTable(model);
-        table.setRowHeight(22);
+        table.setRowHeight(24);
+        table.setDefaultRenderer(Object.class, new StripedRowRenderer());
+        table.setDefaultRenderer(Integer.class, new StripedRowRenderer());
 
         // Double-click a game row to show box score
         table.addMouseListener(new MouseAdapter() {
@@ -222,7 +226,9 @@ public class TeamDetailView extends JDialog {
         reloadDepthChart.run();
 
         JTable table = new JTable(model);
-        table.setRowHeight(22);
+        table.setRowHeight(24);
+        table.setDefaultRenderer(Object.class, new StripedRowRenderer());
+        table.setDefaultRenderer(Integer.class, new StripedRowRenderer());
 
         if (liveTeam != null) {
             table.addMouseListener(new MouseAdapter() {
@@ -368,7 +374,8 @@ public class TeamDetailView extends JDialog {
         model.addRow(new Object[]{"RPI", String.format("%.3f", team.getRPI()), "#" + team.getRankTeamRPI()});
 
         JTable table = new JTable(model);
-        table.setRowHeight(24);
+        table.setRowHeight(26);
+        table.setDefaultRenderer(Object.class, new StripedRowRenderer());
         table.setFont(new Font("SansSerif", Font.PLAIN, 13));
         table.getColumnModel().getColumn(0).setPreferredWidth(200);
         table.getColumnModel().getColumn(1).setPreferredWidth(100);
@@ -408,6 +415,7 @@ public class TeamDetailView extends JDialog {
 
         JTable table = new JTable(model);
         table.setRowHeight(26);
+        table.setDefaultRenderer(Object.class, new StripedRowRenderer());
         table.setFont(new Font("SansSerif", Font.PLAIN, 14));
         table.getColumnModel().getColumn(0).setPreferredWidth(240);
         table.getColumnModel().getColumn(1).setPreferredWidth(200);
@@ -440,7 +448,9 @@ public class TeamDetailView extends JDialog {
         }
 
         JTable table = new JTable(model);
-        table.setRowHeight(22);
+        table.setRowHeight(24);
+        table.setDefaultRenderer(Object.class, new StripedRowRenderer());
+        table.setDefaultRenderer(Integer.class, new StripedRowRenderer());
         return new JScrollPane(table);
     }
 
@@ -463,7 +473,9 @@ public class TeamDetailView extends JDialog {
         }
 
         JTable table = new JTable(model);
-        table.setRowHeight(22);
+        table.setRowHeight(24);
+        table.setDefaultRenderer(Object.class, new StripedRowRenderer());
+        table.setDefaultRenderer(Integer.class, new StripedRowRenderer());
         return new JScrollPane(table);
     }
 

@@ -36,7 +36,9 @@ public class Main {
         System.out.println(HEADER);
 
         if (args.length == 0) {
-            printUsage();
+            javax.swing.SwingUtilities.invokeLater(() -> {
+                new LauncherFrame().setVisible(true);
+            });
             return;
         }
 

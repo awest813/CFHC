@@ -198,12 +198,21 @@ public class NewGameWizard extends JDialog {
         JList<Conference> confList = new JList<>(confModel);
         confList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         confList.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        confList.setFixedCellHeight(26);
         confList.setCellRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                           boolean isSelected, boolean cellHasFocus) {
                 Conference c = (Conference) value;
-                return super.getListCellRendererComponent(list, c.confName, index, isSelected, cellHasFocus);
+                JLabel l = (JLabel) super.getListCellRendererComponent(list, c.confName, index, isSelected, cellHasFocus);
+                l.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+                if (isSelected) {
+                    l.setBackground(new Color(50, 100, 180));
+                    l.setForeground(Color.WHITE);
+                } else {
+                    l.setBackground(index % 2 == 0 ? Color.WHITE : new Color(245, 247, 250));
+                }
+                return l;
             }
         });
 
@@ -212,15 +221,22 @@ public class NewGameWizard extends JDialog {
         JList<Team> teamList = new JList<>(teamModel);
         teamList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         teamList.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        teamList.setFixedCellHeight(26);
         teamList.setCellRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                           boolean isSelected, boolean cellHasFocus) {
                 Team t = (Team) value;
                 String label = String.format("%-22s  Prestige %d", t.getName(), t.getTeamPrestige());
-                Component c = super.getListCellRendererComponent(list, label, index, isSelected, cellHasFocus);
-                if (isSelected) c.setBackground(new Color(25, 60, 100));
-                return c;
+                JLabel l = (JLabel) super.getListCellRendererComponent(list, label, index, isSelected, cellHasFocus);
+                l.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+                if (isSelected) {
+                    l.setBackground(new Color(50, 100, 180));
+                    l.setForeground(Color.WHITE);
+                } else {
+                    l.setBackground(index % 2 == 0 ? Color.WHITE : new Color(245, 247, 250));
+                }
+                return l;
             }
         });
 

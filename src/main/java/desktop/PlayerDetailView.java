@@ -138,7 +138,8 @@ public class PlayerDetailView extends JDialog {
         }
 
         JTable table = new JTable(model);
-        table.setRowHeight(20);
+        table.setRowHeight(24);
+        table.setDefaultRenderer(Object.class, new StripedRowRenderer());
         table.setAutoCreateRowSorter(false);
 
         JPanel wrapper = new JPanel(new BorderLayout());

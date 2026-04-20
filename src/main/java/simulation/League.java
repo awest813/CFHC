@@ -6864,4 +6864,11 @@ Then conferences can see if they want to add them to their list if the teams mee
         return java.util.Collections.unmodifiableList(teamsFCSList);
     }
 
+
+    /**
+     * Get the Heisman winner summary string.
+     */
+    public String getHeismanWinnerStrFull() {
+        return heismanWinnerStrFull != null ? heismanWinnerStrFull : "No winner decided yet.";
+    }
 }

@@ -102,43 +102,41 @@ public class GameBoxScoreView extends JDialog {
     }
 
     private JPanel buildScoreboard() {
-        JPanel scoreboard = new JPanel(new GridLayout(3, 6, 4, 2));
+        JPanel scoreboard = new JPanel(new GridLayout(3, 6, 8, 4));
         scoreboard.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.GRAY),
-                BorderFactory.createEmptyBorder(8, 8, 8, 8)));
-        scoreboard.setBackground(new Color(33, 37, 41));
+                BorderFactory.createLineBorder(new Color(60, 70, 80), 1),
+                BorderFactory.createEmptyBorder(12, 12, 12, 12)));
+        scoreboard.setBackground(new Color(28, 32, 38));
 
         // Header row
-        addScoreCell(scoreboard, "Team", true);
-        addScoreCell(scoreboard, "Q1", true);
-        addScoreCell(scoreboard, "Q2", true);
-        addScoreCell(scoreboard, "Q3", true);
-        addScoreCell(scoreboard, "Q4", true);
-        addScoreCell(scoreboard, game.numOT > 0 ? "OT" : "Final", true);
+        addScoreCell(scoreboard, "TEAM", true);
+        addScoreCell(scoreboard, "1ST", true);
+        addScoreCell(scoreboard, "2ND", true);
+        addScoreCell(scoreboard, "3RD", true);
+        addScoreCell(scoreboard, "4TH", true);
+        addScoreCell(scoreboard, game.numOT > 0 ? "OT" : "FINAL", true);
 
         // Away team row
-        addScoreCell(scoreboard, game.awayTeam.getName(), false);
+        addScoreCell(scoreboard, game.awayTeam.getAbbr(), false);
         for (int q = 0; q < 4; q++) {
             addScoreCell(scoreboard, String.valueOf(game.awayQScore[q]), false);
         }
-        addScoreCell(scoreboard, String.valueOf(game.awayScore), false);
+        addScoreCell(scoreboard, String.valueOf(game.awayScore), true);
 
         // Home team row
-        addScoreCell(scoreboard, game.homeTeam.getName(), false);
+        addScoreCell(scoreboard, game.homeTeam.getAbbr(), false);
         for (int q = 0; q < 4; q++) {
             addScoreCell(scoreboard, String.valueOf(game.homeQScore[q]), false);
         }
-        addScoreCell(scoreboard, String.valueOf(game.homeScore), false);
+        addScoreCell(scoreboard, String.valueOf(game.homeScore), true);
 
         return scoreboard;
     }
 
-    private void addScoreCell(JPanel panel, String text, boolean header) {
+    private void addScoreCell(JPanel panel, String text, boolean highlighted) {
         JLabel label = new JLabel(text, JLabel.CENTER);
-        label.setForeground(Color.WHITE);
-        label.setFont(header
-                ? new Font("SansSerif", Font.BOLD, 13)
-                : new Font("SansSerif", Font.PLAIN, 13));
+        label.setForeground(highlighted ? new Color(100, 200, 255) : Color.WHITE);
+        label.setFont(new Font("SansSerif", highlighted ? Font.BOLD : Font.PLAIN, 14));
         panel.add(label);
     }
 

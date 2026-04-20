@@ -205,6 +205,8 @@ public class RecruitingView extends JDialog {
         });
 
         JScrollPane tableScroll = new JScrollPane(boardTable);
+        boardTable.setDefaultRenderer(Object.class, new StripedRowRenderer());
+        boardTable.setDefaultRenderer(Integer.class, new StripedRowRenderer());
         tableScroll.setPreferredSize(new Dimension(550, 0));
 
         // Right: detail + roster
