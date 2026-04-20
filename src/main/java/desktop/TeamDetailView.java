@@ -61,6 +61,7 @@ public class TeamDetailView extends JDialog {
         tabs.addTab("Coaches", buildCoachesTab(team));
         if (liveTeam != null) {
             tabs.addTab("Team Stats", buildTeamStatsTab(liveTeam));
+            tabs.addTab("Budget & Facilities", buildBudgetFacilitiesTab(liveTeam));
         }
         if (liveTeam != null && !liveTeam.getTeamHistory().isEmpty()) {
             tabs.addTab("History", buildHistoryTab(liveTeam));
@@ -373,6 +374,52 @@ public class TeamDetailView extends JDialog {
         table.getColumnModel().getColumn(1).setPreferredWidth(100);
         table.getColumnModel().getColumn(2).setPreferredWidth(80);
         return new JScrollPane(table);
+    }
+
+    // -------------------------------------------------------------------------
+    // Budget & Facilities tab
+    // -------------------------------------------------------------------------
+
+    private JPanel buildBudgetFacilitiesTab(Team team) {
+        JPanel panel = new JPanel(new BorderLayout(0, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
+
+        DefaultTableModel model = new DefaultTableModel(new String[]{"Category", "Value"}, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+        };
+
+        model.addRow(new Object[]{"Team Budget", "$" + String.format("%,d", team.getTeamBudget())});
+        model.addRow(new Object[]{"Recruiting Budget", "$" + String.format("%,d", team.getTeamRecruitBudget())});
+        model.addRow(new Object[]{"Discipline Budget", "$" + String.format("%,d", team.getTeamDisciplineBudget())});
+        model.addRow(new Object[]{"", ""});
+        model.addRow(new Object[]{"Facilities Level", team.getTeamFacilities()});
+        model.addRow(new Object[]{"Discipline Score", team.getTeamDisciplineScore() + "%"});
+        model.addRow(new Object[]{"", ""});
+        model.addRow(new Object[]{"Prestige", team.getTeamPrestige()});
+        model.addRow(new Object[]{"Prestige Rank", "#" + team.getRankTeamPrestige()});
+
+        // Show facility upgrade cost info
+        int baselineCost = 17_500;
+        int nextUpgradeCost = baselineCost * (team.getTeamFacilities() + 1);
+        model.addRow(new Object[]{"", ""});
+        model.addRow(new Object[]{"Next Facility Upgrade Cost", "$" + String.format("%,d", nextUpgradeCost)});
+        boolean canAfford = team.getTeamBudget() > nextUpgradeCost;
+        model.addRow(new Object[]{"Can Afford Upgrade?", canAfford ? "Yes" : "No"});
+
+        JTable table = new JTable(model);
+        table.setRowHeight(26);
+        table.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        table.getColumnModel().getColumn(0).setPreferredWidth(240);
+        table.getColumnModel().getColumn(1).setPreferredWidth(200);
+        panel.add(new JScrollPane(table), BorderLayout.CENTER);
+
+        JLabel hint = new JLabel(
+                "Facility upgrades happen automatically at end of season if the team has enough budget.");
+        hint.setFont(new Font("SansSerif", Font.ITALIC, 11));
+        hint.setBorder(BorderFactory.createEmptyBorder(4, 0, 0, 0));
+        panel.add(hint, BorderLayout.SOUTH);
+
+        return panel;
     }
 
     // -------------------------------------------------------------------------

@@ -74,12 +74,17 @@ public class NewGameWizard extends JDialog {
         JPanel page = new JPanel(new BorderLayout(10, 10));
         page.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JLabel title = new JLabel("Choose a Prestige Mode");
+        JLabel title = new JLabel("New Game Settings");
         title.setFont(new Font("SansSerif", Font.BOLD, 20));
         page.add(title, BorderLayout.NORTH);
 
-        JPanel radioPanel = new JPanel(new GridLayout(0, 1, 6, 10));
-        radioPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        JPanel optionsPanel = new JPanel(new GridLayout(0, 1, 6, 8));
+        optionsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Prestige mode section
+        JLabel prestigeHeader = new JLabel("Prestige Mode");
+        prestigeHeader.setFont(new Font("SansSerif", Font.BOLD, 15));
+        optionsPanel.add(prestigeHeader);
 
         JRadioButton defaultBtn = new JRadioButton("Default — historical team prestige");
         defaultBtn.setFont(new Font("SansSerif", Font.PLAIN, 14));
@@ -96,10 +101,31 @@ public class NewGameWizard extends JDialog {
         group.add(randomBtn);
         group.add(equalBtn);
 
-        radioPanel.add(defaultBtn);
-        radioPanel.add(randomBtn);
-        radioPanel.add(equalBtn);
-        page.add(radioPanel, BorderLayout.CENTER);
+        optionsPanel.add(defaultBtn);
+        optionsPanel.add(randomBtn);
+        optionsPanel.add(equalBtn);
+
+        // Playoff format section
+        JLabel playoffHeader = new JLabel("Playoff Format");
+        playoffHeader.setFont(new Font("SansSerif", Font.BOLD, 15));
+        playoffHeader.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+        optionsPanel.add(playoffHeader);
+
+        JRadioButton standardPlayoff = new JRadioButton("Standard 4-Team Playoff");
+        standardPlayoff.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        standardPlayoff.setSelected(true);
+
+        JRadioButton expandedPlayoff = new JRadioButton("Expanded Playoff (12-team format)");
+        expandedPlayoff.setFont(new Font("SansSerif", Font.PLAIN, 14));
+
+        ButtonGroup playoffGroup = new ButtonGroup();
+        playoffGroup.add(standardPlayoff);
+        playoffGroup.add(expandedPlayoff);
+
+        optionsPanel.add(standardPlayoff);
+        optionsPanel.add(expandedPlayoff);
+
+        page.add(new JScrollPane(optionsPanel), BorderLayout.CENTER);
 
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JButton cancelBtn = new JButton("Cancel");
@@ -111,7 +137,8 @@ public class NewGameWizard extends JDialog {
             if (randomBtn.isSelected()) mode = PrestigeMode.RANDOMIZE;
             else if (equalBtn.isSelected()) mode = PrestigeMode.EQUALIZE;
             else mode = PrestigeMode.DEFAULT;
-            createLeagueAndShowTeamPicker(mode);
+            boolean useExpandedPlayoff = expandedPlayoff.isSelected();
+            createLeagueAndShowTeamPicker(mode, useExpandedPlayoff);
         });
         buttons.add(cancelBtn);
         buttons.add(nextBtn);
@@ -126,7 +153,7 @@ public class NewGameWizard extends JDialog {
     // Create League + Page 2 — Team Selection
     // -------------------------------------------------------------------------
 
-    private void createLeagueAndShowTeamPicker(PrestigeMode mode) {
+    private void createLeagueAndShowTeamPicker(PrestigeMode mode, boolean useExpandedPlayoff) {
         try {
             boolean randomize = mode == PrestigeMode.RANDOMIZE;
             boolean equalize = mode == PrestigeMode.EQUALIZE;
@@ -141,6 +168,7 @@ public class NewGameWizard extends JDialog {
                     equalize
             );
             resultLeague.setPlatformResourceProvider(resources);
+            resultLeague.expPlayoffs = useExpandedPlayoff;
             showTeamPickerPage();
         } catch (Exception ex) {
             PlatformLog.e(TAG, "Error creating league", ex);
