@@ -3960,6 +3960,48 @@ public class Team {
         return allPlayersList;
     }
 
+    /**
+     * Returns the internal position roster list for the given position abbreviation.
+     * Useful for the desktop depth-chart editor; the list order determines depth.
+     *
+     * @param pos two-letter position code ("QB", "RB", "WR", "TE", "OL", "K", "DL", "LB", "CB", "S")
+     * @return the live mutable list for that position, or {@code null} if unknown
+     */
+    @SuppressWarnings("unchecked")
+    public java.util.List<? extends Player> getPositionList(String pos) {
+        return switch (pos) {
+            case "QB" -> teamQBs;
+            case "RB" -> teamRBs;
+            case "WR" -> teamWRs;
+            case "TE" -> teamTEs;
+            case "OL" -> teamOLs;
+            case "K"  -> teamKs;
+            case "DL" -> teamDLs;
+            case "LB" -> teamLBs;
+            case "CB" -> teamCBs;
+            case "S"  -> teamSs;
+            default   -> null;
+        };
+    }
+
+    /**
+     * Swaps two players in the depth chart for the given position.
+     * The depth chart is determined by the list order in the internal position roster.
+     *
+     * @param pos   position abbreviation (e.g. "QB")
+     * @param idxA  index of first player to swap
+     * @param idxB  index of second player to swap
+     * @return {@code true} if the swap was performed, {@code false} if indices were invalid
+     */
+    public boolean swapDepthChartOrder(String pos, int idxA, int idxB) {
+        java.util.List<? extends Player> list = getPositionList(pos);
+        if (list == null || idxA < 0 || idxB < 0 || idxA >= list.size() || idxB >= list.size()) {
+            return false;
+        }
+        java.util.Collections.swap(list, idxA, idxB);
+        return true;
+    }
+
     public HeadCoach getHC(int depth) {
         return HC;
     }

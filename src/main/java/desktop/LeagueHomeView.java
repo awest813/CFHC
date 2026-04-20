@@ -225,6 +225,13 @@ public class LeagueHomeView extends JFrame {
 
         file.addSeparator();
 
+        JMenuItem settingsItem = new JMenuItem("Settings\u2026");
+        settingsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, KeyEvent.CTRL_DOWN_MASK));
+        settingsItem.addActionListener(e -> SettingsDialog.show(this, leagueCore));
+        file.add(settingsItem);
+
+        file.addSeparator();
+
         JMenuItem exitItem = new JMenuItem("Exit");
         exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, KeyEvent.CTRL_DOWN_MASK));
         exitItem.addActionListener(e -> dispatchEvent(new java.awt.event.WindowEvent(this,
