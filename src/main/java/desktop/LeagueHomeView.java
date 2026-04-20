@@ -168,6 +168,7 @@ public class LeagueHomeView extends JFrame {
         controller = new SeasonController(leagueCore, bridge, NO_OP_FLOW);
         scoreboardWeek = Math.max(0, leagueCore.currentWeek);
 
+        loadApplicationIcon();
         setJMenuBar(buildMenuBar());
         add(buildHeader(), BorderLayout.NORTH);
         mainTabs = buildMainContent();
@@ -181,6 +182,28 @@ public class LeagueHomeView extends JFrame {
             for (Team t : c.getTeams()) {
                 liveTeamMap.put(t.getName(), t);
             }
+        }
+    }
+
+    /**
+     * Attempts to load an application icon from the classpath ({@code assets/cfhc_icon.png}).
+     * Silently falls back to the default Java icon if the image is not found.
+     */
+    private void loadApplicationIcon() {
+        try {
+            java.io.InputStream iconStream = Thread.currentThread()
+                    .getContextClassLoader()
+                    .getResourceAsStream("assets/cfhc_icon.png");
+            if (iconStream != null) {
+                java.awt.Image icon = javax.imageio.ImageIO.read(iconStream);
+                if (icon != null) {
+                    setIconImage(icon);
+                }
+                iconStream.close();
+            }
+        } catch (Exception ignored) {
+            // Icon is cosmetic; log and continue
+            PlatformLog.i(TAG, "Application icon not found; using default.");
         }
     }
 
@@ -827,37 +850,89 @@ public class LeagueHomeView extends JFrame {
             return Integer.compare(b.getWins(), a.getWins());
         });
 
-        DefaultListModel<Team> model = new DefaultListModel<>();
-        sorted.forEach(model::addElement);
+        // Sortable table with conference standings columns
+        String[] cols = {"#", "Team", "Record", "Conf", "Pres"};
+        DefaultTableModel confModel = new DefaultTableModel(cols, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+            @Override public Class<?> getColumnClass(int col) {
+                return switch (col) {
+                    case 0, 4 -> Integer.class;
+                    default -> String.class;
+                };
+            }
+        };
 
-        JList<Team> list = new JList<>(model);
-        list.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        list.setCellRenderer(new DefaultListCellRenderer() {
+        for (Team t : sorted) {
+            confModel.addRow(new Object[]{
+                    t.getRankTeamPollScore() <= 25 ? t.getRankTeamPollScore() : null,
+                    t.getName(),
+                    t.getWins() + "-" + t.getLosses(),
+                    t.getConfWins() + "-" + t.getConfLosses(),
+                    t.getTeamPrestige()
+            });
+        }
+
+        JTable confTable = new JTable(confModel);
+        confTable.setAutoCreateRowSorter(true);
+        confTable.setRowHeight(20);
+        confTable.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        confTable.getColumnModel().getColumn(0).setPreferredWidth(30);
+        confTable.getColumnModel().getColumn(1).setPreferredWidth(140);
+        confTable.getColumnModel().getColumn(2).setPreferredWidth(50);
+        confTable.getColumnModel().getColumn(3).setPreferredWidth(50);
+        confTable.getColumnModel().getColumn(4).setPreferredWidth(40);
+
+        // Highlight user team rows
+        confTable.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
             @Override
-            public Component getListCellRendererComponent(JList<?> jlist, Object value, int index,
-                                                          boolean isSelected, boolean cellHasFocus) {
-                Team t = (Team) value;
-                String pollStr = t.getRankTeamPollScore() <= 25 ? "#" + t.getRankTeamPollScore() + " " : "";
-                String display = String.format("%-2s%-20s %d-%d  (%d-%d conf)  P%d",
-                        pollStr, t.getName(), t.getWins(), t.getLosses(),
-                        t.getConfWins(), t.getConfLosses(), t.getTeamPrestige());
-                Component c = super.getListCellRendererComponent(jlist, display, index, isSelected, cellHasFocus);
-                if (!isSelected && t == leagueCore.userTeam) {
-                    c.setBackground(new Color(220, 235, 255));
+            public Component getTableCellRendererComponent(JTable tbl, Object value,
+                                                           boolean isSelected, boolean hasFocus,
+                                                           int row, int column) {
+                Component c = super.getTableCellRendererComponent(tbl, value, isSelected, hasFocus, row, column);
+                if (!isSelected && leagueCore.userTeam != null) {
+                    String name = (String) tbl.getValueAt(row, 1);
+                    if (leagueCore.userTeam.getName().equals(name)) {
+                        c.setBackground(new Color(220, 235, 255));
+                    } else {
+                        c.setBackground(tbl.getBackground());
+                    }
                 }
                 return c;
             }
         });
-        list.addMouseListener(new MouseAdapter() {
+        // Also set renderer for Integer columns
+        confTable.setDefaultRenderer(Integer.class, new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable tbl, Object value,
+                                                           boolean isSelected, boolean hasFocus,
+                                                           int row, int column) {
+                Component c = super.getTableCellRendererComponent(tbl, value, isSelected, hasFocus, row, column);
+                if (!isSelected && leagueCore.userTeam != null) {
+                    String name = (String) tbl.getValueAt(row, 1);
+                    if (leagueCore.userTeam.getName().equals(name)) {
+                        c.setBackground(new Color(220, 235, 255));
+                    } else {
+                        c.setBackground(tbl.getBackground());
+                    }
+                }
+                return c;
+            }
+        });
+
+        confTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    Team sel = list.getSelectedValue();
-                    if (sel != null) openTeamDialogFromLive(sel);
+                    int row = confTable.rowAtPoint(e.getPoint());
+                    if (row >= 0) {
+                        String name = (String) confTable.getValueAt(row, 1);
+                        Team t = liveTeamMap.get(name);
+                        if (t != null) openTeamDialogFromLive(t);
+                    }
                 }
             }
         });
-        panel.add(new JScrollPane(list), BorderLayout.CENTER);
+        panel.add(new JScrollPane(confTable), BorderLayout.CENTER);
         return panel;
     }
 
