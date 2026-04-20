@@ -32,6 +32,9 @@ public class SettingsDialog extends JDialog {
 
     private static final Font LABEL_FONT = new Font("SansSerif", Font.PLAIN, 13);
 
+    /** Set to {@code true} when the user clicks Apply &amp; Close. */
+    private boolean applied = false;
+
     public SettingsDialog(JFrame owner, League league) {
         super(owner, "Settings", true);
         setSize(420, 320);
@@ -77,6 +80,7 @@ public class SettingsDialog extends JDialog {
             league.confRealignment = confRealign.isSelected();
             league.advancedRealignment = advRealign.isSelected();
             league.neverRetire = neverRetire.isSelected();
+            applied = true;
             dispose();
         });
         JButton cancelBtn = new JButton("Cancel");
@@ -86,15 +90,23 @@ public class SettingsDialog extends JDialog {
         add(bottom, BorderLayout.SOUTH);
     }
 
+    /** Returns {@code true} if the user applied settings changes. */
+    public boolean wasApplied() {
+        return applied;
+    }
+
     /**
      * Shows the settings dialog and blocks until the user closes it.
+     * Returns {@code true} if the user applied changes.
      *
      * @param owner  parent frame
      * @param league the active league whose settings will be modified
+     * @return {@code true} if settings were changed
      */
-    public static void show(JFrame owner, League league) {
+    public static boolean show(JFrame owner, League league) {
         SettingsDialog dlg = new SettingsDialog(owner, league);
         dlg.setLocationRelativeTo(owner);
         dlg.setVisible(true);
+        return dlg.wasApplied();
     }
 }

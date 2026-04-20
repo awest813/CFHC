@@ -3967,7 +3967,6 @@ public class Team {
      * @param pos two-letter position code ("QB", "RB", "WR", "TE", "OL", "K", "DL", "LB", "CB", "S")
      * @return the live mutable list for that position, or {@code null} if unknown
      */
-    @SuppressWarnings("unchecked")
     public java.util.List<? extends Player> getPositionList(String pos) {
         return switch (pos) {
             case "QB" -> teamQBs;

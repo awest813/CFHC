@@ -77,6 +77,9 @@ public class LeagueHomeView extends JFrame {
     private static final String SAVE_EXTENSION = "cfb";
     private static final DecimalFormat DF2 = new DecimalFormat("#.##");
 
+    /** Delimiter used by the engine to separate headline from story body in news strings. */
+    private static final String NEWS_STORY_DELIMITER = ">";
+
     /** No-op {@link GameFlowManager} — all transitions are handled in-process. */
     private static final GameFlowManager NO_OP_FLOW = new GameFlowManager() {
         @Override public void startNewGame(LeagueLaunchCoordinator.LaunchRequest.PrestigeMode p, String u) {}
@@ -250,7 +253,11 @@ public class LeagueHomeView extends JFrame {
 
         JMenuItem settingsItem = new JMenuItem("Settings\u2026");
         settingsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, KeyEvent.CTRL_DOWN_MASK));
-        settingsItem.addActionListener(e -> SettingsDialog.show(this, leagueCore));
+        settingsItem.addActionListener(e -> {
+            if (SettingsDialog.show(this, leagueCore)) {
+                markDirty();
+            }
+        });
         file.add(settingsItem);
 
         file.addSeparator();
@@ -1311,7 +1318,7 @@ public class LeagueHomeView extends JFrame {
                 List<String> weekStories = stories.get(newsWeek[0]);
                 if (weekStories != null) {
                     for (String s : weekStories) {
-                        String[] parts = s.split(">");
+                        String[] parts = s.split(NEWS_STORY_DELIMITER);
                         headlineModel.addElement(parts[0].trim());
                     }
                 }
@@ -1370,7 +1377,7 @@ public class LeagueHomeView extends JFrame {
         List<String> weekStories = stories.get(week);
         if (weekStories == null) return null;
         for (String story : weekStories) {
-            String[] parts = story.split(">");
+            String[] parts = story.split(NEWS_STORY_DELIMITER);
             if (parts.length >= 2 && headline.contains(parts[0].trim())) {
                 return parts[1].trim();
             }
@@ -1393,7 +1400,7 @@ public class LeagueHomeView extends JFrame {
             List<String> weekStories = leagueCore.getNewsStories().get(w);
             if (weekStories == null) continue;
             for (String story : weekStories) {
-                String[] parts = story.split(">");
+                String[] parts = story.split(NEWS_STORY_DELIMITER);
                 if (parts.length >= 2 && headline.contains(parts[0])) {
                     return parts[1];
                 }
@@ -1407,7 +1414,7 @@ public class LeagueHomeView extends JFrame {
             if (weekStories != null && !weekStories.isEmpty()) {
                 StringBuilder sb = new StringBuilder();
                 for (String s : weekStories) {
-                    sb.append(s.replace(">", "\n\n")).append("\n\n---\n\n");
+                    sb.append(s.replace(NEWS_STORY_DELIMITER, "\n\n")).append("\n\n---\n\n");
                 }
                 return sb.toString();
             }
