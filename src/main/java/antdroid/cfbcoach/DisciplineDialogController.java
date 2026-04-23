@@ -3,7 +3,7 @@ package antdroid.cfbcoach;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 
-import simulation.Player;
+import positions.Player;
 import simulation.Team;
 
 final class DisciplineDialogController {

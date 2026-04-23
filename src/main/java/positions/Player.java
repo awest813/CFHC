@@ -102,6 +102,10 @@ public class Player {
         return value == null ? "" : value.replaceAll("\\s+", " ").trim();
     }
 
+    public String getName() {
+        return name;
+    }
+
 
     public static Player fromRecord(simulation.PlayerRecord record, Team team) {
         switch (record.position()) {

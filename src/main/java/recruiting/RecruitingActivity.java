@@ -35,6 +35,7 @@ import java.util.Random;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import antdroid.cfbcoach.GameNavigation;
+import antdroid.cfbcoach.PlatformUiHelper;
 import simulation.LeagueLaunchCoordinator;
 import antdroid.cfbcoach.R;
 import simulation.RosterRules;
@@ -161,8 +162,7 @@ public class RecruitingActivity extends AppCompatActivity {
           Set up expandable list view
          */
         recruitList = findViewById(R.id.recruitExpandList);
-        setPlayerList("QB");
-        setPlayerInfoMap("QB");
+        setPlayerList(0, "QB");
         expListAdapter = new ExpandableListAdapterRecruiting(this);
         recruitList.setAdapter(expListAdapter);
 
@@ -202,9 +202,13 @@ public class RecruitingActivity extends AppCompatActivity {
 
     //UPDATE DATA AFTER CHOOSING FILTER
     private void updateForNewPosition(int position) {
-        players = controller.getPlayersForPosition(position, currentPosition);
-        playersInfo = controller.buildPlayersInfoMap(players, position, currentPosition);
+        setPlayerList(position, currentPosition);
         expListAdapter.notifyDataSetChanged();
+    }
+
+    private void setPlayerList(int position, String positionLabel) {
+        players = new ArrayList<>(controller.getPlayersForPosition(position, positionLabel));
+        playersInfo = controller.buildPlayersInfoMap(players, position, positionLabel);
     }
 
     //FILTERS & SORTINGS
@@ -287,8 +291,15 @@ public class RecruitingActivity extends AppCompatActivity {
     }
 
     //PLAYER DISPLAY INFO
-    private String getReadablePlayerInfo(String p) {
+    private String getReadablePlayerInfo(RecruitingPlayerRecord p) {
         return sessionData.getReadablePlayerInfo(p);
+    }
+
+    private void updateBudgetText() {
+        if (budgetText != null) {
+            budgetText.setText("Budget: $" + sessionData.recruitingBudget);
+        }
+        updateRecruitingOverview();
     }
 
     /**

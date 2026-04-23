@@ -71,7 +71,7 @@ final class WeeklyScoresDialogController {
                 new AdapterView.OnItemSelectedListener() {
                     public void onItemSelected(
                             AdapterView<?> parent, View view, int position, long id) {
-                        ArrayList<String> scores = simLeague.getWeeklyScores().get(position);
+                        ArrayList<String> scores = new ArrayList<>(simLeague.getWeeklyScores().get(position));
                         boolean isempty = false;
                         if (scores.size() == 0) {
                             isempty = true;

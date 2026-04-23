@@ -11,8 +11,9 @@ import android.widget.Spinner;
 import java.util.ArrayList;
 
 import simulation.League;
-import simulation.Staff;
+import simulation.PlayerRecord;
 import simulation.Team;
+import staff.Staff;
 import ui.CoachDatabase;
 import ui.HallofFameList;
 import ui.LeagueHistoryList;
@@ -46,7 +47,7 @@ final class LeagueHistoryDialogController {
         leagueHistorySpinner.setAdapter(leagueHistorySpinnerAdapter);
 
         final ListView leagueHistoryList = dialog.findViewById(R.id.listViewTeamRankings);
-        final String[] hofPlayers = new String[simLeague.getLeagueHoF().size()];
+        final PlayerRecord[] hofPlayers = new PlayerRecord[simLeague.getLeagueHoF().size()];
         for (int i = 0; i < simLeague.getLeagueHoF().size(); ++i) {
             hofPlayers[i] = simLeague.getLeagueHoF().get(i);
         }

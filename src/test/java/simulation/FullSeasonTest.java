@@ -99,8 +99,9 @@ public class FullSeasonTest {
         // Play through the regular season weeks (1 through regWeeks-1)
         // and then conference championships (regWeeks-1)
         // and then postseason weeks (regWeeks through regWeeks+3)
-        // Total playWeek calls = regWeeks + 4 (including bowl/playoff weeks)
-        for (int w = 0; w < regWeeks + 4; w++) {
+        // Total playWeek calls after preseason = regWeeks + 3, ending at the
+        // season-summary boundary before offseason processing begins.
+        for (int w = 0; w < regWeeks + 3; w++) {
             controller.advanceWeek();
         }
 

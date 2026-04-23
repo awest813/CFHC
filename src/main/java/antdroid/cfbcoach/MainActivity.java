@@ -72,7 +72,9 @@ import simulation.PlatformLog;
 import simulation.PlatformResourceProvider;
 import simulation.PlaybookDefense;
 import simulation.PlaybookOffense;
+import simulation.PlayerRecord;
 import simulation.Team;
+import simulation.TeamHistoryRecord;
 import staff.DC;
 import staff.HeadCoach;
 import staff.OC;
@@ -107,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private Conference currentConference;
     private Team currentTeam;
-    private Team userTeam;
+    Team userTeam;
     private File saveLeagueFile;
     private String username;
     private LeagueImportFlowController.ImportType pendingImportType;
@@ -131,7 +133,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private boolean jobListSet;
 
     private boolean wantUpdateConf;
-    private boolean redshirtComplete;
+    boolean redshirtComplete;
     private boolean newGame;
     private boolean skipRetirementQ;
     private boolean reincarnate;
@@ -446,7 +448,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     //Update Header Bar
-    private void updateHeaderBar() {
+    void updateHeaderBar() {
         getSupportActionBar().setTitle(currentTeam.getName());
         SeasonPresentationController.update(this, currentTeam, simLeague, season);
     }
@@ -475,7 +477,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return SeasonPresentationController.getSeasonPhaseChipText(simLeague);
     }
 
-    private void selectTeam() {
+    void selectTeam() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Choose Your Program");
         builder.setMessage("Pick the school where your " + seasonStart + " head coaching run begins.");
@@ -876,7 +878,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    private void updateCurrTeam() {
+    void updateCurrTeam() {
         teamList = new ArrayList<>();
         dataAdapterTeam.clear();
         for (int i = 0; i < currentConference.confTeams.size() ; i++) {
@@ -890,7 +892,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
-    private void updateCurrConference() {
+    void updateCurrConference() {
         confList.clear();
         for (int i = 0; i < simLeague.getConferences().size(); i++) {
             if(simLeague.getConferences().get(i).confTeams.size() > 0) confList.add(simLeague.getConferences().get(i).confName);
@@ -1323,13 +1325,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (seasonController != null) {
             seasonController.advanceWeek();
         }
-    }
 
-
-        if(userTeam.disciplineAction) disciplineSetup();
-
+        if (userTeam != null && userTeam.disciplineAction) {
+            disciplineSetup();
+        }
         resetUI();
-
     }
 
 
@@ -1647,9 +1647,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void onItemSelected(
                             AdapterView<?> parent, View view, int position, long id) {
                         if (position == 0) {
-                            TeamHistoryRecord[] histArray = hc.getCoachHistory().toArray(new TeamHistoryRecord[0]);
                             TeamHistoryList teamHistoryAdapter =
-                                    new TeamHistoryList(MainActivity.this, histArray);
+                                    new TeamHistoryList(MainActivity.this, hc.getCoachHistory());
                             teamHistoryList.setAdapter(teamHistoryAdapter);
                         } else if (position == 1) {
                             dialog.dismiss();
@@ -2114,7 +2113,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         SettingsDialogController.showCareerSetup(this, simLeague);
     }
 
-    private void universalProRelAction() {
+    void universalProRelAction() {
 
         // Perform action on click
         simLeague.enableUnivProRel = true;
@@ -2497,7 +2496,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //get user team from list dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Choose your new team:");
-        jobList = simLeague.getTeamList();
+        jobList = new ArrayList<>(simLeague.getTeamList());
 
         final String[] teams = simLeague.getTeamListStr();
         builder.setItems(teams, new DialogInterface.OnClickListener() {
@@ -2862,7 +2861,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     //Television Contract News
-    private void showRedshirtList() {
+    private void showRedshirtListFix() {
         StringBuilder update = new StringBuilder();
         update.append("The following is the list of players that were redshirted this season. Some players automatically received redshirts if they did not play in at least 4 games.\n\n");
         for (int i = 0; i < userTeam.redshirtList.size(); ++i) {
@@ -3392,7 +3391,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
-    private void fixBowlNames() {
+    void fixBowlNames() {
         String[] bowls = simLeague.bowlNamesText.split(",");
         simLeague.bowlNames = new String[bowls.length];
         for(int i = 0; i < bowls.length; i++) {

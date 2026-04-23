@@ -32,160 +32,160 @@ import staff.Staff;
 
 
 public class Team {
-    private final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
-    private final DecimalFormat df2 = new DecimalFormat("#.##", symbols);
-    private final DecimalFormat df3 = new DecimalFormat("#.###", symbols);
+    public final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+    public final DecimalFormat df2 = new DecimalFormat("#.##", symbols);
+    public final DecimalFormat df3 = new DecimalFormat("#.###", symbols);
     public final League league;
-    private String name;
-    private String abbr;
-    private String conference;
-    private String division;
-    private int location;
-    private ArrayList<TeamHistoryRecord> teamHistory;
-    private ArrayList<PlayerRecord> hallOfFame;
+    public String name;
+    public String abbr;
+    public String conference;
+    public String division;
+    public int location;
+    public ArrayList<TeamHistoryRecord> teamHistory;
+    public ArrayList<PlayerRecord> hallOfFame;
 
-    private TeamRecords teamRecords;
-    private boolean userControlled;
-    private boolean showPopups;
-    private boolean penalized;
-    private boolean bowlBan;
-    private boolean recentPenalty;
-    private boolean facilityUpgrade;
-    private boolean disciplineAction;
+    public TeamRecords teamRecords;
+    public boolean userControlled;
+    public boolean showPopups;
+    public boolean penalized;
+    public boolean bowlBan;
+    public boolean recentPenalty;
+    public boolean facilityUpgrade;
+    public boolean disciplineAction;
 
 
-    private PlaybookOffense playbookOff;
-    private PlaybookDefense playbookDef;
-    private int playbookOffNum;
-    private int playbookDefNum;
+    public PlaybookOffense playbookOff;
+    public PlaybookDefense playbookDef;
+    public int playbookOffNum;
+    public int playbookDefNum;
 
     //Future Implementation?
-    private int teamBudget;
-    private int teamRecruitBudget;
-    private int teamDiscplineBudget;
-    private int teamDisciplineScore;
-    private int teamFacilities;
-    private int teamStadium;
+    public int teamBudget;
+    public int teamRecruitBudget;
+    public int teamDiscplineBudget;
+    public int teamDisciplineScore;
+    public int teamFacilities;
+    public int teamStadium;
 
     //Game Log variables
-    private ArrayList<Game> gameSchedule;
-    private ArrayList<Team> oocTeams;
-    private ArrayList<Integer> oocWeeks;
-    private ArrayList<String> gameWLSchedule;
-    private ArrayList<Team> gameWinsAgainst;
-    private ArrayList<Team> gameLossesAgainst;
-    private String confChampion;
-    private String sweet16;
-    private String qtFinalWL;
-    private String semiFinalWL;
-    private String natChampWL;
+    public ArrayList<Game> gameSchedule;
+    public ArrayList<Team> oocTeams;
+    public ArrayList<Integer> oocWeeks;
+    public ArrayList<String> gameWLSchedule;
+    public ArrayList<Team> gameWinsAgainst;
+    public ArrayList<Team> gameLossesAgainst;
+    public String confChampion;
+    public String sweet16;
+    public String qtFinalWL;
+    public String semiFinalWL;
+    public String natChampWL;
 
     //Team stats
-    private int wins;
-    private int losses;
-    private int totalWins;
-    private int totalLosses;
-    private int totalCCs;
-    private int totalNCs;
-    private int totalCCLosses;
-    private int totalNCLosses;
-    private int totalBowls;
-    private int totalBowlLosses;
+    public int wins;
+    public int losses;
+    public int totalWins;
+    public int totalLosses;
+    public int totalCCs;
+    public int totalNCs;
+    public int totalCCLosses;
+    public int totalNCLosses;
+    public int totalBowls;
+    public int totalBowlLosses;
 
-    private TeamStreak winStreak;
+    public TeamStreak winStreak;
 
     //Season Stats
-    private int teamPoints;
-    private int teamOppPoints;
-    private int teamYards;
-    private int teamOppYards;
-    private int teamPassYards;
-    private int teamRushYards;
-    private int teamOppPassYards;
-    private int teamOppRushYards;
-    private int teamTODiff;
-    private int teamPrestige;
-    private int teamPrestigeStart;
-    private int teamDiscipline;
-    private double teamChemistry;
+    public int teamPoints;
+    public int teamOppPoints;
+    public int teamYards;
+    public int teamOppYards;
+    public int teamPassYards;
+    public int teamRushYards;
+    public int teamOppPassYards;
+    public int teamOppRushYards;
+    public int teamTODiff;
+    public int teamPrestige;
+    public int teamPrestigeStart;
+    public int teamDiscipline;
+    public double teamChemistry;
 
     //Calculated Stats
-    private float teamOffTalent;
-    private float teamDefTalent;
-    private int[] prestigePts;
-    private float teamPollScore;
-    private int teamStrengthOfWins;
-    private int teamStrengthOfLosses;
-    private double teamSOS;
-    private float teamRPI;
+    public float teamOffTalent;
+    public float teamDefTalent;
+    public int[] prestigePts;
+    public float teamPollScore;
+    public int teamStrengthOfWins;
+    public int teamStrengthOfLosses;
+    public double teamSOS;
+    public float teamRPI;
 
     //Calculated Ranks
-    private int rankTeamPoints;
-    private int rankTeamOppPoints;
-    private int rankTeamYards;
-    private int rankTeamOppYards;
-    private int rankTeamPassYards;
-    private int rankTeamRushYards;
-    private int rankTeamOppPassYards;
-    private int rankTeamOppRushYards;
-    private int rankTeamTODiff;
-    private int rankTeamOffTalent;
-    private int rankTeamDefTalent;
-    private int rankTeamPrestige;
-    private int rankTeamPrestigeStart;
-    private int rankTeamRecruitClass;
-    private int rankTeamPollScore;
-    private int rankTeamStrengthOfWins;
-    private int rankTeamSOS;
-    private int rankTeamDisciplineScore;
-    private int rankTeamBudget;
-    private int rankTeamFacilities;
-    private int rankTeamChemistry;
-    private int rankTeamRPI;
+    public int rankTeamPoints;
+    public int rankTeamOppPoints;
+    public int rankTeamYards;
+    public int rankTeamOppYards;
+    public int rankTeamPassYards;
+    public int rankTeamRushYards;
+    public int rankTeamOppPassYards;
+    public int rankTeamOppRushYards;
+    public int rankTeamTODiff;
+    public int rankTeamOffTalent;
+    public int rankTeamDefTalent;
+    public int rankTeamPrestige;
+    public int rankTeamPrestigeStart;
+    public int rankTeamRecruitClass;
+    public int rankTeamPollScore;
+    public int rankTeamStrengthOfWins;
+    public int rankTeamSOS;
+    public int rankTeamDisciplineScore;
+    public int rankTeamBudget;
+    public int rankTeamFacilities;
+    public int rankTeamChemistry;
+    public int rankTeamRPI;
 
     //prestige/talent improvements
-    private int confPrestige;
-    private int disciplinePts;
-    private int projectedWins;
-    private int projectedPollRank;
-    private float projectedPollScore;
-    private float teamStartOffTal;
-    private float teamStartDefTal;
+    public int confPrestige;
+    public int disciplinePts;
+    public int projectedWins;
+    public int projectedPollRank;
+    public float projectedPollScore;
+    public float teamStartOffTal;
+    public float teamStartDefTal;
 
     //Head HeadCoach
-    private HeadCoach HC;
-    private staff.OC OC;
-    private staff.DC DC;
-    private boolean fired;
-    private boolean newContract;
-    private boolean retired;
-    private String contractString;
+    public HeadCoach HC;
+    public staff.OC OC;
+    public staff.DC DC;
+    public boolean fired;
+    public boolean newContract;
+    public boolean retired;
+    public String contractString;
 
     //players on team
     //offense
-    private ArrayList<PlayerQB> teamQBs;
-    private ArrayList<PlayerRB> teamRBs;
-    private ArrayList<PlayerWR> teamWRs;
-    private ArrayList<PlayerTE> teamTEs;
-    private ArrayList<PlayerK> teamKs;
-    private ArrayList<PlayerOL> teamOLs;
+    public ArrayList<PlayerQB> teamQBs;
+    public ArrayList<PlayerRB> teamRBs;
+    public ArrayList<PlayerWR> teamWRs;
+    public ArrayList<PlayerTE> teamTEs;
+    public ArrayList<PlayerK> teamKs;
+    public ArrayList<PlayerOL> teamOLs;
     //defense
-    private ArrayList<PlayerDL> teamDLs;
-    private ArrayList<PlayerLB> teamLBs;
-    private ArrayList<PlayerCB> teamCBs;
-    private ArrayList<PlayerS> teamSs;
+    public ArrayList<PlayerDL> teamDLs;
+    public ArrayList<PlayerLB> teamLBs;
+    public ArrayList<PlayerCB> teamCBs;
+    public ArrayList<PlayerS> teamSs;
 
-    private ArrayList<Player> playersLeaving;
-    private ArrayList<Player> playersTransferring;
-    private ArrayList<String> redshirtList;
+    public ArrayList<Player> playersLeaving;
+    public ArrayList<Player> playersTransferring;
+    public ArrayList<String> redshirtList;
 
-    private ArrayList<Player> playersInjured;
-    private ArrayList<Player> playersDis;
+    public ArrayList<Player> playersInjured;
+    public ArrayList<Player> playersDis;
 
-    private String suspensionNews;
-    private boolean suspension;
+    public String suspensionNews;
+    public boolean suspension;
 
-    private int HoFCount = 0;
+    public int HoFCount = 0;
     //Defined Variables
 
     public final int startersQB = RosterRules.STARTERS_QB;
@@ -221,38 +221,38 @@ public class Team {
     public final int minCBs = RosterRules.MIN_CBS;
     public final int minSs = RosterRules.MIN_SS;
 
-    private final int recruitExtras = 15;
-    private final int minPlayers = RosterRules.MIN_PLAYERS;
-    private final int minRecruitStar = 4;
-    private final int maxStarRating = 10;
-    private final int numRecruits = 40;
-    private boolean walkon;
+    public final int recruitExtras = 15;
+    public final int minPlayers = RosterRules.MIN_PLAYERS;
+    public final int minRecruitStar = 4;
+    public final int maxStarRating = 10;
+    public final int numRecruits = 40;
+    public boolean walkon;
 
 
-    private final int ratTransfer = 70;
-    private final int promotionNum = 0;
-    private int qbtransferNum = 0;
+    public final int ratTransfer = 70;
+    public final int promotionNum = 0;
+    public int qbtransferNum = 0;
 
     public final int five = 80;
     public final int four = 74;
     public final int three = 65;
     public final int two = 55;
 
-    private final int disciplineStart = 66;
+    public final int disciplineStart = 66;
 
-    private int dismissalChance = 3;
-    private final int gradTransferMinGames = 6;
-    private final int dismissalRat = 63;
-    private final int gradTransferRat = 77;
+    public int dismissalChance = 3;
+    public final int gradTransferMinGames = 6;
+    public final int dismissalRat = 63;
+    public final int gradTransferRat = 77;
 
 
-    private static final int NFL_OVR = 93;
-    private static final int sophNFL = 2;
-    private static final double NFL_CHANCE = 0.66;
-    private static final double NFL_CHANCE_SOPH = 0.330;
+    public static final int NFL_OVR = 93;
+    public static final int sophNFL = 2;
+    public static final double NFL_CHANCE = 0.66;
+    public static final double NFL_CHANCE_SOPH = 0.330;
 
     public static double knockdownRet = 0.925;
-    private static double knockdownFired = 0.975;
+    public static double knockdownFired = 0.975;
 
     String[] issue = {"Skipping Practice", "Skipping Class", "Excessive Partying", "Academics", "Fighting", "Drugs", "DUI", "PED"};
 
@@ -495,7 +495,7 @@ public class Team {
     }
 
 
-    private void commonInitializer() {
+    public void commonInitializer() {
         userControlled = false;
         showPopups = true;
         teamHistory = new ArrayList<>();
@@ -552,7 +552,7 @@ public class Team {
         );
     }
 
-    private static String normalizeRecordText(String value) {
+    public static String normalizeRecordText(String value) {
         return value == null ? "" : value.replaceAll("\\s+", " ").trim();
     }
 
@@ -1033,7 +1033,7 @@ public class Team {
         }
     }
 
-    private float  getPreseasonBiasScore() {
+    public float  getPreseasonBiasScore() {
         float score = 0;
 
         if (league.currentWeek > 0) {
@@ -1122,7 +1122,7 @@ public class Team {
     /**
      * Updates strength of wins based on how opponents have fared.
      */
-    private void updateStrengthOfWins() {
+    public void updateStrengthOfWins() {
         teamStrengthOfWins = 0;
         for (int i = 0; i < gameWinsAgainst.size(); ++i) {
             teamStrengthOfWins += 5 + (league.countTeam - gameWinsAgainst.get(i).rankTeamPollScore);
@@ -1130,14 +1130,14 @@ public class Team {
     }
 
 
-    private void updateLossStrength() {
+    public void updateLossStrength() {
         teamStrengthOfLosses = 0;
         for (int i = 0; i < gameLossesAgainst.size(); ++i) {
             teamStrengthOfLosses += gameLossesAgainst.get(i).rankTeamPollScore;
         }
     }
 
-    private float getSOSPollScore() {
+    public float getSOSPollScore() {
 
         float teamWP  = 0;
         for (Game g : gameSchedule) {
@@ -1158,13 +1158,13 @@ public class Team {
         return teamWP;
     }
 
-    private int offenseRating() {
+    public int offenseRating() {
         int offRating = 0;
         offRating = (league.countTeam - rankTeamPoints) + (league.countTeam - rankTeamYards);
         return offRating;
     }
 
-    private int defenseRating() {
+    public int defenseRating() {
         int defRating = 0;
         defRating = (league.countTeam - rankTeamOppPoints) + (league.countTeam - rankTeamOppYards);
         return defRating;
@@ -1282,7 +1282,7 @@ public class Team {
         }
     }
 
-    private float getOffSubTalent() {
+    public float getOffSubTalent() {
         return ((getQB(1).ratOvr + getRB(2).ratOvr + getWR(3).ratOvr + getWR(4).ratOvr + getTE(1).ratOvr + getOL(5).ratOvr + getOL(6).ratOvr) / 7);
     }
 
@@ -1891,7 +1891,7 @@ public class Team {
         }
     }
 
-    private void coachContracts(int totalPDiff) {
+    public void coachContracts(int totalPDiff) {
         int max = 78;
         int min = 60;
         Random rand = new Random();
@@ -2220,7 +2220,7 @@ public class Team {
     /**
      * Advance season for players. Removes seniors and develops underclassmen.
      */
-    private void advanceSeasonPlayers() {
+    public void advanceSeasonPlayers() {
 
         ArrayList<Player> players = getAllPlayers();
 
@@ -2359,7 +2359,7 @@ public class Team {
         if(p.position.equals("S")) teamSs.remove(p);
     }
 
-    private void getPlayersTransferring() {
+    public void getPlayersTransferring() {
 
         // PLAYER TRANSFERS
         // Juniors/Seniors - rated 75+ who have not played more than 4 games total and are not starters on teams > 60
@@ -2792,12 +2792,12 @@ public class Team {
         }
     }
 
-    private int getTeamSize() {
+    public int getTeamSize() {
         int size = teamQBs.size() + teamRBs.size() + teamWRs.size() + teamTEs.size() + teamOLs.size() + teamKs.size() + teamDLs.size() + teamLBs.size() + teamCBs.size() + teamSs.size();
         return size;
     }
 
-    private int getRecruitLevel() {
+    public int getRecruitLevel() {
         float level = (league.getTeamList().size() - rankTeamPrestige) / (float)(league.getTeamList().size()/10.5);
         for (int i = 0; i < league.getConferences().size(); ++i) {
             league.getConferences().get(i).updateConfPrestige();
@@ -2849,7 +2849,7 @@ public class Team {
      * @param teNeeds
      * @param lbNeeds
      */
-    private void recruitPlayersFreshman(int qbNeeds, int rbNeeds, int wrNeeds, int teNeeds, int olNeeds, int kNeeds, int dlNeeds, int lbNeeds, int cbNeeds, int sNeeds) {
+    public void recruitPlayersFreshman(int qbNeeds, int rbNeeds, int wrNeeds, int teNeeds, int olNeeds, int kNeeds, int dlNeeds, int lbNeeds, int cbNeeds, int sNeeds) {
         //make team
         int stars;
         int recruitChance;
@@ -3135,7 +3135,7 @@ public class Team {
         sortPlayers();
     }
 
-    private PlayerQB[] getQBRecruits(int rating) {
+    public PlayerQB[] getQBRecruits(int rating) {
         int adjNumRecruits = numRecruits;
         PlayerQB[] recruits = new PlayerQB[adjNumRecruits + 2 * recruitExtras];
         int stars;
@@ -3159,7 +3159,7 @@ public class Team {
         return recruits;
     }
 
-    private PlayerRB[] getRBRecruits(int rating) {
+    public PlayerRB[] getRBRecruits(int rating) {
         int adjNumRecruits = numRecruits;
         PlayerRB[] recruits = new PlayerRB[adjNumRecruits + 2 * recruitExtras];
         int stars;
@@ -3184,7 +3184,7 @@ public class Team {
         return recruits;
     }
 
-    private PlayerWR[] getWRRecruits(int rating) {
+    public PlayerWR[] getWRRecruits(int rating) {
         int adjNumRecruits = 2 * numRecruits;
         PlayerWR[] recruits = new PlayerWR[adjNumRecruits + 2 * recruitExtras];
         int stars;
@@ -3209,7 +3209,7 @@ public class Team {
         return recruits;
     }
 
-    private PlayerTE[] getTERecruits(int rating) {
+    public PlayerTE[] getTERecruits(int rating) {
         int adjNumRecruits = numRecruits;
         PlayerTE[] recruits = new PlayerTE[adjNumRecruits + 2 * recruitExtras];
         int stars;
@@ -3234,7 +3234,7 @@ public class Team {
         return recruits;
     }
 
-    private PlayerOL[] getOLRecruits(int rating) {
+    public PlayerOL[] getOLRecruits(int rating) {
         int adjNumRecruits = 2 * numRecruits;
         PlayerOL[] recruits = new PlayerOL[adjNumRecruits + 2 * recruitExtras];
         int stars;
@@ -3259,7 +3259,7 @@ public class Team {
         return recruits;
     }
 
-    private PlayerK[] getKRecruits(int rating) {
+    public PlayerK[] getKRecruits(int rating) {
         int adjNumRecruits = numRecruits;
         PlayerK[] recruits = new PlayerK[adjNumRecruits + 2 * recruitExtras];
         int stars;
@@ -3284,7 +3284,7 @@ public class Team {
         return recruits;
     }
 
-    private PlayerDL[] getDLRecruits(int rating) {
+    public PlayerDL[] getDLRecruits(int rating) {
         int adjNumRecruits = 2 * numRecruits;
         PlayerDL[] recruits = new PlayerDL[adjNumRecruits + 2 * recruitExtras];
         int stars;
@@ -3309,7 +3309,7 @@ public class Team {
         return recruits;
     }
 
-    private PlayerLB[] getLBRecruits(int rating) {
+    public PlayerLB[] getLBRecruits(int rating) {
         int adjNumRecruits = 2 * numRecruits;
         PlayerLB[] recruits = new PlayerLB[adjNumRecruits + 2 * recruitExtras];
         int stars;
@@ -3334,7 +3334,7 @@ public class Team {
         return recruits;
     }
 
-    private PlayerCB[] getCBRecruits(int rating) {
+    public PlayerCB[] getCBRecruits(int rating) {
         int adjNumRecruits = 2 * numRecruits;
         PlayerCB[] recruits = new PlayerCB[adjNumRecruits + 2 * recruitExtras];
         int stars;
@@ -3359,7 +3359,7 @@ public class Team {
         return recruits;
     }
 
-    private PlayerS[] getSRecruits(int rating) {
+    public PlayerS[] getSRecruits(int rating) {
         int adjNumRecruits = numRecruits;
         PlayerS[] recruits = new PlayerS[adjNumRecruits + 2 * recruitExtras];
         int stars;
@@ -3710,7 +3710,7 @@ public class Team {
         return hist;
     }
 
-    private float getWinPCT(int w, int l) {
+    public float getWinPCT(int w, int l) {
         if(w+l < 1) return 0;
         else {
             return (float)w/(w+l)*100;
@@ -3837,7 +3837,7 @@ public class Team {
         }
     }
 
-    private void getLowDisciplinePlayers(int minRating) {
+    public void getLowDisciplinePlayers(int minRating) {
         playersDis = new ArrayList<>();
         checkSuspensionPosition(teamQBs, startersQB + subQB, minRating);
         checkSuspensionPosition(teamRBs, startersRB + subRB, minRating);
@@ -3852,7 +3852,7 @@ public class Team {
         if(playersDis.size() < 1) getLowDisciplinePlayers(85);
     }
 
-    private void checkSuspensionPosition(ArrayList<? extends Player> players, int numStarters, int minRating) {
+    public void checkSuspensionPosition(ArrayList<? extends Player> players, int numStarters, int minRating) {
         int numInjured = 0;
 
         for (Player p : players) {
@@ -3946,7 +3946,7 @@ public class Team {
         sortPlayers();
     }
 
-    private void curePlayersPosition(ArrayList<? extends Player> players) {
+    public void curePlayersPosition(ArrayList<? extends Player> players) {
         for (Player p : players) {
             p.injury = null;
             p.isInjured = false;
@@ -4428,7 +4428,7 @@ public class Team {
 
 
     //Get Rating Improvements for Mid-Season and End of Season Display
-    private String getRatImprovement(Player p) {
+    public String getRatImprovement(Player p) {
         String imp = " ";
 
         if(league.currentWeek == league.regSeasonWeeks/2 || league.currentWeek > 21) {
@@ -4441,7 +4441,7 @@ public class Team {
         return imp;
     }
 
-    private String getHeadCoachRatImprovement(Staff p) {
+    public String getHeadCoachRatImprovement(Staff p) {
         String imp = " ";
 
         if(league.currentWeek == league.regSeasonWeeks/2 || league.currentWeek > 21) {
@@ -4451,7 +4451,7 @@ public class Team {
         return imp;
     }
 
-    private String getRosterStatus(Player p, int i, String pos) {
+    public String getRosterStatus(Player p, int i, String pos) {
         String status = " ";
 
         if (pos.equals("QB")) {
@@ -4788,7 +4788,7 @@ public class Team {
      * @param g Game to get summary from
      * @return 31 - 43 @ GEO #60   POP UP MSG
      */
-    private String gameSummaryStr(Game g) {
+    public String gameSummaryStr(Game g) {
         if (g.homeTeam == this) {
             return g.homeScore + " - " + g.awayScore + " vs " + g.awayTeam.name + " #" + g.awayTeam.rankTeamPollScore;
         } else {
@@ -4802,7 +4802,7 @@ public class Team {
      * @param g Game to get score from
      * @return "myTeamScore - otherTeamScore"
      */
-    private String gameSummaryStrScore(Game g) {
+    public String gameSummaryStrScore(Game g) {
         if (g.homeTeam == this) {
             return g.homeScore + " - " + g.awayScore;
         } else if(g.gameName.equals("BYE WEEK")) {
@@ -4818,7 +4818,7 @@ public class Team {
      * @param g Game to get from
      * @return vs OPP #45
      */
-    private String gameSummaryStrOpponent(Game g) {
+    public String gameSummaryStrOpponent(Game g) {
         if (g.gameName.equals("BYE WEEK")) {
             return "BYE WEEK";
         } else {
@@ -5016,7 +5016,7 @@ public class Team {
         addGamePlayedList(teamSs, startersS);
     }
 
-    private void addGamePlayedList(ArrayList<? extends Player> playerList, int starters) {
+    public void addGamePlayedList(ArrayList<? extends Player> playerList, int starters) {
         for (int i = 0; i < starters; ++i) {
             playerList.get(i).recordGameStarted(1);
         }
@@ -5071,7 +5071,7 @@ public class Team {
 
 
     //Hall of Fame Credentials
-    private void checkHallofFame() {
+    public void checkHallofFame() {
 
         for (Player p : playersLeaving) {
             int allConf = p.getAllConference();
@@ -5174,7 +5174,7 @@ public class Team {
     }
 
     // Checks the career records for all the leaving players. Must be done after playersLeaving is populated.
-    private void checkCareerRecords(LeagueRecords records) {
+    public void checkCareerRecords(LeagueRecords records) {
         ArrayList<Player> allPlayers = new ArrayList<>();
 
 
@@ -5330,7 +5330,7 @@ public class Team {
     }
 
     // Checks the career records for all the leaving players. Must be done after playersLeaving is populated.
-    private void checkCareerTeamRecords(TeamRecords records) {
+    public void checkCareerTeamRecords(TeamRecords records) {
         for (Player p : playersLeaving) {
             if (p instanceof PlayerQB) {
                 PlayerQB qb = (PlayerQB) p;
@@ -5438,7 +5438,7 @@ public class Team {
         return sb.toString();
     }
 
-    private void appendRecruits(StringBuilder sb, Player[] recruits) {
+    public void appendRecruits(StringBuilder sb, Player[] recruits) {
         for (Player p : recruits) {
             sb.append(Persistence.toCsv(p.toRecord())).append("%\n");
         }
@@ -5516,7 +5516,7 @@ public class Team {
 
 
     //LOAD PLAYER DATA
-    private void loadPlayerSaveData(String line, boolean isRedshirt) {
+    public void loadPlayerSaveData(String line, boolean isRedshirt) {
         String[] playerInfo = line.split(",");
         //Position Check
         if (playerInfo[0].equals("HC")) {
@@ -5548,56 +5548,56 @@ public class Team {
         }
     }
 
-    private void loadHCSaveData(String data) {
+    public void loadHCSaveData(String data) {
         HC = new HeadCoach(this, StaffRecord.fromCsv(data));
     }
 
-    private void loadOCSaveData(String data) {
+    public void loadOCSaveData(String data) {
         OC = new OC(this, StaffRecord.fromCsv(data));
     }
 
-    private void loadDCSaveData(String data) {
+    public void loadDCSaveData(String data) {
         DC = new DC(this, StaffRecord.fromCsv(data));
     }
 
 
-    private void loadQBSaveData(String data) {
+    public void loadQBSaveData(String data) {
         teamQBs.add(new PlayerQB(this, data));
     }
 
-    private void loadRBSaveData(String data) {
+    public void loadRBSaveData(String data) {
         teamRBs.add(new PlayerRB(this, data));
     }
 
-    private void loadWRSaveData(String data) {
+    public void loadWRSaveData(String data) {
         teamWRs.add(new PlayerWR(this, data));
     }
 
-    private void loadTESaveData(String data) {
+    public void loadTESaveData(String data) {
         teamTEs.add(new PlayerTE(this, data));
     }
 
-    private void loadOLSaveData(String data) {
+    public void loadOLSaveData(String data) {
         teamOLs.add(new PlayerOL(this, data));
     }
 
-    private void loadKSaveData(String data) {
+    public void loadKSaveData(String data) {
         teamKs.add(new PlayerK(this, data));
     }
 
-    private void loadDLSaveData(String data) {
+    public void loadDLSaveData(String data) {
         teamDLs.add(new PlayerDL(this, data));
     }
 
-    private void loadLBSaveData(String data) {
+    public void loadLBSaveData(String data) {
         teamLBs.add(new PlayerLB(this, data));
     }
 
-    private void loadCBSaveData(String data) {
+    public void loadCBSaveData(String data) {
         teamCBs.add(new PlayerCB(this, data));
     }
 
-    private void loadSSaveData(String data) {
+    public void loadSSaveData(String data) {
         teamSs.add(new PlayerS(this, data));
     }
 

@@ -14,6 +14,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -112,7 +114,7 @@ import staff.Staff;
 public class League {
     public static final String CURRENT_SAVE_VERSION = "v1.4e";
 
-    private static GameUiBridge bridgeOrNoOp(GameUiBridge bridge) {
+    public static GameUiBridge bridgeOrNoOp(GameUiBridge bridge) {
         return bridge == null ? GameUiBridge.NO_OP : bridge;
     }
 
@@ -125,28 +127,28 @@ public class League {
         this.resProvider = resProvider;
     }
 
-    private ArrayList<String[]> leagueHistory;
-    private ArrayList<String> heismanHistory;
-    private ArrayList<PlayerRecord> leagueHoF;
-    private ArrayList<Conference> conferences;
-    private ArrayList<Team> teamList;
-    private ArrayList<Staff> coachList;
-    private ArrayList<Staff> coachStarList;
-    private ArrayList<Staff> coachFreeAgents;
-    private ArrayList<Staff> coachDatabase;
-    private ArrayList<String> nameList;
-    private ArrayList<String> lastNameList;
-    private ArrayList<ArrayList<String>> newsStories;
-    private ArrayList<String> newsHeadlines;
-    private ArrayList<ArrayList<String>> weeklyScores;
-    private ArrayList<String> teamDiscipline;
-    private double disciplineChance = 0.085;
-    private double disciplineScrutiny = 0.035;
+    public ArrayList<String[]> leagueHistory;
+    public ArrayList<String> heismanHistory;
+    public ArrayList<PlayerRecord> leagueHoF;
+    public ArrayList<Conference> conferences;
+    public ArrayList<Team> teamList;
+    public ArrayList<Staff> coachList;
+    public ArrayList<Staff> coachStarList;
+    public ArrayList<Staff> coachFreeAgents;
+    public ArrayList<Staff> coachDatabase;
+    public ArrayList<String> nameList;
+    public ArrayList<String> lastNameList;
+    public ArrayList<ArrayList<String>> newsStories;
+    public ArrayList<String> newsHeadlines;
+    public ArrayList<ArrayList<String>> weeklyScores;
+    public ArrayList<String> teamDiscipline;
+    public double disciplineChance = 0.085;
+    public double disciplineScrutiny = 0.035;
 
     public LeagueRecords leagueRecords;
-    private TeamStreak longestWinStreak;
-    private TeamStreak yearStartLongestWinStreak;
-    private TeamStreak longestActiveWinStreak;
+    public TeamStreak longestWinStreak;
+    public TeamStreak yearStartLongestWinStreak;
+    public TeamStreak longestActiveWinStreak;
 
     // News Story Variables
 
@@ -160,45 +162,45 @@ public class League {
     public int currentWeek;
 
     //Bowl Games
-    private boolean hasScheduledBowls;
-    private Game semiG14;
-    private Game semiG23;
-    private Game ncg;
-    private Game[] bowlGames;
-    private Game[] cfpGames;
+    public boolean hasScheduledBowls;
+    public Game semiG14;
+    public Game semiG23;
+    public Game ncg;
+    public Game[] bowlGames;
+    public Game[] cfpGames;
     public int playoffWeek;
 
     //User Team
     public Team userTeam;
 
     //Freshman Team
-    private ArrayList<PlayerQB> fQBs;
-    private ArrayList<PlayerRB> fRBs;
-    private ArrayList<PlayerWR> fWRs;
-    private ArrayList<PlayerTE> fTEs;
-    private ArrayList<PlayerK> fKs;
-    private ArrayList<PlayerOL> fOLs;
-    private ArrayList<PlayerDL> fDLs;
-    private ArrayList<PlayerLB> fLBs;
-    private ArrayList<PlayerCB> fCBs;
-    private ArrayList<PlayerS> fSs;
+    public ArrayList<PlayerQB> fQBs;
+    public ArrayList<PlayerRB> fRBs;
+    public ArrayList<PlayerWR> fWRs;
+    public ArrayList<PlayerTE> fTEs;
+    public ArrayList<PlayerK> fKs;
+    public ArrayList<PlayerOL> fOLs;
+    public ArrayList<PlayerDL> fDLs;
+    public ArrayList<PlayerLB> fLBs;
+    public ArrayList<PlayerCB> fCBs;
+    public ArrayList<PlayerS> fSs;
     //Transfer List
-    private ArrayList<PlayerQB> transferQBs;
-    private ArrayList<PlayerRB> transferRBs;
-    private ArrayList<PlayerWR> transferWRs;
-    private ArrayList<PlayerTE> transferTEs;
-    private ArrayList<PlayerK> transferKs;
-    private ArrayList<PlayerOL> transferOLs;
-    private ArrayList<PlayerDL> transferDLs;
-    private ArrayList<PlayerLB> transferLBs;
-    private ArrayList<PlayerCB> transferCBs;
-    private ArrayList<PlayerS> transferSs;
+    public ArrayList<PlayerQB> transferQBs;
+    public ArrayList<PlayerRB> transferRBs;
+    public ArrayList<PlayerWR> transferWRs;
+    public ArrayList<PlayerTE> transferTEs;
+    public ArrayList<PlayerK> transferKs;
+    public ArrayList<PlayerOL> transferOLs;
+    public ArrayList<PlayerDL> transferDLs;
+    public ArrayList<PlayerLB> transferLBs;
+    public ArrayList<PlayerCB> transferCBs;
+    public ArrayList<PlayerS> transferSs;
     public String userTransfers;
     public String sumTransfers;
-    private ArrayList<String> transfersList;
-    private ArrayList<Player> userTransferList;
-    private ArrayList<Player> freshmen;
-    private ArrayList<Player> redshirts;
+    public ArrayList<String> transfersList;
+    public ArrayList<Player> userTransferList;
+    public ArrayList<Player> freshmen;
+    public ArrayList<Player> redshirts;
     public String[] bowlNames;
 
     //Game Options
@@ -213,44 +215,44 @@ public class League {
     public int countRealignment;
     public String newsRealignment;
     public boolean updateTV;
-    private ArrayList<String> newsTV;
-    private ArrayList<Team> playoffTeams;
+    public ArrayList<String> newsTV;
+    public ArrayList<Team> playoffTeams;
     public String postseason;
 
-    private static final int DEFAULT_NEW_SAVE_YEAR = 2026;
-    private static final int LEGACY_SAVE_YEAR = 2021;
-    private static final int EXPANDED_PLAYOFF_TEAM_COUNT = 12;
-    private final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
-    private final DecimalFormat df2 = new DecimalFormat("#.##", symbols);
-    private final DecimalFormat df3 = new DecimalFormat("#.####", symbols);
-    private int seasonStart = DEFAULT_NEW_SAVE_YEAR;
+    public static final int DEFAULT_NEW_SAVE_YEAR = 2026;
+    public static final int LEGACY_SAVE_YEAR = 2021;
+    public static final int EXPANDED_PLAYOFF_TEAM_COUNT = 12;
+    public final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+    public final DecimalFormat df2 = new DecimalFormat("#.##", symbols);
+    public final DecimalFormat df3 = new DecimalFormat("#.####", symbols);
+    public int seasonStart = DEFAULT_NEW_SAVE_YEAR;
     int countTeam = 130; //default roster automatically calculates this number when using custom data or loaded saves
-    private final int seasonWeeks = 30;
+    public final int seasonWeeks = 30;
     public int regSeasonWeeks = 13; //original = 13 will change dynamically based on team/conference structure
-    private final double confRealignmentChance = .25; //chance of event .25
-    private final double realignmentChance = .25; //chance of invite .33
-    private boolean heismanDecided;
-    private Player heisman;
-    private Player defPOTY;
-    private HeadCoach coachWinner;
-    private Player freshman;
-    private ArrayList<Player> heismanCandidates;
-    private ArrayList<Player> defPOTYCandidates;
-    private ArrayList<Player> freshmanCandidates;
-    private ArrayList<Player> allAmericans;
-    private ArrayList<Player> allAmericans2;
-    private ArrayList<Player> allFreshman;
-    private String heismanWinnerStrFull;
-    private String defPOTYWinnerStrFull;
-    private String freshmanWinnerStrFull;
-    private String coachWinnerStrFull;
+    public final double confRealignmentChance = .25; //chance of event .25
+    public final double realignmentChance = .25; //chance of invite .33
+    public boolean heismanDecided;
+    public Player heisman;
+    public Player defPOTY;
+    public HeadCoach coachWinner;
+    public Player freshman;
+    public ArrayList<Player> heismanCandidates;
+    public ArrayList<Player> defPOTYCandidates;
+    public ArrayList<Player> freshmanCandidates;
+    public ArrayList<Player> allAmericans;
+    public ArrayList<Player> allAmericans2;
+    public ArrayList<Player> allFreshman;
+    public String heismanWinnerStrFull;
+    public String defPOTYWinnerStrFull;
+    public String freshmanWinnerStrFull;
+    public String coachWinnerStrFull;
     public boolean careerMode;
 
 
 
-    private ArrayList<String> teamsFCSList;
+    public ArrayList<String> teamsFCSList;
 
-    private final String[] proTeams = {"New England", "Buffalo", "New Jersey", "Miami", "Pittsburgh", "Baltimore", "Cincinnati", "Cleveland", "Jacksonville", "Indianapolis", "Houston", "Tennessee", "Kansas City", "Oakland", "Anaheim", "Denver",
+    public final String[] proTeams = {"New England", "Buffalo", "New Jersey", "Miami", "Pittsburgh", "Baltimore", "Cincinnati", "Cleveland", "Jacksonville", "Indianapolis", "Houston", "Tennessee", "Kansas City", "Oakland", "Anaheim", "Denver",
             "New York", "Philadelphia", "Dallas", "Washington", "Minnesota", "Chicago", "Green Bay", "Detroit", "New Orleans", "Carolina", "Tampa Bay", "Atlanta", "Seattle", "Los Angeles", "San Francisco", "Arizona"};
 
     public final String[] states = {"AS", "AZ", "CA", "HI", "ID", "MT", "NV", "OR", "UT", "WA", "CO", "KS", "MO", "NE", "NM", "ND", "OK", "SD", "TX", "WY", "IL", "IN", "IA", "KY", "MD", "MI", "MN", "OH", "TN", "WI", "CT", "DE", "ME", "MA", "NH", "NJ", "NY", "PA", "RI", "VT", "AL", "AK", "FL", "GA", "LA", "MS", "NC", "SC", "VA", "WV"};
@@ -378,7 +380,7 @@ public class League {
         setupSeason();
     }
 
-    private static String normalizeSeedText(String value) {
+    public static String normalizeSeedText(String value) {
         if (value == null) {
             return "";
         }
@@ -1091,7 +1093,7 @@ public class League {
 
 
     //Initialize all common variables for each game type
-    private void setupCommonInitalizers() {
+    public void setupCommonInitalizers() {
 
         nameList = new ArrayList<>();
         lastNameList = new ArrayList<>();
@@ -1138,7 +1140,7 @@ public class League {
         expPlayoffs = true;
     }
 
-    private int getSeasonStartFromSaveHeader(String saveHeader) {
+    public int getSeasonStartFromSaveHeader(String saveHeader) {
         if (saveHeader == null || !saveHeader.contains(":")) {
             return LEGACY_SAVE_YEAR;
         }
@@ -1207,7 +1209,7 @@ public class League {
 
 
 
-    private void checkIndyConfExists() {
+    public void checkIndyConfExists() {
         boolean indyExists = false;
 
         for(int c = 0; c < conferences.size(); c++) {
@@ -1228,7 +1230,7 @@ public class League {
     }
 
     //Set Up Season variables
-    private void setupSeason() {
+    public void setupSeason() {
 
         //hireMissingCoaches();
 
@@ -1466,7 +1468,7 @@ public class League {
     }
 
     //Set Up Database of Names
-    private void setupNamesDB(String namesCSV, String lastNamesCSV) {
+    public void setupNamesDB(String namesCSV, String lastNamesCSV) {
         // Read first names from file
         String[] namesSplit = namesCSV.split(",");
         for (String n : namesSplit) {
@@ -1924,7 +1926,7 @@ public class League {
 
 
     //Coaching Discipline Opportunities
-    private void disciplineAction() {
+    public void disciplineAction() {
         teamDiscipline = new ArrayList<>();
         String news = "";
         for (int t = 0; t < teamList.size(); ++t) {
@@ -1950,14 +1952,14 @@ public class League {
         newsStories.get(currentWeek + 1).add("In-Season Disciplinary Action>The following teams have had issues with discipline in the past week:\n" + news);
     }
 
-    private void updateSuspensions() {
+    public void updateSuspensions() {
         for (int i = 0; i < teamList.size(); ++i) {
             teamList.get(i).updateSuspensions();
         }
     }
 
     //Player Spotlight
-    private void playerSpotlight() {
+    public void playerSpotlight() {
         ArrayList<PlayerQB> QB = rankQB();
         ArrayList<PlayerRB> RB = rankRB();
         ArrayList<PlayerWR> WR = rankWR();
@@ -2011,7 +2013,7 @@ public class League {
     }
 
     //Committee News
-    private void cfbPlayoffsNews() {
+    public void cfbPlayoffsNews() {
         setTeamRanks();
         ArrayList<Team> teams = teamList;
         Collections.sort(teams, new CompTeamPoll());
@@ -2035,7 +2037,7 @@ public class League {
      *
      * @return Heisman Winner
      */
-    private ArrayList<Player> getHeisman() {
+    public ArrayList<Player> getHeisman() {
         ArrayList<Player> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             //qb
@@ -2106,7 +2108,7 @@ public class League {
      *
      * @return Heisman Winner
      */
-    private ArrayList<Player> getDefPOTY() {
+    public ArrayList<Player> getDefPOTY() {
         ArrayList<Player> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             //dl
@@ -2170,7 +2172,7 @@ public class League {
         }
     }
 
-    private ArrayList<Player> getTopFreshman() {
+    public ArrayList<Player> getTopFreshman() {
         freshman = null;
         ArrayList<Player> freshmanCandidates = new ArrayList<>();
         fQBs = new ArrayList<>();
@@ -2780,7 +2782,7 @@ public class League {
 
     }
 
-    private ArrayList<Team> getExpandedPlayoffAutoBids(ArrayList<Team> qualifiedTeams) {
+    public ArrayList<Team> getExpandedPlayoffAutoBids(ArrayList<Team> qualifiedTeams) {
         ArrayList<Team> autoBids = new ArrayList<>();
         ArrayList<Team> conferenceLeaders = new ArrayList<>();
 
@@ -2920,11 +2922,11 @@ public class League {
         expPlayoffSchFinals();
     }
 
-    private Team getWinner(Game game) {
+    public Team getWinner(Game game) {
         return game.homeScore > game.awayScore ? game.homeTeam : game.awayTeam;
     }
 
-    private void playPlayoff(Game g) {
+    public void playPlayoff(Game g) {
         g.playGame();
 
         if (playoffWeek == 1) {
@@ -3030,7 +3032,7 @@ public class League {
      */
 
 
-    private ArrayList<Team> getQualifiedTeams() {
+    public ArrayList<Team> getQualifiedTeams() {
         ArrayList<Team> bowlTeams = new ArrayList<>();
         setTeamRanks();
         Collections.sort(teamList, new CompTeamPoll());
@@ -3045,7 +3047,7 @@ public class League {
         return bowlTeams;
     }
 
-    private void scheduleNormalCFP() {
+    public void scheduleNormalCFP() {
         ArrayList<Team> bowlTeams = getQualifiedTeams();
 
         //semifinals
@@ -3073,7 +3075,7 @@ public class League {
         bowlScheduleLogic(bowlTeams);
     }
 
-    private void bowlScheduleLogic(ArrayList<Team> bowlTeams) {
+    public void bowlScheduleLogic(ArrayList<Team> bowlTeams) {
         int bowlCount = (bowlTeams.size()) / 2;
         if (bowlCount > bowlNames.length) bowlCount = bowlNames.length;
 
@@ -3134,19 +3136,19 @@ public class League {
      */
 
 
-    private void playBowlWeek1() {
+    public void playBowlWeek1() {
         for (int g = 16; g < bowlGames.length; g++) {
             if(bowlGames[g] != null) playBowl(bowlGames[g]);
         }
     }
 
-    private void playBowlWeek2() {
+    public void playBowlWeek2() {
         for (int g = 6; g < bowlGames.length; g++) {
             if(bowlGames[g] != null) playBowl(bowlGames[g]);
         }
     }
 
-    private void playBowlWeek3() {
+    public void playBowlWeek3() {
         for (int g = 0; g < bowlGames.length; g++) {
             if(bowlGames[g] != null) playBowl(bowlGames[g]);
         }
@@ -3235,7 +3237,7 @@ public class League {
      *
      * @param g bowl game to be played
      */
-    private void playBowl(Game g) {
+    public void playBowl(Game g) {
         if(!g.hasPlayed) {
             g.playGame();
             if (g.homeScore > g.awayScore) {
@@ -3274,7 +3276,7 @@ public class League {
      * @param g Bowl game to be examined
      * @return string of its summary, ALA W 24 - 40 @ GEO, etc
      */
-    private String getGameSummaryBowl(Game g) {
+    public String getGameSummaryBowl(Game g) {
         StringBuilder sb = new StringBuilder();
         Team winner, loser;
         if (!g.hasPlayed) {
@@ -3304,7 +3306,7 @@ public class League {
      *
      * @return string of summary
      */
-    private String ncgSummaryStr() {
+    public String ncgSummaryStr() {
         // Give summary of what happened in the NCG
         if (ncg.homeScore > ncg.awayScore) {
             return ncg.homeTeam.getName() + " (" + ncg.homeTeam.getWins() + "-" + ncg.homeTeam.getLosses() + ") won the National Championship, " +
@@ -3659,7 +3661,7 @@ public class League {
 
 
     //Coaching Hot Seat News
-    private void coachingHotSeat() {
+    public void coachingHotSeat() {
         if (currentWeek == 0) {
             newsHeadlines.add("Coaching Hot Seat: The Names with Something to Prove");
             for (int i = 0; i < teamList.size(); ++i) {
@@ -4905,7 +4907,7 @@ Then conferences can see if they want to add them to their list if the teams mee
     /**
      * Gets the longest active win streak.
      */
-    private void updateLongestActiveWinStreak() {
+    public void updateLongestActiveWinStreak() {
         for (Team t : teamList) {
             if (t.getWinStreak().getStreakLength() > longestActiveWinStreak.getStreakLength()) {
                 longestActiveWinStreak = t.getWinStreak();
@@ -4916,7 +4918,7 @@ Then conferences can see if they want to add them to their list if the teams mee
     /**
      * Advance season for win streaks, so no save-load whackiness.
      */
-    private void advanceSeasonWinStreaks() {
+    public void advanceSeasonWinStreaks() {
         yearStartLongestWinStreak = longestWinStreak;
     }
 
@@ -4926,7 +4928,7 @@ Then conferences can see if they want to add them to their list if the teams mee
      * @param oldAbbr old abbreviation
      * @param newAbbr new abbreviation
      */
-    private void changeAbbrWinStreaks(String oldAbbr, String newAbbr) {
+    public void changeAbbrWinStreaks(String oldAbbr, String newAbbr) {
         if (longestWinStreak.getTeam().equals(oldAbbr)) {
             longestWinStreak.changeAbbr(newAbbr);
         }
@@ -5545,7 +5547,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         return rankings;
     }
 
-    private String checkCoachStatus(Staff c) {
+    public String checkCoachStatus(Staff c) {
         String s = "";
         if(c.retired) s = " [R]";
         else if (c.team == null) s = " [U]";
@@ -5589,7 +5591,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         return rankings;
     }
 
-    private ArrayList<PlayerQB> rankQB() {
+    public ArrayList<PlayerQB> rankQB() {
         heisman = null;
         ArrayList<PlayerQB> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
@@ -5601,7 +5603,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         return heismanCandidates;
     }
 
-    private ArrayList<PlayerRB> rankRB() {
+    public ArrayList<PlayerRB> rankRB() {
         heisman = null;
         ArrayList<PlayerRB> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
@@ -5613,7 +5615,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         return heismanCandidates;
     }
 
-    private ArrayList<PlayerWR> rankWR() {
+    public ArrayList<PlayerWR> rankWR() {
         heisman = null;
         ArrayList<PlayerWR> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
@@ -5625,7 +5627,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         return heismanCandidates;
     }
 
-    private ArrayList<PlayerTE> rankTE() {
+    public ArrayList<PlayerTE> rankTE() {
         heisman = null;
         ArrayList<PlayerTE> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
@@ -5637,7 +5639,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         return heismanCandidates;
     }
 
-    private ArrayList<PlayerOL> rankOL() {
+    public ArrayList<PlayerOL> rankOL() {
         heisman = null;
         ArrayList<PlayerOL> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
@@ -5649,7 +5651,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         return heismanCandidates;
     }
 
-    private ArrayList<PlayerK> rankK() {
+    public ArrayList<PlayerK> rankK() {
         heisman = null;
         ArrayList<PlayerK> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
@@ -5661,7 +5663,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         return heismanCandidates;
     }
 
-    private ArrayList<PlayerDL> rankDL() {
+    public ArrayList<PlayerDL> rankDL() {
         heisman = null;
         ArrayList<PlayerDL> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
@@ -5673,7 +5675,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         return heismanCandidates;
     }
 
-    private ArrayList<PlayerLB> rankLB() {
+    public ArrayList<PlayerLB> rankLB() {
         heisman = null;
         ArrayList<PlayerLB> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
@@ -5685,7 +5687,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         return heismanCandidates;
     }
 
-    private ArrayList<PlayerCB> rankCB() {
+    public ArrayList<PlayerCB> rankCB() {
         heisman = null;
         ArrayList<PlayerCB> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
@@ -5697,7 +5699,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         return heismanCandidates;
     }
 
-    private ArrayList<PlayerS> rankS() {
+    public ArrayList<PlayerS> rankS() {
         heisman = null;
         ArrayList<PlayerS> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
@@ -5709,7 +5711,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         return heismanCandidates;
     }
 
-    private ArrayList<HeadCoach> rankHC() {
+    public ArrayList<HeadCoach> rankHC() {
         heisman = null;
         ArrayList<HeadCoach> coachCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
@@ -6376,8 +6378,10 @@ Then conferences can see if they want to add them to their list if the teams mee
             }
             return false;
         }
-        if (!tmp.renameTo(saveFile)) {
-            PlatformLog.e("League", "Failed to rename temp save file to " + saveFile.getAbsolutePath());
+        try {
+            Files.move(tmp.toPath(), saveFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        } catch (IOException e) {
+            PlatformLog.e("League", "Failed to replace save file " + saveFile.getAbsolutePath(), e);
             if (!tmp.delete()) {
                 PlatformLog.w("League", "Could not delete temp save file " + tmp.getAbsolutePath());
             }

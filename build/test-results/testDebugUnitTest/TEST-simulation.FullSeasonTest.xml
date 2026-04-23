@@ -1,0 +1,1741 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="simulation.FullSeasonTest" tests="1" skipped="0" failures="1" errors="0" timestamp="2026-04-23T22:56:50" hostname="DESKTOP-TNJHVG0" time="7.491">
+  <properties/>
+  <testcase name="fullSeason_completesWithoutErrors" classname="simulation.FullSeasonTest" time="7.491">
+    <failure message="java.lang.AssertionError: Team Michigan should have played at least 12 games but played 11" type="java.lang.AssertionError">java.lang.AssertionError: Team Michigan should have played at least 12 games but played 11
+	at org.junit.Assert.fail(Assert.java:89)
+	at org.junit.Assert.assertTrue(Assert.java:42)
+	at simulation.FullSeasonTest.fullSeason_completesWithoutErrors(FullSeasonTest.java:135)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.junit.runners.model.FrameworkMethod$1.runReflectiveCall(FrameworkMethod.java:59)
+	at org.junit.internal.runners.model.ReflectiveCallable.run(ReflectiveCallable.java:12)
+	at org.junit.runners.model.FrameworkMethod.invokeExplosively(FrameworkMethod.java:56)
+	at org.junit.internal.runners.statements.InvokeMethod.evaluate(InvokeMethod.java:17)
+	at org.junit.internal.runners.statements.RunBefores.evaluate(RunBefores.java:26)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.BlockJUnit4ClassRunner$1.evaluate(BlockJUnit4ClassRunner.java:100)
+	at org.junit.runners.ParentRunner.runLeaf(ParentRunner.java:366)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:103)
+	at org.junit.runners.BlockJUnit4ClassRunner.runChild(BlockJUnit4ClassRunner.java:63)
+	at org.junit.runners.ParentRunner$4.run(ParentRunner.java:331)
+	at org.junit.runners.ParentRunner$1.schedule(ParentRunner.java:79)
+	at org.junit.runners.ParentRunner.runChildren(ParentRunner.java:329)
+	at org.junit.runners.ParentRunner.access$100(ParentRunner.java:66)
+	at org.junit.runners.ParentRunner$2.evaluate(ParentRunner.java:293)
+	at org.junit.runners.ParentRunner$3.evaluate(ParentRunner.java:306)
+	at org.junit.runners.ParentRunner.run(ParentRunner.java:413)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.runTestClass(JUnitTestClassExecutor.java:112)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:58)
+	at org.gradle.api.internal.tasks.testing.junit.JUnitTestClassExecutor.execute(JUnitTestClassExecutor.java:40)
+	at org.gradle.api.internal.tasks.testing.junit.AbstractJUnitTestClassProcessor.processTestClass(AbstractJUnitTestClassProcessor.java:54)
+	at org.gradle.api.internal.tasks.testing.SuiteTestClassProcessor.processTestClass(SuiteTestClassProcessor.java:53)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:36)
+	at org.gradle.internal.dispatch.ReflectionDispatch.dispatch(ReflectionDispatch.java:24)
+	at org.gradle.internal.dispatch.ContextClassLoaderDispatch.dispatch(ContextClassLoaderDispatch.java:33)
+	at org.gradle.internal.dispatch.ProxyDispatchAdapter$DispatchingInvocationHandler.invoke(ProxyDispatchAdapter.java:92)
+	at jdk.proxy1/jdk.proxy1.$Proxy4.processTestClass(Unknown Source)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker$2.run(TestWorker.java:181)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.executeAndMaintainThreadName(TestWorker.java:130)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:101)
+	at org.gradle.api.internal.tasks.testing.worker.TestWorker.execute(TestWorker.java:61)
+	at org.gradle.process.internal.worker.child.ActionExecutionWorker.execute(ActionExecutionWorker.java:56)
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:122)
+	at org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker.call(SystemApplicationClassLoaderWorker.java:69)
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.run(GradleWorkerMain.java:69)
+	at worker.org.gradle.process.internal.worker.GradleWorkerMain.main(GradleWorkerMain.java:74)
+</failure>
+  </testcase>
+  <system-out><![CDATA[[D/league] setupSeason: week 0 Alabama size8 vs New Mexico St size0
+[D/league] setupSeason: week 0 Oregon State size8 vs Army size0
+[D/league] setupSeason: week 0 South Bend size0 vs Tennessee size8
+[D/league] setupSeason: week 0 Provo size0 vs Auburn size8
+[D/league] setupSeason: week 0 Lynchburg size0 vs South Carolina size8
+[D/league] setupSeason: week 0 Massachusetts size0 vs Missouri size8
+[D/league] setupSeason: week 0 Arizona size8 vs Idaho size0
+[D/league] setupSeason: week 0 Southern Cal size8 vs Rhode Island size0
+[D/league] setupSeason: week 1 Colorado State size8 vs Lynchburg size1
+[D/league] setupSeason: week 1 Wyoming size8 vs New Mexico St size1
+[D/league] setupSeason: week 1 Army size1 vs Virginia Poly size8
+[D/league] setupSeason: week 1 Massachusetts size1 vs Norfolk size8
+[D/league] setupSeason: week 1 Central Florida size8 vs Provo size1
+[D/league] setupSeason: week 1 North Texas size8 vs South Bend size1
+[D/league] setupSeason: week 2 xBoston size9 vs South Bend size2
+[D/league] setupSeason: week 2 Massachusetts size2 vs Syracuse size9
+[D/league] setupSeason: week 2 Lynchburg size2 vs Virginia Poly size9
+[D/league] setupSeason: week 2 Army size2 vs Alabama size9
+[D/league] setupSeason: week 2 College Station size9 vs Provo size2
+[D/league] setupSeason: week 2 Charlotte size9 vs New Mexico St size2
+[D/league] setupSeason: week 3 Maryland size8 vs Durham size10
+[D/league] setupSeason: week 3 South Alabama size8 vs Houston size9
+[D/league] setupSeason: week 3 Washington size9 vs Army size3
+[D/league] setupSeason: week 3 xBoston size10 vs Oregon State size9
+[D/league] setupSeason: week 3 Syracuse size10 vs Navy size9
+[D/league] setupSeason: week 3 Coastal size8 vs Virginia size10
+[D/league] setupSeason: week 3 Cincinnati size9 vs Miami size10
+[D/league] setupSeason: week 3 Arizona size9 vs Chicago size8
+[D/league] setupSeason: week 3 Tulsa size9 vs Pittsburgh size10
+[D/league] setupSeason: week 3 Winston-Salem size10 vs Lafayette size8
+[D/league] setupSeason: week 3 South Georgia size8 vs Pasadena size9
+[D/league] setupSeason: week 3 Indiana size8 vs Southern Cal size9
+[D/league] setupSeason: week 3 Georgia IT size10 vs Philadelphia size9
+[D/league] setupSeason: week 3 Troy size8 vs Memphis size9
+[D/league] setupSeason: week 3 NC State size10 vs Appalachian size8
+[D/league] setupSeason: week 3 Wisconsin size8 vs California size9
+[D/league] setupSeason: week 3 Ohio State size8 vs South Florida size9
+[D/league] setupSeason: week 3 Louisville size10 vs Colorado size9
+[D/league] setupSeason: week 3 Michigan State size8 vs Virginia Poly size10
+[D/league] setupSeason: week 3 Central Florida size9 vs Nebraska size8
+[D/league] setupSeason: week 3 San Francisco size9 vs Iowa size8
+[D/league] setupSeason: week 3 Purdue size8 vs Connecticut size9
+[D/league] setupSeason: week 3 Arkansas State size8 vs New Mexico St size3
+[D/league] setupSeason: week 3 Florida State size10 vs Penn State size8
+[D/league] setupSeason: week 3 Georgia State size8 vs South Bend size3
+[D/league] setupSeason: week 3 South Carolina Tech size10 vs East Carolina size9
+[D/league] setupSeason: week 3 Michigan size8 vs Oregon size9
+[D/league] setupSeason: week 3 Provo size3 vs Texas State size8
+[D/league] setupSeason: week 3 Washington State size9 vs Minnesota size8
+[D/league] setupSeason: week 3 North Carolina size10 vs Lynchburg size3
+[D/league] setupSeason: week 3 Massachusetts size3 vs Illinois size8
+[D/league] setupSeason: week 4 Illinois size9 vs Alabama size10
+[D/league] setupSeason: week 4 Mississippi State size10 vs Nebraska size9
+[D/league] setupSeason: week 4 Florida size10 vs New Mexico size9
+[D/league] setupSeason: week 4 Kentucky size10 vs San Diego size9
+[D/league] setupSeason: week 4 Las Vegas size9 vs Army size4
+[D/league] setupSeason: week 4 Provo size4 vs Iowa size9
+[D/league] setupSeason: week 4 Arkansas size10 vs New Mexico St size4
+[D/league] setupSeason: week 4 Ole Miss size10 vs Massachusetts size4
+[D/league] setupSeason: week 4 Tennessee size10 vs Utah State size9
+[D/league] setupSeason: week 4 Indiana size9 vs Auburn size10
+[D/league] setupSeason: week 4 South Carolina size10 vs Michigan size9
+[D/league] setupSeason: week 4 Missouri size10 vs Purdue size9
+[D/league] setupSeason: week 4 Nashville size10 vs Nevada size9
+[D/league] setupSeason: week 4 Fresno size9 vs Lynchburg size4
+[D/league] setupSeason: week 4 Ohio State size9 vs Lousiana State size10
+[D/league] setupSeason: week 4 College Station size10 vs South Bend size4
+[D/league] setupSeason: week 4 Wisconsin size9 vs Georgia size10
+[D/league] setupSeason: week 5 Ohio size8 vs Georgia IT size11
+[D/league] setupSeason: week 5 Virginia size11 vs Central Michigan size8
+[D/league] setupSeason: week 5 Bowling Green size8 vs Pittsburgh size11
+[D/league] setupSeason: week 5 Massachusetts size5 vs South Carolina Tech size11
+[D/league] setupSeason: week 5 Miami OH size8 vs Provo size5
+[D/league] setupSeason: week 5 Toledo size8 vs South Bend size5
+[D/league] setupSeason: week 5 Muncie size8 vs Virginia Poly size11
+[D/league] setupSeason: week 5 Durham size11 vs Army size5
+[D/league] setupSeason: week 5 NC State size11 vs Lynchburg size5
+[D/league] setupSeason: week 5 North Carolina size11 vs Buffalo size8
+[D/league] setupSeason: week 5 Florida State size11 vs Akron size8
+[D/league] setupSeason: week 5 Eastern Michigan size8 vs Winston-Salem size11
+[D/league] setupSeason: week 5 Kent size8 vs Syracuse size11
+[D/league] setupSeason: week 5 xBoston size11 vs New Mexico St size5
+[D/league] setupSeason: week 5 Louisville size11 vs Northern Illinois size8
+[D/league] setupSeason: week 5 Miami size11 vs Western Michigan size8
+[D/league] setupSeason: week 6 Birmingham size10 vs College Station size11
+[D/league] setupSeason: week 6 New Mexico St size6 vs Fresno size10
+[D/league] setupSeason: week 6 Lafayette size9 vs Ohio State size10
+[D/league] setupSeason: week 6 Nebraska size10 vs Lynchburg size6
+[D/league] setupSeason: week 6 South Alabama size9 vs Arkansas size11
+[D/league] setupSeason: week 6 Massachusetts size6 vs Michigan size10
+[D/league] setupSeason: week 6 Army size6 vs Penn State size10
+[D/league] setupSeason: week 6 South Houston size10 vs Alabama size11
+[D/league] setupSeason: week 6 South Carolina size11 vs Mid Tenn State size10
+[D/league] setupSeason: week 6 Arkansas State size9 vs Ole Miss size11
+[D/league] setupSeason: week 6 Tennessee size11 vs Miami Intl size10
+[D/league] setupSeason: week 6 Air Force size10 vs Lousiana State size11
+[D/league] setupSeason: week 6 Georgia size11 vs Wyoming size10
+[D/league] setupSeason: week 6 Kentucky size11 vs Utah State size10
+[D/league] setupSeason: week 6 Texas State size9 vs Boca Raton size10
+[D/league] setupSeason: week 6 Boise size10 vs Nashville size11
+[D/league] setupSeason: week 6 Chicago size10 vs Auburn size11
+[D/league] setupSeason: week 6 Coastal size9 vs South Bend size6
+[D/league] setupSeason: week 6 El Paso size10 vs Monroe size9
+[D/league] setupSeason: week 6 South Georgia size9 vs Illinois size10
+[D/league] setupSeason: week 6 Missouri size11 vs South Mississippi size10
+[D/league] setupSeason: week 6 Huntington size10 vs Troy size9
+[D/league] setupSeason: week 6 Georgia State size9 vs Purdue size10
+[D/league] setupSeason: week 6 Provo size6 vs Mississippi State size11
+[D/league] setupSeason: week 6 Appalachian size9 vs Florida size11
+[D/league] setupSeason: week 6 Nevada size10 vs Yale size0
+[D/league] setupSeason: week 6 Las Vegas size10 vs Northern Arizona size0
+[D/league] setupSeason: week 7 West Virginia size8 vs Air Force size11
+[D/league] setupSeason: week 7 Kansas size8 vs Colorado State size11
+[D/league] setupSeason: week 7 Kent size9 vs Iowa State size8
+[D/league] setupSeason: week 7 Massachusetts size7 vs Oklahoma State size8
+[D/league] setupSeason: week 7 New Mexico St size7 vs New Mexico size11
+[D/league] setupSeason: week 7 Eastern Michigan size9 vs Lynchburg size7
+[D/league] setupSeason: week 7 Utah State size11 vs Tulane size10
+[D/league] setupSeason: week 7 Muncie size9 vs Memphis size10
+[D/league] setupSeason: week 7 Buffalo size9 vs Appalachian size10
+[D/league] setupSeason: week 7 Navy size10 vs San Jose size11
+[D/league] setupSeason: week 7 Central Michigan size9 vs East Carolina size10
+[D/league] setupSeason: week 7 Provo size7 vs South Alabama size10
+[D/league] setupSeason: week 7 Toledo size9 vs Monroe size10
+[D/league] setupSeason: week 7 Georgia State size10 vs Waco size8
+[D/league] setupSeason: week 7 San Diego size11 vs Coastal size10
+[D/league] setupSeason: week 7 Houston size10 vs South Bend size7
+[D/league] setupSeason: week 7 Nevada size11 vs Lafayette size10
+[D/league] setupSeason: week 7 Oklahoma size8 vs Troy size10
+[D/league] setupSeason: week 7 Texas size8 vs Arkansas State size10
+[D/league] setupSeason: week 7 Las Vegas size11 vs Northern Illinois size9
+[D/league] setupSeason: week 7 Hawaii size11 vs Miami OH size9
+[D/league] setupSeason: week 7 Wyoming size11 vs Connecticut size10
+[D/league] setupSeason: week 7 South Florida size10 vs Ft Worth size8
+[D/league] setupSeason: week 7 Army size7 vs Central Florida size10
+[D/league] setupSeason: week 7 Cincinnati size10 vs Bowling Green size9
+[D/league] setupSeason: week 7 Fresno size11 vs Texas IT size8
+[D/league] setupSeason: week 7 Western Michigan size9 vs South Georgia size10
+[D/league] setupSeason: week 7 Tulsa size10 vs Boise size11
+[D/league] setupSeason: week 7 Ohio size9 vs Kansas State size8
+[D/league] setupSeason: week 7 Akron size9 vs Philadelphia size10
+[D/league] setupSeason: week 8 Illinois size11 vs Oregon size10
+[D/league] setupSeason: week 8 Minnesota size11 vs South Bend size8
+[D/league] setupSeason: week 8 Nebraska size11 vs New Mexico St size8
+[D/league] setupSeason: week 8 Arizona State size10 vs Ft Worth size9
+[D/league] setupSeason: week 8 Provo size8 vs San Francisco size10
+[D/league] setupSeason: week 8 Maryland size11 vs Oklahoma size9
+[D/league] setupSeason: week 8 Wisconsin size11 vs Washington State size10
+[D/league] setupSeason: week 8 Arizona size10 vs Massachusetts size8
+[D/league] setupSeason: week 8 Kansas State size9 vs Purdue size11
+[D/league] setupSeason: week 8 Utah size10 vs Lynchburg size8
+[D/league] setupSeason: week 8 Texas IT size9 vs Indiana size11
+[D/league] setupSeason: week 8 California size10 vs New Jersey size11
+[D/league] setupSeason: week 8 Michigan State size11 vs Colorado size10
+[D/league] setupSeason: week 8 Southern Cal size10 vs Iowa State size9
+[D/league] setupSeason: week 8 Ohio State size11 vs Army size8
+[D/league] setupSeason: week 8 Oregon State size10 vs Waco size9
+[D/league] setupSeason: week 8 Michigan size11 vs Oklahoma State size9
+[D/league] setupSeason: week 8 Texas size9 vs Chicago size11
+[D/league] setupSeason: week 8 Penn State size11 vs Pasadena size10
+[D/league] setupSeason: week 8 Iowa size11 vs West Virginia size9
+[D/league] setupSeason: week 8 Kansas size9 vs Washington size10
+[D/league] setupSeason: week 9 South Bend size9 vs Kansas State size10
+[D/league] setupSeason: week 9 Dallas size11 vs West Virginia size10
+[D/league] setupSeason: week 9 Memphis size11 vs Western Michigan size10
+[D/league] setupSeason: week 9 Massachusetts size9 vs East Carolina size11
+[D/league] setupSeason: week 9 Philadelphia size11 vs New Mexico St size9
+[D/league] setupSeason: week 9 Muncie size10 vs Army size9
+[D/league] setupSeason: week 9 Houston size11 vs Buffalo size10
+[D/league] setupSeason: week 9 Iowa State size10 vs Provo size9
+[D/league] setupSeason: week 9 Central Michigan size10 vs Connecticut size11
+[D/league] setupSeason: week 9 Central Florida size11 vs Ohio size10
+[D/league] setupSeason: week 9 Texas size10 vs South Florida size11
+[D/league] setupSeason: week 9 Lynchburg size9 vs Miami OH size10
+[D/league] setupSeason: week 9 Navy size11 vs Ft Worth size10
+[D/league] setupSeason: week 9 Cincinnati size11 vs Eastern Michigan size10
+[D/league] setupSeason: week 9 Bowling Green size10 vs Tulane size11
+[D/league] setupSeason: week 9 Texas IT size10 vs Tulsa size11
+[D/league] setupSeason: week 10 Lynchburg size10 vs Monroe size11
+[D/league] setupSeason: week 10 South Alabama size11 vs South Bend size10
+[D/league] setupSeason: week 10 Appalachian size11 vs Provo size10
+[D/league] setupSeason: week 10 Texas State size11 vs Massachusetts size10
+[D/league] setupSeason: week 10 Lafayette size11 vs New Mexico St size10
+[D/league] setupSeason: week 10 Troy size11 vs Army size10
+[D/league] setupSeason: week 10 Arkansas State size11 vs Maine size0
+[D/league] setupSeason: week 10 Coastal size11 vs Miss Valley size0
+[D/league] setupSeason: week 10 Georgia State size11 vs Youngstown size0
+[D/league] setupSeason: week 10 South Georgia size11 vs Sacramento size0
+DEBUG: Playing conference Atlantic
+DEBUG: Playing conference Great Lakes
+DEBUG: Playing conference Southwest
+DEBUG: Playing conference Pacific
+DEBUG: Playing conference Southern
+DEBUG: Playing conference Patriot
+DEBUG: Playing conference Central
+DEBUG: Playing conference Liberty
+DEBUG: Playing conference Mountain
+DEBUG: Playing conference Sunshine
+DEBUG: Playing conference Independent
+[D/conf] conf: Atlantic team: xBoston gameSchedule size 12
+[D/conf] conf: Atlantic team: South Carolina Tech gameSchedule size 12
+[D/conf] conf: Atlantic team: Durham gameSchedule size 12
+[D/conf] conf: Atlantic team: Florida State gameSchedule size 12
+[D/conf] conf: Atlantic team: Georgia IT gameSchedule size 12
+[D/conf] conf: Atlantic team: Louisville gameSchedule size 12
+[D/conf] conf: Atlantic team: Miami gameSchedule size 12
+[D/conf] conf: Atlantic team: North Carolina gameSchedule size 12
+[D/conf] conf: Atlantic team: NC State gameSchedule size 12
+[D/conf] conf: Atlantic team: Pittsburgh gameSchedule size 12
+[D/conf] conf: Atlantic team: Syracuse gameSchedule size 12
+[D/conf] conf: Atlantic team: Winston-Salem gameSchedule size 12
+[D/conf] conf: Atlantic team: Virginia gameSchedule size 12
+[D/conf] conf: Atlantic team: Virginia Poly gameSchedule size 12
+[D/conf] conf: Great Lakes team: Illinois gameSchedule size 12
+[D/conf] conf: Great Lakes team: Indiana gameSchedule size 12
+[D/conf] conf: Great Lakes team: Iowa gameSchedule size 12
+[D/conf] conf: Great Lakes team: Maryland gameSchedule size 12
+[D/conf] conf: Great Lakes team: Michigan gameSchedule size 12
+[D/conf] conf: Great Lakes team: Michigan State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Minnesota gameSchedule size 12
+[D/conf] conf: Great Lakes team: Nebraska gameSchedule size 12
+[D/conf] conf: Great Lakes team: Chicago gameSchedule size 12
+[D/conf] conf: Great Lakes team: Ohio State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Penn State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Purdue gameSchedule size 12
+[D/conf] conf: Great Lakes team: New Jersey gameSchedule size 12
+[D/conf] conf: Great Lakes team: Wisconsin gameSchedule size 12
+[D/conf] conf: Southwest team: Waco gameSchedule size 12
+[D/conf] conf: Southwest team: Iowa State gameSchedule size 12
+[D/conf] conf: Southwest team: Texas IT gameSchedule size 12
+[D/conf] conf: Southwest team: Kansas gameSchedule size 12
+[D/conf] conf: Southwest team: Kansas State gameSchedule size 12
+[D/conf] conf: Southwest team: Oklahoma gameSchedule size 12
+[D/conf] conf: Southwest team: Oklahoma State gameSchedule size 12
+[D/conf] conf: Southwest team: Texas gameSchedule size 12
+[D/conf] conf: Southwest team: Ft Worth gameSchedule size 12
+[D/conf] conf: Southwest team: West Virginia gameSchedule size 12
+[D/conf] conf: Pacific team: Arizona gameSchedule size 12
+[D/conf] conf: Pacific team: Arizona State gameSchedule size 12
+[D/conf] conf: Pacific team: California gameSchedule size 12
+[D/conf] conf: Pacific team: Colorado gameSchedule size 12
+[D/conf] conf: Pacific team: Oregon gameSchedule size 12
+[D/conf] conf: Pacific team: Oregon State gameSchedule size 12
+[D/conf] conf: Pacific team: San Francisco gameSchedule size 12
+[D/conf] conf: Pacific team: Pasadena gameSchedule size 12
+[D/conf] conf: Pacific team: Southern Cal gameSchedule size 12
+[D/conf] conf: Pacific team: Washington gameSchedule size 12
+[D/conf] conf: Pacific team: Washington State gameSchedule size 12
+[D/conf] conf: Pacific team: Utah gameSchedule size 12
+[D/conf] conf: Southern team: Alabama gameSchedule size 12
+[D/conf] conf: Southern team: Arkansas gameSchedule size 12
+[D/conf] conf: Southern team: Auburn gameSchedule size 12
+[D/conf] conf: Southern team: Florida gameSchedule size 12
+[D/conf] conf: Southern team: Georgia gameSchedule size 12
+[D/conf] conf: Southern team: Kentucky gameSchedule size 12
+[D/conf] conf: Southern team: Lousiana State gameSchedule size 12
+[D/conf] conf: Southern team: Missouri gameSchedule size 12
+[D/conf] conf: Southern team: Ole Miss gameSchedule size 12
+[D/conf] conf: Southern team: Mississippi State gameSchedule size 12
+[D/conf] conf: Southern team: South Carolina gameSchedule size 12
+[D/conf] conf: Southern team: Tennessee gameSchedule size 12
+[D/conf] conf: Southern team: College Station gameSchedule size 12
+[D/conf] conf: Southern team: Nashville gameSchedule size 12
+[D/conf] conf: Patriot team: Central Florida gameSchedule size 12
+[D/conf] conf: Patriot team: Cincinnati gameSchedule size 12
+[D/conf] conf: Patriot team: East Carolina gameSchedule size 12
+[D/conf] conf: Patriot team: Houston gameSchedule size 12
+[D/conf] conf: Patriot team: Memphis gameSchedule size 12
+[D/conf] conf: Patriot team: Navy gameSchedule size 12
+[D/conf] conf: Patriot team: South Florida gameSchedule size 12
+[D/conf] conf: Patriot team: Dallas gameSchedule size 12
+[D/conf] conf: Patriot team: Philadelphia gameSchedule size 12
+[D/conf] conf: Patriot team: Tulane gameSchedule size 12
+[D/conf] conf: Patriot team: Tulsa gameSchedule size 12
+[D/conf] conf: Patriot team: Connecticut gameSchedule size 12
+[D/conf] conf: Central team: Akron gameSchedule size 12
+[D/conf] conf: Central team: Muncie gameSchedule size 12
+[D/conf] conf: Central team: Bowling Green gameSchedule size 12
+[D/conf] conf: Central team: Buffalo gameSchedule size 12
+[D/conf] conf: Central team: Central Michigan gameSchedule size 12
+[D/conf] conf: Central team: Eastern Michigan gameSchedule size 12
+[D/conf] conf: Central team: Kent gameSchedule size 12
+[D/conf] conf: Central team: Miami OH gameSchedule size 12
+[D/conf] conf: Central team: Northern Illinois gameSchedule size 12
+[D/conf] conf: Central team: Ohio gameSchedule size 12
+[D/conf] conf: Central team: Toledo gameSchedule size 12
+[D/conf] conf: Central team: Western Michigan gameSchedule size 12
+[D/conf] conf: Liberty team: Charlotte gameSchedule size 12
+[D/conf] conf: Liberty team: Boca Raton gameSchedule size 12
+[D/conf] conf: Liberty team: Miami Intl gameSchedule size 12
+[D/conf] conf: Liberty team: Louisiana Poly gameSchedule size 12
+[D/conf] conf: Liberty team: Huntington gameSchedule size 12
+[D/conf] conf: Liberty team: Mid Tenn State gameSchedule size 12
+[D/conf] conf: Liberty team: North Texas gameSchedule size 12
+[D/conf] conf: Liberty team: Norfolk gameSchedule size 12
+[D/conf] conf: Liberty team: South Houston gameSchedule size 12
+[D/conf] conf: Liberty team: South Mississippi gameSchedule size 12
+[D/conf] conf: Liberty team: Birmingham gameSchedule size 12
+[D/conf] conf: Liberty team: El Paso gameSchedule size 12
+[D/conf] conf: Liberty team: San Antonio gameSchedule size 12
+[D/conf] conf: Liberty team: Western Kentucky gameSchedule size 12
+[D/conf] conf: Mountain team: Air Force gameSchedule size 12
+[D/conf] conf: Mountain team: Boise gameSchedule size 12
+[D/conf] conf: Mountain team: Colorado State gameSchedule size 12
+[D/conf] conf: Mountain team: Fresno gameSchedule size 12
+[D/conf] conf: Mountain team: Hawaii gameSchedule size 12
+[D/conf] conf: Mountain team: Nevada gameSchedule size 12
+[D/conf] conf: Mountain team: New Mexico gameSchedule size 12
+[D/conf] conf: Mountain team: San Diego gameSchedule size 12
+[D/conf] conf: Mountain team: San Jose gameSchedule size 12
+[D/conf] conf: Mountain team: Las Vegas gameSchedule size 12
+[D/conf] conf: Mountain team: Utah State gameSchedule size 12
+[D/conf] conf: Mountain team: Wyoming gameSchedule size 12
+[D/conf] conf: Sunshine team: Appalachian gameSchedule size 12
+[D/conf] conf: Sunshine team: Arkansas State gameSchedule size 12
+[D/conf] conf: Sunshine team: Coastal gameSchedule size 12
+[D/conf] conf: Sunshine team: Monroe gameSchedule size 12
+[D/conf] conf: Sunshine team: Lafayette gameSchedule size 12
+[D/conf] conf: Sunshine team: Troy gameSchedule size 12
+[D/conf] conf: Sunshine team: Texas State gameSchedule size 12
+[D/conf] conf: Sunshine team: South Georgia gameSchedule size 12
+[D/conf] conf: Sunshine team: Georgia State gameSchedule size 12
+[D/conf] conf: Sunshine team: South Alabama gameSchedule size 12
+[D/conf] conf: Independent team: Army gameSchedule size 12
+[D/conf] conf: Independent team: Provo gameSchedule size 12
+[D/conf] conf: Independent team: Lynchburg gameSchedule size 12
+[D/conf] conf: Independent team: New Mexico St gameSchedule size 12
+[D/conf] conf: Independent team: South Bend gameSchedule size 12
+[D/conf] conf: Independent team: Massachusetts gameSchedule size 12
+DEBUG: Entering coachingHotSeat
+DEBUG: Entering setTeamRanks
+DEBUG: Entering updateWinStreak
+DEBUG: Week advanced to 2
+DEBUG: Playing conference Atlantic
+DEBUG: Playing conference Great Lakes
+DEBUG: Playing conference Southwest
+DEBUG: Playing conference Pacific
+DEBUG: Playing conference Southern
+DEBUG: Playing conference Patriot
+DEBUG: Playing conference Central
+DEBUG: Playing conference Liberty
+DEBUG: Playing conference Mountain
+DEBUG: Playing conference Sunshine
+DEBUG: Playing conference Independent
+[D/conf] conf: Atlantic team: xBoston gameSchedule size 12
+[D/conf] conf: Atlantic team: South Carolina Tech gameSchedule size 12
+[D/conf] conf: Atlantic team: Durham gameSchedule size 12
+[D/conf] conf: Atlantic team: Florida State gameSchedule size 12
+[D/conf] conf: Atlantic team: Georgia IT gameSchedule size 12
+[D/conf] conf: Atlantic team: Louisville gameSchedule size 12
+[D/conf] conf: Atlantic team: Miami gameSchedule size 12
+[D/conf] conf: Atlantic team: North Carolina gameSchedule size 12
+[D/conf] conf: Atlantic team: NC State gameSchedule size 12
+[D/conf] conf: Atlantic team: Pittsburgh gameSchedule size 12
+[D/conf] conf: Atlantic team: Syracuse gameSchedule size 12
+[D/conf] conf: Atlantic team: Winston-Salem gameSchedule size 12
+[D/conf] conf: Atlantic team: Virginia gameSchedule size 12
+[D/conf] conf: Atlantic team: Virginia Poly gameSchedule size 12
+[D/conf] conf: Great Lakes team: Illinois gameSchedule size 12
+[D/conf] conf: Great Lakes team: Indiana gameSchedule size 12
+[D/conf] conf: Great Lakes team: Iowa gameSchedule size 12
+[D/conf] conf: Great Lakes team: Maryland gameSchedule size 12
+[D/conf] conf: Great Lakes team: Michigan gameSchedule size 12
+[D/conf] conf: Great Lakes team: Michigan State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Minnesota gameSchedule size 12
+[D/conf] conf: Great Lakes team: Nebraska gameSchedule size 12
+[D/conf] conf: Great Lakes team: Chicago gameSchedule size 12
+[D/conf] conf: Great Lakes team: Ohio State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Penn State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Purdue gameSchedule size 12
+[D/conf] conf: Great Lakes team: New Jersey gameSchedule size 12
+[D/conf] conf: Great Lakes team: Wisconsin gameSchedule size 12
+[D/conf] conf: Southwest team: Waco gameSchedule size 12
+[D/conf] conf: Southwest team: Iowa State gameSchedule size 12
+[D/conf] conf: Southwest team: Texas IT gameSchedule size 12
+[D/conf] conf: Southwest team: Kansas gameSchedule size 12
+[D/conf] conf: Southwest team: Kansas State gameSchedule size 12
+[D/conf] conf: Southwest team: Oklahoma gameSchedule size 12
+[D/conf] conf: Southwest team: Oklahoma State gameSchedule size 12
+[D/conf] conf: Southwest team: Texas gameSchedule size 12
+[D/conf] conf: Southwest team: Ft Worth gameSchedule size 12
+[D/conf] conf: Southwest team: West Virginia gameSchedule size 12
+[D/conf] conf: Pacific team: Arizona gameSchedule size 12
+[D/conf] conf: Pacific team: Arizona State gameSchedule size 12
+[D/conf] conf: Pacific team: California gameSchedule size 12
+[D/conf] conf: Pacific team: Colorado gameSchedule size 12
+[D/conf] conf: Pacific team: Oregon gameSchedule size 12
+[D/conf] conf: Pacific team: Oregon State gameSchedule size 12
+[D/conf] conf: Pacific team: San Francisco gameSchedule size 12
+[D/conf] conf: Pacific team: Pasadena gameSchedule size 12
+[D/conf] conf: Pacific team: Southern Cal gameSchedule size 12
+[D/conf] conf: Pacific team: Washington gameSchedule size 12
+[D/conf] conf: Pacific team: Washington State gameSchedule size 12
+[D/conf] conf: Pacific team: Utah gameSchedule size 12
+[D/conf] conf: Southern team: Alabama gameSchedule size 12
+[D/conf] conf: Southern team: Arkansas gameSchedule size 12
+[D/conf] conf: Southern team: Auburn gameSchedule size 12
+[D/conf] conf: Southern team: Florida gameSchedule size 12
+[D/conf] conf: Southern team: Georgia gameSchedule size 12
+[D/conf] conf: Southern team: Kentucky gameSchedule size 12
+[D/conf] conf: Southern team: Lousiana State gameSchedule size 12
+[D/conf] conf: Southern team: Missouri gameSchedule size 12
+[D/conf] conf: Southern team: Ole Miss gameSchedule size 12
+[D/conf] conf: Southern team: Mississippi State gameSchedule size 12
+[D/conf] conf: Southern team: South Carolina gameSchedule size 12
+[D/conf] conf: Southern team: Tennessee gameSchedule size 12
+[D/conf] conf: Southern team: College Station gameSchedule size 12
+[D/conf] conf: Southern team: Nashville gameSchedule size 12
+[D/conf] conf: Patriot team: Central Florida gameSchedule size 12
+[D/conf] conf: Patriot team: Cincinnati gameSchedule size 12
+[D/conf] conf: Patriot team: East Carolina gameSchedule size 12
+[D/conf] conf: Patriot team: Houston gameSchedule size 12
+[D/conf] conf: Patriot team: Memphis gameSchedule size 12
+[D/conf] conf: Patriot team: Navy gameSchedule size 12
+[D/conf] conf: Patriot team: South Florida gameSchedule size 12
+[D/conf] conf: Patriot team: Dallas gameSchedule size 12
+[D/conf] conf: Patriot team: Philadelphia gameSchedule size 12
+[D/conf] conf: Patriot team: Tulane gameSchedule size 12
+[D/conf] conf: Patriot team: Tulsa gameSchedule size 12
+[D/conf] conf: Patriot team: Connecticut gameSchedule size 12
+[D/conf] conf: Central team: Akron gameSchedule size 12
+[D/conf] conf: Central team: Muncie gameSchedule size 12
+[D/conf] conf: Central team: Bowling Green gameSchedule size 12
+[D/conf] conf: Central team: Buffalo gameSchedule size 12
+[D/conf] conf: Central team: Central Michigan gameSchedule size 12
+[D/conf] conf: Central team: Eastern Michigan gameSchedule size 12
+[D/conf] conf: Central team: Kent gameSchedule size 12
+[D/conf] conf: Central team: Miami OH gameSchedule size 12
+[D/conf] conf: Central team: Northern Illinois gameSchedule size 12
+[D/conf] conf: Central team: Ohio gameSchedule size 12
+[D/conf] conf: Central team: Toledo gameSchedule size 12
+[D/conf] conf: Central team: Western Michigan gameSchedule size 12
+[D/conf] conf: Liberty team: Charlotte gameSchedule size 12
+[D/conf] conf: Liberty team: Boca Raton gameSchedule size 12
+[D/conf] conf: Liberty team: Miami Intl gameSchedule size 12
+[D/conf] conf: Liberty team: Louisiana Poly gameSchedule size 12
+[D/conf] conf: Liberty team: Huntington gameSchedule size 12
+[D/conf] conf: Liberty team: Mid Tenn State gameSchedule size 12
+[D/conf] conf: Liberty team: North Texas gameSchedule size 12
+[D/conf] conf: Liberty team: Norfolk gameSchedule size 12
+[D/conf] conf: Liberty team: South Houston gameSchedule size 12
+[D/conf] conf: Liberty team: South Mississippi gameSchedule size 12
+[D/conf] conf: Liberty team: Birmingham gameSchedule size 12
+[D/conf] conf: Liberty team: El Paso gameSchedule size 12
+[D/conf] conf: Liberty team: San Antonio gameSchedule size 12
+[D/conf] conf: Liberty team: Western Kentucky gameSchedule size 12
+[D/conf] conf: Mountain team: Air Force gameSchedule size 12
+[D/conf] conf: Mountain team: Boise gameSchedule size 12
+[D/conf] conf: Mountain team: Colorado State gameSchedule size 12
+[D/conf] conf: Mountain team: Fresno gameSchedule size 12
+[D/conf] conf: Mountain team: Hawaii gameSchedule size 12
+[D/conf] conf: Mountain team: Nevada gameSchedule size 12
+[D/conf] conf: Mountain team: New Mexico gameSchedule size 12
+[D/conf] conf: Mountain team: San Diego gameSchedule size 12
+[D/conf] conf: Mountain team: San Jose gameSchedule size 12
+[D/conf] conf: Mountain team: Las Vegas gameSchedule size 12
+[D/conf] conf: Mountain team: Utah State gameSchedule size 12
+[D/conf] conf: Mountain team: Wyoming gameSchedule size 12
+[D/conf] conf: Sunshine team: Appalachian gameSchedule size 12
+[D/conf] conf: Sunshine team: Arkansas State gameSchedule size 12
+[D/conf] conf: Sunshine team: Coastal gameSchedule size 12
+[D/conf] conf: Sunshine team: Monroe gameSchedule size 12
+[D/conf] conf: Sunshine team: Lafayette gameSchedule size 12
+[D/conf] conf: Sunshine team: Troy gameSchedule size 12
+[D/conf] conf: Sunshine team: Texas State gameSchedule size 12
+[D/conf] conf: Sunshine team: South Georgia gameSchedule size 12
+[D/conf] conf: Sunshine team: Georgia State gameSchedule size 12
+[D/conf] conf: Sunshine team: South Alabama gameSchedule size 12
+[D/conf] conf: Independent team: Army gameSchedule size 12
+[D/conf] conf: Independent team: Provo gameSchedule size 12
+[D/conf] conf: Independent team: Lynchburg gameSchedule size 12
+[D/conf] conf: Independent team: New Mexico St gameSchedule size 12
+[D/conf] conf: Independent team: South Bend gameSchedule size 12
+[D/conf] conf: Independent team: Massachusetts gameSchedule size 12
+DEBUG: Entering coachingHotSeat
+DEBUG: Entering setTeamRanks
+DEBUG: Entering updateWinStreak
+DEBUG: Week advanced to 3
+DEBUG: Playing conference Atlantic
+DEBUG: Playing conference Great Lakes
+DEBUG: Playing conference Southwest
+DEBUG: Playing conference Pacific
+DEBUG: Playing conference Southern
+DEBUG: Playing conference Patriot
+DEBUG: Playing conference Central
+DEBUG: Playing conference Liberty
+DEBUG: Playing conference Mountain
+DEBUG: Playing conference Sunshine
+DEBUG: Playing conference Independent
+[D/conf] conf: Atlantic team: xBoston gameSchedule size 12
+[D/conf] conf: Atlantic team: South Carolina Tech gameSchedule size 12
+[D/conf] conf: Atlantic team: Durham gameSchedule size 12
+[D/conf] conf: Atlantic team: Florida State gameSchedule size 12
+[D/conf] conf: Atlantic team: Georgia IT gameSchedule size 12
+[D/conf] conf: Atlantic team: Louisville gameSchedule size 12
+[D/conf] conf: Atlantic team: Miami gameSchedule size 12
+[D/conf] conf: Atlantic team: North Carolina gameSchedule size 12
+[D/conf] conf: Atlantic team: NC State gameSchedule size 12
+[D/conf] conf: Atlantic team: Pittsburgh gameSchedule size 12
+[D/conf] conf: Atlantic team: Syracuse gameSchedule size 12
+[D/conf] conf: Atlantic team: Winston-Salem gameSchedule size 12
+[D/conf] conf: Atlantic team: Virginia gameSchedule size 12
+[D/conf] conf: Atlantic team: Virginia Poly gameSchedule size 12
+[D/conf] conf: Great Lakes team: Illinois gameSchedule size 12
+[D/conf] conf: Great Lakes team: Indiana gameSchedule size 12
+[D/conf] conf: Great Lakes team: Iowa gameSchedule size 12
+[D/conf] conf: Great Lakes team: Maryland gameSchedule size 12
+[D/conf] conf: Great Lakes team: Michigan gameSchedule size 12
+[D/conf] conf: Great Lakes team: Michigan State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Minnesota gameSchedule size 12
+[D/conf] conf: Great Lakes team: Nebraska gameSchedule size 12
+[D/conf] conf: Great Lakes team: Chicago gameSchedule size 12
+[D/conf] conf: Great Lakes team: Ohio State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Penn State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Purdue gameSchedule size 12
+[D/conf] conf: Great Lakes team: New Jersey gameSchedule size 12
+[D/conf] conf: Great Lakes team: Wisconsin gameSchedule size 12
+[D/conf] conf: Southwest team: Waco gameSchedule size 12
+[D/conf] conf: Southwest team: Iowa State gameSchedule size 12
+[D/conf] conf: Southwest team: Texas IT gameSchedule size 12
+[D/conf] conf: Southwest team: Kansas gameSchedule size 12
+[D/conf] conf: Southwest team: Kansas State gameSchedule size 12
+[D/conf] conf: Southwest team: Oklahoma gameSchedule size 12
+[D/conf] conf: Southwest team: Oklahoma State gameSchedule size 12
+[D/conf] conf: Southwest team: Texas gameSchedule size 12
+[D/conf] conf: Southwest team: Ft Worth gameSchedule size 12
+[D/conf] conf: Southwest team: West Virginia gameSchedule size 12
+[D/conf] conf: Pacific team: Arizona gameSchedule size 12
+[D/conf] conf: Pacific team: Arizona State gameSchedule size 12
+[D/conf] conf: Pacific team: California gameSchedule size 12
+[D/conf] conf: Pacific team: Colorado gameSchedule size 12
+[D/conf] conf: Pacific team: Oregon gameSchedule size 12
+[D/conf] conf: Pacific team: Oregon State gameSchedule size 12
+[D/conf] conf: Pacific team: San Francisco gameSchedule size 12
+[D/conf] conf: Pacific team: Pasadena gameSchedule size 12
+[D/conf] conf: Pacific team: Southern Cal gameSchedule size 12
+[D/conf] conf: Pacific team: Washington gameSchedule size 12
+[D/conf] conf: Pacific team: Washington State gameSchedule size 12
+[D/conf] conf: Pacific team: Utah gameSchedule size 12
+[D/conf] conf: Southern team: Alabama gameSchedule size 12
+[D/conf] conf: Southern team: Arkansas gameSchedule size 12
+[D/conf] conf: Southern team: Auburn gameSchedule size 12
+[D/conf] conf: Southern team: Florida gameSchedule size 12
+[D/conf] conf: Southern team: Georgia gameSchedule size 12
+[D/conf] conf: Southern team: Kentucky gameSchedule size 12
+[D/conf] conf: Southern team: Lousiana State gameSchedule size 12
+[D/conf] conf: Southern team: Missouri gameSchedule size 12
+[D/conf] conf: Southern team: Ole Miss gameSchedule size 12
+[D/conf] conf: Southern team: Mississippi State gameSchedule size 12
+[D/conf] conf: Southern team: South Carolina gameSchedule size 12
+[D/conf] conf: Southern team: Tennessee gameSchedule size 12
+[D/conf] conf: Southern team: College Station gameSchedule size 12
+[D/conf] conf: Southern team: Nashville gameSchedule size 12
+[D/conf] conf: Patriot team: Central Florida gameSchedule size 12
+[D/conf] conf: Patriot team: Cincinnati gameSchedule size 12
+[D/conf] conf: Patriot team: East Carolina gameSchedule size 12
+[D/conf] conf: Patriot team: Houston gameSchedule size 12
+[D/conf] conf: Patriot team: Memphis gameSchedule size 12
+[D/conf] conf: Patriot team: Navy gameSchedule size 12
+[D/conf] conf: Patriot team: South Florida gameSchedule size 12
+[D/conf] conf: Patriot team: Dallas gameSchedule size 12
+[D/conf] conf: Patriot team: Philadelphia gameSchedule size 12
+[D/conf] conf: Patriot team: Tulane gameSchedule size 12
+[D/conf] conf: Patriot team: Tulsa gameSchedule size 12
+[D/conf] conf: Patriot team: Connecticut gameSchedule size 12
+[D/conf] conf: Central team: Akron gameSchedule size 12
+[D/conf] conf: Central team: Muncie gameSchedule size 12
+[D/conf] conf: Central team: Bowling Green gameSchedule size 12
+[D/conf] conf: Central team: Buffalo gameSchedule size 12
+[D/conf] conf: Central team: Central Michigan gameSchedule size 12
+[D/conf] conf: Central team: Eastern Michigan gameSchedule size 12
+[D/conf] conf: Central team: Kent gameSchedule size 12
+[D/conf] conf: Central team: Miami OH gameSchedule size 12
+[D/conf] conf: Central team: Northern Illinois gameSchedule size 12
+[D/conf] conf: Central team: Ohio gameSchedule size 12
+[D/conf] conf: Central team: Toledo gameSchedule size 12
+[D/conf] conf: Central team: Western Michigan gameSchedule size 12
+[D/conf] conf: Liberty team: Charlotte gameSchedule size 12
+[D/conf] conf: Liberty team: Boca Raton gameSchedule size 12
+[D/conf] conf: Liberty team: Miami Intl gameSchedule size 12
+[D/conf] conf: Liberty team: Louisiana Poly gameSchedule size 12
+[D/conf] conf: Liberty team: Huntington gameSchedule size 12
+[D/conf] conf: Liberty team: Mid Tenn State gameSchedule size 12
+[D/conf] conf: Liberty team: North Texas gameSchedule size 12
+[D/conf] conf: Liberty team: Norfolk gameSchedule size 12
+[D/conf] conf: Liberty team: South Houston gameSchedule size 12
+[D/conf] conf: Liberty team: South Mississippi gameSchedule size 12
+[D/conf] conf: Liberty team: Birmingham gameSchedule size 12
+[D/conf] conf: Liberty team: El Paso gameSchedule size 12
+[D/conf] conf: Liberty team: San Antonio gameSchedule size 12
+[D/conf] conf: Liberty team: Western Kentucky gameSchedule size 12
+[D/conf] conf: Mountain team: Air Force gameSchedule size 12
+[D/conf] conf: Mountain team: Boise gameSchedule size 12
+[D/conf] conf: Mountain team: Colorado State gameSchedule size 12
+[D/conf] conf: Mountain team: Fresno gameSchedule size 12
+[D/conf] conf: Mountain team: Hawaii gameSchedule size 12
+[D/conf] conf: Mountain team: Nevada gameSchedule size 12
+[D/conf] conf: Mountain team: New Mexico gameSchedule size 12
+[D/conf] conf: Mountain team: San Diego gameSchedule size 12
+[D/conf] conf: Mountain team: San Jose gameSchedule size 12
+[D/conf] conf: Mountain team: Las Vegas gameSchedule size 12
+[D/conf] conf: Mountain team: Utah State gameSchedule size 12
+[D/conf] conf: Mountain team: Wyoming gameSchedule size 12
+[D/conf] conf: Sunshine team: Appalachian gameSchedule size 12
+[D/conf] conf: Sunshine team: Arkansas State gameSchedule size 12
+[D/conf] conf: Sunshine team: Coastal gameSchedule size 12
+[D/conf] conf: Sunshine team: Monroe gameSchedule size 12
+[D/conf] conf: Sunshine team: Lafayette gameSchedule size 12
+[D/conf] conf: Sunshine team: Troy gameSchedule size 12
+[D/conf] conf: Sunshine team: Texas State gameSchedule size 12
+[D/conf] conf: Sunshine team: South Georgia gameSchedule size 12
+[D/conf] conf: Sunshine team: Georgia State gameSchedule size 12
+[D/conf] conf: Sunshine team: South Alabama gameSchedule size 12
+[D/conf] conf: Independent team: Army gameSchedule size 12
+[D/conf] conf: Independent team: Provo gameSchedule size 12
+[D/conf] conf: Independent team: Lynchburg gameSchedule size 12
+[D/conf] conf: Independent team: New Mexico St gameSchedule size 12
+[D/conf] conf: Independent team: South Bend gameSchedule size 12
+[D/conf] conf: Independent team: Massachusetts gameSchedule size 12
+DEBUG: Entering coachingHotSeat
+DEBUG: Entering setTeamRanks
+DEBUG: Entering updateWinStreak
+DEBUG: Week advanced to 4
+DEBUG: Playing conference Atlantic
+DEBUG: Playing conference Great Lakes
+DEBUG: Playing conference Southwest
+DEBUG: Playing conference Pacific
+DEBUG: Playing conference Southern
+DEBUG: Playing conference Patriot
+DEBUG: Playing conference Central
+DEBUG: Playing conference Liberty
+DEBUG: Playing conference Mountain
+DEBUG: Playing conference Sunshine
+DEBUG: Playing conference Independent
+[D/conf] conf: Atlantic team: xBoston gameSchedule size 12
+[D/conf] conf: Atlantic team: South Carolina Tech gameSchedule size 12
+[D/conf] conf: Atlantic team: Durham gameSchedule size 12
+[D/conf] conf: Atlantic team: Florida State gameSchedule size 12
+[D/conf] conf: Atlantic team: Georgia IT gameSchedule size 12
+[D/conf] conf: Atlantic team: Louisville gameSchedule size 12
+[D/conf] conf: Atlantic team: Miami gameSchedule size 12
+[D/conf] conf: Atlantic team: North Carolina gameSchedule size 12
+[D/conf] conf: Atlantic team: NC State gameSchedule size 12
+[D/conf] conf: Atlantic team: Pittsburgh gameSchedule size 12
+[D/conf] conf: Atlantic team: Syracuse gameSchedule size 12
+[D/conf] conf: Atlantic team: Winston-Salem gameSchedule size 12
+[D/conf] conf: Atlantic team: Virginia gameSchedule size 12
+[D/conf] conf: Atlantic team: Virginia Poly gameSchedule size 12
+[D/conf] conf: Great Lakes team: Illinois gameSchedule size 12
+[D/conf] conf: Great Lakes team: Indiana gameSchedule size 12
+[D/conf] conf: Great Lakes team: Iowa gameSchedule size 12
+[D/conf] conf: Great Lakes team: Maryland gameSchedule size 12
+[D/conf] conf: Great Lakes team: Michigan gameSchedule size 12
+[D/conf] conf: Great Lakes team: Michigan State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Minnesota gameSchedule size 12
+[D/conf] conf: Great Lakes team: Nebraska gameSchedule size 12
+[D/conf] conf: Great Lakes team: Chicago gameSchedule size 12
+[D/conf] conf: Great Lakes team: Ohio State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Penn State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Purdue gameSchedule size 12
+[D/conf] conf: Great Lakes team: New Jersey gameSchedule size 12
+[D/conf] conf: Great Lakes team: Wisconsin gameSchedule size 12
+[D/conf] conf: Southwest team: Waco gameSchedule size 12
+[D/conf] conf: Southwest team: Iowa State gameSchedule size 12
+[D/conf] conf: Southwest team: Texas IT gameSchedule size 12
+[D/conf] conf: Southwest team: Kansas gameSchedule size 12
+[D/conf] conf: Southwest team: Kansas State gameSchedule size 12
+[D/conf] conf: Southwest team: Oklahoma gameSchedule size 12
+[D/conf] conf: Southwest team: Oklahoma State gameSchedule size 12
+[D/conf] conf: Southwest team: Texas gameSchedule size 12
+[D/conf] conf: Southwest team: Ft Worth gameSchedule size 12
+[D/conf] conf: Southwest team: West Virginia gameSchedule size 12
+[D/conf] conf: Pacific team: Arizona gameSchedule size 12
+[D/conf] conf: Pacific team: Arizona State gameSchedule size 12
+[D/conf] conf: Pacific team: California gameSchedule size 12
+[D/conf] conf: Pacific team: Colorado gameSchedule size 12
+[D/conf] conf: Pacific team: Oregon gameSchedule size 12
+[D/conf] conf: Pacific team: Oregon State gameSchedule size 12
+[D/conf] conf: Pacific team: San Francisco gameSchedule size 12
+[D/conf] conf: Pacific team: Pasadena gameSchedule size 12
+[D/conf] conf: Pacific team: Southern Cal gameSchedule size 12
+[D/conf] conf: Pacific team: Washington gameSchedule size 12
+[D/conf] conf: Pacific team: Washington State gameSchedule size 12
+[D/conf] conf: Pacific team: Utah gameSchedule size 12
+[D/conf] conf: Southern team: Alabama gameSchedule size 12
+[D/conf] conf: Southern team: Arkansas gameSchedule size 12
+[D/conf] conf: Southern team: Auburn gameSchedule size 12
+[D/conf] conf: Southern team: Florida gameSchedule size 12
+[D/conf] conf: Southern team: Georgia gameSchedule size 12
+[D/conf] conf: Southern team: Kentucky gameSchedule size 12
+[D/conf] conf: Southern team: Lousiana State gameSchedule size 12
+[D/conf] conf: Southern team: Missouri gameSchedule size 12
+[D/conf] conf: Southern team: Ole Miss gameSchedule size 12
+[D/conf] conf: Southern team: Mississippi State gameSchedule size 12
+[D/conf] conf: Southern team: South Carolina gameSchedule size 12
+[D/conf] conf: Southern team: Tennessee gameSchedule size 12
+[D/conf] conf: Southern team: College Station gameSchedule size 12
+[D/conf] conf: Southern team: Nashville gameSchedule size 12
+[D/conf] conf: Patriot team: Central Florida gameSchedule size 12
+[D/conf] conf: Patriot team: Cincinnati gameSchedule size 12
+[D/conf] conf: Patriot team: East Carolina gameSchedule size 12
+[D/conf] conf: Patriot team: Houston gameSchedule size 12
+[D/conf] conf: Patriot team: Memphis gameSchedule size 12
+[D/conf] conf: Patriot team: Navy gameSchedule size 12
+[D/conf] conf: Patriot team: South Florida gameSchedule size 12
+[D/conf] conf: Patriot team: Dallas gameSchedule size 12
+[D/conf] conf: Patriot team: Philadelphia gameSchedule size 12
+[D/conf] conf: Patriot team: Tulane gameSchedule size 12
+[D/conf] conf: Patriot team: Tulsa gameSchedule size 12
+[D/conf] conf: Patriot team: Connecticut gameSchedule size 12
+[D/conf] conf: Central team: Akron gameSchedule size 12
+[D/conf] conf: Central team: Muncie gameSchedule size 12
+[D/conf] conf: Central team: Bowling Green gameSchedule size 12
+[D/conf] conf: Central team: Buffalo gameSchedule size 12
+[D/conf] conf: Central team: Central Michigan gameSchedule size 12
+[D/conf] conf: Central team: Eastern Michigan gameSchedule size 12
+[D/conf] conf: Central team: Kent gameSchedule size 12
+[D/conf] conf: Central team: Miami OH gameSchedule size 12
+[D/conf] conf: Central team: Northern Illinois gameSchedule size 12
+[D/conf] conf: Central team: Ohio gameSchedule size 12
+[D/conf] conf: Central team: Toledo gameSchedule size 12
+[D/conf] conf: Central team: Western Michigan gameSchedule size 12
+[D/conf] conf: Liberty team: Charlotte gameSchedule size 12
+[D/conf] conf: Liberty team: Boca Raton gameSchedule size 12
+[D/conf] conf: Liberty team: Miami Intl gameSchedule size 12
+[D/conf] conf: Liberty team: Louisiana Poly gameSchedule size 12
+[D/conf] conf: Liberty team: Huntington gameSchedule size 12
+[D/conf] conf: Liberty team: Mid Tenn State gameSchedule size 12
+[D/conf] conf: Liberty team: North Texas gameSchedule size 12
+[D/conf] conf: Liberty team: Norfolk gameSchedule size 12
+[D/conf] conf: Liberty team: South Houston gameSchedule size 12
+[D/conf] conf: Liberty team: South Mississippi gameSchedule size 12
+[D/conf] conf: Liberty team: Birmingham gameSchedule size 12
+[D/conf] conf: Liberty team: El Paso gameSchedule size 12
+[D/conf] conf: Liberty team: San Antonio gameSchedule size 12
+[D/conf] conf: Liberty team: Western Kentucky gameSchedule size 12
+[D/conf] conf: Mountain team: Air Force gameSchedule size 12
+[D/conf] conf: Mountain team: Boise gameSchedule size 12
+[D/conf] conf: Mountain team: Colorado State gameSchedule size 12
+[D/conf] conf: Mountain team: Fresno gameSchedule size 12
+[D/conf] conf: Mountain team: Hawaii gameSchedule size 12
+[D/conf] conf: Mountain team: Nevada gameSchedule size 12
+[D/conf] conf: Mountain team: New Mexico gameSchedule size 12
+[D/conf] conf: Mountain team: San Diego gameSchedule size 12
+[D/conf] conf: Mountain team: San Jose gameSchedule size 12
+[D/conf] conf: Mountain team: Las Vegas gameSchedule size 12
+[D/conf] conf: Mountain team: Utah State gameSchedule size 12
+[D/conf] conf: Mountain team: Wyoming gameSchedule size 12
+[D/conf] conf: Sunshine team: Appalachian gameSchedule size 12
+[D/conf] conf: Sunshine team: Arkansas State gameSchedule size 12
+[D/conf] conf: Sunshine team: Coastal gameSchedule size 12
+[D/conf] conf: Sunshine team: Monroe gameSchedule size 12
+[D/conf] conf: Sunshine team: Lafayette gameSchedule size 12
+[D/conf] conf: Sunshine team: Troy gameSchedule size 12
+[D/conf] conf: Sunshine team: Texas State gameSchedule size 12
+[D/conf] conf: Sunshine team: South Georgia gameSchedule size 12
+[D/conf] conf: Sunshine team: Georgia State gameSchedule size 12
+[D/conf] conf: Sunshine team: South Alabama gameSchedule size 12
+[D/conf] conf: Independent team: Army gameSchedule size 12
+[D/conf] conf: Independent team: Provo gameSchedule size 12
+[D/conf] conf: Independent team: Lynchburg gameSchedule size 12
+[D/conf] conf: Independent team: New Mexico St gameSchedule size 12
+[D/conf] conf: Independent team: South Bend gameSchedule size 12
+[D/conf] conf: Independent team: Massachusetts gameSchedule size 12
+DEBUG: Entering coachingHotSeat
+DEBUG: Entering setTeamRanks
+DEBUG: Entering updateWinStreak
+DEBUG: Week advanced to 5
+DEBUG: Playing conference Atlantic
+DEBUG: Playing conference Great Lakes
+DEBUG: Playing conference Southwest
+DEBUG: Playing conference Pacific
+DEBUG: Playing conference Southern
+DEBUG: Playing conference Patriot
+DEBUG: Playing conference Central
+DEBUG: Playing conference Liberty
+DEBUG: Playing conference Mountain
+DEBUG: Playing conference Sunshine
+DEBUG: Playing conference Independent
+[D/conf] conf: Atlantic team: xBoston gameSchedule size 12
+[D/conf] conf: Atlantic team: South Carolina Tech gameSchedule size 12
+[D/conf] conf: Atlantic team: Durham gameSchedule size 12
+[D/conf] conf: Atlantic team: Florida State gameSchedule size 12
+[D/conf] conf: Atlantic team: Georgia IT gameSchedule size 12
+[D/conf] conf: Atlantic team: Louisville gameSchedule size 12
+[D/conf] conf: Atlantic team: Miami gameSchedule size 12
+[D/conf] conf: Atlantic team: North Carolina gameSchedule size 12
+[D/conf] conf: Atlantic team: NC State gameSchedule size 12
+[D/conf] conf: Atlantic team: Pittsburgh gameSchedule size 12
+[D/conf] conf: Atlantic team: Syracuse gameSchedule size 12
+[D/conf] conf: Atlantic team: Winston-Salem gameSchedule size 12
+[D/conf] conf: Atlantic team: Virginia gameSchedule size 12
+[D/conf] conf: Atlantic team: Virginia Poly gameSchedule size 12
+[D/conf] conf: Great Lakes team: Illinois gameSchedule size 12
+[D/conf] conf: Great Lakes team: Indiana gameSchedule size 12
+[D/conf] conf: Great Lakes team: Iowa gameSchedule size 12
+[D/conf] conf: Great Lakes team: Maryland gameSchedule size 12
+[D/conf] conf: Great Lakes team: Michigan gameSchedule size 12
+[D/conf] conf: Great Lakes team: Michigan State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Minnesota gameSchedule size 12
+[D/conf] conf: Great Lakes team: Nebraska gameSchedule size 12
+[D/conf] conf: Great Lakes team: Chicago gameSchedule size 12
+[D/conf] conf: Great Lakes team: Ohio State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Penn State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Purdue gameSchedule size 12
+[D/conf] conf: Great Lakes team: New Jersey gameSchedule size 12
+[D/conf] conf: Great Lakes team: Wisconsin gameSchedule size 12
+[D/conf] conf: Southwest team: Waco gameSchedule size 12
+[D/conf] conf: Southwest team: Iowa State gameSchedule size 12
+[D/conf] conf: Southwest team: Texas IT gameSchedule size 12
+[D/conf] conf: Southwest team: Kansas gameSchedule size 12
+[D/conf] conf: Southwest team: Kansas State gameSchedule size 12
+[D/conf] conf: Southwest team: Oklahoma gameSchedule size 12
+[D/conf] conf: Southwest team: Oklahoma State gameSchedule size 12
+[D/conf] conf: Southwest team: Texas gameSchedule size 12
+[D/conf] conf: Southwest team: Ft Worth gameSchedule size 12
+[D/conf] conf: Southwest team: West Virginia gameSchedule size 12
+[D/conf] conf: Pacific team: Arizona gameSchedule size 12
+[D/conf] conf: Pacific team: Arizona State gameSchedule size 12
+[D/conf] conf: Pacific team: California gameSchedule size 12
+[D/conf] conf: Pacific team: Colorado gameSchedule size 12
+[D/conf] conf: Pacific team: Oregon gameSchedule size 12
+[D/conf] conf: Pacific team: Oregon State gameSchedule size 12
+[D/conf] conf: Pacific team: San Francisco gameSchedule size 12
+[D/conf] conf: Pacific team: Pasadena gameSchedule size 12
+[D/conf] conf: Pacific team: Southern Cal gameSchedule size 12
+[D/conf] conf: Pacific team: Washington gameSchedule size 12
+[D/conf] conf: Pacific team: Washington State gameSchedule size 12
+[D/conf] conf: Pacific team: Utah gameSchedule size 12
+[D/conf] conf: Southern team: Alabama gameSchedule size 12
+[D/conf] conf: Southern team: Arkansas gameSchedule size 12
+[D/conf] conf: Southern team: Auburn gameSchedule size 12
+[D/conf] conf: Southern team: Florida gameSchedule size 12
+[D/conf] conf: Southern team: Georgia gameSchedule size 12
+[D/conf] conf: Southern team: Kentucky gameSchedule size 12
+[D/conf] conf: Southern team: Lousiana State gameSchedule size 12
+[D/conf] conf: Southern team: Missouri gameSchedule size 12
+[D/conf] conf: Southern team: Ole Miss gameSchedule size 12
+[D/conf] conf: Southern team: Mississippi State gameSchedule size 12
+[D/conf] conf: Southern team: South Carolina gameSchedule size 12
+[D/conf] conf: Southern team: Tennessee gameSchedule size 12
+[D/conf] conf: Southern team: College Station gameSchedule size 12
+[D/conf] conf: Southern team: Nashville gameSchedule size 12
+[D/conf] conf: Patriot team: Central Florida gameSchedule size 12
+[D/conf] conf: Patriot team: Cincinnati gameSchedule size 12
+[D/conf] conf: Patriot team: East Carolina gameSchedule size 12
+[D/conf] conf: Patriot team: Houston gameSchedule size 12
+[D/conf] conf: Patriot team: Memphis gameSchedule size 12
+[D/conf] conf: Patriot team: Navy gameSchedule size 12
+[D/conf] conf: Patriot team: South Florida gameSchedule size 12
+[D/conf] conf: Patriot team: Dallas gameSchedule size 12
+[D/conf] conf: Patriot team: Philadelphia gameSchedule size 12
+[D/conf] conf: Patriot team: Tulane gameSchedule size 12
+[D/conf] conf: Patriot team: Tulsa gameSchedule size 12
+[D/conf] conf: Patriot team: Connecticut gameSchedule size 12
+[D/conf] conf: Central team: Akron gameSchedule size 12
+[D/conf] conf: Central team: Muncie gameSchedule size 12
+[D/conf] conf: Central team: Bowling Green gameSchedule size 12
+[D/conf] conf: Central team: Buffalo gameSchedule size 12
+[D/conf] conf: Central team: Central Michigan gameSchedule size 12
+[D/conf] conf: Central team: Eastern Michigan gameSchedule size 12
+[D/conf] conf: Central team: Kent gameSchedule size 12
+[D/conf] conf: Central team: Miami OH gameSchedule size 12
+[D/conf] conf: Central team: Northern Illinois gameSchedule size 12
+[D/conf] conf: Central team: Ohio gameSchedule size 12
+[D/conf] conf: Central team: Toledo gameSchedule size 12
+[D/conf] conf: Central team: Western Michigan gameSchedule size 12
+[D/conf] conf: Liberty team: Charlotte gameSchedule size 12
+[D/conf] conf: Liberty team: Boca Raton gameSchedule size 12
+[D/conf] conf: Liberty team: Miami Intl gameSchedule size 12
+[D/conf] conf: Liberty team: Louisiana Poly gameSchedule size 12
+[D/conf] conf: Liberty team: Huntington gameSchedule size 12
+[D/conf] conf: Liberty team: Mid Tenn State gameSchedule size 12
+[D/conf] conf: Liberty team: North Texas gameSchedule size 12
+[D/conf] conf: Liberty team: Norfolk gameSchedule size 12
+[D/conf] conf: Liberty team: South Houston gameSchedule size 12
+[D/conf] conf: Liberty team: South Mississippi gameSchedule size 12
+[D/conf] conf: Liberty team: Birmingham gameSchedule size 12
+[D/conf] conf: Liberty team: El Paso gameSchedule size 12
+[D/conf] conf: Liberty team: San Antonio gameSchedule size 12
+[D/conf] conf: Liberty team: Western Kentucky gameSchedule size 12
+[D/conf] conf: Mountain team: Air Force gameSchedule size 12
+[D/conf] conf: Mountain team: Boise gameSchedule size 12
+[D/conf] conf: Mountain team: Colorado State gameSchedule size 12
+[D/conf] conf: Mountain team: Fresno gameSchedule size 12
+[D/conf] conf: Mountain team: Hawaii gameSchedule size 12
+[D/conf] conf: Mountain team: Nevada gameSchedule size 12
+[D/conf] conf: Mountain team: New Mexico gameSchedule size 12
+[D/conf] conf: Mountain team: San Diego gameSchedule size 12
+[D/conf] conf: Mountain team: San Jose gameSchedule size 12
+[D/conf] conf: Mountain team: Las Vegas gameSchedule size 12
+[D/conf] conf: Mountain team: Utah State gameSchedule size 12
+[D/conf] conf: Mountain team: Wyoming gameSchedule size 12
+[D/conf] conf: Sunshine team: Appalachian gameSchedule size 12
+[D/conf] conf: Sunshine team: Arkansas State gameSchedule size 12
+[D/conf] conf: Sunshine team: Coastal gameSchedule size 12
+[D/conf] conf: Sunshine team: Monroe gameSchedule size 12
+[D/conf] conf: Sunshine team: Lafayette gameSchedule size 12
+[D/conf] conf: Sunshine team: Troy gameSchedule size 12
+[D/conf] conf: Sunshine team: Texas State gameSchedule size 12
+[D/conf] conf: Sunshine team: South Georgia gameSchedule size 12
+[D/conf] conf: Sunshine team: Georgia State gameSchedule size 12
+[D/conf] conf: Sunshine team: South Alabama gameSchedule size 12
+[D/conf] conf: Independent team: Army gameSchedule size 12
+[D/conf] conf: Independent team: Provo gameSchedule size 12
+[D/conf] conf: Independent team: Lynchburg gameSchedule size 12
+[D/conf] conf: Independent team: New Mexico St gameSchedule size 12
+[D/conf] conf: Independent team: South Bend gameSchedule size 12
+[D/conf] conf: Independent team: Massachusetts gameSchedule size 12
+DEBUG: Entering coachingHotSeat
+DEBUG: Entering setTeamRanks
+DEBUG: Entering updateWinStreak
+DEBUG: Week advanced to 6
+DEBUG: Playing conference Atlantic
+DEBUG: Playing conference Great Lakes
+DEBUG: Playing conference Southwest
+DEBUG: Playing conference Pacific
+DEBUG: Playing conference Southern
+DEBUG: Playing conference Patriot
+DEBUG: Playing conference Central
+DEBUG: Playing conference Liberty
+DEBUG: Playing conference Mountain
+DEBUG: Playing conference Sunshine
+DEBUG: Playing conference Independent
+[D/conf] conf: Atlantic team: xBoston gameSchedule size 12
+[D/conf] conf: Atlantic team: South Carolina Tech gameSchedule size 12
+[D/conf] conf: Atlantic team: Durham gameSchedule size 12
+[D/conf] conf: Atlantic team: Florida State gameSchedule size 12
+[D/conf] conf: Atlantic team: Georgia IT gameSchedule size 12
+[D/conf] conf: Atlantic team: Louisville gameSchedule size 12
+[D/conf] conf: Atlantic team: Miami gameSchedule size 12
+[D/conf] conf: Atlantic team: North Carolina gameSchedule size 12
+[D/conf] conf: Atlantic team: NC State gameSchedule size 12
+[D/conf] conf: Atlantic team: Pittsburgh gameSchedule size 12
+[D/conf] conf: Atlantic team: Syracuse gameSchedule size 12
+[D/conf] conf: Atlantic team: Winston-Salem gameSchedule size 12
+[D/conf] conf: Atlantic team: Virginia gameSchedule size 12
+[D/conf] conf: Atlantic team: Virginia Poly gameSchedule size 12
+[D/conf] conf: Great Lakes team: Illinois gameSchedule size 12
+[D/conf] conf: Great Lakes team: Indiana gameSchedule size 12
+[D/conf] conf: Great Lakes team: Iowa gameSchedule size 12
+[D/conf] conf: Great Lakes team: Maryland gameSchedule size 12
+[D/conf] conf: Great Lakes team: Michigan gameSchedule size 12
+[D/conf] conf: Great Lakes team: Michigan State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Minnesota gameSchedule size 12
+[D/conf] conf: Great Lakes team: Nebraska gameSchedule size 12
+[D/conf] conf: Great Lakes team: Chicago gameSchedule size 12
+[D/conf] conf: Great Lakes team: Ohio State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Penn State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Purdue gameSchedule size 12
+[D/conf] conf: Great Lakes team: New Jersey gameSchedule size 12
+[D/conf] conf: Great Lakes team: Wisconsin gameSchedule size 12
+[D/conf] conf: Southwest team: Waco gameSchedule size 12
+[D/conf] conf: Southwest team: Iowa State gameSchedule size 12
+[D/conf] conf: Southwest team: Texas IT gameSchedule size 12
+[D/conf] conf: Southwest team: Kansas gameSchedule size 12
+[D/conf] conf: Southwest team: Kansas State gameSchedule size 12
+[D/conf] conf: Southwest team: Oklahoma gameSchedule size 12
+[D/conf] conf: Southwest team: Oklahoma State gameSchedule size 12
+[D/conf] conf: Southwest team: Texas gameSchedule size 12
+[D/conf] conf: Southwest team: Ft Worth gameSchedule size 12
+[D/conf] conf: Southwest team: West Virginia gameSchedule size 12
+[D/conf] conf: Pacific team: Arizona gameSchedule size 12
+[D/conf] conf: Pacific team: Arizona State gameSchedule size 12
+[D/conf] conf: Pacific team: California gameSchedule size 12
+[D/conf] conf: Pacific team: Colorado gameSchedule size 12
+[D/conf] conf: Pacific team: Oregon gameSchedule size 12
+[D/conf] conf: Pacific team: Oregon State gameSchedule size 12
+[D/conf] conf: Pacific team: San Francisco gameSchedule size 12
+[D/conf] conf: Pacific team: Pasadena gameSchedule size 12
+[D/conf] conf: Pacific team: Southern Cal gameSchedule size 12
+[D/conf] conf: Pacific team: Washington gameSchedule size 12
+[D/conf] conf: Pacific team: Washington State gameSchedule size 12
+[D/conf] conf: Pacific team: Utah gameSchedule size 12
+[D/conf] conf: Southern team: Alabama gameSchedule size 12
+[D/conf] conf: Southern team: Arkansas gameSchedule size 12
+[D/conf] conf: Southern team: Auburn gameSchedule size 12
+[D/conf] conf: Southern team: Florida gameSchedule size 12
+[D/conf] conf: Southern team: Georgia gameSchedule size 12
+[D/conf] conf: Southern team: Kentucky gameSchedule size 12
+[D/conf] conf: Southern team: Lousiana State gameSchedule size 12
+[D/conf] conf: Southern team: Missouri gameSchedule size 12
+[D/conf] conf: Southern team: Ole Miss gameSchedule size 12
+[D/conf] conf: Southern team: Mississippi State gameSchedule size 12
+[D/conf] conf: Southern team: South Carolina gameSchedule size 12
+[D/conf] conf: Southern team: Tennessee gameSchedule size 12
+[D/conf] conf: Southern team: College Station gameSchedule size 12
+[D/conf] conf: Southern team: Nashville gameSchedule size 12
+[D/conf] conf: Patriot team: Central Florida gameSchedule size 12
+[D/conf] conf: Patriot team: Cincinnati gameSchedule size 12
+[D/conf] conf: Patriot team: East Carolina gameSchedule size 12
+[D/conf] conf: Patriot team: Houston gameSchedule size 12
+[D/conf] conf: Patriot team: Memphis gameSchedule size 12
+[D/conf] conf: Patriot team: Navy gameSchedule size 12
+[D/conf] conf: Patriot team: South Florida gameSchedule size 12
+[D/conf] conf: Patriot team: Dallas gameSchedule size 12
+[D/conf] conf: Patriot team: Philadelphia gameSchedule size 12
+[D/conf] conf: Patriot team: Tulane gameSchedule size 12
+[D/conf] conf: Patriot team: Tulsa gameSchedule size 12
+[D/conf] conf: Patriot team: Connecticut gameSchedule size 12
+[D/conf] conf: Central team: Akron gameSchedule size 12
+[D/conf] conf: Central team: Muncie gameSchedule size 12
+[D/conf] conf: Central team: Bowling Green gameSchedule size 12
+[D/conf] conf: Central team: Buffalo gameSchedule size 12
+[D/conf] conf: Central team: Central Michigan gameSchedule size 12
+[D/conf] conf: Central team: Eastern Michigan gameSchedule size 12
+[D/conf] conf: Central team: Kent gameSchedule size 12
+[D/conf] conf: Central team: Miami OH gameSchedule size 12
+[D/conf] conf: Central team: Northern Illinois gameSchedule size 12
+[D/conf] conf: Central team: Ohio gameSchedule size 12
+[D/conf] conf: Central team: Toledo gameSchedule size 12
+[D/conf] conf: Central team: Western Michigan gameSchedule size 12
+[D/conf] conf: Liberty team: Charlotte gameSchedule size 12
+[D/conf] conf: Liberty team: Boca Raton gameSchedule size 12
+[D/conf] conf: Liberty team: Miami Intl gameSchedule size 12
+[D/conf] conf: Liberty team: Louisiana Poly gameSchedule size 12
+[D/conf] conf: Liberty team: Huntington gameSchedule size 12
+[D/conf] conf: Liberty team: Mid Tenn State gameSchedule size 12
+[D/conf] conf: Liberty team: North Texas gameSchedule size 12
+[D/conf] conf: Liberty team: Norfolk gameSchedule size 12
+[D/conf] conf: Liberty team: South Houston gameSchedule size 12
+[D/conf] conf: Liberty team: South Mississippi gameSchedule size 12
+[D/conf] conf: Liberty team: Birmingham gameSchedule size 12
+[D/conf] conf: Liberty team: El Paso gameSchedule size 12
+[D/conf] conf: Liberty team: San Antonio gameSchedule size 12
+[D/conf] conf: Liberty team: Western Kentucky gameSchedule size 12
+[D/conf] conf: Mountain team: Air Force gameSchedule size 12
+[D/conf] conf: Mountain team: Boise gameSchedule size 12
+[D/conf] conf: Mountain team: Colorado State gameSchedule size 12
+[D/conf] conf: Mountain team: Fresno gameSchedule size 12
+[D/conf] conf: Mountain team: Hawaii gameSchedule size 12
+[D/conf] conf: Mountain team: Nevada gameSchedule size 12
+[D/conf] conf: Mountain team: New Mexico gameSchedule size 12
+[D/conf] conf: Mountain team: San Diego gameSchedule size 12
+[D/conf] conf: Mountain team: San Jose gameSchedule size 12
+[D/conf] conf: Mountain team: Las Vegas gameSchedule size 12
+[D/conf] conf: Mountain team: Utah State gameSchedule size 12
+[D/conf] conf: Mountain team: Wyoming gameSchedule size 12
+[D/conf] conf: Sunshine team: Appalachian gameSchedule size 12
+[D/conf] conf: Sunshine team: Arkansas State gameSchedule size 12
+[D/conf] conf: Sunshine team: Coastal gameSchedule size 12
+[D/conf] conf: Sunshine team: Monroe gameSchedule size 12
+[D/conf] conf: Sunshine team: Lafayette gameSchedule size 12
+[D/conf] conf: Sunshine team: Troy gameSchedule size 12
+[D/conf] conf: Sunshine team: Texas State gameSchedule size 12
+[D/conf] conf: Sunshine team: South Georgia gameSchedule size 12
+[D/conf] conf: Sunshine team: Georgia State gameSchedule size 12
+[D/conf] conf: Sunshine team: South Alabama gameSchedule size 12
+[D/conf] conf: Independent team: Army gameSchedule size 12
+[D/conf] conf: Independent team: Provo gameSchedule size 12
+[D/conf] conf: Independent team: Lynchburg gameSchedule size 12
+[D/conf] conf: Independent team: New Mexico St gameSchedule size 12
+[D/conf] conf: Independent team: South Bend gameSchedule size 12
+[D/conf] conf: Independent team: Massachusetts gameSchedule size 12
+DEBUG: Entering coachingHotSeat
+DEBUG: Entering setTeamRanks
+DEBUG: Entering updateWinStreak
+DEBUG: Week advanced to 7
+DEBUG: Playing conference Atlantic
+DEBUG: Playing conference Great Lakes
+DEBUG: Playing conference Southwest
+DEBUG: Playing conference Pacific
+DEBUG: Playing conference Southern
+DEBUG: Playing conference Patriot
+DEBUG: Playing conference Central
+DEBUG: Playing conference Liberty
+DEBUG: Playing conference Mountain
+DEBUG: Playing conference Sunshine
+DEBUG: Playing conference Independent
+[D/conf] conf: Atlantic team: xBoston gameSchedule size 12
+[D/conf] conf: Atlantic team: South Carolina Tech gameSchedule size 12
+[D/conf] conf: Atlantic team: Durham gameSchedule size 12
+[D/conf] conf: Atlantic team: Florida State gameSchedule size 12
+[D/conf] conf: Atlantic team: Georgia IT gameSchedule size 12
+[D/conf] conf: Atlantic team: Louisville gameSchedule size 12
+[D/conf] conf: Atlantic team: Miami gameSchedule size 12
+[D/conf] conf: Atlantic team: North Carolina gameSchedule size 12
+[D/conf] conf: Atlantic team: NC State gameSchedule size 12
+[D/conf] conf: Atlantic team: Pittsburgh gameSchedule size 12
+[D/conf] conf: Atlantic team: Syracuse gameSchedule size 12
+[D/conf] conf: Atlantic team: Winston-Salem gameSchedule size 12
+[D/conf] conf: Atlantic team: Virginia gameSchedule size 12
+[D/conf] conf: Atlantic team: Virginia Poly gameSchedule size 12
+[D/conf] conf: Great Lakes team: Illinois gameSchedule size 12
+[D/conf] conf: Great Lakes team: Indiana gameSchedule size 12
+[D/conf] conf: Great Lakes team: Iowa gameSchedule size 12
+[D/conf] conf: Great Lakes team: Maryland gameSchedule size 12
+[D/conf] conf: Great Lakes team: Michigan gameSchedule size 12
+[D/conf] conf: Great Lakes team: Michigan State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Minnesota gameSchedule size 12
+[D/conf] conf: Great Lakes team: Nebraska gameSchedule size 12
+[D/conf] conf: Great Lakes team: Chicago gameSchedule size 12
+[D/conf] conf: Great Lakes team: Ohio State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Penn State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Purdue gameSchedule size 12
+[D/conf] conf: Great Lakes team: New Jersey gameSchedule size 12
+[D/conf] conf: Great Lakes team: Wisconsin gameSchedule size 12
+[D/conf] conf: Southwest team: Waco gameSchedule size 12
+[D/conf] conf: Southwest team: Iowa State gameSchedule size 12
+[D/conf] conf: Southwest team: Texas IT gameSchedule size 12
+[D/conf] conf: Southwest team: Kansas gameSchedule size 12
+[D/conf] conf: Southwest team: Kansas State gameSchedule size 12
+[D/conf] conf: Southwest team: Oklahoma gameSchedule size 12
+[D/conf] conf: Southwest team: Oklahoma State gameSchedule size 12
+[D/conf] conf: Southwest team: Texas gameSchedule size 12
+[D/conf] conf: Southwest team: Ft Worth gameSchedule size 12
+[D/conf] conf: Southwest team: West Virginia gameSchedule size 12
+[D/conf] conf: Pacific team: Arizona gameSchedule size 12
+[D/conf] conf: Pacific team: Arizona State gameSchedule size 12
+[D/conf] conf: Pacific team: California gameSchedule size 12
+[D/conf] conf: Pacific team: Colorado gameSchedule size 12
+[D/conf] conf: Pacific team: Oregon gameSchedule size 12
+[D/conf] conf: Pacific team: Oregon State gameSchedule size 12
+[D/conf] conf: Pacific team: San Francisco gameSchedule size 12
+[D/conf] conf: Pacific team: Pasadena gameSchedule size 12
+[D/conf] conf: Pacific team: Southern Cal gameSchedule size 12
+[D/conf] conf: Pacific team: Washington gameSchedule size 12
+[D/conf] conf: Pacific team: Washington State gameSchedule size 12
+[D/conf] conf: Pacific team: Utah gameSchedule size 12
+[D/conf] conf: Southern team: Alabama gameSchedule size 12
+[D/conf] conf: Southern team: Arkansas gameSchedule size 12
+[D/conf] conf: Southern team: Auburn gameSchedule size 12
+[D/conf] conf: Southern team: Florida gameSchedule size 12
+[D/conf] conf: Southern team: Georgia gameSchedule size 12
+[D/conf] conf: Southern team: Kentucky gameSchedule size 12
+[D/conf] conf: Southern team: Lousiana State gameSchedule size 12
+[D/conf] conf: Southern team: Missouri gameSchedule size 12
+[D/conf] conf: Southern team: Ole Miss gameSchedule size 12
+[D/conf] conf: Southern team: Mississippi State gameSchedule size 12
+[D/conf] conf: Southern team: South Carolina gameSchedule size 12
+[D/conf] conf: Southern team: Tennessee gameSchedule size 12
+[D/conf] conf: Southern team: College Station gameSchedule size 12
+[D/conf] conf: Southern team: Nashville gameSchedule size 12
+[D/conf] conf: Patriot team: Central Florida gameSchedule size 12
+[D/conf] conf: Patriot team: Cincinnati gameSchedule size 12
+[D/conf] conf: Patriot team: East Carolina gameSchedule size 12
+[D/conf] conf: Patriot team: Houston gameSchedule size 12
+[D/conf] conf: Patriot team: Memphis gameSchedule size 12
+[D/conf] conf: Patriot team: Navy gameSchedule size 12
+[D/conf] conf: Patriot team: South Florida gameSchedule size 12
+[D/conf] conf: Patriot team: Dallas gameSchedule size 12
+[D/conf] conf: Patriot team: Philadelphia gameSchedule size 12
+[D/conf] conf: Patriot team: Tulane gameSchedule size 12
+[D/conf] conf: Patriot team: Tulsa gameSchedule size 12
+[D/conf] conf: Patriot team: Connecticut gameSchedule size 12
+[D/conf] conf: Central team: Akron gameSchedule size 12
+[D/conf] conf: Central team: Muncie gameSchedule size 12
+[D/conf] conf: Central team: Bowling Green gameSchedule size 12
+[D/conf] conf: Central team: Buffalo gameSchedule size 12
+[D/conf] conf: Central team: Central Michigan gameSchedule size 12
+[D/conf] conf: Central team: Eastern Michigan gameSchedule size 12
+[D/conf] conf: Central team: Kent gameSchedule size 12
+[D/conf] conf: Central team: Miami OH gameSchedule size 12
+[D/conf] conf: Central team: Northern Illinois gameSchedule size 12
+[D/conf] conf: Central team: Ohio gameSchedule size 12
+[D/conf] conf: Central team: Toledo gameSchedule size 12
+[D/conf] conf: Central team: Western Michigan gameSchedule size 12
+[D/conf] conf: Liberty team: Charlotte gameSchedule size 12
+[D/conf] conf: Liberty team: Boca Raton gameSchedule size 12
+[D/conf] conf: Liberty team: Miami Intl gameSchedule size 12
+[D/conf] conf: Liberty team: Louisiana Poly gameSchedule size 12
+[D/conf] conf: Liberty team: Huntington gameSchedule size 12
+[D/conf] conf: Liberty team: Mid Tenn State gameSchedule size 12
+[D/conf] conf: Liberty team: North Texas gameSchedule size 12
+[D/conf] conf: Liberty team: Norfolk gameSchedule size 12
+[D/conf] conf: Liberty team: South Houston gameSchedule size 12
+[D/conf] conf: Liberty team: South Mississippi gameSchedule size 12
+[D/conf] conf: Liberty team: Birmingham gameSchedule size 12
+[D/conf] conf: Liberty team: El Paso gameSchedule size 12
+[D/conf] conf: Liberty team: San Antonio gameSchedule size 12
+[D/conf] conf: Liberty team: Western Kentucky gameSchedule size 12
+[D/conf] conf: Mountain team: Air Force gameSchedule size 12
+[D/conf] conf: Mountain team: Boise gameSchedule size 12
+[D/conf] conf: Mountain team: Colorado State gameSchedule size 12
+[D/conf] conf: Mountain team: Fresno gameSchedule size 12
+[D/conf] conf: Mountain team: Hawaii gameSchedule size 12
+[D/conf] conf: Mountain team: Nevada gameSchedule size 12
+[D/conf] conf: Mountain team: New Mexico gameSchedule size 12
+[D/conf] conf: Mountain team: San Diego gameSchedule size 12
+[D/conf] conf: Mountain team: San Jose gameSchedule size 12
+[D/conf] conf: Mountain team: Las Vegas gameSchedule size 12
+[D/conf] conf: Mountain team: Utah State gameSchedule size 12
+[D/conf] conf: Mountain team: Wyoming gameSchedule size 12
+[D/conf] conf: Sunshine team: Appalachian gameSchedule size 12
+[D/conf] conf: Sunshine team: Arkansas State gameSchedule size 12
+[D/conf] conf: Sunshine team: Coastal gameSchedule size 12
+[D/conf] conf: Sunshine team: Monroe gameSchedule size 12
+[D/conf] conf: Sunshine team: Lafayette gameSchedule size 12
+[D/conf] conf: Sunshine team: Troy gameSchedule size 12
+[D/conf] conf: Sunshine team: Texas State gameSchedule size 12
+[D/conf] conf: Sunshine team: South Georgia gameSchedule size 12
+[D/conf] conf: Sunshine team: Georgia State gameSchedule size 12
+[D/conf] conf: Sunshine team: South Alabama gameSchedule size 12
+[D/conf] conf: Independent team: Army gameSchedule size 12
+[D/conf] conf: Independent team: Provo gameSchedule size 12
+[D/conf] conf: Independent team: Lynchburg gameSchedule size 12
+[D/conf] conf: Independent team: New Mexico St gameSchedule size 12
+[D/conf] conf: Independent team: South Bend gameSchedule size 12
+[D/conf] conf: Independent team: Massachusetts gameSchedule size 12
+DEBUG: Entering coachingHotSeat
+DEBUG: Entering setTeamRanks
+DEBUG: Entering updateWinStreak
+DEBUG: Week advanced to 8
+DEBUG: Playing conference Atlantic
+DEBUG: Playing conference Great Lakes
+DEBUG: Playing conference Southwest
+DEBUG: Playing conference Pacific
+DEBUG: Playing conference Southern
+DEBUG: Playing conference Patriot
+DEBUG: Playing conference Central
+DEBUG: Playing conference Liberty
+DEBUG: Playing conference Mountain
+DEBUG: Playing conference Sunshine
+DEBUG: Playing conference Independent
+[D/conf] conf: Atlantic team: xBoston gameSchedule size 12
+[D/conf] conf: Atlantic team: South Carolina Tech gameSchedule size 12
+[D/conf] conf: Atlantic team: Durham gameSchedule size 12
+[D/conf] conf: Atlantic team: Florida State gameSchedule size 12
+[D/conf] conf: Atlantic team: Georgia IT gameSchedule size 12
+[D/conf] conf: Atlantic team: Louisville gameSchedule size 12
+[D/conf] conf: Atlantic team: Miami gameSchedule size 12
+[D/conf] conf: Atlantic team: North Carolina gameSchedule size 12
+[D/conf] conf: Atlantic team: NC State gameSchedule size 12
+[D/conf] conf: Atlantic team: Pittsburgh gameSchedule size 12
+[D/conf] conf: Atlantic team: Syracuse gameSchedule size 12
+[D/conf] conf: Atlantic team: Winston-Salem gameSchedule size 12
+[D/conf] conf: Atlantic team: Virginia gameSchedule size 12
+[D/conf] conf: Atlantic team: Virginia Poly gameSchedule size 12
+[D/conf] conf: Great Lakes team: Illinois gameSchedule size 12
+[D/conf] conf: Great Lakes team: Indiana gameSchedule size 12
+[D/conf] conf: Great Lakes team: Iowa gameSchedule size 12
+[D/conf] conf: Great Lakes team: Maryland gameSchedule size 12
+[D/conf] conf: Great Lakes team: Michigan gameSchedule size 12
+[D/conf] conf: Great Lakes team: Michigan State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Minnesota gameSchedule size 12
+[D/conf] conf: Great Lakes team: Nebraska gameSchedule size 12
+[D/conf] conf: Great Lakes team: Chicago gameSchedule size 12
+[D/conf] conf: Great Lakes team: Ohio State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Penn State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Purdue gameSchedule size 12
+[D/conf] conf: Great Lakes team: New Jersey gameSchedule size 12
+[D/conf] conf: Great Lakes team: Wisconsin gameSchedule size 12
+[D/conf] conf: Southwest team: Waco gameSchedule size 12
+[D/conf] conf: Southwest team: Iowa State gameSchedule size 12
+[D/conf] conf: Southwest team: Texas IT gameSchedule size 12
+[D/conf] conf: Southwest team: Kansas gameSchedule size 12
+[D/conf] conf: Southwest team: Kansas State gameSchedule size 12
+[D/conf] conf: Southwest team: Oklahoma gameSchedule size 12
+[D/conf] conf: Southwest team: Oklahoma State gameSchedule size 12
+[D/conf] conf: Southwest team: Texas gameSchedule size 12
+[D/conf] conf: Southwest team: Ft Worth gameSchedule size 12
+[D/conf] conf: Southwest team: West Virginia gameSchedule size 12
+[D/conf] conf: Pacific team: Arizona gameSchedule size 12
+[D/conf] conf: Pacific team: Arizona State gameSchedule size 12
+[D/conf] conf: Pacific team: California gameSchedule size 12
+[D/conf] conf: Pacific team: Colorado gameSchedule size 12
+[D/conf] conf: Pacific team: Oregon gameSchedule size 12
+[D/conf] conf: Pacific team: Oregon State gameSchedule size 12
+[D/conf] conf: Pacific team: San Francisco gameSchedule size 12
+[D/conf] conf: Pacific team: Pasadena gameSchedule size 12
+[D/conf] conf: Pacific team: Southern Cal gameSchedule size 12
+[D/conf] conf: Pacific team: Washington gameSchedule size 12
+[D/conf] conf: Pacific team: Washington State gameSchedule size 12
+[D/conf] conf: Pacific team: Utah gameSchedule size 12
+[D/conf] conf: Southern team: Alabama gameSchedule size 12
+[D/conf] conf: Southern team: Arkansas gameSchedule size 12
+[D/conf] conf: Southern team: Auburn gameSchedule size 12
+[D/conf] conf: Southern team: Florida gameSchedule size 12
+[D/conf] conf: Southern team: Georgia gameSchedule size 12
+[D/conf] conf: Southern team: Kentucky gameSchedule size 12
+[D/conf] conf: Southern team: Lousiana State gameSchedule size 12
+[D/conf] conf: Southern team: Missouri gameSchedule size 12
+[D/conf] conf: Southern team: Ole Miss gameSchedule size 12
+[D/conf] conf: Southern team: Mississippi State gameSchedule size 12
+[D/conf] conf: Southern team: South Carolina gameSchedule size 12
+[D/conf] conf: Southern team: Tennessee gameSchedule size 12
+[D/conf] conf: Southern team: College Station gameSchedule size 12
+[D/conf] conf: Southern team: Nashville gameSchedule size 12
+[D/conf] conf: Patriot team: Central Florida gameSchedule size 12
+[D/conf] conf: Patriot team: Cincinnati gameSchedule size 12
+[D/conf] conf: Patriot team: East Carolina gameSchedule size 12
+[D/conf] conf: Patriot team: Houston gameSchedule size 12
+[D/conf] conf: Patriot team: Memphis gameSchedule size 12
+[D/conf] conf: Patriot team: Navy gameSchedule size 12
+[D/conf] conf: Patriot team: South Florida gameSchedule size 12
+[D/conf] conf: Patriot team: Dallas gameSchedule size 12
+[D/conf] conf: Patriot team: Philadelphia gameSchedule size 12
+[D/conf] conf: Patriot team: Tulane gameSchedule size 12
+[D/conf] conf: Patriot team: Tulsa gameSchedule size 12
+[D/conf] conf: Patriot team: Connecticut gameSchedule size 12
+[D/conf] conf: Central team: Akron gameSchedule size 12
+[D/conf] conf: Central team: Muncie gameSchedule size 12
+[D/conf] conf: Central team: Bowling Green gameSchedule size 12
+[D/conf] conf: Central team: Buffalo gameSchedule size 12
+[D/conf] conf: Central team: Central Michigan gameSchedule size 12
+[D/conf] conf: Central team: Eastern Michigan gameSchedule size 12
+[D/conf] conf: Central team: Kent gameSchedule size 12
+[D/conf] conf: Central team: Miami OH gameSchedule size 12
+[D/conf] conf: Central team: Northern Illinois gameSchedule size 12
+[D/conf] conf: Central team: Ohio gameSchedule size 12
+[D/conf] conf: Central team: Toledo gameSchedule size 12
+[D/conf] conf: Central team: Western Michigan gameSchedule size 12
+[D/conf] conf: Liberty team: Charlotte gameSchedule size 12
+[D/conf] conf: Liberty team: Boca Raton gameSchedule size 12
+[D/conf] conf: Liberty team: Miami Intl gameSchedule size 12
+[D/conf] conf: Liberty team: Louisiana Poly gameSchedule size 12
+[D/conf] conf: Liberty team: Huntington gameSchedule size 12
+[D/conf] conf: Liberty team: Mid Tenn State gameSchedule size 12
+[D/conf] conf: Liberty team: North Texas gameSchedule size 12
+[D/conf] conf: Liberty team: Norfolk gameSchedule size 12
+[D/conf] conf: Liberty team: South Houston gameSchedule size 12
+[D/conf] conf: Liberty team: South Mississippi gameSchedule size 12
+[D/conf] conf: Liberty team: Birmingham gameSchedule size 12
+[D/conf] conf: Liberty team: El Paso gameSchedule size 12
+[D/conf] conf: Liberty team: San Antonio gameSchedule size 12
+[D/conf] conf: Liberty team: Western Kentucky gameSchedule size 12
+[D/conf] conf: Mountain team: Air Force gameSchedule size 12
+[D/conf] conf: Mountain team: Boise gameSchedule size 12
+[D/conf] conf: Mountain team: Colorado State gameSchedule size 12
+[D/conf] conf: Mountain team: Fresno gameSchedule size 12
+[D/conf] conf: Mountain team: Hawaii gameSchedule size 12
+[D/conf] conf: Mountain team: Nevada gameSchedule size 12
+[D/conf] conf: Mountain team: New Mexico gameSchedule size 12
+[D/conf] conf: Mountain team: San Diego gameSchedule size 12
+[D/conf] conf: Mountain team: San Jose gameSchedule size 12
+[D/conf] conf: Mountain team: Las Vegas gameSchedule size 12
+[D/conf] conf: Mountain team: Utah State gameSchedule size 12
+[D/conf] conf: Mountain team: Wyoming gameSchedule size 12
+[D/conf] conf: Sunshine team: Appalachian gameSchedule size 12
+[D/conf] conf: Sunshine team: Arkansas State gameSchedule size 12
+[D/conf] conf: Sunshine team: Coastal gameSchedule size 12
+[D/conf] conf: Sunshine team: Monroe gameSchedule size 12
+[D/conf] conf: Sunshine team: Lafayette gameSchedule size 12
+[D/conf] conf: Sunshine team: Troy gameSchedule size 12
+[D/conf] conf: Sunshine team: Texas State gameSchedule size 12
+[D/conf] conf: Sunshine team: South Georgia gameSchedule size 12
+[D/conf] conf: Sunshine team: Georgia State gameSchedule size 12
+[D/conf] conf: Sunshine team: South Alabama gameSchedule size 12
+[D/conf] conf: Independent team: Army gameSchedule size 12
+[D/conf] conf: Independent team: Provo gameSchedule size 12
+[D/conf] conf: Independent team: Lynchburg gameSchedule size 12
+[D/conf] conf: Independent team: New Mexico St gameSchedule size 12
+[D/conf] conf: Independent team: South Bend gameSchedule size 12
+[D/conf] conf: Independent team: Massachusetts gameSchedule size 12
+DEBUG: Entering coachingHotSeat
+DEBUG: Entering setTeamRanks
+DEBUG: Entering updateWinStreak
+DEBUG: Week advanced to 9
+DEBUG: Playing conference Atlantic
+DEBUG: Playing conference Great Lakes
+DEBUG: Playing conference Southwest
+DEBUG: Playing conference Pacific
+DEBUG: Playing conference Southern
+DEBUG: Playing conference Patriot
+DEBUG: Playing conference Central
+DEBUG: Playing conference Liberty
+DEBUG: Playing conference Mountain
+DEBUG: Playing conference Sunshine
+DEBUG: Playing conference Independent
+[D/conf] conf: Atlantic team: xBoston gameSchedule size 12
+[D/conf] conf: Atlantic team: South Carolina Tech gameSchedule size 12
+[D/conf] conf: Atlantic team: Durham gameSchedule size 12
+[D/conf] conf: Atlantic team: Florida State gameSchedule size 12
+[D/conf] conf: Atlantic team: Georgia IT gameSchedule size 12
+[D/conf] conf: Atlantic team: Louisville gameSchedule size 12
+[D/conf] conf: Atlantic team: Miami gameSchedule size 12
+[D/conf] conf: Atlantic team: North Carolina gameSchedule size 12
+[D/conf] conf: Atlantic team: NC State gameSchedule size 12
+[D/conf] conf: Atlantic team: Pittsburgh gameSchedule size 12
+[D/conf] conf: Atlantic team: Syracuse gameSchedule size 12
+[D/conf] conf: Atlantic team: Winston-Salem gameSchedule size 12
+[D/conf] conf: Atlantic team: Virginia gameSchedule size 12
+[D/conf] conf: Atlantic team: Virginia Poly gameSchedule size 12
+[D/conf] conf: Great Lakes team: Illinois gameSchedule size 12
+[D/conf] conf: Great Lakes team: Indiana gameSchedule size 12
+[D/conf] conf: Great Lakes team: Iowa gameSchedule size 12
+[D/conf] conf: Great Lakes team: Maryland gameSchedule size 12
+[D/conf] conf: Great Lakes team: Michigan gameSchedule size 12
+[D/conf] conf: Great Lakes team: Michigan State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Minnesota gameSchedule size 12
+[D/conf] conf: Great Lakes team: Nebraska gameSchedule size 12
+[D/conf] conf: Great Lakes team: Chicago gameSchedule size 12
+[D/conf] conf: Great Lakes team: Ohio State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Penn State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Purdue gameSchedule size 12
+[D/conf] conf: Great Lakes team: New Jersey gameSchedule size 12
+[D/conf] conf: Great Lakes team: Wisconsin gameSchedule size 12
+[D/conf] conf: Southwest team: Waco gameSchedule size 12
+[D/conf] conf: Southwest team: Iowa State gameSchedule size 12
+[D/conf] conf: Southwest team: Texas IT gameSchedule size 12
+[D/conf] conf: Southwest team: Kansas gameSchedule size 12
+[D/conf] conf: Southwest team: Kansas State gameSchedule size 12
+[D/conf] conf: Southwest team: Oklahoma gameSchedule size 12
+[D/conf] conf: Southwest team: Oklahoma State gameSchedule size 12
+[D/conf] conf: Southwest team: Texas gameSchedule size 12
+[D/conf] conf: Southwest team: Ft Worth gameSchedule size 12
+[D/conf] conf: Southwest team: West Virginia gameSchedule size 12
+[D/conf] conf: Pacific team: Arizona gameSchedule size 12
+[D/conf] conf: Pacific team: Arizona State gameSchedule size 12
+[D/conf] conf: Pacific team: California gameSchedule size 12
+[D/conf] conf: Pacific team: Colorado gameSchedule size 12
+[D/conf] conf: Pacific team: Oregon gameSchedule size 12
+[D/conf] conf: Pacific team: Oregon State gameSchedule size 12
+[D/conf] conf: Pacific team: San Francisco gameSchedule size 12
+[D/conf] conf: Pacific team: Pasadena gameSchedule size 12
+[D/conf] conf: Pacific team: Southern Cal gameSchedule size 12
+[D/conf] conf: Pacific team: Washington gameSchedule size 12
+[D/conf] conf: Pacific team: Washington State gameSchedule size 12
+[D/conf] conf: Pacific team: Utah gameSchedule size 12
+[D/conf] conf: Southern team: Alabama gameSchedule size 12
+[D/conf] conf: Southern team: Arkansas gameSchedule size 12
+[D/conf] conf: Southern team: Auburn gameSchedule size 12
+[D/conf] conf: Southern team: Florida gameSchedule size 12
+[D/conf] conf: Southern team: Georgia gameSchedule size 12
+[D/conf] conf: Southern team: Kentucky gameSchedule size 12
+[D/conf] conf: Southern team: Lousiana State gameSchedule size 12
+[D/conf] conf: Southern team: Missouri gameSchedule size 12
+[D/conf] conf: Southern team: Ole Miss gameSchedule size 12
+[D/conf] conf: Southern team: Mississippi State gameSchedule size 12
+[D/conf] conf: Southern team: South Carolina gameSchedule size 12
+[D/conf] conf: Southern team: Tennessee gameSchedule size 12
+[D/conf] conf: Southern team: College Station gameSchedule size 12
+[D/conf] conf: Southern team: Nashville gameSchedule size 12
+[D/conf] conf: Patriot team: Central Florida gameSchedule size 12
+[D/conf] conf: Patriot team: Cincinnati gameSchedule size 12
+[D/conf] conf: Patriot team: East Carolina gameSchedule size 12
+[D/conf] conf: Patriot team: Houston gameSchedule size 12
+[D/conf] conf: Patriot team: Memphis gameSchedule size 12
+[D/conf] conf: Patriot team: Navy gameSchedule size 12
+[D/conf] conf: Patriot team: South Florida gameSchedule size 12
+[D/conf] conf: Patriot team: Dallas gameSchedule size 12
+[D/conf] conf: Patriot team: Philadelphia gameSchedule size 12
+[D/conf] conf: Patriot team: Tulane gameSchedule size 12
+[D/conf] conf: Patriot team: Tulsa gameSchedule size 12
+[D/conf] conf: Patriot team: Connecticut gameSchedule size 12
+[D/conf] conf: Central team: Akron gameSchedule size 12
+[D/conf] conf: Central team: Muncie gameSchedule size 12
+[D/conf] conf: Central team: Bowling Green gameSchedule size 12
+[D/conf] conf: Central team: Buffalo gameSchedule size 12
+[D/conf] conf: Central team: Central Michigan gameSchedule size 12
+[D/conf] conf: Central team: Eastern Michigan gameSchedule size 12
+[D/conf] conf: Central team: Kent gameSchedule size 12
+[D/conf] conf: Central team: Miami OH gameSchedule size 12
+[D/conf] conf: Central team: Northern Illinois gameSchedule size 12
+[D/conf] conf: Central team: Ohio gameSchedule size 12
+[D/conf] conf: Central team: Toledo gameSchedule size 12
+[D/conf] conf: Central team: Western Michigan gameSchedule size 12
+[D/conf] conf: Liberty team: Charlotte gameSchedule size 12
+[D/conf] conf: Liberty team: Boca Raton gameSchedule size 12
+[D/conf] conf: Liberty team: Miami Intl gameSchedule size 12
+[D/conf] conf: Liberty team: Louisiana Poly gameSchedule size 12
+[D/conf] conf: Liberty team: Huntington gameSchedule size 12
+[D/conf] conf: Liberty team: Mid Tenn State gameSchedule size 12
+[D/conf] conf: Liberty team: North Texas gameSchedule size 12
+[D/conf] conf: Liberty team: Norfolk gameSchedule size 12
+[D/conf] conf: Liberty team: South Houston gameSchedule size 12
+[D/conf] conf: Liberty team: South Mississippi gameSchedule size 12
+[D/conf] conf: Liberty team: Birmingham gameSchedule size 12
+[D/conf] conf: Liberty team: El Paso gameSchedule size 12
+[D/conf] conf: Liberty team: San Antonio gameSchedule size 12
+[D/conf] conf: Liberty team: Western Kentucky gameSchedule size 12
+[D/conf] conf: Mountain team: Air Force gameSchedule size 12
+[D/conf] conf: Mountain team: Boise gameSchedule size 12
+[D/conf] conf: Mountain team: Colorado State gameSchedule size 12
+[D/conf] conf: Mountain team: Fresno gameSchedule size 12
+[D/conf] conf: Mountain team: Hawaii gameSchedule size 12
+[D/conf] conf: Mountain team: Nevada gameSchedule size 12
+[D/conf] conf: Mountain team: New Mexico gameSchedule size 12
+[D/conf] conf: Mountain team: San Diego gameSchedule size 12
+[D/conf] conf: Mountain team: San Jose gameSchedule size 12
+[D/conf] conf: Mountain team: Las Vegas gameSchedule size 12
+[D/conf] conf: Mountain team: Utah State gameSchedule size 12
+[D/conf] conf: Mountain team: Wyoming gameSchedule size 12
+[D/conf] conf: Sunshine team: Appalachian gameSchedule size 12
+[D/conf] conf: Sunshine team: Arkansas State gameSchedule size 12
+[D/conf] conf: Sunshine team: Coastal gameSchedule size 12
+[D/conf] conf: Sunshine team: Monroe gameSchedule size 12
+[D/conf] conf: Sunshine team: Lafayette gameSchedule size 12
+[D/conf] conf: Sunshine team: Troy gameSchedule size 12
+[D/conf] conf: Sunshine team: Texas State gameSchedule size 12
+[D/conf] conf: Sunshine team: South Georgia gameSchedule size 12
+[D/conf] conf: Sunshine team: Georgia State gameSchedule size 12
+[D/conf] conf: Sunshine team: South Alabama gameSchedule size 12
+[D/conf] conf: Independent team: Army gameSchedule size 12
+[D/conf] conf: Independent team: Provo gameSchedule size 12
+[D/conf] conf: Independent team: Lynchburg gameSchedule size 12
+[D/conf] conf: Independent team: New Mexico St gameSchedule size 12
+[D/conf] conf: Independent team: South Bend gameSchedule size 12
+[D/conf] conf: Independent team: Massachusetts gameSchedule size 12
+DEBUG: Entering coachingHotSeat
+DEBUG: Entering setTeamRanks
+DEBUG: Entering updateWinStreak
+DEBUG: Week advanced to 10
+DEBUG: Playing conference Atlantic
+DEBUG: Playing conference Great Lakes
+DEBUG: Playing conference Southwest
+DEBUG: Playing conference Pacific
+DEBUG: Playing conference Southern
+DEBUG: Playing conference Patriot
+DEBUG: Playing conference Central
+DEBUG: Playing conference Liberty
+DEBUG: Playing conference Mountain
+DEBUG: Playing conference Sunshine
+DEBUG: Playing conference Independent
+[D/conf] conf: Atlantic team: xBoston gameSchedule size 12
+[D/conf] conf: Atlantic team: South Carolina Tech gameSchedule size 12
+[D/conf] conf: Atlantic team: Durham gameSchedule size 12
+[D/conf] conf: Atlantic team: Florida State gameSchedule size 12
+[D/conf] conf: Atlantic team: Georgia IT gameSchedule size 12
+[D/conf] conf: Atlantic team: Louisville gameSchedule size 12
+[D/conf] conf: Atlantic team: Miami gameSchedule size 12
+[D/conf] conf: Atlantic team: North Carolina gameSchedule size 12
+[D/conf] conf: Atlantic team: NC State gameSchedule size 12
+[D/conf] conf: Atlantic team: Pittsburgh gameSchedule size 12
+[D/conf] conf: Atlantic team: Syracuse gameSchedule size 12
+[D/conf] conf: Atlantic team: Winston-Salem gameSchedule size 12
+[D/conf] conf: Atlantic team: Virginia gameSchedule size 12
+[D/conf] conf: Atlantic team: Virginia Poly gameSchedule size 12
+[D/conf] conf: Great Lakes team: Illinois gameSchedule size 12
+[D/conf] conf: Great Lakes team: Indiana gameSchedule size 12
+[D/conf] conf: Great Lakes team: Iowa gameSchedule size 12
+[D/conf] conf: Great Lakes team: Maryland gameSchedule size 12
+[D/conf] conf: Great Lakes team: Michigan gameSchedule size 12
+[D/conf] conf: Great Lakes team: Michigan State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Minnesota gameSchedule size 12
+[D/conf] conf: Great Lakes team: Nebraska gameSchedule size 12
+[D/conf] conf: Great Lakes team: Chicago gameSchedule size 12
+[D/conf] conf: Great Lakes team: Ohio State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Penn State gameSchedule size 12
+[D/conf] conf: Great Lakes team: Purdue gameSchedule size 12
+[D/conf] conf: Great Lakes team: New Jersey gameSchedule size 12
+[D/conf] conf: Great Lakes team: Wisconsin gameSchedule size 12
+[D/conf] conf: Southwest team: Waco gameSchedule size 12
+[D/conf] conf: Southwest team: Iowa State gameSchedule size 12
+[D/conf] conf: Southwest team: Texas IT gameSchedule size 12
+[D/conf] conf: Southwest team: Kansas gameSchedule size 12
+[D/conf] conf: Southwest team: Kansas State gameSchedule size 12
+[D/conf] conf: Southwest team: Oklahoma gameSchedule size 12
+[D/conf] conf: Southwest team: Oklahoma State gameSchedule size 12
+[D/conf] conf: Southwest team: Texas gameSchedule size 12
+[D/conf] conf: Southwest team: Ft Worth gameSchedule size 12
+[D/conf] conf: Southwest team: West Virginia gameSchedule size 12
+[D/conf] conf: Pacific team: Arizona gameSchedule size 12
+[D/conf] conf: Pacific team: Arizona State gameSchedule size 12
+[D/conf] conf: Pacific team: California gameSchedule size 12
+[D/conf] conf: Pacific team: Colorado gameSchedule size 12
+[D/conf] conf: Pacific team: Oregon gameSchedule size 12
+[D/conf] conf: Pacific team: Oregon State gameSchedule size 12
+[D/conf] conf: Pacific team: San Francisco gameSchedule size 12
+[D/conf] conf: Pacific team: Pasadena gameSchedule size 12
+[D/conf] conf: Pacific team: Southern Cal gameSchedule size 12
+[D/conf] conf: Pacific team: Washington gameSchedule size 12
+[D/conf] conf: Pacific team: Washington State gameSchedule size 12
+[D/conf] conf: Pacific team: Utah gameSchedule size 12
+[D/conf] conf: Southern team: Alabama gameSchedule size 12
+[D/conf] conf: Southern team: Arkansas gameSchedule size 12
+[D/conf] conf: Southern team: Auburn gameSchedule size 12
+[D/conf] conf: Southern team: Florida gameSchedule size 12
+[D/conf] conf: Southern team: Georgia gameSchedule size 12
+[D/conf] conf: Southern team: Kentucky gameSchedule size 12
+[D/conf] conf: Southern team: Lousiana State gameSchedule size 12
+[D/conf] conf: Southern team: Missouri gameSchedule size 12
+[D/conf] conf: Southern team: Ole Miss gameSchedule size 12
+[D/conf] conf: Southern team: Mississippi State gameSchedule size 12
+[D/conf] conf: Southern team: South Carolina gameSchedule size 12
+[D/conf] conf: Southern team: Tennessee gameSchedule size 12
+[D/conf] conf: Southern team: College Station gameSchedule size 12
+[D/conf] conf: Southern team: Nashville gameSchedule size 12
+[D/conf] conf: Patriot team: Central Florida gameSchedule size 12
+[D/conf] conf: Patriot team: Cincinnati gameSchedule size 12
+[D/conf] conf: Patriot team: East Carolina gameSchedule size 12
+[D/conf] conf: Patriot team: Houston gameSchedule size 12
+[D/conf] conf: Patriot team: Memphis gameSchedule size 12
+[D/conf] conf: Patriot team: Navy gameSchedule size 12
+[D/conf] conf: Patriot team: South Florida gameSchedule size 12
+[D/conf] conf: Patriot team: Dallas gameSchedule size 12
+[D/conf] conf: Patriot team: Philadelphia gameSchedule size 12
+[D/conf] conf: Patriot team: Tulane gameSchedule size 12
+[D/conf] conf: Patriot team: Tulsa gameSchedule size 12
+[D/conf] conf: Patriot team: Connecticut gameSchedule size 12
+[D/conf] conf: Central team: Akron gameSchedule size 12
+[D/conf] conf: Central team: Muncie gameSchedule size 12
+[D/conf] conf: Central team: Bowling Green gameSchedule size 12
+[D/conf] conf: Central team: Buffalo gameSchedule size 12
+[D/conf] conf: Central team: Central Michigan gameSchedule size 12
+[D/conf] conf: Central team: Eastern Michigan gameSchedule size 12
+[D/conf] conf: Central team: Kent gameSchedule size 12
+[D/conf] conf: Central team: Miami OH gameSchedule size 12
+[D/conf] conf: Central team: Northern Illinois gameSchedule size 12
+[D/conf] conf: Central team: Ohio gameSchedule size 12
+[D/conf] conf: Central team: Toledo gameSchedule size 12
+[D/conf] conf: Central team: Western Michigan gameSchedule size 12
+[D/conf] conf: Liberty team: Charlotte gameSchedule size 12
+[D/conf] conf: Liberty team: Boca Raton gameSchedule size 12
+[D/conf] conf: Liberty team: Miami Intl gameSchedule size 12
+[D/conf] conf: Liberty team: Louisiana Poly gameSchedule size 12
+[D/conf] conf: Liberty team: Huntington gameSchedule size 12
+[D/conf] conf: Liberty team: Mid Tenn State gameSchedule size 12
+[D/conf] conf: Liberty team: North Texas gameSchedule size 12
+[D/conf] conf: Liberty team: Norfolk gameSchedule size 12
+[D/conf] conf: Liberty team: South Houston gameSchedule size 12
+[D/conf] conf: Liberty team: South Mississippi gameSchedule size 12
+[D/conf] conf: Liberty team: Birmingham gameSchedule size 12
+[D/conf] conf: Liberty team: El Paso gameSchedule size 12
+[D/conf] conf: Liberty team: San Antonio gameSchedule size 12
+[D/conf] conf: Liberty team: Western Kentucky gameSchedule size 12
+[D/conf] conf: Mountain team: Air Force gameSchedule size 12
+[D/conf] conf: Mountain team: Boise gameSchedule size 12
+[D/conf] conf: Mountain team: Colorado State gameSchedule size 12
+[D/conf] conf: Mountain team: Fresno gameSchedule size 12
+[D/conf] conf: Mountain team: Hawaii gameSchedule size 12
+[D/conf] conf: Mountain team: Nevada gameSchedule size 12
+[D/conf] conf: Mountain team: New Mexico gameSchedule size 12
+[D/conf] conf: Mountain team: San Diego gameSchedule size 12
+[D/conf] conf: Mountain team: San Jose gameSchedule size 12
+[D/conf] conf: Mountain team: Las Vegas gameSchedule size 12
+[D/conf] conf: Mountain team: Utah State gameSchedule size 12
+[D/conf] conf: Mountain team: Wyoming gameSchedule size 12
+[D/conf] conf: Sunshine team: Appalachian gameSchedule size 12
+[D/conf] conf: Sunshine team: Arkansas State gameSchedule size 12
+[D/conf] conf: Sunshine team: Coastal gameSchedule size 12
+[D/conf] conf: Sunshine team: Monroe gameSchedule size 12
+[D/conf] conf: Sunshine team: Lafayette gameSchedule size 12
+[D/conf] conf: Sunshine team: Troy gameSchedule size 12
+[D/conf] conf: Sunshine team: Texas State gameSchedule size 12
+[D/conf] conf: Sunshine team: South Georgia gameSchedule size 12
+[D/conf] conf: Sunshine team: Georgia State gameSchedule size 12
+[D/conf] conf: Sunshine team: South Alabama gameSchedule size 12
+[D/conf] conf: Independent team: Army gameSchedule size 12
+[D/conf] conf: Independent team: Provo gameSchedule size 12
+[D/conf] conf: Independent team: Lynchburg gameSchedule size 12
+[D/conf] conf: Independent team: New Mexico St gameSchedule size 12
+[D/conf] conf: Independent team: South Bend gameSchedule size 12
+[D/conf] conf: Independent team: Massachusetts gameSchedule size 12
+DEBUG: Entering coachingHotSeat
+DEBUG: Entering setTeamRanks
+DEBUG: Entering updateWinStreak
+DEBUG: Week advanced to 11
+DEBUG: Playing conference Atlantic
+DEBUG: Playing conference Great Lakes
+DEBUG: Playing conference Southwest
+DEBUG: Playing conference Pacific
+DEBUG: Playing conference Southern
+DEBUG: Playing conference Patriot
+DEBUG: Playing conference Central
+DEBUG: Playing conference Liberty
+DEBUG: Playing conference Mountain
+DEBUG: Playing conference Sunshine
+DEBUG: Playing conference Independent
+DEBUG: Entering coachingHotSeat
+DEBUG: Entering setTeamRanks
+DEBUG: Entering updateWinStreak
+DEBUG: Week advanced to 12
+DEBUG: Playing conference Atlantic
+DEBUG: Playing conference Great Lakes
+DEBUG: Playing conference Southwest
+DEBUG: Playing conference Pacific
+DEBUG: Playing conference Southern
+DEBUG: Playing conference Patriot
+DEBUG: Playing conference Central
+DEBUG: Playing conference Liberty
+DEBUG: Playing conference Mountain
+DEBUG: Playing conference Sunshine
+DEBUG: Playing conference Independent
+DEBUG: Entering coachingHotSeat
+DEBUG: Entering setTeamRanks
+DEBUG: Entering updateWinStreak
+DEBUG: Week advanced to 13
+DEBUG: Entering coachingHotSeat
+DEBUG: Entering setTeamRanks
+DEBUG: Entering updateWinStreak
+DEBUG: Week advanced to 14
+DEBUG: Entering coachingHotSeat
+DEBUG: Entering setTeamRanks
+DEBUG: Entering updateWinStreak
+DEBUG: Week advanced to 15
+DEBUG: Entering coachingHotSeat
+DEBUG: Entering setTeamRanks
+DEBUG: Entering updateWinStreak
+DEBUG: Week advanced to 16
+DEBUG: Entering coachingHotSeat
+DEBUG: Entering setTeamRanks
+DEBUG: Entering updateWinStreak
+DEBUG: Week advanced to 17
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

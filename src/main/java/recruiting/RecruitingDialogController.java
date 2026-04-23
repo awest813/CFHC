@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.Random;
 
 import antdroid.cfbcoach.GameNavigation;
-import antdroid.cfbcoach.LeagueLaunchCoordinator;
 import antdroid.cfbcoach.PlatformUiHelper;
 import antdroid.cfbcoach.R;
+import simulation.LeagueLaunchCoordinator;
 import simulation.RosterRules;
 
 /**
@@ -102,7 +102,7 @@ public final class RecruitingDialogController {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle("Confirm Recruiting");
-        builder.setMessage(RecruitingPresentation.buildRecruitConfirmMessage(sessionData, RosterRules.MAX_PLAYERS, recruit.raw()));
+        builder.setMessage(RecruitingPresentation.buildRecruitConfirmMessage(sessionData, RosterRules.MAX_PLAYERS, recruit));
         
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {

@@ -27,6 +27,18 @@ public class TeamHistoryList extends ArrayAdapter<TeamHistoryRecord> {
         this.values = values;
     }
 
+    public TeamHistoryList(Context context, String[] values) {
+        this(context, toRecords(values));
+    }
+
+    private static TeamHistoryRecord[] toRecords(String[] values) {
+        TeamHistoryRecord[] records = new TeamHistoryRecord[values.length];
+        for (int i = 0; i < values.length; i++) {
+            records[i] = TeamHistoryRecord.fromCsv(values[i]);
+        }
+        return records;
+    }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) context

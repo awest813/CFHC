@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import simulation.Player;
+import positions.Player;
 import simulation.Team;
 import ui.DepthChart;
 import ui.RedshirtAdapter;

@@ -1,0 +1,2287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="comparator.ComparatorTest" tests="12" skipped="0" failures="0" errors="0" timestamp="2026-04-23T22:57:00" hostname="DESKTOP-TNJHVG0" time="0.363">
+  <properties/>
+  <testcase name="compTeamTODiff_positiveDiff_sortsFirst" classname="comparator.ComparatorTest" time="0.021"/>
+  <testcase name="compTeamWins_offseason_usesTotalWins" classname="comparator.ComparatorTest" time="0.03"/>
+  <testcase name="compConfPrestige_higherPrestige_sortsFirst" classname="comparator.ComparatorTest" time="0.033"/>
+  <testcase name="compPlayerOVR_higherOverall_sortsFirst" classname="comparator.ComparatorTest" time="0.031"/>
+  <testcase name="compTeamPrestige_sameTeam_returnsZero" classname="comparator.ComparatorTest" time="0.033"/>
+  <testcase name="compTeamPrestige_equalPrestige_isConsistent" classname="comparator.ComparatorTest" time="0.027"/>
+  <testcase name="compTeamYPG_higherYardage_sortsFirst" classname="comparator.ComparatorTest" time="0.027"/>
+  <testcase name="compPlayerOVR_antisymmetry" classname="comparator.ComparatorTest" time="0.037"/>
+  <testcase name="compTeamWins_moreWins_sortsFirst" classname="comparator.ComparatorTest" time="0.027"/>
+  <testcase name="compPlayerPassYards_higherYards_sortsFirst" classname="comparator.ComparatorTest" time="0.034"/>
+  <testcase name="compTeamPrestige_higherPrestige_sortsFirst" classname="comparator.ComparatorTest" time="0.032"/>
+  <testcase name="compTeamPPG_higherPPG_sortsFirst" classname="comparator.ComparatorTest" time="0.028"/>
+  <system-out><![CDATA[[D/league] setupSeason: week 0 South Bend size0 vs Central Florida size8
+[D/league] setupSeason: week 0 Cincinnati size8 vs Lynchburg size0
+[D/league] setupSeason: week 0 Massachusetts size0 vs Oregon size8
+[D/league] setupSeason: week 0 Army size0 vs Tulsa size8
+[D/league] setupSeason: week 0 New Mexico St size0 vs Utah State size8
+[D/league] setupSeason: week 0 Provo size0 vs Arizona size8
+[D/league] setupSeason: week 1 Kent size8 vs Provo size1
+[D/league] setupSeason: week 1 South Bend size1 vs Western Kentucky size8
+[D/league] setupSeason: week 1 Birmingham size8 vs New Mexico St size1
+[D/league] setupSeason: week 1 Massachusetts size1 vs Chicago size8
+[D/league] setupSeason: week 1 Norfolk size8 vs Army size1
+[D/league] setupSeason: week 1 Muncie size8 vs Lynchburg size1
+[D/league] setupSeason: week 2 South Houston size9 vs Oklahoma State size8
+[D/league] setupSeason: week 2 Western Kentucky size9 vs West Virginia size8
+[D/league] setupSeason: week 2 Huntington size9 vs Texas IT size8
+[D/league] setupSeason: week 2 Central Florida size9 vs Iowa State size8
+[D/league] setupSeason: week 2 Cincinnati size9 vs South Bend size2
+[D/league] setupSeason: week 2 Air Force size9 vs Waco size8
+[D/league] setupSeason: week 2 Memphis size9 vs Army size2
+[D/league] setupSeason: week 2 Massachusetts size2 vs Boca Raton size9
+[D/league] setupSeason: week 2 Texas size8 vs Houston size9
+[D/league] setupSeason: week 2 Norfolk size9 vs Kansas size8
+[D/league] setupSeason: week 2 Oklahoma size8 vs New Mexico size9
+[D/league] setupSeason: week 2 Lynchburg size2 vs Ft Worth size8
+[D/league] setupSeason: week 2 Navy size9 vs New Mexico St size2
+[D/league] setupSeason: week 2 Kansas State size8 vs San Jose size9
+[D/league] setupSeason: week 2 San Antonio size9 vs Provo size2
+[D/league] setupSeason: week 2 Boise size9 vs Grambling size0
+[D/league] setupSeason: week 2 Wyoming size9 vs North Dakota St size0
+[D/league] setupSeason: week 3 Florida State size9 vs San Jose size10
+[D/league] setupSeason: week 3 North Carolina size9 vs New Mexico size10
+[D/league] setupSeason: week 3 San Diego size10 vs Durham size9
+[D/league] setupSeason: week 3 Tennessee size9 vs Hawaii size10
+[D/league] setupSeason: week 3 Syracuse size9 vs Utah State size10
+[D/league] setupSeason: week 3 Provo size3 vs Kentucky size9
+[D/league] setupSeason: week 3 Florida size9 vs Nevada size10
+[D/league] setupSeason: week 3 Missouri size9 vs Boise size10
+[D/league] setupSeason: week 3 Las Vegas size10 vs South Carolina Tech size9
+[D/league] setupSeason: week 3 South Bend size3 vs Alabama size9
+[D/league] setupSeason: week 3 Georgia IT size9 vs Massachusetts size3
+[D/league] setupSeason: week 3 Air Force size10 vs Virginia size9
+[D/league] setupSeason: week 3 Pittsburgh size9 vs Army size3
+[D/league] setupSeason: week 3 Ole Miss size9 vs Lynchburg size3
+[D/league] setupSeason: week 3 College Station size9 vs Colorado State size10
+[D/league] setupSeason: week 3 New Mexico St size3 vs Wyoming size10
+[D/league] setupSeason: week 3 Fresno size10 vs Lousiana State size9
+[D/league] setupSeason: week 4 New Mexico size11 vs Lafayette size8
+[D/league] setupSeason: week 4 San Jose size11 vs Pittsburgh size10
+[D/league] setupSeason: week 4 San Francisco size9 vs New Mexico St size4
+[D/league] setupSeason: week 4 Oregon State size9 vs South Bend size4
+[D/league] setupSeason: week 4 Louisville size10 vs Massachusetts size4
+[D/league] setupSeason: week 4 San Diego size11 vs Syracuse size10
+[D/league] setupSeason: week 4 South Carolina Tech size10 vs Monroe size8
+[D/league] setupSeason: week 4 Miami size10 vs Provo size4
+[D/league] setupSeason: week 4 Wyoming size11 vs Coastal size8
+[D/league] setupSeason: week 4 Arkansas State size8 vs Georgia IT size10
+[D/league] setupSeason: week 4 Utah size9 vs Fresno size11
+[D/league] setupSeason: week 4 Georgia State size8 vs Virginia size10
+[D/league] setupSeason: week 4 North Carolina size10 vs Troy size8
+[D/league] setupSeason: week 4 Las Vegas size11 vs South Georgia size8
+[D/league] setupSeason: week 4 xBoston size10 vs Arizona size9
+[D/league] setupSeason: week 4 Florida State size10 vs Utah State size11
+[D/league] setupSeason: week 4 Lynchburg size4 vs Oregon size9
+[D/league] setupSeason: week 4 Colorado State size11 vs Durham size10
+[D/league] setupSeason: week 4 NC State size10 vs Boise size11
+[D/league] setupSeason: week 4 Washington size9 vs Army size4
+[D/league] setupSeason: week 4 Appalachian size8 vs Hawaii size11
+[D/league] setupSeason: week 4 South Alabama size8 vs Virginia Poly size10
+[D/league] setupSeason: week 4 Texas State size8 vs Washington State size9
+[D/league] setupSeason: week 4 Winston-Salem size10 vs Pasadena size9
+[D/league] setupSeason: week 4 Nevada size11 vs Southern Cal size9
+[D/league] setupSeason: week 4 Colorado size9 vs Air Force size11
+[D/league] setupSeason: week 4 Arizona State size9 vs Central Arkansas size0
+[D/league] setupSeason: week 4 California size9 vs Yale size0
+[D/league] setupSeason: week 5 Ohio State size9 vs College Station size10
+[D/league] setupSeason: week 5 Florida size10 vs Purdue size9
+[D/league] setupSeason: week 5 Alabama size10 vs Wisconsin size9
+[D/league] setupSeason: week 5 Coastal size9 vs Auburn size10
+[D/league] setupSeason: week 5 Provo size5 vs Tennessee size10
+[D/league] setupSeason: week 5 Ole Miss size10 vs Arkansas State size9
+[D/league] setupSeason: week 5 Lousiana State size10 vs Minnesota size9
+[D/league] setupSeason: week 5 Maryland size9 vs Georgia size10
+[D/league] setupSeason: week 5 South Georgia size9 vs New Mexico St size5
+[D/league] setupSeason: week 5 Troy size9 vs Massachusetts size5
+[D/league] setupSeason: week 5 Georgia State size9 vs Kentucky size10
+[D/league] setupSeason: week 5 South Bend size5 vs South Carolina size10
+[D/league] setupSeason: week 5 South Alabama size9 vs Missouri size10
+[D/league] setupSeason: week 5 Nebraska size9 vs Army size5
+[D/league] setupSeason: week 5 Nashville size10 vs Michigan State size9
+[D/league] setupSeason: week 5 Mississippi State size10 vs Iowa size9
+[D/league] setupSeason: week 5 Indiana size9 vs Arkansas size10
+[D/league] setupSeason: week 5 Illinois size9 vs Lynchburg size5
+[D/league] setupSeason: week 6 Cincinnati size10 vs Virginia Poly size11
+[D/league] setupSeason: week 6 South Bend size6 vs Monroe size10
+[D/league] setupSeason: week 6 Provo size6 vs Toledo size9
+[D/league] setupSeason: week 6 Pittsburgh size11 vs Dallas size10
+[D/league] setupSeason: week 6 Georgia IT size11 vs Eastern Michigan size9
+[D/league] setupSeason: week 6 Lafayette size10 vs Buffalo size9
+[D/league] setupSeason: week 6 Bowling Green size9 vs Memphis size10
+[D/league] setupSeason: week 6 Akron size9 vs Winston-Salem size11
+[D/league] setupSeason: week 6 Ohio size9 vs Tulsa size10
+[D/league] setupSeason: week 6 Louisville size11 vs Kent size9
+[D/league] setupSeason: week 6 Army size6 vs Georgia State size10
+[D/league] setupSeason: week 6 Western Michigan size9 vs South Carolina Tech size11
+[D/league] setupSeason: week 6 Miami OH size9 vs Syracuse size11
+[D/league] setupSeason: week 6 Muncie size9 vs Virginia size11
+[D/league] setupSeason: week 6 Troy size10 vs Northern Illinois size9
+[D/league] setupSeason: week 6 NC State size11 vs Central Michigan size9
+[D/league] setupSeason: week 6 Lynchburg size6 vs Florida State size11
+[D/league] setupSeason: week 6 Miami size11 vs Connecticut size10
+[D/league] setupSeason: week 6 Texas State size10 vs New Mexico St size6
+[D/league] setupSeason: week 6 xBoston size11 vs Massachusetts size6
+[D/league] setupSeason: week 6 Navy size10 vs North Carolina size11
+[D/league] setupSeason: week 6 Central Florida size10 vs Durham size11
+[D/league] setupSeason: week 7 Ft Worth size9 vs Army size7
+[D/league] setupSeason: week 7 Arkansas State size11 vs Wisconsin size10
+[D/league] setupSeason: week 7 Kansas size9 vs Illinois size10
+[D/league] setupSeason: week 7 Michigan State size10 vs Appalachian size11
+[D/league] setupSeason: week 7 Texas State size11 vs Provo size7
+[D/league] setupSeason: week 7 Iowa State size9 vs South Bend size7
+[D/league] setupSeason: week 7 Chicago size10 vs Georgia State size11
+[D/league] setupSeason: week 7 Maryland size10 vs Kansas State size9
+[D/league] setupSeason: week 7 South Georgia size11 vs Indiana size10
+[D/league] setupSeason: week 7 Penn State size10 vs Coastal size11
+[D/league] setupSeason: week 7 Lynchburg size7 vs West Virginia size9
+[D/league] setupSeason: week 7 Minnesota size10 vs New Mexico St size7
+[D/league] setupSeason: week 7 Iowa size10 vs Lafayette size11
+[D/league] setupSeason: week 7 Purdue size10 vs Troy size11
+[D/league] setupSeason: week 7 South Alabama size11 vs Waco size9
+[D/league] setupSeason: week 7 Michigan size10 vs Oklahoma size9
+[D/league] setupSeason: week 7 Nebraska size10 vs Oklahoma State size9
+[D/league] setupSeason: week 7 New Jersey size10 vs Massachusetts size7
+[D/league] setupSeason: week 7 Ohio State size10 vs Texas IT size9
+[D/league] setupSeason: week 7 Texas size9 vs Monroe size11
+[D/league] setupSeason: week 8 East Carolina size11 vs Utah size10
+[D/league] setupSeason: week 8 California size10 vs Dallas size11
+[D/league] setupSeason: week 8 Cincinnati size11 vs Oregon size10
+[D/league] setupSeason: week 8 Lynchburg size8 vs Arizona size10
+[D/league] setupSeason: week 8 Provo size8 vs Colorado size10
+[D/league] setupSeason: week 8 Massachusetts size8 vs Arizona State size10
+[D/league] setupSeason: week 8 Philadelphia size11 vs Washington size10
+[D/league] setupSeason: week 8 Central Florida size11 vs Army size8
+[D/league] setupSeason: week 8 Southern Cal size10 vs Tulane size11
+[D/league] setupSeason: week 8 Memphis size11 vs Pasadena size10
+[D/league] setupSeason: week 8 San Francisco size10 vs Connecticut size11
+[D/league] setupSeason: week 8 Oregon State size10 vs New Mexico St size8
+[D/league] setupSeason: week 8 Houston size11 vs Washington State size10
+[D/league] setupSeason: week 8 South Bend size8 vs Tulsa size11
+[D/league] setupSeason: week 8 Navy size11 vs New Hampshire size0
+[D/league] setupSeason: week 8 South Florida size11 vs Rhode Island size0
+[D/league] setupSeason: week 9 New Jersey size11 vs Lynchburg size9
+[D/league] setupSeason: week 9 Minnesota size11 vs South Bend size9
+[D/league] setupSeason: week 9 Muncie size10 vs Wisconsin size11
+[D/league] setupSeason: week 9 Western Michigan size10 vs Massachusetts size9
+[D/league] setupSeason: week 9 Buffalo size10 vs Penn State size11
+[D/league] setupSeason: week 9 Chicago size11 vs Kansas size10
+[D/league] setupSeason: week 9 Purdue size11 vs Kansas State size10
+[D/league] setupSeason: week 9 Oklahoma State size10 vs New Mexico St size9
+[D/league] setupSeason: week 9 Oklahoma size10 vs Michigan State size11
+[D/league] setupSeason: week 9 Iowa size11 vs Akron size10
+[D/league] setupSeason: week 9 Michigan size11 vs Central Michigan size10
+[D/league] setupSeason: week 9 Provo size9 vs Maryland size11
+[D/league] setupSeason: week 9 Eastern Michigan size10 vs Ohio State size11
+[D/league] setupSeason: week 9 Northern Illinois size10 vs Army size9
+[D/league] setupSeason: week 9 Illinois size11 vs Bowling Green size10
+[D/league] setupSeason: week 9 Indiana size11 vs Ft Worth size10
+[D/league] setupSeason: week 9 Texas IT size10 vs Nebraska size11
+[D/league] setupSeason: week 10 El Paso size10 vs Texas size11
+[D/league] setupSeason: week 10 Boca Raton size10 vs Oklahoma size11
+[D/league] setupSeason: week 10 Kansas size11 vs New Mexico St size10
+[D/league] setupSeason: week 10 Huntington size10 vs West Virginia size11
+[D/league] setupSeason: week 10 Birmingham size10 vs Waco size11
+[D/league] setupSeason: week 10 Mid Tenn State size10 vs Texas IT size11
+[D/league] setupSeason: week 10 Massachusetts size10 vs Kansas State size11
+[D/league] setupSeason: week 10 Charlotte size10 vs Oklahoma State size11
+[D/league] setupSeason: week 10 Ft Worth size11 vs San Antonio size10
+[D/league] setupSeason: week 10 Louisiana Poly size10 vs Iowa State size11
+[D/league] setupSeason: week 10 South Houston size10 vs Northern Arizona size0
+[D/league] setupSeason: week 10 Norfolk size10 vs James Madison size0
+[D/league] setupSeason: week 0 Army size0 vs Texas IT size8
+[D/league] setupSeason: week 0 Syracuse size8 vs Provo size0
+[D/league] setupSeason: week 0 New Mexico St size0 vs North Carolina size8
+[D/league] setupSeason: week 0 Lynchburg size0 vs Norfolk size8
+[D/league] setupSeason: week 0 Oregon State size8 vs South Bend size0
+[D/league] setupSeason: week 0 Massachusetts size0 vs Miami size8
+[D/league] setupSeason: week 1 Texas State size8 vs Syracuse size9
+[D/league] setupSeason: week 1 Army size1 vs Air Force size8
+[D/league] setupSeason: week 1 South Alabama size8 vs Lynchburg size1
+[D/league] setupSeason: week 1 Eastern Michigan size8 vs xBoston size9
+[D/league] setupSeason: week 1 Florida State size9 vs Ohio size8
+[D/league] setupSeason: week 1 New Mexico St size1 vs Las Vegas size8
+[D/league] setupSeason: week 1 North Carolina size9 vs Provo size1
+[D/league] setupSeason: week 1 Monroe size8 vs Louisville size9
+[D/league] setupSeason: week 1 Northern Illinois size8 vs South Carolina Tech size9
+[D/league] setupSeason: week 1 Pittsburgh size9 vs San Diego size8
+[D/league] setupSeason: week 1 Miami size9 vs New Mexico size8
+[D/league] setupSeason: week 1 Winston-Salem size9 vs Massachusetts size1
+[D/league] setupSeason: week 1 Nevada size8 vs Virginia size9
+[D/league] setupSeason: week 1 Colorado State size8 vs NC State size9
+[D/league] setupSeason: week 1 Akron size8 vs South Bend size1
+[D/league] setupSeason: week 1 Georgia IT size9 vs Fresno size8
+[D/league] setupSeason: week 1 Virginia Poly size9 vs Troy size8
+[D/league] setupSeason: week 1 Western Michigan size8 vs Durham size9
+[D/league] setupSeason: week 2 Connecticut size8 vs Washington State size9
+[D/league] setupSeason: week 2 Lousiana State size8 vs Arizona State size9
+[D/league] setupSeason: week 2 Memphis size8 vs Oregon State size9
+[D/league] setupSeason: week 2 Tulsa size8 vs Washington size9
+[D/league] setupSeason: week 2 Army size2 vs Tulane size8
+[D/league] setupSeason: week 2 Auburn size8 vs California size9
+[D/league] setupSeason: week 2 Philadelphia size8 vs San Francisco size9
+[D/league] setupSeason: week 2 Tennessee size8 vs Oregon size9
+[D/league] setupSeason: week 2 Massachusetts size2 vs Cincinnati size8
+[D/league] setupSeason: week 2 New Mexico St size2 vs Nashville size8
+[D/league] setupSeason: week 2 Pasadena size9 vs Lynchburg size2
+[D/league] setupSeason: week 2 South Florida size8 vs South Bend size2
+[D/league] setupSeason: week 2 South Carolina size8 vs Utah size9
+[D/league] setupSeason: week 2 Southern Cal size9 vs Florida size8
+[D/league] setupSeason: week 2 Provo size2 vs Arizona size9
+[D/league] setupSeason: week 2 Colorado size9 vs College Station size8
+[D/league] setupSeason: week 2 Missouri size8 vs Southern size0
+[D/league] setupSeason: week 2 Kentucky size8 vs Harvard size0
+[D/league] setupSeason: week 3 Minnesota size8 vs Bowling Green size9
+[D/league] setupSeason: week 3 New Mexico St size3 vs Purdue size8
+[D/league] setupSeason: week 3 South Bend size3 vs Western Kentucky size9
+[D/league] setupSeason: week 3 Miami Intl size9 vs Wisconsin size8
+[D/league] setupSeason: week 3 Penn State size8 vs Tulsa size9
+[D/league] setupSeason: week 3 Army size3 vs El Paso size9
+[D/league] setupSeason: week 3 Muncie size9 vs Indiana size8
+[D/league] setupSeason: week 3 Illinois size8 vs Northern Illinois size9
+[D/league] setupSeason: week 3 Massachusetts size3 vs Chicago size8
+[D/league] setupSeason: week 3 Iowa size8 vs Boca Raton size9
+[D/league] setupSeason: week 3 Provo size3 vs Dallas size9
+[D/league] setupSeason: week 3 New Jersey size8 vs Norfolk size9
+[D/league] setupSeason: week 3 Michigan size8 vs South Mississippi size9
+[D/league] setupSeason: week 3 Maryland size8 vs Navy size9
+[D/league] setupSeason: week 3 Central Michigan size9 vs Lynchburg size3
+[D/league] setupSeason: week 3 Ohio State size8 vs Ohio size9
+[D/league] setupSeason: week 3 Eastern Michigan size9 vs Michigan State size8
+[D/league] setupSeason: week 3 Nebraska size8 vs Kent size9
+[D/league] setupSeason: week 4 Minnesota size9 vs Washington size10
+[D/league] setupSeason: week 4 Nebraska size9 vs Southern Cal size10
+[D/league] setupSeason: week 4 Utah size10 vs Michigan State size9
+[D/league] setupSeason: week 4 Oregon size10 vs Army size4
+[D/league] setupSeason: week 4 Arizona size10 vs Nevada size9
+[D/league] setupSeason: week 4 Chicago size9 vs North Carolina size10
+[D/league] setupSeason: week 4 Syracuse size10 vs Illinois size9
+[D/league] setupSeason: week 4 Lynchburg size4 vs California size10
+[D/league] setupSeason: week 4 Arizona State size10 vs Iowa size9
+[D/league] setupSeason: week 4 Virginia Poly size10 vs Hawaii size9
+[D/league] setupSeason: week 4 Wisconsin size9 vs xBoston size10
+[D/league] setupSeason: week 4 South Carolina Tech size10 vs Massachusetts size4
+[D/league] setupSeason: week 4 South Bend size4 vs Boise size9
+[D/league] setupSeason: week 4 Oregon State size10 vs San Jose size9
+[D/league] setupSeason: week 4 Durham size10 vs Fresno size9
+[D/league] setupSeason: week 4 Georgia IT size10 vs Wyoming size9
+[D/league] setupSeason: week 4 Provo size4 vs Washington State size10
+[D/league] setupSeason: week 4 San Francisco size10 vs San Diego size9
+[D/league] setupSeason: week 4 Miami size10 vs Purdue size9
+[D/league] setupSeason: week 4 Ohio State size9 vs Pittsburgh size10
+[D/league] setupSeason: week 4 New Mexico St size4 vs Winston-Salem size10
+[D/league] setupSeason: week 4 Florida State size10 vs Indiana size9
+[D/league] setupSeason: week 4 Louisville size10 vs Las Vegas size9
+[D/league] setupSeason: week 5 Monroe size9 vs Lynchburg size5
+[D/league] setupSeason: week 5 Army size5 vs xBoston size11
+[D/league] setupSeason: week 5 Syracuse size11 vs Massachusetts size5
+[D/league] setupSeason: week 5 Appalachian size9 vs North Carolina size11
+[D/league] setupSeason: week 5 Lafayette size9 vs Florida State size11
+[D/league] setupSeason: week 5 Georgia IT size11 vs Coastal size9
+[D/league] setupSeason: week 5 New Mexico St size5 vs South Alabama size9
+[D/league] setupSeason: week 5 Virginia size11 vs South Bend size5
+[D/league] setupSeason: week 5 Troy size9 vs South Carolina Tech size11
+[D/league] setupSeason: week 5 Texas State size9 vs Louisville size11
+[D/league] setupSeason: week 5 Miami size11 vs South Georgia size9
+[D/league] setupSeason: week 5 Georgia State size9 vs Virginia Poly size11
+[D/league] setupSeason: week 5 Durham size11 vs Provo size5
+[D/league] setupSeason: week 5 Pittsburgh size11 vs Arkansas State size9
+[D/league] setupSeason: week 5 NC State size11 vs North Dakota size0
+[D/league] setupSeason: week 5 Winston-Salem size11 vs Sacramento size0
+[D/league] setupSeason: week 6 Lousiana State size9 vs Provo size6
+[D/league] setupSeason: week 6 Ole Miss size9 vs New Mexico St size6
+[D/league] setupSeason: week 6 Missouri size9 vs Army size6
+[D/league] setupSeason: week 6 Tennessee size9 vs Massachusetts size6
+[D/league] setupSeason: week 6 Georgia size9 vs South Bend size6
+[D/league] setupSeason: week 6 Mississippi State size9 vs Lynchburg size6
+[D/league] setupSeason: week 6 College Station size9 vs Alabama State size0
+[D/league] setupSeason: week 6 Kentucky size9 vs Northern Colorado size0
+[D/league] setupSeason: week 6 Nashville size9 vs Dayton size0
+[D/league] setupSeason: week 6 South Carolina size9 vs Northern Arizona size0
+[D/league] setupSeason: week 6 Auburn size9 vs South Dakota size0
+[D/league] setupSeason: week 6 Arkansas size9 vs Southern size0
+[D/league] setupSeason: week 6 Florida size9 vs Harvard size0
+[D/league] setupSeason: week 6 Alabama size9 vs Southern size0
+[D/league] setupSeason: week 7 Texas IT size9 vs Troy size10
+[D/league] setupSeason: week 7 Army size7 vs Nevada size10
+[D/league] setupSeason: week 7 North Texas size10 vs Lynchburg size7
+[D/league] setupSeason: week 7 Waco size9 vs Boise size10
+[D/league] setupSeason: week 7 Texas size9 vs San Diego size10
+[D/league] setupSeason: week 7 West Virginia size9 vs Coastal size10
+[D/league] setupSeason: week 7 Oklahoma size9 vs Monroe size10
+[D/league] setupSeason: week 7 Provo size7 vs Mid Tenn State size10
+[D/league] setupSeason: week 7 Oklahoma State size9 vs South Georgia size10
+[D/league] setupSeason: week 7 Central Michigan size10 vs Iowa State size9
+[D/league] setupSeason: week 7 Norfolk size10 vs Ft Worth size9
+[D/league] setupSeason: week 7 New Mexico size10 vs Kansas size9
+[D/league] setupSeason: week 7 Kansas State size9 vs Eastern Michigan size10
+[D/league] setupSeason: week 7 Massachusetts size7 vs Western Kentucky size10
+[D/league] setupSeason: week 7 New Mexico St size7 vs San Antonio size10
+[D/league] setupSeason: week 7 South Bend size7 vs Indiana size10
+[D/league] setupSeason: week 8 Massachusetts size8 vs Troy size11
+[D/league] setupSeason: week 8 Tennessee size10 vs Georgia State size11
+[D/league] setupSeason: week 8 College Station size10 vs New Mexico St size8
+[D/league] setupSeason: week 8 Nashville size10 vs Arkansas State size11
+[D/league] setupSeason: week 8 Monroe size11 vs Ole Miss size10
+[D/league] setupSeason: week 8 Army size8 vs South Georgia size11
+[D/league] setupSeason: week 8 South Bend size8 vs Auburn size10
+[D/league] setupSeason: week 8 South Alabama size11 vs Florida size10
+[D/league] setupSeason: week 8 Arkansas size10 vs Lynchburg size8
+[D/league] setupSeason: week 8 Texas State size11 vs Georgia size10
+[D/league] setupSeason: week 8 Missouri size10 vs Lafayette size11
+[D/league] setupSeason: week 8 Alabama size10 vs Provo size8
+[D/league] setupSeason: week 8 South Carolina size10 vs Coastal size11
+[D/league] setupSeason: week 8 Kentucky size10 vs Appalachian size11
+[D/league] setupSeason: week 8 Lousiana State size10 vs Youngstown size0
+[D/league] setupSeason: week 8 Mississippi State size10 vs Albany size0
+[D/league] setupSeason: week 9 New Mexico St size9 vs Memphis size10
+[D/league] setupSeason: week 9 Penn State size11 vs East Carolina size10
+[D/league] setupSeason: week 9 Lynchburg size9 vs Chicago size11
+[D/league] setupSeason: week 9 Oklahoma size10 vs Michigan size11
+[D/league] setupSeason: week 9 Navy size10 vs Illinois size11
+[D/league] setupSeason: week 9 Massachusetts size9 vs Iowa State size10
+[D/league] setupSeason: week 9 Ft Worth size10 vs Minnesota size11
+[D/league] setupSeason: week 9 Texas IT size10 vs Ohio State size11
+[D/league] setupSeason: week 9 Michigan State size11 vs Tulsa size10
+[D/league] setupSeason: week 9 Provo size9 vs Nebraska size11
+[D/league] setupSeason: week 9 Tulane size10 vs Purdue size11
+[D/league] setupSeason: week 9 Kansas size10 vs New Jersey size11
+[D/league] setupSeason: week 9 Cincinnati size10 vs Wisconsin size11
+[D/league] setupSeason: week 9 Army size9 vs Iowa size11
+[D/league] setupSeason: week 9 South Bend size9 vs Maryland size11
+[D/league] setupSeason: week 9 Connecticut size10 vs Indiana size11
+[D/league] setupSeason: week 10 Cincinnati size11 vs Lynchburg size10
+[D/league] setupSeason: week 10 Massachusetts size10 vs Mid Tenn State size11
+[D/league] setupSeason: week 10 Navy size11 vs Provo size10
+[D/league] setupSeason: week 10 North Texas size11 vs South Bend size10
+[D/league] setupSeason: week 10 Army size10 vs Western Kentucky size11
+[D/league] setupSeason: week 10 New Mexico St size10 vs East Carolina size11
+[D/league] setupSeason: week 11 Akron size11 vs Grambling size0
+[D/league] setupSeason: week 11 Miami OH size11 vs Harvard size0
+[D/league] setupSeason: week 0 San Diego size8 vs New Mexico St size0
+[D/league] setupSeason: week 0 Lousiana State size8 vs Army size0
+[D/league] setupSeason: week 0 Massachusetts size0 vs Colorado size8
+[D/league] setupSeason: week 0 Southern Cal size8 vs Lynchburg size0
+[D/league] setupSeason: week 0 Boise size8 vs South Bend size0
+[D/league] setupSeason: week 0 Alabama size8 vs Provo size0
+[D/league] setupSeason: week 1 New Mexico St size1 vs Arkansas size9
+[D/league] setupSeason: week 1 Winston-Salem size8 vs Mississippi State size9
+[D/league] setupSeason: week 1 xBoston size8 vs Nashville size9
+[D/league] setupSeason: week 1 Alabama size9 vs Virginia Poly size8
+[D/league] setupSeason: week 1 NC State size8 vs Lousiana State size9
+[D/league] setupSeason: week 1 Massachusetts size1 vs South Carolina Tech size8
+[D/league] setupSeason: week 1 Durham size8 vs Kentucky size9
+[D/league] setupSeason: week 1 Pittsburgh size8 vs Washington size9
+[D/league] setupSeason: week 1 Louisville size8 vs Arizona State size9
+[D/league] setupSeason: week 1 North Carolina size8 vs Utah size9
+[D/league] setupSeason: week 1 San Francisco size9 vs Syracuse size8
+[D/league] setupSeason: week 1 Miami size8 vs Army size1
+[D/league] setupSeason: week 1 Provo size1 vs Tennessee size9
+[D/league] setupSeason: week 1 Lynchburg size1 vs Florida State size8
+[D/league] setupSeason: week 1 Florida size9 vs Georgia IT size8
+[D/league] setupSeason: week 1 Virginia size8 vs Colorado size9
+[D/league] setupSeason: week 1 Arizona size9 vs South Bend size1
+[D/league] setupSeason: week 2 Charlotte size8 vs Alabama size10
+[D/league] setupSeason: week 2 Birmingham size8 vs Georgia size10
+[D/league] setupSeason: week 2 Nashville size10 vs South Bend size2
+[D/league] setupSeason: week 2 Dallas size8 vs Missouri size10
+[D/league] setupSeason: week 2 South Carolina size10 vs East Carolina size8
+[D/league] setupSeason: week 2 North Texas size8 vs NC State size9
+[D/league] setupSeason: week 2 Miami Intl size8 vs Mississippi State size10
+[D/league] setupSeason: week 2 South Florida size8 vs Arkansas size10
+[D/league] setupSeason: week 2 Central Florida size8 vs Provo size2
+[D/league] setupSeason: week 2 Auburn size10 vs xBoston size9
+[D/league] setupSeason: week 2 Norfolk size8 vs Syracuse size9
+[D/league] setupSeason: week 2 Army size2 vs Florida State size9
+[D/league] setupSeason: week 2 College Station size10 vs Connecticut size8
+[D/league] setupSeason: week 2 Cincinnati size8 vs Lousiana State size10
+[D/league] setupSeason: week 2 San Antonio size8 vs Miami size9
+[D/league] setupSeason: week 2 Boca Raton size8 vs Ole Miss size10
+[D/league] setupSeason: week 2 Huntington size8 vs Massachusetts size2
+[D/league] setupSeason: week 2 Georgia IT size9 vs Mid Tenn State size8
+[D/league] setupSeason: week 2 North Carolina size9 vs Tennessee size10
+[D/league] setupSeason: week 2 Virginia Poly size9 vs Western Kentucky size8
+[D/league] setupSeason: week 2 South Carolina Tech size9 vs Philadelphia size8
+[D/league] setupSeason: week 2 Lynchburg size2 vs Winston-Salem size9
+[D/league] setupSeason: week 2 Florida size10 vs Louisville size9
+[D/league] setupSeason: week 2 Tulsa size8 vs Pittsburgh size9
+[D/league] setupSeason: week 2 New Mexico St size2 vs Kentucky size10
+[D/league] setupSeason: week 2 Durham size9 vs Eastern Tenn size0
+[D/league] setupSeason: week 2 Virginia size9 vs Columbia size0
+[D/league] setupSeason: week 3 Minnesota size8 vs Dallas size9
+[D/league] setupSeason: week 3 Indiana size8 vs Connecticut size9
+[D/league] setupSeason: week 3 Georgia State size9 vs Michigan size8
+[D/league] setupSeason: week 3 Cincinnati size9 vs Ohio State size8
+[D/league] setupSeason: week 3 Central Florida size9 vs Lynchburg size3
+[D/league] setupSeason: week 3 Appalachian size9 vs New Jersey size8
+[D/league] setupSeason: week 3 Army size3 vs Philadelphia size9
+[D/league] setupSeason: week 3 Massachusetts size3 vs Coastal size9
+[D/league] setupSeason: week 3 Maryland size8 vs Lafayette size9
+[D/league] setupSeason: week 3 Northern Illinois size8 vs Tulane size9
+[D/league] setupSeason: week 3 Tulsa size9 vs New Mexico St size3
+[D/league] setupSeason: week 3 Buffalo size8 vs East Carolina size9
+[D/league] setupSeason: week 3 Arkansas State size9 vs Purdue size8
+[D/league] setupSeason: week 3 Miami OH size8 vs Houston size9
+[D/league] setupSeason: week 3 South Bend size3 vs Western Michigan size8
+[D/league] setupSeason: week 3 Monroe size9 vs Provo size3
+[D/league] setupSeason: week 3 Ohio size8 vs South Alabama size9
+[D/league] setupSeason: week 3 Kent size8 vs South Florida size9
+[D/league] setupSeason: week 3 Navy size9 vs Wisconsin size8
+[D/league] setupSeason: week 3 South Georgia size9 vs Central Arkansas size0
+[D/league] setupSeason: week 3 Texas State size9 vs New Hampshire size0
+[D/league] setupSeason: week 4 Florida State size10 vs Provo size4
+[D/league] setupSeason: week 4 Syracuse size10 vs New Mexico St size4
+[D/league] setupSeason: week 4 xBoston size10 vs Massachusetts size4
+[D/league] setupSeason: week 4 Durham size10 vs Lynchburg size4
+[D/league] setupSeason: week 4 North Carolina size10 vs Army size4
+[D/league] setupSeason: week 4 Georgia IT size10 vs South Bend size4
+[D/league] setupSeason: week 4 Louisville size10 vs Maine size0
+[D/league] setupSeason: week 4 Pittsburgh size10 vs Columbia size0
+[D/league] setupSeason: week 4 Virginia Poly size10 vs Eastern Tenn size0
+[D/league] setupSeason: week 4 Winston-Salem size10 vs Youngstown size0
+[D/league] setupSeason: week 4 Virginia size10 vs Yale size0
+[D/league] setupSeason: week 4 South Carolina Tech size10 vs Montana State size0
+[D/league] setupSeason: week 4 NC State size10 vs Northern Arizona size0
+[D/league] setupSeason: week 4 Miami size10 vs Eastern Tenn size0
+[D/league] setupSeason: week 5 College Station size11 vs Illinois size9
+[D/league] setupSeason: week 5 Lousiana State size11 vs Ohio State size9
+[D/league] setupSeason: week 5 Philadelphia size10 vs Mississippi State size11
+[D/league] setupSeason: week 5 Provo size5 vs Michigan State size9
+[D/league] setupSeason: week 5 Connecticut size10 vs Georgia size11
+[D/league] setupSeason: week 5 Kentucky size11 vs San Antonio size9
+[D/league] setupSeason: week 5 Nashville size11 vs Western Kentucky size9
+[D/league] setupSeason: week 5 New Mexico St size5 vs Indiana size9
+[D/league] setupSeason: week 5 Charlotte size9 vs Auburn size11
+[D/league] setupSeason: week 5 Tulane size10 vs Nebraska size9
+[D/league] setupSeason: week 5 Massachusetts size5 vs Arkansas size11
+[D/league] setupSeason: week 5 South Mississippi size9 vs South Carolina size11
+[D/league] setupSeason: week 5 South Florida size10 vs Wisconsin size9
+[D/league] setupSeason: week 5 Memphis size10 vs Ole Miss size11
+[D/league] setupSeason: week 5 Tennessee size11 vs New Jersey size9
+[D/league] setupSeason: week 5 Cincinnati size10 vs Missouri size11
+[D/league] setupSeason: week 5 Birmingham size9 vs Alabama size11
+[D/league] setupSeason: week 5 Maryland size9 vs Navy size10
+[D/league] setupSeason: week 5 Dallas size10 vs Army size5
+[D/league] setupSeason: week 5 South Bend size5 vs Tulsa size10
+[D/league] setupSeason: week 5 Florida size11 vs Lynchburg size5
+[D/league] setupSeason: week 5 East Carolina size10 vs Huntington size9
+[D/league] setupSeason: week 5 Houston size10 vs Miami Intl size9
+[D/league] setupSeason: week 5 Norfolk size9 vs Central Florida size10
+[D/league] setupSeason: week 6 Ohio State size10 vs xBoston size11
+[D/league] setupSeason: week 6 Waco size8 vs South Carolina Tech size11
+[D/league] setupSeason: week 6 Texas size8 vs Western Michigan size9
+[D/league] setupSeason: week 6 Wisconsin size10 vs Air Force size9
+[D/league] setupSeason: week 6 Ft Worth size8 vs Utah State size9
+[D/league] setupSeason: week 6 Massachusetts size6 vs Colorado State size9
+[D/league] setupSeason: week 6 Eastern Michigan size9 vs West Virginia size8
+[D/league] setupSeason: week 6 Minnesota size10 vs San Diego size9
+[D/league] setupSeason: week 6 Lynchburg size6 vs Michigan State size10
+[D/league] setupSeason: week 6 Oklahoma size8 vs New Jersey size10
+[D/league] setupSeason: week 6 North Carolina size11 vs Ohio size9
+[D/league] setupSeason: week 6 Kansas size8 vs Chicago size10
+[D/league] setupSeason: week 6 Iowa size10 vs Hawaii size9
+[D/league] setupSeason: week 6 Penn State size10 vs Northern Illinois size9
+[D/league] setupSeason: week 6 Georgia IT size11 vs New Mexico size9
+[D/league] setupSeason: week 6 Illinois size10 vs Provo size6
+[D/league] setupSeason: week 6 Indiana size10 vs Kansas State size8
+[D/league] setupSeason: week 6 Army size6 vs Purdue size10
+[D/league] setupSeason: week 6 Miami size11 vs Maryland size10
+[D/league] setupSeason: week 6 Nevada size9 vs Winston-Salem size11
+[D/league] setupSeason: week 6 Michigan size10 vs Fresno size9
+[D/league] setupSeason: week 6 Wyoming size9 vs New Mexico St size6
+[D/league] setupSeason: week 6 Bowling Green size9 vs Virginia Poly size11
+[D/league] setupSeason: week 6 South Bend size6 vs Central Michigan size9
+[D/league] setupSeason: week 6 Kent size9 vs Texas IT size8
+[D/league] setupSeason: week 6 Florida State size11 vs San Jose size9
+[D/league] setupSeason: week 6 Louisville size11 vs Buffalo size9
+[D/league] setupSeason: week 6 Iowa State size8 vs Las Vegas size9
+[D/league] setupSeason: week 6 Durham size11 vs Akron size9
+[D/league] setupSeason: week 6 Oklahoma State size8 vs Nebraska size10
+[D/league] setupSeason: week 6 Pittsburgh size11 vs Miami OH size9
+[D/league] setupSeason: week 6 Muncie size9 vs Virginia size11
+[D/league] setupSeason: week 6 Syracuse size11 vs Idaho State size0
+[D/league] setupSeason: week 6 NC State size11 vs South Dakota St size0
+[D/league] setupSeason: week 7 Ohio State size11 vs Army size7
+[D/league] setupSeason: week 7 Minnesota size11 vs Provo size7
+[D/league] setupSeason: week 7 New Mexico St size7 vs Oklahoma size9
+[D/league] setupSeason: week 7 Michigan State size11 vs Massachusetts size7
+[D/league] setupSeason: week 7 Indiana size11 vs Oklahoma State size9
+[D/league] setupSeason: week 7 Illinois size11 vs Ft Worth size9
+[D/league] setupSeason: week 7 Iowa size11 vs South Bend size7
+[D/league] setupSeason: week 7 Maryland size11 vs Lynchburg size7
+[D/league] setupSeason: week 7 Kansas size9 vs Michigan size11
+[D/league] setupSeason: week 7 Iowa State size9 vs Nebraska size11
+[D/league] setupSeason: week 7 Waco size9 vs Chicago size11
+[D/league] setupSeason: week 7 Texas IT size9 vs New Jersey size11
+[D/league] setupSeason: week 7 Kansas State size9 vs Penn State size11
+[D/league] setupSeason: week 7 Purdue size11 vs Texas size9
+[D/league] setupSeason: week 7 West Virginia size9 vs Wisconsin size11
+[D/league] setupSeason: week 8 Army size8 vs Central Michigan size10
+[D/league] setupSeason: week 8 Texas IT size10 vs Navy size11
+[D/league] setupSeason: week 8 Tulane size11 vs Lafayette size10
+[D/league] setupSeason: week 8 Waco size10 vs Lynchburg size8
+[D/league] setupSeason: week 8 Northern Illinois size10 vs Tulsa size11
+[D/league] setupSeason: week 8 East Carolina size11 vs Iowa State size10
+[D/league] setupSeason: week 8 Coastal size10 vs Connecticut size11
+[D/league] setupSeason: week 8 South Florida size11 vs Western Michigan size10
+[D/league] setupSeason: week 8 Philadelphia size11 vs Boise size10
+[D/league] setupSeason: week 8 Buffalo size10 vs Massachusetts size8
+[D/league] setupSeason: week 8 Muncie size10 vs Dallas size11
+[D/league] setupSeason: week 8 South Bend size8 vs Toledo size10
+[D/league] setupSeason: week 8 New Mexico St size8 vs Central Florida size11
+[D/league] setupSeason: week 8 West Virginia size10 vs Provo size8
+[D/league] setupSeason: week 8 Utah State size10 vs Cincinnati size11
+[D/league] setupSeason: week 8 South Alabama size10 vs Memphis size11
+[D/league] setupSeason: week 8 Houston size11 vs Nevada size10
+[D/league] setupSeason: week 9 Charlotte size10 vs Provo size9
+[D/league] setupSeason: week 9 Norfolk size10 vs New Mexico St size9
+[D/league] setupSeason: week 9 Miami Intl size10 vs Army size9
+[D/league] setupSeason: week 9 Boca Raton size10 vs Massachusetts size9
+[D/league] setupSeason: week 9 El Paso size10 vs South Bend size9
+[D/league] setupSeason: week 9 South Mississippi size10 vs Lynchburg size9
+[D/league] setupSeason: week 9 Mid Tenn State size10 vs South Dakota size0
+[D/league] setupSeason: week 9 San Antonio size10 vs Northern Arizona size0
+[D/league] setupSeason: week 9 Huntington size10 vs Harvard size0
+[D/league] setupSeason: week 9 Western Kentucky size10 vs Youngstown size0
+[D/league] setupSeason: week 9 Louisiana Poly size10 vs Harvard size0
+[D/league] setupSeason: week 9 Birmingham size10 vs North Dakota St size0
+[D/league] setupSeason: week 9 North Texas size10 vs North Dakota St size0
+[D/league] setupSeason: week 9 South Houston size10 vs Eastern Wash size0
+[D/league] setupSeason: week 10 San Francisco size10 vs Bowling Green size11
+[D/league] setupSeason: week 10 Arizona State size10 vs Kansas size11
+[D/league] setupSeason: week 10 Southern Cal size10 vs Mid Tenn State size11
+[D/league] setupSeason: week 10 California size10 vs Ohio size11
+[D/league] setupSeason: week 10 Pasadena size10 vs Troy size11
+[D/league] setupSeason: week 10 Miami Intl size11 vs Utah size10
+[D/league] setupSeason: week 10 Monroe size11 vs Oregon State size10
+[D/league] setupSeason: week 10 Colorado size10 vs Buffalo size11
+[D/league] setupSeason: week 10 Lynchburg size10 vs Fresno size11
+[D/league] setupSeason: week 10 New Mexico St size10 vs Texas IT size11
+[D/league] setupSeason: week 10 Oregon size10 vs El Paso size11
+[D/league] setupSeason: week 10 South Bend size10 vs Colorado State size11
+[D/league] setupSeason: week 10 South Houston size11 vs Massachusetts size10
+[D/league] setupSeason: week 10 Arizona size10 vs Appalachian size11
+[D/league] setupSeason: week 10 Provo size10 vs San Antonio size11
+[D/league] setupSeason: week 10 Georgia State size11 vs Washington size10
+[D/league] setupSeason: week 11 Arizona State size11 vs Princeton size0
+[D/league] setupSeason: week 11 Pasadena size11 vs Miss Valley size0
+[D/league] setupSeason: week 11 Washington size11 vs Dayton size0
+[D/league] setupSeason: week 11 San Francisco size11 vs Rhode Island size0
+[D/league] setupSeason: week 11 Oregon State size11 vs Southern TX size0
+[D/league] setupSeason: week 11 California size11 vs Sacramento size0
+[D/league] setupSeason: week 0 Army size0 vs San Jose size8
+[D/league] setupSeason: week 0 Louisville size8 vs Massachusetts size0
+[D/league] setupSeason: week 0 Wyoming size8 vs New Mexico St size0
+[D/league] setupSeason: week 0 Syracuse size8 vs Lynchburg size0
+[D/league] setupSeason: week 0 South Bend size0 vs North Carolina size8
+[D/league] setupSeason: week 0 Provo size0 vs Pittsburgh size8
+[D/league] setupSeason: week 1 Army size1 vs San Francisco size8
+[D/league] setupSeason: week 1 Lynchburg size1 vs Miami Intl size8
+[D/league] setupSeason: week 1 Provo size1 vs El Paso size8
+[D/league] setupSeason: week 1 California size8 vs New Mexico St size1
+[D/league] setupSeason: week 1 Toledo size8 vs South Bend size1
+[D/league] setupSeason: week 1 North Texas size8 vs Massachusetts size1
+[D/league] setupSeason: week 2 Winston-Salem size9 vs Oklahoma size8
+[D/league] setupSeason: week 2 Waco size8 vs Virginia size9
+[D/league] setupSeason: week 2 Provo size2 vs Florida size8
+[D/league] setupSeason: week 2 Georgia IT size9 vs Massachusetts size2
+[D/league] setupSeason: week 2 Miami size9 vs South Carolina size8
+[D/league] setupSeason: week 2 Iowa State size8 vs Louisville size9
+[D/league] setupSeason: week 2 Mississippi State size8 vs South Bend size2
+[D/league] setupSeason: week 2 South Carolina Tech size9 vs Lousiana State size8
+[D/league] setupSeason: week 2 College Station size8 vs Florida State size9
+[D/league] setupSeason: week 2 Durham size9 vs Alabama size8
+[D/league] setupSeason: week 2 Georgia size8 vs Lynchburg size2
+[D/league] setupSeason: week 2 Arkansas size8 vs NC State size9
+[D/league] setupSeason: week 2 Syracuse size9 vs New Mexico St size2
+[D/league] setupSeason: week 2 Ft Worth size8 vs Virginia Poly size9
+[D/league] setupSeason: week 2 North Carolina size9 vs Texas size8
+[D/league] setupSeason: week 2 West Virginia size8 vs Pittsburgh size9
+[D/league] setupSeason: week 2 Auburn size8 vs Army size2
+[D/league] setupSeason: week 2 xBoston size9 vs Tennessee size8
+[D/league] setupSeason: week 3 Georgia size9 vs Arkansas State size8
+[D/league] setupSeason: week 3 Washington size9 vs Army size3
+[D/league] setupSeason: week 3 Massachusetts size3 vs Arkansas size9
+[D/league] setupSeason: week 3 El Paso size9 vs Texas State size8
+[D/league] setupSeason: week 3 Oregon size9 vs Provo size3
+[D/league] setupSeason: week 3 Troy size8 vs Tennessee size9
+[D/league] setupSeason: week 3 Lafayette size8 vs California size9
+[D/league] setupSeason: week 3 Lynchburg size3 vs Birmingham size9
+[D/league] setupSeason: week 3 Washington State size9 vs South Georgia size8
+[D/league] setupSeason: week 3 Arizona size9 vs Georgia State size8
+[D/league] setupSeason: week 3 Utah size9 vs South Bend size3
+[D/league] setupSeason: week 3 Miami Intl size9 vs Coastal size8
+[D/league] setupSeason: week 3 South Alabama size8 vs Missouri size9
+[D/league] setupSeason: week 3 New Mexico St size3 vs Appalachian size8
+[D/league] setupSeason: week 3 Lousiana State size9 vs Monroe size8
+[D/league] setupSeason: week 3 South Carolina size9 vs Harvard size0
+[D/league] setupSeason: week 3 Nashville size9 vs New Hampshire size0
+[D/league] setupSeason: week 4 Mid Tenn State size10 vs Indiana size8
+[D/league] setupSeason: week 4 Louisville size10 vs Fresno size9
+[D/league] setupSeason: week 4 Pittsburgh size10 vs Michigan State size8
+[D/league] setupSeason: week 4 Florida State size10 vs Provo size4
+[D/league] setupSeason: week 4 Huntington size10 vs Colorado State size9
+[D/league] setupSeason: week 4 North Carolina size10 vs Nebraska size8
+[D/league] setupSeason: week 4 Chicago size8 vs Louisiana Poly size10
+[D/league] setupSeason: week 4 New Mexico St size4 vs New Mexico size9
+[D/league] setupSeason: week 4 Nevada size9 vs El Paso size10
+[D/league] setupSeason: week 4 NC State size10 vs Wisconsin size8
+[D/league] setupSeason: week 4 Wyoming size9 vs Miami Intl size10
+[D/league] setupSeason: week 4 San Antonio size10 vs Illinois size8
+[D/league] setupSeason: week 4 South Carolina Tech size10 vs Penn State size8
+[D/league] setupSeason: week 4 Maryland size8 vs Boca Raton size10
+[D/league] setupSeason: week 4 Las Vegas size9 vs New Jersey size8
+[D/league] setupSeason: week 4 South Mississippi size10 vs Air Force size9
+[D/league] setupSeason: week 4 Lynchburg size4 vs Michigan size8
+[D/league] setupSeason: week 4 Virginia Poly size10 vs San Jose size9
+[D/league] setupSeason: week 4 Birmingham size10 vs Minnesota size8
+[D/league] setupSeason: week 4 Hawaii size9 vs Western Kentucky size10
+[D/league] setupSeason: week 4 South Bend size4 vs Miami size10
+[D/league] setupSeason: week 4 Durham size10 vs Iowa size8
+[D/league] setupSeason: week 4 Virginia size10 vs Army size4
+[D/league] setupSeason: week 4 Winston-Salem size10 vs Ohio State size8
+[D/league] setupSeason: week 4 Charlotte size10 vs San Diego size9
+[D/league] setupSeason: week 4 Purdue size8 vs Massachusetts size4
+[D/league] setupSeason: week 4 South Houston size10 vs Boise size9
+[D/league] setupSeason: week 4 Utah State size9 vs Syracuse size10
+[D/league] setupSeason: week 5 Ohio State size9 vs Southern Cal size10
+[D/league] setupSeason: week 5 Utah State size10 vs Navy size8
+[D/league] setupSeason: week 5 Colorado size10 vs Tulsa size8
+[D/league] setupSeason: week 5 San Jose size10 vs Chicago size9
+[D/league] setupSeason: week 5 California size10 vs Maryland size9
+[D/league] setupSeason: week 5 Arizona State size10 vs Indiana size9
+[D/league] setupSeason: week 5 Purdue size9 vs Philadelphia size8
+[D/league] setupSeason: week 5 Las Vegas size10 vs Lynchburg size5
+[D/league] setupSeason: week 5 Air Force size10 vs Nebraska size9
+[D/league] setupSeason: week 5 Cincinnati size8 vs Army size5
+[D/league] setupSeason: week 5 South Florida size8 vs South Bend size5
+[D/league] setupSeason: week 5 Memphis size8 vs Colorado State size10
+[D/league] setupSeason: week 5 Washington State size10 vs Michigan size9
+[D/league] setupSeason: week 5 Pasadena size10 vs Penn State size9
+[D/league] setupSeason: week 5 Wisconsin size9 vs Wyoming size10
+[D/league] setupSeason: week 5 San Diego size10 vs Tulane size8
+[D/league] setupSeason: week 5 Hawaii size10 vs Connecticut size8
+[D/league] setupSeason: week 5 New Mexico size10 vs East Carolina size8
+[D/league] setupSeason: week 5 Iowa size9 vs Dallas size8
+[D/league] setupSeason: week 5 Arizona size10 vs Michigan State size9
+[D/league] setupSeason: week 5 Boise size10 vs New Mexico St size5
+[D/league] setupSeason: week 5 Oregon State size10 vs Minnesota size9
+[D/league] setupSeason: week 5 Houston size8 vs Illinois size9
+[D/league] setupSeason: week 5 San Francisco size10 vs New Jersey size9
+[D/league] setupSeason: week 5 Massachusetts size5 vs Central Florida size8
+[D/league] setupSeason: week 5 Provo size5 vs Washington size10
+[D/league] setupSeason: week 6 New Mexico size11 vs Provo size6
+[D/league] setupSeason: week 6 San Jose size11 vs South Bend size6
+[D/league] setupSeason: week 6 Utah State size11 vs New Jersey size10
+[D/league] setupSeason: week 6 Indiana size10 vs South Carolina Tech size11
+[D/league] setupSeason: week 6 Georgia IT size11 vs Purdue size10
+[D/league] setupSeason: week 6 Durham size11 vs Maryland size10
+[D/league] setupSeason: week 6 Hawaii size11 vs Army size6
+[D/league] setupSeason: week 6 Pittsburgh size11 vs Iowa size10
+[D/league] setupSeason: week 6 Ohio State size10 vs Nevada size11
+[D/league] setupSeason: week 6 Illinois size10 vs Massachusetts size6
+[D/league] setupSeason: week 6 Lynchburg size6 vs Penn State size10
+[D/league] setupSeason: week 6 Nebraska size10 vs Virginia size11
+[D/league] setupSeason: week 6 Virginia Poly size11 vs Michigan State size10
+[D/league] setupSeason: week 6 Michigan size10 vs Air Force size11
+[D/league] setupSeason: week 6 Syracuse size11 vs Wisconsin size10
+[D/league] setupSeason: week 6 Chicago size10 vs New Mexico St size6
+[D/league] setupSeason: week 6 North Carolina size11 vs Minnesota size10
+[D/league] setupSeason: week 7 Dallas size9 vs South Bend size7
+[D/league] setupSeason: week 7 College Station size10 vs Ohio size9
+[D/league] setupSeason: week 7 Lynchburg size7 vs South Alabama size9
+[D/league] setupSeason: week 7 Tulsa size9 vs Ole Miss size10
+[D/league] setupSeason: week 7 Western Michigan size9 vs Auburn size10
+[D/league] setupSeason: week 7 Central Florida size9 vs Georgia size10
+[D/league] setupSeason: week 7 Bowling Green size9 vs Provo size7
+[D/league] setupSeason: week 7 Mississippi State size10 vs Eastern Michigan size9
+[D/league] setupSeason: week 7 Lafayette size9 vs Massachusetts size7
+[D/league] setupSeason: week 7 South Carolina size10 vs Georgia State size9
+[D/league] setupSeason: week 7 Missouri size10 vs Tulane size9
+[D/league] setupSeason: week 7 Florida size10 vs Memphis size9
+[D/league] setupSeason: week 7 New Mexico St size7 vs East Carolina size9
+[D/league] setupSeason: week 7 Alabama size10 vs Northern Illinois size9
+[D/league] setupSeason: week 7 Arkansas size10 vs Akron size9
+[D/league] setupSeason: week 7 Tennessee size10 vs Monroe size9
+[D/league] setupSeason: week 7 South Georgia size9 vs Army size7
+[D/league] setupSeason: week 7 Lousiana State size10 vs Kent size9
+[D/league] setupSeason: week 7 Texas State size9 vs Nashville size10
+[D/league] setupSeason: week 7 Miami OH size9 vs Kentucky size10
+[D/league] setupSeason: week 8 North Texas size11 vs Oklahoma size9
+[D/league] setupSeason: week 8 East Carolina size10 vs Army size8
+[D/league] setupSeason: week 8 Oklahoma State size9 vs Houston size10
+[D/league] setupSeason: week 8 Kansas State size9 vs Central Florida size10
+[D/league] setupSeason: week 8 Birmingham size11 vs Tulsa size10
+[D/league] setupSeason: week 8 Texas size9 vs Mid Tenn State size11
+[D/league] setupSeason: week 8 Ft Worth size9 vs El Paso size11
+[D/league] setupSeason: week 8 New Mexico St size8 vs Iowa State size9
+[D/league] setupSeason: week 8 Boca Raton size11 vs Waco size9
+[D/league] setupSeason: week 8 Connecticut size10 vs Norfolk size11
+[D/league] setupSeason: week 8 Dallas size10 vs Charlotte size11
+[D/league] setupSeason: week 8 Philadelphia size10 vs West Virginia size9
+[D/league] setupSeason: week 8 South Mississippi size11 vs Provo size8
+[D/league] setupSeason: week 8 San Antonio size11 vs Massachusetts size8
+[D/league] setupSeason: week 8 South Florida size10 vs Miami Intl size11
+[D/league] setupSeason: week 8 Navy size10 vs Kansas size9
+[D/league] setupSeason: week 8 Tulane size10 vs Texas IT size9
+[D/league] setupSeason: week 8 Memphis size10 vs South Houston size11
+[D/league] setupSeason: week 8 South Bend size8 vs Cincinnati size10
+[D/league] setupSeason: week 8 Huntington size11 vs Lynchburg size8
+[D/league] setupSeason: week 8 Louisiana Poly size11 vs North Dakota size0
+[D/league] setupSeason: week 8 Western Kentucky size11 vs Yale size0
+[D/league] setupSeason: week 9 Bowling Green size10 vs Mississippi State size11
+[D/league] setupSeason: week 9 South Carolina size11 vs Monroe size10
+[D/league] setupSeason: week 9 Arkansas size11 vs Kent size10
+[D/league] setupSeason: week 9 Georgia State size10 vs College Station size11
+[D/league] setupSeason: week 9 Auburn size11 vs Ohio size10
+[D/league] setupSeason: week 9 Kentucky size11 vs Toledo size10
+[D/league] setupSeason: week 9 Kansas size10 vs Lynchburg size9
+[D/league] setupSeason: week 9 Georgia size11 vs Muncie size10
+[D/league] setupSeason: week 9 Lousiana State size11 vs South Bend size9
+[D/league] setupSeason: week 9 Akron size10 vs Nashville size11
+[D/league] setupSeason: week 9 Oklahoma State size10 vs Missouri size11
+[D/league] setupSeason: week 9 Florida size11 vs Buffalo size10
+[D/league] setupSeason: week 9 Army size9 vs Ft Worth size10
+[D/league] setupSeason: week 9 Alabama size11 vs Provo size9
+[D/league] setupSeason: week 9 Massachusetts size9 vs Tennessee size11
+[D/league] setupSeason: week 9 Central Michigan size10 vs New Mexico St size9
+[D/league] setupSeason: week 9 Ole Miss size11 vs Lafayette size10
+[D/league] setupSeason: week 10 West Virginia size11 vs Army size10
+[D/league] setupSeason: week 10 Ohio State size11 vs Massachusetts size10
+[D/league] setupSeason: week 10 Texas size11 vs Provo size10
+[D/league] setupSeason: week 10 Michigan State size11 vs South Bend size10
+[D/league] setupSeason: week 10 New Mexico St size10 vs Kansas State size11
+[D/league] setupSeason: week 10 Indiana size11 vs Lynchburg size10
+[D/league] setupSeason: week 10 Chicago size11 vs Albany size0
+[D/league] setupSeason: week 10 Purdue size11 vs Harvard size0
+[D/league] setupSeason: week 10 Illinois size11 vs Yale size0
+[D/league] setupSeason: week 10 Wisconsin size11 vs Central Arkansas size0
+[D/league] setupSeason: week 11 Washington size11 vs Cal-Poly size0
+[D/league] setupSeason: week 11 Pasadena size11 vs Youngstown size0
+[D/league] setupSeason: week 0 South Alabama size8 vs Army size0
+[D/league] setupSeason: week 0 Provo size0 vs Lafayette size8
+[D/league] setupSeason: week 0 Massachusetts size0 vs San Jose size8
+[D/league] setupSeason: week 0 Lousiana State size8 vs Lynchburg size0
+[D/league] setupSeason: week 0 Appalachian size8 vs South Bend size0
+[D/league] setupSeason: week 0 Birmingham size8 vs New Mexico St size0
+[D/league] setupSeason: week 1 Cincinnati size8 vs Lynchburg size1
+[D/league] setupSeason: week 1 South Florida size8 vs Provo size1
+[D/league] setupSeason: week 1 Massachusetts size1 vs Houston size8
+[D/league] setupSeason: week 1 Navy size8 vs New Mexico St size1
+[D/league] setupSeason: week 1 Birmingham size9 vs Dallas size8
+[D/league] setupSeason: week 1 Louisiana Poly size9 vs Tulane size8
+[D/league] setupSeason: week 1 Connecticut size8 vs Appalachian size9
+[D/league] setupSeason: week 1 Georgia State size9 vs Tulsa size8
+[D/league] setupSeason: week 1 East Carolina size8 vs Lafayette size9
+[D/league] setupSeason: week 1 North Texas size9 vs Army size1
+[D/league] setupSeason: week 1 Troy size9 vs Central Florida size8
+[D/league] setupSeason: week 1 Arkansas State size9 vs South Bend size1
+[D/league] setupSeason: week 1 Norfolk size9 vs Memphis size8
+[D/league] setupSeason: week 1 San Antonio size9 vs Philadelphia size8
+[D/league] setupSeason: week 1 South Houston size9 vs Georgetown size0
+[D/league] setupSeason: week 1 Miami Intl size9 vs South Dakota St size0
+[D/league] setupSeason: week 1 Western Kentucky size9 vs Georgetown size0
+[D/league] setupSeason: week 1 El Paso size9 vs Grambling size0
+[D/league] setupSeason: week 2 South Carolina Tech size9 vs New Jersey size8
+[D/league] setupSeason: week 2 California size8 vs Lousiana State size9
+[D/league] setupSeason: week 2 New Mexico St size2 vs Nebraska size8
+[D/league] setupSeason: week 2 Nashville size9 vs Oregon size8
+[D/league] setupSeason: week 2 Virginia Poly size9 vs Washington size8
+[D/league] setupSeason: week 2 Minnesota size8 vs Army size2
+[D/league] setupSeason: week 2 NC State size9 vs Colorado size8
+[D/league] setupSeason: week 2 Michigan State size8 vs Georgia size9
+[D/league] setupSeason: week 2 Oregon State size8 vs Tennessee size9
+[D/league] setupSeason: week 2 Chicago size8 vs Virginia size9
+[D/league] setupSeason: week 2 College Station size9 vs Maryland size8
+[D/league] setupSeason: week 2 Lynchburg size2 vs Pittsburgh size9
+[D/league] setupSeason: week 2 Syracuse size9 vs Pasadena size8
+[D/league] setupSeason: week 2 South Bend size2 vs xBoston size9
+[D/league] setupSeason: week 2 South Carolina size9 vs Penn State size8
+[D/league] setupSeason: week 2 Massachusetts size2 vs Kentucky size9
+[D/league] setupSeason: week 2 Georgia IT size9 vs Michigan size8
+[D/league] setupSeason: week 2 Winston-Salem size9 vs Iowa size8
+[D/league] setupSeason: week 2 Indiana size8 vs North Carolina size9
+[D/league] setupSeason: week 2 Arkansas size9 vs Southern Cal size8
+[D/league] setupSeason: week 2 Ole Miss size9 vs Purdue size8
+[D/league] setupSeason: week 2 Durham size9 vs Provo size2
+[D/league] setupSeason: week 2 San Francisco size8 vs Florida size9
+[D/league] setupSeason: week 2 Missouri size9 vs Arizona size8
+[D/league] setupSeason: week 3 South Florida size9 vs Miami OH size8
+[D/league] setupSeason: week 3 Utah State size9 vs Buffalo size8
+[D/league] setupSeason: week 3 Virginia Poly size10 vs Ohio size8
+[D/league] setupSeason: week 3 Mississippi State size10 vs Wyoming size9
+[D/league] setupSeason: week 3 Philadelphia size9 vs Miami size10
+[D/league] setupSeason: week 3 Florida size10 vs Northern Illinois size8
+[D/league] setupSeason: week 3 Lynchburg size3 vs NC State size10
+[D/league] setupSeason: week 3 Central Florida size9 vs Florida State size10
+[D/league] setupSeason: week 3 Houston size9 vs Ole Miss size10
+[D/league] setupSeason: week 3 Missouri size10 vs Dallas size9
+[D/league] setupSeason: week 3 Provo size3 vs Toledo size8
+[D/league] setupSeason: week 3 Akron size8 vs Tulsa size9
+[D/league] setupSeason: week 3 South Bend size3 vs San Diego size9
+[D/league] setupSeason: week 3 Bowling Green size8 vs Hawaii size9
+[D/league] setupSeason: week 3 East Carolina size9 vs Western Michigan size8
+[D/league] setupSeason: week 3 Nevada size9 vs Georgia size10
+[D/league] setupSeason: week 3 Tulane size9 vs Louisville size10
+[D/league] setupSeason: week 3 Georgia IT size10 vs Central Michigan size8
+[D/league] setupSeason: week 3 Muncie size8 vs Winston-Salem size10
+[D/league] setupSeason: week 3 Fresno size9 vs Arkansas size10
+[D/league] setupSeason: week 3 Memphis size9 vs Eastern Michigan size8
+[D/league] setupSeason: week 3 Kentucky size10 vs San Jose size9
+[D/league] setupSeason: week 3 Tennessee size10 vs Kent size8
+[D/league] setupSeason: week 3 North Carolina size10 vs New Mexico St size3
+[D/league] setupSeason: week 3 Las Vegas size9 vs Massachusetts size3
+[D/league] setupSeason: week 3 Colorado State size9 vs Auburn size10
+[D/league] setupSeason: week 3 South Carolina Tech size10 vs Army size3
+[D/league] setupSeason: week 4 Pittsburgh size11 vs Nevada size10
+[D/league] setupSeason: week 4 Wyoming size10 vs Miami size11
+[D/league] setupSeason: week 4 Utah State size10 vs South Carolina Tech size11
+[D/league] setupSeason: week 4 Boise size10 vs Florida State size11
+[D/league] setupSeason: week 4 Air Force size10 vs Army size4
+[D/league] setupSeason: week 4 Fresno size10 vs Massachusetts size4
+[D/league] setupSeason: week 4 New Mexico St size4 vs Georgia IT size11
+[D/league] setupSeason: week 4 Virginia Poly size11 vs San Diego size10
+[D/league] setupSeason: week 4 NC State size11 vs New Mexico size10
+[D/league] setupSeason: week 4 South Bend size4 vs Louisville size11
+[D/league] setupSeason: week 4 Las Vegas size10 vs Winston-Salem size11
+[D/league] setupSeason: week 4 xBoston size11 vs Provo size4
+[D/league] setupSeason: week 4 Hawaii size10 vs Durham size11
+[D/league] setupSeason: week 4 Lynchburg size4 vs Virginia size11
+[D/league] setupSeason: week 4 North Carolina size11 vs Colorado State size10
+[D/league] setupSeason: week 4 San Jose size10 vs Syracuse size11
+[D/league] setupSeason: week 5 Philadelphia size10 vs Oklahoma State size8
+[D/league] setupSeason: week 5 Houston size10 vs Indiana size9
+[D/league] setupSeason: week 5 East Carolina size10 vs Army size5
+[D/league] setupSeason: week 5 Dallas size10 vs Texas size8
+[D/league] setupSeason: week 5 Michigan size9 vs Kansas State size8
+[D/league] setupSeason: week 5 Ft Worth size8 vs Provo size5
+[D/league] setupSeason: week 5 Navy size10 vs Chicago size9
+[D/league] setupSeason: week 5 Oklahoma size8 vs Minnesota size9
+[D/league] setupSeason: week 5 Penn State size9 vs Massachusetts size5
+[D/league] setupSeason: week 5 Tulsa size10 vs Nebraska size9
+[D/league] setupSeason: week 5 Michigan State size9 vs South Florida size10
+[D/league] setupSeason: week 5 Maryland size9 vs South Bend size5
+[D/league] setupSeason: week 5 Memphis size10 vs Purdue size9
+[D/league] setupSeason: week 5 Iowa State size8 vs New Mexico St size5
+[D/league] setupSeason: week 5 Waco size8 vs Iowa size9
+[D/league] setupSeason: week 5 Central Florida size10 vs Texas IT size8
+[D/league] setupSeason: week 5 Wisconsin size9 vs Connecticut size10
+[D/league] setupSeason: week 5 Tulane size10 vs New Jersey size9
+[D/league] setupSeason: week 5 Kansas size8 vs Lynchburg size5
+[D/league] setupSeason: week 5 Cincinnati size10 vs Illinois size9
+[D/league] setupSeason: week 5 Ohio State size9 vs West Virginia size8
+[D/league] setupSeason: week 6 Army size6 vs Indiana size10
+[D/league] setupSeason: week 6 Maryland size10 vs Provo size6
+[D/league] setupSeason: week 6 Washington size9 vs Nebraska size10
+[D/league] setupSeason: week 6 Washington State size9 vs Penn State size10
+[D/league] setupSeason: week 6 Michigan State size10 vs Lynchburg size6
+[D/league] setupSeason: week 6 Purdue size10 vs Arizona State size9
+[D/league] setupSeason: week 6 Illinois size10 vs Pasadena size9
+[D/league] setupSeason: week 6 Southern Cal size9 vs Ohio State size10
+[D/league] setupSeason: week 6 California size9 vs New Mexico St size6
+[D/league] setupSeason: week 6 Massachusetts size6 vs Chicago size10
+[D/league] setupSeason: week 6 Iowa size10 vs Utah size9
+[D/league] setupSeason: week 6 Arizona size9 vs Minnesota size10
+[D/league] setupSeason: week 6 South Bend size6 vs Oregon State size9
+[D/league] setupSeason: week 6 Colorado size9 vs Wisconsin size10
+[D/league] setupSeason: week 6 San Francisco size9 vs Michigan size10
+[D/league] setupSeason: week 6 New Jersey size10 vs Oregon size9
+[D/league] setupSeason: week 7 South Georgia size10 vs Kent size9
+[D/league] setupSeason: week 7 Ft Worth size9 vs Indiana size11
+[D/league] setupSeason: week 7 Mid Tenn State size10 vs Texas size9
+[D/league] setupSeason: week 7 Nebraska size11 vs Kansas State size9
+[D/league] setupSeason: week 7 Akron size9 vs Chicago size11
+[D/league] setupSeason: week 7 New Jersey size11 vs Kansas size9
+[D/league] setupSeason: week 7 Cincinnati size11 vs Muncie size9
+[D/league] setupSeason: week 7 Massachusetts size7 vs Ohio size9
+[D/league] setupSeason: week 7 South Bend size7 vs Buffalo size9
+[D/league] setupSeason: week 7 Waco size9 vs Connecticut size11
+[D/league] setupSeason: week 7 South Florida size11 vs Monroe size10
+[D/league] setupSeason: week 7 Oklahoma size9 vs Houston size11
+[D/league] setupSeason: week 7 South Houston size10 vs Lynchburg size7
+[D/league] setupSeason: week 7 Army size7 vs Birmingham size10
+[D/league] setupSeason: week 7 Michigan size11 vs San Antonio size10
+[D/league] setupSeason: week 7 Minnesota size11 vs Eastern Michigan size9
+[D/league] setupSeason: week 7 Tulane size11 vs Oklahoma State size9
+[D/league] setupSeason: week 7 North Texas size10 vs Bowling Green size9
+[D/league] setupSeason: week 7 Louisiana Poly size10 vs West Virginia size9
+[D/league] setupSeason: week 7 Toledo size9 vs Ohio State size11
+[D/league] setupSeason: week 7 Miami Intl size10 vs Memphis size11
+[D/league] setupSeason: week 7 East Carolina size11 vs Georgia State size10
+[D/league] setupSeason: week 7 Western Kentucky size10 vs Western Michigan size9
+[D/league] setupSeason: week 7 Norfolk size10 vs Wisconsin size11
+[D/league] setupSeason: week 7 Penn State size11 vs Texas IT size9
+[D/league] setupSeason: week 7 Navy size11 vs Provo size7
+[D/league] setupSeason: week 7 Charlotte size10 vs Maryland size11
+[D/league] setupSeason: week 7 Purdue size11 vs Miami OH size9
+[D/league] setupSeason: week 7 New Mexico St size7 vs Philadelphia size11
+[D/league] setupSeason: week 7 Lafayette size10 vs Northern Illinois size9
+[D/league] setupSeason: week 7 Coastal size10 vs New Hampshire size0
+[D/league] setupSeason: week 7 Appalachian size10 vs Chattanooga size0
+[D/league] setupSeason: week 8 Army size8 vs Alabama State size0
+[D/league] setupSeason: week 8 Provo size8 vs Maine size0
+[D/league] setupSeason: week 8 South Bend size8 vs North Dakota St size0
+[D/league] setupSeason: week 8 Lynchburg size8 vs Northern Colorado size0
+[D/league] setupSeason: week 8 New Mexico St size8 vs Eastern Wash size0
+[D/league] setupSeason: week 8 Massachusetts size8 vs Spokane size0
+[D/league] setupSeason: week 9 South Georgia size11 vs Kansas State size10
+[D/league] setupSeason: week 9 Miami OH size10 vs Arkansas size11
+[D/league] setupSeason: week 9 Toledo size10 vs Georgia State size11
+[D/league] setupSeason: week 9 Appalachian size11 vs Northern Illinois size10
+[D/league] setupSeason: week 9 Georgia size11 vs Western Michigan size10
+[D/league] setupSeason: week 9 Coastal size11 vs Army size9
+[D/league] setupSeason: week 9 Kansas size10 vs Massachusetts size9
+[D/league] setupSeason: week 9 Lafayette size11 vs Texas size10
+[D/league] setupSeason: week 9 Mississippi State size11 vs Akron size10
+[D/league] setupSeason: week 9 South Bend size9 vs Missouri size11
+[D/league] setupSeason: week 9 Central Michigan size10 vs Auburn size11
+[D/league] setupSeason: week 9 Muncie size10 vs New Mexico St size9
+[D/league] setupSeason: week 9 Monroe size11 vs Provo size9
+[D/league] setupSeason: week 9 Texas IT size10 vs Tennessee size11
+[D/league] setupSeason: week 9 Lousiana State size11 vs Ft Worth size10
+[D/league] setupSeason: week 9 Lynchburg size9 vs Ole Miss size11
+[D/league] setupSeason: week 9 Troy size11 vs Buffalo size10
+[D/league] setupSeason: week 9 Florida size11 vs Eastern Michigan size10
+[D/league] setupSeason: week 9 Alabama size11 vs Iowa State size10
+[D/league] setupSeason: week 9 Kentucky size11 vs Bowling Green size10
+[D/league] setupSeason: week 9 Oklahoma size10 vs Rhode Island size0
+[D/league] setupSeason: week 9 West Virginia size10 vs North Dakota St size0
+[D/league] setupSeason: week 10 Kansas size11 vs Southern Cal size10
+[D/league] setupSeason: week 10 Pasadena size10 vs Ft Worth size11
+[D/league] setupSeason: week 10 Lynchburg size10 vs San Antonio size11
+[D/league] setupSeason: week 10 South Houston size11 vs Massachusetts size10
+[D/league] setupSeason: week 10 Utah size10 vs South Mississippi size11
+[D/league] setupSeason: week 10 El Paso size11 vs Army size10
+[D/league] setupSeason: week 10 Provo size10 vs Miami OH size11
+[D/league] setupSeason: week 10 Colorado size10 vs Waco size11
+[D/league] setupSeason: week 10 New Mexico St size10 vs Oklahoma State size11
+[D/league] setupSeason: week 10 Louisiana Poly size11 vs Washington State size10
+[D/league] setupSeason: week 10 Arizona size10 vs Bowling Green size11
+[D/league] setupSeason: week 10 Western Kentucky size11 vs California size10
+[D/league] setupSeason: week 10 Birmingham size11 vs Arizona State size10
+[D/league] setupSeason: week 10 Eastern Michigan size11 vs Oregon size10
+[D/league] setupSeason: week 10 Mid Tenn State size11 vs Oregon State size10
+[D/league] setupSeason: week 10 San Francisco size10 vs Oklahoma size11
+[D/league] setupSeason: week 11 Fresno size11 vs New Hampshire size0
+[D/league] setupSeason: week 11 Utah State size11 vs Miss Valley size0
+[D/league] setupSeason: week 0 Lynchburg size0 vs Ft Worth size8
+[D/league] setupSeason: week 0 El Paso size8 vs Massachusetts size0
+[D/league] setupSeason: week 0 South Bend size0 vs Miami Intl size8
+[D/league] setupSeason: week 0 Provo size0 vs Mid Tenn State size8
+[D/league] setupSeason: week 0 Arizona size8 vs New Mexico St size0
+[D/league] setupSeason: week 0 Washington State size8 vs Army size0
+[D/league] setupSeason: week 1 Lynchburg size1 vs Norfolk size9
+[D/league] setupSeason: week 1 Utah size9 vs Georgia State size8
+[D/league] setupSeason: week 1 Southern Cal size9 vs Troy size8
+[D/league] setupSeason: week 1 Appalachian size8 vs San Antonio size9
+[D/league] setupSeason: week 1 South Bend size1 vs South Georgia size8
+[D/league] setupSeason: week 1 Central Michigan size8 vs Oregon size9
+[D/league] setupSeason: week 1 Muncie size8 vs Massachusetts size1
+[D/league] setupSeason: week 1 Kent size8 vs California size9
+[D/league] setupSeason: week 1 Bowling Green size8 vs Washington State size9
+[D/league] setupSeason: week 1 Arkansas State size8 vs San Francisco size9
+[D/league] setupSeason: week 1 Ohio size8 vs Provo size1
+[D/league] setupSeason: week 1 Miami OH size8 vs South Mississippi size9
+[D/league] setupSeason: week 1 North Texas size9 vs Lafayette size8
+[D/league] setupSeason: week 1 Western Michigan size8 vs Western Kentucky size9
+[D/league] setupSeason: week 1 Akron size8 vs Arizona State size9
+[D/league] setupSeason: week 1 Buffalo size8 vs New Mexico St size1
+[D/league] setupSeason: week 1 South Houston size9 vs Texas State size8
+[D/league] setupSeason: week 1 Pasadena size9 vs Eastern Michigan size8
+[D/league] setupSeason: week 1 Monroe size8 vs Huntington size9
+[D/league] setupSeason: week 1 El Paso size9 vs Army size1
+[D/league] setupSeason: week 1 Boca Raton size9 vs Eastern Tenn size0
+[D/league] setupSeason: week 1 Mid Tenn State size9 vs Southern TX size0
+[D/league] setupSeason: week 2 Wyoming size8 vs Utah size10
+[D/league] setupSeason: week 2 New Mexico size8 vs Provo size2
+[D/league] setupSeason: week 2 Kentucky size8 vs Southern Cal size10
+[D/league] setupSeason: week 2 Lynchburg size2 vs Colorado size10
+[D/league] setupSeason: week 2 Massachusetts size2 vs Nevada size8
+[D/league] setupSeason: week 2 California size10 vs Alabama size8
+[D/league] setupSeason: week 2 Ole Miss size8 vs San Francisco size10
+[D/league] setupSeason: week 2 South Bend size2 vs Las Vegas size8
+[D/league] setupSeason: week 2 Washington size10 vs South Carolina size8
+[D/league] setupSeason: week 2 Hawaii size8 vs Oregon State size10
+[D/league] setupSeason: week 2 Army size2 vs Nashville size8
+[D/league] setupSeason: week 2 Arizona State size10 vs Florida size8
+[D/league] setupSeason: week 2 New Mexico St size2 vs Pasadena size10
+[D/league] setupSeason: week 2 Arizona size10 vs San Jose size8
+[D/league] setupSeason: week 2 Oregon size10 vs Arkansas size8
+[D/league] setupSeason: week 2 Washington State size10 vs Auburn size8
+[D/league] setupSeason: week 3 Southern Cal size11 vs New Mexico St size3
+[D/league] setupSeason: week 3 Georgia IT size8 vs Oregon size11
+[D/league] setupSeason: week 3 San Francisco size11 vs Army size3
+[D/league] setupSeason: week 3 Louisiana Poly size10 vs Virginia size8
+[D/league] setupSeason: week 3 College Station size9 vs Pasadena size11
+[D/league] setupSeason: week 3 Boca Raton size10 vs Virginia Poly size8
+[D/league] setupSeason: week 3 Durham size8 vs Auburn size9
+[D/league] setupSeason: week 3 Georgia size9 vs Birmingham size10
+[D/league] setupSeason: week 3 Arizona State size11 vs Pittsburgh size8
+[D/league] setupSeason: week 3 North Texas size10 vs Louisville size8
+[D/league] setupSeason: week 3 Utah size11 vs South Carolina size9
+[D/league] setupSeason: week 3 Colorado size11 vs San Antonio size10
+[D/league] setupSeason: week 3 Lynchburg size3 vs Nashville size9
+[D/league] setupSeason: week 3 Arkansas size9 vs Norfolk size10
+[D/league] setupSeason: week 3 Western Kentucky size10 vs Florida State size8
+[D/league] setupSeason: week 3 Mississippi State size9 vs Oregon State size11
+[D/league] setupSeason: week 3 Winston-Salem size8 vs California size11
+[D/league] setupSeason: week 3 xBoston size8 vs Charlotte size10
+[D/league] setupSeason: week 3 Missouri size9 vs Arizona size11
+[D/league] setupSeason: week 3 Miami Intl size10 vs Massachusetts size3
+[D/league] setupSeason: week 3 South Mississippi size10 vs Alabama size9
+[D/league] setupSeason: week 3 Miami size8 vs Huntington size10
+[D/league] setupSeason: week 3 Florida size9 vs South Carolina Tech size8
+[D/league] setupSeason: week 3 Tennessee size9 vs South Houston size10
+[D/league] setupSeason: week 3 NC State size8 vs Lousiana State size9
+[D/league] setupSeason: week 3 Ole Miss size9 vs Mid Tenn State size10
+[D/league] setupSeason: week 3 North Carolina size8 vs Washington State size11
+[D/league] setupSeason: week 3 Washington size11 vs South Bend size3
+[D/league] setupSeason: week 3 El Paso size10 vs Syracuse size8
+[D/league] setupSeason: week 3 Provo size3 vs Kentucky size9
+[D/league] setupSeason: week 4 Tennessee size10 vs Virginia Poly size9
+[D/league] setupSeason: week 4 Auburn size10 vs Hawaii size9
+[D/league] setupSeason: week 4 Arkansas size10 vs Winston-Salem size9
+[D/league] setupSeason: week 4 Colorado State size9 vs Florida size10
+[D/league] setupSeason: week 4 Ole Miss size10 vs Durham size9
+[D/league] setupSeason: week 4 Air Force size9 vs Nashville size10
+[D/league] setupSeason: week 4 Georgia IT size9 vs New Mexico St size4
+[D/league] setupSeason: week 4 South Carolina size10 vs Louisville size9
+[D/league] setupSeason: week 4 Missouri size10 vs Army size4
+[D/league] setupSeason: week 4 Syracuse size9 vs South Bend size4
+[D/league] setupSeason: week 4 Kentucky size10 vs Lynchburg size4
+[D/league] setupSeason: week 4 Alabama size10 vs Virginia size9
+[D/league] setupSeason: week 4 College Station size10 vs Pittsburgh size9
+[D/league] setupSeason: week 4 New Mexico size9 vs Georgia size10
+[D/league] setupSeason: week 4 Massachusetts size4 vs Las Vegas size9
+[D/league] setupSeason: week 4 Mississippi State size10 vs Utah State size9
+[D/league] setupSeason: week 4 Lousiana State size10 vs Provo size4
+[D/league] setupSeason: week 5 Winston-Salem size10 vs Kentucky size11
+[D/league] setupSeason: week 5 South Carolina Tech size10 vs Georgia size11
+[D/league] setupSeason: week 5 Navy size8 vs Florida State size10
+[D/league] setupSeason: week 5 San Jose size10 vs Tulane size8
+[D/league] setupSeason: week 5 Texas State size9 vs Nashville size11
+[D/league] setupSeason: week 5 East Carolina size8 vs Hawaii size10
+[D/league] setupSeason: week 5 Minnesota size8 vs Durham size10
+[D/league] setupSeason: week 5 Michigan size8 vs New Mexico size10
+[D/league] setupSeason: week 5 Provo size5 vs Florida size11
+[D/league] setupSeason: week 5 South Alabama size9 vs Louisville size10
+[D/league] setupSeason: week 5 Virginia size10 vs Missouri size11
+[D/league] setupSeason: week 5 Central Florida size8 vs Virginia Poly size10
+[D/league] setupSeason: week 5 Massachusetts size5 vs Tulsa size8
+[D/league] setupSeason: week 5 Monroe size9 vs Philadelphia size8
+[D/league] setupSeason: week 5 New Jersey size8 vs Las Vegas size10
+[D/league] setupSeason: week 5 College Station size11 vs South Bend size5
+[D/league] setupSeason: week 5 Troy size9 vs Pittsburgh size10
+[D/league] setupSeason: week 5 Auburn size11 vs NC State size10
+[D/league] setupSeason: week 5 Colorado State size10 vs Arkansas size11
+[D/league] setupSeason: week 5 Houston size8 vs Georgia State size9
+[D/league] setupSeason: week 5 Memphis size8 vs Ole Miss size11
+[D/league] setupSeason: week 5 Wisconsin size8 vs Lynchburg size5
+[D/league] setupSeason: week 5 North Carolina size10 vs Lafayette size9
+[D/league] setupSeason: week 5 Alabama size11 vs Chicago size8
+[D/league] setupSeason: week 5 Boise size10 vs Cincinnati size8
+[D/league] setupSeason: week 5 Appalachian size9 vs Wyoming size10
+[D/league] setupSeason: week 5 Army size5 vs Tennessee size11
+[D/league] setupSeason: week 5 Georgia IT size10 vs Penn State size8
+[D/league] setupSeason: week 5 Arkansas State size9 vs South Carolina size11
+[D/league] setupSeason: week 5 Fresno size10 vs Iowa size8
+[D/league] setupSeason: week 5 Coastal size9 vs Lousiana State size11
+[D/league] setupSeason: week 5 New Mexico St size5 vs Air Force size10
+[D/league] setupSeason: week 5 Illinois size8 vs Syracuse size10
+[D/league] setupSeason: week 5 Nebraska size8 vs Miami size10
+[D/league] setupSeason: week 5 Indiana size8 vs Utah State size10
+[D/league] setupSeason: week 5 South Georgia size9 vs Mississippi State size11
+[D/league] setupSeason: week 5 Purdue size8 vs Nevada size10
+[D/league] setupSeason: week 6 Troy size10 vs Provo size6
+[D/league] setupSeason: week 6 Army size6 vs Arkansas State size10
+[D/league] setupSeason: week 6 Appalachian size10 vs Tulsa size9
+[D/league] setupSeason: week 6 Coastal size10 vs North Carolina size11
+[D/league] setupSeason: week 6 Tulane size9 vs New Mexico St size6
+[D/league] setupSeason: week 6 Lynchburg size6 vs Durham size11
+[D/league] setupSeason: week 6 Navy size9 vs Virginia Poly size11
+[D/league] setupSeason: week 6 Pittsburgh size11 vs South Florida size9
+[D/league] setupSeason: week 6 South Georgia size10 vs Memphis size9
+[D/league] setupSeason: week 6 Miami size11 vs East Carolina size9
+[D/league] setupSeason: week 6 Philadelphia size9 vs Winston-Salem size11
+[D/league] setupSeason: week 6 Houston size9 vs Georgia IT size11
+[D/league] setupSeason: week 6 Syracuse size11 vs Lafayette size10
+[D/league] setupSeason: week 6 Central Florida size9 vs Louisville size11
+[D/league] setupSeason: week 6 Virginia size11 vs South Alabama size10
+[D/league] setupSeason: week 6 Dallas size9 vs Florida State size11
+[D/league] setupSeason: week 6 South Bend size6 vs South Carolina Tech size11
+[D/league] setupSeason: week 6 Georgia State size10 vs Connecticut size9
+[D/league] setupSeason: week 6 NC State size11 vs Cincinnati size9
+[D/league] setupSeason: week 6 Texas State size10 vs xBoston size11
+[D/league] setupSeason: week 6 Monroe size10 vs Massachusetts size6
+[D/league] setupSeason: week 7 Kent size9 vs South Bend size7
+[D/league] setupSeason: week 7 Chicago size9 vs New Mexico St size7
+[D/league] setupSeason: week 7 Provo size7 vs Minnesota size9
+[D/league] setupSeason: week 7 Lynchburg size7 vs Ohio State size9
+[D/league] setupSeason: week 7 Muncie size9 vs Army size7
+[D/league] setupSeason: week 7 Massachusetts size7 vs Penn State size9
+[D/league] setupSeason: week 8 Michigan size10 vs Lynchburg size8
+[D/league] setupSeason: week 8 Penn State size10 vs Provo size8
+[D/league] setupSeason: week 8 Oklahoma size9 vs South Florida size10
+[D/league] setupSeason: week 8 Houston size10 vs New Mexico St size8
+[D/league] setupSeason: week 8 West Virginia size9 vs Maryland size10
+[D/league] setupSeason: week 8 Massachusetts size8 vs Dallas size10
+[D/league] setupSeason: week 8 New Jersey size10 vs Oklahoma State size9
+[D/league] setupSeason: week 8 Ft Worth size9 vs Michigan State size10
+[D/league] setupSeason: week 8 Kansas size9 vs Connecticut size10
+[D/league] setupSeason: week 8 East Carolina size10 vs Texas IT size9
+[D/league] setupSeason: week 8 Iowa size10 vs South Bend size8
+[D/league] setupSeason: week 8 Chicago size10 vs Army size8
+[D/league] setupSeason: week 8 Iowa State size9 vs Indiana size10
+[D/league] setupSeason: week 8 Waco size9 vs Cincinnati size10
+[D/league] setupSeason: week 8 Kansas State size9 vs Eastern Wash size0
+[D/league] setupSeason: week 8 Texas size9 vs Dayton size0
+[D/league] setupSeason: week 9 Provo size9 vs Central Michigan size10
+[D/league] setupSeason: week 9 Ohio size10 vs Boca Raton size11
+[D/league] setupSeason: week 9 Western Michigan size10 vs Norfolk size11
+[D/league] setupSeason: week 9 San Antonio size11 vs Bowling Green size10
+[D/league] setupSeason: week 9 North Texas size11 vs Massachusetts size9
+[D/league] setupSeason: week 9 Akron size10 vs Birmingham size11
+[D/league] setupSeason: week 9 South Georgia size11 vs Lynchburg size9
+[D/league] setupSeason: week 9 Nebraska size11 vs Northern Illinois size10
+[D/league] setupSeason: week 9 Buffalo size10 vs El Paso size11
+[D/league] setupSeason: week 9 Michigan size11 vs New Mexico St size9
+[D/league] setupSeason: week 9 Muncie size10 vs Purdue size11
+[D/league] setupSeason: week 9 South Houston size11 vs South Bend size9
+[D/league] setupSeason: week 9 Miami OH size10 vs Mid Tenn State size11
+[D/league] setupSeason: week 9 Army size9 vs Maryland size11
+[D/league] setupSeason: week 9 Miami Intl size11 vs Eastern Michigan size10
+[D/league] setupSeason: week 9 Lafayette size11 vs Toledo size10
+[D/league] setupSeason: week 9 Kent size10 vs Arkansas State size11
+[D/league] setupSeason: week 9 Iowa size11 vs Delaware size0
+[D/league] setupSeason: week 9 Penn State size11 vs South Dakota size0
+[D/league] setupSeason: week 10 Boise size11 vs Kansas size10
+[D/league] setupSeason: week 10 Memphis size11 vs South Bend size10
+[D/league] setupSeason: week 10 Utah State size11 vs Waco size10
+[D/league] setupSeason: week 10 Air Force size11 vs West Virginia size10
+[D/league] setupSeason: week 10 Texas IT size10 vs Tulane size11
+[D/league] setupSeason: week 10 Lynchburg size10 vs South Florida size11
+[D/league] setupSeason: week 10 Ft Worth size10 vs Cincinnati size11
+[D/league] setupSeason: week 10 Hawaii size11 vs Massachusetts size10
+[D/league] setupSeason: week 10 Colorado State size11 vs Oklahoma size10
+[D/league] setupSeason: week 10 Kansas State size10 vs Dallas size11
+[D/league] setupSeason: week 0 Texas size8 vs Massachusetts size0
+[D/league] setupSeason: week 0 Lynchburg size0 vs Miami size8
+[D/league] setupSeason: week 0 New Mexico St size0 vs Bowling Green size8
+[D/league] setupSeason: week 0 Provo size0 vs Louisville size8
+[D/league] setupSeason: week 0 Huntington size8 vs Army size0
+[D/league] setupSeason: week 0 South Bend size0 vs Pittsburgh size8
+[D/league] setupSeason: week 0 Oklahoma State size8 vs Central Arkansas size0
+[D/league] setupSeason: week 0 Oklahoma size8 vs Montana State size0
+[D/league] setupSeason: week 0 Iowa State size8 vs Southern size0
+[D/league] setupSeason: week 0 Waco size8 vs Yale size0
+[D/league] setupSeason: week 1 San Francisco size8 vs Massachusetts size1
+[D/league] setupSeason: week 1 Provo size1 vs Washington size8
+[D/league] setupSeason: week 1 Washington State size8 vs Army size1
+[D/league] setupSeason: week 1 Oregon size8 vs South Bend size1
+[D/league] setupSeason: week 1 Arizona State size8 vs New Mexico St size1
+[D/league] setupSeason: week 1 Colorado size8 vs Lynchburg size1
+[D/league] setupSeason: week 1 Utah size8 vs Portland size0
+[D/league] setupSeason: week 1 Oregon State size8 vs Sacramento size0
+[D/league] setupSeason: week 1 Pasadena size8 vs Cal-Poly size0
+[D/league] setupSeason: week 1 Southern Cal size8 vs North Dakota size0
+[D/league] setupSeason: week 1 California size8 vs Spokane size0
+[D/league] setupSeason: week 1 Arizona size8 vs James Madison size0
+[D/league] setupSeason: week 2 San Antonio size9 vs Ole Miss size8
+[D/league] setupSeason: week 2 El Paso size9 vs Fresno size8
+[D/league] setupSeason: week 2 North Texas size9 vs Arkansas size8
+[D/league] setupSeason: week 2 Las Vegas size8 vs Charlotte size9
+[D/league] setupSeason: week 2 South Houston size9 vs Hawaii size8
+[D/league] setupSeason: week 2 Lousiana State size8 vs Miami Intl size9
+[D/league] setupSeason: week 2 South Bend size2 vs Houston size8
+[D/league] setupSeason: week 2 Western Kentucky size9 vs Colorado State size8
+[D/league] setupSeason: week 2 Louisiana Poly size9 vs Georgia size8
+[D/league] setupSeason: week 2 College Station size8 vs Lynchburg size2
+[D/league] setupSeason: week 2 New Mexico St size2 vs Huntington size9
+[D/league] setupSeason: week 2 Kentucky size8 vs Mid Tenn State size9
+[D/league] setupSeason: week 2 Birmingham size9 vs Memphis size8
+[D/league] setupSeason: week 2 Central Florida size8 vs Provo size2
+[D/league] setupSeason: week 2 Nashville size8 vs Army size2
+[D/league] setupSeason: week 2 Tulane size8 vs Norfolk size9
+[D/league] setupSeason: week 2 Boca Raton size9 vs Mississippi State size8
+[D/league] setupSeason: week 2 South Carolina size8 vs South Mississippi size9
+[D/league] setupSeason: week 2 Massachusetts size2 vs Nevada size8
+[D/league] setupSeason: week 3 Air Force size9 vs Nebraska size8
+[D/league] setupSeason: week 3 Michigan size8 vs Miami size9
+[D/league] setupSeason: week 3 Wisconsin size8 vs Lynchburg size3
+[D/league] setupSeason: week 3 Virginia size9 vs Minnesota size8
+[D/league] setupSeason: week 3 Purdue size8 vs Syracuse size9
+[D/league] setupSeason: week 3 Ohio State size8 vs Provo size3
+[D/league] setupSeason: week 3 Illinois size8 vs Virginia Poly size9
+[D/league] setupSeason: week 3 Wyoming size9 vs Penn State size8
+[D/league] setupSeason: week 3 South Bend size3 vs New Mexico size9
+[D/league] setupSeason: week 3 Iowa size8 vs New Mexico St size3
+[D/league] setupSeason: week 3 Indiana size8 vs Massachusetts size3
+[D/league] setupSeason: week 3 Louisville size9 vs Chicago size8
+[D/league] setupSeason: week 3 Maryland size8 vs xBoston size9
+[D/league] setupSeason: week 3 Army size3 vs Boise size9
+[D/league] setupSeason: week 3 NC State size9 vs Michigan State size8
+[D/league] setupSeason: week 3 Florida State size9 vs New Jersey size8
+[D/league] setupSeason: week 3 Nevada size9 vs Montana State size0
+[D/league] setupSeason: week 3 San Diego size9 vs Central Arkansas size0
+[D/league] setupSeason: week 4 Massachusetts size4 vs South Carolina size9
+[D/league] setupSeason: week 4 Southern Cal size9 vs xBoston size10
+[D/league] setupSeason: week 4 Tennessee size9 vs Lynchburg size4
+[D/league] setupSeason: week 4 San Francisco size9 vs Georgia IT size10
+[D/league] setupSeason: week 4 Alabama size9 vs Syracuse size10
+[D/league] setupSeason: week 4 Florida size9 vs South Carolina Tech size10
+[D/league] setupSeason: week 4 Missouri size9 vs Durham size10
+[D/league] setupSeason: week 4 NC State size10 vs Army size4
+[D/league] setupSeason: week 4 Colorado size9 vs Provo size4
+[D/league] setupSeason: week 4 Winston-Salem size10 vs Lousiana State size9
+[D/league] setupSeason: week 4 North Carolina size10 vs Mississippi State size9
+[D/league] setupSeason: week 4 Georgia size9 vs New Mexico St size4
+[D/league] setupSeason: week 4 Pasadena size9 vs Virginia size10
+[D/league] setupSeason: week 4 Pittsburgh size10 vs Kentucky size9
+[D/league] setupSeason: week 4 Louisville size10 vs Arkansas size9
+[D/league] setupSeason: week 4 Utah size9 vs Miami size10
+[D/league] setupSeason: week 4 Virginia Poly size10 vs Arizona size9
+[D/league] setupSeason: week 4 Florida State size10 vs Nashville size9
+[D/league] setupSeason: week 4 Washington State size9 vs South Bend size4
+[D/league] setupSeason: week 4 Washington size9 vs Montana size0
+[D/league] setupSeason: week 4 California size9 vs Alabama State size0
+[D/league] setupSeason: week 5 Auburn size10 vs Iowa State size9
+[D/league] setupSeason: week 5 Pittsburgh size11 vs Missouri size10
+[D/league] setupSeason: week 5 Kent size9 vs South Alabama size8
+[D/league] setupSeason: week 5 Monroe size8 vs Purdue size9
+[D/league] setupSeason: week 5 Northern Illinois size9 vs Troy size8
+[D/league] setupSeason: week 5 Wisconsin size9 vs Virginia size11
+[D/league] setupSeason: week 5 Muncie size9 vs Provo size5
+[D/league] setupSeason: week 5 Alabama size10 vs Ft Worth size9
+[D/league] setupSeason: week 5 Akron size9 vs College Station size10
+[D/league] setupSeason: week 5 Coastal size8 vs Oklahoma size9
+[D/league] setupSeason: week 5 Michigan State size9 vs South Carolina size10
+[D/league] setupSeason: week 5 Arkansas size10 vs Durham size11
+[D/league] setupSeason: week 5 Lynchburg size5 vs Michigan size9
+[D/league] setupSeason: week 5 Syracuse size11 vs New Mexico St size5
+[D/league] setupSeason: week 5 Arkansas State size8 vs Penn State size9
+[D/league] setupSeason: week 5 Florida State size11 vs Army size5
+[D/league] setupSeason: week 5 Lafayette size8 vs Miami OH size9
+[D/league] setupSeason: week 5 Bowling Green size9 vs Tennessee size10
+[D/league] setupSeason: week 5 Louisville size11 vs Buffalo size9
+[D/league] setupSeason: week 5 Winston-Salem size11 vs Oklahoma State size9
+[D/league] setupSeason: week 5 Georgia State size8 vs Florida size10
+[D/league] setupSeason: week 5 Kentucky size10 vs Central Michigan size9
+[D/league] setupSeason: week 5 North Carolina size11 vs Ohio State size9
+[D/league] setupSeason: week 5 Kansas State size9 vs South Carolina Tech size11
+[D/league] setupSeason: week 5 Appalachian size8 vs Mississippi State size10
+[D/league] setupSeason: week 5 Georgia IT size11 vs Toledo size9
+[D/league] setupSeason: week 5 Lousiana State size10 vs NC State size11
+[D/league] setupSeason: week 5 xBoston size11 vs Ole Miss size10
+[D/league] setupSeason: week 5 Western Michigan size9 vs Nashville size10
+[D/league] setupSeason: week 5 South Georgia size8 vs Massachusetts size5
+[D/league] setupSeason: week 5 Texas State size8 vs South Bend size5
+[D/league] setupSeason: week 5 Virginia Poly size11 vs Minnesota size9
+[D/league] setupSeason: week 5 Miami size11 vs Georgia size10
+[D/league] setupSeason: week 6 Coastal size9 vs Louisiana Poly size10
+[D/league] setupSeason: week 6 San Antonio size10 vs Lynchburg size6
+[D/league] setupSeason: week 6 Utah State size10 vs Connecticut size9
+[D/league] setupSeason: week 6 Army size6 vs Las Vegas size10
+[D/league] setupSeason: week 6 Air Force size10 vs Philadelphia size9
+[D/league] setupSeason: week 6 Provo size6 vs El Paso size10
+[D/league] setupSeason: week 6 South Mississippi size10 vs Tulane size9
+[D/league] setupSeason: week 6 New Mexico St size6 vs San Diego size10
+[D/league] setupSeason: week 6 San Jose size10 vs Massachusetts size6
+[D/league] setupSeason: week 6 Hawaii size10 vs South Alabama size9
+[D/league] setupSeason: week 6 Charlotte size10 vs Arkansas State size9
+[D/league] setupSeason: week 6 Georgia State size9 vs South Bend size6
+[D/league] setupSeason: week 6 South Florida size9 vs Wyoming size10
+[D/league] setupSeason: week 6 Central Florida size9 vs Boca Raton size10
+[D/league] setupSeason: week 6 East Carolina size9 vs Norfolk size10
+[D/league] setupSeason: week 6 Miami Intl size10 vs Appalachian size9
+[D/league] setupSeason: week 6 Western Kentucky size10 vs Cincinnati size9
+[D/league] setupSeason: week 7 Iowa size10 vs South Bend size7
+[D/league] setupSeason: week 7 Cincinnati size10 vs New Mexico St size7
+[D/league] setupSeason: week 7 Massachusetts size7 vs Connecticut size10
+[D/league] setupSeason: week 7 Provo size7 vs East Carolina size10
+[D/league] setupSeason: week 7 Minnesota size10 vs Lynchburg size7
+[D/league] setupSeason: week 7 Indiana size10 vs Army size7
+[D/league] setupSeason: week 7 Maryland size10 vs South Dakota size0
+[D/league] setupSeason: week 7 Michigan size10 vs Idaho size0
+[D/league] setupSeason: week 8 San Jose size11 vs Provo size8
+[D/league] setupSeason: week 8 South Bend size8 vs Dallas size11
+[D/league] setupSeason: week 8 Army size8 vs Air Force size11
+[D/league] setupSeason: week 8 New Mexico St size8 vs Memphis size11
+[D/league] setupSeason: week 8 Fresno size11 vs Massachusetts size8
+[D/league] setupSeason: week 8 Tulane size11 vs Lynchburg size8
+[D/league] setupSeason: week 9 Ohio State size11 vs Miami OH size10
+[D/league] setupSeason: week 9 Buffalo size10 vs Nebraska size11
+[D/league] setupSeason: week 9 New Mexico St size9 vs Waco size10
+[D/league] setupSeason: week 9 Minnesota size11 vs Texas State size10
+[D/league] setupSeason: week 9 Iowa size11 vs Oklahoma size10
+[D/league] setupSeason: week 9 Michigan size11 vs Appalachian size10
+[D/league] setupSeason: week 9 Penn State size11 vs Iowa State size10
+[D/league] setupSeason: week 9 Michigan State size11 vs Oregon size10
+[D/league] setupSeason: week 9 Purdue size11 vs Provo size9
+[D/league] setupSeason: week 9 Utah size10 vs Lynchburg size9
+[D/league] setupSeason: week 9 Wisconsin size11 vs Washington size10
+[D/league] setupSeason: week 9 Arizona size10 vs Chicago size11
+[D/league] setupSeason: week 9 Northern Illinois size10 vs Army size9
+[D/league] setupSeason: week 9 Illinois size11 vs Kansas State size10
+[D/league] setupSeason: week 9 Indiana size11 vs Oklahoma State size10
+[D/league] setupSeason: week 9 Massachusetts size9 vs Texas IT size10
+[D/league] setupSeason: week 9 South Bend size9 vs Maryland size11
+[D/league] setupSeason: week 9 Eastern Michigan size10 vs New Jersey size11
+[D/league] setupSeason: week 10 Washington State size11 vs Provo size10
+[D/league] setupSeason: week 10 New Mexico St size10 vs Akron size11
+[D/league] setupSeason: week 10 Miami OH size11 vs Army size10
+[D/league] setupSeason: week 10 Troy size11 vs Massachusetts size10
+[D/league] setupSeason: week 10 South Bend size10 vs Muncie size11
+[D/league] setupSeason: week 10 Mid Tenn State size11 vs Lynchburg size10
+[D/league] setupSeason: week 10 Charlotte size11 vs Alabama State size0
+[D/league] setupSeason: week 10 South Houston size11 vs Cal-Poly size0
+[D/league] setupSeason: week 11 Kansas State size11 vs North Dakota size0
+[D/league] setupSeason: week 11 Oklahoma size11 vs Southern TX size0
+[D/league] setupSeason: week 11 Texas IT size11 vs Rhode Island size0
+[D/league] setupSeason: week 11 Texas size11 vs Southern TX size0
+[D/league] setupSeason: week 0 Huntington size8 vs Lynchburg size0
+[D/league] setupSeason: week 0 New Mexico St size0 vs Miami Intl size8
+[D/league] setupSeason: week 0 Provo size0 vs San Francisco size8
+[D/league] setupSeason: week 0 Massachusetts size0 vs Birmingham size8
+[D/league] setupSeason: week 0 Mid Tenn State size8 vs South Bend size0
+[D/league] setupSeason: week 0 Louisiana Poly size8 vs Army size0
+[D/league] setupSeason: week 0 Arizona State size8 vs Montana State size0
+[D/league] setupSeason: week 0 Southern Cal size8 vs Grambling size0
+[D/league] setupSeason: week 1 Oregon size9 vs South Bend size1
+[D/league] setupSeason: week 1 Oregon State size9 vs Colorado State size8
+[D/league] setupSeason: week 1 Air Force size8 vs Arizona size9
+[D/league] setupSeason: week 1 San Jose size8 vs Washington size9
+[D/league] setupSeason: week 1 Wyoming size8 vs Utah size9
+[D/league] setupSeason: week 1 Boise size8 vs Army size1
+[D/league] setupSeason: week 1 Utah State size8 vs Pasadena size9
+[D/league] setupSeason: week 1 Southern Cal size9 vs Fresno size8
+[D/league] setupSeason: week 1 Nevada size8 vs San Francisco size9
+[D/league] setupSeason: week 1 Massachusetts size1 vs Hawaii size8
+[D/league] setupSeason: week 1 Lynchburg size1 vs Las Vegas size8
+[D/league] setupSeason: week 1 New Mexico size8 vs Washington State size9
+[D/league] setupSeason: week 1 Provo size1 vs Arizona State size9
+[D/league] setupSeason: week 1 San Diego size8 vs Colorado size9
+[D/league] setupSeason: week 1 New Mexico St size1 vs California size9
+[D/league] setupSeason: week 2 El Paso size9 vs Winston-Salem size8
+[D/league] setupSeason: week 2 Colorado size10 vs Western Kentucky size9
+[D/league] setupSeason: week 2 NC State size8 vs Norfolk size9
+[D/league] setupSeason: week 2 Hawaii size9 vs Oregon size10
+[D/league] setupSeason: week 2 Massachusetts size2 vs Arizona State size10
+[D/league] setupSeason: week 2 San Diego size9 vs Houston size8
+[D/league] setupSeason: week 2 Charlotte size9 vs South Carolina Tech size8
+[D/league] setupSeason: week 2 Washington size10 vs Las Vegas size9
+[D/league] setupSeason: week 2 New Mexico size9 vs Louisville size8
+[D/league] setupSeason: week 2 Cincinnati size8 vs San Antonio size9
+[D/league] setupSeason: week 2 Wyoming size9 vs Coastal size8
+[D/league] setupSeason: week 2 Boise size9 vs Appalachian size8
+[D/league] setupSeason: week 2 Air Force size9 vs Miami size8
+[D/league] setupSeason: week 2 Virginia Poly size8 vs Fresno size9
+[D/league] setupSeason: week 2 Provo size2 vs Troy size8
+[D/league] setupSeason: week 2 San Francisco size10 vs Philadelphia size8
+[D/league] setupSeason: week 2 South Mississippi size9 vs Tulane size8
+[D/league] setupSeason: week 2 Utah size10 vs South Florida size8
+[D/league] setupSeason: week 2 Memphis size8 vs Colorado State size9
+[D/league] setupSeason: week 2 Utah State size9 vs East Carolina size8
+[D/league] setupSeason: week 2 North Carolina size8 vs Arizona size10
+[D/league] setupSeason: week 2 Oregon State size10 vs South Alabama size8
+[D/league] setupSeason: week 2 Durham size8 vs Mid Tenn State size9
+[D/league] setupSeason: week 2 Texas State size8 vs San Jose size9
+[D/league] setupSeason: week 2 Georgia IT size8 vs Army size2
+[D/league] setupSeason: week 2 Boca Raton size9 vs Navy size8
+[D/league] setupSeason: week 2 Washington State size10 vs Birmingham size9
+[D/league] setupSeason: week 2 New Mexico St size2 vs Huntington size9
+[D/league] setupSeason: week 2 California size10 vs Monroe size8
+[D/league] setupSeason: week 2 Pasadena size10 vs Florida State size8
+[D/league] setupSeason: week 2 Lafayette size8 vs Southern Cal size10
+[D/league] setupSeason: week 2 xBoston size8 vs Lynchburg size2
+[D/league] setupSeason: week 2 North Texas size9 vs Tulsa size8
+[D/league] setupSeason: week 2 Arkansas State size8 vs Miami Intl size9
+[D/league] setupSeason: week 2 South Bend size2 vs Louisiana Poly size9
+[D/league] setupSeason: week 3 Syracuse size9 vs South Bend size3
+[D/league] setupSeason: week 3 Arkansas size8 vs Miami size9
+[D/league] setupSeason: week 3 Troy size9 vs Georgia size8
+[D/league] setupSeason: week 3 Ole Miss size8 vs Georgia IT size9
+[D/league] setupSeason: week 3 South Carolina size8 vs Massachusetts size3
+[D/league] setupSeason: week 3 Lousiana State size8 vs Monroe size9
+[D/league] setupSeason: week 3 Virginia Poly size9 vs Kentucky size8
+[D/league] setupSeason: week 3 Georgia State size9 vs Missouri size8
+[D/league] setupSeason: week 3 South Carolina Tech size9 vs Auburn size8
+[D/league] setupSeason: week 3 Nashville size8 vs Durham size9
+[D/league] setupSeason: week 3 Mississippi State size8 vs Army size3
+[D/league] setupSeason: week 3 Winston-Salem size9 vs Provo size3
+[D/league] setupSeason: week 3 Coastal size9 vs Alabama size8
+[D/league] setupSeason: week 3 College Station size8 vs New Mexico St size3
+[D/league] setupSeason: week 3 Tennessee size8 vs Pittsburgh size9
+[D/league] setupSeason: week 3 Florida size8 vs Lynchburg size3
+[D/league] setupSeason: week 4 New Jersey size8 vs Mississippi State size9
+[D/league] setupSeason: week 4 Air Force size10 vs Army size4
+[D/league] setupSeason: week 4 Wisconsin size8 vs South Carolina size9
+[D/league] setupSeason: week 4 Massachusetts size4 vs San Jose size10
+[D/league] setupSeason: week 4 Indiana size8 vs Syracuse size10
+[D/league] setupSeason: week 4 New Mexico St size4 vs NC State size10
+[D/league] setupSeason: week 4 xBoston size10 vs Iowa size8
+[D/league] setupSeason: week 4 Alabama size9 vs Miami size10
+[D/league] setupSeason: week 4 Wyoming size10 vs College Station size9
+[D/league] setupSeason: week 4 Penn State size8 vs Las Vegas size10
+[D/league] setupSeason: week 4 Florida size9 vs Minnesota size8
+[D/league] setupSeason: week 4 Arkansas size9 vs New Mexico size10
+[D/league] setupSeason: week 4 Florida State size10 vs Chicago size8
+[D/league] setupSeason: week 4 Michigan size8 vs Nashville size9
+[D/league] setupSeason: week 4 Maryland size8 vs Lynchburg size4
+[D/league] setupSeason: week 4 Missouri size9 vs San Diego size10
+[D/league] setupSeason: week 4 Georgia size9 vs Georgia IT size10
+[D/league] setupSeason: week 4 Tennessee size9 vs Michigan State size8
+[D/league] setupSeason: week 4 Purdue size8 vs Kentucky size9
+[D/league] setupSeason: week 4 Ohio State size8 vs North Carolina size10
+[D/league] setupSeason: week 4 Ole Miss size9 vs Pittsburgh size10
+[D/league] setupSeason: week 4 Colorado State size10 vs Provo size4
+[D/league] setupSeason: week 4 Utah State size10 vs Lousiana State size9
+[D/league] setupSeason: week 4 South Carolina Tech size10 vs Illinois size8
+[D/league] setupSeason: week 4 Nevada size10 vs Auburn size9
+[D/league] setupSeason: week 4 South Bend size4 vs Nebraska size8
+[D/league] setupSeason: week 4 Virginia Poly size10 vs Miss Valley size0
+[D/league] setupSeason: week 4 Durham size10 vs Yale size0
+[D/league] setupSeason: week 5 Akron size8 vs Lafayette size10
+[D/league] setupSeason: week 5 Ohio size8 vs Army size5
+[D/league] setupSeason: week 5 Monroe size10 vs Central Michigan size8
+[D/league] setupSeason: week 5 Western Michigan size8 vs South Georgia size10
+[D/league] setupSeason: week 5 New Mexico St size5 vs Toledo size8
+[D/league] setupSeason: week 5 Arkansas State size10 vs Provo size5
+[D/league] setupSeason: week 5 Buffalo size8 vs Appalachian size10
+[D/league] setupSeason: week 5 Bowling Green size8 vs Lynchburg size5
+[D/league] setupSeason: week 5 Eastern Michigan size8 vs Troy size10
+[D/league] setupSeason: week 5 Miami OH size8 vs Coastal size10
+[D/league] setupSeason: week 5 South Alabama size10 vs Northern Illinois size8
+[D/league] setupSeason: week 5 Georgia State size10 vs Kent size8
+[D/league] setupSeason: week 5 Texas State size10 vs South Bend size5
+[D/league] setupSeason: week 5 Massachusetts size5 vs Muncie size8
+[D/league] setupSeason: week 6 Pittsburgh size11 vs Texas IT size8
+[D/league] setupSeason: week 6 NC State size11 vs South Florida size9
+[D/league] setupSeason: week 6 Houston size9 vs Tennessee size10
+[D/league] setupSeason: week 6 Oklahoma State size8 vs South Alabama size11
+[D/league] setupSeason: week 6 Memphis size9 vs North Carolina size11
+[D/league] setupSeason: week 6 Arkansas State size11 vs Central Florida size9
+[D/league] setupSeason: week 6 Army size6 vs Tulsa size9
+[D/league] setupSeason: week 6 Nebraska size9 vs Virginia size11
+[D/league] setupSeason: week 6 East Carolina size9 vs Kansas State size8
+[D/league] setupSeason: week 6 Provo size6 vs Durham size11
+[D/league] setupSeason: week 6 Michigan size9 vs Missouri size10
+[D/league] setupSeason: week 6 South Carolina size10 vs Appalachian size11
+[D/league] setupSeason: week 6 Lynchburg size6 vs Syracuse size11
+[D/league] setupSeason: week 6 Virginia Poly size11 vs South Bend size6
+[D/league] setupSeason: week 6 Georgia size10 vs Tulane size9
+[D/league] setupSeason: week 6 Cincinnati size9 vs College Station size10
+[D/league] setupSeason: week 6 Kansas size8 vs Wisconsin size9
+[D/league] setupSeason: week 6 Nashville size10 vs Navy size9
+[D/league] setupSeason: week 6 Ohio State size9 vs Troy size11
+[D/league] setupSeason: week 6 Lousiana State size10 vs Philadelphia size9
+[D/league] setupSeason: week 6 Illinois size9 vs Miami size11
+[D/league] setupSeason: week 6 Florida size10 vs Iowa State size8
+[D/league] setupSeason: week 6 Ft Worth size8 vs Ole Miss size10
+[D/league] setupSeason: week 6 Texas State size11 vs Kentucky size10
+[D/league] setupSeason: week 6 Alabama size10 vs Chicago size9
+[D/league] setupSeason: week 6 Mississippi State size10 vs New Mexico St size6
+[D/league] setupSeason: week 6 Michigan State size9 vs Winston-Salem size11
+[D/league] setupSeason: week 6 Monroe size11 vs Waco size8
+[D/league] setupSeason: week 6 Indiana size9 vs Lafayette size11
+[D/league] setupSeason: week 6 New Jersey size9 vs South Carolina Tech size11
+[D/league] setupSeason: week 6 Oklahoma size8 vs Penn State size9
+[D/league] setupSeason: week 6 Georgia IT size11 vs Auburn size10
+[D/league] setupSeason: week 6 West Virginia size8 vs Massachusetts size6
+[D/league] setupSeason: week 6 Iowa size9 vs Coastal size11
+[D/league] setupSeason: week 6 Florida State size11 vs Texas size8
+[D/league] setupSeason: week 6 Arkansas size10 vs Minnesota size9
+[D/league] setupSeason: week 7 Houston size10 vs New Mexico St size7
+[D/league] setupSeason: week 7 Philadelphia size10 vs Provo size7
+[D/league] setupSeason: week 7 South Bend size7 vs Cincinnati size10
+[D/league] setupSeason: week 7 East Carolina size10 vs Army size7
+[D/league] setupSeason: week 7 Tulane size10 vs Massachusetts size7
+[D/league] setupSeason: week 7 Dallas size10 vs Lynchburg size7
+[D/league] setupSeason: week 7 Connecticut size10 vs Columbia size0
+[D/league] setupSeason: week 7 South Florida size10 vs Alabama State size0
+[D/league] setupSeason: week 7 Memphis size10 vs Princeton size0
+[D/league] setupSeason: week 7 Central Florida size10 vs Maine size0
+[D/league] setupSeason: week 7 Navy size10 vs Albany size0
+[D/league] setupSeason: week 7 Tulsa size10 vs Harvard size0
+[D/league] setupSeason: week 8 Western Michigan size9 vs Dallas size11
+[D/league] setupSeason: week 8 Eastern Michigan size9 vs Purdue size10
+[D/league] setupSeason: week 8 Iowa size10 vs Tulane size11
+[D/league] setupSeason: week 8 Lynchburg size8 vs Penn State size10
+[D/league] setupSeason: week 8 Bowling Green size9 vs Houston size11
+[D/league] setupSeason: week 8 Cincinnati size11 vs Muncie size9
+[D/league] setupSeason: week 8 Tulsa size11 vs Northern Illinois size9
+[D/league] setupSeason: week 8 New Jersey size10 vs Navy size11
+[D/league] setupSeason: week 8 Central Florida size11 vs Ohio size9
+[D/league] setupSeason: week 8 Provo size8 vs Minnesota size10
+[D/league] setupSeason: week 8 Memphis size11 vs New Mexico St size8
+[D/league] setupSeason: week 8 Buffalo size9 vs Nebraska size10
+[D/league] setupSeason: week 8 Central Michigan size9 vs Michigan size10
+[D/league] setupSeason: week 8 Maryland size10 vs Kent size9
+[D/league] setupSeason: week 8 Michigan State size10 vs Toledo size9
+[D/league] setupSeason: week 8 Massachusetts size8 vs Akron size9
+[D/league] setupSeason: week 8 Philadelphia size11 vs Army size8
+[D/league] setupSeason: week 8 Indiana size10 vs South Bend size8
+[D/league] setupSeason: week 8 East Carolina size11 vs Chicago size10
+[D/league] setupSeason: week 8 Miami OH size9 vs South Florida size11
+[D/league] setupSeason: week 8 Connecticut size11 vs Illinois size10
+[D/league] setupSeason: week 8 Ohio State size10 vs Eastern Wash size0
+[D/league] setupSeason: week 8 Wisconsin size10 vs Albany size0
+[D/league] setupSeason: week 9 South Mississippi size10 vs Massachusetts size9
+[D/league] setupSeason: week 9 Toledo size10 vs West Virginia size9
+[D/league] setupSeason: week 9 North Texas size10 vs Kansas State size9
+[D/league] setupSeason: week 9 Texas size9 vs Miami Intl size10
+[D/league] setupSeason: week 9 Oklahoma State size9 vs Northern Illinois size10
+[D/league] setupSeason: week 9 Oklahoma size9 vs Ohio size10
+[D/league] setupSeason: week 9 Provo size9 vs Central Michigan size10
+[D/league] setupSeason: week 9 Charlotte size10 vs Lynchburg size9
+[D/league] setupSeason: week 9 South Bend size9 vs Birmingham size10
+[D/league] setupSeason: week 9 Iowa State size9 vs Huntington size10
+[D/league] setupSeason: week 9 Waco size9 vs Louisiana Poly size10
+[D/league] setupSeason: week 9 Kent size10 vs Texas IT size9
+[D/league] setupSeason: week 10 Massachusetts size10 vs Nebraska size11
+[D/league] setupSeason: week 10 Waco size10 vs Penn State size11
+[D/league] setupSeason: week 10 Army size10 vs Ohio State size11
+[D/league] setupSeason: week 10 Kansas size10 vs Purdue size11
+[D/league] setupSeason: week 10 Provo size10 vs New Jersey size11
+[D/league] setupSeason: week 10 Kansas State size10 vs Arizona size11
+[D/league] setupSeason: week 10 Texas size10 vs California size11
+[D/league] setupSeason: week 10 Colorado size11 vs Ft Worth size10
+[D/league] setupSeason: week 10 Texas IT size10 vs Oregon State size11
+[D/league] setupSeason: week 10 Washington State size11 vs New Mexico St size10
+[D/league] setupSeason: week 10 San Francisco size11 vs Oklahoma size10
+[D/league] setupSeason: week 10 Oklahoma State size10 vs Chicago size11
+[D/league] setupSeason: week 10 Iowa size11 vs Lynchburg size10
+[D/league] setupSeason: week 10 Iowa State size10 vs Michigan size11
+[D/league] setupSeason: week 0 South Bend size0 vs Florida State size8
+[D/league] setupSeason: week 0 North Carolina size8 vs Massachusetts size0
+[D/league] setupSeason: week 0 West Virginia size8 vs Lynchburg size0
+[D/league] setupSeason: week 0 New Mexico St size0 vs Kansas State size8
+[D/league] setupSeason: week 0 Provo size0 vs Waco size8
+[D/league] setupSeason: week 0 Army size0 vs Miami size8
+[D/league] setupSeason: week 0 South Carolina Tech size8 vs James Madison size0
+[D/league] setupSeason: week 0 Louisville size8 vs Rhode Island size0
+[D/league] setupSeason: week 0 Virginia Poly size8 vs North Dakota St size0
+[D/league] setupSeason: week 0 xBoston size8 vs South Dakota size0
+[D/league] setupSeason: week 1 Bowling Green size8 vs South Bend size1
+[D/league] setupSeason: week 1 South Florida size8 vs Provo size1
+[D/league] setupSeason: week 1 Massachusetts size1 vs Tennessee size8
+[D/league] setupSeason: week 1 Philadelphia size8 vs Army size1
+[D/league] setupSeason: week 1 New Mexico St size1 vs Georgia size8
+[D/league] setupSeason: week 1 Lynchburg size1 vs Arkansas size8
+[D/league] setupSeason: week 1 Lousiana State size8 vs Georgetown size0
+[D/league] setupSeason: week 1 Missouri size8 vs Eastern Tenn size0
+[D/league] setupSeason: week 2 New Mexico St size2 vs South Georgia size8
+[D/league] setupSeason: week 2 Memphis size9 vs San Diego size8
+[D/league] setupSeason: week 2 Houston size9 vs Nebraska size8
+[D/league] setupSeason: week 2 Wyoming size8 vs South Florida size9
+[D/league] setupSeason: week 2 Philadelphia size9 vs Chicago size8
+[D/league] setupSeason: week 2 Dallas size9 vs Air Force size8
+[D/league] setupSeason: week 2 Las Vegas size8 vs Lynchburg size2
+[D/league] setupSeason: week 2 Troy size8 vs East Carolina size9
+[D/league] setupSeason: week 2 Cincinnati size9 vs Fresno size8
+[D/league] setupSeason: week 2 Coastal size8 vs Massachusetts size2
+[D/league] setupSeason: week 2 Central Florida size9 vs Indiana size8
+[D/league] setupSeason: week 2 Tulsa size9 vs Illinois size8
+[D/league] setupSeason: week 2 Provo size2 vs Iowa size8
+[D/league] setupSeason: week 2 Lafayette size8 vs South Bend size2
+[D/league] setupSeason: week 2 Navy size9 vs Nevada size8
+[D/league] setupSeason: week 2 Maryland size8 vs Connecticut size9
+[D/league] setupSeason: week 2 Boise size8 vs Army size2
+[D/league] setupSeason: week 2 San Jose size8 vs Tulane size9
+[D/league] setupSeason: week 3 Massachusetts size3 vs Southern Cal size8
+[D/league] setupSeason: week 3 San Francisco size8 vs North Carolina size9
+[D/league] setupSeason: week 3 Washington size8 vs Eastern Michigan size9
+[D/league] setupSeason: week 3 Army size3 vs xBoston size9
+[D/league] setupSeason: week 3 South Alabama size9 vs Utah size8
+[D/league] setupSeason: week 3 Georgia IT size9 vs Arizona size8
+[D/league] setupSeason: week 3 California size8 vs South Bend size3
+[D/league] setupSeason: week 3 Washington State size8 vs Winston-Salem size9
+[D/league] setupSeason: week 3 Lafayette size9 vs Colorado size8
+[D/league] setupSeason: week 3 Ohio size9 vs Provo size3
+[D/league] setupSeason: week 3 NC State size9 vs Oregon State size8
+[D/league] setupSeason: week 3 Oregon size8 vs Bowling Green size9
+[D/league] setupSeason: week 3 Waco size9 vs New Mexico St size3
+[D/league] setupSeason: week 3 Florida State size9 vs Lynchburg size3
+[D/league] setupSeason: week 3 South Carolina Tech size9 vs Pasadena size8
+[D/league] setupSeason: week 3 Arizona State size8 vs Northern Illinois size9
+[D/league] setupSeason: week 4 Louisiana Poly size8 vs New Mexico St size4
+[D/league] setupSeason: week 4 South Bend size4 vs Western Kentucky size8
+[D/league] setupSeason: week 4 South Mississippi size8 vs Provo size4
+[D/league] setupSeason: week 4 Charlotte size8 vs Massachusetts size4
+[D/league] setupSeason: week 4 San Antonio size8 vs Lynchburg size4
+[D/league] setupSeason: week 4 El Paso size8 vs Army size4
+[D/league] setupSeason: week 4 Norfolk size8 vs Eastern Tenn size0
+[D/league] setupSeason: week 4 Boca Raton size8 vs Dayton size0
+[D/league] setupSeason: week 4 Huntington size8 vs Western llinois size0
+[D/league] setupSeason: week 4 Birmingham size8 vs Yale size0
+[D/league] setupSeason: week 4 South Houston size8 vs Maine size0
+[D/league] setupSeason: week 4 Mid Tenn State size8 vs Northern Colorado size0
+[D/league] setupSeason: week 4 North Texas size8 vs Sacramento size0
+[D/league] setupSeason: week 4 Miami Intl size8 vs Western llinois size0
+[D/league] setupSeason: week 5 Arizona size9 vs Oklahoma size10
+[D/league] setupSeason: week 5 Provo size5 vs Pittsburgh size10
+[D/league] setupSeason: week 5 Oregon State size9 vs Ohio size10
+[D/league] setupSeason: week 5 North Carolina size10 vs California size9
+[D/league] setupSeason: week 5 Miami size10 vs San Francisco size9
+[D/league] setupSeason: week 5 Buffalo size10 vs Oregon size9
+[D/league] setupSeason: week 5 Alabama size9 vs Muncie size10
+[D/league] setupSeason: week 5 Colorado size9 vs Waco size10
+[D/league] setupSeason: week 5 Utah size9 vs Eastern Michigan size10
+[D/league] setupSeason: week 5 Kansas size10 vs Mississippi State size9
+[D/league] setupSeason: week 5 Central Michigan size10 vs Southern Cal size9
+[D/league] setupSeason: week 5 Oklahoma State size10 vs Arizona State size9
+[D/league] setupSeason: week 5 Missouri size9 vs Louisville size10
+[D/league] setupSeason: week 5 Toledo size10 vs Arkansas size9
+[D/league] setupSeason: week 5 Army size5 vs Georgia size9
+[D/league] setupSeason: week 5 Massachusetts size5 vs Auburn size9
+[D/league] setupSeason: week 5 Winston-Salem size10 vs Nashville size9
+[D/league] setupSeason: week 5 West Virginia size10 vs Florida size9
+[D/league] setupSeason: week 5 Lynchburg size5 vs Tennessee size9
+[D/league] setupSeason: week 5 NC State size10 vs Kentucky size9
+[D/league] setupSeason: week 5 South Bend size5 vs Washington State size9
+[D/league] setupSeason: week 5 New Mexico St size5 vs Syracuse size10
+[D/league] setupSeason: week 5 Georgia IT size10 vs Ole Miss size9
+[D/league] setupSeason: week 5 Ft Worth size10 vs Washington size9
+[D/league] setupSeason: week 5 Kansas State size10 vs College Station size9
+[D/league] setupSeason: week 5 South Carolina size9 vs Florida State size10
+[D/league] setupSeason: week 6 Boca Raton size9 vs Lynchburg size6
+[D/league] setupSeason: week 6 Army size6 vs South Houston size9
+[D/league] setupSeason: week 6 Las Vegas size9 vs Provo size6
+[D/league] setupSeason: week 6 Massachusetts size6 vs Colorado State size9
+[D/league] setupSeason: week 6 El Paso size9 vs South Bend size6
+[D/league] setupSeason: week 6 Huntington size9 vs New Mexico St size6
+[D/league] setupSeason: week 7 Syracuse size11 vs Lynchburg size7
+[D/league] setupSeason: week 7 Illinois size9 vs xBoston size11
+[D/league] setupSeason: week 7 Florida State size11 vs Arizona size10
+[D/league] setupSeason: week 7 Kent size11 vs San Francisco size10
+[D/league] setupSeason: week 7 Ohio State size9 vs Akron size11
+[D/league] setupSeason: week 7 Washington State size10 vs Toledo size11
+[D/league] setupSeason: week 7 Miami Intl size10 vs Purdue size9
+[D/league] setupSeason: week 7 Georgia IT size11 vs Utah size10
+[D/league] setupSeason: week 7 NC State size11 vs Indiana size9
+[D/league] setupSeason: week 7 Army size7 vs Huntington size10
+[D/league] setupSeason: week 7 Muncie size11 vs Louisiana Poly size10
+[D/league] setupSeason: week 7 Western Michigan size11 vs Iowa size9
+[D/league] setupSeason: week 7 Bowling Green size11 vs Boca Raton size10
+[D/league] setupSeason: week 7 South Carolina Tech size11 vs Western Kentucky size10
+[D/league] setupSeason: week 7 Miami size11 vs Arizona State size10
+[D/league] setupSeason: week 7 North Texas size10 vs South Bend size7
+[D/league] setupSeason: week 7 New Jersey size9 vs South Mississippi size10
+[D/league] setupSeason: week 7 California size10 vs Northern Illinois size11
+[D/league] setupSeason: week 7 Virginia size11 vs Provo size7
+[D/league] setupSeason: week 7 North Carolina size11 vs Michigan State size9
+[D/league] setupSeason: week 7 Washington size10 vs Winston-Salem size11
+[D/league] setupSeason: week 7 El Paso size10 vs Minnesota size9
+[D/league] setupSeason: week 7 Wisconsin size9 vs Massachusetts size7
+[D/league] setupSeason: week 7 Pittsburgh size11 vs San Antonio size10
+[D/league] setupSeason: week 7 Chicago size9 vs Miami OH size11
+[D/league] setupSeason: week 7 Virginia Poly size11 vs New Mexico St size7
+[D/league] setupSeason: week 7 Pasadena size10 vs Durham size11
+[D/league] setupSeason: week 7 Penn State size9 vs Birmingham size10
+[D/league] setupSeason: week 7 Michigan size9 vs South Houston size10
+[D/league] setupSeason: week 7 Southern Cal size10 vs Maryland size9
+[D/league] setupSeason: week 7 Central Michigan size11 vs Mid Tenn State size10
+[D/league] setupSeason: week 7 Nebraska size9 vs Charlotte size10
+[D/league] setupSeason: week 7 Ohio size11 vs Colorado size10
+[D/league] setupSeason: week 7 Oregon size10 vs South Dakota St size0
+[D/league] setupSeason: week 7 Buffalo size11 vs Delaware size0
+[D/league] setupSeason: week 8 Missouri size10 vs Provo size8
+[D/league] setupSeason: week 8 New Mexico size10 vs Army size8
+[D/league] setupSeason: week 8 Mississippi State size10 vs South Bend size8
+[D/league] setupSeason: week 8 Massachusetts size8 vs Florida size10
+[D/league] setupSeason: week 8 Lynchburg size8 vs Lousiana State size10
+[D/league] setupSeason: week 8 Alabama size10 vs New Mexico St size8
+[D/league] setupSeason: week 8 Air Force size10 vs Spokane size0
+[D/league] setupSeason: week 8 Fresno size10 vs Southern size0
+[D/league] setupSeason: week 9 Ft Worth size11 vs Provo size9
+[D/league] setupSeason: week 9 Nebraska size10 vs Waco size11
+[D/league] setupSeason: week 9 Iowa State size11 vs Troy size10
+[D/league] setupSeason: week 9 Ohio State size10 vs Army size9
+[D/league] setupSeason: week 9 Massachusetts size9 vs South Georgia size10
+[D/league] setupSeason: week 9 Cincinnati size10 vs Kansas State size11
+[D/league] setupSeason: week 9 Oklahoma size11 vs Iowa size10
+[D/league] setupSeason: week 9 Memphis size10 vs Lynchburg size9
+[D/league] setupSeason: week 9 Texas IT size11 vs Michigan State size10
+[D/league] setupSeason: week 9 Purdue size10 vs South Bend size9
+[D/league] setupSeason: week 9 Maryland size10 vs New Mexico St size9
+[D/league] setupSeason: week 9 West Virginia size11 vs Philadelphia size10
+[D/league] setupSeason: week 9 Kansas size11 vs Houston size10
+[D/league] setupSeason: week 9 Oklahoma State size11 vs Texas State size10
+[D/league] setupSeason: week 9 Texas size11 vs Penn State size10
+[D/league] setupSeason: week 10 New Mexico St size10 vs Norfolk size11
+[D/league] setupSeason: week 10 Provo size10 vs College Station size11
+[D/league] setupSeason: week 10 San Jose size11 vs Army size10
+[D/league] setupSeason: week 10 Hawaii size11 vs South Bend size10
+[D/league] setupSeason: week 10 Lynchburg size10 vs Alabama size11
+[D/league] setupSeason: week 10 Massachusetts size10 vs Arizona size11
+[D/league] setupSeason: week 11 Navy size11 vs Georgetown size0
+[D/league] setupSeason: week 11 South Florida size11 vs Eastern Wash size0
+[D/league] setupSeason: week 0 New Mexico St size0 vs Tulane size8
+[D/league] setupSeason: week 0 Lynchburg size0 vs Navy size8
+[D/league] setupSeason: week 0 South Bend size0 vs Dallas size8
+[D/league] setupSeason: week 0 Army size0 vs Memphis size8
+[D/league] setupSeason: week 0 Massachusetts size0 vs San Jose size8
+[D/league] setupSeason: week 0 Provo size0 vs Wyoming size8
+[D/league] setupSeason: week 0 Nevada size8 vs Dayton size0
+[D/league] setupSeason: week 0 Air Force size8 vs Sacramento size0
+[D/league] setupSeason: week 1 Massachusetts size1 vs Mississippi State size8
+[D/league] setupSeason: week 1 Provo size1 vs Virginia Poly size8
+[D/league] setupSeason: week 1 Army size1 vs College Station size8
+[D/league] setupSeason: week 1 Lafayette size8 vs South Bend size1
+[D/league] setupSeason: week 1 New Mexico St size1 vs Muncie size8
+[D/league] setupSeason: week 1 Bowling Green size8 vs Lynchburg size1
+[D/league] setupSeason: week 1 Georgia IT size8 vs Grambling size0
+[D/league] setupSeason: week 1 Winston-Salem size8 vs Grambling size0
+[D/league] setupSeason: week 2 San Francisco size8 vs South Florida size9
+[D/league] setupSeason: week 2 Illinois size8 vs Florida State size9
+[D/league] setupSeason: week 2 Iowa size8 vs Monroe size9
+[D/league] setupSeason: week 2 Utah size8 vs East Carolina size9
+[D/league] setupSeason: week 2 Georgia State size9 vs Michigan size8
+[D/league] setupSeason: week 2 Oregon size8 vs South Alabama size9
+[D/league] setupSeason: week 2 Virginia Poly size9 vs Oregon State size8
+[D/league] setupSeason: week 2 Massachusetts size2 vs Pasadena size8
+[D/league] setupSeason: week 2 Louisiana Poly size9 vs Wisconsin size8
+[D/league] setupSeason: week 2 Michigan State size8 vs Troy size9
+[D/league] setupSeason: week 2 Appalachian size9 vs South Bend size2
+[D/league] setupSeason: week 2 Pittsburgh size9 vs Washington size8
+[D/league] setupSeason: week 2 Birmingham size9 vs Washington State size8
+[D/league] setupSeason: week 2 Ohio State size8 vs NC State size9
+[D/league] setupSeason: week 2 Provo size2 vs Memphis size9
+[D/league] setupSeason: week 2 Connecticut size9 vs Nebraska size8
+[D/league] setupSeason: week 2 Lynchburg size2 vs Philadelphia size9
+[D/league] setupSeason: week 2 Indiana size8 vs Lafayette size9
+[D/league] setupSeason: week 2 South Mississippi size9 vs Purdue size8
+[D/league] setupSeason: week 2 New Jersey size8 vs Mid Tenn State size9
+[D/league] setupSeason: week 2 Southern Cal size8 vs Miami Intl size9
+[D/league] setupSeason: week 2 Colorado size8 vs Boca Raton size9
+[D/league] setupSeason: week 2 New Mexico St size2 vs Durham size9
+[D/league] setupSeason: week 2 North Texas size9 vs Minnesota size8
+[D/league] setupSeason: week 2 Charlotte size9 vs Army size2
+[D/league] setupSeason: week 3 Louisville size10 vs Las Vegas size9
+[D/league] setupSeason: week 3 Georgia IT size10 vs Hawaii size9
+[D/league] setupSeason: week 3 San Diego size9 vs Virginia Poly size10
+[D/league] setupSeason: week 3 New Mexico size9 vs Army size3
+[D/league] setupSeason: week 3 North Carolina size10 vs Nevada size9
+[D/league] setupSeason: week 3 New Mexico St size3 vs Winston-Salem size10
+[D/league] setupSeason: week 3 Colorado State size9 vs Virginia size10
+[D/league] setupSeason: week 3 NC State size10 vs Wyoming size9
+[D/league] setupSeason: week 3 Air Force size9 vs Durham size10
+[D/league] setupSeason: week 3 Utah State size9 vs Miami size10
+[D/league] setupSeason: week 3 Pittsburgh size10 vs Massachusetts size3
+[D/league] setupSeason: week 3 Boise size9 vs South Carolina Tech size10
+[D/league] setupSeason: week 3 Florida State size10 vs San Jose size9
+[D/league] setupSeason: week 3 Syracuse size10 vs Lynchburg size3
+[D/league] setupSeason: week 3 Provo size3 vs xBoston size10
+[D/league] setupSeason: week 3 South Bend size3 vs Fresno size9
+[D/league] setupSeason: week 4 Virginia Poly size11 vs Connecticut size10
+[D/league] setupSeason: week 4 Philadelphia size10 vs Miami size11
+[D/league] setupSeason: week 4 New Jersey size9 vs Winston-Salem size11
+[D/league] setupSeason: week 4 Virginia size11 vs Houston size10
+[D/league] setupSeason: week 4 Memphis size10 vs Washington size9
+[D/league] setupSeason: week 4 Michigan State size9 vs Cincinnati size10
+[D/league] setupSeason: week 4 Provo size4 vs Penn State size9
+[D/league] setupSeason: week 4 Washington State size9 vs South Bend size4
+[D/league] setupSeason: week 4 Ohio State size9 vs Durham size11
+[D/league] setupSeason: week 4 Southern Cal size9 vs NC State size11
+[D/league] setupSeason: week 4 Massachusetts size4 vs Arizona State size9
+[D/league] setupSeason: week 4 Michigan size9 vs Navy size10
+[D/league] setupSeason: week 4 Tulane size10 vs Pasadena size9
+[D/league] setupSeason: week 4 Dallas size10 vs Syracuse size11
+[D/league] setupSeason: week 4 Illinois size9 vs xBoston size11
+[D/league] setupSeason: week 4 Utah size9 vs Lynchburg size4
+[D/league] setupSeason: week 4 Purdue size9 vs New Mexico St size4
+[D/league] setupSeason: week 4 Tulsa size10 vs Colorado size9
+[D/league] setupSeason: week 4 South Florida size10 vs Maryland size9
+[D/league] setupSeason: week 4 Pittsburgh size11 vs Chicago size9
+[D/league] setupSeason: week 4 East Carolina size10 vs Oregon size9
+[D/league] setupSeason: week 4 Minnesota size9 vs Florida State size11
+[D/league] setupSeason: week 4 South Carolina Tech size11 vs Army size4
+[D/league] setupSeason: week 4 Central Florida size10 vs North Carolina size11
+[D/league] setupSeason: week 4 Georgia IT size11 vs California size9
+[D/league] setupSeason: week 4 Iowa size9 vs Louisville size11
+[D/league] setupSeason: week 5 Fresno size10 vs Oklahoma size8
+[D/league] setupSeason: week 5 Hawaii size10 vs Ft Worth size8
+[D/league] setupSeason: week 5 Wyoming size10 vs Iowa State size8
+[D/league] setupSeason: week 5 West Virginia size8 vs Air Force size10
+[D/league] setupSeason: week 5 Utah State size10 vs Army size5
+[D/league] setupSeason: week 5 Lynchburg size5 vs Texas size8
+[D/league] setupSeason: week 5 Boise size10 vs Massachusetts size5
+[D/league] setupSeason: week 5 Provo size5 vs Lafayette size10
+[D/league] setupSeason: week 5 New Mexico St size5 vs Texas IT size8
+[D/league] setupSeason: week 5 Colorado State size10 vs South Bend size5
+[D/league] setupSeason: week 5 San Jose size10 vs Kansas State size8
+[D/league] setupSeason: week 5 Waco size8 vs Appalachian size10
+[D/league] setupSeason: week 5 Georgia State size10 vs Kansas size8
+[D/league] setupSeason: week 5 Oklahoma State size8 vs South Alabama size10
+[D/league] setupSeason: week 5 Monroe size10 vs Delaware size0
+[D/league] setupSeason: week 5 Texas State size10 vs Youngstown size0
+[D/league] setupSeason: week 6 Colorado size10 vs New Mexico St size6
+[D/league] setupSeason: week 6 Pasadena size10 vs Eastern Michigan size9
+[D/league] setupSeason: week 6 San Francisco size10 vs Ole Miss size9
+[D/league] setupSeason: week 6 Utah size10 vs Northern Illinois size9
+[D/league] setupSeason: week 6 Maryland size10 vs Missouri size9
+[D/league] setupSeason: week 6 Indiana size10 vs Mississippi State size9
+[D/league] setupSeason: week 6 Oregon size10 vs Muncie size9
+[D/league] setupSeason: week 6 Western Michigan size9 vs Southern Cal size10
+[D/league] setupSeason: week 6 Nashville size9 vs Iowa size10
+[D/league] setupSeason: week 6 Chicago size10 vs Lynchburg size6
+[D/league] setupSeason: week 6 Kentucky size9 vs Michigan size10
+[D/league] setupSeason: week 6 Army size6 vs Michigan State size10
+[D/league] setupSeason: week 6 Lousiana State size9 vs Arizona size10
+[D/league] setupSeason: week 6 New Jersey size10 vs Bowling Green size9
+[D/league] setupSeason: week 6 Washington size10 vs Miami OH size9
+[D/league] setupSeason: week 6 South Carolina size9 vs Wisconsin size10
+[D/league] setupSeason: week 6 Auburn size9 vs Washington State size10
+[D/league] setupSeason: week 6 Penn State size10 vs Central Michigan size9
+[D/league] setupSeason: week 6 Massachusetts size6 vs Ohio size9
+[D/league] setupSeason: week 6 Georgia size9 vs Minnesota size10
+[D/league] setupSeason: week 6 Arkansas size9 vs South Bend size6
+[D/league] setupSeason: week 6 College Station size9 vs Purdue size10
+[D/league] setupSeason: week 6 Provo size6 vs Ohio State size10
+[D/league] setupSeason: week 6 Tennessee size9 vs Arizona State size10
+[D/league] setupSeason: week 6 Buffalo size9 vs Idaho State size0
+[D/league] setupSeason: week 6 Akron size9 vs Southern TX size0
+[D/league] setupSeason: week 7 Ft Worth size9 vs North Texas size10
+[D/league] setupSeason: week 7 San Antonio size10 vs Texas IT size9
+[D/league] setupSeason: week 7 Oklahoma size9 vs Central Michigan size10
+[D/league] setupSeason: week 7 South Houston size10 vs Texas size9
+[D/league] setupSeason: week 7 Provo size7 vs Norfolk size10
+[D/league] setupSeason: week 7 Kansas size9 vs Louisiana Poly size10
+[D/league] setupSeason: week 7 Ohio size10 vs West Virginia size9
+[D/league] setupSeason: week 7 New Mexico St size7 vs Huntington size10
+[D/league] setupSeason: week 7 Massachusetts size7 vs Miami Intl size10
+[D/league] setupSeason: week 7 Buffalo size10 vs Iowa State size9
+[D/league] setupSeason: week 7 Lynchburg size7 vs Oklahoma State size9
+[D/league] setupSeason: week 7 Charlotte size10 vs Kansas State size9
+[D/league] setupSeason: week 7 Akron size10 vs Army size7
+[D/league] setupSeason: week 7 Muncie size10 vs Waco size9
+[D/league] setupSeason: week 7 South Bend size7 vs Bowling Green size10
+[D/league] setupSeason: week 8 Arkansas size10 vs Purdue size11
+[D/league] setupSeason: week 8 Michigan State size11 vs Kentucky size10
+[D/league] setupSeason: week 8 Iowa size11 vs Alabama size10
+[D/league] setupSeason: week 8 Ohio State size11 vs Florida size10
+[D/league] setupSeason: week 8 Lousiana State size10 vs Appalachian size11
+[D/league] setupSeason: week 8 Maryland size11 vs Tennessee size10
+[D/league] setupSeason: week 8 Illinois size11 vs Nashville size10
+[D/league] setupSeason: week 8 Auburn size10 vs Nebraska size11
+[D/league] setupSeason: week 8 Mississippi State size10 vs Michigan size11
+[D/league] setupSeason: week 8 South Georgia size11 vs Massachusetts size8
+[D/league] setupSeason: week 8 Ole Miss size10 vs Troy size11
+[D/league] setupSeason: week 8 Army size8 vs Georgia size10
+[D/league] setupSeason: week 8 Coastal size11 vs Provo size8
+[D/league] setupSeason: week 8 New Mexico St size8 vs Monroe size11
+[D/league] setupSeason: week 8 College Station size10 vs Minnesota size11
+[D/league] setupSeason: week 8 South Bend size8 vs South Alabama size11
+[D/league] setupSeason: week 8 Missouri size10 vs Lynchburg size8
+[D/league] setupSeason: week 8 South Carolina size10 vs New Jersey size11
+[D/league] setupSeason: week 9 Connecticut size11 vs South Bend size9
+[D/league] setupSeason: week 9 New Mexico St size9 vs Philadelphia size11
+[D/league] setupSeason: week 9 Houston size11 vs Massachusetts size9
+[D/league] setupSeason: week 9 Tulane size11 vs Army size9
+[D/league] setupSeason: week 9 Provo size9 vs Central Florida size11
+[D/league] setupSeason: week 9 South Florida size11 vs Lynchburg size9
+[D/league] setupSeason: week 9 Tulsa size11 vs Delaware size0
+[D/league] setupSeason: week 9 Memphis size11 vs Spokane size0
+[D/league] setupSeason: week 9 East Carolina size11 vs South Dakota size0
+[D/league] setupSeason: week 9 Cincinnati size11 vs Grambling size0
+[D/league] setupSeason: week 9 Navy size11 vs Grambling size0
+[D/league] setupSeason: week 9 Dallas size11 vs Northern Arizona size0
+[D/league] setupSeason: week 10 Nevada size11 vs Army size10
+[D/league] setupSeason: week 10 South Carolina size11 vs Ft Worth size10
+[D/league] setupSeason: week 10 Georgia size11 vs West Virginia size10
+[D/league] setupSeason: week 10 Wyoming size11 vs Massachusetts size10
+[D/league] setupSeason: week 10 Missouri size11 vs South Bend size10
+[D/league] setupSeason: week 10 Utah State size11 vs New Mexico St size10
+[D/league] setupSeason: week 10 Washington State size11 vs Iowa State size10
+[D/league] setupSeason: week 10 Tennessee size11 vs Waco size10
+[D/league] setupSeason: week 10 Hawaii size11 vs Lynchburg size10
+[D/league] setupSeason: week 10 Texas size10 vs Auburn size11
+[D/league] setupSeason: week 10 Oklahoma size10 vs Oregon size11
+[D/league] setupSeason: week 10 San Francisco size11 vs Oklahoma State size10
+[D/league] setupSeason: week 10 Kansas State size10 vs San Diego size11
+[D/league] setupSeason: week 10 Kansas size10 vs Mississippi State size11
+[D/league] setupSeason: week 11 South Houston size11 vs Montana State size0
+[D/league] setupSeason: week 11 Huntington size11 vs Southern size0
+[D/league] setupSeason: week 0 Navy size8 vs New Mexico St size0
+[D/league] setupSeason: week 0 Provo size0 vs Memphis size8
+[D/league] setupSeason: week 0 Buffalo size8 vs Massachusetts size0
+[D/league] setupSeason: week 0 South Bend size0 vs Ole Miss size8
+[D/league] setupSeason: week 0 Durham size8 vs Lynchburg size0
+[D/league] setupSeason: week 0 Army size0 vs Akron size8
+[D/league] setupSeason: week 1 Navy size9 vs Nevada size8
+[D/league] setupSeason: week 1 Dallas size9 vs San Jose size8
+[D/league] setupSeason: week 1 South Florida size9 vs Boise size8
+[D/league] setupSeason: week 1 Fresno size8 vs Lynchburg size1
+[D/league] setupSeason: week 1 Provo size1 vs Connecticut size9
+[D/league] setupSeason: week 1 Philadelphia size9 vs Utah State size8
+[D/league] setupSeason: week 1 Tulane size9 vs Air Force size8
+[D/league] setupSeason: week 1 Cincinnati size9 vs South Bend size1
+[D/league] setupSeason: week 1 Central Florida size9 vs Massachusetts size1
+[D/league] setupSeason: week 1 Las Vegas size8 vs Tulsa size9
+[D/league] setupSeason: week 1 Memphis size9 vs New Mexico St size1
+[D/league] setupSeason: week 1 Army size1 vs Hawaii size8
+[D/league] setupSeason: week 1 Houston size9 vs Wyoming size8
+[D/league] setupSeason: week 1 San Diego size8 vs East Carolina size9
+[D/league] setupSeason: week 1 Colorado State size8 vs Central Arkansas size0
+[D/league] setupSeason: week 1 New Mexico size8 vs Idaho State size0
+[D/league] setupSeason: week 2 South Bend size2 vs Georgia IT size9
+[D/league] setupSeason: week 2 Durham size9 vs Provo size2
+[D/league] setupSeason: week 2 Lynchburg size2 vs Buffalo size9
+[D/league] setupSeason: week 2 New Mexico St size2 vs Eastern Michigan size9
+[D/league] setupSeason: week 2 Army size2 vs Northern Illinois size9
+[D/league] setupSeason: week 2 Winston-Salem size9 vs Massachusetts size2
+[D/league] setupSeason: week 2 Louisville size9 vs Southern TX size0
+[D/league] setupSeason: week 2 North Carolina size9 vs Harvard size0
+[D/league] setupSeason: week 3 Ohio size10 vs South Houston size8
+[D/league] setupSeason: week 3 Birmingham size8 vs East Carolina size10
+[D/league] setupSeason: week 3 Western Kentucky size8 vs Bowling Green size10
+[D/league] setupSeason: week 3 Lynchburg size3 vs North Texas size8
+[D/league] setupSeason: week 3 Miami OH size10 vs South Mississippi size8
+[D/league] setupSeason: week 3 Louisiana Poly size8 vs Cincinnati size10
+[D/league] setupSeason: week 3 Memphis size10 vs El Paso size8
+[D/league] setupSeason: week 3 Connecticut size10 vs San Antonio size8
+[D/league] setupSeason: week 3 Tulsa size10 vs Boca Raton size8
+[D/league] setupSeason: week 3 Mid Tenn State size8 vs Akron size10
+[D/league] setupSeason: week 3 Miami Intl size8 vs Tulane size10
+[D/league] setupSeason: week 3 New Mexico St size3 vs Kent size10
+[D/league] setupSeason: week 3 Charlotte size8 vs Northern Illinois size10
+[D/league] setupSeason: week 3 Norfolk size8 vs Army size3
+[D/league] setupSeason: week 3 Provo size3 vs Eastern Michigan size10
+[D/league] setupSeason: week 3 Massachusetts size3 vs Huntington size8
+[D/league] setupSeason: week 3 Western Michigan size10 vs South Bend size3
+[D/league] setupSeason: week 3 South Florida size10 vs Western llinois size0
+[D/league] setupSeason: week 3 Houston size10 vs Idaho State size0
+[D/league] setupSeason: week 4 Provo size4 vs Louisville size10
+[D/league] setupSeason: week 4 El Paso size9 vs Winston-Salem size10
+[D/league] setupSeason: week 4 Birmingham size9 vs Virginia size10
+[D/league] setupSeason: week 4 Charlotte size9 vs Syracuse size10
+[D/league] setupSeason: week 4 South Houston size9 vs South Alabama size8
+[D/league] setupSeason: week 4 South Mississippi size9 vs South Carolina Tech size10
+[D/league] setupSeason: week 4 Utah size8 vs New Mexico St size4
+[D/league] setupSeason: week 4 Penn State size8 vs North Texas size9
+[D/league] setupSeason: week 4 Georgia State size8 vs Norfolk size9
+[D/league] setupSeason: week 4 South Bend size4 vs Texas State size8
+[D/league] setupSeason: week 4 San Antonio size9 vs Monroe size8
+[D/league] setupSeason: week 4 North Carolina size10 vs Wisconsin size8
+[D/league] setupSeason: week 4 Florida State size10 vs Oregon size8
+[D/league] setupSeason: week 4 Chicago size8 vs Mid Tenn State size9
+[D/league] setupSeason: week 4 Indiana size8 vs Georgia IT size10
+[D/league] setupSeason: week 4 Western Kentucky size9 vs Nebraska size8
+[D/league] setupSeason: week 4 Virginia Poly size10 vs Lynchburg size4
+[D/league] setupSeason: week 4 Army size4 vs Miami Intl size9
+[D/league] setupSeason: week 4 Pittsburgh size10 vs Boca Raton size9
+[D/league] setupSeason: week 4 California size8 vs Massachusetts size4
+[D/league] setupSeason: week 4 Miami size10 vs Arizona size8
+[D/league] setupSeason: week 4 Arkansas State size8 vs Durham size10
+[D/league] setupSeason: week 4 Purdue size8 vs xBoston size10
+[D/league] setupSeason: week 4 Colorado size8 vs Louisiana Poly size9
+[D/league] setupSeason: week 4 Troy size8 vs Huntington size9
+[D/league] setupSeason: week 4 New Jersey size8 vs NC State size10
+[D/league] setupSeason: week 5 Georgia IT size11 vs Wisconsin size9
+[D/league] setupSeason: week 5 Provo size5 vs Las Vegas size9
+[D/league] setupSeason: week 5 Louisville size11 vs San Jose size9
+[D/league] setupSeason: week 5 Virginia size11 vs Michigan size9
+[D/league] setupSeason: week 5 Durham size11 vs Hawaii size9
+[D/league] setupSeason: week 5 Michigan State size9 vs Army size5
+[D/league] setupSeason: week 5 xBoston size11 vs Nevada size9
+[D/league] setupSeason: week 5 New Mexico St size5 vs Boise size9
+[D/league] setupSeason: week 5 Winston-Salem size11 vs Ohio State size9
+[D/league] setupSeason: week 5 Lynchburg size5 vs Miami size11
+[D/league] setupSeason: week 5 Illinois size9 vs Pittsburgh size11
+[D/league] setupSeason: week 5 New Jersey size9 vs Florida State size11
+[D/league] setupSeason: week 5 NC State size11 vs Iowa size9
+[D/league] setupSeason: week 5 North Carolina size11 vs Nebraska size9
+[D/league] setupSeason: week 5 South Carolina Tech size11 vs South Bend size5
+[D/league] setupSeason: week 5 Purdue size9 vs Massachusetts size5
+[D/league] setupSeason: week 5 Syracuse size11 vs Indiana size9
+[D/league] setupSeason: week 5 Air Force size9 vs Virginia Poly size11
+[D/league] setupSeason: week 5 Colorado State size9 vs Georgetown size0
+[D/league] setupSeason: week 5 Wyoming size9 vs Western llinois size0
+[D/league] setupSeason: week 6 San Diego size10 vs South Alabama size9
+[D/league] setupSeason: week 6 Indiana size10 vs Troy size9
+[D/league] setupSeason: week 6 Miami Intl size10 vs Georgia State size9
+[D/league] setupSeason: week 6 Lynchburg size6 vs Ohio State size10
+[D/league] setupSeason: week 6 West Virginia size9 vs El Paso size10
+[D/league] setupSeason: week 6 South Bend size6 vs Minnesota size10
+[D/league] setupSeason: week 6 Kansas size9 vs Boise size10
+[D/league] setupSeason: week 6 Monroe size9 vs Huntington size10
+[D/league] setupSeason: week 6 Oklahoma State size9 vs Colorado State size10
+[D/league] setupSeason: week 6 Oklahoma size9 vs Boca Raton size10
+[D/league] setupSeason: week 6 Massachusetts size6 vs Ft Worth size9
+[D/league] setupSeason: week 6 Lafayette size9 vs New Jersey size10
+[D/league] setupSeason: week 6 Las Vegas size10 vs Texas IT size9
+[D/league] setupSeason: week 6 Charlotte size10 vs Coastal size9
+[D/league] setupSeason: week 6 South Houston size10 vs Texas size9
+[D/league] setupSeason: week 6 New Mexico size10 vs Texas State size9
+[D/league] setupSeason: week 6 Appalachian size9 vs Provo size6
+[D/league] setupSeason: week 6 Norfolk size10 vs New Mexico St size6
+[D/league] setupSeason: week 6 Fresno size10 vs Army size6
+[D/league] setupSeason: week 6 Nebraska size10 vs Waco size9
+[D/league] setupSeason: week 7 California size9 vs New Mexico size11
+[D/league] setupSeason: week 7 Arizona size9 vs Toledo size11
+[D/league] setupSeason: week 7 Utah size9 vs San Diego size11
+[D/league] setupSeason: week 7 Oklahoma size10 vs Fresno size11
+[D/league] setupSeason: week 7 Washington State size9 vs Utah State size11
+[D/league] setupSeason: week 7 Oklahoma State size10 vs Hawaii size11
+[D/league] setupSeason: week 7 Texas size10 vs Arizona State size9
+[D/league] setupSeason: week 7 Oregon State size9 vs Army size7
+[D/league] setupSeason: week 7 Kent size11 vs Provo size7
+[D/league] setupSeason: week 7 Colorado size9 vs Wyoming size11
+[D/league] setupSeason: week 7 Eastern Michigan size11 vs Ft Worth size10
+[D/league] setupSeason: week 7 Massachusetts size7 vs Iowa State size10
+[D/league] setupSeason: week 7 Texas IT size10 vs Nevada size11
+[D/league] setupSeason: week 7 South Bend size7 vs Pasadena size9
+[D/league] setupSeason: week 7 Bowling Green size11 vs Waco size10
+[D/league] setupSeason: week 7 Air Force size11 vs San Francisco size9
+[D/league] setupSeason: week 7 Lynchburg size7 vs West Virginia size10
+[D/league] setupSeason: week 7 Washington size9 vs Buffalo size11
+[D/league] setupSeason: week 7 Kansas State size10 vs Oregon size9
+[D/league] setupSeason: week 7 Northern Illinois size11 vs Kansas size10
+[D/league] setupSeason: week 7 Akron size11 vs Southern Cal size9
+[D/league] setupSeason: week 7 New Mexico St size7 vs Muncie size11
+[D/league] setupSeason: week 8 Purdue size11 vs Auburn size9
+[D/league] setupSeason: week 8 California size10 vs Nebraska size11
+[D/league] setupSeason: week 8 Indiana size11 vs Alabama size9
+[D/league] setupSeason: week 8 Tennessee size9 vs New Mexico St size8
+[D/league] setupSeason: week 8 South Carolina size9 vs Southern Cal size10
+[D/league] setupSeason: week 8 Provo size8 vs Oklahoma size11
+[D/league] setupSeason: week 8 Army size8 vs Kansas size11
+[D/league] setupSeason: week 8 Nashville size9 vs San Francisco size10
+[D/league] setupSeason: week 8 Oregon State size10 vs Arkansas size9
+[D/league] setupSeason: week 8 Massachusetts size8 vs Ole Miss size9
+[D/league] setupSeason: week 8 Lousiana State size9 vs South Bend size8
+[D/league] setupSeason: week 8 Kentucky size9 vs Arizona size10
+[D/league] setupSeason: week 8 Maryland size11 vs Utah size10
+[D/league] setupSeason: week 8 College Station size9 vs Washington size10
+[D/league] setupSeason: week 8 Colorado size10 vs Oklahoma State size11
+[D/league] setupSeason: week 8 Florida size9 vs Pasadena size10
+[D/league] setupSeason: week 8 Oregon size10 vs Penn State size11
+[D/league] setupSeason: week 8 Mississippi State size9 vs Michigan State size11
+[D/league] setupSeason: week 8 Washington State size10 vs Wisconsin size11
+[D/league] setupSeason: week 8 Lynchburg size8 vs Arizona State size10
+[D/league] setupSeason: week 8 Missouri size9 vs Kansas State size11
+[D/league] setupSeason: week 8 Georgia size9 vs Michigan size11
+[D/league] setupSeason: week 9 Cincinnati size11 vs Nashville size10
+[D/league] setupSeason: week 9 College Station size10 vs East Carolina size11
+[D/league] setupSeason: week 9 Georgia size10 vs Provo size9
+[D/league] setupSeason: week 9 Dallas size11 vs Tennessee size10
+[D/league] setupSeason: week 9 Philadelphia size11 vs Auburn size10
+[D/league] setupSeason: week 9 Alabama size10 vs New Mexico St size9
+[D/league] setupSeason: week 9 Ole Miss size10 vs Houston size11
+[D/league] setupSeason: week 9 Massachusetts size9 vs Navy size11
+[D/league] setupSeason: week 9 Mississippi State size10 vs Lynchburg size9
+[D/league] setupSeason: week 9 Missouri size10 vs Tulsa size11
+[D/league] setupSeason: week 9 South Bend size9 vs Tulane size11
+[D/league] setupSeason: week 9 Central Florida size11 vs Florida size10
+[D/league] setupSeason: week 9 Memphis size11 vs Arkansas size10
+[D/league] setupSeason: week 9 Connecticut size11 vs South Carolina size10
+[D/league] setupSeason: week 9 Kentucky size10 vs Army size9
+[D/league] setupSeason: week 9 Lousiana State size10 vs South Florida size11
+[D/league] setupSeason: week 10 Texas State size10 vs Missouri size11
+[D/league] setupSeason: week 10 South Alabama size10 vs Alabama size11
+[D/league] setupSeason: week 10 South Carolina size11 vs Georgia State size10
+[D/league] setupSeason: week 10 Mississippi State size11 vs Troy size10
+[D/league] setupSeason: week 10 Lousiana State size11 vs Arkansas State size10
+[D/league] setupSeason: week 10 Kentucky size11 vs Massachusetts size10
+[D/league] setupSeason: week 10 Florida size11 vs South Georgia size10
+[D/league] setupSeason: week 10 Army size10 vs Tennessee size11
+[D/league] setupSeason: week 10 Lynchburg size10 vs Ole Miss size11
+[D/league] setupSeason: week 10 Auburn size11 vs South Bend size10
+[D/league] setupSeason: week 10 Coastal size10 vs College Station size11
+[D/league] setupSeason: week 10 Monroe size10 vs Nashville size11
+[D/league] setupSeason: week 10 Georgia size11 vs Northern Arizona size0
+[D/league] setupSeason: week 10 Arkansas size11 vs Montana size0
+[D/league] setupSeason: week 11 Georgia State size11 vs South Dakota size0
+[D/league] setupSeason: week 11 Monroe size11 vs James Madison size0
+[D/league] setupSeason: week 0 Provo size0 vs Toledo size8
+[D/league] setupSeason: week 0 Army size0 vs Texas size8
+[D/league] setupSeason: week 0 Lafayette size8 vs Lynchburg size0
+[D/league] setupSeason: week 0 Boca Raton size8 vs Massachusetts size0
+[D/league] setupSeason: week 0 New Mexico St size0 vs Monroe size8
+[D/league] setupSeason: week 0 Oklahoma size8 vs South Bend size0
+[D/league] setupSeason: week 0 Waco size8 vs Delaware size0
+[D/league] setupSeason: week 0 Iowa State size8 vs Rhode Island size0
+[D/league] setupSeason: week 1 Provo size1 vs San Jose size8
+[D/league] setupSeason: week 1 Colorado State size8 vs Massachusetts size1
+[D/league] setupSeason: week 1 Army size1 vs Arizona size8
+[D/league] setupSeason: week 1 Lynchburg size1 vs Washington State size8
+[D/league] setupSeason: week 1 South Bend size1 vs Utah size8
+[D/league] setupSeason: week 1 Las Vegas size8 vs New Mexico St size1
+[D/league] setupSeason: week 2 Western Kentucky size9 vs New Mexico St size2
+[D/league] setupSeason: week 2 Nashville size8 vs Ohio size9
+[D/league] setupSeason: week 2 El Paso size9 vs Tennessee size8
+[D/league] setupSeason: week 2 Toledo size9 vs Army size2
+[D/league] setupSeason: week 2 College Station size8 vs Lynchburg size2
+[D/league] setupSeason: week 2 Georgia IT size8 vs Northern Illinois size9
+[D/league] setupSeason: week 2 South Carolina size8 vs South Bend size2
+[D/league] setupSeason: week 2 Auburn size8 vs Birmingham size9
+[D/league] setupSeason: week 2 xBoston size8 vs Charlotte size9
+[D/league] setupSeason: week 2 Akron size9 vs Lousiana State size8
+[D/league] setupSeason: week 2 Ole Miss size8 vs Miami Intl size9
+[D/league] setupSeason: week 2 Massachusetts size2 vs Florida size8
+[D/league] setupSeason: week 2 Winston-Salem size8 vs Mid Tenn State size9
+[D/league] setupSeason: week 2 Kentucky size8 vs Buffalo size9
+[D/league] setupSeason: week 2 South Mississippi size9 vs Pittsburgh size8
+[D/league] setupSeason: week 2 Florida State size8 vs North Texas size9
+[D/league] setupSeason: week 2 Miami size8 vs Eastern Michigan size9
+[D/league] setupSeason: week 2 Central Michigan size9 vs South Carolina Tech size8
+[D/league] setupSeason: week 2 Huntington size9 vs North Carolina size8
+[D/league] setupSeason: week 2 Virginia size8 vs Bowling Green size9
+[D/league] setupSeason: week 2 Provo size2 vs South Houston size9
+[D/league] setupSeason: week 2 NC State size8 vs Norfolk size9
+[D/league] setupSeason: week 2 Missouri size8 vs Kent size9
+[D/league] setupSeason: week 3 Arizona State size9 vs Massachusetts size3
+[D/league] setupSeason: week 3 New Mexico St size3 vs Utah size9
+[D/league] setupSeason: week 3 Southern Cal size9 vs Provo size3
+[D/league] setupSeason: week 3 Army size3 vs Washington State size9
+[D/league] setupSeason: week 3 California size9 vs South Bend size3
+[D/league] setupSeason: week 3 Lynchburg size3 vs San Francisco size9
+[D/league] setupSeason: week 3 Oregon State size9 vs South Dakota size0
+[D/league] setupSeason: week 3 Washington size9 vs South Dakota St size0
+[D/league] setupSeason: week 3 Colorado size9 vs Portland size0
+[D/league] setupSeason: week 3 Pasadena size9 vs Delaware size0
+[D/league] setupSeason: week 3 Oregon size9 vs Northern Arizona size0
+[D/league] setupSeason: week 3 Arizona size9 vs Alabama State size0
+[D/league] setupSeason: week 4 North Carolina size9 vs Lynchburg size4
+[D/league] setupSeason: week 4 Connecticut size8 vs Auburn size9
+[D/league] setupSeason: week 4 Arkansas size9 vs Tulsa size8
+[D/league] setupSeason: week 4 Nashville size9 vs South Bend size4
+[D/league] setupSeason: week 4 Massachusetts size4 vs Miami size9
+[D/league] setupSeason: week 4 Florida size9 vs Dallas size8
+[D/league] setupSeason: week 4 Army size4 vs Memphis size8
+[D/league] setupSeason: week 4 Georgia size9 vs Philadelphia size8
+[D/league] setupSeason: week 4 South Carolina Tech size9 vs Provo size4
+[D/league] setupSeason: week 4 South Florida size8 vs Georgia IT size9
+[D/league] setupSeason: week 4 College Station size9 vs Cincinnati size8
+[D/league] setupSeason: week 4 Houston size8 vs New Mexico St size4
+[D/league] setupSeason: week 4 Navy size8 vs Virginia size9
+[D/league] setupSeason: week 4 Syracuse size9 vs Tulane size8
+[D/league] setupSeason: week 4 Mississippi State size9 vs East Carolina size8
+[D/league] setupSeason: week 4 Louisville size9 vs Central Florida size8
+[D/league] setupSeason: week 5 Georgia IT size10 vs Purdue size8
+[D/league] setupSeason: week 5 Eastern Michigan size10 vs Indiana size8
+[D/league] setupSeason: week 5 Boise size9 vs Florida State size10
+[D/league] setupSeason: week 5 Virginia size10 vs Lynchburg size5
+[D/league] setupSeason: week 5 Appalachian size9 vs Western Michigan size10
+[D/league] setupSeason: week 5 Massachusetts size5 vs Monroe size9
+[D/league] setupSeason: week 5 Miami OH size10 vs New Mexico size9
+[D/league] setupSeason: week 5 Central Michigan size10 vs Wyoming size9
+[D/league] setupSeason: week 5 Chicago size8 vs Pittsburgh size10
+[D/league] setupSeason: week 5 Penn State size8 vs Army size5
+[D/league] setupSeason: week 5 Nevada size9 vs Bowling Green size10
+[D/league] setupSeason: week 5 Muncie size10 vs Michigan size8
+[D/league] setupSeason: week 5 Winston-Salem size10 vs Nebraska size8
+[D/league] setupSeason: week 5 Minnesota size8 vs Air Force size9
+[D/league] setupSeason: week 5 Kent size10 vs South Bend size5
+[D/league] setupSeason: week 5 Syracuse size10 vs Texas State size9
+[D/league] setupSeason: week 5 Michigan State size8 vs San Diego size9
+[D/league] setupSeason: week 5 Virginia Poly size10 vs Fresno size9
+[D/league] setupSeason: week 5 Buffalo size10 vs Las Vegas size9
+[D/league] setupSeason: week 5 Lafayette size9 vs Louisville size10
+[D/league] setupSeason: week 5 New Jersey size8 vs Georgia State size9
+[D/league] setupSeason: week 5 Akron size10 vs Iowa size8
+[D/league] setupSeason: week 5 Troy size9 vs Maryland size8
+[D/league] setupSeason: week 5 Toledo size10 vs Illinois size8
+[D/league] setupSeason: week 5 Provo size5 vs xBoston size10
+[D/league] setupSeason: week 5 Durham size10 vs San Jose size9
+[D/league] setupSeason: week 5 Ohio State size8 vs South Carolina Tech size10
+[D/league] setupSeason: week 5 New Mexico St size5 vs Wisconsin size8
+[D/league] setupSeason: week 5 Arkansas State size9 vs Miami size10
+[D/league] setupSeason: week 6 Virginia Poly size11 vs Auburn size10
+[D/league] setupSeason: week 6 Georgia IT size11 vs Nashville size10
+[D/league] setupSeason: week 6 Birmingham size10 vs Durham size11
+[D/league] setupSeason: week 6 xBoston size11 vs Massachusetts size6
+[D/league] setupSeason: week 6 Syracuse size11 vs Mississippi State size10
+[D/league] setupSeason: week 6 Western Kentucky size10 vs Virginia size11
+[D/league] setupSeason: week 6 Alabama size10 vs New Mexico St size6
+[D/league] setupSeason: week 6 Charlotte size10 vs Winston-Salem size11
+[D/league] setupSeason: week 6 Arkansas size10 vs Louisville size11
+[D/league] setupSeason: week 6 Tennessee size10 vs Pittsburgh size11
+[D/league] setupSeason: week 6 Louisiana Poly size10 vs North Carolina size11
+[D/league] setupSeason: week 6 Huntington size10 vs South Carolina Tech size11
+[D/league] setupSeason: week 6 Florida State size11 vs Florida size10
+[D/league] setupSeason: week 6 South Houston size10 vs Army size6
+[D/league] setupSeason: week 6 El Paso size10 vs NC State size11
+[D/league] setupSeason: week 6 Lousiana State size10 vs Provo size6
+[D/league] setupSeason: week 6 South Bend size6 vs Miami size11
+[D/league] setupSeason: week 6 San Antonio size10 vs Lynchburg size6
+[D/league] setupSeason: week 7 Houston size9 vs Western Kentucky size11
+[D/league] setupSeason: week 7 Lynchburg size7 vs Michigan State size9
+[D/league] setupSeason: week 7 Massachusetts size7 vs Nevada size10
+[D/league] setupSeason: week 7 San Antonio size11 vs East Carolina size9
+[D/league] setupSeason: week 7 Mid Tenn State size11 vs Colorado State size10
+[D/league] setupSeason: week 7 Illinois size9 vs Las Vegas size10
+[D/league] setupSeason: week 7 Tulsa size9 vs New Mexico size10
+[D/league] setupSeason: week 7 Boise size10 vs South Florida size9
+[D/league] setupSeason: week 7 South Mississippi size11 vs Indiana size9
+[D/league] setupSeason: week 7 Central Florida size9 vs Army size7
+[D/league] setupSeason: week 7 Iowa size9 vs Fresno size10
+[D/league] setupSeason: week 7 San Diego size10 vs Navy size9
+[D/league] setupSeason: week 7 Tulane size9 vs El Paso size11
+[D/league] setupSeason: week 7 Utah State size10 vs Nebraska size9
+[D/league] setupSeason: week 7 Air Force size10 vs Maryland size9
+[D/league] setupSeason: week 7 Penn State size9 vs Hawaii size10
+[D/league] setupSeason: week 7 North Texas size11 vs New Mexico St size7
+[D/league] setupSeason: week 7 Huntington size11 vs Philadelphia size9
+[D/league] setupSeason: week 7 Charlotte size11 vs Purdue size9
+[D/league] setupSeason: week 7 Michigan size9 vs Wyoming size10
+[D/league] setupSeason: week 7 Norfolk size11 vs Ohio State size9
+[D/league] setupSeason: week 7 Minnesota size9 vs Miami Intl size11
+[D/league] setupSeason: week 7 Connecticut size9 vs Provo size7
+[D/league] setupSeason: week 7 San Jose size10 vs South Bend size7
+[D/league] setupSeason: week 7 Boca Raton size11 vs New Jersey size9
+[D/league] setupSeason: week 7 Louisiana Poly size11 vs Dallas size9
+[D/league] setupSeason: week 7 South Houston size11 vs Albany size0
+[D/league] setupSeason: week 7 Birmingham size11 vs Princeton size0
+[D/league] setupSeason: week 8 Michigan size10 vs Waco size9
+[D/league] setupSeason: week 8 Texas State size10 vs Kansas State size9
+[D/league] setupSeason: week 8 Kansas size9 vs Lynchburg size8
+[D/league] setupSeason: week 8 Massachusetts size8 vs Indiana size10
+[D/league] setupSeason: week 8 Illinois size10 vs New Mexico St size8
+[D/league] setupSeason: week 8 West Virginia size9 vs Provo size8
+[D/league] setupSeason: week 8 Ft Worth size9 vs Wisconsin size10
+[D/league] setupSeason: week 8 Appalachian size10 vs Iowa State size9
+[D/league] setupSeason: week 8 Oklahoma State size9 vs Ohio State size10
+[D/league] setupSeason: week 8 Georgia State size10 vs South Bend size8
+[D/league] setupSeason: week 8 Penn State size10 vs Texas IT size9
+[D/league] setupSeason: week 8 Purdue size10 vs Texas size9
+[D/league] setupSeason: week 8 Troy size10 vs Oklahoma size9
+[D/league] setupSeason: week 8 Army size8 vs Iowa size10
+[D/league] setupSeason: week 9 New Jersey size11 vs Arizona size10
+[D/league] setupSeason: week 9 Dallas size10 vs Maryland size11
+[D/league] setupSeason: week 9 Hawaii size11 vs West Virginia size10
+[D/league] setupSeason: week 9 South Bend size9 vs San Francisco size10
+[D/league] setupSeason: week 9 Indiana size11 vs Colorado size10
+[D/league] setupSeason: week 9 Houston size10 vs Ohio State size11
+[D/league] setupSeason: week 9 Penn State size11 vs Texas size10
+[D/league] setupSeason: week 9 Massachusetts size9 vs Utah size10
+[D/league] setupSeason: week 9 Tulsa size10 vs Nevada size11
+[D/league] setupSeason: week 9 Michigan State size11 vs Southern Cal size10
+[D/league] setupSeason: week 9 Memphis size10 vs Iowa size11
+[D/league] setupSeason: week 9 Oklahoma State size10 vs Wyoming size11
+[D/league] setupSeason: week 9 Washington State size10 vs San Jose size11
+[D/league] setupSeason: week 9 Central Florida size10 vs Colorado State size11
+[D/league] setupSeason: week 9 Connecticut size10 vs Michigan size11
+[D/league] setupSeason: week 9 Kansas State size10 vs Illinois size11
+[D/league] setupSeason: week 9 Provo size9 vs Oklahoma size10
+[D/league] setupSeason: week 9 Las Vegas size11 vs East Carolina size10
+[D/league] setupSeason: week 9 South Florida size10 vs San Diego size11
+[D/league] setupSeason: week 9 Purdue size11 vs Cincinnati size10
+[D/league] setupSeason: week 9 Wisconsin size11 vs Waco size10
+[D/league] setupSeason: week 9 New Mexico St size9 vs Arizona State size10
+[D/league] setupSeason: week 9 Army size9 vs Kansas size10
+[D/league] setupSeason: week 9 Lynchburg size9 vs Nebraska size11
+[D/league] setupSeason: week 9 Philadelphia size10 vs Boise size11
+[D/league] setupSeason: week 9 New Mexico size11 vs Montana size0
+[D/league] setupSeason: week 9 Fresno size11 vs Youngstown size0
+[D/league] setupSeason: week 10 Western Michigan size11 vs Lynchburg size10
+[D/league] setupSeason: week 10 Massachusetts size10 vs South Carolina size11
+[D/league] setupSeason: week 10 New Mexico St size10 vs Georgia size11
+[D/league] setupSeason: week 10 Pasadena size11 vs South Bend size10
+[D/league] setupSeason: week 10 Provo size10 vs Tennessee size11
+[D/league] setupSeason: week 10 Nashville size11 vs Army size10
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
