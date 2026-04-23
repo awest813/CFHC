@@ -33,10 +33,10 @@ public class LauncherFrame extends JFrame {
     private static final Color ACCENT_BLUE = new Color(50, 100, 180);
 
     public LauncherFrame() {
-        super("CFB Coach — Desktop Hub");
+        super("CFB Coach - Desktop Hub");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 500);
-        setResizable(false);
+        setMinimumSize(new Dimension(760, 460));
         setLocationRelativeTo(null);
 
         setLayout(new BorderLayout());
@@ -70,7 +70,7 @@ public class LauncherFrame extends JFrame {
         JPanel buttonGrid = new JPanel(new GridLayout(0, 1, 0, 15));
         buttonGrid.setOpaque(false);
 
-        JButton newBtn = createStyledButton("New Career", "Star a fresh league with standard rosters.");
+        JButton newBtn = createStyledButton("New Career", "Start a fresh league with standard rosters.");
         newBtn.addActionListener(e -> launchNewLeague());
         buttonGrid.add(newBtn);
 

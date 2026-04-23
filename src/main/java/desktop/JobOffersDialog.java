@@ -234,9 +234,11 @@ public class JobOffersDialog extends JDialog {
             }
         });
 
-        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-                new JScrollPane(table) {{ setBorder(BorderFactory.createEmptyBorder()); setViewportBackground(BG_COLOR); }}, 
-                detailPanel);
+        JScrollPane tableScroll = new JScrollPane(table);
+        tableScroll.setBorder(BorderFactory.createEmptyBorder());
+        tableScroll.getViewport().setBackground(BG_COLOR);
+
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableScroll, detailPanel);
         split.setDividerLocation(550);
         split.setOpaque(false);
         split.setBorder(null);
@@ -318,7 +320,7 @@ public class JobOffersDialog extends JDialog {
 
         StringBuilder sb = new StringBuilder();
         sb.append("PROGRAM SNAPSHOT: ").append(team.getName().toUpperCase()).append("\n");
-        sb.append("═".repeat(45)).append("\n\n");
+        sb.append("=".repeat(45)).append("\n\n");
         sb.append("PRESTIGE: #").append(team.getRankTeamPrestige())
           .append(" (").append(team.getTeamPrestige()).append(")\n");
         sb.append("CONFERENCE: ").append(team.getConference().toUpperCase())

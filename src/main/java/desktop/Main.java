@@ -101,7 +101,7 @@ public class Main {
                 System.out.println("New-game wizard cancelled.");
                 return;
             }
-            PlatformLog.i(TAG, "Launching new league UI — user team: "
+            PlatformLog.i(TAG, "Launching new league UI - user team: "
                     + (league.userTeam != null ? league.userTeam.getName() : "none"));
             LeagueHomeView.show(league);
         } catch (Exception e) {

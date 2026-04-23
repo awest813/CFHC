@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_dialog_surface"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_dialog_section"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <TextView
+                android:id="@+id/ppPlayerName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:maxLines="2"
+                android:text="Player Name"
+                android:textAlignment="center"
+                android:textColor="@color/textPrimary"
+                android:textSize="24sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/ppPosition"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_mobile_chip"
+                        android:padding="8dp"
+                        android:text="QB"
+                        android:textColor="@color/accentGold"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/ppClass"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="8dp"
+                        android:background="@drawable/bg_mobile_chip"
+                        android:padding="8dp"
+                        android:text="Senior"
+                        android:textColor="@color/textPrimary"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/ppOverall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="@drawable/bg_mobile_chip"
+                    android:padding="8dp"
+                    android:text="86 OVR"
+                    android:textColor="@color/textPrimary"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/ppTeam"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="Washington"
+                android:textColor="@color/textPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical">
+
+                <TextView android:id="@+id/ppHome" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Idaho" android:textColor="@color/textSecondary" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:orientation="horizontal">
+                    <TextView android:id="@+id/ppStars" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="4 Star" android:textColor="@color/textSecondary" />
+                    <TextView android:id="@+id/ppHeight" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:text="6' 3&quot;" android:textColor="@color/textSecondary" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/ppWeight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="240lbs"
+                android:textColor="@color/textSecondary" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_dialog_section"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView android:id="@+id/ppCharacterName" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Character" android:textColor="@color/accentGold" android:textStyle="bold" />
+                <TextView android:id="@+id/ppCharacter" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="60" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" />
+                <TextView android:id="@+id/ppAwarenessName" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Intelligence" android:textColor="@color/accentGold" android:textStyle="bold" />
+                <TextView android:id="@+id/ppAwarness" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="77" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_dialog_section"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView android:id="@+id/ppStatusName" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Status" android:textColor="@color/accentGold" android:textStyle="bold" />
+                <TextView android:id="@+id/ppStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Active" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" />
+                <TextView android:id="@+id/ppDurabilityName" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Durability" android:textColor="@color/accentGold" android:textStyle="bold" />
+                <TextView android:id="@+id/ppDurability" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="93" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_dialog_section"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView android:id="@+id/ppAttr1Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Attr1" android:textColor="@color/accentGold" android:textStyle="bold" />
+                <TextView android:id="@+id/ppAttr1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="60" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" />
+                <TextView android:id="@+id/ppAttr2Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Attr2" android:textColor="@color/accentGold" android:textStyle="bold" />
+                <TextView android:id="@+id/ppAttr2" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="77" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_dialog_section"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView android:id="@+id/ppAttr3Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Attr3" android:textColor="@color/accentGold" android:textStyle="bold" />
+                <TextView android:id="@+id/ppAttr3" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="76" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" />
+                <TextView android:id="@+id/ppAttr4Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Attr4" android:textColor="@color/accentGold" android:textStyle="bold" />
+                <TextView android:id="@+id/ppAttr4" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="93" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_dialog_section"
+                android:orientation="horizontal"
+                android:padding="10dp">
+
+                <TextView android:id="@+id/ppYear" android:layout_width="72dp" android:layout_height="wrap_content" android:gravity="center" android:text="Year" android:textColor="@color/accentGold" android:textSize="10sp" android:textStyle="bold" />
+                <TextView android:id="@+id/ppStat0" android:layout_width="56dp" android:layout_height="wrap_content" android:gravity="center" android:text="G" android:textColor="@color/textSecondary" android:textSize="10sp" />
+                <TextView android:id="@+id/ppStat1" android:layout_width="56dp" android:layout_height="wrap_content" android:gravity="center" android:text="GS" android:textColor="@color/textSecondary" android:textSize="10sp" />
+                <TextView android:id="@+id/ppStat2" android:layout_width="56dp" android:layout_height="wrap_content" android:gravity="center" android:text="Yds" android:textColor="@color/textSecondary" android:textSize="10sp" />
+                <TextView android:id="@+id/ppStat3" android:layout_width="56dp" android:layout_height="wrap_content" android:gravity="center" android:text="TD" android:textColor="@color/textSecondary" android:textSize="10sp" />
+                <TextView android:id="@+id/ppStat4" android:layout_width="56dp" android:layout_height="wrap_content" android:gravity="center" android:text="Int" android:textColor="@color/textSecondary" android:textSize="10sp" />
+                <TextView android:id="@+id/ppStat5" android:layout_width="56dp" android:layout_height="wrap_content" android:gravity="center" android:text="Sack" android:textColor="@color/textSecondary" android:textSize="10sp" />
+                <TextView android:id="@+id/ppStat6" android:layout_width="64dp" android:layout_height="wrap_content" android:gravity="center" android:text="Comp" android:textColor="@color/textSecondary" android:textSize="10sp" />
+                <TextView android:id="@+id/ppStat7" android:layout_width="64dp" android:layout_height="wrap_content" android:gravity="center" android:text="QBR" android:textColor="@color/textSecondary" android:textSize="10sp" />
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_dialog_section"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView android:id="@+id/ppFeatStat1Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Attr1" android:textColor="@color/accentGold" android:textStyle="bold" />
+                <TextView android:id="@+id/ppFeatStat1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="15.2 YPP" android:textColor="@color/textPrimary" />
+                <TextView android:id="@+id/ppFeatStat2Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Attr2" android:textColor="@color/accentGold" android:textStyle="bold" />
+                <TextView android:id="@+id/ppFeatStat2" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="377 PYPG" android:textColor="@color/textPrimary" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:background="@drawable/bg_dialog_section"
+                android:orientation="vertical"
+                android:padding="12dp">
+
+                <TextView android:id="@+id/ppFeatStat3Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Attr3" android:textColor="@color/accentGold" android:textStyle="bold" />
+                <TextView android:id="@+id/ppFeatStat3" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="76 YPG" android:textColor="@color/textPrimary" />
+                <TextView android:id="@+id/ppFeatStat4Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Attr4" android:textColor="@color/accentGold" android:textStyle="bold" />
+                <TextView android:id="@+id/ppFeatStat4" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="5.6 YPC" android:textColor="@color/textPrimary" />
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

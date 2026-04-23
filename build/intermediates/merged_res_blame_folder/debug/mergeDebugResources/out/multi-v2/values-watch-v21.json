@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "antdroid.cfbcoach-mergeDebugResources-25:/values-watch-v21/values-watch-v21.xml",
+            "outputFile": "antdroid.cfbcoach-mergeDebugResources-32:/values-watch-v21/values-watch-v21.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\allen\\.gradle\\caches\\8.9\\transforms\\e8a22cf3ed383c446a94669066e5ed8d\\transformed\\appcompat-1.4.2\\res\\values-watch-v21\\values-watch-v21.xml",
+                    "source": "C:\\Users\\allen\\.gradle\\caches\\8.9\\transforms\\9976626f0aa34d8b66834c84661ecf74\\transformed\\appcompat-1.7.0\\res\\values-watch-v21\\values-watch-v21.xml",
                     "from": {
                         "startLines": "2,6,10",
                         "startColumns": "4,4,4",

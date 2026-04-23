@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_mobile_row"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="12dp">
+
+    <TextView
+        android:id="@+id/textViewLineupPlayerInfo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:paddingRight="10dp"
+        android:text="A. Player Ovr:99 Pot:99 (A+,B-,C+)"
+        android:textAppearance="?android:attr/textAppearanceSmall"
+        android:textColor="@color/textPrimary"
+        android:textStyle="bold" />
+
+    <CheckBox
+        android:id="@+id/checkboxPlayerStartingLineup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</LinearLayout>
