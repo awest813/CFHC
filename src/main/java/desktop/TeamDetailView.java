@@ -21,6 +21,8 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -70,8 +72,59 @@ public class TeamDetailView extends JDialog {
             tabs.addTab("Records", buildRecordsTab(team.records()));
         }
 
+        JPanel footer = buildFooter(team, liveTeam);
         add(tabs, BorderLayout.CENTER);
-        add(buildFooter(team, liveTeam), BorderLayout.SOUTH);
+        add(footer, BorderLayout.SOUTH);
+        themeTeamDetailShell(tabs, footer);
+    }
+
+    private void themeTeamDetailShell(JTabbedPane tabs, JPanel footer) {
+        Color shell = DesktopTheme.windowBackground();
+        JPanel root = (JPanel) getContentPane();
+        root.setOpaque(true);
+        root.setBackground(shell);
+        tabs.setOpaque(true);
+        tabs.setBackground(shell);
+        tabs.setForeground(DesktopTheme.textPrimary());
+        for (int i = 0; i < tabs.getTabCount(); i++) {
+            themeTeamDetailSubtree(tabs.getComponentAt(i), shell);
+        }
+        footer.setOpaque(true);
+        footer.setBackground(shell);
+        for (Component c : footer.getComponents()) {
+            if (c instanceof JLabel jl) {
+                jl.setForeground(DesktopTheme.textPrimary());
+            }
+        }
+    }
+
+    private void themeTeamDetailSubtree(Component c, Color shell) {
+        if (c instanceof JScrollPane sp) {
+            sp.setOpaque(true);
+            sp.setBackground(shell);
+            Component v = sp.getViewport().getView();
+            if (v instanceof JTable t) {
+                DesktopTheme.styleDataTable(t);
+                sp.getViewport().setBackground(DesktopTheme.tableBase());
+            } else if (v instanceof JPanel) {
+                sp.getViewport().setBackground(shell);
+                themeTeamDetailSubtree(v, shell);
+            } else {
+                sp.getViewport().setBackground(shell);
+            }
+            return;
+        }
+        if (c instanceof JPanel jp) {
+            jp.setOpaque(true);
+            jp.setBackground(shell);
+            for (Component ch : jp.getComponents()) {
+                if (ch instanceof JLabel jl) {
+                    jl.setForeground(DesktopTheme.textPrimary());
+                } else {
+                    themeTeamDetailSubtree(ch, shell);
+                }
+            }
+        }
     }
 
     private static String dialogTitle(LeagueRecord.TeamRecord team, Team live) {
@@ -116,8 +169,7 @@ public class TeamDetailView extends JDialog {
         JTable table = new JTable(model);
         table.setAutoCreateRowSorter(true);
         table.setRowHeight(24);
-        table.setDefaultRenderer(Object.class, new StripedRowRenderer());
-        table.setDefaultRenderer(Integer.class, new StripedRowRenderer());
+        StripedRowRenderer.install(table);
 
         // Double-click to show player detail (from live team)
         if (liveTeam != null) {
@@ -173,8 +225,7 @@ public class TeamDetailView extends JDialog {
 
         JTable table = new JTable(model);
         table.setRowHeight(24);
-        table.setDefaultRenderer(Object.class, new StripedRowRenderer());
-        table.setDefaultRenderer(Integer.class, new StripedRowRenderer());
+        StripedRowRenderer.install(table);
 
         // Double-click a game row to show box score
         table.addMouseListener(new MouseAdapter() {
@@ -227,8 +278,7 @@ public class TeamDetailView extends JDialog {
 
         JTable table = new JTable(model);
         table.setRowHeight(24);
-        table.setDefaultRenderer(Object.class, new StripedRowRenderer());
-        table.setDefaultRenderer(Integer.class, new StripedRowRenderer());
+        StripedRowRenderer.install(table);
 
         if (liveTeam != null) {
             table.addMouseListener(new MouseAdapter() {
@@ -325,6 +375,8 @@ public class TeamDetailView extends JDialog {
 
     private JPanel buildCoachesTab(LeagueRecord.TeamRecord team) {
         JPanel panel = new JPanel();
+        panel.setOpaque(true);
+        panel.setBackground(DesktopTheme.windowBackground());
         panel.setLayout(new java.awt.GridLayout(0, 1, 6, 6));
         panel.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
 
@@ -340,6 +392,7 @@ public class TeamDetailView extends JDialog {
     private JLabel coachLine(String role, String name, int ovr) {
         JLabel label = new JLabel(String.format("%-25s %s  (Overall %d)", role + ":", name, ovr));
         label.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        label.setForeground(DesktopTheme.textPrimary());
         return label;
     }
 
@@ -375,7 +428,7 @@ public class TeamDetailView extends JDialog {
 
         JTable table = new JTable(model);
         table.setRowHeight(26);
-        table.setDefaultRenderer(Object.class, new StripedRowRenderer());
+        StripedRowRenderer.install(table);
         table.setFont(new Font("SansSerif", Font.PLAIN, 13));
         table.getColumnModel().getColumn(0).setPreferredWidth(200);
         table.getColumnModel().getColumn(1).setPreferredWidth(100);
@@ -389,6 +442,8 @@ public class TeamDetailView extends JDialog {
 
     private JPanel buildBudgetFacilitiesTab(Team team) {
         JPanel panel = new JPanel(new BorderLayout(0, 10));
+        panel.setOpaque(true);
+        panel.setBackground(DesktopTheme.windowBackground());
         panel.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
 
         DefaultTableModel model = new DefaultTableModel(new String[]{"Category", "Value"}, 0) {
@@ -415,7 +470,7 @@ public class TeamDetailView extends JDialog {
 
         JTable table = new JTable(model);
         table.setRowHeight(26);
-        table.setDefaultRenderer(Object.class, new StripedRowRenderer());
+        StripedRowRenderer.install(table);
         table.setFont(new Font("SansSerif", Font.PLAIN, 14));
         table.getColumnModel().getColumn(0).setPreferredWidth(240);
         table.getColumnModel().getColumn(1).setPreferredWidth(200);
@@ -424,6 +479,7 @@ public class TeamDetailView extends JDialog {
         JLabel hint = new JLabel(
                 "Facility upgrades happen automatically at end of season if the team has enough budget.");
         hint.setFont(new Font("SansSerif", Font.ITALIC, 11));
+        hint.setForeground(DesktopTheme.textSecondary());
         hint.setBorder(BorderFactory.createEmptyBorder(4, 0, 0, 0));
         panel.add(hint, BorderLayout.SOUTH);
 
@@ -449,8 +505,7 @@ public class TeamDetailView extends JDialog {
 
         JTable table = new JTable(model);
         table.setRowHeight(24);
-        table.setDefaultRenderer(Object.class, new StripedRowRenderer());
-        table.setDefaultRenderer(Integer.class, new StripedRowRenderer());
+        StripedRowRenderer.install(table);
         return new JScrollPane(table);
     }
 
@@ -474,8 +529,7 @@ public class TeamDetailView extends JDialog {
 
         JTable table = new JTable(model);
         table.setRowHeight(24);
-        table.setDefaultRenderer(Object.class, new StripedRowRenderer());
-        table.setDefaultRenderer(Integer.class, new StripedRowRenderer());
+        StripedRowRenderer.install(table);
         return new JScrollPane(table);
     }
 

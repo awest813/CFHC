@@ -122,6 +122,7 @@ tasks.register('compileDesktopJava', JavaCompile) {
     classpath = files()
     options.encoding = 'UTF-8'
     options.release = 17
+    options.compilerArgs.add('-Xlint:deprecation')
 
     inputs.files(desktopSourceFiles)
             .withPathSensitivity(PathSensitivity.RELATIVE)

@@ -76,7 +76,8 @@ public class CoordinatorHiringDialog extends JDialog {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setOpaque(false);
         panel.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
-        panel.add(new JLabel("<html><center style='color:#E74C3C; font-size:14pt;'>" + msg + "</center></html>", JLabel.CENTER), BorderLayout.CENTER);
+        panel.add(new JLabel("<html><center style='color:#E74C3C; font-size:14pt;'>"
+                + DesktopTheme.escapeForHtml(msg) + "</center></html>", JLabel.CENTER), BorderLayout.CENTER);
         JButton ok = createGlassButton("CLOSE", ACCENT_BLUE);
         ok.addActionListener(e -> dispose());
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.CENTER));
@@ -141,7 +142,7 @@ public class CoordinatorHiringDialog extends JDialog {
             "TALENT: <b style='color:white'>%d</b><br/>" +
             "TENURE: YEAR %d OF %d<br/>" +
             "</body></html>",
-            s.name.toUpperCase(), s.age, (s instanceof OC ? s.ratOff : s.ratDef), s.ratTalent,
+            DesktopTheme.escapeForHtml(s.name.toUpperCase()), s.age, (s instanceof OC ? s.ratOff : s.ratDef), s.ratTalent,
             s.contractYear, s.contractLength
         );
         card.add(new JLabel(stats), BorderLayout.CENTER);
@@ -185,7 +186,10 @@ public class CoordinatorHiringDialog extends JDialog {
         hireBtn.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row < 0) {
-                JOptionPane.showMessageDialog(this, "Select a coordinator from the registry first.");
+                JOptionPane.showMessageDialog(this,
+                        DesktopTheme.messageForDialog("Select a coordinator from the registry first."),
+                        "Coordinator Hiring",
+                        JOptionPane.WARNING_MESSAGE);
                 return;
             }
             hireOC(candidates, row);
@@ -250,7 +254,10 @@ public class CoordinatorHiringDialog extends JDialog {
         hireBtn.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row < 0) {
-                JOptionPane.showMessageDialog(container, "Select a coordinator from the registry first.");
+                JOptionPane.showMessageDialog(container,
+                        DesktopTheme.messageForDialog("Select a coordinator from the registry first."),
+                        "Coordinator Hiring",
+                        JOptionPane.WARNING_MESSAGE);
                 return;
             }
             hireDC(candidates, row);

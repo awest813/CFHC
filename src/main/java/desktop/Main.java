@@ -32,6 +32,8 @@ public class Main {
             // Fall back to default Metal LAF if system LAF is not available
         }
 
+        DesktopTheme.load();
+
         PlatformLog.i(TAG, HEADER.replace("\n", " | "));
         System.out.println(HEADER);
 
@@ -125,6 +127,7 @@ public class Main {
                     false
             );
             league.setPlatformResourceProvider(resources);
+            league.rebuildScheduleIfNeeded();
             PlatformLog.i(TAG, "Launching play UI for " + saveFile.getAbsolutePath());
             LeagueHomeView.show(league, saveFile);
         } catch (Exception e) {
@@ -150,6 +153,7 @@ public class Main {
             int teams = league.conferences().stream().mapToInt(c -> c.teams().size()).sum();
             System.out.println("Total Teams: " + teams);
             System.out.println("Hall of Fame: " + league.leagueHoF().size() + " players");
+            System.out.println("Serialized game rows (GM:): " + league.scheduledGames().size());
 
             System.out.println();
             System.out.println("--- Top Teams ---");

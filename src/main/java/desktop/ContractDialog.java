@@ -100,7 +100,8 @@ public class ContractDialog extends JDialog {
         JButton retireBtn = createGlassButton("RETIRE IMMEDIATELY", DANGER_RED);
         retireBtn.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(this,
-                    "Are you sure you want to retire?\nThis will conclude your career progress.",
+                    DesktopTheme.messageForDialog(
+                    "Are you sure you want to retire?\nThis will conclude your career progress."),
                     "Confirm Final Retirement", JOptionPane.YES_NO_OPTION);
             if (confirm == JOptionPane.YES_OPTION) {
                 hc.retirement = true;

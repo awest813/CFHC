@@ -11,6 +11,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.BorderLayout;
@@ -35,8 +36,14 @@ public class PlayerDetailView extends JDialog {
         this.player = player;
         setSize(700, 500);
         setLayout(new BorderLayout());
+        JPanel root = (JPanel) getContentPane();
+        root.setOpaque(true);
+        root.setBackground(DesktopTheme.windowBackground());
 
         JTabbedPane tabs = new JTabbedPane();
+        tabs.setOpaque(true);
+        tabs.setBackground(DesktopTheme.windowBackground());
+        tabs.setForeground(DesktopTheme.textPrimary());
         tabs.addTab("Profile", buildProfileTab());
         tabs.addTab("Stats", buildStatsTab());
         add(tabs, BorderLayout.CENTER);
@@ -45,11 +52,18 @@ public class PlayerDetailView extends JDialog {
 
     private JPanel buildProfileTab() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setOpaque(true);
+        panel.setBackground(DesktopTheme.windowBackground());
         panel.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
 
         // Top: basic info grid
         JPanel info = new JPanel(new GridLayout(0, 2, 10, 4));
-        info.setBorder(BorderFactory.createTitledBorder("Player Info"));
+        info.setOpaque(true);
+        info.setBackground(DesktopTheme.windowBackground());
+        TitledBorder infoBorder = BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(DesktopTheme.borderSubtle()), "Player Info");
+        infoBorder.setTitleColor(DesktopTheme.textPrimary());
+        info.setBorder(infoBorder);
 
         addField(info, "Name", player.name);
         addField(info, "Position", player.position);
@@ -70,7 +84,12 @@ public class PlayerDetailView extends JDialog {
 
         // Bottom: position-specific ratings
         JPanel ratingsPanel = new JPanel(new GridLayout(0, 2, 10, 4));
-        ratingsPanel.setBorder(BorderFactory.createTitledBorder("Position Ratings"));
+        ratingsPanel.setOpaque(true);
+        ratingsPanel.setBackground(DesktopTheme.windowBackground());
+        TitledBorder ratingsBorder = BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(DesktopTheme.borderSubtle()), "Position Ratings");
+        ratingsBorder.setTitleColor(DesktopTheme.textPrimary());
+        ratingsPanel.setBorder(ratingsBorder);
 
         String ratings = player.getPlayerRatings();
         if (ratings != null && !ratings.isEmpty()) {
@@ -89,17 +108,22 @@ public class PlayerDetailView extends JDialog {
 
     private JPanel buildStatsTab() {
         JPanel panel = new JPanel(new BorderLayout());
+        panel.setOpaque(true);
+        panel.setBackground(DesktopTheme.windowBackground());
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         ArrayList<String> statLines = player.getPlayerStats();
         if (statLines == null || statLines.isEmpty()) {
-            panel.add(new JLabel("No stats available for this player yet.", JLabel.CENTER),
-                    BorderLayout.CENTER);
+            JLabel empty = new JLabel("No stats available for this player yet.", JLabel.CENTER);
+            empty.setForeground(DesktopTheme.textPrimary());
+            panel.add(empty, BorderLayout.CENTER);
             return panel;
         }
 
         // Parse CSV stat blocks into tables
         JPanel tablesPanel = new JPanel();
+        tablesPanel.setOpaque(true);
+        tablesPanel.setBackground(DesktopTheme.windowBackground());
         tablesPanel.setLayout(new javax.swing.BoxLayout(tablesPanel, javax.swing.BoxLayout.Y_AXIS));
 
         List<String> currentBlock = new ArrayList<>();
@@ -118,12 +142,19 @@ public class PlayerDetailView extends JDialog {
             tablesPanel.add(buildStatTable(currentBlock));
         }
 
-        panel.add(new JScrollPane(tablesPanel), BorderLayout.CENTER);
+        JScrollPane tablesScroll = new JScrollPane(tablesPanel);
+        tablesScroll.getViewport().setBackground(DesktopTheme.windowBackground());
+        panel.add(tablesScroll, BorderLayout.CENTER);
         return panel;
     }
 
     private JPanel buildStatTable(List<String> lines) {
-        if (lines.isEmpty()) return new JPanel();
+        if (lines.isEmpty()) {
+            JPanel empty = new JPanel();
+            empty.setOpaque(true);
+            empty.setBackground(DesktopTheme.windowBackground());
+            return empty;
+        }
 
         String[] headers = lines.get(0).split(",", -1);
         DefaultTableModel model = new DefaultTableModel(headers, 0) {
@@ -139,11 +170,15 @@ public class PlayerDetailView extends JDialog {
 
         JTable table = new JTable(model);
         table.setRowHeight(24);
-        table.setDefaultRenderer(Object.class, new StripedRowRenderer());
         table.setAutoCreateRowSorter(false);
+        StripedRowRenderer.install(table);
 
         JPanel wrapper = new JPanel(new BorderLayout());
-        wrapper.add(new JScrollPane(table), BorderLayout.CENTER);
+        wrapper.setOpaque(true);
+        wrapper.setBackground(DesktopTheme.windowBackground());
+        JScrollPane tableScroll = new JScrollPane(table);
+        DesktopTheme.styleDataTableInScroll(tableScroll, table);
+        wrapper.add(tableScroll, BorderLayout.CENTER);
         wrapper.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, 30 + lines.size() * 22));
         wrapper.setPreferredSize(new java.awt.Dimension(600, 30 + lines.size() * 22));
         return wrapper;
@@ -151,6 +186,8 @@ public class PlayerDetailView extends JDialog {
 
     private JPanel buildFooter() {
         JPanel footer = new JPanel();
+        footer.setOpaque(true);
+        footer.setBackground(DesktopTheme.windowBackground());
         footer.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10));
         StringBuilder sb = new StringBuilder();
         sb.append(player.position).append(" ").append(player.name);
@@ -162,17 +199,21 @@ public class PlayerDetailView extends JDialog {
         if (player.isInjured) {
             sb.append("  \u2022  INJURED");
         }
-        footer.add(new JLabel(sb.toString()));
+        JLabel line = new JLabel(sb.toString());
+        line.setForeground(DesktopTheme.textPrimary());
+        footer.add(line);
         return footer;
     }
 
     private void addField(JPanel panel, String label, String value) {
         JLabel lbl = new JLabel(label + ":");
         lbl.setFont(HEADER_FONT);
+        lbl.setForeground(DesktopTheme.textSecondary());
         panel.add(lbl);
 
         JLabel val = new JLabel(value);
         val.setFont(LABEL_FONT);
+        val.setForeground(DesktopTheme.textPrimary());
         panel.add(val);
     }
 

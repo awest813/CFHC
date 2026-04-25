@@ -24,7 +24,6 @@ import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -61,6 +60,7 @@ public class NewGameWizard extends JDialog {
         this.resources = resources;
         setSize(700, 520);
         setLayout(new BorderLayout());
+        getContentPane().setBackground(DesktopTheme.windowBackground());
         showPrestigeModePage();
     }
 
@@ -70,31 +70,43 @@ public class NewGameWizard extends JDialog {
 
     private void showPrestigeModePage() {
         getContentPane().removeAll();
+        getContentPane().setBackground(DesktopTheme.windowBackground());
 
         JPanel page = new JPanel(new BorderLayout(10, 10));
+        page.setOpaque(true);
+        page.setBackground(DesktopTheme.windowBackground());
         page.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         JLabel title = new JLabel("New Game Settings");
-        title.setFont(new Font("SansSerif", Font.BOLD, 20));
+        title.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
+        title.setForeground(DesktopTheme.textPrimary());
         page.add(title, BorderLayout.NORTH);
 
         JPanel optionsPanel = new JPanel(new GridLayout(0, 1, 6, 8));
+        optionsPanel.setOpaque(true);
+        optionsPanel.setBackground(DesktopTheme.windowBackground());
         optionsPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Prestige mode section
         JLabel prestigeHeader = new JLabel("Prestige Mode");
-        prestigeHeader.setFont(new Font("SansSerif", Font.BOLD, 15));
+        prestigeHeader.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 15));
+        prestigeHeader.setForeground(DesktopTheme.textPrimary());
         optionsPanel.add(prestigeHeader);
 
         JRadioButton defaultBtn = new JRadioButton("Default — historical team prestige");
-        defaultBtn.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        defaultBtn.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
+        defaultBtn.setOpaque(false);
+        defaultBtn.setForeground(DesktopTheme.textPrimary());
         defaultBtn.setSelected(true);
 
         JRadioButton randomBtn = new JRadioButton("Randomize — shuffle prestige across all teams");
-        randomBtn.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        randomBtn.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
+        randomBtn.setOpaque(false);
+        randomBtn.setForeground(DesktopTheme.textPrimary());
 
         JRadioButton equalBtn = new JRadioButton("Equalize — all teams start with the same prestige");
-        equalBtn.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        equalBtn.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
+        equalBtn.setOpaque(false);
+        equalBtn.setForeground(DesktopTheme.textPrimary());
 
         ButtonGroup group = new ButtonGroup();
         group.add(defaultBtn);
@@ -105,18 +117,22 @@ public class NewGameWizard extends JDialog {
         optionsPanel.add(randomBtn);
         optionsPanel.add(equalBtn);
 
-        // Playoff format section
         JLabel playoffHeader = new JLabel("Playoff Format");
-        playoffHeader.setFont(new Font("SansSerif", Font.BOLD, 15));
+        playoffHeader.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 15));
+        playoffHeader.setForeground(DesktopTheme.textPrimary());
         playoffHeader.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
         optionsPanel.add(playoffHeader);
 
         JRadioButton standardPlayoff = new JRadioButton("Standard 4-Team Playoff");
-        standardPlayoff.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        standardPlayoff.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
+        standardPlayoff.setOpaque(false);
+        standardPlayoff.setForeground(DesktopTheme.textPrimary());
         standardPlayoff.setSelected(true);
 
         JRadioButton expandedPlayoff = new JRadioButton("Expanded Playoff (12-team format)");
-        expandedPlayoff.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        expandedPlayoff.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
+        expandedPlayoff.setOpaque(false);
+        expandedPlayoff.setForeground(DesktopTheme.textPrimary());
 
         ButtonGroup playoffGroup = new ButtonGroup();
         playoffGroup.add(standardPlayoff);
@@ -125,9 +141,14 @@ public class NewGameWizard extends JDialog {
         optionsPanel.add(standardPlayoff);
         optionsPanel.add(expandedPlayoff);
 
-        page.add(new JScrollPane(optionsPanel), BorderLayout.CENTER);
+        JScrollPane optScroll = new JScrollPane(optionsPanel);
+        optScroll.setBorder(null);
+        optScroll.getViewport().setBackground(DesktopTheme.windowBackground());
+        page.add(optScroll, BorderLayout.CENTER);
 
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttons.setOpaque(true);
+        buttons.setBackground(DesktopTheme.windowBackground());
         JButton cancelBtn = new JButton("Cancel");
         cancelBtn.addActionListener(e -> dispose());
 
@@ -173,22 +194,25 @@ public class NewGameWizard extends JDialog {
         } catch (Exception ex) {
             PlatformLog.e(TAG, "Error creating league", ex);
             JOptionPane.showMessageDialog(this,
-                    "Failed to create league:\n" + ex.getMessage(),
+                    DesktopTheme.messageForDialog("Failed to create league:\n" + ex.getMessage()),
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void showTeamPickerPage() {
         getContentPane().removeAll();
+        getContentPane().setBackground(DesktopTheme.windowBackground());
 
         JPanel page = new JPanel(new BorderLayout(10, 10));
+        page.setOpaque(true);
+        page.setBackground(DesktopTheme.windowBackground());
         page.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         JLabel title = new JLabel("Select Your Team");
-        title.setFont(new Font("SansSerif", Font.BOLD, 20));
+        title.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
+        title.setForeground(DesktopTheme.textPrimary());
         page.add(title, BorderLayout.NORTH);
 
-        // Left: conference list
         List<Conference> conferences = resultLeague.getConferences();
         DefaultListModel<Conference> confModel = new DefaultListModel<>();
         for (Conference c : conferences) {
@@ -197,8 +221,10 @@ public class NewGameWizard extends JDialog {
 
         JList<Conference> confList = new JList<>(confModel);
         confList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        confList.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        confList.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
         confList.setFixedCellHeight(26);
+        confList.setBackground(DesktopTheme.textAreaEditorBackground());
+        confList.setForeground(DesktopTheme.textPrimary());
         confList.setCellRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
@@ -206,22 +232,18 @@ public class NewGameWizard extends JDialog {
                 Conference c = (Conference) value;
                 JLabel l = (JLabel) super.getListCellRendererComponent(list, c.confName, index, isSelected, cellHasFocus);
                 l.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
-                if (isSelected) {
-                    l.setBackground(new Color(50, 100, 180));
-                    l.setForeground(Color.WHITE);
-                } else {
-                    l.setBackground(index % 2 == 0 ? Color.WHITE : new Color(245, 247, 250));
-                }
+                DesktopTheme.decorateListCellLabel(l, index, isSelected, null);
                 return l;
             }
         });
 
-        // Right: team list for selected conference
         DefaultListModel<Team> teamModel = new DefaultListModel<>();
         JList<Team> teamList = new JList<>(teamModel);
         teamList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        teamList.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        teamList.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
         teamList.setFixedCellHeight(26);
+        teamList.setBackground(DesktopTheme.textAreaEditorBackground());
+        teamList.setForeground(DesktopTheme.textPrimary());
         teamList.setCellRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
@@ -230,19 +252,14 @@ public class NewGameWizard extends JDialog {
                 String label = String.format("%-22s  Prestige %d", t.getName(), t.getTeamPrestige());
                 JLabel l = (JLabel) super.getListCellRendererComponent(list, label, index, isSelected, cellHasFocus);
                 l.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
-                if (isSelected) {
-                    l.setBackground(new Color(50, 100, 180));
-                    l.setForeground(Color.WHITE);
-                } else {
-                    l.setBackground(index % 2 == 0 ? Color.WHITE : new Color(245, 247, 250));
-                }
+                DesktopTheme.decorateListCellLabel(l, index, isSelected, null);
                 return l;
             }
         });
 
-        // Team info panel
         JLabel teamInfo = new JLabel("Select a conference, then pick your team.");
-        teamInfo.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        teamInfo.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
+        teamInfo.setForeground(DesktopTheme.textPrimary());
         teamInfo.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
 
         confList.addListSelectionListener(e -> {
@@ -261,27 +278,42 @@ public class NewGameWizard extends JDialog {
             if (e.getValueIsAdjusting()) return;
             Team sel = teamList.getSelectedValue();
             if (sel != null) {
-                teamInfo.setText(String.format("<html><b>%s</b> (%s)  •  %s  •  Prestige %d  •  HC: %s (OVR %d)</html>",
-                        sel.getName(), sel.getAbbr(), sel.getConference(),
-                        sel.getTeamPrestige(), sel.getHeadCoach().name, sel.getHeadCoach().ratOvr));
+                teamInfo.setText(String.format("<html><body style='color:%s;'><b>%s</b> (%s)  &bull;  %s  &bull;  Prestige %d  &bull;  HC: %s (OVR %d)</body></html>",
+                        DesktopTheme.cssRgb(DesktopTheme.textPrimary()),
+                        DesktopTheme.escapeForHtml(sel.getName()),
+                        DesktopTheme.escapeForHtml(sel.getAbbr()),
+                        DesktopTheme.escapeForHtml(sel.getConference()),
+                        sel.getTeamPrestige(),
+                        DesktopTheme.escapeForHtml(sel.getHeadCoach().name),
+                        sel.getHeadCoach().ratOvr));
             }
         });
 
         JScrollPane confScroll = new JScrollPane(confList);
-        confScroll.setBorder(BorderFactory.createTitledBorder("Conference"));
+        confScroll.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(DesktopTheme.borderSubtle()), "Conference"));
+        confScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
         confScroll.setPreferredSize(new Dimension(200, 0));
 
         JScrollPane teamScroll = new JScrollPane(teamList);
-        teamScroll.setBorder(BorderFactory.createTitledBorder("Teams"));
+        teamScroll.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(DesktopTheme.borderSubtle()), "Teams"));
+        teamScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, confScroll, teamScroll);
         split.setDividerLocation(220);
+        split.setOpaque(true);
+        split.setBackground(DesktopTheme.windowBackground());
         page.add(split, BorderLayout.CENTER);
 
         JPanel bottom = new JPanel(new BorderLayout());
+        bottom.setOpaque(true);
+        bottom.setBackground(DesktopTheme.windowBackground());
         bottom.add(teamInfo, BorderLayout.CENTER);
 
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        buttons.setOpaque(true);
+        buttons.setBackground(DesktopTheme.windowBackground());
         JButton backBtn = new JButton("\u25C0 Back");
         backBtn.addActionListener(e -> {
             resultLeague = null;
@@ -291,7 +323,9 @@ public class NewGameWizard extends JDialog {
         startBtn.addActionListener(e -> {
             Team sel = teamList.getSelectedValue();
             if (sel == null) {
-                JOptionPane.showMessageDialog(this, "Please select a team.", "No Team Selected",
+                JOptionPane.showMessageDialog(this,
+                        DesktopTheme.messageForDialog("Please select a team."),
+                        "No Team Selected",
                         JOptionPane.WARNING_MESSAGE);
                 return;
             }
@@ -312,7 +346,6 @@ public class NewGameWizard extends JDialog {
         revalidate();
         repaint();
 
-        // Auto-select first conference
         if (!confModel.isEmpty()) {
             confList.setSelectedIndex(0);
         }

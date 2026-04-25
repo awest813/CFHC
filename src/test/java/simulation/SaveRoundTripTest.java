@@ -79,6 +79,29 @@ public class SaveRoundTripTest {
     }
 
     @Test
+    public void roundTrip_scheduleRestored_forEachTeam() throws Exception {
+        League loaded = saveAndLoad();
+        for (Team orig : original.teamList) {
+            Team re = findTeam(loaded, orig.name);
+            assertNotNull("Team " + orig.name + " must exist after reload", re);
+            assertEquals("Schedule length for " + orig.name,
+                    orig.gameSchedule.size(), re.gameSchedule.size());
+        }
+    }
+
+    @Test
+    public void roundTrip_winsLosses_preserved() throws Exception {
+        Team t = original.teamList.get(0);
+        t.wins = 4;
+        t.losses = 2;
+        League loaded = saveAndLoad();
+        Team re = findTeam(loaded, t.name);
+        assertNotNull(re);
+        assertEquals("Wins must survive round-trip", 4, re.wins);
+        assertEquals("Losses must survive round-trip", 2, re.losses);
+    }
+
+    @Test
     public void roundTrip_teamPrestige_isPreserved() throws Exception {
         League loaded = saveAndLoad();
         for (int i = 0; i < original.teamList.size(); i++) {
@@ -152,6 +175,8 @@ public class SaveRoundTripTest {
                 .mapToInt(c -> c.teams().size()).sum();
         assertEquals("Team count must survive SaveManager round-trip",
                 origTeams, loadedTeams);
+        assertEquals("Scheduled games must survive SaveManager round-trip",
+                original.toRecord().scheduledGames().size(), record.scheduledGames().size());
     }
 
     // -------------------------------------------------------------------------

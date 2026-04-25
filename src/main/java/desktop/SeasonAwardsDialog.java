@@ -30,8 +30,14 @@ public class SeasonAwardsDialog extends JDialog {
         super(owner, "End-of-Season Awards", true);
         setSize(700, 540);
         setLayout(new BorderLayout());
+        JPanel root = (JPanel) getContentPane();
+        root.setOpaque(true);
+        root.setBackground(DesktopTheme.windowBackground());
 
         JTabbedPane tabs = new JTabbedPane();
+        tabs.setOpaque(true);
+        tabs.setBackground(DesktopTheme.windowBackground());
+        tabs.setForeground(DesktopTheme.textPrimary());
 
         tabs.addTab("Heisman",        buildTextTab(emptyIfNull(league.getHeismanCeremonyStr())));
         tabs.addTab("Def. POTY",      buildTextTab(emptyIfNull(league.getDefensePOTYStr())));
@@ -47,6 +53,8 @@ public class SeasonAwardsDialog extends JDialog {
         add(tabs, BorderLayout.CENTER);
 
         JPanel bottom = new JPanel();
+        bottom.setOpaque(true);
+        bottom.setBackground(DesktopTheme.windowBackground());
         JButton closeBtn = new JButton("Close");
         closeBtn.addActionListener(e -> dispose());
         bottom.add(closeBtn);
@@ -61,8 +69,12 @@ public class SeasonAwardsDialog extends JDialog {
         area.setWrapStyleWord(true);
         area.setCaretPosition(0);
         area.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        DesktopTheme.styleTextContent(area);
         JScrollPane scroll = new JScrollPane(area);
+        scroll.setOpaque(true);
+        scroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
         scroll.setPreferredSize(new Dimension(660, 440));
+        scroll.setBorder(BorderFactory.createLineBorder(DesktopTheme.borderSubtle(), 1));
         return scroll;
     }
 

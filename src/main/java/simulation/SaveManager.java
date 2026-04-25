@@ -24,6 +24,7 @@ public class SaveManager {
     private static final String PLAYER_PREFIX = "P:";
     private static final String HISTORY_PREFIX = "S:";
     private static final String RECORD_PREFIX = "R:";
+    private static final String GAME_PREFIX = "GM:";
     private static final String END_TOKEN = "END";
 
     public static void save(LeagueRecord league, OutputStream out) throws IOException {
@@ -47,7 +48,8 @@ public class SaveManager {
         for (LeagueRecord.ConferenceRecord c : league.conferences()) {
             writer.write(CONF_PREFIX + sanitizeInlineValue(c.name()) + "\n");
             for (LeagueRecord.TeamRecord t : c.teams()) {
-                writer.write(TEAM_PREFIX + sanitizeInlineValue(t.name()) + "," + sanitizeInlineValue(t.abbr()) + "," + t.prestige() + "\n");
+                writer.write(TEAM_PREFIX + sanitizeInlineValue(t.name()) + "," + sanitizeInlineValue(t.abbr()) + ","
+                        + t.prestige() + "," + t.wins() + "," + t.losses() + "\n");
                 
                 // Coaches
                 writer.write(COACH_PREFIX + "HC," + Persistence.toCsv(t.headCoach()) + "\n");
@@ -71,6 +73,12 @@ public class SaveManager {
                 writer.write(END_TOKEN + "_TEAM\n");
             }
             writer.write(END_TOKEN + "_CONF\n");
+        }
+
+        if (league.scheduledGames() != null) {
+            for (LeagueRecord.GameRecord g : league.scheduledGames()) {
+                writer.write(GAME_PREFIX + g.toSaveLine() + "\n");
+            }
         }
         writer.flush();
     }
@@ -100,6 +108,9 @@ public class SaveManager {
         List<PlayerRecord> roster = null;
         List<TeamHistoryRecord> history = null;
         List<DataRecord> tRecords = null;
+        int teamWins = 0;
+        int teamLosses = 0;
+        List<LeagueRecord.GameRecord> gameRecords = new ArrayList<>();
 
         while ((line = reader.readLine()) != null) {
             if (line.startsWith(LEAGUE_PREFIX)) {
@@ -118,10 +129,19 @@ public class SaveManager {
                 currentConf = new LeagueRecord.ConferenceRecord(line.substring(2), confTeams);
                 conferences.add(currentConf);
             } else if (line.startsWith(TEAM_PREFIX)) {
+                hc = null;
+                oc = null;
+                dc = null;
+                teamWins = 0;
+                teamLosses = 0;
                 String[] p = line.substring(2).split(",");
                 teamName = p[0];
                 teamAbbr = p[1];
                 prestige = Integer.parseInt(p[2]);
+                if (p.length >= 5) {
+                    teamWins = Integer.parseInt(p[3]);
+                    teamLosses = Integer.parseInt(p[4]);
+                }
                 roster = new ArrayList<>();
                 history = new ArrayList<>();
                 tRecords = new ArrayList<>();
@@ -138,10 +158,14 @@ public class SaveManager {
             } else if (line.startsWith(RECORD_PREFIX)) {
                 tRecords.add(DataRecord.fromCsv(line.substring(2)));
             } else if (line.equals(END_TOKEN + "_TEAM")) {
-                confTeams.add(new LeagueRecord.TeamRecord(teamName, teamAbbr, prestige, hc, oc, dc, roster, history, tRecords));
+                confTeams.add(new LeagueRecord.TeamRecord(teamName, teamAbbr, prestige, teamWins, teamLosses,
+                        hc, oc, dc, roster, history, tRecords));
+            } else if (line.startsWith(GAME_PREFIX)) {
+                gameRecords.add(LeagueRecord.GameRecord.fromSaveLine(line.substring(GAME_PREFIX.length())));
             }
         }
         
-        return new LeagueRecord(leagueName, year, week, conferences, hof, lRecords, heisman, champ);
+        return new LeagueRecord(leagueName, year, week, conferences, hof, lRecords, heisman, champ,
+                List.copyOf(gameRecords));
     }
 }

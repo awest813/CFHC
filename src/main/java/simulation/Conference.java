@@ -129,8 +129,9 @@ public class Conference {
 
         for (LeagueRecord.TeamRecord tr : record.teams()) {
             Team t = new Team(tr, league);
+            t.setConference(confName);
             confTeams.add(t);
-            league.getTeamList().add(t);
+            league.addTeam(t);
         }
     }
 

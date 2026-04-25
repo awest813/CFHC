@@ -8,7 +8,6 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
@@ -18,16 +17,17 @@ import java.io.IOException;
  * with a lightweight Swing dialog so that the full season + offseason loop can
  * run without any Android dependencies.
  *
- * <p>After {@link #startRecruitingFlow()} fires the bridge auto-recruits every
- * team and sets {@link #isNewSeasonPending()} to {@code true} so that
- * {@link LeagueHomeView} can call {@link League#startNextSeason()} and wire up
- * a new {@link simulation.SeasonController}.
+ * <p>After recruiting completes, {@link #isNewSeasonPending()} becomes
+ * {@code true} so {@link LeagueHomeView} can call {@link League#startNextSeason()}.
+ * Interactive recruiting runs in the docked Recruiting tab ({@link #isAwaitingDockedRecruiting()}).
  */
 public class DesktopUiBridge implements GameUiBridge {
 
     private final JFrame owner;
     private final League league;
     private boolean newSeasonPending = false;
+    /** User must finish recruiting in {@link LeagueHomeView}'s Recruiting tab. */
+    private boolean awaitingDockedRecruiting = false;
 
     public DesktopUiBridge(JFrame owner, League league) {
         this.owner = owner;
@@ -44,6 +44,27 @@ public class DesktopUiBridge implements GameUiBridge {
         newSeasonPending = false;
     }
 
+    /** True after NLI week begins until the user finishes the Recruiting tab. */
+    public boolean isAwaitingDockedRecruiting() {
+        return awaitingDockedRecruiting;
+    }
+
+    /**
+     * Applies recruit signings from the docked tab and marks the season ready to roll.
+     */
+    public void completeDockedRecruiting(String recruitsData) {
+        if (!awaitingDockedRecruiting) {
+            return;
+        }
+        awaitingDockedRecruiting = false;
+        if (recruitsData != null && !recruitsData.isEmpty()
+                && league.userTeam != null) {
+            league.userTeam.recruitPlayersFromStr(recruitsData);
+            league.updateTeamTalentRatings();
+        }
+        newSeasonPending = true;
+    }
+
     // -------------------------------------------------------------------------
     // GameUiBridge implementation
     // -------------------------------------------------------------------------
@@ -51,7 +72,7 @@ public class DesktopUiBridge implements GameUiBridge {
     @Override
     public void crash() {
         JOptionPane.showMessageDialog(owner,
-                "A fatal simulation error occurred.",
+                DesktopTheme.messageForDialog("A fatal simulation error occurred."),
                 "Simulation Error", JOptionPane.ERROR_MESSAGE);
     }
 
@@ -66,7 +87,7 @@ public class DesktopUiBridge implements GameUiBridge {
 
         // Show accept/decline dialog for user team transfer offer
         int choice = javax.swing.JOptionPane.showOptionDialog(owner,
-                buildTransferOfferText(player),
+                DesktopTheme.messageForDialog(buildTransferOfferText(player)),
                 "Transfer Offer: " + player.position + " " + player.name,
                 javax.swing.JOptionPane.YES_NO_OPTION,
                 javax.swing.JOptionPane.QUESTION_MESSAGE,
@@ -192,16 +213,14 @@ public class DesktopUiBridge implements GameUiBridge {
 
     @Override
     public void startRecruitingFlow() {
-        // Auto-recruit all CPU teams first.
+        if (awaitingDockedRecruiting) {
+            return;
+        }
         league.recruitPlayers();
 
-        // If there is a user-controlled team, show the interactive recruiting UI.
         if (league.userTeam != null && league.userTeam.isUserControlled()) {
-            String recruitsData = RecruitingView.showRecruiting(owner, league);
-            if (recruitsData != null && !recruitsData.isEmpty()) {
-                league.userTeam.recruitPlayersFromStr(recruitsData);
-                league.updateTeamTalentRatings();
-            }
+            awaitingDockedRecruiting = true;
+            return;
         }
 
         newSeasonPending = true;
@@ -212,7 +231,8 @@ public class DesktopUiBridge implements GameUiBridge {
     // -------------------------------------------------------------------------
 
     private void showInfo(String title, String message) {
-        JOptionPane.showMessageDialog(owner, message, title, JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(owner, DesktopTheme.messageForDialog(message), title,
+                JOptionPane.INFORMATION_MESSAGE);
     }
 
     private String buildTransferOfferText(positions.Player player) {
@@ -229,8 +249,10 @@ public class DesktopUiBridge implements GameUiBridge {
         area.setEditable(false);
         area.setLineWrap(true);
         area.setWrapStyleWord(true);
+        DesktopTheme.styleTextContent(area);
         area.setCaretPosition(0);
         JScrollPane scroll = new JScrollPane(area);
+        scroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
         scroll.setPreferredSize(new Dimension(600, 400));
         JOptionPane.showMessageDialog(owner, scroll, title, JOptionPane.INFORMATION_MESSAGE);
     }

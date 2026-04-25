@@ -66,6 +66,9 @@ public class SettingsDialog extends JDialog {
         content.setOpaque(false);
         content.setBorder(BorderFactory.createEmptyBorder(30, 35, 30, 35));
 
+        JCheckBox desktopDark = createStyledCheckBox("DARK MODE (DESKTOP SHELL)", DesktopTheme.isDark(), content);
+        content.add(Box.createVerticalStrut(12));
+
         JCheckBox fullLog = createStyledCheckBox("ENABLE DETAILED SIMULATION LOGS", league.fullGameLog, content);
         content.add(Box.createVerticalStrut(15));
         JCheckBox confRealign = createStyledCheckBox("ENABLE CONFERENCE REALIGNMENT", league.confRealignment, content);
@@ -129,6 +132,11 @@ public class SettingsDialog extends JDialog {
             league.confRealignment = confRealign.isSelected();
             league.advancedRealignment = advRealign.isSelected();
             league.neverRetire = neverRetire.isSelected();
+            DesktopTheme.setDark(desktopDark.isSelected());
+            java.awt.Window w = javax.swing.SwingUtilities.getWindowAncestor(SettingsDialog.this);
+            if (w instanceof LeagueHomeView) {
+                ((LeagueHomeView) w).applyDesktopTheme();
+            }
             applied = true;
             dispose();
         });

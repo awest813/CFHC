@@ -280,7 +280,9 @@ public class JobOffersDialog extends JDialog {
             if (row >= 0 && row < vacancies.size()) {
                 confirmAcceptJob(vacancies.get(row));
             } else {
-                JOptionPane.showMessageDialog(this, "Select a program first.", "No Selection",
+                JOptionPane.showMessageDialog(this,
+                        DesktopTheme.messageForDialog("Select a program first."),
+                        "No Selection",
                         JOptionPane.WARNING_MESSAGE);
             }
         });
@@ -347,9 +349,10 @@ public class JobOffersDialog extends JDialog {
 
     private void confirmAcceptJob(Team selectedTeam) {
         int confirm = JOptionPane.showConfirmDialog(this,
+                DesktopTheme.messageForDialog(
                 "ACCEPT THE HEAD COACHING POSITION AT " + selectedTeam.getName().toUpperCase() + "?\n\n"
                         + "CONTRACT RESET: " + NEW_JOB_CONTRACT_LENGTH + " YEARS.\n"
-                        + "BASELINE PRESTIGE: " + selectedTeam.getTeamPrestige() + ".",
+                        + "BASELINE PRESTIGE: " + selectedTeam.getTeamPrestige() + "."),
                 "CONFIRM CAREER TRANSITION", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
             changeTeams(selectedTeam);

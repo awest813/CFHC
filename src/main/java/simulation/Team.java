@@ -492,6 +492,9 @@ public class Team {
         for (DataRecord dr : record.records()) {
             this.teamRecords.addRecord(dr);
         }
+
+        this.wins = record.wins();
+        this.losses = record.losses();
     }
 
 
@@ -545,6 +548,7 @@ public class Team {
 
         return new LeagueRecord.TeamRecord(
                 normalizeRecordText(name), normalizeRecordText(abbr), teamPrestige,
+                wins, losses,
                 HC.toRecord(), OC.toRecord(), DC.toRecord(),
                 roster,
                 new ArrayList<>(teamHistory),

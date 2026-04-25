@@ -14,6 +14,7 @@ import javax.swing.JTextArea;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -41,12 +42,32 @@ public class GameBoxScoreView extends JDialog {
             add(buildNotPlayedPanel(), BorderLayout.CENTER);
         } else {
             JTabbedPane tabs = new JTabbedPane();
+            tabs.setOpaque(true);
+            tabs.setBackground(DesktopTheme.windowBackground());
             tabs.addTab("Box Score", buildBoxScorePanel());
             tabs.addTab("Detailed Stats", buildDetailedStatsPanel());
             tabs.addTab("Play-by-Play", buildPlayByPlayPanel());
             add(tabs, BorderLayout.CENTER);
         }
         add(buildFooter(), BorderLayout.SOUTH);
+        polishDialogShell();
+    }
+
+    private void polishDialogShell() {
+        Color shell = DesktopTheme.windowBackground();
+        JPanel cp = (JPanel) getContentPane();
+        cp.setOpaque(true);
+        cp.setBackground(shell);
+        Component south = ((BorderLayout) cp.getLayout()).getLayoutComponent(BorderLayout.SOUTH);
+        if (south instanceof JPanel footer) {
+            footer.setOpaque(true);
+            footer.setBackground(shell);
+            for (Component c : footer.getComponents()) {
+                if (c instanceof JLabel jl) {
+                    jl.setForeground(DesktopTheme.textPrimary());
+                }
+            }
+        }
     }
 
     private static String buildTitle(Game game) {
@@ -60,6 +81,8 @@ public class GameBoxScoreView extends JDialog {
 
     private JPanel buildNotPlayedPanel() {
         JPanel panel = new JPanel(new BorderLayout());
+        panel.setOpaque(true);
+        panel.setBackground(DesktopTheme.windowBackground());
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         String text;
         if ("BYE WEEK".equals(game.gameName)) {
@@ -73,12 +96,15 @@ public class GameBoxScoreView extends JDialog {
         JTextArea area = new JTextArea(text);
         area.setEditable(false);
         area.setFont(new Font("SansSerif", Font.PLAIN, 14));
+        DesktopTheme.styleTextContent(area);
         panel.add(area, BorderLayout.CENTER);
         return panel;
     }
 
     private JPanel buildBoxScorePanel() {
         JPanel panel = new JPanel(new BorderLayout(0, 10));
+        panel.setOpaque(true);
+        panel.setBackground(DesktopTheme.windowBackground());
         panel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
         // Scoreboard header
@@ -97,7 +123,10 @@ public class GameBoxScoreView extends JDialog {
         area.setEditable(false);
         area.setFont(MONO);
         area.setCaretPosition(0);
-        panel.add(new JScrollPane(area), BorderLayout.CENTER);
+        DesktopTheme.styleTextContent(area);
+        JScrollPane boxScroll = new JScrollPane(area);
+        boxScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
+        panel.add(boxScroll, BorderLayout.CENTER);
         return panel;
     }
 
@@ -142,6 +171,8 @@ public class GameBoxScoreView extends JDialog {
 
     private JPanel buildDetailedStatsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
+        panel.setOpaque(true);
+        panel.setBackground(DesktopTheme.windowBackground());
         panel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
         String[] summary = game.getGameSummaryStrV2();
@@ -156,12 +187,17 @@ public class GameBoxScoreView extends JDialog {
         area.setEditable(false);
         area.setFont(MONO);
         area.setCaretPosition(0);
-        panel.add(new JScrollPane(area), BorderLayout.CENTER);
+        DesktopTheme.styleTextContent(area);
+        JScrollPane scroll2 = new JScrollPane(area);
+        scroll2.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
+        panel.add(scroll2, BorderLayout.CENTER);
         return panel;
     }
 
     private JPanel buildPlayByPlayPanel() {
         JPanel panel = new JPanel(new BorderLayout());
+        panel.setOpaque(true);
+        panel.setBackground(DesktopTheme.windowBackground());
         panel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
         String pbp = game.getPlayByPlayLog();
@@ -171,10 +207,14 @@ public class GameBoxScoreView extends JDialog {
         area.setLineWrap(true);
         area.setWrapStyleWord(true);
         area.setCaretPosition(0);
-        panel.add(new JScrollPane(area), BorderLayout.CENTER);
+        DesktopTheme.styleTextContent(area);
+        JScrollPane scroll3 = new JScrollPane(area);
+        scroll3.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
+        panel.add(scroll3, BorderLayout.CENTER);
 
         JLabel hint = new JLabel("Full play-by-play event log for this game.");
         hint.setFont(new Font("SansSerif", Font.ITALIC, 11));
+        hint.setForeground(DesktopTheme.textSecondary());
         hint.setBorder(BorderFactory.createEmptyBorder(4, 0, 0, 0));
         panel.add(hint, BorderLayout.SOUTH);
         return panel;

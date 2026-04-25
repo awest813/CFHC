@@ -179,6 +179,7 @@ public final class LeagueLaunchCoordinator {
                     if (request.recruits != null && !request.recruits.isEmpty()) {
                         userTeam.recruitPlayersFromStr(request.recruits);
                     }
+                    league.rebuildScheduleIfNeeded();
                     league.updateTeamTalentRatings();
                     return new LaunchResult(league, userTeam, userTeam, league.getYear(), true, false, false);
                 }
@@ -205,6 +206,7 @@ public final class LeagueLaunchCoordinator {
                         throw new IOException("Loaded save did not contain a user team");
                     }
                     userTeam.getHeadCoach().user = true;
+                    league.rebuildScheduleIfNeeded();
                     league.updateTeamTalentRatings();
                     return new LaunchResult(league, userTeam, userTeam, league.getYear(), true, false, league.getYear() == seasonStart);
                 }

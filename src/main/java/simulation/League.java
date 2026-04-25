@@ -592,8 +592,16 @@ public class League {
                 bufferedReader.close();
                 try (FileInputStream fis = new FileInputStream(saveFile)) {
                     applyLeagueRecord(SaveManager.load(fis));
-                    return;
+                } catch (Exception ex) {
+                    throw new IllegalStateException(
+                            "Failed to load new-format save: " + saveFile.getAbsolutePath(), ex);
                 }
+                updateLongestActiveWinStreak();
+                checkIndyConfExists();
+                // Do not call setupSeason() here: it mutates prestige, staff, and
+                // schedules in ways that are not captured in LeagueRecord; callers
+                // that need a fresh schedule must invoke setupSeason explicitly.
+                return;
             }
             saveHeader = line;
 
@@ -819,6 +827,8 @@ public class League {
 
         } catch (FileNotFoundException ex) {
             PlatformLog.e("League", "Unable to open file", ex);
+        } catch (IllegalStateException ex) {
+            throw ex;
         } catch (Exception ex) {
             PlatformLog.e("League", "Error reading file", ex);
         }
@@ -1175,8 +1185,74 @@ public class League {
                 new ArrayList<>(leagueHoF),
                 leagueRecords.toRecordList(),
                 heismanWinnerStrFull != null ? heismanWinnerStrFull : "",
-                "Unknown" // Placeholder for national champ name
+                "Unknown", // Placeholder for national champ name
+                java.util.List.copyOf(buildGameRecordsForSave())
         );
+    }
+
+    private java.util.List<LeagueRecord.GameRecord> buildGameRecordsForSave() {
+        java.util.IdentityHashMap<Game, Boolean> seen = new java.util.IdentityHashMap<>();
+        java.util.ArrayList<LeagueRecord.GameRecord> out = new java.util.ArrayList<>();
+        int slot = 0;
+        for (Team t : teamList) {
+            for (Game g : t.gameSchedule) {
+                if (g == null || seen.put(g, Boolean.TRUE) != null) {
+                    continue;
+                }
+                out.add(LeagueRecord.GameRecord.fromGame(g, slot++));
+            }
+        }
+        return out;
+    }
+
+    private void restoreScheduledGames(java.util.List<LeagueRecord.GameRecord> games) {
+        if (games == null || games.isEmpty()) {
+            return;
+        }
+        java.util.ArrayList<LeagueRecord.GameRecord> sorted = new java.util.ArrayList<>(games);
+        sorted.sort(java.util.Comparator.comparingInt(LeagueRecord.GameRecord::slot));
+
+        java.util.HashMap<String, Team> byName = new java.util.HashMap<>();
+        for (Team t : teamList) {
+            byName.put(t.name, t);
+        }
+
+        for (LeagueRecord.GameRecord gr : sorted) {
+            Team home = byName.get(gr.homeName());
+            if (home == null) {
+                continue;
+            }
+
+            if ("BYE WEEK".equals(gr.gameName())) {
+                Team bye = new Team("BYE", "BYE", "BYE", 0, "BYE", 0, this);
+                bye.setRankTeamPollScore(teamList.size());
+                Game g = new Game(home, bye, "BYE WEEK");
+                g.week = gr.week();
+                g.hasPlayed = gr.played();
+                g.homeScore = gr.homeScore();
+                g.awayScore = gr.awayScore();
+                home.addGameToSchedule(g);
+                continue;
+            }
+
+            Team away = byName.get(gr.awayName());
+            if (away == null) {
+                away = new Team(gr.awayName(), "FCS", "FCS Division", (int) (Math.random() * 40), "FCS1", 0, this, false);
+            }
+
+            String gName = gr.gameName();
+            if (gName == null || gName.isEmpty()) {
+                gName = "Game";
+            }
+            Game g = new Game(home, away, gName);
+            g.week = gr.week();
+            g.hasPlayed = gr.played();
+            g.homeScore = gr.homeScore();
+            g.awayScore = gr.awayScore();
+
+            home.addGameToSchedule(g);
+            away.addGameToSchedule(g);
+        }
     }
 
     public void applyLeagueRecord(LeagueRecord record) {
@@ -1205,6 +1281,8 @@ public class League {
             t.setPlaybookOffNum(t.getCPUOffense());
             t.setPlaybookDefNum(t.getCPUDefense());
         }
+
+        restoreScheduledGames(record.scheduledGames());
     }
 
 
@@ -6359,6 +6437,22 @@ Then conferences can see if they want to add them to their list if the teams mee
 
         // Rebuild the schedule for the new season
         setupSeason();
+    }
+
+    /**
+     * After a portable file load, builds a schedule only when no games were restored.
+     * Current {@link LeagueRecord} saves include {@code GM:} rows for deduped
+     * {@link Game} instances; older saves without those lines still need
+     * {@link #setupSeason()} here.
+     */
+    public void rebuildScheduleIfNeeded() {
+        if (teamList.isEmpty()) {
+            return;
+        }
+        java.util.List<Game> sched = teamList.get(0).getGameSchedule();
+        if (sched == null || sched.isEmpty()) {
+            setupSeason();
+        }
     }
 
     /**
