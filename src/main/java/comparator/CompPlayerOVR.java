@@ -12,6 +12,8 @@ import positions.Player;
 public class CompPlayerOVR implements Comparator<Player> {
     @Override
     public int compare(Player a, Player b) {
-        return a.getOverall() > b.getOverall() ? -1 : a.getOverall() == b.getOverall() ? 0 : 1;
+        // Use ratOvr (game's stored overall), not getOverall() from attributes — they can diverge
+        // and callers/tests often adjust ratOvr directly.
+        return Integer.compare(b.ratOvr, a.ratOvr);
     }
 }

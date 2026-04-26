@@ -56,6 +56,15 @@ public class Player {
         this.isMedicalRS = record.isMedicalRS();
         this.isGradTransfer = record.isGradTransfer();
         this.isWalkOn = record.isWalkOn();
+
+        if (record.isInjured() && record.injuryDuration() > 0) {
+            String d = record.injuryDescription();
+            if (d == null || d.isEmpty()) {
+                this.injury = new Injury(record.injuryDuration(), "", this);
+            } else {
+                this.injury = new Injury(record.injuryDuration(), d.replace(';', ','), this);
+            }
+        }
     }
 
     public int year;
@@ -88,13 +97,18 @@ public class Player {
     public int[] awards;
 
     public simulation.PlayerRecord toRecord() {
+        boolean inj = injury != null && injury.getDuration() > 0;
+        int injDur = inj ? injury.getDuration() : 0;
+        String injDesc = inj ? injury.getDescription().replace(",", ";") : "";
+
         return new simulation.PlayerRecord(
                 sanitizeRecordText(position), sanitizeRecordText(name), team != null ? sanitizeRecordText(team.getName()) : "", year, homeState, character, ratIntelligence, recruitRating,
 
                 isTransfer, wasRedshirt, ratPot, ratDurability, ratOvr, cost,
                 new int[]{ratAttr1, ratAttr2, ratAttr3, ratAttr4}, height, weight,
                 isSuspended, weeksSuspended, troubledTimes, talentNFL, stats, careerStats, awards,
-                isRedshirt, isMedicalRS, isGradTransfer, isWalkOn
+                isRedshirt, isMedicalRS, isGradTransfer, isWalkOn,
+                inj, injDur, injDesc
         );
     }
 

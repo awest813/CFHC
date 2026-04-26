@@ -3,8 +3,6 @@ package desktop;
 import simulation.League;
 import simulation.PlatformLog;
 import simulation.PlatformResourceProvider;
-import simulation.SaveManager;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -27,6 +25,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Visual entry point for the desktop client. Replaces the CLI-only launcher.
@@ -35,7 +35,11 @@ public class LauncherFrame extends JFrame {
 
     private static final String TAG = "LauncherFrame";
     private static final Color DARK_BLUE = new Color(20, 30, 48);
-    private static final Color ACCENT_BLUE = new Color(50, 100, 180);
+
+    private final List<JButton> launcherHubButtons = new ArrayList<>();
+    private JPanel launcherMainPanel;
+    private JLabel launcherSideBlurb;
+    private JLabel launcherFooterLabel;
 
     public LauncherFrame() {
         super("CFB Coach - Desktop Hub");
@@ -48,7 +52,8 @@ public class LauncherFrame extends JFrame {
         setLayout(new BorderLayout());
 
         add(buildSidePanel(), BorderLayout.WEST);
-        add(buildMainControlPanel(), BorderLayout.CENTER);
+        launcherMainPanel = buildMainControlPanel();
+        add(launcherMainPanel, BorderLayout.CENTER);
         getContentPane().setBackground(DesktopTheme.launcherMainPanel());
     }
 
@@ -77,11 +82,8 @@ public class LauncherFrame extends JFrame {
         title.setFont(new Font("SansSerif", Font.BOLD, 28));
         side.add(title, BorderLayout.NORTH);
 
-        JLabel info = new JLabel("<html><p style='text-align:center; color:"
-                + (DesktopTheme.isDark() ? "#99A0AA" : "#AAAAAA")
-                + ";'>College Football Head Coach (CFHC)<br>Desktop management shell<br><br>v1.4e [Alpha]</p></html>",
-                SwingConstants.CENTER);
-        side.add(info, BorderLayout.CENTER);
+        launcherSideBlurb = new JLabel(sideBlurbHtml(), SwingConstants.CENTER);
+        side.add(launcherSideBlurb, BorderLayout.CENTER);
 
         return side;
     }
@@ -121,22 +123,49 @@ public class LauncherFrame extends JFrame {
         JCheckBox darkToggle = new JCheckBox("Dark mode", DesktopTheme.isDark());
         darkToggle.setOpaque(false);
         darkToggle.setForeground(DesktopTheme.textPrimary());
+        darkToggle.setMnemonic('D');
         JPanel toggleRow = new JPanel(new FlowLayout(FlowLayout.CENTER));
         toggleRow.setOpaque(false);
         toggleRow.add(darkToggle);
         darkToggle.addActionListener(e -> {
             DesktopTheme.setDark(darkToggle.isSelected());
             SwingUtilities.updateComponentTreeUI(this);
+            refreshLauncherChrome(darkToggle);
         });
         centerWrap.add(toggleRow, BorderLayout.SOUTH);
         main.add(centerWrap, BorderLayout.CENTER);
 
-        JLabel footer = new JLabel("\u00a9 2026 Engine Audit & Polish Update", SwingConstants.CENTER);
-        footer.setFont(new Font("SansSerif", Font.PLAIN, 11));
-        footer.setForeground(DesktopTheme.launcherFooter());
-        main.add(footer, BorderLayout.SOUTH);
+        launcherFooterLabel = new JLabel("\u00a9 2026 Engine Audit & Polish Update", SwingConstants.CENTER);
+        launcherFooterLabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        launcherFooterLabel.setForeground(DesktopTheme.launcherFooter());
+        main.add(launcherFooterLabel, BorderLayout.SOUTH);
 
         return main;
+    }
+
+    private static String sideBlurbHtml() {
+        String muted = DesktopTheme.isDark() ? "#99A0AA" : "#666666";
+        return "<html><p style='text-align:center; color:" + muted
+                + ";'>College Football Head Coach (CFHC)<br>Desktop management shell<br><br>v1.4e [Alpha]</p></html>";
+    }
+
+    private void refreshLauncherChrome(JCheckBox darkToggle) {
+        getContentPane().setBackground(DesktopTheme.launcherMainPanel());
+        if (launcherMainPanel != null) {
+            launcherMainPanel.setBackground(DesktopTheme.launcherMainPanel());
+        }
+        if (launcherFooterLabel != null) {
+            launcherFooterLabel.setForeground(DesktopTheme.launcherFooter());
+        }
+        if (launcherSideBlurb != null) {
+            launcherSideBlurb.setText(sideBlurbHtml());
+        }
+        if (darkToggle != null) {
+            darkToggle.setForeground(DesktopTheme.textPrimary());
+        }
+        for (JButton b : launcherHubButtons) {
+            DesktopTheme.styleLauncherHubButton(b);
+        }
     }
 
     private JButton createStyledButton(String text, String tooltip) {
@@ -144,9 +173,8 @@ public class LauncherFrame extends JFrame {
         btn.setPreferredSize(new Dimension(300, 45));
         btn.setFont(new Font("SansSerif", Font.BOLD, 14));
         btn.setToolTipText(tooltip);
-        btn.setFocusPainted(false);
-        btn.setBackground(ACCENT_BLUE);
-        btn.setForeground(Color.WHITE);
+        DesktopTheme.styleLauncherHubButton(btn);
+        launcherHubButtons.add(btn);
         return btn;
     }
 

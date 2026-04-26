@@ -12,6 +12,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JButton;
 import javax.swing.JTree;
 import javax.swing.JViewport;
 import javax.swing.UIManager;
@@ -193,6 +194,16 @@ public final class DesktopTheme {
 
     public static Color launcherFooter() {
         return dark ? new Color(120, 125, 135) : Color.LIGHT_GRAY;
+    }
+
+    /** Primary actions on the desktop launcher hub (contrasts in light vs dark). */
+    public static void styleLauncherHubButton(JButton btn) {
+        if (btn == null) {
+            return;
+        }
+        btn.setBackground(dark ? new Color(72, 124, 204) : new Color(50, 100, 180));
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false);
     }
 
     public static Color textAreaEditorBackground() {

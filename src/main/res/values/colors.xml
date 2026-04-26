@@ -31,4 +31,8 @@
     <color name="accentGoldDark">#C89E2C</color>
     <color name="successSurface">#245E4C</color>
     <color name="dangerSurface">#5A2B31</color>
+    <!-- Material 3 on-* tokens (toolbar / surfaces; dynamic color may override on API 31+) -->
+    <color name="colorOnPrimary">#F5F7FA</color>
+    <color name="colorOnSurface">#F5F7FA</color>
+    <color name="colorSurface">#0E2433</color>
 </resources>

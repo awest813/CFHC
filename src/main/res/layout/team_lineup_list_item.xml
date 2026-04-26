@@ -12,7 +12,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:paddingRight="10dp"
+        android:paddingEnd="10dp"
         android:text="A. Player Ovr:99 Pot:99 (A+,B-,C+)"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:textColor="@color/textPrimary"

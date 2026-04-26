@@ -27,7 +27,11 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>
     <string name="nav_header_subtitle">android.studio@android.com</string>
-    <string name="nav_header_desc">Navigation header</string>
+    <string name="nav_header_desc">CFB Coach logo</string>
+    <string name="main_depth_chart">Depth Chart</string>
+    <string name="main_play_week">Play Week</string>
+    <string name="main_playbook">Playbook</string>
+    <string name="main_standings_list_description">Standings and team list for the selected conference</string>
 
     <string name="menu_home">Home</string>
     <string name="menu_roster">Roster</string>
@@ -48,6 +52,8 @@
     <string name="main_filter_label">Scout Any Team</string>
     <string name="main_filter_conference">Conference</string>
     <string name="main_filter_team">Team</string>
+    <string name="main_a11y_conference_spinner">Conference filter. Double tap to choose a conference.</string>
+    <string name="main_a11y_team_spinner">Team filter. Double tap to choose a program to scout.</string>
     <string name="quick_home">Home</string>
     <string name="quick_roster">Roster</string>
     <string name="quick_stats">Stats</string>

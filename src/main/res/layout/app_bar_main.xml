@@ -17,7 +17,7 @@
             android:background="@drawable/bg_toolbar"
             android:elevation="0dp"
             app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:titleTextColor="#FAF7F7" />
+            app:titleTextColor="@color/textPrimary" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

@@ -243,6 +243,8 @@ public class League {
     public ArrayList<Player> allAmericans2;
     public ArrayList<Player> allFreshman;
     public String heismanWinnerStrFull;
+    /** Last national champion school name (persisted; also set when the NCG is simulated). */
+    public String nationalChampionName = "";
     public String defPOTYWinnerStrFull;
     public String freshmanWinnerStrFull;
     public String coachWinnerStrFull;
@@ -1185,9 +1187,25 @@ public class League {
                 new ArrayList<>(leagueHoF),
                 leagueRecords.toRecordList(),
                 heismanWinnerStrFull != null ? heismanWinnerStrFull : "",
-                "Unknown", // Placeholder for national champ name
+                nationalChampionNameForRecord(),
                 java.util.List.copyOf(buildGameRecordsForSave())
         );
+    }
+
+    /**
+     * Value stored on {@link LeagueRecord#nationalChampName()}: prefer a decided NCG on this league,
+     * else the last loaded / assigned {@link #nationalChampionName}.
+     */
+    private String nationalChampionNameForRecord() {
+        if (ncg != null && ncg.hasPlayed && ncg.gameName != null && !"BYE WEEK".equals(ncg.gameName)) {
+            if (ncg.homeScore > ncg.awayScore) {
+                return ncg.homeTeam != null ? ncg.homeTeam.getName() : "";
+            }
+            if (ncg.awayScore > ncg.homeScore) {
+                return ncg.awayTeam != null ? ncg.awayTeam.getName() : "";
+            }
+        }
+        return nationalChampionName != null ? nationalChampionName : "";
     }
 
     private java.util.List<LeagueRecord.GameRecord> buildGameRecordsForSave() {
@@ -1261,13 +1279,16 @@ public class League {
 
         this.currentWeek = record.currentWeek();
         this.heismanWinnerStrFull = record.heismanWinnerName();
-        
+        this.nationalChampionName = record.nationalChampName() != null ? record.nationalChampName() : "";
+
         this.conferences = new ArrayList<>();
         this.teamList = new ArrayList<>();
         
         for (LeagueRecord.ConferenceRecord cr : record.conferences()) {
             this.conferences.add(new Conference(cr, this));
         }
+
+        linkOocOpponentsFromRecord(record);
         
         this.leagueHoF = new ArrayList<>(record.leagueHoF());
         
@@ -1285,7 +1306,26 @@ public class League {
         restoreScheduledGames(record.scheduledGames());
     }
 
-
+    /**
+     * Resolves saved OOC opponent names to {@link Team} references after the full roster is on
+     * {@link #teamList} (cannot run inside {@link Team#Team(LeagueRecord.TeamRecord, League)}).
+     */
+    private void linkOocOpponentsFromRecord(LeagueRecord record) {
+        int ci = 0;
+        for (LeagueRecord.ConferenceRecord cr : record.conferences()) {
+            if (ci >= conferences.size()) {
+                break;
+            }
+            Conference conf = conferences.get(ci++);
+            int ti = 0;
+            for (LeagueRecord.TeamRecord tr : cr.teams()) {
+                if (ti >= conf.confTeams.size()) {
+                    break;
+                }
+                conf.confTeams.get(ti++).linkOocOpponentsFromNames(tr.oocOpponentNames());
+            }
+        }
+    }
 
     public void checkIndyConfExists() {
         boolean indyExists = false;
@@ -1643,8 +1683,17 @@ public class League {
      * @return reference to the Team object
      */
     public Team findTeam(String name) {
+        if (name == null || teamList.isEmpty()) {
+            return teamList.isEmpty() ? null : teamList.get(0);
+        }
+        String n = name.trim();
         for (int i = 0; i < teamList.size(); i++) {
-            if (teamList.get(i).strRep().equals(name)) {
+            if (n.equals(teamList.get(i).getName())) {
+                return teamList.get(i);
+            }
+        }
+        for (int i = 0; i < teamList.size(); i++) {
+            if (n.equals(teamList.get(i).strRep())) {
                 return teamList.get(i);
             }
         }
@@ -1960,6 +2009,7 @@ public class League {
                                 " Congratulations " + ncg.homeTeam.getName() + "!"
                 );
                 newsHeadlines.add(ncg.homeTeam.getName() + " wins the National Championship!");
+                nationalChampionName = ncg.homeTeam.getName();
 
             } else {
                 ncg.homeTeam.setSemiFinalWL("");
@@ -1977,6 +2027,7 @@ public class League {
                                 " Congratulations " + ncg.awayTeam.getName() + "!"
                 );
                 newsHeadlines.add(ncg.awayTeam.getName() + " wins the National Championship!");
+                nationalChampionName = ncg.awayTeam.getName();
 
             }
         }

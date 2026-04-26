@@ -21,6 +21,7 @@ public record LeagueRecord(
     // Nested records for structured hierarchy
     public record ConferenceRecord(
         String name,
+        List<Integer> oocWeeks,
         List<TeamRecord> teams
     ) {}
 
@@ -30,6 +31,10 @@ public record LeagueRecord(
         int prestige,
         int wins,
         int losses,
+        List<Integer> oocWeeks,
+        List<String> oocOpponentNames,
+        float teamPollScore,
+        int rankTeamPollScore,
         StaffRecord headCoach,
         StaffRecord offenseCoach,
         StaffRecord defenseCoach,

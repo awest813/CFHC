@@ -16,7 +16,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:paddingRight="12dp"
+            android:paddingEnd="12dp"
             android:textColor="@color/textPrimary"
             android:textSize="13sp" />
 
@@ -40,9 +40,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_action_primary"
-            android:paddingLeft="16dp"
+            android:paddingStart="16dp"
             android:paddingTop="10dp"
-            android:paddingRight="16dp"
+            android:paddingEnd="16dp"
             android:paddingBottom="10dp"
             android:text="Recruit: $XXX"
             android:textAllCaps="false"

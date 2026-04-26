@@ -54,7 +54,7 @@
                         android:id="@+id/ppClass"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="8dp"
+                        android:layout_marginStart="8dp"
                         android:background="@drawable/bg_mobile_chip"
                         android:padding="8dp"
                         android:text="Senior"

@@ -26,7 +26,9 @@ public final class Persistence {
           .append(r.isSuspended()).append(",").append(r.weeksSuspended()).append(",")
           .append(r.troubledTimes()).append(",").append(r.talentNFL()).append(",")
           .append(r.isRedshirt()).append(",").append(r.isMedicalRS()).append(",")
-          .append(r.isGradTransfer()).append(",").append(r.isWalkOn());
+          .append(r.isGradTransfer()).append(",").append(r.isWalkOn()).append(",")
+          .append(r.isInjured()).append(",").append(r.injuryDuration()).append(",")
+          .append(r.injuryDescription() == null ? "" : r.injuryDescription().replace(",", ";"));
         
         sb.append("&");
 

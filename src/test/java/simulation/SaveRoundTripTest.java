@@ -7,7 +7,8 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
-import java.util.List;
+
+import positions.Player;
 
 import static org.junit.Assert.*;
 
@@ -154,6 +155,85 @@ public class SaveRoundTripTest {
     }
 
     @Test
+    public void roundTrip_leagueNameWithCommas_isPreserved() throws Exception {
+        original.leagueName = "Custom League, AC & Friends";
+        League loaded = saveAndLoad();
+        assertEquals("League name with commas must survive L: header parse",
+                "Custom League, AC & Friends", loaded.leagueName);
+    }
+
+    @Test
+    public void roundTrip_heismanNameWithCommas_isPreserved() throws Exception {
+        original.heismanWinnerStrFull = "Smith, Jane — QB";
+        League loaded = saveAndLoad();
+        assertEquals(original.heismanWinnerStrFull, loaded.heismanWinnerStrFull);
+    }
+
+    @Test
+    public void roundTrip_nationalChampionName_isPreserved() throws Exception {
+        original.nationalChampionName = "Western State University";
+        League loaded = saveAndLoad();
+        assertEquals("National champion name must survive round-trip",
+                "Western State University", loaded.nationalChampionName);
+    }
+
+    @Test
+    public void roundTrip_teamPollScores_isPreserved() throws Exception {
+        Team t = original.teamList.get(0);
+        t.teamPollScore = 42.25f;
+        t.rankTeamPollScore = 7;
+        League loaded = saveAndLoad();
+        Team re = findTeam(loaded, t.name);
+        assertNotNull(re);
+        assertEquals(42.25f, re.teamPollScore, 0.0001f);
+        assertEquals(7, re.rankTeamPollScore);
+    }
+
+    @Test
+    public void roundTrip_oocWeeksAndOpponentNames_isPreserved() throws Exception {
+        Team user = original.userTeam;
+        Team opponent = original.teamList.stream().filter(x -> x != user).findFirst().orElse(null);
+        assertNotNull("Need a second team for OOC test", opponent);
+
+        user.oocTeams.clear();
+        user.oocWeeks.clear();
+        user.addOocWeek(3);
+        user.addOocWeek(7);
+        user.addOocTeam(opponent);
+
+        League loaded = saveAndLoad();
+        Team reUser = findTeam(loaded, user.name);
+        Team reOpp = findTeam(loaded, opponent.name);
+        assertNotNull(reUser);
+        assertNotNull(reOpp);
+        assertEquals("OOC week list size", 2, reUser.oocWeeks.size());
+        assertEquals(3, (int) reUser.oocWeeks.get(0));
+        assertEquals(7, (int) reUser.oocWeeks.get(1));
+        assertEquals("OOC opponent count", 1, reUser.oocTeams.size());
+        assertEquals(reOpp.name, reUser.oocTeams.get(0).name);
+    }
+
+    @Test
+    public void roundTrip_playerInjury_isPreserved() throws Exception {
+        Player p = original.userTeam.getAllPlayers().get(0);
+        p.injury = new Injury(4, "Hamstring strain", p);
+        assertTrue(p.isInjured);
+
+        League loaded = saveAndLoad();
+        Team reTeam = findTeam(loaded, original.userTeam.name);
+        assertNotNull(reTeam);
+        Player re = reTeam.getAllPlayers().stream()
+                .filter(x -> x.name.equals(p.name) && x.position.equals(p.position))
+                .findFirst()
+                .orElse(null);
+        assertNotNull("Injured player must exist after reload", re);
+        assertTrue("Injury flag must survive round-trip", re.isInjured);
+        assertNotNull(re.injury);
+        assertEquals(4, re.injury.getDuration());
+        assertEquals("Hamstring strain", re.injury.getDescription());
+    }
+
+    @Test
     public void roundTrip_viaSaveManagerDirectly() throws Exception {
         // Verify that the LeagueRecord produced by toRecord() can be serialized and
         // deserialized via SaveManager round-trip with no data loss.
@@ -177,6 +257,8 @@ public class SaveRoundTripTest {
                 origTeams, loadedTeams);
         assertEquals("Scheduled games must survive SaveManager round-trip",
                 original.toRecord().scheduledGames().size(), record.scheduledGames().size());
+        assertEquals("National champion name must survive SaveManager round-trip",
+                original.toRecord().nationalChampName(), record.nationalChampName());
     }
 
     // -------------------------------------------------------------------------

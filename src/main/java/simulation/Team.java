@@ -495,6 +495,37 @@ public class Team {
 
         this.wins = record.wins();
         this.losses = record.losses();
+
+        this.teamPollScore = record.teamPollScore();
+        this.rankTeamPollScore = record.rankTeamPollScore();
+
+        if (record.oocWeeks() != null) {
+            for (int w : record.oocWeeks()) {
+                this.oocWeeks.add(w);
+            }
+        }
+        // oocOpponentNames are resolved in League.linkOocOpponentsFromRecord after every team exists.
+    }
+
+    /**
+     * Called after the full league roster is loaded so OOC names can resolve to {@link Team} refs
+     * (including teams added later during conference construction).
+     */
+    void linkOocOpponentsFromNames(java.util.List<String> names) {
+        oocTeams.clear();
+        if (names == null) {
+            return;
+        }
+        for (String nm : names) {
+            if (nm == null || nm.isEmpty()) {
+                continue;
+            }
+            Team op = league.findTeam(nm);
+            if (op == null) {
+                op = new Team(nm, "FCS", "FCS Division", (int) (Math.random() * 40), "FCS1", 0, league, false);
+            }
+            oocTeams.add(op);
+        }
     }
 
 
@@ -546,9 +577,20 @@ public class Team {
             roster.add(p.toRecord());
         }
 
+        java.util.ArrayList<String> oocNames = new java.util.ArrayList<>();
+        for (Team ot : oocTeams) {
+            if (ot != null) {
+                oocNames.add(normalizeRecordText(ot.getName()));
+            }
+        }
+
         return new LeagueRecord.TeamRecord(
                 normalizeRecordText(name), normalizeRecordText(abbr), teamPrestige,
                 wins, losses,
+                java.util.List.copyOf(oocWeeks),
+                java.util.List.copyOf(oocNames),
+                teamPollScore,
+                rankTeamPollScore,
                 HC.toRecord(), OC.toRecord(), DC.toRecord(),
                 roster,
                 new ArrayList<>(teamHistory),

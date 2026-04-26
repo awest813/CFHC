@@ -49,8 +49,8 @@
                     android:id="@+id/gameDialogScoreDash"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
                     android:text="-"
                     android:textColor="@color/textMuted"
                     android:textSize="28sp"
@@ -90,8 +90,8 @@
                     android:id="@+id/gameDialogScoreDashName"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="8dp"
-                    android:layout_marginRight="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
                     android:text="@"
                     android:textColor="@color/textMuted" />
 
@@ -159,49 +159,50 @@
 
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical">
                 <TextView android:id="@+id/gameDialogLeft" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Summary" android:textColor="@color/accentGold" android:textStyle="bold" />
+                <!-- Home = layout-start column, away = layout-end; paddingStart/End keeps gutter between teams in RTL/LTR. -->
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:orientation="horizontal">
-                    <TextView android:id="@+id/gameDialogCenter" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:paddingRight="8dp" android:text="Home Summary" android:textColor="@color/textSecondary" />
-                    <TextView android:id="@+id/gameDialogRight" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:paddingLeft="8dp" android:text="Away Summary" android:textColor="@color/textSecondary" />
+                    <TextView android:id="@+id/gameDialogCenter" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="start" android:paddingEnd="8dp" android:text="Home Summary" android:textColor="@color/textSecondary" />
+                    <TextView android:id="@+id/gameDialogRight" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:paddingStart="8dp" android:text="Away Summary" android:textColor="@color/textSecondary" />
                 </LinearLayout>
             </LinearLayout>
 
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="vertical">
                 <TextView android:id="@+id/gameDialogQBLeft" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Passing" android:textColor="@color/accentGold" android:textStyle="bold" />
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:orientation="horizontal">
-                    <TextView android:id="@+id/gameDialogQBCenter" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:paddingRight="8dp" android:text="Home Passing" android:textColor="@color/textSecondary" />
-                    <TextView android:id="@+id/gameDialogQBRight" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:paddingLeft="8dp" android:text="Away Passing" android:textColor="@color/textSecondary" />
+                    <TextView android:id="@+id/gameDialogQBCenter" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="start" android:paddingEnd="8dp" android:text="Home Passing" android:textColor="@color/textSecondary" />
+                    <TextView android:id="@+id/gameDialogQBRight" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:paddingStart="8dp" android:text="Away Passing" android:textColor="@color/textSecondary" />
                 </LinearLayout>
             </LinearLayout>
 
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="vertical">
                 <TextView android:id="@+id/gameDialogRushLeft" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Rushing" android:textColor="@color/accentGold" android:textStyle="bold" />
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:orientation="horizontal">
-                    <TextView android:id="@+id/gameDialogRushCenter" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:paddingRight="8dp" android:text="Home Rushing" android:textColor="@color/textSecondary" />
-                    <TextView android:id="@+id/gameDialogRushRight" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:paddingLeft="8dp" android:text="Away Rushing" android:textColor="@color/textSecondary" />
+                    <TextView android:id="@+id/gameDialogRushCenter" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="start" android:paddingEnd="8dp" android:text="Home Rushing" android:textColor="@color/textSecondary" />
+                    <TextView android:id="@+id/gameDialogRushRight" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:paddingStart="8dp" android:text="Away Rushing" android:textColor="@color/textSecondary" />
                 </LinearLayout>
             </LinearLayout>
 
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="vertical">
                 <TextView android:id="@+id/gameDialogRecLeft" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Receiving" android:textColor="@color/accentGold" android:textStyle="bold" />
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:orientation="horizontal">
-                    <TextView android:id="@+id/gameDialogRecCenter" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:paddingRight="8dp" android:text="Home Receiving" android:textColor="@color/textSecondary" />
-                    <TextView android:id="@+id/gameDialogRecRight" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:paddingLeft="8dp" android:text="Away Receiving" android:textColor="@color/textSecondary" />
+                    <TextView android:id="@+id/gameDialogRecCenter" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="start" android:paddingEnd="8dp" android:text="Home Receiving" android:textColor="@color/textSecondary" />
+                    <TextView android:id="@+id/gameDialogRecRight" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:paddingStart="8dp" android:text="Away Receiving" android:textColor="@color/textSecondary" />
                 </LinearLayout>
             </LinearLayout>
 
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="vertical">
                 <TextView android:id="@+id/gameDialogDefLeft" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Defense" android:textColor="@color/accentGold" android:textStyle="bold" />
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:orientation="horizontal">
-                    <TextView android:id="@+id/gameDialogDefCenter" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:paddingRight="8dp" android:text="Home Defense" android:textColor="@color/textSecondary" />
-                    <TextView android:id="@+id/gameDialogDefRight" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:paddingLeft="8dp" android:text="Away Defense" android:textColor="@color/textSecondary" />
+                    <TextView android:id="@+id/gameDialogDefCenter" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="start" android:paddingEnd="8dp" android:text="Home Defense" android:textColor="@color/textSecondary" />
+                    <TextView android:id="@+id/gameDialogDefRight" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:paddingStart="8dp" android:text="Away Defense" android:textColor="@color/textSecondary" />
                 </LinearLayout>
             </LinearLayout>
 
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="10dp" android:orientation="vertical">
                 <TextView android:id="@+id/gameDialogKickLeft" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Kicking" android:textColor="@color/accentGold" android:textStyle="bold" />
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="4dp" android:orientation="horizontal">
-                    <TextView android:id="@+id/gameDialogKickCenter" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:paddingRight="8dp" android:text="Home Kicking" android:textColor="@color/textSecondary" />
-                    <TextView android:id="@+id/gameDialogKickRight" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:paddingLeft="8dp" android:text="Away Kicking" android:textColor="@color/textSecondary" />
+                    <TextView android:id="@+id/gameDialogKickCenter" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="start" android:paddingEnd="8dp" android:text="Home Kicking" android:textColor="@color/textSecondary" />
+                    <TextView android:id="@+id/gameDialogKickRight" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:gravity="end" android:paddingStart="8dp" android:text="Away Kicking" android:textColor="@color/textSecondary" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

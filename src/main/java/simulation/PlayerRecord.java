@@ -36,7 +36,10 @@ public record PlayerRecord(
     boolean isRedshirt,
     boolean isMedicalRS,
     boolean isGradTransfer,
-    boolean isWalkOn
+    boolean isWalkOn,
+    boolean isInjured,
+    int injuryDuration,
+    String injuryDescription
 ) {
     public static PlayerRecord fromCsv(String csv) {
         String[] parts = csv.split("&");
@@ -120,7 +123,10 @@ public record PlayerRecord(
             basic.length > 23 && Boolean.parseBoolean(basic[23]), // isRedshirt
             basic.length > 24 && Boolean.parseBoolean(basic[24]), // isMedicalRS
             basic.length > 25 && Boolean.parseBoolean(basic[25]), // isGradTransfer
-            basic.length > 26 && Boolean.parseBoolean(basic[26]) // isWalkOn
+            basic.length > 26 && Boolean.parseBoolean(basic[26]), // isWalkOn
+            basic.length > 27 && Boolean.parseBoolean(basic[27]), // isInjured
+            basic.length > 28 ? Integer.parseInt(basic[28]) : 0, // injuryDuration
+            basic.length > 29 ? basic[29].replace(';', ',') : "" // injuryDescription (commas escaped as ;)
         );
     }
 }

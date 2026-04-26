@@ -126,6 +126,9 @@ public class Conference {
         this.divisions.add(new Division("A", league));
         this.divisions.add(new Division("B", league));
         this.oocWeeks = new ArrayList<>();
+        if (record.oocWeeks() != null) {
+            this.oocWeeks.addAll(record.oocWeeks());
+        }
 
         for (LeagueRecord.TeamRecord tr : record.teams()) {
             Team t = new Team(tr, league);
@@ -141,7 +144,7 @@ public class Conference {
         for (Team t : confTeams) {
             teams.add(t.toRecord());
         }
-        return new LeagueRecord.ConferenceRecord(confName, teams);
+        return new LeagueRecord.ConferenceRecord(confName, java.util.List.copyOf(oocWeeks), teams);
     }
 
 

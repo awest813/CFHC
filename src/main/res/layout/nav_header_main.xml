@@ -8,8 +8,8 @@
     android:gravity="bottom"
     android:orientation="vertical"
     android:paddingBottom="20dp"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
     android:paddingTop="24dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
@@ -31,7 +31,7 @@
         android:alpha="0.88"
         android:text="My Team Info"
         android:textAlignment="center"
-        android:textColor="#FFFFFF"
+        android:textColor="@color/textPrimary"
         android:textSize="15sp"
         android:visibility="visible" />
 
