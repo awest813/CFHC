@@ -1,6 +1,6 @@
 # Platform Expansion
 
-CFHC is Android-first today, but the simulation stack is close to being reusable across platforms. The goal is to treat Android as *one shell* around a shared game core rather than the place where the sim itself lives.
+CFHC is still Android-first, but the simulation stack is already shared by the Android app and a Swing desktop prototype. The long-term goal is to treat Android as *one shell* around a reusable game core rather than the place where the sim itself lives.
 
 ---
 
@@ -31,6 +31,8 @@ Each shell communicates with the core through the platform bridge interfaces (`G
 **Completed:**
 - `League` and `Team` no longer depend directly on `MainActivity`.
 - Simulation-side logging replaced with `PlatformLog` (no `android.util.Log` dependency).
+- Save-slot orchestration now lives in shared persistence helpers (`LeagueSaveStorage` / `SaveLoadService`) instead of `MainActivity`.
+- Shared export helpers (`LeagueExportController`) are used by both Android and desktop flows.
 - `GameUiBridge` interface defines all UI callbacks the core needs:
   - Crash / fatal-error handling
   - Recruiting hand-off
@@ -40,27 +42,30 @@ Each shell communicates with the core through the platform bridge interfaces (`G
 - `GameUiBridge` ships with a `NO_OP` implementation and headless-safe constructor overloads, so non-Android shells can boot the core before their UI workflow is ready.
 - `PlatformResourceProvider` abstracts asset and string loading away from Android resources.
 - `GameFlowManager` centralises season state-transitions.
+- The `RecruitingActivity ↔ MainActivity` circular dependency has been removed; recruiting now goes through shared controller/flow abstractions.
+- A Swing desktop shell exists today (`desktop.*`, `runDesktop`, `desktopJar`) and can run the shared core.
 
 **Still blocking expansion:**
-- Save/load and import/export logic lives in `MainActivity` (see [Roadmap item 7](ROADMAP.md#7--extract-saveload-logic-out-of-mainactivity)).
-- `RecruitingActivity ↔ MainActivity` circular dependency (see [Roadmap item 2](ROADMAP.md#2--break-the-recruitingactivity--mainactivity-circular-dependency)).
 - No headless simulation facade yet (see [Roadmap item 15](ROADMAP.md#15--introduce-a-headless-simulation-facade)).
+- Import flow is still partly Android-owned (`LeagueImportFlowController`, Android file picking, roster/coach import orchestration).
+- The engine still assumes single-threaded, UI-driven orchestration; alternate shells need a clearer threading + lifecycle contract.
 
 ---
 
 ## Remaining Steps to Enable Other Shells
 
-1. **Move save / import / export parsing** out of `MainActivity` into shared services in `simulation/` so Android is not the only host that understands league bootstrapping.
-2. **Decouple recruiting** — replace direct file/UI coupling with serializable recruiting-state objects and action methods.
-3. **Introduce a headless simulation facade** with a clean public API for common flows:
+1. **Finish sharing import flows** — custom-universe parsing already lives in `simulation/`, but Android still owns file selection plus roster/coach import orchestration.
+2. **Introduce a headless simulation facade** with a clean public API for common flows:
    - `createDynasty(config)`
    - `loadSave(path)`
    - `advanceWeek(dynasty)`
    - `resolveOffseason(dynasty)`
    - `prepareRecruitingData(dynasty)`
-4. Once the facade exists, build:
+3. **Document save/schema/threading contracts** so non-Android shells can safely drive the engine without depending on Activity timing.
+4. **Keep hardening the desktop shell** around the facade/state objects as the proving ground for non-Android support.
+5. Once the facade exists, build:
    - An **iPhone shell** around the facade/state objects.
-   - A **desktop shell** around the same facade/state objects.
+   - Future desktop alternatives (JavaFX/web/native) around the same facade/state objects if Swing stops being the preferred shell.
 
 ---
 
@@ -73,13 +78,13 @@ Each shell communicates with the core through the platform bridge interfaces (`G
 - Communicate with the Java core through a serialized state/service layer or a C-interop bridge (e.g., J2ObjC or a REST microservice for prototyping).
 
 ### Desktop
-- Denser management view aimed at mouse/keyboard users.
-- Wider stat comparison tables, persistent side navigation, multi-panel recruiting screens.
-- Possible targets: Java Swing/JavaFX (reuses existing JVM), Electron backed by the shared core, or a web front-end talking to a local simulation server.
+- Current state: Swing prototype with launcher, league-home workspace, recruiting tab, dark mode, and shared export support.
+- Near-term goal: denser management view aimed at mouse/keyboard users.
+- Longer-term options: continue with Swing, move to JavaFX, or expose the shared core to a web/native shell once the facade is stable.
 
 ---
 
 ## Reference
 
 - [Roadmap](ROADMAP.md) — full prioritized action plan
-- [README](../README.md) — project overview and engine audit summary
+- [README](../README.md) — project overview and current status snapshot

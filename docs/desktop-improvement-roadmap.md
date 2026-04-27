@@ -1,6 +1,6 @@
 # Desktop shell improvement roadmap
 
-This document tracks planned work for the **Swing desktop prototype** (`desktop.*`, `runDesktop` / `desktopJar` in Gradle). It complements the main [ROADMAP.md](ROADMAP.md) (engine and Android).
+This document tracks planned work for the **Swing desktop prototype** (`desktop.*`, `runDesktop` / `desktopJar` in Gradle). It complements the main [ROADMAP.md](ROADMAP.md) (engine and Android) and the shared-shell notes in [platform-expansion.md](platform-expansion.md).
 
 ---
 
@@ -18,7 +18,7 @@ This document tracks planned work for the **Swing desktop prototype** (`desktop.
 
 1. **Theme polish (remaining)** — Chase any remaining default-white panels. Choosers already use `DesktopTheme.styleFileChooser` and extra `UIManager` keys (see **File chooser + dialog shells (dark)** above); **native shell views can still differ by OS**. If that is unacceptable, escalate to **FlatLaf** or a custom chooser / accessory panel.
 2. **Tab surfaces** — `LeagueHomeView` analytics tabs now use `DesktopTheme.styleTabRoot`, `styleToolbar` / `styleFormControl`, `styleDataTableInScroll` (fixes viewport styling after tables mount), `styleListShell`, and `titledBorder` on dashboard + history + coach profile. Sweep any remaining secondary views (e.g. small dialogs) the same way.
-3. **Android parity gaps** — Track features still missing or simplified on desktop (full recruiting edge cases, save slot UX, import/export parity with `SaveLoadService`).
+3. **Android parity gaps** — Track features still missing or simplified on desktop (full recruiting edge cases, save slot UX, Android import parity, and broader shared-service reuse).
 4. **Keyboard** — Document and implement more accelerators (e.g. jump to tab by number, focus table filter).
 
 ---
@@ -26,7 +26,7 @@ This document tracks planned work for the **Swing desktop prototype** (`desktop.
 ## Medium term (architecture)
 
 1. **Simulation facade** — Align with [platform-expansion.md](platform-expansion.md): thin headless API over `League` / `SeasonController` so desktop (and future hosts) do not depend on UI timing inside the engine.
-2. **Save layer** — Centralize desktop save/load on shared `simulation` services so paths, errors, and formats match Android where intended.
+2. **Save/import layer** — Keep pushing desktop persistence and import/export flows toward shared `simulation` services so paths, errors, and formats match Android where intended.
 3. **Threading contract** — Document single-thread rules for `League` mutation; keep UI workers from advancing the sim concurrently without a game queue.
 
 ---

@@ -85,14 +85,14 @@ Production simulation code still logs to stdout. The `PlatformLog` shim exists b
 
 ---
 
-### 7. ✅ Extract save/load logic out of `MainActivity`
+### 7. ✅ Extract slot save/load orchestration out of `MainActivity`
 
-Import, export, and persistence code currently lives in `MainActivity` (~3,656 LOC). Non-Android shells cannot reuse it there.
+Slot persistence used to be wired directly through `MainActivity`, which made reuse awkward for other shells.
 
 **Actions:**
 - ~~Create a `SaveLoadService` class in `simulation/`.~~ ✅ Done — `SaveLoadService.java` exists and handles slot management.
-- ~~Move all file-read/write logic into it.~~ ✅ Done — `LeagueSaveStorage` holds path resolution; `League.saveLeague()` holds write logic.
-- ~~Have `MainActivity` (and any future shell) delegate to `SaveLoadService`.~~ ✅ Done — `MainActivity` uses `saveLoadService.saveToSlot()`.
+- ~~Move slot-save path resolution and orchestration behind shared services.~~ ✅ Done — `LeagueSaveStorage` and `SaveLoadService` now own the reusable save-slot flow.
+- ~~Have `MainActivity` (and any future shell) delegate to `SaveLoadService`.~~ ✅ Done — `MainActivity` now saves through `saveLoadService.saveToSlot()`.
 
 ---
 
@@ -109,10 +109,10 @@ Critical paths (e.g., `findConference()` return values, roster lookups) lack nul
 
 ### 9. ✅ Update AndroidX and material dependencies
 
-`appcompat:1.4.2` and `material:1.6.1` are ~2 years behind; they are missing security patches and API improvements needed by `targetSdk 35`.
+`appcompat:1.4.2` and `material:1.6.1` were ~2 years behind; they were missing security patches and API improvements needed by `targetSdk 35`.
 
 **Actions:**
-- ~~Bump to latest stable versions (`appcompat 1.7.x`, `material 1.12.x`, etc.).~~ ✅ Done — `build.gradle` now has `appcompat:1.7.0` and `material:1.12.0`.
+- ~~Bump to latest stable versions (`appcompat 1.7.x`, `material 1.12.x`, etc.).~~ ✅ Done — `build.gradle` now has `appcompat:1.7.0` and `material:1.13.0`.
 - Run full regression smoke-test on device/emulator.
 
 ---
@@ -195,14 +195,14 @@ This facade becomes the API surface for iOS and desktop shells.
 
 ---
 
-### 16. 🔲 Add a unit-test suite
+### 16. 🔲 Expand the automated test suite
 
-Zero automated tests today. Start small and grow coverage over time.
+Initial JUnit coverage now exists (`ComparatorTest`, recruiting tests, full-season simulation, and save/load round-trip), but coverage is still too narrow for safe large refactors.
 
 **Suggested starting points:**
 - `Game.java` — deterministic outcomes given a fixed seed.
-- `LeagueSaveStorage` — round-trip save/load.
-- Comparators — verify sort order for edge cases.
+- `LeagueSaveStorage` / `SaveLoadService` — failure cases and corrupted-save handling.
+- Recruiting + bridge flows — verify Android-independent controller behavior.
 
 ---
 
@@ -224,10 +224,10 @@ Target a native SwiftUI app that talks to the shared core through the platform b
 
 ---
 
-### 19. 🔲 Build a desktop shell
+### 19. 🔲 Graduate the desktop shell from prototype to supported app
 
-Target a denser management UI with wider comparison tables and multi-panel views.
-*Requires items 2, 7, and 15. See [Platform Expansion](platform-expansion.md) for design goals.*
+The Swing shell already exists. The remaining work is to harden it, close parity gaps, and make packaging/distribution practical.
+*Requires items 2, 7, and 15. See [Platform Expansion](platform-expansion.md) and [Desktop improvement roadmap](desktop-improvement-roadmap.md) for design goals.*
 
 ---
 
