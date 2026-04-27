@@ -1679,14 +1679,20 @@ public class League {
     /**
      * Find team based on a name
      *
-     * @param name team name
-     * @return reference to the Team object
+     * @param name team name or {@link Team#strRep()} string from UI lists
+     * @return matching team, or {@code null} if none (never a random fallback)
      */
     public Team findTeam(String name) {
-        if (name == null || teamList.isEmpty()) {
-            return teamList.isEmpty() ? null : teamList.get(0);
+        if (teamList == null || teamList.isEmpty()) {
+            return null;
+        }
+        if (name == null) {
+            return null;
         }
         String n = name.trim();
+        if (n.isEmpty()) {
+            return null;
+        }
         for (int i = 0; i < teamList.size(); i++) {
             if (n.equals(teamList.get(i).getName())) {
                 return teamList.get(i);
@@ -1697,22 +1703,28 @@ public class League {
                 return teamList.get(i);
             }
         }
-        return teamList.get(0);
+        return null;
     }
 
     /**
-     * Find team based on a abbr
+     * Find team based on an abbreviation.
      *
-     * @param abbr team abbr
-     * @return reference to the Team object
+     * @return matching team, or {@code null} if none
      */
     public Team findTeamAbbr(String abbr) {
+        if (teamList == null || teamList.isEmpty() || abbr == null) {
+            return null;
+        }
+        String a = abbr.trim();
+        if (a.isEmpty()) {
+            return null;
+        }
         for (int i = 0; i < teamList.size(); i++) {
-            if (teamList.get(i).getAbbr().equals(abbr)) {
+            if (a.equals(teamList.get(i).getAbbr())) {
                 return teamList.get(i);
             }
         }
-        return teamList.get(0);
+        return null;
     }
 
     /**
@@ -1938,8 +1950,33 @@ public class League {
         }
     }
 
+    /**
+     * Grows per-week news and score buckets so indices through {@code maxInclusiveWeekIndex}
+     * are valid. Needed when {@link #currentWeek} is large (e.g. mid-recruiting save at week 99)
+     * or when bowl scheduling writes to {@code currentWeek + 4}.
+     */
+    private void ensureSeasonWeekListsCapacity(int maxInclusiveWeekIndex) {
+        if (maxInclusiveWeekIndex < 0) {
+            return;
+        }
+        if (newsStories == null) {
+            newsStories = new ArrayList<>();
+        }
+        if (weeklyScores == null) {
+            weeklyScores = new ArrayList<>();
+        }
+        while (newsStories.size() <= maxInclusiveWeekIndex) {
+            newsStories.add(new ArrayList<>());
+        }
+        while (weeklyScores.size() <= maxInclusiveWeekIndex) {
+            weeklyScores.add(new ArrayList<>());
+        }
+    }
+
     //Simulates Each Game Week
     public void playWeek() {
+        ensureSeasonWeekListsCapacity(currentWeek + 4);
+
         //focus on the best player at a position this year each week
         playerSpotlight();
 
@@ -1952,7 +1989,6 @@ public class League {
 
         if (currentWeek <= regSeasonWeeks-1) {
             for (int i = 0; i < conferences.size(); ++i) {
-                System.out.println("DEBUG: Playing conference " + conferences.get(i).confName);
                 conferences.get(i).playWeek();
             }
         }
@@ -2039,18 +2075,13 @@ public class League {
             conferences.get(i).newsMatchups();
         }
 
-
-        System.out.println("DEBUG: Entering coachingHotSeat");
         coachingHotSeat();
 
-        System.out.println("DEBUG: Entering setTeamRanks");
         setTeamRanks();
-        
-        System.out.println("DEBUG: Entering updateWinStreak");
+
         updateLongestActiveWinStreak();
 
         currentWeek++;
-        System.out.println("DEBUG: Week advanced to " + currentWeek);
     }
 
 
@@ -6974,7 +7005,11 @@ Then conferences can see if they want to add them to their list if the teams mee
      * Add a score entry for a specific week.
      */
     public void addWeeklyScore(int week, String score) {
-        if (week >= 0 && week < weeklyScores.size() && score != null) {
+        if (score == null || week < 0) {
+            return;
+        }
+        ensureSeasonWeekListsCapacity(week);
+        if (week < weeklyScores.size()) {
             weeklyScores.get(week).add(score);
         }
     }

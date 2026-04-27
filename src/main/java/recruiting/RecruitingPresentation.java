@@ -15,7 +15,8 @@ public final class RecruitingPresentation {
     public static String buildOverviewSummary(RecruitingSessionData sessionData) {
         int currentRoster = sessionData.teamPlayers.size() + sessionData.playersRecruited.size();
         int graduatingCount = sessionData.playersGraduating.size();
-        return "You currently have " + currentRoster + " active players, " + graduatingCount + " outgoing seniors, and a class board shaped by your biggest roster needs.";
+        return "You currently have " + currentRoster + " active players, " + graduatingCount + " outgoing seniors, and a class board shaped by your biggest roster needs."
+                + " Head coach recruiting (" + sessionData.coachTalent + ") adds to your signing budget and reduces scouting cost.";
     }
 
     public static String buildBoardStatus(RecruitingSessionData sessionData) {
@@ -49,7 +50,7 @@ public final class RecruitingPresentation {
             return "Home State: " + getRegion(player.regionCode()) +
                     "\nSpeed: " + getGrade(player.rat1()) +
                     "\nEvasion: " + getGrade(player.rat2()) +
-                    "\nPower:" + getGrade(player.rat3()) +
+                    "\nPower: " + getGrade(player.rat3()) +
                     "\nCatching: " + getGrade(player.rat4());
         } else if (pos.equals("WR")) {
             return "Home State: " + getRegion(player.regionCode()) +
@@ -80,7 +81,7 @@ public final class RecruitingPresentation {
                     "\nRun Stop: " + getGrade(player.rat1()) +
                     "\nTackling: " + getGrade(player.rat2()) +
                     "\nPass Rush: " + getGrade(player.rat3()) +
-                    "\nStength: " + getGrade(player.rat4());
+                    "\nStrength: " + getGrade(player.rat4());
         } else if (pos.equals("LB")) {
             return "Home State: " + getRegion(player.regionCode()) +
                     "\nTackle: " + getGrade(player.rat1()) +
@@ -170,8 +171,8 @@ public final class RecruitingPresentation {
 
     private static String getHeight(int height) {
         int feet = height / 12;
-        int leftover = height % 12;
-        return feet + "'' " + leftover + "\"";
+        int inches = height % 12;
+        return feet + "'" + inches + "\"";
     }
 
     private static String getWeight(int weight) {

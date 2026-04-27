@@ -8,6 +8,7 @@ import simulation.GameFlowManager;
 import simulation.League;
 import simulation.PlatformLog;
 import simulation.Team;
+import staff.HeadCoach;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -109,11 +110,13 @@ public class RecruitingPanel extends JPanel {
     private static RecruitingSessionData buildSessionData(Team userTeam) {
         StringBuilder sb = new StringBuilder();
         userTeam.sortPlayers();
+        HeadCoach hc = userTeam.getHeadCoach();
+        int recruitSkill = hc != null ? hc.ratTalent : 70;
         sb.append(userTeam.getConference()).append(",")
                 .append(userTeam.getName()).append(",")
                 .append(userTeam.getAbbr()).append(",")
                 .append(userTeam.getUserRecruitBudget()).append(",")
-                .append(userTeam.getHeadCoach().ratTalent).append("%\n");
+                .append(recruitSkill).append("%\n");
         sb.append(userTeam.getPlayerInfoSaveFile());
         sb.append("END_TEAM_INFO%\n");
         sb.append(userTeam.getRecruitsInfoSaveFile());
@@ -276,7 +279,8 @@ public class RecruitingPanel extends JPanel {
     }
 
     private void updateLabels() {
-        budgetLabel.setText("  Budget: $" + sessionData.recruitingBudget);
+        budgetLabel.setText("  Budget: $" + sessionData.recruitingBudget
+                + "   HC recruiting: " + sessionData.coachTalent);
         budgetLabel.setForeground(DesktopTheme.textPrimary());
         recruitedLabel.setText("  Recruited: " + sessionData.playersRecruited.size());
         recruitedLabel.setForeground(DesktopTheme.textSecondary());
@@ -347,7 +351,7 @@ public class RecruitingPanel extends JPanel {
         if (!ok) {
             JOptionPane.showMessageDialog(this,
                     DesktopTheme.messageForDialog(
-                    "Not enough budget to scout this player.\nScouting costs 10% of the recruit price."),
+                    "Not enough budget to scout this player.\nScouting costs about 10% of the recruit price (minimum $5), reduced slightly by head coach recruiting skill."),
                     "Cannot Scout", JOptionPane.WARNING_MESSAGE);
             return;
         }

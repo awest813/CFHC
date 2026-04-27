@@ -2908,11 +2908,7 @@ public class Team {
         for (int i = 0; i < qbNeeds; ++i) {
             stars = getRecruitLevel();
             if (stars < minRecruitStar) stars = minRecruitStar;
-            if (recruitChance * Math.random() > Math.random() * 50) {
-                stars += Math.random() * (maxStarRating - stars);
-            } else {
-                stars -= Math.random() * (stars);
-            }
+            stars = nudgeCpuFreshmanStarRating(stars, recruitChance);
             if (stars > 10) stars = 10;
             //make QBs
             teamQBs.add(new PlayerQB(league.getRandName(), 1, stars, this));
@@ -2921,11 +2917,7 @@ public class Team {
         for (int i = 0; i < rbNeeds; ++i) {
             stars = getRecruitLevel();
             if (stars < minRecruitStar) stars = minRecruitStar;
-            if (recruitChance * Math.random() > Math.random() * 50) {
-                stars += Math.random() * (maxStarRating - stars);
-            } else {
-                stars -= Math.random() * (stars);
-            }
+            stars = nudgeCpuFreshmanStarRating(stars, recruitChance);
             if (stars > 10) stars = 10;
 
             //make RBs
@@ -2935,11 +2927,7 @@ public class Team {
         for (int i = 0; i < wrNeeds; ++i) {
             stars = getRecruitLevel();
             if (stars < minRecruitStar) stars = minRecruitStar;
-            if (recruitChance * Math.random() > Math.random() * 50) {
-                stars += Math.random() * (maxStarRating - stars);
-            } else {
-                stars -= Math.random() * (stars);
-            }
+            stars = nudgeCpuFreshmanStarRating(stars, recruitChance);
             if (stars > 10) stars = 10;
 
             //make WRs
@@ -2949,11 +2937,7 @@ public class Team {
         for (int i = 0; i < teNeeds; ++i) {
             stars = getRecruitLevel();
             if (stars < minRecruitStar) stars = minRecruitStar;
-            if (recruitChance * Math.random() > Math.random() * 50) {
-                stars += Math.random() * (maxStarRating - stars);
-            } else {
-                stars -= Math.random() * (stars);
-            }
+            stars = nudgeCpuFreshmanStarRating(stars, recruitChance);
             if (stars > 10) stars = 10;
 
             //make TEs
@@ -2977,11 +2961,7 @@ public class Team {
         for (int i = 0; i < kNeeds; ++i) {
             stars = getRecruitLevel();
             if (stars < minRecruitStar) stars = minRecruitStar;
-            if (recruitChance * Math.random() > Math.random() * 50) {
-                stars += Math.random() * (maxStarRating - stars);
-            } else {
-                stars -= Math.random() * (stars);
-            }
+            stars = nudgeCpuFreshmanStarRating(stars, recruitChance);
             if (stars > 10) stars = 10;
 
             //make Ks
@@ -2991,11 +2971,7 @@ public class Team {
         for (int i = 0; i < dlNeeds; ++i) {
             stars = getRecruitLevel();
             if (stars < minRecruitStar) stars = minRecruitStar;
-            if (recruitChance * Math.random() > Math.random() * 50) {
-                stars += Math.random() * (maxStarRating - stars);
-            } else {
-                stars -= Math.random() * (stars);
-            }
+            stars = nudgeCpuFreshmanStarRating(stars, recruitChance);
             if (stars > 10) stars = 10;
 
             //make DLs
@@ -3005,11 +2981,7 @@ public class Team {
         for (int i = 0; i < lbNeeds; ++i) {
             stars = getRecruitLevel();
             if (stars < minRecruitStar) stars = minRecruitStar;
-            if (recruitChance * Math.random() > Math.random() * 50) {
-                stars += Math.random() * (maxStarRating - stars);
-            } else {
-                stars -= Math.random() * (stars);
-            }
+            stars = nudgeCpuFreshmanStarRating(stars, recruitChance);
             if (stars > 10) stars = 10;
             //make LBs
             teamLBs.add(new PlayerLB(league.getRandName(), 1, stars, this));
@@ -3018,11 +2990,7 @@ public class Team {
         for (int i = 0; i < cbNeeds; ++i) {
             stars = getRecruitLevel();
             if (stars < minRecruitStar) stars = minRecruitStar;
-            if (recruitChance * Math.random() > Math.random() * 50) {
-                stars += Math.random() * (maxStarRating - stars);
-            } else {
-                stars -= Math.random() * (stars);
-            }
+            stars = nudgeCpuFreshmanStarRating(stars, recruitChance);
             if (stars > 10) stars = 10;
 
             //make CBs
@@ -3032,11 +3000,7 @@ public class Team {
         for (int i = 0; i < sNeeds; ++i) {
             stars = getRecruitLevel();
             if (stars < minRecruitStar) stars = minRecruitStar;
-            if (recruitChance * Math.random() > Math.random() * 50) {
-                stars += Math.random() * (maxStarRating - stars);
-            } else {
-                stars -= Math.random() * (stars);
-            }
+            stars = nudgeCpuFreshmanStarRating(stars, recruitChance);
             if (stars > 10) stars = 10;
 
             //make Ss
@@ -3046,6 +3010,22 @@ public class Team {
         //done making players, sort
         sortPlayers();
         recruitWalkOns();
+    }
+
+    /**
+     * CPU freshmen: random nudge to star rating after the prestige-based level is chosen.
+     * {@code recruitChance} is {@code HC.ratTalent - 33} when a head coach exists, else
+     * {@code teamPrestige - 50}. The roll is equivalent to comparing two uniform draws:
+     * upshift when {@code recruitChance * U1 > U2 * 50} (same odds as before); then a
+     * separate uniform scales movement toward {@code maxStarRating} or down toward zero.
+     */
+    private int nudgeCpuFreshmanStarRating(int stars, int recruitChance) {
+        if (recruitChance * Math.random() > Math.random() * 50) {
+            stars += Math.random() * (maxStarRating - stars);
+        } else {
+            stars -= Math.random() * (stars);
+        }
+        return stars;
     }
 
     /**
@@ -3435,12 +3415,24 @@ public class Team {
      * Recruit all players given in a string
      */
     public void recruitPlayersFromStr(String playersStr) {
+        if (playersStr == null || playersStr.isEmpty()) {
+            recruitWalkOns();
+            return;
+        }
         String[] players = playersStr.split("%\n");
-        String currLine = players[0];
+        if (players.length == 0) {
+            recruitWalkOns();
+            return;
+        }
         int i = 0;
+        String currLine = players[0];
         while (!currLine.equals("END_RECRUITS")) {
             loadPlayerSaveData(currLine, false);
-            currLine = players[++i];
+            i++;
+            if (i >= players.length) {
+                break;
+            }
+            currLine = players[i];
         }
 
         recruitWalkOns();

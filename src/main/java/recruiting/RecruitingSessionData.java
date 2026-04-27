@@ -80,13 +80,72 @@ public final class RecruitingSessionData {
         this.coachTalent = coachTalent;
     }
 
+    /**
+     * Parses head coach recruiting skill from the first line of {@code userTeamStr}
+     * (same token Android/desktop send before the {@code %\n} line break).
+     * Strips non-digits so stray punctuation never breaks recruiting.
+     */
+    static int parseCoachTalentField(String raw) {
+        if (raw == null) {
+            return 70;
+        }
+        String trimmed = raw.trim();
+        if (trimmed.isEmpty()) {
+            return 70;
+        }
+        StringBuilder digits = new StringBuilder();
+        for (int i = 0; i < trimmed.length(); i++) {
+            char c = trimmed.charAt(i);
+            if (c >= '0' && c <= '9') {
+                digits.append(c);
+            }
+        }
+        if (digits.length() == 0) {
+            return 70;
+        }
+        try {
+            int v = Integer.parseInt(digits.toString());
+            return Math.min(95, Math.max(20, v));
+        } catch (NumberFormatException e) {
+            return 70;
+        }
+    }
+
+    static int parseRecruitBudgetUnits(String raw, int defaultUnits) {
+        int units = parsePositiveIntLoose(raw, defaultUnits);
+        return Math.min(20, Math.max(1, units));
+    }
+
+    private static int parsePositiveIntLoose(String raw, int defaultValue) {
+        if (raw == null || raw.trim().isEmpty()) {
+            return defaultValue;
+        }
+        StringBuilder digits = new StringBuilder();
+        for (int i = 0; i < raw.length(); i++) {
+            char c = raw.charAt(i);
+            if (c >= '0' && c <= '9') {
+                digits.append(c);
+            }
+        }
+        if (digits.length() == 0) {
+            return defaultValue;
+        }
+        try {
+            return Integer.parseInt(digits.toString());
+        } catch (NumberFormatException e) {
+            return defaultValue;
+        }
+    }
+
     public static RecruitingSessionData fromUserTeamInfo(String userTeamStr) {
         String[] lines = userTeamStr.split("%\n");
-        String[] teamInfo = lines[0].split(",");
-        int coachTalent = teamInfo[4].isEmpty() ? 70 : Integer.parseInt(teamInfo[4]);
+        String[] teamInfo = lines[0].split(",", -1);
+        String teamNm = teamInfo.length > 1 && !teamInfo[1].isEmpty() ? teamInfo[1] : "Team";
+        int budgetUnits = parseRecruitBudgetUnits(teamInfo.length > 3 ? teamInfo[3] : "", 5);
+        int coachTalent = parseCoachTalentField(teamInfo.length > 4 ? teamInfo[4] : "");
         RecruitingSessionData session = new RecruitingSessionData(
-                teamInfo[1],
-                Integer.parseInt(teamInfo[3]) * 15,
+                teamNm,
+                budgetUnits * 15,
                 coachTalent
         );
 
@@ -224,7 +283,9 @@ public final class RecruitingSessionData {
 
 
     public boolean scoutPlayer(RecruitingPlayerRecord recruit) {
-        int scoutCost = Math.max(10, recruit.cost() / 10);
+        int base = Math.max(10, recruit.cost() / 10);
+        int talentDiscount = Math.min(8, coachTalent / 12);
+        int scoutCost = Math.max(5, base - talentDiscount);
         if (recruitingBudget < scoutCost) {
             return false;
         }
@@ -302,13 +363,9 @@ public final class RecruitingSessionData {
 
     public void removeRandomRecruits(double recruitOffBoardChance, Random random) {
         ArrayList<RecruitingPlayerRecord> removeList = new ArrayList<>();
-        int i = 0;
-        while (i < availAll.size()) {
+        for (int i = 0; i < availAll.size(); i++) {
             if (random.nextDouble() > recruitOffBoardChance) {
                 removeList.add(availAll.get(i));
-                i++;
-            } else {
-                i++;
             }
         }
         for (RecruitingPlayerRecord recruit : removeList) {

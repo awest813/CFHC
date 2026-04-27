@@ -61,6 +61,7 @@ public class Staff {
 
     public int ratOff;
     public int ratDef;
+    /** Recruiting / player evaluation: drives user recruiting budget bonus, scout pricing, CPU signing quality, and rookie potential hints in roster text. */
     public int ratTalent;
     public int ratDiscipline;
     public int ratImprovement;
@@ -293,7 +294,7 @@ public class Staff {
             def = defPlaybook[defStrat] + "\n" + ratDef;
         }
 
-        return "Offense," + off + ",Talent," + ratTalent + ",Defense," + def + ",Discipline," + ratDiscipline;
+        return "Offense," + off + ",Recruiting," + ratTalent + ",Defense," + def + ",Discipline," + ratDiscipline;
     }
 
     public int getStaffOverall(int[] wt) {

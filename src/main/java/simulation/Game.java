@@ -3658,12 +3658,27 @@ public class Game implements Serializable {
         return rating;
     }
 
+    /**
+     * Resolves a team name from persisted game data; unknown names become a throwaway FCS-style
+     * opponent (same approach as schedule restore) so {@link Game} invariants stay valid.
+     */
+    private static Team resolveTeamFromSave(League league, String rawName) {
+        Team found = league.findTeam(rawName);
+        if (found != null) {
+            return found;
+        }
+        String nm = rawName == null ? "" : rawName.trim();
+        if (nm.isEmpty()) {
+            nm = "Unknown";
+        }
+        return new Team(nm, "FCS", "FCS Division", (int) (Math.random() * 40), "FCS1", 0, league, false);
+    }
 
     public Game(Team t, String saveData) {
         String[] save = saveData.split("$$");
         hasPlayed = Boolean.parseBoolean(save[0]);
-        homeTeam = t.league.findTeam(save[1]);
-        awayTeam = t.league.findTeam(save[2]);
+        homeTeam = resolveTeamFromSave(t.league, save.length > 1 ? save[1] : null);
+        awayTeam = resolveTeamFromSave(t.league, save.length > 2 ? save[2] : null);
         gameName = save[3];
         gameEventLog = save[4];
 

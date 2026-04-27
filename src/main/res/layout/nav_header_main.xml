@@ -11,7 +11,25 @@
     android:paddingStart="16dp"
     android:paddingEnd="16dp"
     android:paddingTop="24dp"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+    android:theme="@style/ThemeOverlay.Material3.Dark">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/nav_header_title"
+        android:textAlignment="center"
+        android:textColor="@color/accentGold"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dp"
+        android:text="@string/nav_header_subtitle"
+        android:textAlignment="center"
+        android:textColor="@color/textSecondary"
+        android:textSize="12sp" />
 
     <ImageView
         android:id="@+id/imageView"

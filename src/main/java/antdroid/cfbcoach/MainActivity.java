@@ -264,8 +264,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 new AdapterView.OnItemSelectedListener() {
                     public void onItemSelected(
                             AdapterView<?> parent, View view, int position, long id) {
-                        currentTeam = simLeague.findTeam(parent.getItemAtPosition(position).toString());
-                        updateCurrTeam();
+                        Team picked = simLeague.findTeam(parent.getItemAtPosition(position).toString());
+                        if (picked != null) {
+                            currentTeam = picked;
+                            updateCurrTeam();
+                        }
                     }
 
                     public void onNothingSelected(AdapterView<?> parent) {
@@ -979,6 +982,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void examinePlayerandTeam(String player, String teamAbbr) {
         Team tempTeam = simLeague.findTeamAbbr(teamAbbr);
+        if (tempTeam == null) {
+            return;
+        }
         Player p = tempTeam.findTeamPlayer(player);
         if (p == null) {
             //Do nothing
@@ -3055,7 +3061,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //Get String of user team's players and such
         StringBuilder sb = new StringBuilder();
         userTeam.sortPlayers();
-        sb.append(userTeam.getConference() + "," + userTeam.getName() + "," + userTeam.getAbbr() + "," + userTeam.getUserRecruitBudget() + "," + userTeam.getHeadCoach().ratTalent + "%\n");
+        HeadCoach hc = userTeam.getHeadCoach();
+        int recruitSkill = hc != null ? hc.ratTalent : 70;
+        sb.append(userTeam.getConference()).append(",")
+                .append(userTeam.getName()).append(",")
+                .append(userTeam.getAbbr()).append(",")
+                .append(userTeam.getUserRecruitBudget()).append(",")
+                .append(recruitSkill).append("%\n");
         sb.append(userTeam.getPlayerInfoSaveFile());
         sb.append("END_TEAM_INFO%\n");
         sb.append(userTeam.getRecruitsInfoSaveFile());
@@ -3063,7 +3075,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //Start Recruiting Activity
         finish();
         flowManager.startRecruiting(sb.toString());
-        finish();
     }
 
     //Recruiting Score
