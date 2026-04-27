@@ -28,7 +28,12 @@ public final class RecruitingPlayerRecord {
 
         this.raw = raw;
         if (isRecruitFormat) {
-            this.position = fields[0];
+            boolean portableRecordFormat = fields.length > 19 && isBooleanField(fields[19]);
+            String rawPosition = fields[0];
+            if (rawPosition.contains(":")) {
+                rawPosition = rawPosition.substring(rawPosition.indexOf(":") + 1).trim();
+            }
+            this.position = rawPosition;
             this.name = fields[1];
             this.year = fields[2];
             this.regionCode = Integer.parseInt(fields[3]);
@@ -47,32 +52,65 @@ public final class RecruitingPlayerRecord {
             this.rat4 = fields[16];
             this.heightInches = Integer.parseInt(fields[17]);
             this.weightPounds = Integer.parseInt(fields[18]);
-            this.currentOverall = Integer.parseInt(fields[19]);
-            this.improvement = fields[20];
+            if (portableRecordFormat) {
+                this.currentOverall = this.recruitOverall;
+                this.improvement = "0";
+            } else {
+                this.currentOverall = Integer.parseInt(fields[19]);
+                this.improvement = fields[20];
+            }
         } else {
             // Roster Format
-            this.position = fields[0];
+            boolean portableRecordFormat = fields.length > 18 && isBooleanField(fields[7]) && isBooleanField(fields[8]);
+            String rawPosition = fields[0];
+            if (rawPosition.contains(":")) {
+                rawPosition = rawPosition.substring(rawPosition.indexOf(":") + 1).trim();
+            }
+            this.position = rawPosition;
             this.name = fields[1];
             this.year = fields[2];
-            this.potential = Integer.parseInt(fields[3]);
-            this.intelligence = Integer.parseInt(fields[4]);
-            this.durability = Integer.parseInt(fields[5]);
-            this.rat1 = fields[6];
-            this.rat2 = fields[7];
-            this.rat3 = fields[8];
-            this.rat4 = fields[9];
-            this.wasRedshirt = "true".equals(fields[11]);
-            this.isTransfer = "true".equals(fields[12]);
-            this.regionCode = Integer.parseInt(fields[14]);
-            this.character = Integer.parseInt(fields[15]);
-            this.stars = Integer.parseInt(fields[16]);
-            this.heightInches = Integer.parseInt(fields[17]);
-            this.weightPounds = Integer.parseInt(fields[18]);
-            this.currentOverall = Integer.parseInt(fields[19]);
-            this.improvement = fields[20];
+            if (portableRecordFormat) {
+                this.regionCode = Integer.parseInt(fields[3]);
+                this.character = Integer.parseInt(fields[4]);
+                this.intelligence = Integer.parseInt(fields[5]);
+                this.stars = Integer.parseInt(fields[6]);
+                this.isTransfer = "true".equals(fields[7]);
+                this.wasRedshirt = "true".equals(fields[8]);
+                this.potential = Integer.parseInt(fields[9]);
+                this.durability = Integer.parseInt(fields[10]);
+                this.currentOverall = Integer.parseInt(fields[11]);
+                this.rat1 = fields[13];
+                this.rat2 = fields[14];
+                this.rat3 = fields[15];
+                this.rat4 = fields[16];
+                this.heightInches = Integer.parseInt(fields[17]);
+                this.weightPounds = Integer.parseInt(fields[18]);
+                this.improvement = "0";
+            } else {
+                this.potential = Integer.parseInt(fields[3]);
+                this.intelligence = Integer.parseInt(fields[4]);
+                this.durability = Integer.parseInt(fields[5]);
+                this.rat1 = fields[6];
+                this.rat2 = fields[7];
+                this.rat3 = fields[8];
+                this.rat4 = fields[9];
+                this.wasRedshirt = "true".equals(fields[11]);
+                this.isTransfer = "true".equals(fields[12]);
+                this.regionCode = Integer.parseInt(fields[14]);
+                this.character = Integer.parseInt(fields[15]);
+                this.stars = Integer.parseInt(fields[16]);
+                this.heightInches = Integer.parseInt(fields[17]);
+                this.weightPounds = Integer.parseInt(fields[18]);
+                this.currentOverall = Integer.parseInt(fields[19]);
+                this.improvement = fields[20];
+            }
             this.recruitOverall = this.currentOverall;
             this.cost = 0;
         }
+    }
+
+    private static boolean isBooleanField(String value) {
+        return "true".equals(value) || "false".equals(value);
     }
 
     public static RecruitingPlayerRecord fromRecruitCsv(String raw) {

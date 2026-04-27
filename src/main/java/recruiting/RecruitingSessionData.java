@@ -375,6 +375,9 @@ public final class RecruitingSessionData {
 
 
     private void addExistingPlayer(String playerCsv) {
+        if (playerCsv.startsWith("HC,") || playerCsv.startsWith("OC,") || playerCsv.startsWith("DC,")) {
+            return;
+        }
         RecruitingPlayerRecord player = RecruitingPlayerRecord.fromRosterCsv(playerCsv);
         if (player.isGraduating()) {
             playersGraduating.add(player);

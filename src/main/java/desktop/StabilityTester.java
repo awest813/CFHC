@@ -45,7 +45,13 @@ public class StabilityTester {
                 System.out.println("STABILITY TEST: Starting Season " + (startYear + season - 1));
                 System.out.println("------------------------------------------------");
 
-                DesktopUiBridge bridge = new DesktopUiBridge(null, league) {
+                class HeadlessBridge extends DesktopUiBridge {
+                    private boolean recruitingComplete = false;
+
+                    HeadlessBridge() {
+                        super(null, league);
+                    }
+
                     @Override public void crash() { throw new RuntimeException("BRIDGE CRASH TRIGGERED"); }
                     @Override public void showNotification(String t, String m) { System.out.println("NOTIFY: " + t + " - " + m); }
                     @Override public void refreshCurrentPage() {}
@@ -59,12 +65,19 @@ public class StabilityTester {
                     @Override public void showRedshirtList() {}
                     @Override public void showTransferList() {}
                     @Override public void showRealignmentSummary() {}
+                    @Override public void transferPlayer(positions.Player player) {}
+                    @Override public void disciplineAction(positions.Player player, String issue, int gamesA, int gamesB) {}
                     @Override public void startRecruitingFlow() {
                         league.recruitPlayers();
-                        league.currentWeek++; // Break the loop
-                        clearNewSeasonPending();
+                        if (league.userTeam != null) {
+                            league.userTeam.recruitPlayersFromStr("");
+                            league.updateTeamTalentRatings();
+                        }
+                        recruitingComplete = true;
                     }
-                };
+                }
+
+                HeadlessBridge bridge = new HeadlessBridge();
 
                 SeasonController controller = new SeasonController(league, bridge, new GameFlowManager() {
                     @Override public void startNewGame(LeagueLaunchCoordinator.LaunchRequest.PrestigeMode p, String u) {}
@@ -76,11 +89,13 @@ public class StabilityTester {
                     @Override public void returnToMainHub() {}
                 });
 
-                // Advance through the entire season cycle
-                // (Preseason + Regular + Postseason + Offseason stages)
-                int totalSteps = league.regSeasonWeeks + 4 + 10;
-                for (int w = 0; w < totalSteps; w++) {
+                int steps = 0;
+                while (!bridge.recruitingComplete && steps < 200) {
                     controller.advanceWeek();
+                    steps++;
+                }
+                if (!bridge.recruitingComplete) {
+                    throw new RuntimeException("CRITICAL: Recruiting was not reached within 200 steps.");
                 }
 
                 System.out.println("Season " + (startYear + season - 1) + " complete.");

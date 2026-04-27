@@ -7,8 +7,8 @@ import recruiting.RecruitingSessionData;
 import simulation.GameFlowManager;
 import simulation.League;
 import simulation.PlatformLog;
+import simulation.SimulationFacade;
 import simulation.Team;
-import staff.HeadCoach;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -43,18 +43,6 @@ public class RecruitingPanel extends JPanel {
     private static final String[] BOARD_COLUMNS = {"Pos", "Name", "Stars", "Cost", "OVR"};
     private static final Font MONO = new Font(Font.MONOSPACED, Font.PLAIN, 12);
 
-    private static final int MIN_QBS = 2;
-    private static final int MIN_RBS = 3;
-    private static final int MIN_WRS = 4;
-    private static final int MIN_TES = 2;
-    private static final int MIN_OLS = 6;
-    private static final int MIN_KS = 1;
-    private static final int MIN_DLS = 4;
-    private static final int MIN_LBS = 4;
-    private static final int MIN_CBS = 4;
-    private static final int MIN_SS = 2;
-
-    private static final int MIN_ROSTER_SIZE = 55;
     private static final int MAX_ROSTER_SIZE = 70;
 
     private final RecruitingController controller;
@@ -91,11 +79,10 @@ public class RecruitingPanel extends JPanel {
             @Override public void returnToMainHub() {}
         };
         this.controller = new RecruitingController(sessionData, noOpFlow);
-        RecruitingSessionData.PositionNeeds needs = sessionData.calculateNeeds(MIN_QBS, MIN_RBS, MIN_WRS, MIN_TES, MIN_OLS,
-                MIN_KS, MIN_DLS, MIN_LBS, MIN_CBS, MIN_SS);
+        RecruitingSessionData.PositionNeeds needs = sessionData.calculateNeeds(SimulationFacade.MIN_QBS, SimulationFacade.MIN_RBS,
+                SimulationFacade.MIN_WRS, SimulationFacade.MIN_TES, SimulationFacade.MIN_OLS, SimulationFacade.MIN_KS,
+                SimulationFacade.MIN_DLS, SimulationFacade.MIN_LBS, SimulationFacade.MIN_CBS, SimulationFacade.MIN_SS);
         this.positionLabels = sessionData.buildPositionLabels(needs);
-
-        sessionData.applyBudgetBonuses(MIN_ROSTER_SIZE);
 
         setOpaque(true);
         setBackground(DesktopTheme.windowBackground());
@@ -108,19 +95,7 @@ public class RecruitingPanel extends JPanel {
     }
 
     private static RecruitingSessionData buildSessionData(Team userTeam) {
-        StringBuilder sb = new StringBuilder();
-        userTeam.sortPlayers();
-        HeadCoach hc = userTeam.getHeadCoach();
-        int recruitSkill = hc != null ? hc.ratTalent : 70;
-        sb.append(userTeam.getConference()).append(",")
-                .append(userTeam.getName()).append(",")
-                .append(userTeam.getAbbr()).append(",")
-                .append(userTeam.getUserRecruitBudget()).append(",")
-                .append(recruitSkill).append("%\n");
-        sb.append(userTeam.getPlayerInfoSaveFile());
-        sb.append("END_TEAM_INFO%\n");
-        sb.append(userTeam.getRecruitsInfoSaveFile());
-        return RecruitingSessionData.fromUserTeamInfo(sb.toString());
+        return SimulationFacade.prepareRecruitingSession(userTeam);
     }
 
     private JPanel buildToolBar() {
@@ -286,8 +261,10 @@ public class RecruitingPanel extends JPanel {
         recruitedLabel.setForeground(DesktopTheme.textSecondary());
 
         RecruitingSessionData.PositionNeeds currentNeeds =
-                sessionData.calculateNeeds(MIN_QBS, MIN_RBS, MIN_WRS, MIN_TES, MIN_OLS,
-                        MIN_KS, MIN_DLS, MIN_LBS, MIN_CBS, MIN_SS);
+                sessionData.calculateNeeds(SimulationFacade.MIN_QBS, SimulationFacade.MIN_RBS,
+                        SimulationFacade.MIN_WRS, SimulationFacade.MIN_TES, SimulationFacade.MIN_OLS,
+                        SimulationFacade.MIN_KS, SimulationFacade.MIN_DLS, SimulationFacade.MIN_LBS,
+                        SimulationFacade.MIN_CBS, SimulationFacade.MIN_SS);
         ArrayList<String> newLabels = sessionData.buildPositionLabels(currentNeeds);
         int sel = filterBox.getSelectedIndex();
         filterBox.removeAllItems();
@@ -301,8 +278,10 @@ public class RecruitingPanel extends JPanel {
 
     private void updateRoster() {
         RecruitingSessionData.PositionNeeds currentNeeds =
-                sessionData.calculateNeeds(MIN_QBS, MIN_RBS, MIN_WRS, MIN_TES, MIN_OLS,
-                        MIN_KS, MIN_DLS, MIN_LBS, MIN_CBS, MIN_SS);
+                sessionData.calculateNeeds(SimulationFacade.MIN_QBS, SimulationFacade.MIN_RBS,
+                        SimulationFacade.MIN_WRS, SimulationFacade.MIN_TES, SimulationFacade.MIN_OLS,
+                        SimulationFacade.MIN_KS, SimulationFacade.MIN_DLS, SimulationFacade.MIN_LBS,
+                        SimulationFacade.MIN_CBS, SimulationFacade.MIN_SS);
         rosterArea.setText(RecruitingPresentation.buildRosterText(sessionData, currentNeeds));
         rosterArea.setCaretPosition(0);
     }

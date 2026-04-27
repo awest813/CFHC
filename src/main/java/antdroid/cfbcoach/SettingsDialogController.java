@@ -9,6 +9,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import simulation.League;
+import simulation.LeagueSettingsOptions;
 
 /**
  * Controller for the Game Settings dialog.
@@ -178,19 +179,25 @@ public final class SettingsDialogController {
         if (okButton != null) {
             okButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    simLeague.showPotential = checkboxShowPotential.isChecked();
-                    simLeague.fullGameLog = checkboxGameLog.isChecked();
-                    simLeague.careerMode = checkboxCareerMode.isChecked();
-                    simLeague.neverRetire = checkboxNeverRetire.isChecked();
-                    simLeague.enableUnivProRel = checkboxProRelegation.isChecked();
-                    simLeague.confRealignment = checkboxRealignment.isChecked();
-                    simLeague.advancedRealignment = checkboxAdvRealignment.isChecked();
-                    simLeague.expPlayoffs = checkboxPlayoffs.isChecked();
-                    simLeague.enableTV = checkboxTV.isChecked();
+                    boolean proRelWasEnabled = simLeague.enableUnivProRel;
+                    boolean proRelRequested = checkboxProRelegation.isChecked();
+
+                    LeagueSettingsOptions options = LeagueSettingsOptions.fromLeague(simLeague);
+                    options.showPotential = checkboxShowPotential.isChecked();
+                    options.fullGameLog = checkboxGameLog.isChecked();
+                    options.careerMode = checkboxCareerMode.isChecked();
+                    options.neverRetire = checkboxNeverRetire.isChecked();
+                    options.universalProRel = proRelRequested;
+                    options.conferenceRealignment = checkboxRealignment.isChecked();
+                    options.advancedRealignment = checkboxAdvRealignment.isChecked();
+                    options.expandedPlayoffs = checkboxPlayoffs.isChecked();
+                    options.enableTv = checkboxTV.isChecked();
+
+                    boolean allowPlayoffChange = isNewGameSetup || simLeague.currentWeek < simLeague.regSeasonWeeks;
+                    options.applyTo(simLeague, allowPlayoffChange, isNewGameSetup, false);
                     
                     if (isNewGameSetup) {
-                        if (simLeague.enableUnivProRel) {
-                            simLeague.confRealignment = false;
+                        if (proRelRequested && !proRelWasEnabled) {
                             activity.universalProRelAction();
                         }
                         activity.selectTeam();

@@ -65,7 +65,9 @@ import simulation.CustomUniverseParser;
 import simulation.Game;
 import simulation.GameUiBridge;
 import simulation.League;
+import simulation.LeagueCustomDataImporter;
 import simulation.LeagueExportController;
+import simulation.LeagueImportWorkflow;
 import simulation.LeagueLaunchCoordinator;
 import simulation.LeagueSaveStorage;
 import simulation.PlatformLog;
@@ -73,6 +75,7 @@ import simulation.PlatformResourceProvider;
 import simulation.PlaybookDefense;
 import simulation.PlaybookOffense;
 import simulation.PlayerRecord;
+import simulation.SimulationFacade;
 import simulation.Team;
 import simulation.TeamHistoryRecord;
 import staff.DC;
@@ -112,7 +115,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     Team userTeam;
     private File saveLeagueFile;
     private String username;
-    private LeagueImportFlowController.ImportType pendingImportType;
+    private LeagueImportWorkflow.ImportType pendingImportType;
     private String goals;
     private simulation.SaveLoadService saveLoadService;
 
@@ -1997,7 +2000,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
-    public void requestImportDocument(LeagueImportFlowController.ImportType type) {
+    public void requestImportDocument(LeagueImportWorkflow.ImportType type) {
         pendingImportType = type;
         isExternalStorageReadable();
         importDocumentPicker.launch(new String[]{"*/*"});
@@ -3058,23 +3061,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
 
-        //Get String of user team's players and such
-        StringBuilder sb = new StringBuilder();
-        userTeam.sortPlayers();
-        HeadCoach hc = userTeam.getHeadCoach();
-        int recruitSkill = hc != null ? hc.ratTalent : 70;
-        sb.append(userTeam.getConference()).append(",")
-                .append(userTeam.getName()).append(",")
-                .append(userTeam.getAbbr()).append(",")
-                .append(userTeam.getUserRecruitBudget()).append(",")
-                .append(recruitSkill).append("%\n");
-        sb.append(userTeam.getPlayerInfoSaveFile());
-        sb.append("END_TEAM_INFO%\n");
-        sb.append(userTeam.getRecruitsInfoSaveFile());
-
         //Start Recruiting Activity
         finish();
-        flowManager.startRecruiting(sb.toString());
+        flowManager.startRecruiting(SimulationFacade.buildRecruitingPayload(userTeam));
     }
 
     //Recruiting Score
@@ -3282,9 +3271,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return;
         }
         try (InputStream stream = openDocumentStream(uriString)) {
-            if (pendingImportType == LeagueImportFlowController.ImportType.COACH) {
+            if (pendingImportType == LeagueImportWorkflow.ImportType.COACH) {
                 LeagueCustomDataImporter.importCoaches(stream, simLeague);
-            } else if (pendingImportType == LeagueImportFlowController.ImportType.ROSTER) {
+            } else if (pendingImportType == LeagueImportWorkflow.ImportType.ROSTER) {
                 LeagueCustomDataImporter.importRoster(stream, simLeague);
             }
         } finally {

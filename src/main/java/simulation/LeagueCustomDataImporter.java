@@ -1,4 +1,4 @@
-package antdroid.cfbcoach;
+package simulation;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,14 +18,15 @@ import positions.PlayerRB;
 import positions.PlayerS;
 import positions.PlayerTE;
 import positions.PlayerWR;
-import simulation.League;
-import simulation.Team;
 
 public final class LeagueCustomDataImporter {
     private LeagueCustomDataImporter() {
     }
 
     public static void importCoaches(InputStream inputStream, League league) throws IOException {
+        if (league == null) {
+            throw new IOException("League is required for custom coach import");
+        }
         if (inputStream == null) {
             throw new IOException("Unable to open custom coach import stream");
         }
@@ -72,6 +73,9 @@ public final class LeagueCustomDataImporter {
     }
 
     public static void importRoster(InputStream inputStream, League league) throws IOException {
+        if (league == null) {
+            throw new IOException("League is required for custom roster import");
+        }
         if (inputStream == null) {
             throw new IOException("Unable to open custom roster import stream");
         }
@@ -96,7 +100,6 @@ public final class LeagueCustomDataImporter {
         }
 
         applyRosterBuffers(rosterBuffers);
-        refillMinimumRosters(league);
         league.updateTeamTalentRatings();
     }
 
@@ -112,31 +115,34 @@ public final class LeagueCustomDataImporter {
         for (Map.Entry<Team, TeamRosterImportBuffer> entry : rosterBuffers.entrySet()) {
             Team team = entry.getKey();
             TeamRosterImportBuffer buffer = entry.getValue();
+            if (!buffer.hasPlayers()) {
+                continue;
+            }
 
             team.clearAllRosters();
 
-            team.getTeamQBs().addAll(buffer.qbs);
-            team.getTeamRBs().addAll(buffer.rbs);
-            team.getTeamWRs().addAll(buffer.wrs);
-            team.getTeamTEs().addAll(buffer.tes);
-            team.getTeamOLs().addAll(buffer.ols);
-            team.getTeamKs().addAll(buffer.ks);
-            team.getTeamDLs().addAll(buffer.dls);
-            team.getTeamLBs().addAll(buffer.lbs);
-            team.getTeamCBs().addAll(buffer.cbs);
-            team.getTeamSs().addAll(buffer.ss);
+            for (PlayerQB player : buffer.qbs) team.addPlayerQB(player);
+            for (PlayerRB player : buffer.rbs) team.addPlayerRB(player);
+            for (PlayerWR player : buffer.wrs) team.addPlayerWR(player);
+            for (PlayerTE player : buffer.tes) team.addPlayerTE(player);
+            for (PlayerOL player : buffer.ols) team.addPlayerOL(player);
+            for (PlayerK player : buffer.ks) team.addPlayerK(player);
+            for (PlayerDL player : buffer.dls) team.addPlayerDL(player);
+            for (PlayerLB player : buffer.lbs) team.addPlayerLB(player);
+            for (PlayerCB player : buffer.cbs) team.addPlayerCB(player);
+            for (PlayerS player : buffer.ss) team.addPlayerS(player);
+
+            refillMinimumRoster(team);
         }
     }
 
-    private static void refillMinimumRosters(League league) {
-        for (Team team : league.getTeamList()) {
-            if (team.getAllPlayers().isEmpty()) {
-                team.newRoster(team.minQBs, team.minRBs, team.minWRs, team.minTEs, team.minOLs, team.minKs, team.minDLs, team.minLBs, team.minCBs, team.minSs, true);
-            } else {
-                team.newRoster(team.minQBs - team.getTeamQBs().size(), team.minRBs - team.getTeamRBs().size(), team.minWRs - team.getTeamWRs().size(),
-                        team.minTEs - team.getTeamTEs().size(), team.minOLs - team.getTeamOLs().size(), team.minKs - team.getTeamKs().size(),
-                        team.minDLs - team.getTeamDLs().size(), team.minLBs - team.getTeamLBs().size(), team.minCBs - team.getTeamCBs().size(), team.minSs - team.getTeamSs().size(), false);
-            }
+    private static void refillMinimumRoster(Team team) {
+        if (team.getAllPlayers().isEmpty()) {
+            team.newRoster(team.minQBs, team.minRBs, team.minWRs, team.minTEs, team.minOLs, team.minKs, team.minDLs, team.minLBs, team.minCBs, team.minSs, true);
+        } else {
+            team.newRoster(team.minQBs - team.getTeamQBs().size(), team.minRBs - team.getTeamRBs().size(), team.minWRs - team.getTeamWRs().size(),
+                    team.minTEs - team.getTeamTEs().size(), team.minOLs - team.getTeamOLs().size(), team.minKs - team.getTeamKs().size(),
+                    team.minDLs - team.getTeamDLs().size(), team.minLBs - team.getTeamLBs().size(), team.minCBs - team.getTeamCBs().size(), team.minSs - team.getTeamSs().size(), false);
         }
     }
 
@@ -183,5 +189,11 @@ public final class LeagueCustomDataImporter {
         private final ArrayList<PlayerLB> lbs = new ArrayList<>();
         private final ArrayList<PlayerCB> cbs = new ArrayList<>();
         private final ArrayList<PlayerS> ss = new ArrayList<>();
+
+        private boolean hasPlayers() {
+            return !qbs.isEmpty() || !rbs.isEmpty() || !wrs.isEmpty() || !tes.isEmpty()
+                    || !ols.isEmpty() || !ks.isEmpty() || !dls.isEmpty()
+                    || !lbs.isEmpty() || !cbs.isEmpty() || !ss.isEmpty();
+        }
     }
 }

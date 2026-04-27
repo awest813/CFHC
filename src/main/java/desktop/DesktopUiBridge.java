@@ -57,9 +57,8 @@ public class DesktopUiBridge implements GameUiBridge {
             return;
         }
         awaitingDockedRecruiting = false;
-        if (recruitsData != null && !recruitsData.isEmpty()
-                && league.userTeam != null) {
-            league.userTeam.recruitPlayersFromStr(recruitsData);
+        if (league.userTeam != null) {
+            league.userTeam.recruitPlayersFromStr(recruitsData == null ? "" : recruitsData);
             league.updateTeamTalentRatings();
         }
         newSeasonPending = true;

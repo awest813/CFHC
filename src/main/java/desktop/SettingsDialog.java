@@ -1,6 +1,7 @@
 package desktop;
 
 import simulation.League;
+import simulation.LeagueSettingsOptions;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -8,7 +9,9 @@ import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -35,7 +38,7 @@ public class SettingsDialog extends JDialog {
 
     public SettingsDialog(JFrame owner, League league) {
         super(owner, "SYSTEM CONFIGURATION", true);
-        setSize(520, 550);
+        setSize(560, 680);
         setLayout(new BorderLayout());
         getContentPane().setBackground(BG_COLOR);
 
@@ -69,23 +72,40 @@ public class SettingsDialog extends JDialog {
         JCheckBox desktopDark = createStyledCheckBox("DARK MODE (DESKTOP SHELL)", DesktopTheme.isDark(), content);
         content.add(Box.createVerticalStrut(12));
 
+        JCheckBox showPotential = createStyledCheckBox("SHOW PLAYER POTENTIAL", league.showPotential, content);
+        content.add(Box.createVerticalStrut(12));
         JCheckBox fullLog = createStyledCheckBox("ENABLE DETAILED SIMULATION LOGS", league.fullGameLog, content);
+        content.add(Box.createVerticalStrut(12));
+        JCheckBox careerMode = createStyledCheckBox("ENABLE COACH CAREER MOVEMENT", league.careerMode, content);
+        content.add(Box.createVerticalStrut(12));
+        JCheckBox neverRetire = createStyledCheckBox("INFINITE CAREER MODE (NO RETIREMENT)", league.neverRetire, content);
+        content.add(Box.createVerticalStrut(12));
+        JCheckBox enableTv = createStyledCheckBox("ENABLE TV CONTRACTS", league.enableTV, content);
+        content.add(Box.createVerticalStrut(12));
+        JCheckBox expandedPlayoffs = createStyledCheckBox("EXPANDED PLAYOFFS", league.expPlayoffs, content);
+        expandedPlayoffs.setEnabled(league.currentWeek < league.regSeasonWeeks);
         content.add(Box.createVerticalStrut(15));
         JCheckBox confRealign = createStyledCheckBox("ENABLE CONFERENCE REALIGNMENT", league.confRealignment, content);
         content.add(Box.createVerticalStrut(15));
         JCheckBox advRealign = createStyledCheckBox("ADVANCED TRANSFERS & REALIGNMENT", league.advancedRealignment, content);
         content.add(Box.createVerticalStrut(15));
-        JCheckBox neverRetire = createStyledCheckBox("INFINITE CAREER MODE (NO RETIREMENT)", league.neverRetire, content);
+        JCheckBox universalProRel = createStyledCheckBox("UNIVERSAL PROMOTION / RELEGATION", league.enableUnivProRel, content);
+        universalProRel.setEnabled(league.currentWeek == 0);
+        wireMutuallyExclusiveLeagueModes(confRealign, advRealign, universalProRel);
 
         content.add(Box.createVerticalGlue());
 
-        JLabel hint = new JLabel("<html><body style='width: 350px;'><i>Note: Settings are applied immediately to the active universe. Save your league to persist these changes.</i></body></html>");
+        JLabel hint = new JLabel("<html><body style='width: 390px;'><i>Settings are applied immediately to the active universe. Expanded playoffs and promotion/relegation can only be changed before the regular season starts. Save your league to persist these changes.</i></body></html>");
         hint.setFont(new Font("SansSerif", Font.PLAIN, 12));
         hint.setForeground(TEXT_SECONDARY);
         hint.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
         content.add(hint);
 
-        add(content, BorderLayout.CENTER);
+        JScrollPane scroll = new JScrollPane(content);
+        scroll.setBorder(null);
+        scroll.getViewport().setOpaque(false);
+        scroll.setOpaque(false);
+        add(scroll, BorderLayout.CENTER);
 
         // Bottom Bar
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 20));
@@ -128,10 +148,24 @@ public class SettingsDialog extends JDialog {
         applyBtn.setContentAreaFilled(false);
         applyBtn.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
         applyBtn.addActionListener(e -> {
-            league.fullGameLog = fullLog.isSelected();
-            league.confRealignment = confRealign.isSelected();
-            league.advancedRealignment = advRealign.isSelected();
-            league.neverRetire = neverRetire.isSelected();
+            boolean enablingProRel = universalProRel.isEnabled()
+                    && universalProRel.isSelected()
+                    && !league.enableUnivProRel;
+            if (enablingProRel && !confirmPromotionRelegationConversion()) {
+                return;
+            }
+
+            LeagueSettingsOptions options = LeagueSettingsOptions.fromLeague(league);
+            options.showPotential = showPotential.isSelected();
+            options.fullGameLog = fullLog.isSelected();
+            options.careerMode = careerMode.isSelected();
+            options.neverRetire = neverRetire.isSelected();
+            options.enableTv = enableTv.isSelected();
+            options.expandedPlayoffs = expandedPlayoffs.isSelected();
+            options.conferenceRealignment = confRealign.isSelected();
+            options.advancedRealignment = advRealign.isSelected();
+            options.universalProRel = universalProRel.isSelected();
+            options.applyTo(league, expandedPlayoffs.isEnabled(), universalProRel.isEnabled(), true);
             DesktopTheme.setDark(desktopDark.isSelected());
             java.awt.Window w = javax.swing.SwingUtilities.getWindowAncestor(SettingsDialog.this);
             if (w instanceof LeagueHomeView) {
@@ -144,6 +178,37 @@ public class SettingsDialog extends JDialog {
         bottom.add(cancelBtn);
         bottom.add(applyBtn);
         add(bottom, BorderLayout.SOUTH);
+    }
+
+    private void wireMutuallyExclusiveLeagueModes(JCheckBox confRealign,
+                                                  JCheckBox advRealign,
+                                                  JCheckBox universalProRel) {
+        advRealign.addActionListener(e -> {
+            if (advRealign.isSelected()) {
+                confRealign.setSelected(true);
+                universalProRel.setSelected(false);
+            }
+        });
+        confRealign.addActionListener(e -> {
+            if (confRealign.isSelected()) {
+                universalProRel.setSelected(false);
+            }
+        });
+        universalProRel.addActionListener(e -> {
+            if (universalProRel.isSelected()) {
+                confRealign.setSelected(false);
+                advRealign.setSelected(false);
+            }
+        });
+    }
+
+    private boolean confirmPromotionRelegationConversion() {
+        int choice = JOptionPane.showConfirmDialog(this,
+                DesktopTheme.messageForDialog("Universal promotion/relegation rewrites the conference structure and schedule.\nThis should only be enabled before Week 1.\n\nConvert this league now?"),
+                "Enable Promotion/Relegation",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+        return choice == JOptionPane.YES_OPTION;
     }
 
     private JCheckBox createStyledCheckBox(String label, boolean selected, JPanel container) {

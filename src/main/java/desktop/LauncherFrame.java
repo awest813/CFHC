@@ -215,6 +215,9 @@ public class LauncherFrame extends JFrame {
                 );
                 league.setPlatformResourceProvider(resources);
                 league.rebuildScheduleIfNeeded();
+                if (!DesktopTeamSelectionDialog.ensureUserTeam(this, league)) {
+                    return;
+                }
                 LeagueHomeView.show(league, file);
                 this.dispose();
             } catch (Exception e) {

@@ -3,6 +3,7 @@ package desktop;
 import simulation.Conference;
 import simulation.League;
 import simulation.LeagueLaunchCoordinator.LaunchRequest.PrestigeMode;
+import simulation.LeagueSettingsOptions;
 import simulation.PlatformLog;
 import simulation.PlatformResourceProvider;
 import simulation.Team;
@@ -12,6 +13,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -141,6 +143,31 @@ public class NewGameWizard extends JDialog {
         optionsPanel.add(standardPlayoff);
         optionsPanel.add(expandedPlayoff);
 
+        JLabel universeHeader = new JLabel("Universe Options");
+        universeHeader.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 15));
+        universeHeader.setForeground(DesktopTheme.textPrimary());
+        universeHeader.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+        optionsPanel.add(universeHeader);
+
+        JCheckBox showPotential = createOptionCheckBox("Show player potential", false);
+        JCheckBox fullGameLog = createOptionCheckBox("Enable detailed game logs", false);
+        JCheckBox careerMode = createOptionCheckBox("Coach career movement", true);
+        JCheckBox neverRetire = createOptionCheckBox("Never force retirement", false);
+        JCheckBox enableTv = createOptionCheckBox("Enable TV contracts", true);
+        JCheckBox confRealignment = createOptionCheckBox("Conference realignment", true);
+        JCheckBox advancedRealignment = createOptionCheckBox("Advanced transfers and realignment", false);
+        JCheckBox universalProRel = createOptionCheckBox("Universal promotion/relegation", false);
+
+        wireMutuallyExclusiveLeagueModes(confRealignment, advancedRealignment, universalProRel);
+        optionsPanel.add(showPotential);
+        optionsPanel.add(fullGameLog);
+        optionsPanel.add(careerMode);
+        optionsPanel.add(neverRetire);
+        optionsPanel.add(enableTv);
+        optionsPanel.add(confRealignment);
+        optionsPanel.add(advancedRealignment);
+        optionsPanel.add(universalProRel);
+
         JScrollPane optScroll = new JScrollPane(optionsPanel);
         optScroll.setBorder(null);
         optScroll.getViewport().setBackground(DesktopTheme.windowBackground());
@@ -154,12 +181,20 @@ public class NewGameWizard extends JDialog {
 
         JButton nextBtn = new JButton("Next \u25B6");
         nextBtn.addActionListener(e -> {
-            PrestigeMode mode;
-            if (randomBtn.isSelected()) mode = PrestigeMode.RANDOMIZE;
-            else if (equalBtn.isSelected()) mode = PrestigeMode.EQUALIZE;
-            else mode = PrestigeMode.DEFAULT;
-            boolean useExpandedPlayoff = expandedPlayoff.isSelected();
-            createLeagueAndShowTeamPicker(mode, useExpandedPlayoff);
+            NewGameOptions options = new NewGameOptions();
+            if (randomBtn.isSelected()) options.mode = PrestigeMode.RANDOMIZE;
+            else if (equalBtn.isSelected()) options.mode = PrestigeMode.EQUALIZE;
+            else options.mode = PrestigeMode.DEFAULT;
+            options.expandedPlayoffs = expandedPlayoff.isSelected();
+            options.showPotential = showPotential.isSelected();
+            options.fullGameLog = fullGameLog.isSelected();
+            options.careerMode = careerMode.isSelected();
+            options.neverRetire = neverRetire.isSelected();
+            options.enableTv = enableTv.isSelected();
+            options.conferenceRealignment = confRealignment.isSelected();
+            options.advancedRealignment = advancedRealignment.isSelected();
+            options.universalProRel = universalProRel.isSelected();
+            createLeagueAndShowTeamPicker(options);
         });
         buttons.add(cancelBtn);
         buttons.add(nextBtn);
@@ -174,10 +209,10 @@ public class NewGameWizard extends JDialog {
     // Create League + Page 2 — Team Selection
     // -------------------------------------------------------------------------
 
-    private void createLeagueAndShowTeamPicker(PrestigeMode mode, boolean useExpandedPlayoff) {
+    private void createLeagueAndShowTeamPicker(NewGameOptions options) {
         try {
-            boolean randomize = mode == PrestigeMode.RANDOMIZE;
-            boolean equalize = mode == PrestigeMode.EQUALIZE;
+            boolean randomize = options.mode == PrestigeMode.RANDOMIZE;
+            boolean equalize = options.mode == PrestigeMode.EQUALIZE;
 
             resultLeague = new League(
                     resources.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
@@ -189,7 +224,17 @@ public class NewGameWizard extends JDialog {
                     equalize
             );
             resultLeague.setPlatformResourceProvider(resources);
-            resultLeague.expPlayoffs = useExpandedPlayoff;
+            LeagueSettingsOptions leagueOptions = LeagueSettingsOptions.fromLeague(resultLeague);
+            leagueOptions.showPotential = options.showPotential;
+            leagueOptions.fullGameLog = options.fullGameLog;
+            leagueOptions.careerMode = options.careerMode;
+            leagueOptions.neverRetire = options.neverRetire;
+            leagueOptions.enableTv = options.enableTv;
+            leagueOptions.expandedPlayoffs = options.expandedPlayoffs;
+            leagueOptions.conferenceRealignment = options.conferenceRealignment;
+            leagueOptions.advancedRealignment = options.advancedRealignment;
+            leagueOptions.universalProRel = options.universalProRel;
+            leagueOptions.applyTo(resultLeague, true, true, true);
             showTeamPickerPage();
         } catch (Exception ex) {
             PlatformLog.e(TAG, "Error creating league", ex);
@@ -197,6 +242,49 @@ public class NewGameWizard extends JDialog {
                     DesktopTheme.messageForDialog("Failed to create league:\n" + ex.getMessage()),
                     "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private JCheckBox createOptionCheckBox(String text, boolean selected) {
+        JCheckBox box = new JCheckBox(text, selected);
+        box.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
+        box.setOpaque(false);
+        box.setForeground(DesktopTheme.textPrimary());
+        return box;
+    }
+
+    private void wireMutuallyExclusiveLeagueModes(JCheckBox confRealignment,
+                                                  JCheckBox advancedRealignment,
+                                                  JCheckBox universalProRel) {
+        advancedRealignment.addActionListener(e -> {
+            if (advancedRealignment.isSelected()) {
+                confRealignment.setSelected(true);
+                universalProRel.setSelected(false);
+            }
+        });
+        confRealignment.addActionListener(e -> {
+            if (confRealignment.isSelected()) {
+                universalProRel.setSelected(false);
+            }
+        });
+        universalProRel.addActionListener(e -> {
+            if (universalProRel.isSelected()) {
+                confRealignment.setSelected(false);
+                advancedRealignment.setSelected(false);
+            }
+        });
+    }
+
+    private static final class NewGameOptions {
+        PrestigeMode mode = PrestigeMode.DEFAULT;
+        boolean expandedPlayoffs;
+        boolean showPotential;
+        boolean fullGameLog;
+        boolean careerMode = true;
+        boolean neverRetire;
+        boolean enableTv = true;
+        boolean conferenceRealignment = true;
+        boolean advancedRealignment;
+        boolean universalProRel;
     }
 
     private void showTeamPickerPage() {

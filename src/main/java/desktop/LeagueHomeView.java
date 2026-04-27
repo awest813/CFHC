@@ -16,7 +16,6 @@ import simulation.SeasonController;
 import simulation.Team;
 
 import javax.swing.BorderFactory;
-import javax.swing.JCheckBox;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.DefaultListModel;
@@ -268,12 +267,7 @@ public class LeagueHomeView extends JFrame {
 
         JMenuItem settingsItem = new JMenuItem("Settings\u2026");
         settingsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, KeyEvent.CTRL_DOWN_MASK));
-        settingsItem.addActionListener(e -> {
-            if (SettingsDialog.show(this, leagueCore)) {
-                markDirty();
-            }
-            refresh();
-        });
+        settingsItem.addActionListener(e -> openSettingsDialog());
         file.add(settingsItem);
 
         file.addSeparator();
@@ -424,6 +418,7 @@ public class LeagueHomeView extends JFrame {
         JButton advanceBtn = new JButton("Simulate to Post-Season");
         advanceBtn.setToolTipText("Advance through the remaining regular season games.");
         advanceBtn.addActionListener(e -> simulateToPostSeason(leagueCore.regSeasonWeeks));
+        advanceBtn.setEnabled(leagueCore.currentWeek < leagueCore.regSeasonWeeks);
 
         JButton saveBtn = new JButton("Save");
         saveBtn.setToolTipText("Save the current league (Ctrl+S)");
@@ -508,8 +503,10 @@ public class LeagueHomeView extends JFrame {
                     JOptionPane.WARNING_MESSAGE);
             if (choice == JOptionPane.YES_OPTION) {
                 saveLeague(false);
-                dispose();
-                System.exit(0);
+                if (!dirty) {
+                    dispose();
+                    System.exit(0);
+                }
             } else if (choice == JOptionPane.NO_OPTION) {
                 dispose();
                 System.exit(0);
@@ -613,9 +610,17 @@ public class LeagueHomeView extends JFrame {
      * Keeps the UI responsive and provides feedback.
      */
     private void simulateToPostSeason(int targetWeek) {
+        if (targetWeek <= leagueCore.currentWeek) {
+            JOptionPane.showMessageDialog(this,
+                    DesktopTheme.messageForDialog(
+                    "This league is already at or beyond that point in the season.\nUse Play Next Week or Advance Through Offseason instead."),
+                    "Nothing to Simulate",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
         SimulationProgressDialog dialog = new SimulationProgressDialog(this, "Season Simulation");
         int startWeek = leagueCore.currentWeek;
-        int maxWeeks = targetWeek - startWeek;
+        int maxWeeks = Math.max(1, targetWeek - startWeek);
 
         javax.swing.SwingWorker<Integer, String> worker = new javax.swing.SwingWorker<>() {
             @Override
@@ -811,6 +816,9 @@ public class LeagueHomeView extends JFrame {
             );
             league.setPlatformResourceProvider(resources);
             league.rebuildScheduleIfNeeded();
+            if (!DesktopTeamSelectionDialog.ensureUserTeam(this, league)) {
+                return;
+            }
             PlatformLog.i(TAG, "Loaded save from " + file.getAbsolutePath());
             LeagueHomeView.show(league, file);
             dispose(); // close the current window so only one LeagueHomeView is open
@@ -901,6 +909,9 @@ public class LeagueHomeView extends JFrame {
                     "Import Custom Universe",
                     JOptionPane.YES_NO_OPTION);
             if (confirm != JOptionPane.YES_OPTION) return;
+            if (!DesktopTeamSelectionDialog.ensureUserTeam(this, newLeague)) {
+                return;
+            }
 
             // Reopen with new league
             dispose();
@@ -1021,7 +1032,14 @@ public class LeagueHomeView extends JFrame {
     }
 
     private void showMockDraft() {
-        String[] draft = leagueCore.getMockDraftPlayersList();
+        String[] draft;
+        try {
+            draft = leagueCore.getMockDraftPlayersList();
+        } catch (RuntimeException ex) {
+            PlatformLog.e(TAG, "Error building mock draft", ex);
+            showScrollableText("Mock Draft", "Mock draft data is not available yet. Try again after more players have declared.");
+            return;
+        }
         if (draft == null || draft.length == 0) {
             showScrollableText("Mock Draft", "No mock draft data available.");
             return;
@@ -1046,6 +1064,13 @@ public class LeagueHomeView extends JFrame {
         scroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
         scroll.setPreferredSize(new Dimension(650, 450));
         JOptionPane.showMessageDialog(this, scroll, title, JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void openSettingsDialog() {
+        if (SettingsDialog.show(this, leagueCore)) {
+            markDirty();
+        }
+        refresh();
     }
 
     // =========================================================================
@@ -2440,30 +2465,48 @@ public class LeagueHomeView extends JFrame {
     // =========================================================================
 
     private JPanel buildSettingsPanel() {
-        JPanel panel = new JPanel();
-        panel.setLayout(new javax.swing.BoxLayout(panel, javax.swing.BoxLayout.Y_AXIS));
+        JPanel panel = new JPanel(new BorderLayout(0, 14));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        JCheckBox expP = new JCheckBox("Expanded Playoff (12 teams)", leagueCore.expPlayoffs);
-        expP.addActionListener(e -> leagueCore.expPlayoffs = expP.isSelected());
-        panel.add(expP);
+        JPanel summary = new JPanel(new GridLayout(0, 2, 10, 8));
+        summary.setOpaque(false);
+        summary.setBorder(DesktopTheme.titledBorder("Active Options"));
+        addOptionRow(summary, "Player potential", enabledLabel(leagueCore.showPotential));
+        addOptionRow(summary, "Full game logs", enabledLabel(leagueCore.fullGameLog));
+        addOptionRow(summary, "Game mode", leagueCore.careerMode ? "Career" : "Sandbox");
+        addOptionRow(summary, "Never retire", enabledLabel(leagueCore.neverRetire));
+        addOptionRow(summary, "TV contracts", enabledLabel(leagueCore.enableTV));
+        addOptionRow(summary, "Expanded playoffs", enabledLabel(leagueCore.expPlayoffs));
+        addOptionRow(summary, "Conference realignment", enabledLabel(leagueCore.confRealignment));
+        addOptionRow(summary, "Advanced realignment", enabledLabel(leagueCore.advancedRealignment));
+        addOptionRow(summary, "Promotion/relegation", enabledLabel(leagueCore.enableUnivProRel));
+        panel.add(summary, BorderLayout.NORTH);
 
-        JCheckBox pr = new JCheckBox("University Promotion/Relegation", leagueCore.enableUnivProRel);
-        pr.addActionListener(e -> leagueCore.enableUnivProRel = pr.isSelected());
-        panel.add(pr);
+        JLabel note = new JLabel("<html><div style='width:520px'>Use the settings dialog to edit options. It handles timing locks and league conversions safely, including promotion/relegation.</div></html>");
+        note.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
+        panel.add(note, BorderLayout.CENTER);
 
-        JCheckBox sp = new JCheckBox("Show Player Potential", leagueCore.showPotential);
-        sp.addActionListener(e -> leagueCore.showPotential = sp.isSelected());
-        panel.add(sp);
+        JPanel actions = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        actions.setOpaque(false);
+        JButton edit = new JButton("Edit Settings...");
+        edit.addActionListener(e -> openSettingsDialog());
+        actions.add(edit);
+        panel.add(actions, BorderLayout.SOUTH);
 
-        JCheckBox nr = new JCheckBox("Never Retire", leagueCore.neverRetire);
-        nr.addActionListener(e -> leagueCore.neverRetire = nr.isSelected());
-        panel.add(nr);
-
-        panel.add(javax.swing.Box.createVerticalStrut(20));
-        panel.add(new JLabel("Game Mode: " + (leagueCore.careerMode ? "Career" : "Sandbox")));
         DesktopTheme.styleLeagueSettingsPanel(panel);
         return panel;
+    }
+
+    private static void addOptionRow(JPanel panel, String label, String value) {
+        JLabel left = new JLabel(label + ":");
+        JLabel right = new JLabel(value);
+        right.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 13));
+        panel.add(left);
+        panel.add(right);
+    }
+
+    private static String enabledLabel(boolean enabled) {
+        return enabled ? "Enabled" : "Disabled";
     }
 
     // =========================================================================

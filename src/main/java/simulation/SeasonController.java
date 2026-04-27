@@ -1,7 +1,5 @@
 package simulation;
 
-import java.util.Random;
-
 import positions.Player;
 
 /**
@@ -12,8 +10,6 @@ public final class SeasonController {
 
     private final League league;
     private final GameUiBridge bridge;
-    private final GameFlowManager flowManager;
-    private final Random random = new Random();
 
     // Configuration
     private final int regSeasonWeeks;
@@ -22,45 +18,50 @@ public final class SeasonController {
     public SeasonController(League league, GameUiBridge bridge, GameFlowManager flowManager) {
         this.league = league;
         this.bridge = bridge;
-        this.flowManager = flowManager;
         this.regSeasonWeeks = league.regSeasonWeeks;
     }
 
-    public void advanceWeek() {
+    public SeasonAdvanceResult advanceWeek() {
+        SeasonAdvanceResult.Builder result = new SeasonAdvanceResult.Builder(league.currentWeek);
         league.clearNewsHeadlines();
 
         if (league.currentWeek == 0 && !redshirtComplete) {
-            handlePreseasonTransition();
+            handlePreseasonTransition(result);
         } else if (league.currentWeek <= regSeasonWeeks + 3) {
-            handleInSeasonWeek();
+            handleInSeasonWeek(result);
         } else {
-            handleOffseasonWeek();
+            handleOffseasonWeek(result);
         }
 
         bridge.refreshCurrentPage();
+        result.refreshRequested();
+        return result.weekAfter(league.currentWeek).build();
     }
 
-    private void handlePreseasonTransition() {
+    private void handlePreseasonTransition(SeasonAdvanceResult.Builder result) {
         redshirtComplete = true;
         league.userTeam.recruitWalkOns();
         league.preseasonNews();
         league.currentWeek++; // Advance to Week 1
-        bridge.updateSimStatus("Preseason", "Play Week 1", true);
+        updateSimStatus(result, "Preseason", "Play Week 1", true);
+        result.weekAdvanced();
     }
 
-    private void handleInSeasonWeek() {
+    private void handleInSeasonWeek(SeasonAdvanceResult.Builder result) {
         int weekBefore = league.currentWeek;
         league.playWeek();
+        result.weekAdvanced();
 
         if (weekBefore == regSeasonWeeks / 2) {
             bridge.showMidseasonSummary();
+            result.needsDialog(SeasonAdvanceResult.DialogType.MIDSEASON_SUMMARY, null);
         }
 
 
-        updateInSeasonStatus();
+        updateInSeasonStatus(result);
     }
 
-    private void updateInSeasonStatus() {
+    private void updateInSeasonStatus(SeasonAdvanceResult.Builder result) {
         String buttonText;
         if (league.currentWeek < regSeasonWeeks - 1) {
             buttonText = "Play Week " + (league.currentWeek + 1);
@@ -69,7 +70,9 @@ public final class SeasonController {
         } else if (league.currentWeek == regSeasonWeeks) {
             String awards = league.getHeismanCeremonyStr();
             Player heismanWinner = league.getHeismanWinner();
-            bridge.showAwardsSummary(heismanWinner != null ? heismanWinner.getAwardDescription() : awards);
+            String awardsSummary = heismanWinner != null ? heismanWinner.getAwardDescription() : awards;
+            bridge.showAwardsSummary(awardsSummary);
+            result.needsDialog(SeasonAdvanceResult.DialogType.AWARDS_SUMMARY, awardsSummary);
 
             buttonText = league.expPlayoffs ? "Play First Round" : "Play Bowl Week 1";
 
@@ -82,106 +85,132 @@ public final class SeasonController {
         } else {
             buttonText = "Season Summary";
         }
-        bridge.updateSimStatus("In Season", buttonText, false);
+        updateSimStatus(result, "In Season", buttonText, false);
     }
 
-    private void handleOffseasonWeek() {
+    private void handleOffseasonWeek(SeasonAdvanceResult.Builder result) {
         if (league.currentWeek == regSeasonWeeks + 4) {
             bridge.showSeasonSummary();
-            handleSeasonSummary();
+            result.needsDialog(SeasonAdvanceResult.DialogType.SEASON_SUMMARY, null);
+            handleSeasonSummary(result);
 
         } else if (league.currentWeek == regSeasonWeeks + 5) {
-            handleContracts();
+            handleContracts(result);
         } else if (league.currentWeek == regSeasonWeeks + 6) {
-            handleJobOffers();
+            handleJobOffers(result);
         } else if (league.currentWeek == regSeasonWeeks + 7) {
-            handleCoachCarousel();
+            handleCoachCarousel(result);
         } else if (league.currentWeek == regSeasonWeeks + 8) {
-            handleHireAssistants();
+            handleHireAssistants(result);
         } else if (league.currentWeek == regSeasonWeeks + 9) {
-            handleSeasonAdvance();
+            handleSeasonAdvance(result);
         } else if (league.currentWeek == regSeasonWeeks + 10) {
-            handleTransferLogic();
+            handleTransferLogic(result);
         } else if (league.currentWeek == regSeasonWeeks + 11) {
-            handleTransferList();
+            handleTransferList(result);
         } else if (league.currentWeek == regSeasonWeeks + 12) {
-            handleRealignment();
+            handleRealignment(result);
         } else if (league.currentWeek >= regSeasonWeeks + 13) {
-            bridge.showNotification("Recruiting", "National Letter of Intent Day Begins!");
+            showNotification(result, "Recruiting", "National Letter of Intent Day Begins!");
             bridge.startRecruitingFlow();
+            result.recruitingStarted();
         }
     }
 
 
-    private void handleSeasonSummary() {
+    private void handleSeasonSummary(SeasonAdvanceResult.Builder result) {
         league.enterOffseason();
         league.checkLeagueRecords();
         league.updateHCHistory();
         league.updateTeamHistories();
         league.updateLeagueHistory();
         league.currentWeek++;
-        bridge.updateSimStatus("Offseason", "Off-Season: Contracts", true);
+        result.weekAdvanced();
+        updateSimStatus(result, "Offseason", "Off-Season: Contracts", true);
     }
 
-    private void handleContracts() {
+    private void handleContracts(SeasonAdvanceResult.Builder result) {
         league.advanceStaff();
         league.currentWeek++;
-        bridge.updateSimStatus("Offseason", "Off-Season: Job Offers", true);
+        result.weekAdvanced();
+        updateSimStatus(result, "Offseason", "Off-Season: Job Offers", true);
         bridge.showContractDialog();
+        result.needsDialog(SeasonAdvanceResult.DialogType.CONTRACT, null);
     }
 
 
-    private void handleJobOffers() {
+    private void handleJobOffers(SeasonAdvanceResult.Builder result) {
         league.currentWeek++;
-        bridge.updateSimStatus("Offseason", "Off-Season: Coaching Changes", true);
+        result.weekAdvanced();
+        updateSimStatus(result, "Offseason", "Off-Season: Coaching Changes", true);
         bridge.showJobOffersDialog();
+        result.needsDialog(SeasonAdvanceResult.DialogType.JOB_OFFERS, null);
     }
 
-    private void handleCoachCarousel() {
+    private void handleCoachCarousel(SeasonAdvanceResult.Builder result) {
         league.coachCarousel();
         league.currentWeek++;
-        bridge.updateSimStatus("Offseason", "Off-Season: Coordinator Changes", true);
+        result.weekAdvanced();
+        updateSimStatus(result, "Offseason", "Off-Season: Coordinator Changes", true);
         bridge.showPromotionsDialog();
+        result.needsDialog(SeasonAdvanceResult.DialogType.PROMOTIONS, null);
     }
 
-    private void handleHireAssistants() {
+    private void handleHireAssistants(SeasonAdvanceResult.Builder result) {
         if (league.userTeam.isUserControlled()) {
             // This usually triggers a separate flow/activity
-            // flowManager.hireStaff(league.userTeam.strRep());
+            // Future structured flow result can expose a hire-staff request here.
         }
         league.currentWeek++;
-        bridge.updateSimStatus("Offseason", "Off-Season: Graduation", true);
+        result.weekAdvanced();
+        updateSimStatus(result, "Offseason", "Off-Season: Graduation", true);
     }
 
 
-    private void handleSeasonAdvance() {
+    private void handleSeasonAdvance(SeasonAdvanceResult.Builder result) {
         league.advanceSeason();
         league.currentWeek++;
-        bridge.updateSimStatus("Offseason", "Off-Season: Transfer List", true);
+        result.weekAdvanced();
+        updateSimStatus(result, "Offseason", "Off-Season: Transfer List", true);
         bridge.showRedshirtList();
+        result.needsDialog(SeasonAdvanceResult.DialogType.REDSHIRT_LIST, null);
     }
 
 
-    private void handleTransferLogic() {
+    private void handleTransferLogic(SeasonAdvanceResult.Builder result) {
         league.transferPlayers(bridge);
         league.currentWeek++;
-        bridge.updateSimStatus("Offseason", "Off-Season: Complete Transfers", true);
+        result.weekAdvanced();
+        updateSimStatus(result, "Offseason", "Off-Season: Complete Transfers", true);
     }
 
-    private void handleTransferList() {
+    private void handleTransferList(SeasonAdvanceResult.Builder result) {
         league.currentWeek++;
-        bridge.updateSimStatus("Offseason", "Off-Season: Continue", true);
+        result.weekAdvanced();
+        updateSimStatus(result, "Offseason", "Off-Season: Continue", true);
         bridge.showTransferList();
+        result.needsDialog(SeasonAdvanceResult.DialogType.TRANSFER_LIST, null);
     }
 
-    private void handleRealignment() {
+    private void handleRealignment(SeasonAdvanceResult.Builder result) {
         // These methods should ideally move to League if they are pure logic
         league.hireMissingCoaches();
         league.currentWeek++;
-        bridge.updateSimStatus("Offseason", "Begin Recruiting", true);
+        result.weekAdvanced();
+        updateSimStatus(result, "Offseason", "Begin Recruiting", true);
         bridge.showRealignmentSummary();
+        result.needsDialog(SeasonAdvanceResult.DialogType.REALIGNMENT_SUMMARY, null);
     }
 
+    private void updateSimStatus(SeasonAdvanceResult.Builder result, String statusText, String buttonText, boolean majorEvent) {
+        bridge.updateSimStatus(statusText, buttonText, majorEvent);
+        result.statusUpdated(statusText, buttonText, majorEvent);
+    }
+
+    private void showNotification(SeasonAdvanceResult.Builder result, String title, String message) {
+        bridge.showNotification(title, message);
+        result.notification(title, message);
+    }
 
 }
 
