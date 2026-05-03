@@ -34,18 +34,19 @@ import java.util.List;
 public class LauncherFrame extends JFrame {
 
     private static final String TAG = "LauncherFrame";
-    private static final Color DARK_BLUE = new Color(20, 30, 48);
+    private static final Color BRAND_PANEL = new Color(24, 34, 48);
 
     private final List<JButton> launcherHubButtons = new ArrayList<>();
     private JPanel launcherMainPanel;
+    private JLabel launcherHeaderLabel;
     private JLabel launcherSideBlurb;
     private JLabel launcherFooterLabel;
 
     public LauncherFrame() {
-        super("CFB Coach - Desktop Hub");
+        super("CFB Coach - Front Office");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(800, 500);
-        setMinimumSize(new Dimension(760, 460));
+        setSize(900, 560);
+        setMinimumSize(new Dimension(820, 500));
         setLocationRelativeTo(null);
         loadWindowIcon();
 
@@ -73,11 +74,11 @@ public class LauncherFrame extends JFrame {
 
     private JPanel buildSidePanel() {
         JPanel side = new JPanel(new BorderLayout());
-        side.setPreferredSize(new Dimension(300, 500));
-        side.setBackground(DARK_BLUE);
+        side.setPreferredSize(new Dimension(315, 500));
+        side.setBackground(BRAND_PANEL);
         side.setBorder(BorderFactory.createEmptyBorder(40, 20, 40, 20));
 
-        JLabel title = new JLabel("<html><body style='text-align:center;'>CFB COACH<br><span style='font-size:12pt;font-weight:normal;'>Desktop Prototype</span></body></html>", SwingConstants.CENTER);
+        JLabel title = new JLabel("<html><body style='text-align:center;'>CFB COACH<br><span style='font-size:12pt;font-weight:normal;'>Front Office</span></body></html>", SwingConstants.CENTER);
         title.setForeground(Color.WHITE);
         title.setFont(new Font("SansSerif", Font.BOLD, 28));
         side.add(title, BorderLayout.NORTH);
@@ -92,7 +93,12 @@ public class LauncherFrame extends JFrame {
         JPanel main = new JPanel(new BorderLayout());
         main.setOpaque(true);
         main.setBackground(DesktopTheme.launcherMainPanel());
-        main.setBorder(BorderFactory.createEmptyBorder(60, 60, 60, 60));
+        main.setBorder(BorderFactory.createEmptyBorder(42, 56, 42, 56));
+
+        launcherHeaderLabel = new JLabel("<html><b>Career Hub</b><br><span style='font-size:10pt;'>Start, load, and manage your college football universe.</span></html>");
+        launcherHeaderLabel.setFont(new Font("SansSerif", Font.PLAIN, 18));
+        launcherHeaderLabel.setForeground(DesktopTheme.textPrimary());
+        main.add(launcherHeaderLabel, BorderLayout.NORTH);
 
         JPanel buttonGrid = new JPanel(new GridLayout(0, 1, 0, 15));
         buttonGrid.setOpaque(false);
@@ -119,6 +125,7 @@ public class LauncherFrame extends JFrame {
 
         JPanel centerWrap = new JPanel(new BorderLayout(0, 14));
         centerWrap.setOpaque(false);
+        centerWrap.setBorder(BorderFactory.createEmptyBorder(28, 0, 0, 0));
         centerWrap.add(buttonGrid, BorderLayout.CENTER);
         JCheckBox darkToggle = new JCheckBox("Dark mode", DesktopTheme.isDark());
         darkToggle.setOpaque(false);
@@ -135,7 +142,7 @@ public class LauncherFrame extends JFrame {
         centerWrap.add(toggleRow, BorderLayout.SOUTH);
         main.add(centerWrap, BorderLayout.CENTER);
 
-        launcherFooterLabel = new JLabel("\u00a9 2026 Engine Audit & Polish Update", SwingConstants.CENTER);
+        launcherFooterLabel = new JLabel("Desktop build - simulation core shared with Android", SwingConstants.CENTER);
         launcherFooterLabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
         launcherFooterLabel.setForeground(DesktopTheme.launcherFooter());
         main.add(launcherFooterLabel, BorderLayout.SOUTH);
@@ -146,7 +153,7 @@ public class LauncherFrame extends JFrame {
     private static String sideBlurbHtml() {
         String muted = DesktopTheme.isDark() ? "#99A0AA" : "#666666";
         return "<html><p style='text-align:center; color:" + muted
-                + ";'>College Football Head Coach (CFHC)<br>Desktop management shell<br><br>v1.4e [Alpha]</p></html>";
+                + ";'>College Football Head Coach (CFHC)<br>Desktop career management<br><br>v1.4e</p></html>";
     }
 
     private void refreshLauncherChrome(JCheckBox darkToggle) {
@@ -156,6 +163,9 @@ public class LauncherFrame extends JFrame {
         }
         if (launcherFooterLabel != null) {
             launcherFooterLabel.setForeground(DesktopTheme.launcherFooter());
+        }
+        if (launcherHeaderLabel != null) {
+            launcherHeaderLabel.setForeground(DesktopTheme.textPrimary());
         }
         if (launcherSideBlurb != null) {
             launcherSideBlurb.setText(sideBlurbHtml());
@@ -237,17 +247,17 @@ public class LauncherFrame extends JFrame {
                 2. Load Save opens .cfb (desktop) or .sav exports from the Android build.
 
                 In the league window
-                • Tabs along the left edge jump between standings, scoreboard, stats, news, and more.
-                • Space plays the next week (or the next offseason step). Use the header buttons for longer sims.
-                • Double-click any team in Standings to open rosters, depth chart, coordinators, and facilities.
-                • F1 lists every keyboard shortcut.
+                - The League Office navigation opens standings, scoreboard, stats, news, settings, and more.
+                - Space plays the next week or the next offseason step. Use the header buttons for longer sims.
+                - Double-click any team in Standings to open rosters, depth chart, coordinators, and facilities.
+                - F1 lists every keyboard shortcut.
 
                 Recruiting
                 After the final offseason step before signing day, press Space once. The signing board appears
-                in the Recruiting tab (left). Finish recruiting there to roll into the next season.
+                in Recruiting. Finish recruiting there to roll into the next season.
 
                 Saving
-                Use File → Save (Ctrl+S). Unsaved leagues prompt on exit.""";
+                Use File > Save (Ctrl+S). Unsaved leagues prompt on exit.""";
         JTextArea area = new JTextArea(msg);
         area.setEditable(false);
         area.setWrapStyleWord(true);

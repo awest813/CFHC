@@ -136,6 +136,10 @@ public final class DesktopTheme {
         return dark ? new Color(160, 165, 175) : new Color(80, 80, 80);
     }
 
+    public static Color warningText() {
+        return dark ? new Color(255, 205, 110) : new Color(150, 90, 0);
+    }
+
     public static Color headerBackground() {
         return dark ? new Color(20, 22, 26) : new Color(33, 37, 41);
     }
@@ -146,6 +150,18 @@ public final class DesktopTheme {
 
     public static Color statusBackground() {
         return dark ? new Color(46, 48, 54) : new Color(240, 240, 240);
+    }
+
+    public static Color sidebarBackground() {
+        return dark ? new Color(28, 31, 36) : new Color(246, 248, 251);
+    }
+
+    public static Color sidebarText() {
+        return dark ? new Color(210, 216, 224) : new Color(35, 42, 50);
+    }
+
+    public static Color sidebarSelectionBackground() {
+        return dark ? new Color(58, 96, 150) : selectionAccent();
     }
 
     public static Color borderSubtle() {

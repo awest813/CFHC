@@ -25,22 +25,19 @@ import javax.swing.Box;
 
 /**
  * Settings / preferences dialog for the desktop app.
- * Polished with 'Industrial Glass' aesthetic.
  */
 public class SettingsDialog extends JDialog {
 
-    private static final Color BG_COLOR = new Color(15, 20, 28);
-    private static final Color SURFACE_COLOR = new Color(25, 32, 45);
     private static final Color ACCENT_BLUE = new Color(52, 152, 219);
-    private static final Color TEXT_SECONDARY = new Color(171, 178, 191);
 
     private boolean applied = false;
 
     public SettingsDialog(JFrame owner, League league) {
-        super(owner, "SYSTEM CONFIGURATION", true);
+        super(owner, "League Settings", true);
         setSize(560, 680);
+        setMinimumSize(new java.awt.Dimension(520, 560));
         setLayout(new BorderLayout());
-        getContentPane().setBackground(BG_COLOR);
+        getContentPane().setBackground(dialogBackground());
 
         // Header
         JPanel header = new JPanel(new BorderLayout()) {
@@ -53,13 +50,20 @@ public class SettingsDialog extends JDialog {
                 g2.dispose();
             }
         };
-        header.setBackground(SURFACE_COLOR);
-        header.setBorder(BorderFactory.createEmptyBorder(25, 30, 25, 30));
+        header.setBackground(dialogSurface());
+        header.setBorder(BorderFactory.createEmptyBorder(22, 30, 20, 30));
         
-        JLabel title = new JLabel("LEAGUE PARAMETERS");
+        JLabel title = new JLabel("League Settings");
         title.setFont(new Font("SansSerif", Font.BOLD, 20));
-        title.setForeground(Color.WHITE);
-        header.add(title, BorderLayout.WEST);
+        title.setForeground(DesktopTheme.textPrimary());
+        JLabel subtitle = new JLabel("Adjust career, simulation, and universe rules.");
+        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        subtitle.setForeground(DesktopTheme.textSecondary());
+        JPanel titleBlock = new JPanel(new BorderLayout(0, 4));
+        titleBlock.setOpaque(false);
+        titleBlock.add(title, BorderLayout.NORTH);
+        titleBlock.add(subtitle, BorderLayout.SOUTH);
+        header.add(titleBlock, BorderLayout.WEST);
         
         add(header, BorderLayout.NORTH);
 
@@ -69,35 +73,51 @@ public class SettingsDialog extends JDialog {
         content.setOpaque(false);
         content.setBorder(BorderFactory.createEmptyBorder(30, 35, 30, 35));
 
-        JCheckBox desktopDark = createStyledCheckBox("DARK MODE (DESKTOP SHELL)", DesktopTheme.isDark(), content);
+        JLabel displaySection = sectionLabel("Display");
+        content.add(displaySection);
+        content.add(Box.createVerticalStrut(8));
+        JCheckBox desktopDark = createStyledCheckBox("Dark mode", DesktopTheme.isDark(), content);
         content.add(Box.createVerticalStrut(12));
 
-        JCheckBox showPotential = createStyledCheckBox("SHOW PLAYER POTENTIAL", league.showPotential, content);
+        JLabel gameplaySection = sectionLabel("Gameplay");
+        content.add(gameplaySection);
+        content.add(Box.createVerticalStrut(8));
+        JCheckBox showPotential = createStyledCheckBox("Show player potential", league.showPotential, content);
         content.add(Box.createVerticalStrut(12));
-        JCheckBox fullLog = createStyledCheckBox("ENABLE DETAILED SIMULATION LOGS", league.fullGameLog, content);
+        JCheckBox fullLog = createStyledCheckBox("Detailed simulation logs", league.fullGameLog, content);
         content.add(Box.createVerticalStrut(12));
-        JCheckBox careerMode = createStyledCheckBox("ENABLE COACH CAREER MOVEMENT", league.careerMode, content);
+        JCheckBox careerMode = createStyledCheckBox("Coach career movement", league.careerMode, content);
         content.add(Box.createVerticalStrut(12));
-        JCheckBox neverRetire = createStyledCheckBox("INFINITE CAREER MODE (NO RETIREMENT)", league.neverRetire, content);
+        JCheckBox neverRetire = createStyledCheckBox("Infinite career mode", league.neverRetire, content);
         content.add(Box.createVerticalStrut(12));
-        JCheckBox enableTv = createStyledCheckBox("ENABLE TV CONTRACTS", league.enableTV, content);
+        JCheckBox enableTv = createStyledCheckBox("TV contracts", league.enableTV, content);
         content.add(Box.createVerticalStrut(12));
-        JCheckBox expandedPlayoffs = createStyledCheckBox("EXPANDED PLAYOFFS", league.expPlayoffs, content);
+
+        JLabel universeSection = sectionLabel("Universe Rules");
+        content.add(universeSection);
+        content.add(Box.createVerticalStrut(8));
+        JCheckBox expandedPlayoffs = createStyledCheckBox("Expanded playoffs", league.expPlayoffs, content);
         expandedPlayoffs.setEnabled(league.currentWeek < league.regSeasonWeeks);
+        if (!expandedPlayoffs.isEnabled()) {
+            expandedPlayoffs.setToolTipText("Expanded playoffs can only be changed before the regular season starts.");
+        }
         content.add(Box.createVerticalStrut(15));
-        JCheckBox confRealign = createStyledCheckBox("ENABLE CONFERENCE REALIGNMENT", league.confRealignment, content);
+        JCheckBox confRealign = createStyledCheckBox("Conference realignment", league.confRealignment, content);
         content.add(Box.createVerticalStrut(15));
-        JCheckBox advRealign = createStyledCheckBox("ADVANCED TRANSFERS & REALIGNMENT", league.advancedRealignment, content);
+        JCheckBox advRealign = createStyledCheckBox("Advanced transfers and realignment", league.advancedRealignment, content);
         content.add(Box.createVerticalStrut(15));
-        JCheckBox universalProRel = createStyledCheckBox("UNIVERSAL PROMOTION / RELEGATION", league.enableUnivProRel, content);
+        JCheckBox universalProRel = createStyledCheckBox("Universal promotion / relegation", league.enableUnivProRel, content);
         universalProRel.setEnabled(league.currentWeek == 0);
+        if (!universalProRel.isEnabled()) {
+            universalProRel.setToolTipText("Promotion/relegation conversion is locked after Week 0.");
+        }
         wireMutuallyExclusiveLeagueModes(confRealign, advRealign, universalProRel);
 
         content.add(Box.createVerticalGlue());
 
         JLabel hint = new JLabel("<html><body style='width: 390px;'><i>Settings are applied immediately to the active universe. Expanded playoffs and promotion/relegation can only be changed before the regular season starts. Save your league to persist these changes.</i></body></html>");
         hint.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        hint.setForeground(TEXT_SECONDARY);
+        hint.setForeground(DesktopTheme.textSecondary());
         hint.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
         content.add(hint);
 
@@ -109,10 +129,10 @@ public class SettingsDialog extends JDialog {
 
         // Bottom Bar
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 20));
-        bottom.setBackground(SURFACE_COLOR);
+        bottom.setBackground(dialogSurface());
         bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(255, 255, 255, 20)));
         
-        JButton cancelBtn = new JButton("DISCARD") {
+        JButton cancelBtn = new JButton("Cancel") {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -123,14 +143,14 @@ public class SettingsDialog extends JDialog {
                 g2.dispose();
             }
         };
-        cancelBtn.setForeground(TEXT_SECONDARY);
+        cancelBtn.setForeground(DesktopTheme.textSecondary());
         cancelBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
         cancelBtn.setContentAreaFilled(false);
         cancelBtn.setFocusPainted(false);
         cancelBtn.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
         cancelBtn.addActionListener(e -> dispose());
         
-        JButton applyBtn = new JButton("APPLY SETTINGS") {
+        JButton applyBtn = new JButton("Apply Settings") {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
@@ -211,10 +231,26 @@ public class SettingsDialog extends JDialog {
         return choice == JOptionPane.YES_OPTION;
     }
 
+    private static Color dialogBackground() {
+        return DesktopTheme.isDark() ? new Color(15, 20, 28) : DesktopTheme.windowBackground();
+    }
+
+    private static Color dialogSurface() {
+        return DesktopTheme.isDark() ? new Color(25, 32, 45) : new Color(246, 248, 251);
+    }
+
+    private static JLabel sectionLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(new Font("SansSerif", Font.BOLD, 12));
+        label.setForeground(DesktopTheme.textSecondary());
+        label.setBorder(BorderFactory.createEmptyBorder(8, 0, 0, 0));
+        return label;
+    }
+
     private JCheckBox createStyledCheckBox(String label, boolean selected, JPanel container) {
         JCheckBox cb = new JCheckBox(label, selected);
         cb.setFont(new Font("SansSerif", Font.BOLD, 13));
-        cb.setForeground(Color.WHITE);
+        cb.setForeground(DesktopTheme.textPrimary());
         cb.setOpaque(false);
         cb.setFocusPainted(false);
         cb.setIcon(new javax.swing.ImageIcon() {
@@ -223,7 +259,7 @@ public class SettingsDialog extends JDialog {
             @Override public void paintIcon(Component c, Graphics g, int x, int y) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(60, 75, 95));
+                g2.setColor(DesktopTheme.isDark() ? new Color(60, 75, 95) : new Color(166, 176, 190));
                 g2.drawRoundRect(x, y, 17, 17, 4, 4);
                 g2.dispose();
             }

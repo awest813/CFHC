@@ -60,7 +60,8 @@ public class NewGameWizard extends JDialog {
     public NewGameWizard(JFrame owner, DesktopResourceProvider resources) {
         super(owner, "New Game", true);
         this.resources = resources;
-        setSize(700, 520);
+        setSize(760, 660);
+        setMinimumSize(new Dimension(720, 600));
         setLayout(new BorderLayout());
         getContentPane().setBackground(DesktopTheme.windowBackground());
         showPrestigeModePage();
@@ -82,7 +83,14 @@ public class NewGameWizard extends JDialog {
         JLabel title = new JLabel("New Game Settings");
         title.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
         title.setForeground(DesktopTheme.textPrimary());
-        page.add(title, BorderLayout.NORTH);
+        JLabel subtitle = new JLabel("Choose your universe rules first, then pick a program.");
+        subtitle.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
+        subtitle.setForeground(DesktopTheme.textSecondary());
+        JPanel titleBlock = new JPanel(new BorderLayout(0, 4));
+        titleBlock.setOpaque(false);
+        titleBlock.add(title, BorderLayout.NORTH);
+        titleBlock.add(subtitle, BorderLayout.SOUTH);
+        page.add(titleBlock, BorderLayout.NORTH);
 
         JPanel optionsPanel = new JPanel(new GridLayout(0, 1, 6, 8));
         optionsPanel.setOpaque(true);
@@ -171,6 +179,7 @@ public class NewGameWizard extends JDialog {
         JScrollPane optScroll = new JScrollPane(optionsPanel);
         optScroll.setBorder(null);
         optScroll.getViewport().setBackground(DesktopTheme.windowBackground());
+        optScroll.getVerticalScrollBar().setUnitIncrement(18);
         page.add(optScroll, BorderLayout.CENTER);
 
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -179,7 +188,8 @@ public class NewGameWizard extends JDialog {
         JButton cancelBtn = new JButton("Cancel");
         cancelBtn.addActionListener(e -> dispose());
 
-        JButton nextBtn = new JButton("Next \u25B6");
+        JButton nextBtn = new JButton("Next: Select Team \u25B6");
+        nextBtn.setToolTipText("Create the league with these options and choose your school.");
         nextBtn.addActionListener(e -> {
             NewGameOptions options = new NewGameOptions();
             if (randomBtn.isSelected()) options.mode = PrestigeMode.RANDOMIZE;
