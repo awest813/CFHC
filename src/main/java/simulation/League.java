@@ -1213,7 +1213,7 @@ public class League {
         java.util.ArrayList<LeagueRecord.GameRecord> out = new java.util.ArrayList<>();
         int slot = 0;
         for (Team t : teamList) {
-            for (Game g : t.gameSchedule) {
+            for (Game g : t.getGameSchedule()) {
                 if (g == null || seen.put(g, Boolean.TRUE) != null) {
                     continue;
                 }

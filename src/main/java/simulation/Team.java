@@ -5726,6 +5726,13 @@ public class Team {
     }
 
     /**
+     * Clear out-of-conference opponents.
+     */
+    public void clearOocTeams() {
+        oocTeams.clear();
+    }
+
+    /**
      * Get an unmodifiable view of out-of-conference weeks.
      */
     public java.util.List<Integer> getOocWeeks() {
@@ -5737,6 +5744,13 @@ public class Team {
      */
     public void addOocWeek(int week) {
         oocWeeks.add(week);
+    }
+
+    /**
+     * Clear out-of-conference weeks.
+     */
+    public void clearOocWeeks() {
+        oocWeeks.clear();
     }
 
     /**
