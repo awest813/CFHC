@@ -56,6 +56,18 @@ public class RecruitingSessionDataTest {
         assertTrue(costHigh < costLow);
     }
 
+    @Test
+    public void fromUserTeamInfo_ignoresRecruitingTerminator() {
+        RecruitingSessionData session = RecruitingSessionData.fromUserTeamInfo(
+                "Big East,Test U,TST,5,75%\n"
+                        + "END_TEAM_INFO%\n"
+                        + "QB,Casey Arm,1,45,70,75,5,false,false,90,80,80,40,A,B,C,D,72,200,80,F%\n"
+                        + "END_RECRUITS%\n");
+
+        assertEquals(1, session.availAll.size());
+        assertEquals("Casey Arm", session.availAll.get(0).name());
+    }
+
     private static int expectedScoutCost(int recruitCost, int coachTalent) {
         int base = Math.max(10, recruitCost / 10);
         int talentDiscount = Math.min(8, coachTalent / 12);

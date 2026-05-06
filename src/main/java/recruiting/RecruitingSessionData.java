@@ -150,14 +150,17 @@ public final class RecruitingSessionData {
         );
 
         int i = 1;
-        while (!lines[i].equals("END_TEAM_INFO")) {
+        while (i < lines.length && !lines[i].equals("END_TEAM_INFO")) {
             session.addExistingPlayer(lines[i]);
             ++i;
         }
 
         ++i;
         while (i < lines.length) {
-            session.addRecruit(lines[i]);
+            String line = lines[i].trim();
+            if (!line.isEmpty() && !line.equals("END_RECRUITS")) {
+                session.addRecruit(line);
+            }
             ++i;
         }
 

@@ -102,7 +102,7 @@ public final class RecruitingPresentation {
                     "\nRun Stop: " + getGrade(player.rat4());
         }
 
-        return "ERROR";
+        return "Home State: " + getRegion(player.regionCode());
     }
 
     public static String buildPotentialDetails(RecruitingPlayerRecord recruit) {
@@ -115,13 +115,14 @@ public final class RecruitingPresentation {
 
     public static String buildRecruitConfirmMessage(RecruitingSessionData sessionData, int maxPlayers, RecruitingPlayerRecord recruit) {
         int currentRoster = sessionData.teamPlayers.size() + sessionData.playersRecruited.size();
-        return "Your team roster is at " + currentRoster + " (Max: " + maxPlayers + ").\n\nAre you sure you want to recruit " +
-                recruit.stars() + "-Star " + recruit.position() + " " + recruit.name() + " for $" + recruit.cost() + "?";
+        return "Your projected roster is at " + currentRoster + " (max: " + maxPlayers + ").\n\nRecruit "
+                + recruit.stars() + "-star " + recruit.position() + " " + recruit.name()
+                + " for $" + recruit.cost() + "?";
     }
 
     public static String buildExitConfirmMessage(List<String> positions) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Are you sure you are done recruiting? Any unfilled positions will be filled by walk-ons.\n\n");
+        sb.append("Finish recruiting and sign this class? Any unfilled positions will be filled by walk-ons.\n\n");
         for (int i = 2; i < positions.size() - 5; ++i) {
             sb.append("\t\t").append(positions.get(i)).append("\n");
         }
@@ -166,6 +167,9 @@ public final class RecruitingPresentation {
 
 
     private static String getRegion(int region) {
+        if (region < 0 || region >= STATES.length) {
+            return "Unknown";
+        }
         return STATES[region];
     }
 

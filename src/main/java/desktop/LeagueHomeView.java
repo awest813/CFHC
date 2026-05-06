@@ -1278,12 +1278,12 @@ public class LeagueHomeView extends JFrame {
                 activeRecruitingSession = SimulationFacade.prepareRecruitingSession(leagueCore.userTeam);
             }
             boolean finalSigning = bridge.isAwaitingDockedRecruiting();
-            String buttonText = finalSigning ? "Finish Recruiting" : "Save Recruiting Progress";
-            String title = finalSigning ? "Finish Recruiting?" : "Save Recruiting Progress?";
+            String buttonText = finalSigning ? "Finish Recruiting" : "Keep Recruiting Progress";
+            String title = finalSigning ? "Finish Recruiting?" : "Keep Recruiting Progress?";
             String message = finalSigning ? null
                     : "Keep working this recruiting board during the season?\n\n"
-                    + "Your commitments stay here and will sign when final recruiting begins. "
-                    + "They will not join the active roster during the regular season.";
+                    + "Your commitments stay in this open desktop session and will sign when final recruiting begins. "
+                    + "They will not join the active roster during the regular season or persist after closing the app.";
             RecruitingPanel panel = new RecruitingPanel(leagueCore, activeRecruitingSession,
                     buttonText, title, message, data -> SwingUtilities.invokeLater(() -> {
                 if (!bridge.isAwaitingDockedRecruiting()) {
@@ -1291,7 +1291,7 @@ public class LeagueHomeView extends JFrame {
                     JOptionPane.showMessageDialog(this,
                             DesktopTheme.messageForDialog(
                                     "Recruiting progress is saved on this board.\n"
-                                            + "Return before final recruiting to keep working the class."),
+                                            + "Keep this desktop window open and return before final recruiting to keep working the class."),
                             "Recruiting Progress",
                             JOptionPane.INFORMATION_MESSAGE);
                     selectScreen("Home");

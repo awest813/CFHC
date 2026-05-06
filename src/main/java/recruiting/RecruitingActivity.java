@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.TypedValue;
@@ -25,18 +24,14 @@ import android.widget.Toast;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Random;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import antdroid.cfbcoach.GameNavigation;
 import antdroid.cfbcoach.PlatformUiHelper;
-import simulation.LeagueLaunchCoordinator;
 import antdroid.cfbcoach.R;
 import simulation.RosterRules;
 
@@ -212,19 +207,6 @@ public class RecruitingActivity extends AppCompatActivity {
         playersInfo = controller.buildPlayersInfoMap(players, position, positionLabel);
     }
 
-    //FILTERS & SORTINGS
-    private void removeUnaffordableRecruits() {
-        sessionData.removeUnaffordableRecruits();
-        dataAdapterPosition.notifyDataSetChanged();
-    }
-
-    //REMOVE RECRUITS OFF THE BOARD
-    private void removeRecruits() {
-        sessionData.removeRandomRecruits(sessionData.recruitOffBoard, new Random());
-        dataAdapterPosition.notifyDataSetChanged();
-    }
-
-
     //Update Position Spinner & Team Needs
     private void updatePositionNeeds() {
         RecruitingSessionData.PositionNeeds needs = buildPositionNeeds();
@@ -274,7 +256,6 @@ public class RecruitingActivity extends AppCompatActivity {
         refreshCurrentBoard();
     }
 
-    //SCOUT PLAYER - created by Achi Jones - never used
     private boolean scoutPlayer(RecruitingPlayerRecord recruit) {
         if (controller.scoutPlayer(recruit)) {
             Toast.makeText(this, "Scouted " + recruit.position() + " " + recruit.name(), Toast.LENGTH_SHORT).show();
@@ -285,19 +266,9 @@ public class RecruitingActivity extends AppCompatActivity {
             refreshCurrentBoard();
             return true;
         } else {
-            Toast.makeText(this, "Not enough money!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Not enough budget to scout this player.", Toast.LENGTH_SHORT).show();
             return false;
         }
-    }
-
-
-    private void sortTeam() {
-        sessionData.sortTeamByOverall();
-    }
-
-    //PLAYER DISPLAY INFO
-    private String getReadablePlayerInfo(RecruitingPlayerRecord p) {
-        return sessionData.getReadablePlayerInfo(p);
     }
 
     private void updateBudgetText() {
@@ -328,12 +299,6 @@ public class RecruitingActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Converts player string into '$500 QB A. Name, Overall: 89' or similar
-     */
-    /**
-     * Used for parsing through string to get cost
-     */
     public int getRecruitCost(RecruitingPlayerRecord p) {
         return controller.getSessionData().getRecruitCost(p);
     }
@@ -344,13 +309,6 @@ public class RecruitingActivity extends AppCompatActivity {
      */
     private void exitRecruiting() {
         RecruitingDialogController.showExitConfirmDialog(this, positions, controller);
-    }
-
-    /**
-     * Gets all the recruits in a string to send back to MainActivity to be added to user team
-     */
-    private String getRecruitsStr() {
-        return sessionData.buildRecruitsSaveData();
     }
 
     private RecruitingSessionData.PositionNeeds buildPositionNeeds() {
@@ -404,7 +362,15 @@ public class RecruitingActivity extends AppCompatActivity {
             details.setText(playerDetail);
             potential.setText(RecruitingPresentation.buildPotentialDetails(recruit));
 
-            // Set up Recruit and Redshirt buttons to display the right price
+            Button scoutPlayerButton = convertView.findViewById(R.id.buttonScoutPlayer);
+            scoutPlayerButton.setText("Scout");
+            scoutPlayerButton.setEnabled(!recruit.raw().endsWith(",T"));
+            scoutPlayerButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    scoutPlayer(recruit);
+                }
+            });
+
             Button recruitPlayerButton = convertView.findViewById(R.id.buttonRecruitPlayer);
 
             if (sessionData.teamPlayers.size() + sessionData.playersRecruited.size() < RosterRules.MAX_PLAYERS) {
@@ -424,6 +390,7 @@ public class RecruitingActivity extends AppCompatActivity {
                                 sessionData,
                                 recruit,
                                 groupPosition,
+                                players.size(),
                                 recruitList,
                                 expListAdapter,
                                 showPopUp

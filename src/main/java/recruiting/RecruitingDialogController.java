@@ -3,19 +3,13 @@ package recruiting;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.util.TypedValue;
-import android.view.View;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
-import antdroid.cfbcoach.GameNavigation;
 import antdroid.cfbcoach.PlatformUiHelper;
-import antdroid.cfbcoach.R;
-import simulation.LeagueLaunchCoordinator;
 import simulation.RosterRules;
 
 /**
@@ -31,7 +25,7 @@ public final class RecruitingDialogController {
      */
     public static void showDisplayOptions(final RecruitingActivity activity, final boolean autoFilter, final List<RecruitingPlayerRecord> players, final ExpandableListView recruitList, final RecruitingActivity.ExpandableListAdapterRecruiting expListAdapter) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("DISPLAY OPTIONS");
+        builder.setTitle("Board Options");
         
         String filter = autoFilter ? "Disable Auto-Remove Unaffordable Players" : "Enable Auto-Remove Unaffordable Players";
         final String[] sels = {"Expand All", "Collapse All", "Sort by Grade", "Sort by Cost", filter};
@@ -84,12 +78,12 @@ public final class RecruitingDialogController {
     /**
      * Show recruiting confirmation dialog
      */
-    public static void showRecruitConfirmDialog(final RecruitingActivity activity, final RecruitingSessionData sessionData, final RecruitingPlayerRecord recruit, final int groupPosition, final ExpandableListView recruitList, final RecruitingActivity.ExpandableListAdapterRecruiting expListAdapter, boolean showPopUp) {
+    public static void showRecruitConfirmDialog(final RecruitingActivity activity, final RecruitingSessionData sessionData, final RecruitingPlayerRecord recruit, final int groupPosition, final int groupCount, final ExpandableListView recruitList, final RecruitingActivity.ExpandableListAdapterRecruiting expListAdapter, boolean showPopUp) {
         int moneyNeeded = recruit.cost();
         
         if (sessionData.recruitingBudget < moneyNeeded) {
-            collapseForRefresh(recruitList, groupPosition, playersCount(sessionData));
-            Toast.makeText(activity, "Not enough money!", Toast.LENGTH_SHORT).show();
+            collapseForRefresh(recruitList, groupPosition, groupCount);
+            Toast.makeText(activity, "Not enough budget to recruit this player.", Toast.LENGTH_SHORT).show();
             recruitList.expandGroup(groupPosition);
             expListAdapter.notifyDataSetChanged();
             return;
@@ -121,7 +115,7 @@ public final class RecruitingDialogController {
 
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                collapseForRefresh(recruitList, groupPosition, playersCount(sessionData));
+                collapseForRefresh(recruitList, groupPosition, groupCount);
                 recruitList.expandGroup(groupPosition);
                 expListAdapter.notifyDataSetChanged();
                 dialog.cancel();
@@ -156,7 +150,7 @@ public final class RecruitingDialogController {
     }
 
     private static void performRecruit(RecruitingActivity activity, RecruitingSessionData sessionData, RecruitingPlayerRecord recruit, int groupPosition, ExpandableListView recruitList, RecruitingActivity.ExpandableListAdapterRecruiting expListAdapter) {
-        collapseForRefresh(recruitList, groupPosition, playersCount(sessionData));
+        collapseForRefresh(recruitList, groupPosition, expListAdapter.getGroupCount());
         activity.recruitPlayer(recruit);
         expListAdapter.notifyDataSetChanged();
     }
@@ -169,9 +163,4 @@ public final class RecruitingDialogController {
         }
     }
 
-    private static int playersCount(RecruitingSessionData sessionData) {
-        // This is a bit hacky because we don't have direct access to 'players' list here without passing it.
-        // But we can approximate or pass it if needed.
-        return 1000; // Large enough to cover all groups for now, or we can pass the actual list size.
-    }
 }
