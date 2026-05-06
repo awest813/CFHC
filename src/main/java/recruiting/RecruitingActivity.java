@@ -60,7 +60,7 @@ public class RecruitingActivity extends AppCompatActivity {
     private Spinner positionSpinner;
     private ExpandableListView recruitList;
     private ArrayList<String> positions;
-    private ArrayAdapter dataAdapterPosition;
+    private ArrayAdapter<String> dataAdapterPosition;
     private ExpandableListAdapterRecruiting expListAdapter;
     public Map<String, List<String>> playersInfo;
     public List<RecruitingPlayerRecord> players;

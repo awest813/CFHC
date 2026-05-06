@@ -3712,56 +3712,56 @@ public class Game implements Serializable {
             homePassingStats.add(x[i]);
         }
 
-        ArrayList<String> awayPassingStats = new ArrayList();
+        ArrayList<String> awayPassingStats = new ArrayList<>();
         x = save[9].split("%");
         for (int i = 0; i < x.length; i++) {
             awayPassingStats.add(x[i]);
         }
 
-        ArrayList<String> homeRushingStats = new ArrayList();
+        ArrayList<String> homeRushingStats = new ArrayList<>();
         x = save[10].split("%");
         for (int i = 0; i < x.length; i++) {
             homeRushingStats.add(x[i]);
         }
 
-        ArrayList<String> awayRushingStats = new ArrayList();
+        ArrayList<String> awayRushingStats = new ArrayList<>();
         x = save[11].split("%");
         for (int i = 0; i < x.length; i++) {
             awayRushingStats.add(x[i]);
         }
 
-        ArrayList<String> homeReceivingStats = new ArrayList();
+        ArrayList<String> homeReceivingStats = new ArrayList<>();
         x = save[12].split("%");
         for (int i = 0; i < x.length; i++) {
             homeReceivingStats.add(x[i]);
         }
 
-        ArrayList<String> awayReceivingStats = new ArrayList();
+        ArrayList<String> awayReceivingStats = new ArrayList<>();
         x = save[13].split("%");
         for (int i = 0; i < x.length; i++) {
             awayReceivingStats.add(x[i]);
         }
 
-        ArrayList<String> homeDefenseStats = new ArrayList();
+        ArrayList<String> homeDefenseStats = new ArrayList<>();
         x = save[14].split("%");
         for (int i = 0; i < x.length; i++) {
             homeDefenseStats.add(x[i]);
         }
 
-        ArrayList<String> awayDefenseStats = new ArrayList();
+        ArrayList<String> awayDefenseStats = new ArrayList<>();
         x = save[15].split("%");
         for (int i = 0; i < x.length; i++) {
             awayDefenseStats.add(x[i]);
         }
 
-        ArrayList<String> homeKickingStats = new ArrayList();
+        ArrayList<String> homeKickingStats = new ArrayList<>();
         x = save[16].split("%");
         for (int i = 0; i < x.length; i++) {
             homeKickingStats.add(x[i]);
         }
 
 
-        ArrayList<String> awayKickingStats = new ArrayList();
+        ArrayList<String> awayKickingStats = new ArrayList<>();
         x = save[17].split("%");
         for (int i = 0; i < x.length; i++) {
             awayKickingStats.add(x[i]);
