@@ -162,7 +162,8 @@ public class RecruitingActivity extends AppCompatActivity {
           Set up expandable list view
          */
         recruitList = findViewById(R.id.recruitExpandList);
-        setPlayerList(0, "QB");
+        currentPosition = positions.isEmpty() ? "Top 50 Recruits" : positions.get(0);
+        setPlayerList(0, currentPosition);
         expListAdapter = new ExpandableListAdapterRecruiting(this);
         recruitList.setAdapter(expListAdapter);
 
@@ -244,11 +245,13 @@ public class RecruitingActivity extends AppCompatActivity {
     //SORT - GRADE(Default)
     public void sortByGrade() {
         controller.sortByGrade();
+        refreshCurrentBoard();
     }
 
     //SORT - COST
     public void sortByCost() {
         controller.sortByCost();
+        refreshCurrentBoard();
     }
 
     public void toggleAutoFilter() {
@@ -268,6 +271,7 @@ public class RecruitingActivity extends AppCompatActivity {
 
         updatePositionNeeds();
         updateBudgetText();
+        refreshCurrentBoard();
     }
 
     //SCOUT PLAYER - created by Achi Jones - never used
@@ -278,6 +282,7 @@ public class RecruitingActivity extends AppCompatActivity {
             expListAdapter.notifyDataSetChanged();
             updateRecruitingOverview();
             updateBudgetText();
+            refreshCurrentBoard();
             return true;
         } else {
             Toast.makeText(this, "Not enough money!", Toast.LENGTH_SHORT).show();
@@ -300,6 +305,27 @@ public class RecruitingActivity extends AppCompatActivity {
             budgetText.setText("Budget: $" + sessionData.recruitingBudget);
         }
         updateRecruitingOverview();
+    }
+
+    private void refreshCurrentBoard() {
+        int position = positionSpinner != null ? positionSpinner.getSelectedItemPosition() : 0;
+        if (position < 0) {
+            position = 0;
+        }
+        String label = currentPosition;
+        if (positionSpinner != null && positionSpinner.getSelectedItem() != null) {
+            label = positionSpinner.getSelectedItem().toString();
+        } else if (positions != null && position < positions.size()) {
+            label = positions.get(position);
+        }
+        if (label == null || label.isEmpty()) {
+            label = "Top 50 Recruits";
+        }
+        currentPosition = label;
+        setPlayerList(position, label);
+        if (expListAdapter != null) {
+            expListAdapter.notifyDataSetChanged();
+        }
     }
 
     /**

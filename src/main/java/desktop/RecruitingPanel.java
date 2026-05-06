@@ -47,8 +47,8 @@ public class RecruitingPanel extends JPanel {
 
     private final RecruitingController controller;
     private final RecruitingSessionData sessionData;
-    private final ArrayList<String> positionLabels;
     private final Consumer<String> onFinish;
+    private final ArrayList<String> positionLabels;
 
     private JComboBox<String> filterBox;
     private DefaultTableModel boardModel;
@@ -59,6 +59,7 @@ public class RecruitingPanel extends JPanel {
     private JTextArea rosterArea;
 
     private List<RecruitingPlayerRecord> currentList;
+    private boolean updatingFilterItems;
 
     /**
      * @param league   active league (CPU teams should already be auto-recruited)
@@ -109,7 +110,11 @@ public class RecruitingPanel extends JPanel {
         bar.add(filterLbl);
         filterBox = new JComboBox<>(positionLabels.toArray(new String[0]));
         filterBox.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
-        filterBox.addActionListener(e -> loadBoard(filterBox.getSelectedIndex()));
+        filterBox.addActionListener(e -> {
+            if (!updatingFilterItems) {
+                loadBoard(filterBox.getSelectedIndex());
+            }
+        });
         bar.add(filterBox);
 
         JButton sortGradeBtn = new JButton("Sort by Grade");
@@ -235,6 +240,9 @@ public class RecruitingPanel extends JPanel {
     }
 
     private void loadBoard(int filterIndex) {
+        if (filterIndex < 0 || filterIndex >= positionLabels.size()) {
+            return;
+        }
         String label = positionLabels.get(filterIndex);
         currentList = controller.getPlayersForPosition(filterIndex, label);
 
@@ -271,8 +279,11 @@ public class RecruitingPanel extends JPanel {
                         SimulationFacade.MIN_WRS, SimulationFacade.MIN_TES, SimulationFacade.MIN_OLS,
                         SimulationFacade.MIN_KS, SimulationFacade.MIN_DLS, SimulationFacade.MIN_LBS,
                         SimulationFacade.MIN_CBS, SimulationFacade.MIN_SS);
-        ArrayList<String> newLabels = sessionData.buildPositionLabels(currentNeeds);
         int sel = filterBox.getSelectedIndex();
+        ArrayList<String> newLabels = sessionData.buildPositionLabels(currentNeeds);
+        positionLabels.clear();
+        positionLabels.addAll(newLabels);
+        updatingFilterItems = true;
         filterBox.removeAllItems();
         for (String l : newLabels) {
             filterBox.addItem(l);
@@ -280,6 +291,7 @@ public class RecruitingPanel extends JPanel {
         if (sel >= 0 && sel < filterBox.getItemCount()) {
             filterBox.setSelectedIndex(sel);
         }
+        updatingFilterItems = false;
     }
 
     private void updateRoster() {
