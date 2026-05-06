@@ -1,6 +1,7 @@
 package desktop;
 
 import positions.Player;
+import recruiting.RecruitingSessionData;
 import simulation.Conference;
 import simulation.DataRecord;
 import simulation.Game;
@@ -13,6 +14,7 @@ import simulation.PlatformLog;
 import simulation.PlatformResourceProvider;
 import simulation.PlayerRecord;
 import simulation.SeasonController;
+import simulation.SimulationFacade;
 import simulation.Team;
 
 import javax.swing.BorderFactory;
@@ -150,6 +152,7 @@ public class LeagueHomeView extends JFrame {
     private JPanel mainContentCards;
     private CardLayout mainCardLayout;
     private JList<String> navigationList;
+    private RecruitingSessionData activeRecruitingSession;
 
     private JLabel statusLabel;
     private JLabel playedIndicator;
@@ -617,6 +620,7 @@ public class LeagueHomeView extends JFrame {
     private void startNewSeason() {
         bridge.clearNewSeasonPending();
         leagueCore.startNextSeason();
+        activeRecruitingSession = null;
         bridge = new DesktopUiBridge(this, leagueCore);
         controller = new SeasonController(leagueCore, bridge, NO_OP_FLOW);
         scoreboardWeek = 0;
@@ -1269,9 +1273,32 @@ public class LeagueHomeView extends JFrame {
         outer.setBackground(DesktopTheme.windowBackground());
         outer.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        if (bridge.isAwaitingDockedRecruiting()) {
-            RecruitingPanel panel = new RecruitingPanel(leagueCore, data -> SwingUtilities.invokeLater(() -> {
+        if (leagueCore.userTeam != null && leagueCore.userTeam.isUserControlled()) {
+            if (activeRecruitingSession == null) {
+                activeRecruitingSession = SimulationFacade.prepareRecruitingSession(leagueCore.userTeam);
+            }
+            boolean finalSigning = bridge.isAwaitingDockedRecruiting();
+            String buttonText = finalSigning ? "Finish Recruiting" : "Save Recruiting Progress";
+            String title = finalSigning ? "Finish Recruiting?" : "Save Recruiting Progress?";
+            String message = finalSigning ? null
+                    : "Keep working this recruiting board during the season?\n\n"
+                    + "Your commitments stay here and will sign when final recruiting begins. "
+                    + "They will not join the active roster during the regular season.";
+            RecruitingPanel panel = new RecruitingPanel(leagueCore, activeRecruitingSession,
+                    buttonText, title, message, data -> SwingUtilities.invokeLater(() -> {
+                if (!bridge.isAwaitingDockedRecruiting()) {
+                    markDirty();
+                    JOptionPane.showMessageDialog(this,
+                            DesktopTheme.messageForDialog(
+                                    "Recruiting progress is saved on this board.\n"
+                                            + "Return before final recruiting to keep working the class."),
+                            "Recruiting Progress",
+                            JOptionPane.INFORMATION_MESSAGE);
+                    selectScreen("Home");
+                    return;
+                }
                 bridge.completeDockedRecruiting(data);
+                activeRecruitingSession = null;
                 markDirty();
                 if (bridge.isNewSeasonPending()) {
                     startNewSeason();
@@ -1289,16 +1316,8 @@ public class LeagueHomeView extends JFrame {
         if (leagueCore.userTeam == null) {
             html = "<html><div style='width:520px'><b>No program selected.</b><br><br>"
                     + "Start or load a career with a team to run recruiting here.</div></html>";
-        } else if (!leagueCore.userTeam.isUserControlled()) {
-            html = "<html><div style='width:520px'>Recruiting is only available for user-controlled schools.</div></html>";
-        } else if (leagueCore.currentWeek >= leagueCore.regSeasonWeeks + 13) {
-            html = "<html><div style='width:520px'><b>NLI week is active.</b><br><br>"
-                    + "Press <b>Space</b> or use the header <b>Play</b> button once to load the signing board here. "
-                    + "CPU programs are processed when you do.</div></html>";
         } else {
-            html = "<html><div style='width:520px'>The interactive board opens here after realignment when you advance into "
-                    + "<b>signing week</b>. Use <b>Season \u2192 Show Recruiting</b> any time to jump back to this page."
-                    + "</div></html>";
+            html = "<html><div style='width:520px'>Recruiting is only available for user-controlled schools.</div></html>";
         }
         info.setText(html);
         info.setForeground(DesktopTheme.textPrimary());

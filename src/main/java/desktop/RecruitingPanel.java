@@ -49,6 +49,9 @@ public class RecruitingPanel extends JPanel {
     private final RecruitingSessionData sessionData;
     private final Consumer<String> onFinish;
     private final ArrayList<String> positionLabels;
+    private final String finishButtonText;
+    private final String finishDialogTitle;
+    private final String finishDialogMessage;
 
     private JComboBox<String> filterBox;
     private DefaultTableModel boardModel;
@@ -67,9 +70,17 @@ public class RecruitingPanel extends JPanel {
      *                 serialized recruit data (may be empty if they signed nobody)
      */
     public RecruitingPanel(League league, Consumer<String> onFinish) {
+        this(league, null, "Finish Recruiting", "Finish Recruiting?", null, onFinish);
+    }
+
+    public RecruitingPanel(League league, RecruitingSessionData existingSession, String finishButtonText,
+                           String finishDialogTitle, String finishDialogMessage, Consumer<String> onFinish) {
         super(new BorderLayout());
         this.onFinish = onFinish;
-        this.sessionData = buildSessionData(league.userTeam);
+        this.finishButtonText = finishButtonText;
+        this.finishDialogTitle = finishDialogTitle;
+        this.finishDialogMessage = finishDialogMessage;
+        this.sessionData = existingSession != null ? existingSession : buildSessionData(league.userTeam);
         GameFlowManager noOpFlow = new GameFlowManager() {
             @Override public void startNewGame(simulation.LeagueLaunchCoordinator.LaunchRequest.PrestigeMode p, String u) {}
             @Override public void loadGame(String s) {}
@@ -232,7 +243,7 @@ public class RecruitingPanel extends JPanel {
         bar.setOpaque(true);
         bar.setBackground(DesktopTheme.windowBackground());
 
-        JButton doneBtn = new JButton("Finish Recruiting");
+        JButton doneBtn = new JButton(finishButtonText);
         doneBtn.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 14));
         doneBtn.addActionListener(e -> finishRecruiting());
         bar.add(doneBtn);
@@ -392,10 +403,12 @@ public class RecruitingPanel extends JPanel {
     }
 
     private void finishRecruiting() {
-        String exitMsg = RecruitingPresentation.buildExitConfirmMessage(positionLabels);
+        String exitMsg = finishDialogMessage != null
+                ? finishDialogMessage
+                : RecruitingPresentation.buildExitConfirmMessage(positionLabels);
         int choice = JOptionPane.showConfirmDialog(this,
                 DesktopTheme.messageForDialog(exitMsg),
-                "Finish Recruiting?", JOptionPane.YES_NO_OPTION);
+                finishDialogTitle, JOptionPane.YES_NO_OPTION);
         if (choice != JOptionPane.YES_OPTION) {
             return;
         }
