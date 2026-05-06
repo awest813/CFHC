@@ -86,12 +86,12 @@ public class GameBoxScoreView extends JDialog {
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         String text;
         if ("BYE WEEK".equals(game.gameName)) {
-            text = "BYE WEEK\n\nNo game scheduled this week.";
+            text = "BYE WEEK\n\nNo game is scheduled for this team this week.";
         } else {
             text = "Upcoming Game\n\n"
                     + game.awayTeam.getName() + "  at  " + game.homeTeam.getName() + "\n\n"
                     + "Game type: " + game.gameName + "\n"
-                    + "This game has not been played yet.";
+                    + "Kickoff has not been simulated yet.";
         }
         JTextArea area = new JTextArea(text);
         area.setEditable(false);
@@ -117,6 +117,9 @@ public class GameBoxScoreView extends JDialog {
             if (s != null && !s.isEmpty()) {
                 sb.append(s).append("\n");
             }
+        }
+        if (sb.length() == 0) {
+            sb.append("No box score details are available yet.");
         }
 
         JTextArea area = new JTextArea(sb.toString());
@@ -182,6 +185,9 @@ public class GameBoxScoreView extends JDialog {
                 sb.append(s).append("\n\n");
             }
         }
+        if (sb.length() == 0) {
+            sb.append("No detailed stats are available yet.");
+        }
 
         JTextArea area = new JTextArea(sb.toString());
         area.setEditable(false);
@@ -201,6 +207,9 @@ public class GameBoxScoreView extends JDialog {
         panel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
         String pbp = game.getPlayByPlayLog();
+        if (pbp == null || pbp.isBlank()) {
+            pbp = "No play-by-play is available yet.";
+        }
         JTextArea area = new JTextArea(pbp);
         area.setEditable(false);
         area.setFont(MONO);

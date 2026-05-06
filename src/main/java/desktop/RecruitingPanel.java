@@ -40,7 +40,7 @@ import java.util.function.Consumer;
 public class RecruitingPanel extends JPanel {
 
     private static final String TAG = "RecruitingPanel";
-    private static final String[] BOARD_COLUMNS = {"Pos", "Name", "Stars", "Cost", "OVR"};
+    private static final String[] BOARD_COLUMNS = {"Pos", "Name", "Stars", "Cost", "Overall"};
     private static final Font MONO = new Font(Font.MONOSPACED, Font.PLAIN, 12);
 
     private static final int MAX_ROSTER_SIZE = 70;
@@ -104,7 +104,7 @@ public class RecruitingPanel extends JPanel {
         bar.setBackground(DesktopTheme.windowBackground());
         bar.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
 
-        JLabel filterLbl = new JLabel("Filter:");
+        JLabel filterLbl = new JLabel("Position:");
         filterLbl.setForeground(DesktopTheme.textPrimary());
         bar.add(filterLbl);
         filterBox = new JComboBox<>(positionLabels.toArray(new String[0]));
@@ -172,7 +172,7 @@ public class RecruitingPanel extends JPanel {
         rightPanel.setOpaque(true);
         rightPanel.setBackground(DesktopTheme.windowBackground());
 
-        detailArea = new JTextArea("Select a recruit to view details.");
+        detailArea = new JTextArea("Select a recruit to see scouting, cost, and roster fit.");
         detailArea.setEditable(false);
         detailArea.setFont(MONO);
         DesktopTheme.styleTextContent(detailArea);
@@ -249,6 +249,12 @@ public class RecruitingPanel extends JPanel {
             });
         }
 
+        if (currentList.isEmpty()) {
+            detailArea.setText("No recruits match this position. Try another position group or finish recruiting if your board is set.");
+        } else if (boardTable.getSelectedRow() < 0) {
+            detailArea.setText("Select a recruit to see scouting, cost, and roster fit.");
+        }
+
         updateLabels();
         updateRoster();
     }
@@ -289,7 +295,7 @@ public class RecruitingPanel extends JPanel {
     private void showRecruitDetail() {
         int viewRow = boardTable.getSelectedRow();
         if (viewRow < 0 || currentList == null) {
-            detailArea.setText("Select a recruit to view details.");
+            detailArea.setText("Select a recruit to see scouting, cost, and roster fit.");
             return;
         }
         int modelRow = boardTable.convertRowIndexToModel(viewRow);

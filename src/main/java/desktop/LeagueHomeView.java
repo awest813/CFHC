@@ -428,8 +428,8 @@ public class LeagueHomeView extends JFrame {
         playWeekBtn.setToolTipText("Simulate the next week (Space)");
         playWeekBtn.addActionListener(e -> playWeek());
 
-        JButton advanceBtn = new JButton("Simulate to Post-Season");
-        advanceBtn.setToolTipText("Advance through the remaining regular season games.");
+        JButton advanceBtn = new JButton("Simulate to Postseason");
+        advanceBtn.setToolTipText("Advance through the remaining regular-season games.");
         advanceBtn.addActionListener(e -> simulateToPostSeason(leagueCore.regSeasonWeeks));
         advanceBtn.setEnabled(leagueCore.currentWeek < leagueCore.regSeasonWeeks);
 
@@ -1007,7 +1007,7 @@ public class LeagueHomeView extends JFrame {
 
                 Season
                   Space          Play next week / advance phase
-                  Ctrl+A         Simulate regular season through post-season
+                  Ctrl+A         Simulate regular season through postseason
                   Ctrl+Shift+A   Advance through offseason (stops at recruiting)
 
                 Recruiting
@@ -2565,8 +2565,8 @@ public class LeagueHomeView extends JFrame {
         int reg = leagueCore.regSeasonWeeks;
         if (wk <= 0) return "Pre-Season";
         if (wk <= reg) return "Regular Season";
-        if (wk <= reg + 3) return "Post-Season";
-        return "Off-Season";
+        if (wk <= reg + 3) return "Postseason";
+        return "Offseason";
     }
 
     // =========================================================================

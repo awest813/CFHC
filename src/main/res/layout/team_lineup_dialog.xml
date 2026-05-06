@@ -18,7 +18,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:text="Minimum Players"
+        android:text="Minimum Active Players"
         android:textAlignment="center"
         android:textColor="@color/textPrimary"
         android:textSize="14sp"
@@ -31,7 +31,7 @@
         android:layout_marginTop="8dp"
         android:background="@drawable/bg_dialog_section"
         android:padding="12dp"
-        android:text="[Yr] Ovr/Pot (Str, Acc, Eva)"
+        android:text="Format: [Year] OVR/POT (key position ratings)"
         android:textColor="@color/textSecondary"
         android:textSize="12sp" />
 
@@ -52,7 +52,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
-        android:text="More playing time means more improvement."
+        android:text="Players higher on the depth chart get more snaps and development chances."
         android:textAlignment="center"
         android:textColor="@color/textMuted"
         android:textSize="12sp" />
@@ -71,7 +71,7 @@
             android:layout_marginEnd="6dp"
             android:layout_weight="1"
             android:background="@drawable/bg_action_secondary"
-            android:text="Save Lineup"
+            android:text="Save Depth Chart"
             android:textAllCaps="false"
             android:textColor="@color/textPrimary"
             android:textStyle="bold" />
@@ -83,7 +83,7 @@
             android:layout_marginStart="6dp"
             android:layout_weight="1"
             android:background="@drawable/bg_action_primary"
-            android:text="Done"
+            android:text="Close"
             android:textAllCaps="false"
             android:textColor="@color/colorPrimaryDark"
             android:textStyle="bold" />

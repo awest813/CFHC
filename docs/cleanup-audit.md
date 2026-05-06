@@ -124,6 +124,17 @@ For each gameplay loop, verify expected behavior, capture edge cases, add or fix
 - [x] Verify `runDesktop -PdesktopArgs="new"`.
 - [x] Verify a save created through the shared engine can be loaded through the shared engine/facade where intended.
 
+## Phase 6: Gameplay Polish
+
+- [x] Replaced placeholder Android activity titles and tutorial copy with player-facing labels.
+- [x] Clarified Android depth chart instructions, save/close actions, and recruiting roster-needs wording.
+- [x] Added small-screen clipping guards to Android schedule, recruiting header/chips, recruiting actions, and box-score header rows.
+- [x] Tightened Android box-score labels and stat headings for scanning.
+- [x] Harmonized desktop postseason/offseason wording and clarified schedule/depth-chart labels.
+- [x] Improved desktop recruiting and box-score empty states.
+- [ ] Run emulator/device visual smoke for small-screen Android clipping.
+- [ ] Do a hands-on desktop pass for keyboard traversal and dialog resizing beyond compile/build verification.
+
 ## Findings
 
 - Current baseline is green, but the worktree is intentionally not clean.
@@ -132,3 +143,4 @@ For each gameplay loop, verify expected behavior, capture edge cases, add or fix
 - Desktop launch is verified by process responsiveness, not UI automation.
 - Phase 4 boundary scan found Android dependencies only in known Android UI packages plus `recruiting.RecruitingActivity` and `recruiting.RecruitingDialogController`.
 - Gradle `runDesktop -PdesktopArgs="new"` launched `desktop.Main new` and stayed responsive; launched CFHC desktop processes were stopped afterward to avoid build file locks.
+- Phase 6 static polish reduced obvious placeholder/debug copy and added clipping guards, but visual device/emulator QA is still outstanding.

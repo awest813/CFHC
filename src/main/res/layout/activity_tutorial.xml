@@ -20,7 +20,7 @@
         android:layout_width="fill_parent"
         android:layout_height="0dip"
         android:layout_weight="1"
-        android:text="FBC Basics"
+        android:text="CFHC Basics"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:gravity="center"
         android:id="@+id/tutorialTitle" />
@@ -33,7 +33,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:text="this is a test of the emergency broadcast system!"
+            android:text="Choose a topic to review coaching, recruiting, and game-day fundamentals."
             android:id="@+id/tutorialContent" />
     </ScrollView>
 

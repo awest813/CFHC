@@ -39,7 +39,7 @@ import java.util.List;
 public class TeamDetailView extends JDialog {
 
     private static final String[] ROSTER_COLUMNS   = {"Pos", "Name", "Yr", "OVR", "Pot", "IQ"};
-    private static final String[] SCHEDULE_COLUMNS = {"Wk", "Opponent", "Home/Away", "Result"};
+    private static final String[] SCHEDULE_COLUMNS = {"Wk", "Opponent", "Site", "Result"};
     private static final String[] HISTORY_COLUMNS  = {"Season", "Record", "Final Rank", "Pts For \u2013 Pts Against"};
     private static final String[] RECORDS_COLUMNS  = {"Record", "Value", "Holder", "Year"};
     private static final String[] DEPTH_COLUMNS    = {"Depth", "Pos", "Name", "Yr", "OVR"};
@@ -247,7 +247,7 @@ public class TeamDetailView extends JDialog {
     private String formatResult(Game g, Team viewer) {
         if ("BYE WEEK".equals(g.gameName) || !g.hasPlayed) {
             if ("BYE WEEK".equals(g.gameName)) return "\u2014";
-            return "scheduled";
+            return "Scheduled";
         }
         int forScore = g.homeTeam == viewer ? g.homeScore : g.awayScore;
         int againstScore = g.homeTeam == viewer ? g.awayScore : g.homeScore;
@@ -327,7 +327,7 @@ public class TeamDetailView extends JDialog {
 
             buttonPanel.add(upBtn);
             buttonPanel.add(downBtn);
-            buttonPanel.add(new JLabel("  Select a row and use the buttons to reorder the depth chart."));
+            buttonPanel.add(new JLabel("  Select a player, then promote or demote one depth-chart slot."));
             wrapper.add(buttonPanel, BorderLayout.SOUTH);
         }
 

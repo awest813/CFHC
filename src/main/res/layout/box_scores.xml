@@ -30,8 +30,8 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingEnd="30dp"
-                android:paddingStart="30dp"
+                android:paddingEnd="16dp"
+                android:paddingStart="16dp"
                 android:paddingTop="10dp">
 
                 <TextView
@@ -40,10 +40,11 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1.0"
                     android:gravity="center"
+                    android:maxLines="1"
                     android:text="XX"
                     android:textAlignment="gravity"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textSize="40sp"
+                    android:textSize="34sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -52,10 +53,11 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="0.5"
                     android:gravity="center"
+                    android:maxLines="1"
                     android:text="-"
                     android:textAlignment="gravity"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textSize="40sp"
+                    android:textSize="34sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -64,10 +66,11 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1.0"
                     android:gravity="center"
+                    android:maxLines="1"
                     android:text="XX"
                     android:textAlignment="gravity"
                     android:textAppearance="?android:attr/textAppearanceLarge"
-                    android:textSize="40sp"
+                    android:textSize="34sp"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -75,16 +78,18 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingEnd="30dp"
-                android:paddingStart="30dp">
+                android:paddingEnd="16dp"
+                android:paddingStart="16dp">
 
                 <TextView
                     android:id="@+id/gameDialogScoreAwayName"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1.0"
+                    android:ellipsize="end"
                     android:gravity="center"
-                    android:text="AWAY TEAM"
+                    android:maxLines="2"
+                    android:text="Away"
                     android:textAlignment="gravity"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textStyle="bold" />
@@ -103,8 +108,10 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1.0"
+                    android:ellipsize="end"
                     android:gravity="center"
-                    android:text="HOME TEAM"
+                    android:maxLines="2"
+                    android:text="Home"
                     android:textAlignment="gravity"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textStyle="bold" />
@@ -785,7 +792,7 @@
                                 android:layout_width="50dp"
                                 android:layout_height="wrap_content"
                                 android:padding="2dp"
-                                android:text="Yds/Cat"
+                                android:text="Yds/Rec"
                                 android:textSize="12sp" />
 
                             <TextView
@@ -902,7 +909,7 @@
                 android:gravity="center"
                 android:paddingEnd="3dp"
                 android:paddingStart="3dp"
-                android:text="Play by Play"
+                android:text="Play-by-Play"
                 android:textAlignment="gravity"
                 android:textAppearance="?android:attr/textAppearanceSmall" />
         </LinearLayout>
