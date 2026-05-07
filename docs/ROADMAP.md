@@ -36,27 +36,27 @@ These two activities import each other. It is the single biggest blocker for run
 
 ---
 
-### 3. 🔲 Decompose `League` and `Team` God Objects
+### 3. 🔄 Decompose `League` and `Team` God Objects
 
 `League.java` — 6,485 LOC · 109 public methods · 46 public mutable fields.
 `Team.java` — 5,487 LOC · 31 public mutable fields.
 
 **Actions (incremental — do not rewrite in one pass):**
 - Extract record-keeping → `LeagueRecordKeeper` / `TeamRecords` *(partially done — `TeamRecords.java` and `LeagueRecords.java` exist)*.
-- Extract stat aggregation → `LeagueStats` / `TeamStats`.
-- Make internal collections `private`; expose via unmodifiable getters.
+- ~~Extract stat aggregation → `LeagueStats` / `TeamStats`.~~ ✅ Done — `LeagueStats.java` and `TeamStats.java` created; `League` and `Team` delegate to them.
+- ~~Make internal collections `private`; expose via unmodifiable getters.~~ ✅ Done — all `ArrayList` fields on `League` and `Team` are now `private`; existing Phase 2 accessors return unmodifiable views.
 - Move scheduling logic → `ScheduleManager`.
 
 ---
 
-### 4. 🔲 Encapsulate public mutable collections
+### 4. ✅ Encapsulate public mutable collections
 
 Dozens of `public ArrayList<…>` fields on `League` and `Team` let callers bypass all validation.
 
 **Actions:**
-- Change fields to `private`.
-- Add `getXxx()` returning `Collections.unmodifiableList(…)`.
-- Add explicit mutation methods (`addPlayer`, `removePlayer`, etc.) where the list must change.
+- ~~Change fields to `private`.~~ ✅ Done — all collection fields are now `private`.
+- ~~Add `getXxx()` returning `Collections.unmodifiableList(…)`.~~ ✅ Done — Phase 2 accessors already existed; all callers updated to use them.
+- ~~Add explicit mutation methods (`addPlayer`, `removePlayer`, etc.) where the list must change.~~ ✅ Done — added `clearOocTeams()`, `clearOocWeeks()` and other mutation methods.
 
 ---
 
@@ -96,14 +96,14 @@ Slot persistence used to be wired directly through `MainActivity`, which made re
 
 ---
 
-### 8. 🔲 Add null-safety annotations and checks
+### 8. 🔄 Add null-safety annotations and checks
 
 Critical paths (e.g., `findConference()` return values, roster lookups) lack null checks and crash without meaningful diagnostics.
 
 **Actions:**
 - Annotate public API methods with `@Nullable` / `@NonNull`.
-- Add `Objects.requireNonNull()` guards at key entry points.
-- Fix the highest-risk call sites identified during the audit.
+- ~~Add `Objects.requireNonNull()` guards at key entry points.~~ ✅ Done — added to `League.findConference()`, `Team` constructor, `Team.findTeamPlayer()`.
+- ~~Fix the highest-risk call sites identified during the audit.~~ ✅ Done — `findConference()` no longer silently returns `conferences.get(0)` as fallback; returns `null` with `Objects.requireNonNull(name)`.
 
 ---
 

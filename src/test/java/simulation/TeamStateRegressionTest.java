@@ -107,6 +107,30 @@ public class TeamStateRegressionTest {
         assertTrue(league.getAverageDefTalent() > 0);
     }
 
+    @Test
+    public void rpiAndSosPollScore_countPlayedRegularSeasonGames() {
+        Team opponent = league.getTeamList().get(1);
+        Game game = new Game(team, opponent, "OOC");
+        game.homeScore = 28;
+        game.awayScore = 21;
+        game.hasPlayed = true;
+
+        league.currentWeek = 7;
+        league.countTeam = league.getTeamList().size();
+        team.wins = 1;
+        team.losses = 0;
+        opponent.wins = 0;
+        opponent.losses = 1;
+        opponent.rankTeamPollScore = 10;
+
+        team.clearGameSchedule();
+        team.addGameToSchedule(game);
+        team.addGameWinAgainst(opponent);
+
+        assertTrue("RPI should include the weighted home win component", team.getRPI() > 0);
+        assertTrue("SOS poll score should include the played opponent ranking", team.getSOSPollScore() > 0);
+    }
+
     private static <T> void assertUnmodifiable(List<T> view) {
         try {
             view.clear();

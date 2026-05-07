@@ -30,6 +30,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * Interactive dialog for coaching job offers during the offseason.
@@ -165,9 +166,9 @@ public class JobOffersDialog extends JDialog {
 
         for (Team t : vacancies) {
             model.addRow(new Object[]{
-                    t.getName().toUpperCase(),
+                    t.getName().toUpperCase(Locale.ROOT),
                     t.getTeamPrestige(),
-                    t.getConference().toUpperCase(),
+                    t.getConference().toUpperCase(Locale.ROOT),
                     DF.format(t.getTeamOffTalent()),
                     DF.format(t.getTeamDefTalent()),
                     t.getMinCoachHireReq()
@@ -321,11 +322,11 @@ public class JobOffersDialog extends JDialog {
         String direction = prestigeDelta > 0 ? "+" : "";
 
         StringBuilder sb = new StringBuilder();
-        sb.append("PROGRAM SNAPSHOT: ").append(team.getName().toUpperCase()).append("\n");
+        sb.append("PROGRAM SNAPSHOT: ").append(team.getName().toUpperCase(Locale.ROOT)).append("\n");
         sb.append("=".repeat(45)).append("\n\n");
         sb.append("PRESTIGE: #").append(team.getRankTeamPrestige())
           .append(" (").append(team.getTeamPrestige()).append(")\n");
-        sb.append("CONFERENCE: ").append(team.getConference().toUpperCase())
+        sb.append("CONFERENCE: ").append(team.getConference().toUpperCase(Locale.ROOT))
           .append(" (CONF PRESTIGE: ").append(team.getConfPrestige()).append(")\n\n");
         sb.append("ROSTER EVALUATION:\n");
         sb.append("  OFFENSIVE TALENT: ").append(DF.format(team.getTeamOffTalent())).append("\n");
@@ -341,7 +342,7 @@ public class JobOffersDialog extends JDialog {
         String[] roster = team.getTeamRosterString();
         if (roster != null) {
             for (String s : roster) {
-                if (s != null) sb.append(s.toUpperCase()).append("\n");
+                if (s != null) sb.append(s.toUpperCase(Locale.ROOT)).append("\n");
             }
         }
         return sb.toString();
@@ -350,7 +351,7 @@ public class JobOffersDialog extends JDialog {
     private void confirmAcceptJob(Team selectedTeam) {
         int confirm = JOptionPane.showConfirmDialog(this,
                 DesktopTheme.messageForDialog(
-                "ACCEPT THE HEAD COACHING POSITION AT " + selectedTeam.getName().toUpperCase() + "?\n\n"
+                "ACCEPT THE HEAD COACHING POSITION AT " + selectedTeam.getName().toUpperCase(Locale.ROOT) + "?\n\n"
                         + "CONTRACT RESET: " + NEW_JOB_CONTRACT_LENGTH + " YEARS.\n"
                         + "BASELINE PRESTIGE: " + selectedTeam.getTeamPrestige() + "."),
                 "CONFIRM CAREER TRANSITION", JOptionPane.YES_NO_OPTION);

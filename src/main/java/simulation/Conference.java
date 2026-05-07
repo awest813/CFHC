@@ -537,8 +537,9 @@ public class Conference {
      */
     public void playWeek() {
         if (league.currentWeek == league.regSeasonWeeks-1) {
-            if(confTeams.size() >= minConfTeams)
-            playConfChamp();
+            if (confTeams.size() >= minConfTeams) {
+                playConfChamp();
+            }
         } else {
             for (int i = 0; i < confTeams.size(); ++i) {
                 confTeams.get(i).getGameSchedule().get(league.currentWeek).playGame();

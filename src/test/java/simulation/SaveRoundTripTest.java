@@ -42,8 +42,8 @@ public class SaveRoundTripTest {
         );
         original.setPlatformResourceProvider(resources);
 
-        assertFalse("League should have teams", original.teamList.isEmpty());
-        original.userTeam = original.teamList.get(0);
+        assertFalse("League should have teams", original.getTeamList().isEmpty());
+        original.userTeam = original.getTeamList().get(0);
         original.userTeam.userControlled = true;
     }
 
@@ -55,14 +55,14 @@ public class SaveRoundTripTest {
     public void roundTrip_teamCount_isPreserved() throws Exception {
         League loaded = saveAndLoad();
         assertEquals("Team count must survive round-trip",
-                original.teamList.size(), loaded.teamList.size());
+                original.getTeamList().size(), loaded.getTeamList().size());
     }
 
     @Test
     public void roundTrip_conferenceCount_isPreserved() throws Exception {
         League loaded = saveAndLoad();
         assertEquals("Conference count must survive round-trip",
-                original.conferences.size(), loaded.conferences.size());
+                original.getConferences().size(), loaded.getConferences().size());
     }
 
     @Test
@@ -82,17 +82,17 @@ public class SaveRoundTripTest {
     @Test
     public void roundTrip_scheduleRestored_forEachTeam() throws Exception {
         League loaded = saveAndLoad();
-        for (Team orig : original.teamList) {
+        for (Team orig : original.getTeamList()) {
             Team re = findTeam(loaded, orig.name);
             assertNotNull("Team " + orig.name + " must exist after reload", re);
             assertEquals("Schedule length for " + orig.name,
-                    orig.gameSchedule.size(), re.gameSchedule.size());
+                    orig.getGameSchedule().size(), re.getGameSchedule().size());
         }
     }
 
     @Test
     public void roundTrip_winsLosses_preserved() throws Exception {
-        Team t = original.teamList.get(0);
+        Team t = original.getTeamList().get(0);
         t.wins = 4;
         t.losses = 2;
         League loaded = saveAndLoad();
@@ -105,8 +105,8 @@ public class SaveRoundTripTest {
     @Test
     public void roundTrip_teamPrestige_isPreserved() throws Exception {
         League loaded = saveAndLoad();
-        for (int i = 0; i < original.teamList.size(); i++) {
-            Team orig = original.teamList.get(i);
+        for (int i = 0; i < original.getTeamList().size(); i++) {
+            Team orig = original.getTeamList().get(i);
             Team reloaded = findTeam(loaded, orig.name);
             assertNotNull("Team " + orig.name + " must exist after reload", reloaded);
             assertEquals("Prestige for " + orig.name + " must survive round-trip",
@@ -117,8 +117,8 @@ public class SaveRoundTripTest {
     @Test
     public void roundTrip_rosterSize_isPreserved() throws Exception {
         League loaded = saveAndLoad();
-        for (int i = 0; i < original.teamList.size(); i++) {
-            Team orig = original.teamList.get(i);
+        for (int i = 0; i < original.getTeamList().size(); i++) {
+            Team orig = original.getTeamList().get(i);
             Team reloaded = findTeam(loaded, orig.name);
             assertNotNull("Team " + orig.name + " must exist after reload", reloaded);
             assertEquals("Roster size for " + orig.name + " must survive round-trip",
@@ -145,7 +145,7 @@ public class SaveRoundTripTest {
     @Test
     public void roundTrip_headCoachName_isPreserved() throws Exception {
         League loaded = saveAndLoad();
-        for (Team orig : original.teamList) {
+        for (Team orig : original.getTeamList()) {
             Team reloaded = findTeam(loaded, orig.name);
             assertNotNull("Team " + orig.name + " must exist after reload", reloaded);
             assertNotNull("HC for " + orig.name + " must not be null after reload", reloaded.HC);
@@ -179,7 +179,7 @@ public class SaveRoundTripTest {
 
     @Test
     public void roundTrip_teamPollScores_isPreserved() throws Exception {
-        Team t = original.teamList.get(0);
+        Team t = original.getTeamList().get(0);
         t.teamPollScore = 42.25f;
         t.rankTeamPollScore = 7;
         League loaded = saveAndLoad();
@@ -192,11 +192,11 @@ public class SaveRoundTripTest {
     @Test
     public void roundTrip_oocWeeksAndOpponentNames_isPreserved() throws Exception {
         Team user = original.userTeam;
-        Team opponent = original.teamList.stream().filter(x -> x != user).findFirst().orElse(null);
+        Team opponent = original.getTeamList().stream().filter(x -> x != user).findFirst().orElse(null);
         assertNotNull("Need a second team for OOC test", opponent);
 
-        user.oocTeams.clear();
-        user.oocWeeks.clear();
+        user.clearOocTeams();
+        user.clearOocWeeks();
         user.addOocWeek(3);
         user.addOocWeek(7);
         user.addOocTeam(opponent);
@@ -206,11 +206,11 @@ public class SaveRoundTripTest {
         Team reOpp = findTeam(loaded, opponent.name);
         assertNotNull(reUser);
         assertNotNull(reOpp);
-        assertEquals("OOC week list size", 2, reUser.oocWeeks.size());
-        assertEquals(3, (int) reUser.oocWeeks.get(0));
-        assertEquals(7, (int) reUser.oocWeeks.get(1));
-        assertEquals("OOC opponent count", 1, reUser.oocTeams.size());
-        assertEquals(reOpp.name, reUser.oocTeams.get(0).name);
+        assertEquals("OOC week list size", 2, reUser.getOocWeeks().size());
+        assertEquals(3, (int) reUser.getOocWeeks().get(0));
+        assertEquals(7, (int) reUser.getOocWeeks().get(1));
+        assertEquals("OOC opponent count", 1, reUser.getOocTeams().size());
+        assertEquals(reOpp.name, reUser.getOocTeams().get(0).name);
     }
 
     @Test
@@ -249,7 +249,7 @@ public class SaveRoundTripTest {
                 original.leagueName, record.leagueName());
         assertEquals("Year must survive SaveManager round-trip",
                 original.getYear(), record.year());
-        int origTeams = original.conferences.stream()
+        int origTeams = original.getConferences().stream()
                 .mapToInt(c -> c.confTeams.size()).sum();
         int loadedTeams = record.conferences().stream()
                 .mapToInt(c -> c.teams().size()).sum();

@@ -62,6 +62,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -497,7 +498,7 @@ public class LeagueHomeView extends JFrame {
         else weekLabel = "Week " + week;
 
         int teams = currentRecord.conferences().stream().mapToInt(c -> c.teams().size()).sum();
-        String base = String.format("%s  \u2022  %d conferences  \u2022  %d teams",
+        String base = String.format(Locale.ROOT, "%s  \u2022  %d conferences  \u2022  %d teams",
                 weekLabel, currentRecord.conferences().size(), teams);
         
         int hofSize = currentRecord.leagueHoF() != null ? currentRecord.leagueHoF().size() : 0;
@@ -604,7 +605,7 @@ public class LeagueHomeView extends JFrame {
             int oppScore = g.homeTeam == leagueCore.userTeam ? g.awayScore : g.homeScore;
             String result = score > oppScore ? "WIN" : (score < oppScore ? "LOSS" : "TIE");
             
-            String msg = String.format("Week %d Result:\n\n%s %s %s\nFinal Score: %d - %d\n\nRecord: %d-%d",
+            String msg = String.format(Locale.ROOT, "Week %d Result:\n\n%s %s %s\nFinal Score: %d - %d\n\nRecord: %d-%d",
                     week + 1, result, site, opp, score, oppScore, 
                     leagueCore.userTeam.getWins(), leagueCore.userTeam.getLosses());
             
@@ -789,7 +790,7 @@ public class LeagueHomeView extends JFrame {
                 return;
             }
             target = chooser.getSelectedFile();
-            if (!target.getName().toLowerCase().endsWith("." + SAVE_EXTENSION)) {
+            if (!target.getName().toLowerCase(Locale.ROOT).endsWith("." + SAVE_EXTENSION)) {
                 target = new File(target.getParentFile(), target.getName() + "." + SAVE_EXTENSION);
             }
             if (target.exists()) {
@@ -1083,7 +1084,7 @@ public class LeagueHomeView extends JFrame {
         StringBuilder sb = new StringBuilder("Mock Draft Board\n");
         sb.append("=".repeat(40)).append("\n\n");
         for (int i = 0; i < draft.length; i++) {
-            sb.append(String.format("%3d. %s%n", i + 1, draft[i]));
+            sb.append(String.format(Locale.ROOT, "%3d. %s%n", i + 1, draft[i]));
         }
         showScrollableText("Mock Draft", sb.toString());
     }
@@ -1361,7 +1362,7 @@ public class LeagueHomeView extends JFrame {
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                           boolean isSelected, boolean cellHasFocus) {
                 Team t = (Team) value;
-                String label = String.format("#%-3d %-22s (%d-%d)  Pres %d",
+                String label = String.format(Locale.ROOT, "#%-3d %-22s (%d-%d)  Pres %d",
                         t.getRankTeamPollScore(), t.getName(), t.getWins(), t.getLosses(), t.getTeamPrestige());
                 Component c = super.getListCellRendererComponent(list, label, index, isSelected, cellHasFocus);
                 if (!(c instanceof JLabel jl)) {
@@ -1784,7 +1785,7 @@ public class LeagueHomeView extends JFrame {
         panel.add(searchScroll, BorderLayout.CENTER);
 
         Runnable runSearch = () -> {
-            String query = nameField.getText().toLowerCase().trim();
+            String query = nameField.getText().toLowerCase(Locale.ROOT).trim();
             String posFilter = (String) posBox.getSelectedItem();
             String yearFilter = (String) yearBox.getSelectedItem();
             int yearInt = -1;
@@ -1797,7 +1798,7 @@ public class LeagueHomeView extends JFrame {
             List<Team> allTeams = leagueCore.getTeamList();
             for (Team t : allTeams) {
                 for (Player p : t.getAllPlayers()) {
-                    if (!query.isEmpty() && !p.name.toLowerCase().contains(query)) continue;
+                    if (!query.isEmpty() && !p.name.toLowerCase(Locale.ROOT).contains(query)) continue;
                     if (!"ALL".equals(posFilter) && !p.position.equals(posFilter)) continue;
                     if (yearInt != -1 && p.year != yearInt) continue;
 
@@ -2511,7 +2512,7 @@ public class LeagueHomeView extends JFrame {
                 .sorted(Comparator.comparingInt(Team::getRankTeamPollScore))
                 .limit(5)
                 .forEach(t -> {
-                    JLabel l = new JLabel(String.format(" #%d  %-20s  (%d-%d)",
+                    JLabel l = new JLabel(String.format(Locale.ROOT, " #%d  %-20s  (%d-%d)",
                             t.getRankTeamPollScore(), t.getName(), t.getWins(), t.getLosses()));
                     l.setFont(new Font("SansSerif", Font.BOLD, 13));
                     l.setOpaque(true);
@@ -2715,7 +2716,7 @@ public class LeagueHomeView extends JFrame {
 
     private static String formatValue(float value) {
         if (value == (int) value) return String.valueOf((int) value);
-        return String.format("%.2f", value);
+        return String.format(Locale.ROOT, "%.2f", value);
     }
 
     /**

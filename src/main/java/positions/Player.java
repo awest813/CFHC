@@ -253,7 +253,7 @@ public class Player {
         cost = (int) (cost / qbImportance);
 
         cost = getLocationCost();
-        if (cost < 0) cost = (int) Math.random() * 5 + 1;
+        if (cost < 0) cost = (int) (Math.random() * 5) + 1;
 
         createNewStats();
     }
@@ -303,13 +303,13 @@ public class Player {
     }
 
     int getInitialCost() {
-        return (int) ((Math.pow((float) ratOvr - costBaseRating, 2) / 5) + (int) Math.random() * recruitTolerance);
+        return (int) ((Math.pow((float) ratOvr - costBaseRating, 2) / 5) + (Math.random() * recruitTolerance));
     }
 
     int getLocationCost() {
         double locFactor = Math.abs(team.getLocation() - (homeState / 10)) - 2.5;
         cost = cost + (int) (Math.random() * (locFactor * locationDiscount));
-        if (cost < 0) cost = (int) Math.random() * 5 + 1;
+        if (cost < 0) cost = (int) (Math.random() * 5) + 1;
         return cost;
     }
 
@@ -502,11 +502,11 @@ public class Player {
         if(ratOvrStart == 0) ratOvrStart = ratOvr;
 
         if (!isMedicalRS) {
-            if (wonAllConference) ratPot += (int) Math.random() * allConfPotBonus;
-            if (wonAllAmerican) ratPot += (int) Math.random() * allAmericanBonus;
-            if (wonAllFreshman) ratPot += (int) Math.random() * allFreshmanBonus;
-            if (wonTopFreshman) ratPot += (int) Math.random() * topBonus;
-            if (wonHeisman) ratPot += (int) Math.random() * topBonus;
+            if (wonAllConference) ratPot += (int) (Math.random() * allConfPotBonus);
+            if (wonAllAmerican) ratPot += (int) (Math.random() * allAmericanBonus);
+            if (wonAllFreshman) ratPot += (int) (Math.random() * allFreshmanBonus);
+            if (wonTopFreshman) ratPot += (int) (Math.random() * topBonus);
+            if (wonHeisman) ratPot += (int) (Math.random() * topBonus);
 
             if (Arrays.asList(offensePos).contains(position)) progression = getProgressionOff();
             else if (Arrays.asList(defensePos).contains(position)) progression = getProgressionDef();
@@ -737,7 +737,7 @@ public class Player {
             return "Junior";
         } else if (year == 4) {
             return "Senior";
-        } else if (year == 4) {
+        } else if (year == 5) {
             return "5th Yr Sr";
         }
         return "ERROR";
@@ -885,7 +885,7 @@ public class Player {
     }
 
     public ArrayList<String> getDetailAllStatsList() {
-        return null;
+        return new ArrayList<>();
     }
 
     public ArrayList<String> getCareerStatsList() {

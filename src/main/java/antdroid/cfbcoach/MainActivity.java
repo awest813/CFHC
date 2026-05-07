@@ -1,5 +1,6 @@
 package antdroid.cfbcoach;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -2873,8 +2874,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void showRedshirtListFix() {
         StringBuilder update = new StringBuilder();
         update.append("The following is the list of players that were redshirted this season. Some players automatically received redshirts if they did not play in at least 4 games.\n\n");
-        for (int i = 0; i < userTeam.redshirtList.size(); ++i) {
-            update.append(userTeam.redshirtList.get(i) + "\n");
+        for (int i = 0; i < userTeam.getRedshirtList().size(); ++i) {
+            update.append(userTeam.getRedshirtList().get(i) + "\n");
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -2895,8 +2896,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Television Contract News
     private void newsTV() {
         StringBuilder update = new StringBuilder();
-        for (int i = 0; i < simLeague.newsTV.size(); ++i) {
-            update.append(simLeague.newsTV.get(i) + "\n\n");
+        for (int i = 0; i < simLeague.getNewsTV().size(); ++i) {
+            update.append(simLeague.getNewsTV().get(i) + "\n\n");
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -3378,6 +3379,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
+    @SuppressLint("MissingSuperCall")
     public void onBackPressed() {
         if(currPage == 0) exitMainActivity();
         else showHome();

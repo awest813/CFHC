@@ -200,7 +200,7 @@ public class TransferPortalDialog extends JDialog {
     }
 
     private static Object[] playerRow(Player p) {
-        String teamName = p.team != null ? p.team.getName().toUpperCase() : "UNKNOWN";
+        String teamName = p.team != null ? p.team.getName().toUpperCase(java.util.Locale.ROOT) : "UNKNOWN";
         return new Object[]{p.position, p.name, p.ratOvr, p.year, teamName};
     }
 

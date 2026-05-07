@@ -1,12 +1,12 @@
 package desktop;
 
 import simulation.PlatformResourceProvider;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -62,7 +62,7 @@ public class DesktopResourceProvider implements PlatformResourceProvider {
             if (inputStream == null) {
                 return false;
             }
-            loadXmlContent(new String(inputStream.readAllBytes()));
+            loadXmlContent(readUtf8(inputStream));
             return true;
         } catch (IOException e) {
             throw new IllegalStateException("Error loading classpath resource: " + resourcePath, e);
@@ -74,10 +74,22 @@ public class DesktopResourceProvider implements PlatformResourceProvider {
             if (!new File(path).exists()) {
                 return;
             }
-            loadXmlContent(new String(Files.readAllBytes(Paths.get(path))));
+            try (InputStream inputStream = new FileInputStream(path)) {
+                loadXmlContent(readUtf8(inputStream));
+            }
         } catch (IOException e) {
             throw new IllegalStateException("Error loading resource: " + path, e);
         }
+    }
+
+    private static String readUtf8(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        byte[] buffer = new byte[4096];
+        int read;
+        while ((read = inputStream.read(buffer)) != -1) {
+            output.write(buffer, 0, read);
+        }
+        return output.toString(StandardCharsets.UTF_8.name());
     }
 
     private void loadXmlContent(String content) {

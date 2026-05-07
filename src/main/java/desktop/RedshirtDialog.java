@@ -26,6 +26,7 @@ import java.awt.RenderingHints;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Interactive redshirt management dialog.
@@ -127,7 +128,7 @@ public class RedshirtDialog extends JDialog {
         rightPanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 20));
         
         String teamName = (league.userTeam != null) ? league.userTeam.getAbbr() + " ELIGIBLE PROSPECTS" : "FRESHMEN ELIGIBLES";
-        JLabel rightHeader = new JLabel(teamName.toUpperCase());
+        JLabel rightHeader = new JLabel(teamName.toUpperCase(Locale.ROOT));
         rightHeader.setFont(new Font("SansSerif", Font.BOLD, 12));
         rightHeader.setForeground(SUCCESS_GREEN);
         rightPanel.add(rightHeader, BorderLayout.NORTH);

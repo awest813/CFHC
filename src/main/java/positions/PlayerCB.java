@@ -46,7 +46,7 @@ public class PlayerCB extends Player {
         cost = (int) (cost / cbImportance);
 
         cost = getLocationCost();
-        if (cost < 0) cost = (int) Math.random() * 5 + 1;
+        if (cost < 0) cost = (int) (Math.random() * 5) + 1;
     }
 
     //Custom Player

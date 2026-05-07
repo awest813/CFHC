@@ -163,8 +163,8 @@ public class Staff {
         ratOff = (int) (50 + stars * 5 - 15 * Math.random());
         ratDef = (int) (50 + stars * 5 - 15 * Math.random());
 
-        if(position.equals("OC")) ratDef -= (int)Math.random()*25;
-        if(position.equals("DC")) ratOff -= (int)Math.random()*25;
+        if(position.equals("OC")) ratDef -= (int) (Math.random() * 25);
+        if(position.equals("DC")) ratOff -= (int) (Math.random() * 25);
 
         ratTalent = (int) (45 + 50 * Math.random());
         ratDiscipline = (int) (45 + 45 * Math.random());

@@ -14,8 +14,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -23,6 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Random;
 
 import comparator.CompCoachAllAmericans;
@@ -127,21 +126,21 @@ public class League {
         this.resProvider = resProvider;
     }
 
-    public ArrayList<String[]> leagueHistory;
-    public ArrayList<String> heismanHistory;
-    public ArrayList<PlayerRecord> leagueHoF;
-    public ArrayList<Conference> conferences;
-    public ArrayList<Team> teamList;
-    public ArrayList<Staff> coachList;
-    public ArrayList<Staff> coachStarList;
-    public ArrayList<Staff> coachFreeAgents;
-    public ArrayList<Staff> coachDatabase;
-    public ArrayList<String> nameList;
-    public ArrayList<String> lastNameList;
-    public ArrayList<ArrayList<String>> newsStories;
-    public ArrayList<String> newsHeadlines;
-    public ArrayList<ArrayList<String>> weeklyScores;
-    public ArrayList<String> teamDiscipline;
+    private ArrayList<String[]> leagueHistory;
+    private ArrayList<String> heismanHistory;
+    private ArrayList<PlayerRecord> leagueHoF;
+    private ArrayList<Conference> conferences;
+    private ArrayList<Team> teamList;
+    private ArrayList<Staff> coachList;
+    private ArrayList<Staff> coachStarList;
+    private ArrayList<Staff> coachFreeAgents;
+    private ArrayList<Staff> coachDatabase;
+    private ArrayList<String> nameList;
+    private ArrayList<String> lastNameList;
+    private ArrayList<ArrayList<String>> newsStories;
+    private ArrayList<String> newsHeadlines;
+    private ArrayList<ArrayList<String>> weeklyScores;
+    private ArrayList<String> teamDiscipline;
     public double disciplineChance = 0.085;
     public double disciplineScrutiny = 0.035;
 
@@ -174,33 +173,33 @@ public class League {
     public Team userTeam;
 
     //Freshman Team
-    public ArrayList<PlayerQB> fQBs;
-    public ArrayList<PlayerRB> fRBs;
-    public ArrayList<PlayerWR> fWRs;
-    public ArrayList<PlayerTE> fTEs;
-    public ArrayList<PlayerK> fKs;
-    public ArrayList<PlayerOL> fOLs;
-    public ArrayList<PlayerDL> fDLs;
-    public ArrayList<PlayerLB> fLBs;
-    public ArrayList<PlayerCB> fCBs;
-    public ArrayList<PlayerS> fSs;
+    private ArrayList<PlayerQB> fQBs;
+    private ArrayList<PlayerRB> fRBs;
+    private ArrayList<PlayerWR> fWRs;
+    private ArrayList<PlayerTE> fTEs;
+    private ArrayList<PlayerK> fKs;
+    private ArrayList<PlayerOL> fOLs;
+    private ArrayList<PlayerDL> fDLs;
+    private ArrayList<PlayerLB> fLBs;
+    private ArrayList<PlayerCB> fCBs;
+    private ArrayList<PlayerS> fSs;
     //Transfer List
-    public ArrayList<PlayerQB> transferQBs;
-    public ArrayList<PlayerRB> transferRBs;
-    public ArrayList<PlayerWR> transferWRs;
-    public ArrayList<PlayerTE> transferTEs;
-    public ArrayList<PlayerK> transferKs;
-    public ArrayList<PlayerOL> transferOLs;
-    public ArrayList<PlayerDL> transferDLs;
-    public ArrayList<PlayerLB> transferLBs;
-    public ArrayList<PlayerCB> transferCBs;
-    public ArrayList<PlayerS> transferSs;
+    private ArrayList<PlayerQB> transferQBs;
+    private ArrayList<PlayerRB> transferRBs;
+    private ArrayList<PlayerWR> transferWRs;
+    private ArrayList<PlayerTE> transferTEs;
+    private ArrayList<PlayerK> transferKs;
+    private ArrayList<PlayerOL> transferOLs;
+    private ArrayList<PlayerDL> transferDLs;
+    private ArrayList<PlayerLB> transferLBs;
+    private ArrayList<PlayerCB> transferCBs;
+    private ArrayList<PlayerS> transferSs;
     public String userTransfers;
     public String sumTransfers;
-    public ArrayList<String> transfersList;
-    public ArrayList<Player> userTransferList;
-    public ArrayList<Player> freshmen;
-    public ArrayList<Player> redshirts;
+    private ArrayList<String> transfersList;
+    private ArrayList<Player> userTransferList;
+    private ArrayList<Player> freshmen;
+    private ArrayList<Player> redshirts;
     public String[] bowlNames;
 
     //Game Options
@@ -215,8 +214,8 @@ public class League {
     public int countRealignment;
     public String newsRealignment;
     public boolean updateTV;
-    public ArrayList<String> newsTV;
-    public ArrayList<Team> playoffTeams;
+    private ArrayList<String> newsTV;
+    private ArrayList<Team> playoffTeams;
     public String postseason;
 
     public static final int DEFAULT_NEW_SAVE_YEAR = 2026;
@@ -236,12 +235,12 @@ public class League {
     public Player defPOTY;
     public HeadCoach coachWinner;
     public Player freshman;
-    public ArrayList<Player> heismanCandidates;
-    public ArrayList<Player> defPOTYCandidates;
-    public ArrayList<Player> freshmanCandidates;
-    public ArrayList<Player> allAmericans;
-    public ArrayList<Player> allAmericans2;
-    public ArrayList<Player> allFreshman;
+    private ArrayList<Player> heismanCandidates;
+    private ArrayList<Player> defPOTYCandidates;
+    private ArrayList<Player> freshmanCandidates;
+    private ArrayList<Player> allAmericans;
+    private ArrayList<Player> allAmericans2;
+    private ArrayList<Player> allFreshman;
     public String heismanWinnerStrFull;
     /** Last national champion school name (persisted; also set when the NCG is simulated). */
     public String nationalChampionName = "";
@@ -252,7 +251,7 @@ public class League {
 
 
 
-    public ArrayList<String> teamsFCSList;
+    private ArrayList<String> teamsFCSList;
 
     public final String[] proTeams = {"New England", "Buffalo", "New Jersey", "Miami", "Pittsburgh", "Baltimore", "Cincinnati", "Cleveland", "Jacksonville", "Indianapolis", "Houston", "Tennessee", "Kansas City", "Oakland", "Anaheim", "Denver",
             "New York", "Philadelphia", "Dallas", "Washington", "Minnesota", "Chicago", "Green Bay", "Detroit", "New Orleans", "Carolina", "Tampa Bay", "Atlanta", "Seattle", "Los Angeles", "San Francisco", "Arizona"};
@@ -1454,8 +1453,9 @@ public class League {
                     Game gm;
                     gm = new Game(a, b, "OOC");
 
-                    if(a.getGameSchedule().size() != b.getGameSchedule().size())
-                    PlatformLog.d("league", "setupSeason: week " + week + " " + a.getName() + " size" + a.getGameSchedule().size() + " vs " + b.getName() + " size" + b.getGameSchedule().size());
+                    if (a.getGameSchedule().size() != b.getGameSchedule().size()) {
+                        PlatformLog.d("league", "setupSeason: week " + week + " " + a.getName() + " size" + a.getGameSchedule().size() + " vs " + b.getName() + " size" + b.getGameSchedule().size());
+                    }
 
                     if (!a.getConference().contains("Independent") && !a.getConference().contains("FCS")) {
                         a.addGameToSchedule(week, gm);
@@ -1758,14 +1758,13 @@ public class League {
      * @return int of number 0-5
      */
     public int getConfNumber(String conf) {
-        boolean complete = false;
-        int i = 0;
-        while (complete == false) {
+        Objects.requireNonNull(conf, "Conference name must not be null");
+        for (int i = 0; i < conferences.size(); i++) {
             if (conf.equals(conferences.get(i).confName)) {
                 return i;
-            } else i++;
+            }
         }
-        return i;
+        throw new IllegalArgumentException("Conference not found: " + conf);
     }
 
     public void sortTeamList() {
@@ -1802,59 +1801,27 @@ public class League {
 
     //Return League Average Off Yards
     public int getAverageYards() {
-        int average = 0;
-        for (int i = 0; i < teamList.size(); ++i) {
-            average += teamList.get(i).getTeamYards();
-        }
-        average = average / teamList.size();
-        return average;
+        return LeagueStats.getAverageYards(teamList);
     }
 
     //Return league average offensive talent
     public int getAverageOffTalent() {
-        int average = 0;
-        for (int i = 0; i < teamList.size(); ++i) {
-            average += teamList.get(i).getOffTalent();
-        }
-        average = average / teamList.size();
-        return average;
+        return LeagueStats.getAverageOffTalent(teamList);
     }
 
     //Return league average defensive talent
     public int getAverageDefTalent() {
-        int average = 0;
-        for (int i = 0; i < teamList.size(); ++i) {
-            average += teamList.get(i).getDefTalent();
-        }
-        average = average / teamList.size();
-        return average;
+        return LeagueStats.getAverageDefTalent(teamList);
     }
 
     //Determine League Average Conference Prestige
     public int getAverageConfPrestige() {
-        int avgPrestige = 0;
-        int countC = 0;
-        for (int i = 0; i < conferences.size(); ++i) {
-            conferences.get(i).updateConfPrestige();
-        }
-        for (int i = 0; i < conferences.size(); ++i) {
-            if(conferences.get(i).confTeams.size() > conferences.get(i).minConfTeams) {
-                avgPrestige += conferences.get(i).confPrestige;
-                countC++;
-            }
-        }
-
-        if (countC > 0) return avgPrestige / countC;
-        else return 0;
+        return LeagueStats.getAverageConfPrestige(conferences);
     }
 
     //get League Avg Chemistry
     public double getAverageTeamChemistry() {
-        double avg = 0;
-        for (int i = 0; i < teamList.size(); ++i) {
-            avg += teamList.get(i).getTeamChemistry();
-        }
-        return avg / teamList.size();
+        return LeagueStats.getAverageTeamChemistry(teamList);
     }
 
 
@@ -4832,7 +4799,7 @@ Then conferences can see if they want to add them to their list if the teams mee
                                 confList.get(getConfNumber(teamBconf)).confTeams.add(teamA);
 
                                 //Remove some prestige from demoted teams
-                                teamA.setTeamPrestige(teamA.getTeamPrestige() - (int) Math.random() * 4);
+                                teamA.setTeamPrestige(teamA.getTeamPrestige() - (int) (Math.random() * 4));
 
                                 //break the news
                                 newsStories.get(currentWeek + 1).add("Conference Realignment News>The " + teamAconf + " conference announced today they will be adding " + teamB.getName() + " to their conference next season! The " + teamBconf + " conference has agreed to add " + teamA.getName() + " as part of the realignment.");
@@ -6385,39 +6352,19 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public int getAvgCoachTal() {
-        int avg = 0;
-        for (int i = 0; i < teamList.size(); i++) {
-            if (teamList.get(i) != userTeam && teamList.get(i).getHeadCoach() != null)
-                avg += teamList.get(i).getHeadCoach().ratTalent;
-        }
-        return avg / (teamList.size() - 1);
+        return LeagueStats.getAvgCoachTal(teamList, userTeam);
     }
 
     public int getAvgCoachDis() {
-        int avg = 0;
-        for (int i = 0; i < teamList.size(); i++) {
-            if (teamList.get(i) != userTeam && teamList.get(i).getHeadCoach() != null)
-                avg += teamList.get(i).getHeadCoach().ratDiscipline;
-        }
-        return avg / (teamList.size() - 1);
+        return LeagueStats.getAvgCoachDis(teamList, userTeam);
     }
 
     public int getAvgCoachOff() {
-        int avg = 0;
-        for (int i = 0; i < teamList.size(); i++) {
-            if (teamList.get(i) != userTeam && teamList.get(i).getHeadCoach() != null)
-                avg += teamList.get(i).getHeadCoach().ratOff;
-        }
-        return avg / (teamList.size() - 1);
+        return LeagueStats.getAvgCoachOff(teamList, userTeam);
     }
 
     public int getAvgCoachDef() {
-        int avg = 0;
-        for (int i = 0; i < teamList.size(); i++) {
-            if (teamList.get(i) != userTeam && teamList.get(i).getHeadCoach() != null)
-                avg += teamList.get(i).getHeadCoach().ratDef;
-        }
-        return avg / (teamList.size() - 1);
+        return LeagueStats.getAvgCoachDef(teamList, userTeam);
     }
 
     public ArrayList<String> getUserNames() {
@@ -6554,14 +6501,22 @@ Then conferences can see if they want to add them to their list if the teams mee
             }
             return false;
         }
-        try {
-            Files.move(tmp.toPath(), saveFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+        try (FileInputStream fis = new FileInputStream(tmp);
+             FileOutputStream fos = new FileOutputStream(saveFile)) {
+            byte[] buffer = new byte[8192];
+            int read;
+            while ((read = fis.read(buffer)) != -1) {
+                fos.write(buffer, 0, read);
+            }
         } catch (IOException e) {
             PlatformLog.e("League", "Failed to replace save file " + saveFile.getAbsolutePath(), e);
             if (!tmp.delete()) {
                 PlatformLog.w("League", "Could not delete temp save file " + tmp.getAbsolutePath());
             }
             return false;
+        }
+        if (!tmp.delete()) {
+            PlatformLog.w("League", "Could not delete temp save file " + tmp.getAbsolutePath());
         }
         return true;
     }

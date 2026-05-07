@@ -8,11 +8,16 @@
     android:paddingBottom="8dp">
 
     <LinearLayout
+        android:id="@+id/home_panel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_mobile_panel_strong"
         android:orientation="vertical"
         android:padding="18dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="10dp"
         tools:layout_editor_absoluteY="10dp">
 

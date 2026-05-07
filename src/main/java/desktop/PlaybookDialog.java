@@ -24,6 +24,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.RenderingHints;
+import java.util.Locale;
 
 /**
  * Dialog for viewing and changing the team's tactical schemes.
@@ -41,7 +42,7 @@ public class PlaybookDialog extends JDialog {
     private final Team team;
 
     public PlaybookDialog(JFrame owner, Team team) {
-        super(owner, "TACTICAL SUITE — " + team.getName().toUpperCase(), true);
+        super(owner, "TACTICAL SUITE — " + team.getName().toUpperCase(Locale.ROOT), true);
         this.team = team;
         setSize(850, 650);
         setLayout(new BorderLayout());
@@ -118,7 +119,7 @@ public class PlaybookDialog extends JDialog {
 
         String[] names = new String[options.length];
         for (int i = 0; i < options.length; i++) {
-            names[i] = isOffense ? ((PlaybookOffense)options[i]).getStratName().toUpperCase() : ((PlaybookDefense)options[i]).getStratName().toUpperCase();
+            names[i] = isOffense ? ((PlaybookOffense)options[i]).getStratName().toUpperCase(Locale.ROOT) : ((PlaybookDefense)options[i]).getStratName().toUpperCase(Locale.ROOT);
         }
 
         JComboBox<String> combo = new JComboBox<>(names);

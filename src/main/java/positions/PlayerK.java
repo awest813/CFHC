@@ -50,7 +50,7 @@ public class PlayerK extends Player {
         cost = (int) (cost / kImportance);
 
         cost = getLocationCost();
-        if (cost < 0) cost = (int) Math.random() * 5 + 1;
+        if (cost < 0) cost = (int) (Math.random() * 5) + 1;
     }
 
     //Custom Player

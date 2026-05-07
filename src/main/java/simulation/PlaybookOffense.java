@@ -31,7 +31,7 @@ public class PlaybookOffense {
     }
 
     public PlaybookOffense(int playbook) {
-        if (playbook < 1 || playbook > 6) playbook = (int) Math.random() * 6 + 1;
+        if (playbook < 1 || playbook > 6) playbook = (int) (Math.random() * 6) + 1;
 
         if (playbook == 1) playBook1();
         else if (playbook == 2) playBook2();

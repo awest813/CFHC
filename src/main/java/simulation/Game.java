@@ -210,11 +210,11 @@ public class Game implements Serializable {
         } else {
 
             int HTstrat = 0;
-            if(homeTeam.getPlaybookDefNum() != homeTeam.getDC().offStrat && homeTeam.getPlaybookDefNum() != homeTeam.getHeadCoach().offStrat) HTstrat = -2;
-            else if(homeTeam.getPlaybookDefNum() == homeTeam.getDC().offStrat && homeTeam.getPlaybookDefNum() != homeTeam.getHeadCoach().offStrat) HTstrat = 0;
-            else if(homeTeam.getPlaybookDefNum() != homeTeam.getDC().offStrat && homeTeam.getPlaybookDefNum() == homeTeam.getHeadCoach().offStrat) HTstrat = -1;
+            if(homeTeam.getPlaybookDefNum() != homeTeam.getDC().defStrat && homeTeam.getPlaybookDefNum() != homeTeam.getHeadCoach().defStrat) HTstrat = -2;
+            else if(homeTeam.getPlaybookDefNum() == homeTeam.getDC().defStrat && homeTeam.getPlaybookDefNum() != homeTeam.getHeadCoach().defStrat) HTstrat = 0;
+            else if(homeTeam.getPlaybookDefNum() != homeTeam.getDC().defStrat && homeTeam.getPlaybookDefNum() == homeTeam.getHeadCoach().defStrat) HTstrat = -1;
 
-            int ATstrat = Math.abs(awayTeam.getPlaybookDefNum() - awayTeam.getDC().offStrat);
+            int ATstrat = Math.abs(awayTeam.getPlaybookOffNum() - awayTeam.getOC().offStrat);
             if(awayTeam.getPlaybookOffNum() != awayTeam.getOC().offStrat && awayTeam.getPlaybookOffNum() != awayTeam.getHeadCoach().offStrat) ATstrat = -2;
             else if(awayTeam.getPlaybookOffNum() == awayTeam.getOC().offStrat && awayTeam.getPlaybookOffNum() != awayTeam.getHeadCoach().offStrat) ATstrat = 0;
             else if(awayTeam.getPlaybookOffNum() != awayTeam.getOC().offStrat && awayTeam.getPlaybookOffNum() == awayTeam.getHeadCoach().offStrat) ATstrat = -1;
@@ -584,7 +584,7 @@ public class Game implements Serializable {
             homeTeam.healInjury(1);
             awayTeam.healInjury(1);
 
-            if (!gameName.equals("Conference") || !gameName.equals("OOC")) {
+            if ("Conference".equals(gameName) || "OOC".equals(gameName)) {
                 int attendance = ((homeTeam.getTeamPrestige() * 2 + awayTeam.getTeamPrestige()) / 3);
                 homeTeam.setTeamBudget(homeTeam.getTeamBudget() + (int) (tickets * .75 * attendance) + (int) (merch * Math.random() * homeTeam.getTeamPrestige()));
                 awayTeam.setTeamBudget(awayTeam.getTeamBudget() + (int) (tickets * .25 * attendance));
@@ -1318,7 +1318,7 @@ public class Game implements Serializable {
         if (gotFumble) {
             String defender;
             if (pos.equals("WR")) {
-                selDL.gameSim = selDL.getRatTackle() * Math.random() * 0;
+                selDL.gameSim = selDL.getRatTackle() * Math.random() * 10;
                 selCB.gameSim = selCB.getRatTackle() * Math.random() * 100;
                 selS.gameSim = selS.getRatTackle() * Math.random() * 60;
                 selLB.gameSim = selLB.getRatTackle() * Math.random() * 40;
@@ -1936,8 +1936,8 @@ public class Game implements Serializable {
             //Returner tackled by playerST?
             if (def >= ret) returnYards = (int) (Math.random() * 10) + 1;
             else if (ret > def + 80) returnYards += 100 - yards;
-            else if (ret > def + 50) returnYards = (int) Math.random() * 40 + 30;
-            else if (ret > def + 35) returnYards = (int) Math.random() * 20 + 20;
+            else if (ret > def + 50) returnYards = (int) (Math.random() * 40) + 30;
+            else if (ret > def + 35) returnYards = (int) (Math.random() * 20) + 20;
             else returnYards = ret - def;
 
             if (kickoff) {
@@ -2444,7 +2444,7 @@ public class Game implements Serializable {
     }
 
     private void recordReturnStats() {
-        if (homeKickReturner.position == "RB") {
+        if (homeKickReturner.position.equals("RB")) {
             for (int i = 0; i < homeTeam.startersRB + homeTeam.subRB; i++) {
                 if (homeTeam.getRB(i).name.equals(homeKickReturner.name)) {
                     homeTeam.getRB(i).recordKORets(homeKickReturner.kReturns);
@@ -2455,7 +2455,7 @@ public class Game implements Serializable {
                     homeTeam.getRB(i).recordPuntTDs(homeKickReturner.pTD);
                 }
             }
-        } else if (homeKickReturner.position == "WR") {
+        } else if (homeKickReturner.position.equals("WR")) {
             for (int i = 0; i < homeTeam.startersWR + homeTeam.subWR; i++) {
                 if (homeTeam.getWR(i).name.equals(homeKickReturner.name)) {
                     homeTeam.getWR(i).recordKORets(homeKickReturner.kReturns);
@@ -2479,7 +2479,7 @@ public class Game implements Serializable {
             }
         }
 
-        if (awayKickReturner.position == "RB") {
+        if (awayKickReturner.position.equals("RB")) {
             for (int i = 0; i < awayTeam.startersRB + awayTeam.subRB; i++) {
                 if (awayTeam.getRB(i).name.equals(awayKickReturner.name)) {
                     awayTeam.getRB(i).recordKORets(awayKickReturner.kReturns);
@@ -2490,7 +2490,7 @@ public class Game implements Serializable {
                     awayTeam.getRB(i).recordPuntTDs(awayKickReturner.pTD);
                 }
             }
-        } else if (awayKickReturner.position == "WR") {
+        } else if (awayKickReturner.position.equals("WR")) {
             for (int i = 0; i < awayTeam.startersWR + awayTeam.subWR; i++) {
                 if (awayTeam.getWR(i).name.equals(awayKickReturner.name)) {
                     awayTeam.getWR(i).recordKORets(awayKickReturner.kReturns);
@@ -2651,7 +2651,7 @@ public class Game implements Serializable {
 
     private void recoup(boolean endQT, int qt) {
         int gain = fatigueGain;
-        if (endQT && qt != 2) gain = (int) Math.random() * 35 + 15;
+        if (endQT && qt != 2) gain = (int) (Math.random() * 35) + 15;
         if (endQT && qt == 2) gain = 50;
         //recoup v2.0
         for (int i = 0; i < homeTeam.startersRB; ++i) {
