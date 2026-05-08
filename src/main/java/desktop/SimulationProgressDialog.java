@@ -44,7 +44,7 @@ public class SimulationProgressDialog extends JDialog {
         progressBar.setPreferredSize(new Dimension(360, 25));
         progressBar.setBackground(DesktopTheme.textAreaEditorBackground());
         if (DesktopTheme.isDark()) {
-            progressBar.setForeground(new Color(100, 170, 255));
+            progressBar.setForeground(DesktopTheme.accentBlue());
         }
         panel.add(progressBar, BorderLayout.CENTER);
 

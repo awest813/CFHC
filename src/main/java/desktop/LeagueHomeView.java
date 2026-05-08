@@ -408,7 +408,7 @@ public class LeagueHomeView extends JFrame {
         leftPanel.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10));
 
         JLabel title = new JLabel(currentRecord.leagueName() + " \u2014 Season " + currentRecord.year());
-        title.setForeground(Color.WHITE);
+        title.setForeground(DesktopTheme.textPrimary());
         title.setFont(new Font("SansSerif", Font.BOLD, 22));
         leftPanel.add(title);
 
@@ -418,7 +418,7 @@ public class LeagueHomeView extends JFrame {
                     + ")  \u2022  Prestige " + ut.getTeamPrestige()
                     + "  \u2022  Poll #" + ut.getRankTeamPollScore();
             JLabel userLabel = new JLabel(userInfo);
-            userLabel.setForeground(new Color(100, 200, 255));
+            userLabel.setForeground(DesktopTheme.userTeamAccent());
             userLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
             leftPanel.add(userLabel);
         }
@@ -1214,7 +1214,7 @@ public class LeagueHomeView extends JFrame {
         list.setBackground(DesktopTheme.sidebarBackground());
         list.setForeground(DesktopTheme.sidebarText());
         list.setSelectionBackground(DesktopTheme.sidebarSelectionBackground());
-        list.setSelectionForeground(Color.WHITE);
+        list.setSelectionForeground(DesktopTheme.selectionText());
         list.setCellRenderer(new DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
@@ -1223,7 +1223,7 @@ public class LeagueHomeView extends JFrame {
                 label.setBorder(BorderFactory.createEmptyBorder(0, 14, 0, 10));
                 label.setOpaque(true);
                 label.setBackground(isSelected ? DesktopTheme.sidebarSelectionBackground() : DesktopTheme.sidebarBackground());
-                label.setForeground(isSelected ? Color.WHITE : DesktopTheme.sidebarText());
+                label.setForeground(isSelected ? DesktopTheme.sidebarSelectionText() : DesktopTheme.sidebarText());
                 return label;
             }
         });
@@ -1421,7 +1421,7 @@ public class LeagueHomeView extends JFrame {
         JLabel label = new JLabel(headerText);
         label.setOpaque(true);
         label.setBackground(DesktopTheme.conferenceHeaderBackground());
-        label.setForeground(Color.WHITE);
+        label.setForeground(DesktopTheme.textPrimary());
         label.setFont(new Font("SansSerif", Font.BOLD, 15));
         panel.add(label, BorderLayout.NORTH);
 
@@ -1480,7 +1480,7 @@ public class LeagueHomeView extends JFrame {
                 jl.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
                 if (isSelected) {
                     c.setBackground(DesktopTheme.selectionAccent());
-                    c.setForeground(java.awt.Color.WHITE);
+                    c.setForeground(DesktopTheme.selectionText());
                     return c;
                 }
                 String name = (String) tbl.getValueAt(row, 1);

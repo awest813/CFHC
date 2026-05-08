@@ -35,13 +35,6 @@ import java.util.Locale;
 public class RedshirtDialog extends JDialog {
 
     private static final String[] COLUMNS = {"Pos", "Name", "Yr", "OVR", "Team"};
-    
-    private static final Color BG_COLOR = new Color(15, 20, 28);
-    private static final Color SURFACE_COLOR = new Color(25, 32, 45);
-    private static final Color ACCENT_BLUE = new Color(52, 152, 219);
-    private static final Color SUCCESS_GREEN = new Color(46, 204, 113);
-    private static final Color DANGER_RED = new Color(231, 76, 60);
-    private static final Color TEXT_SECONDARY = new Color(171, 178, 191);
 
     private final League league;
     private DefaultTableModel currentModel;
@@ -54,15 +47,15 @@ public class RedshirtDialog extends JDialog {
         this.league = league;
         setSize(1000, 650);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(BG_COLOR);
+        getContentPane().setBackground(DesktopTheme.dialogBackground());
 
         buildContent();
 
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT, 30, 20));
-        bottom.setBackground(SURFACE_COLOR);
-        bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(255, 255, 255, 20)));
+        bottom.setBackground(DesktopTheme.dialogSurface());
+        bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.dialogDivider(20)));
         
-        JButton doneBtn = createGlassButton("CLOSE MANAGEMENT", ACCENT_BLUE);
+        JButton doneBtn = createGlassButton("CLOSE MANAGEMENT", DesktopTheme.accentBlue());
         doneBtn.addActionListener(e -> dispose());
         bottom.add(doneBtn);
         add(bottom, BorderLayout.SOUTH);
@@ -75,21 +68,23 @@ public class RedshirtDialog extends JDialog {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setColor(new Color(255, 255, 255, 20));
+                g2.setColor(DesktopTheme.dialogDivider(20));
                 g2.fillRect(0, getHeight() - 1, getWidth(), 1);
                 g2.dispose();
             }
         };
-        hintBar.setBackground(SURFACE_COLOR);
+        hintBar.setBackground(DesktopTheme.dialogSurface());
         JLabel hint = new JLabel("TACTICAL NOTE: Redshirts preserve eligibility for players with minimal game participation.");
         hint.setFont(new Font("SansSerif", Font.ITALIC, 11));
-        hint.setForeground(TEXT_SECONDARY);
+        hint.setForeground(DesktopTheme.textSecondary());
         hintBar.add(hint);
         add(hintBar, BorderLayout.NORTH);
 
         // Left — currently redshirted players
         currentModel = createModel();
         JTable currentTable = createModernTable(currentModel);
+        StripedRowRenderer.install(currentTable);
+        DesktopTheme.styleDataTable(currentTable);
 
         JPanel leftPanel = new JPanel(new BorderLayout(0, 15));
         leftPanel.setOpaque(false);
@@ -97,16 +92,16 @@ public class RedshirtDialog extends JDialog {
         
         JLabel leftHeader = new JLabel("INACTIVE REDSHIRT POOL");
         leftHeader.setFont(new Font("SansSerif", Font.BOLD, 12));
-        leftHeader.setForeground(DANGER_RED);
+        leftHeader.setForeground(DesktopTheme.dangerRed());
         leftPanel.add(leftHeader, BorderLayout.NORTH);
         
         JScrollPane currentScroll = new JScrollPane(currentTable);
-        currentScroll.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 10)));
-        currentScroll.getViewport().setBackground(BG_COLOR);
+        currentScroll.setBorder(BorderFactory.createLineBorder(DesktopTheme.dialogDivider(10)));
+        currentScroll.getViewport().setBackground(DesktopTheme.dialogBackground());
         leftPanel.add(currentScroll, BorderLayout.CENTER);
 
-        JButton removeBtn = createGlassButton("REMOVE STATUS \u25B6", SURFACE_COLOR);
-        removeBtn.setForeground(DANGER_RED);
+        JButton removeBtn = createGlassButton("REMOVE STATUS \u25B6", DesktopTheme.dialogSurface());
+        removeBtn.setForeground(DesktopTheme.dangerRed());
         removeBtn.addActionListener(e -> {
             int row = currentTable.getSelectedRow();
             if (row < 0 || row >= currentList.size()) return;
@@ -122,6 +117,8 @@ public class RedshirtDialog extends JDialog {
         // Right — freshmen eligible for redshirt
         eligibleModel = createModel();
         JTable eligibleTable = createModernTable(eligibleModel);
+        StripedRowRenderer.install(eligibleTable);
+        DesktopTheme.styleDataTable(eligibleTable);
 
         JPanel rightPanel = new JPanel(new BorderLayout(0, 15));
         rightPanel.setOpaque(false);
@@ -130,15 +127,15 @@ public class RedshirtDialog extends JDialog {
         String teamName = (league.userTeam != null) ? league.userTeam.getAbbr() + " ELIGIBLE PROSPECTS" : "FRESHMEN ELIGIBLES";
         JLabel rightHeader = new JLabel(teamName.toUpperCase(Locale.ROOT));
         rightHeader.setFont(new Font("SansSerif", Font.BOLD, 12));
-        rightHeader.setForeground(SUCCESS_GREEN);
+        rightHeader.setForeground(DesktopTheme.successGreen());
         rightPanel.add(rightHeader, BorderLayout.NORTH);
         
         JScrollPane eligibleScroll = new JScrollPane(eligibleTable);
-        eligibleScroll.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 10)));
-        eligibleScroll.getViewport().setBackground(BG_COLOR);
+        eligibleScroll.setBorder(BorderFactory.createLineBorder(DesktopTheme.dialogDivider(10)));
+        eligibleScroll.getViewport().setBackground(DesktopTheme.dialogBackground());
         rightPanel.add(eligibleScroll, BorderLayout.CENTER);
 
-        JButton grantBtn = createGlassButton("\u25C0 GRANT REDSHIRT", SUCCESS_GREEN);
+        JButton grantBtn = createGlassButton("\u25C0 GRANT REDSHIRT", DesktopTheme.successGreen());
         grantBtn.addActionListener(e -> {
             int row = eligibleTable.getSelectedRow();
             if (row < 0 || row >= eligibleList.size()) return;
@@ -165,17 +162,17 @@ public class RedshirtDialog extends JDialog {
         JTable table = new JTable(model);
         table.setRowHeight(35);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setBackground(BG_COLOR);
-        table.setForeground(Color.WHITE);
-        table.setGridColor(new Color(255, 255, 255, 10));
+        table.setBackground(DesktopTheme.dialogBackground());
+        table.setForeground(DesktopTheme.textPrimary());
+        table.setGridColor(DesktopTheme.dialogDivider(10));
         table.setShowVerticalLines(false);
-        table.setSelectionBackground(ACCENT_BLUE);
+        table.setSelectionBackground(DesktopTheme.accentBlue());
         
-        table.getTableHeader().setBackground(SURFACE_COLOR);
-        table.getTableHeader().setForeground(TEXT_SECONDARY);
+        table.getTableHeader().setBackground(DesktopTheme.dialogSurface());
+        table.getTableHeader().setForeground(DesktopTheme.textSecondary());
         table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 11));
         table.getTableHeader().setPreferredSize(new java.awt.Dimension(0, 40));
-        table.getTableHeader().setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(255, 255, 255, 10)));
+        table.getTableHeader().setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, DesktopTheme.dialogDivider(10)));
         
         return table;
     }
@@ -193,7 +190,7 @@ public class RedshirtDialog extends JDialog {
             }
         };
         btn.setFont(new Font("SansSerif", Font.BOLD, 12));
-        btn.setForeground(Color.WHITE);
+        btn.setForeground(DesktopTheme.textPrimary());
         btn.setBackground(bg);
         btn.setFocusPainted(false);
         btn.setContentAreaFilled(false);

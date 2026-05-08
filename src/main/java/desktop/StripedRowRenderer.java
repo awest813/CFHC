@@ -47,7 +47,7 @@ public class StripedRowRenderer extends DefaultTableCellRenderer {
 
         if (isSelected) {
             c.setBackground(DesktopTheme.selectionAccent());
-            c.setForeground(Color.WHITE);
+            c.setForeground(DesktopTheme.selectionText());
         } else {
             c.setBackground(row % 2 == 0 ? DesktopTheme.tableBase() : DesktopTheme.tableStripe());
             c.setForeground(DesktopTheme.textPrimary());

@@ -33,11 +33,11 @@ import java.util.List;
  */
 public class LauncherFrame extends JFrame {
 
-    private static final String TAG = "LauncherFrame";
-    private static final Color BRAND_PANEL = new Color(24, 34, 48);
+private static final String TAG = "LauncherFrame";
 
-    private final List<JButton> launcherHubButtons = new ArrayList<>();
+private final List<JButton> launcherHubButtons = new ArrayList<>();
     private JPanel launcherMainPanel;
+    private JPanel launcherSidePanel;
     private JLabel launcherHeaderLabel;
     private JLabel launcherSideBlurb;
     private JLabel launcherFooterLabel;
@@ -52,7 +52,8 @@ public class LauncherFrame extends JFrame {
 
         setLayout(new BorderLayout());
 
-        add(buildSidePanel(), BorderLayout.WEST);
+        launcherSidePanel = buildSidePanel();
+        add(launcherSidePanel, BorderLayout.WEST);
         launcherMainPanel = buildMainControlPanel();
         add(launcherMainPanel, BorderLayout.CENTER);
         getContentPane().setBackground(DesktopTheme.launcherMainPanel());
@@ -75,11 +76,11 @@ public class LauncherFrame extends JFrame {
     private JPanel buildSidePanel() {
         JPanel side = new JPanel(new BorderLayout());
         side.setPreferredSize(new Dimension(315, 500));
-        side.setBackground(BRAND_PANEL);
+        side.setBackground(DesktopTheme.sidebarBackground());
         side.setBorder(BorderFactory.createEmptyBorder(40, 20, 40, 20));
 
         JLabel title = new JLabel("<html><body style='text-align:center;'>CFB COACH<br><span style='font-size:12pt;font-weight:normal;'>Front Office</span></body></html>", SwingConstants.CENTER);
-        title.setForeground(Color.WHITE);
+        title.setForeground(DesktopTheme.sidebarText());
         title.setFont(new Font("SansSerif", Font.BOLD, 28));
         side.add(title, BorderLayout.NORTH);
 
@@ -160,6 +161,9 @@ public class LauncherFrame extends JFrame {
         getContentPane().setBackground(DesktopTheme.launcherMainPanel());
         if (launcherMainPanel != null) {
             launcherMainPanel.setBackground(DesktopTheme.launcherMainPanel());
+        }
+        if (launcherSidePanel != null) {
+            launcherSidePanel.setBackground(DesktopTheme.sidebarBackground());
         }
         if (launcherFooterLabel != null) {
             launcherFooterLabel.setForeground(DesktopTheme.launcherFooter());

@@ -226,6 +226,73 @@ public final class DesktopTheme {
         return dark ? new Color(42, 44, 50) : Color.WHITE;
     }
 
+    /** Deeper dialog background for immersive game UIs (staff hiring, contracts, etc.). */
+    public static Color dialogBackground() {
+        return dark ? new Color(15, 20, 28) : Color.WHITE;
+    }
+
+    /** Subtly lighter surface card for immersive dialogs. */
+    public static Color dialogSurface() {
+        return dark ? new Color(25, 32, 45) : new Color(246, 248, 251);
+    }
+
+    /** Primary action accent (hiring, confirm, accept). */
+    public static Color accentBlue() {
+        return new Color(52, 152, 219);
+    }
+
+    /** Positive outcome accent. */
+    public static Color successGreen() {
+        return new Color(46, 204, 113);
+    }
+
+    /** Negative / destructive action accent. */
+    public static Color dangerRed() {
+        return new Color(231, 76, 60);
+    }
+
+    /** Translucent divider line that reads well against both light and dark surfaces. */
+    public static Color dialogDivider(int alpha) {
+        int clamped = Math.max(0, Math.min(255, alpha));
+        if (dark) {
+            return new Color(255, 255, 255, clamped);
+        } else {
+            return new Color(0, 0, 0, clamped);
+        }
+    }
+
+    /** Warm gold / yellow for highlights like poll leader cards, national titles. */
+    public static Color goldHighlight() {
+        return new Color(241, 196, 15);
+    }
+
+    /** Bright cyan for user-team emphasis. */
+    public static Color userTeamAccent() {
+        return dark ? new Color(100, 200, 255) : new Color(30, 100, 180);
+    }
+
+    /** Foreground color for selected list/table items (same in light and dark). */
+    public static Color selectionText() {
+        return Color.WHITE;
+    }
+
+    /** Foreground color for sidebar navigation selected items. */
+    public static Color sidebarSelectionText() {
+        return selectionAccent() == new Color(50, 100, 180)
+                ? Color.WHITE
+                : textPrimary();
+    }
+
+    /** Unchecked / empty-state border color for custom checkbox icons in settings dialogs. */
+    public static Color dialogCheckboxBorder() {
+        return dark ? new Color(60, 75, 95) : new Color(166, 176, 190);
+    }
+
+    /** Subtle pressed/focus state for custom button/icon elements. */
+    public static Color dialogSubtleAccent() {
+        return dark ? new Color(60, 75, 95) : new Color(180, 190, 205);
+    }
+
     /** Apply table + viewport colors after the table is inside a {@link javax.swing.JScrollPane}. */
     public static void styleDataTable(JTable table) {
         table.setOpaque(true);

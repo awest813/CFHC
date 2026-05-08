@@ -1,5 +1,23 @@
 Original prompt: keep working game lements
 
+## 2026-05-08 Desktop Theme/UX Polish
+
+- Audited all 23 desktop Java files for unstyled/hardcoded "Industrial Glass" color constants
+- Found 6 dialogs fully hardcoded (CoordinatorHiringDialog, JobOffersDialog, ContractDialog, RedshirtDialog, TransferPortalDialog, PlaybookDialog) — ~24 hardcoded color fields total
+- Also found hardcoded areas in GameBoxScoreView, LauncherFrame, LeagueHomeView, SettingsDialog, SimulationProgressDialog, StripedRowRenderer
+- Added 9 new theme helpers to DesktopTheme: dialogBackground(), dialogSurface(), accentBlue(), successGreen(), dangerRed(), dialogDivider(int), goldHighlight(), userTeamAccent(), selectionText(), sidebarSelectionText(), dialogCheckboxBorder(), dialogSubtleAccent()
+- Converted all 6 dialogs to use DesktopTheme methods — removed all hardcoded BG_COLOR, SURFACE_COLOR, ACCENT_BLUE, SUCCESS_GREEN, DANGER_RED, TEXT_SECONDARY constants
+- Fixed scoreboard panel in GameBoxScoreView (borderSubtle, statusBackground, userTeamAccent)
+- Fixed LauncherFrame sidebar BRAND_PANEL hardcoded dark — now uses sidebarBackground(), responds to dark/light toggle
+- Fixed LeagueHomeView header title and user-team label hardcoded white/cyan
+- Fixed LeagueHomeView conference header label hardcoded white
+- Fixed StripedRowRenderer selected-row foreground to use selectionText()
+- Fixed LeagueHomeView nav list selectionForeground hardcoded white
+- Fixed SettingsDialog checkbox borders and apply-button foreground to use theme methods
+- Fixed SimulationProgressDialog progress bar accent to use accentBlue()
+- Installed StripedRowRenderer on all dialog tables (CoordinatorHiringDialog x2, JobOffersDialog, RedshirtDialog x2, TransferPortalDialog)
+- Reran `./gradlew check` — passes cleanly
+
 ## 2026-05-07
 
 - Picked up an existing in-progress Java/Android CFHC refactor, focused around game/simulation elements: private `League`/`Team` collections, `TeamStats`/`LeagueStats` extraction, and call-site updates.

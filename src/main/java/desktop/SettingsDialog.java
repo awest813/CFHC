@@ -28,8 +28,6 @@ import javax.swing.Box;
  */
 public class SettingsDialog extends JDialog {
 
-    private static final Color ACCENT_BLUE = new Color(52, 152, 219);
-
     private boolean applied = false;
 
     public SettingsDialog(JFrame owner, League league) {
@@ -37,7 +35,7 @@ public class SettingsDialog extends JDialog {
         setSize(560, 680);
         setMinimumSize(new java.awt.Dimension(520, 560));
         setLayout(new BorderLayout());
-        getContentPane().setBackground(dialogBackground());
+        getContentPane().setBackground(DesktopTheme.dialogBackground());
 
         // Header
         JPanel header = new JPanel(new BorderLayout()) {
@@ -45,13 +43,14 @@ public class SettingsDialog extends JDialog {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setColor(new Color(255, 255, 255, 20));
+                g2.setColor(DesktopTheme.dialogDivider(20));
                 g2.fillRect(0, getHeight() - 1, getWidth(), 1);
                 g2.dispose();
             }
         };
-        header.setBackground(dialogSurface());
+        header.setBackground(DesktopTheme.dialogSurface());
         header.setBorder(BorderFactory.createEmptyBorder(22, 30, 20, 30));
+        header.setOpaque(true);
         
         JLabel title = new JLabel("League Settings");
         title.setFont(new Font("SansSerif", Font.BOLD, 20));
@@ -129,15 +128,15 @@ public class SettingsDialog extends JDialog {
 
         // Bottom Bar
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 20));
-        bottom.setBackground(dialogSurface());
-        bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(255, 255, 255, 20)));
+        bottom.setBackground(DesktopTheme.dialogSurface());
+        bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.dialogDivider(20)));
         
         JButton cancelBtn = new JButton("Cancel") {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(255, 255, 255, 10));
+                g2.setColor(DesktopTheme.dialogDivider(10));
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
                 super.paintComponent(g);
                 g2.dispose();
@@ -161,8 +160,8 @@ public class SettingsDialog extends JDialog {
                 g2.dispose();
             }
         };
-        applyBtn.setBackground(ACCENT_BLUE);
-        applyBtn.setForeground(Color.WHITE);
+        applyBtn.setBackground(DesktopTheme.accentBlue());
+        applyBtn.setForeground(DesktopTheme.textPrimary());
         applyBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
         applyBtn.setFocusPainted(false);
         applyBtn.setContentAreaFilled(false);
@@ -231,14 +230,6 @@ public class SettingsDialog extends JDialog {
         return choice == JOptionPane.YES_OPTION;
     }
 
-    private static Color dialogBackground() {
-        return DesktopTheme.isDark() ? new Color(15, 20, 28) : DesktopTheme.windowBackground();
-    }
-
-    private static Color dialogSurface() {
-        return DesktopTheme.isDark() ? new Color(25, 32, 45) : new Color(246, 248, 251);
-    }
-
     private static JLabel sectionLabel(String text) {
         JLabel label = new JLabel(text);
         label.setFont(new Font("SansSerif", Font.BOLD, 12));
@@ -259,7 +250,7 @@ public class SettingsDialog extends JDialog {
             @Override public void paintIcon(Component c, Graphics g, int x, int y) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(DesktopTheme.isDark() ? new Color(60, 75, 95) : new Color(166, 176, 190));
+g2.setColor(DesktopTheme.dialogCheckboxBorder());
                 g2.drawRoundRect(x, y, 17, 17, 4, 4);
                 g2.dispose();
             }
@@ -270,9 +261,9 @@ public class SettingsDialog extends JDialog {
             @Override public void paintIcon(Component c, Graphics g, int x, int y) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(ACCENT_BLUE);
+                g2.setColor(DesktopTheme.accentBlue());
                 g2.fillRoundRect(x, y, 17, 17, 4, 4);
-                g2.setColor(Color.WHITE);
+                g2.setColor(DesktopTheme.textPrimary());
                 g2.setStroke(new java.awt.BasicStroke(2));
                 g2.drawLine(x + 4, y + 9, x + 8, y + 13);
                 g2.drawLine(x + 8, y + 13, x + 13, y + 5);

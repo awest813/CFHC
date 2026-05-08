@@ -32,11 +32,6 @@ import java.util.List;
  */
 public class TransferPortalDialog extends JDialog {
 
-    private static final Color BG_COLOR = new Color(15, 20, 28);
-    private static final Color SURFACE_COLOR = new Color(25, 32, 45);
-    private static final Color ACCENT_BLUE = new Color(52, 152, 219);
-    private static final Color TEXT_SECONDARY = new Color(171, 178, 191);
-
     private static final String[] POS_FILTERS = {
             "All Positions", "QB", "RB", "WR", "TE", "OL", "K", "DL", "LB", "CB", "S"
     };
@@ -52,7 +47,7 @@ public class TransferPortalDialog extends JDialog {
         this.league = league;
         setSize(850, 600);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(BG_COLOR);
+        getContentPane().setBackground(DesktopTheme.dialogBackground());
 
         collectPlayers();
         buildContent();
@@ -83,28 +78,28 @@ public class TransferPortalDialog extends JDialog {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setColor(new Color(255, 255, 255, 20));
+                g2.setColor(DesktopTheme.dialogDivider(20));
                 g2.fillRect(0, getHeight() - 1, getWidth(), 1);
                 g2.dispose();
             }
         };
-        topBar.setBackground(SURFACE_COLOR);
+        topBar.setBackground(DesktopTheme.dialogSurface());
 
         JLabel posLabel = new JLabel("PORTAL FILTER:");
         posLabel.setFont(new Font("SansSerif", Font.BOLD, 10));
-        posLabel.setForeground(ACCENT_BLUE);
+        posLabel.setForeground(DesktopTheme.accentBlue());
         topBar.add(posLabel);
 
         JComboBox<String> filterBox = new JComboBox<>(POS_FILTERS);
         filterBox.setFont(new Font("SansSerif", Font.BOLD, 13));
-        filterBox.setBackground(BG_COLOR);
-        filterBox.setForeground(Color.WHITE);
+        filterBox.setBackground(DesktopTheme.dialogBackground());
+        filterBox.setForeground(DesktopTheme.textPrimary());
         filterBox.setPreferredSize(new Dimension(180, 30));
         topBar.add(filterBox);
 
         JLabel countLabel = new JLabel();
         countLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
-        countLabel.setForeground(TEXT_SECONDARY);
+        countLabel.setForeground(DesktopTheme.textSecondary());
         topBar.add(countLabel);
         
         add(topBar, BorderLayout.NORTH);
@@ -121,32 +116,34 @@ public class TransferPortalDialog extends JDialog {
         table.setRowHeight(35);
         table.setAutoCreateRowSorter(true);
         table.setFillsViewportHeight(true);
-        table.setBackground(BG_COLOR);
-        table.setForeground(Color.WHITE);
-        table.setGridColor(new Color(255, 255, 255, 10));
+        table.setBackground(DesktopTheme.dialogBackground());
+        table.setForeground(DesktopTheme.textPrimary());
+        table.setGridColor(DesktopTheme.dialogDivider(10));
         table.setShowVerticalLines(false);
-        table.setSelectionBackground(ACCENT_BLUE);
+        table.setSelectionBackground(DesktopTheme.accentBlue());
         
-        table.getTableHeader().setBackground(SURFACE_COLOR);
-        table.getTableHeader().setForeground(TEXT_SECONDARY);
+        StripedRowRenderer.install(table);
+
+        table.getTableHeader().setBackground(DesktopTheme.dialogSurface());
+        table.getTableHeader().setForeground(DesktopTheme.textSecondary());
         table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 11));
         table.getTableHeader().setPreferredSize(new Dimension(0, 40));
-        table.getTableHeader().setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(255, 255, 255, 10)));
+        table.getTableHeader().setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, DesktopTheme.dialogDivider(10)));
 
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createEmptyBorder());
-        scroll.getViewport().setBackground(BG_COLOR);
+        scroll.getViewport().setBackground(DesktopTheme.dialogBackground());
         add(scroll, BorderLayout.CENTER);
 
         // Bottom bar
         JPanel bottom = new JPanel(new BorderLayout());
-        bottom.setBackground(SURFACE_COLOR);
-        bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(255, 255, 255, 20)));
+        bottom.setBackground(DesktopTheme.dialogSurface());
+        bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.dialogDivider(20)));
         bottom.setPreferredSize(new Dimension(0, 80));
         
         JLabel hintLabel = new JLabel("NOTICE: Portal assignments are finalized during the next off-season cycle.");
         hintLabel.setFont(new Font("SansSerif", Font.ITALIC, 11));
-        hintLabel.setForeground(TEXT_SECONDARY);
+        hintLabel.setForeground(DesktopTheme.textSecondary());
         hintLabel.setBorder(BorderFactory.createEmptyBorder(0, 30, 0, 0));
         bottom.add(hintLabel, BorderLayout.WEST);
 
@@ -161,8 +158,8 @@ public class TransferPortalDialog extends JDialog {
                 g2.dispose();
             }
         };
-        closeBtn.setBackground(ACCENT_BLUE);
-        closeBtn.setForeground(Color.WHITE);
+        closeBtn.setBackground(DesktopTheme.accentBlue());
+        closeBtn.setForeground(DesktopTheme.textPrimary());
         closeBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
         closeBtn.setFocusPainted(false);
         closeBtn.setContentAreaFilled(false);

@@ -31,13 +31,6 @@ import java.util.Locale;
  */
 public class ContractDialog extends JDialog {
 
-    private static final Color BG_COLOR = new Color(15, 20, 28);
-    private static final Color SURFACE_COLOR = new Color(25, 32, 45);
-    private static final Color ACCENT_BLUE = new Color(52, 152, 219);
-    private static final Color SUCCESS_GREEN = new Color(46, 204, 113);
-    private static final Color DANGER_RED = new Color(231, 76, 60);
-    private static final Color TEXT_SECONDARY = new Color(171, 178, 191);
-
     private static final int RETIREMENT_AGE = 65;
 
     private final League league;
@@ -48,7 +41,7 @@ public class ContractDialog extends JDialog {
         this.league = league;
         setSize(700, 500);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(BG_COLOR);
+        getContentPane().setBackground(DesktopTheme.dialogBackground());
 
         Team userTeam = league.userTeam;
         HeadCoach hc = userTeam != null ? userTeam.getHeadCoach() : null;
@@ -68,7 +61,7 @@ public class ContractDialog extends JDialog {
 
         JLabel header = new JLabel("CAREER FINALITY DECISION");
         header.setFont(new Font("SansSerif", Font.BOLD, 22));
-        header.setForeground(Color.WHITE);
+        header.setForeground(DesktopTheme.textPrimary());
         content.add(header, BorderLayout.NORTH);
 
         String statsHtml = String.format(Locale.ROOT,
@@ -92,13 +85,13 @@ public class ContractDialog extends JDialog {
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER, 25, 10));
         buttons.setOpaque(false);
         
-        JButton continueBtn = createGlassButton("CONTINUE CAREER", SUCCESS_GREEN);
+        JButton continueBtn = createGlassButton("CONTINUE CAREER", DesktopTheme.successGreen());
         continueBtn.addActionListener(e -> {
             retired = false;
             dispose();
         });
         
-        JButton retireBtn = createGlassButton("RETIRE IMMEDIATELY", DANGER_RED);
+        JButton retireBtn = createGlassButton("RETIRE IMMEDIATELY", DesktopTheme.dangerRed());
         retireBtn.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(this,
                     DesktopTheme.messageForDialog(
@@ -125,7 +118,7 @@ public class ContractDialog extends JDialog {
 
         JLabel header = new JLabel("CONTRACT EVALUATION — " + league.getYear());
         header.setFont(new Font("SansSerif", Font.BOLD, 22));
-        header.setForeground(Color.WHITE);
+        header.setForeground(DesktopTheme.textPrimary());
         content.add(header, BorderLayout.NORTH);
 
         JPanel mainGrid = new JPanel(new java.awt.GridLayout(1, 2, 30, 0));
@@ -166,7 +159,7 @@ public class ContractDialog extends JDialog {
 
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         buttons.setOpaque(false);
-        JButton okBtn = createGlassButton("PROCEED TO OFF-SEASON", ACCENT_BLUE);
+        JButton okBtn = createGlassButton("PROCEED TO OFF-SEASON", DesktopTheme.accentBlue());
         okBtn.addActionListener(e -> dispose());
         buttons.add(okBtn);
         content.add(buttons, BorderLayout.SOUTH);
@@ -177,15 +170,15 @@ public class ContractDialog extends JDialog {
     private JPanel createInfoCard(String title) {
         JPanel card = new JPanel();
         card.setLayout(new javax.swing.BoxLayout(card, javax.swing.BoxLayout.Y_AXIS));
-        card.setBackground(SURFACE_COLOR);
+        card.setBackground(DesktopTheme.dialogSurface());
         card.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(255, 255, 255, 10), 1),
+            BorderFactory.createLineBorder(DesktopTheme.dialogDivider(10), 1),
             BorderFactory.createEmptyBorder(20, 20, 20, 20)
         ));
         
         JLabel titleLabel = new JLabel(title);
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 11));
-        titleLabel.setForeground(ACCENT_BLUE);
+        titleLabel.setForeground(DesktopTheme.accentBlue());
         card.add(titleLabel);
         
         return card;
@@ -204,7 +197,7 @@ public class ContractDialog extends JDialog {
             }
         };
         btn.setFont(new Font("SansSerif", Font.BOLD, 12));
-        btn.setForeground(Color.WHITE);
+        btn.setForeground(DesktopTheme.textPrimary());
         btn.setBackground(bg);
         btn.setFocusPainted(false);
         btn.setContentAreaFilled(false);

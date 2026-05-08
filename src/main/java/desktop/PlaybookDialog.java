@@ -33,11 +33,6 @@ import java.util.Locale;
 public class PlaybookDialog extends JDialog {
 
     private static final String TAG = "PlaybookDialog";
-    
-    private static final Color BG_COLOR = new Color(15, 20, 28);
-    private static final Color SURFACE_COLOR = new Color(25, 32, 45);
-    private static final Color ACCENT_BLUE = new Color(52, 152, 219);
-    private static final Color TEXT_SECONDARY = new Color(171, 178, 191);
 
     private final Team team;
 
@@ -46,7 +41,7 @@ public class PlaybookDialog extends JDialog {
         this.team = team;
         setSize(850, 650);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(BG_COLOR);
+        getContentPane().setBackground(DesktopTheme.dialogBackground());
 
         // Header
         JPanel header = new JPanel(new BorderLayout()) {
@@ -54,22 +49,22 @@ public class PlaybookDialog extends JDialog {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setColor(new Color(255, 255, 255, 20));
+                g2.setColor(DesktopTheme.dialogDivider(20));
                 g2.fillRect(0, getHeight() - 1, getWidth(), 1);
                 g2.dispose();
             }
         };
-        header.setBackground(SURFACE_COLOR);
+        header.setBackground(DesktopTheme.dialogSurface());
         header.setBorder(BorderFactory.createEmptyBorder(25, 30, 20, 30));
         
         JLabel title = new JLabel("TEAM SCHEMATICS");
         title.setFont(new Font("SansSerif", Font.BOLD, 22));
-        title.setForeground(Color.WHITE);
+        title.setForeground(DesktopTheme.textPrimary());
         header.add(title, BorderLayout.WEST);
         
         JLabel subtitle = new JLabel(team.getAbbr() + " STRATEGY CONFIGURATION");
         subtitle.setFont(new Font("SansSerif", Font.BOLD, 10));
-        subtitle.setForeground(ACCENT_BLUE);
+        subtitle.setForeground(DesktopTheme.accentBlue());
         header.add(subtitle, BorderLayout.SOUTH);
         add(header, BorderLayout.NORTH);
 
@@ -83,8 +78,8 @@ public class PlaybookDialog extends JDialog {
 
         // Bottom Bar
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 20));
-        bottom.setBackground(SURFACE_COLOR);
-        bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(255, 255, 255, 20)));
+        bottom.setBackground(DesktopTheme.dialogSurface());
+        bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.dialogDivider(20)));
         
         JButton closeBtn = new JButton("FINALIZE STRATEGY") {
             @Override
@@ -97,8 +92,8 @@ public class PlaybookDialog extends JDialog {
                 g2.dispose();
             }
         };
-        closeBtn.setBackground(ACCENT_BLUE);
-        closeBtn.setForeground(Color.WHITE);
+        closeBtn.setBackground(DesktopTheme.accentBlue());
+        closeBtn.setForeground(DesktopTheme.textPrimary());
         closeBtn.setFont(new Font("SansSerif", Font.BOLD, 13));
         closeBtn.setFocusPainted(false);
         closeBtn.setContentAreaFilled(false);
@@ -114,7 +109,7 @@ public class PlaybookDialog extends JDialog {
         
         JLabel label = new JLabel(title);
         label.setFont(new Font("SansSerif", Font.BOLD, 11));
-        label.setForeground(ACCENT_BLUE);
+        label.setForeground(DesktopTheme.accentBlue());
         panel.add(label, BorderLayout.NORTH);
 
         String[] names = new String[options.length];
@@ -124,17 +119,17 @@ public class PlaybookDialog extends JDialog {
 
         JComboBox<String> combo = new JComboBox<>(names);
         combo.setSelectedIndex(isOffense ? team.getPlaybookOffNum() : team.getPlaybookDefNum());
-        combo.setBackground(SURFACE_COLOR);
-        combo.setForeground(Color.WHITE);
+        combo.setBackground(DesktopTheme.dialogSurface());
+        combo.setForeground(DesktopTheme.textPrimary());
         combo.setFont(new Font("SansSerif", Font.BOLD, 15));
-        combo.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 20)));
+        combo.setBorder(BorderFactory.createLineBorder(DesktopTheme.dialogDivider(20)));
 
         JTextArea desc = new JTextArea();
         desc.setEditable(false);
         desc.setLineWrap(true);
         desc.setWrapStyleWord(true);
         desc.setFont(new Font("Serif", Font.ITALIC, 16));
-        desc.setForeground(TEXT_SECONDARY);
+        desc.setForeground(DesktopTheme.textSecondary());
         desc.setOpaque(false);
 
         JPanel statsPanel = new JPanel();
@@ -194,16 +189,16 @@ public class PlaybookDialog extends JDialog {
     private void addStatRow(JPanel container, String label, int val) {
         JPanel row = new JPanel(new BorderLayout());
         row.setOpaque(false);
-        row.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(255, 255, 255, 5)));
+        row.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, DesktopTheme.dialogDivider(5)));
         
         JLabel l = new JLabel(label);
         l.setFont(new Font("SansSerif", Font.BOLD, 10));
-        l.setForeground(TEXT_SECONDARY);
+        l.setForeground(DesktopTheme.textSecondary());
         l.setBorder(BorderFactory.createEmptyBorder(8, 0, 8, 0));
         
         JLabel v = new JLabel((val > 0 ? "+" : "") + val);
         v.setFont(new Font("Monospaced", Font.BOLD, 14));
-        v.setForeground(val > 0 ? new Color(46, 204, 113) : (val < 0 ? new Color(231, 76, 60) : Color.WHITE));
+        v.setForeground(val > 0 ? DesktopTheme.successGreen() : (val < 0 ? DesktopTheme.dangerRed() : DesktopTheme.textPrimary()));
         
         row.add(l, BorderLayout.WEST);
         row.add(v, BorderLayout.EAST);

@@ -37,10 +37,6 @@ import java.util.Locale;
  */
 public class CoordinatorHiringDialog extends JDialog {
 
-    private static final Color BG_COLOR = new Color(15, 20, 28);
-    private static final Color SURFACE_COLOR = new Color(25, 32, 45);
-    private static final Color ACCENT_BLUE = new Color(52, 152, 219);
-    private static final Color TEXT_SECONDARY = new Color(171, 178, 191);
     private static final int COORDINATOR_CONTRACT_LENGTH = 3;
 
     private final League league;
@@ -52,7 +48,7 @@ public class CoordinatorHiringDialog extends JDialog {
         this.userTeam = league.userTeam;
         setSize(900, 600);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(BG_COLOR);
+        getContentPane().setBackground(DesktopTheme.dialogBackground());
 
         if (userTeam == null || userTeam.getHeadCoach() == null) {
             buildErrorPanel("No active user team or head coach record found.");
@@ -79,7 +75,7 @@ public class CoordinatorHiringDialog extends JDialog {
         panel.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
         panel.add(new JLabel("<html><center style='color:#E74C3C; font-size:14pt;'>"
                 + DesktopTheme.escapeForHtml(msg) + "</center></html>", JLabel.CENTER), BorderLayout.CENTER);
-        JButton ok = createGlassButton("CLOSE", ACCENT_BLUE);
+        JButton ok = createGlassButton("CLOSE", DesktopTheme.accentBlue());
         ok.addActionListener(e -> dispose());
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.CENTER));
         bottom.setOpaque(false);
@@ -95,22 +91,22 @@ public class CoordinatorHiringDialog extends JDialog {
 
         JLabel header = new JLabel("COACHING STAFF STABILITY");
         header.setFont(new Font("SansSerif", Font.BOLD, 22));
-        header.setForeground(ACCENT_BLUE);
+        header.setForeground(DesktopTheme.accentBlue());
         panel.add(header, BorderLayout.NORTH);
 
         JPanel cardsPanel = new JPanel(new java.awt.GridLayout(1, 2, 25, 0));
         cardsPanel.setOpaque(false);
 
         if (userTeam.getOC() != null) {
-            cardsPanel.add(createStaffStabilityCard("OFFENSIVE COORDINATOR", userTeam.getOC(), new Color(52, 152, 219)));
+            cardsPanel.add(createStaffStabilityCard("OFFENSIVE COORDINATOR", userTeam.getOC(), DesktopTheme.accentBlue()));
         }
         if (userTeam.getDC() != null) {
-            cardsPanel.add(createStaffStabilityCard("DEFENSIVE COORDINATOR", userTeam.getDC(), new Color(231, 76, 60)));
+            cardsPanel.add(createStaffStabilityCard("DEFENSIVE COORDINATOR", userTeam.getDC(), DesktopTheme.dangerRed()));
         }
 
         panel.add(cardsPanel, BorderLayout.CENTER);
 
-        JButton ok = createGlassButton("PROCEED TO SEASON", ACCENT_BLUE);
+        JButton ok = createGlassButton("PROCEED TO SEASON", DesktopTheme.accentBlue());
         ok.addActionListener(e -> {
             league.coordinatorCarousel();
             dispose();
@@ -124,9 +120,9 @@ public class CoordinatorHiringDialog extends JDialog {
 
     private JPanel createStaffStabilityCard(String role, Staff s, Color accent) {
         JPanel card = new JPanel(new BorderLayout(15, 15));
-        card.setBackground(SURFACE_COLOR);
+        card.setBackground(DesktopTheme.dialogSurface());
         card.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(255, 255, 255, 10), 1),
+            BorderFactory.createLineBorder(DesktopTheme.dialogDivider(10), 1),
             BorderFactory.createEmptyBorder(20, 20, 20, 20)
         ));
 
@@ -175,15 +171,16 @@ public class CoordinatorHiringDialog extends JDialog {
         }
 
         JTable table = createModernTable(model);
+        StripedRowRenderer.install(table);
         table.getColumnModel().getColumn(0).setPreferredWidth(100);
 
         JPanel headerPanel = createHeaderPanel("HIRE OFFENSIVE COORDINATOR");
         
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 25, 20));
-        buttons.setBackground(SURFACE_COLOR);
-        buttons.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(255, 255, 255, 20)));
+        buttons.setBackground(DesktopTheme.dialogSurface());
+        buttons.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.dialogDivider(20)));
         
-        JButton hireBtn = createGlassButton("CONFIRM HIRE", ACCENT_BLUE);
+        JButton hireBtn = createGlassButton("CONFIRM HIRE", DesktopTheme.accentBlue());
         hireBtn.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row < 0) {
@@ -206,7 +203,7 @@ public class CoordinatorHiringDialog extends JDialog {
         add(headerPanel, BorderLayout.NORTH);
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(null);
-        scroll.getViewport().setBackground(BG_COLOR);
+        scroll.getViewport().setBackground(DesktopTheme.dialogBackground());
         add(scroll, BorderLayout.CENTER);
         add(buttons, BorderLayout.SOUTH);
     }
@@ -218,7 +215,7 @@ public class CoordinatorHiringDialog extends JDialog {
     private void showDCContent(JDialog container) {
         container.getContentPane().removeAll();
         container.setLayout(new BorderLayout());
-        container.getContentPane().setBackground(BG_COLOR);
+        container.getContentPane().setBackground(DesktopTheme.dialogBackground());
 
         ArrayList<Staff> candidates = league.getDCList(userTeam.getHeadCoach());
         PlaybookDefense[] playbooks = userTeam.getPlaybookDef();
@@ -243,15 +240,16 @@ public class CoordinatorHiringDialog extends JDialog {
         }
 
         JTable table = createModernTable(model);
+        StripedRowRenderer.install(table);
         table.getColumnModel().getColumn(0).setPreferredWidth(100);
 
         JPanel headerPanel = createHeaderPanel("HIRE DEFENSIVE COORDINATOR");
 
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 25, 20));
-        buttons.setBackground(SURFACE_COLOR);
-        buttons.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(255, 255, 255, 20)));
+        buttons.setBackground(DesktopTheme.dialogSurface());
+        buttons.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.dialogDivider(20)));
 
-        JButton hireBtn = createGlassButton("CONFIRM HIRE", ACCENT_BLUE);
+        JButton hireBtn = createGlassButton("CONFIRM HIRE", DesktopTheme.accentBlue());
         hireBtn.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row < 0) {
@@ -270,7 +268,7 @@ public class CoordinatorHiringDialog extends JDialog {
         container.add(headerPanel, BorderLayout.NORTH);
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(null);
-        scroll.getViewport().setBackground(BG_COLOR);
+        scroll.getViewport().setBackground(DesktopTheme.dialogBackground());
         container.add(scroll, BorderLayout.CENTER);
         container.add(buttons, BorderLayout.SOUTH);
         container.revalidate();
@@ -283,16 +281,16 @@ public class CoordinatorHiringDialog extends JDialog {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setColor(new Color(255, 255, 255, 20));
+                g2.setColor(DesktopTheme.dialogDivider(20));
                 g2.fillRect(0, getHeight() - 1, getWidth(), 1);
                 g2.dispose();
             }
         };
-        headerPanel.setBackground(SURFACE_COLOR);
+        headerPanel.setBackground(DesktopTheme.dialogSurface());
         headerPanel.setBorder(BorderFactory.createEmptyBorder(25, 30, 25, 30));
         JLabel header = new JLabel(title);
         header.setFont(new Font("SansSerif", Font.BOLD, 20));
-        header.setForeground(Color.WHITE);
+        header.setForeground(DesktopTheme.textPrimary());
         headerPanel.add(header, BorderLayout.WEST);
         return headerPanel;
     }
@@ -301,17 +299,17 @@ public class CoordinatorHiringDialog extends JDialog {
         JTable table = new JTable(model);
         table.setRowHeight(40);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setBackground(BG_COLOR);
-        table.setForeground(Color.WHITE);
-        table.setGridColor(new Color(255, 255, 255, 10));
+        table.setBackground(DesktopTheme.dialogBackground());
+        table.setForeground(DesktopTheme.textPrimary());
+        table.setGridColor(DesktopTheme.dialogDivider(10));
         table.setShowVerticalLines(false);
-        table.setSelectionBackground(ACCENT_BLUE);
+        table.setSelectionBackground(DesktopTheme.accentBlue());
         
-        table.getTableHeader().setBackground(SURFACE_COLOR);
-        table.getTableHeader().setForeground(TEXT_SECONDARY);
+        table.getTableHeader().setBackground(DesktopTheme.dialogSurface());
+        table.getTableHeader().setForeground(DesktopTheme.textSecondary());
         table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 10));
         table.getTableHeader().setPreferredSize(new Dimension(0, 45));
-        table.getTableHeader().setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(255, 255, 255, 10)));
+        table.getTableHeader().setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, DesktopTheme.dialogDivider(10)));
         
         return table;
     }
@@ -329,7 +327,7 @@ public class CoordinatorHiringDialog extends JDialog {
             }
         };
         btn.setFont(new Font("SansSerif", Font.BOLD, 12));
-        btn.setForeground(Color.WHITE);
+        btn.setForeground(DesktopTheme.textPrimary());
         btn.setBackground(bg);
         btn.setFocusPainted(false);
         btn.setContentAreaFilled(false);

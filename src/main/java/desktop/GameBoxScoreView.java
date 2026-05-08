@@ -136,9 +136,9 @@ public class GameBoxScoreView extends JDialog {
     private JPanel buildScoreboard() {
         JPanel scoreboard = new JPanel(new GridLayout(3, 6, 8, 4));
         scoreboard.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(new Color(60, 70, 80), 1),
+                BorderFactory.createLineBorder(DesktopTheme.borderSubtle(), 1),
                 BorderFactory.createEmptyBorder(12, 12, 12, 12)));
-        scoreboard.setBackground(new Color(28, 32, 38));
+        scoreboard.setBackground(DesktopTheme.statusBackground());
 
         // Header row
         addScoreCell(scoreboard, "TEAM", true);
@@ -167,7 +167,7 @@ public class GameBoxScoreView extends JDialog {
 
     private void addScoreCell(JPanel panel, String text, boolean highlighted) {
         JLabel label = new JLabel(text, JLabel.CENTER);
-        label.setForeground(highlighted ? new Color(100, 200, 255) : Color.WHITE);
+        label.setForeground(highlighted ? DesktopTheme.userTeamAccent() : DesktopTheme.textPrimary());
         label.setFont(new Font("SansSerif", highlighted ? Font.BOLD : Font.PLAIN, 14));
         panel.add(label);
     }
