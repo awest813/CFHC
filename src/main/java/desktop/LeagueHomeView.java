@@ -148,6 +148,12 @@ public class LeagueHomeView extends JFrame {
             "League History", "News", "Coaches", "Hall of Fame", "Records", "Settings"
     };
 
+    private static final String[] NAV_ICONS = {
+            "\u2302", "\u2666", "\u2630", "\u25A0", "\u2605",
+            "\u2191", "\u2261", "\u2637", "\u2318", "\u2609",
+            "\u263C", "\u265A", "\u2606", "\u25C9", "\u2699"
+    };
+
     private String selectedScreen = "Home";
     private JPanel mainContentCards;
     private CardLayout mainCardLayout;
@@ -1203,12 +1209,12 @@ public class LeagueHomeView extends JFrame {
 
     private JList<String> buildNavigationList() {
         DefaultListModel<String> model = new DefaultListModel<>();
-        for (String title : NAV_TITLES) {
-            model.addElement(title);
+        for (int i = 0; i < NAV_TITLES.length; i++) {
+            model.addElement(NAV_ICONS[i] + "  " + NAV_TITLES[i]);
         }
         JList<String> list = new JList<>(model);
-        list.setFixedCellHeight(34);
-        list.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 12));
+        list.setFixedCellHeight(36);
+        list.setFont(new Font("SansSerif", Font.PLAIN, 12));
         list.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         list.setBackground(DesktopTheme.sidebarBackground());
         list.setForeground(DesktopTheme.sidebarText());
@@ -1219,10 +1225,15 @@ public class LeagueHomeView extends JFrame {
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                           boolean isSelected, boolean cellHasFocus) {
                 JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                label.setBorder(BorderFactory.createEmptyBorder(0, 14, 0, 10));
+                label.setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 10));
                 label.setOpaque(true);
                 label.setBackground(isSelected ? DesktopTheme.sidebarSelectionBackground() : DesktopTheme.sidebarBackground());
                 label.setForeground(isSelected ? Color.WHITE : DesktopTheme.sidebarText());
+                if (isSelected) {
+                    label.setFont(new Font("SansSerif", Font.BOLD, 12));
+                } else {
+                    label.setFont(new Font("SansSerif", Font.PLAIN, 12));
+                }
                 return label;
             }
         });
@@ -1230,7 +1241,9 @@ public class LeagueHomeView extends JFrame {
             if (!e.getValueIsAdjusting()) {
                 String value = list.getSelectedValue();
                 if (value != null) {
-                    selectScreen(value);
+                    int idx = list.getSelectedIndex();
+                    String title = idx >= 0 && idx < NAV_TITLES.length ? NAV_TITLES[idx] : "Home";
+                    selectScreen(title);
                 }
             }
         });
@@ -2422,7 +2435,7 @@ public class LeagueHomeView extends JFrame {
     // Home Dashboard tab
     // =========================================================================
 
-    private JPanel buildDashboardPanel() {
+private JPanel buildDashboardPanel() {
         JPanel panel = new JPanel(new BorderLayout(12, 12));
         panel.setOpaque(true);
         panel.setBackground(DesktopTheme.windowBackground());
@@ -2448,23 +2461,25 @@ public class LeagueHomeView extends JFrame {
         grid.setOpaque(true);
         grid.setBackground(DesktopTheme.windowBackground());
 
-        // Left column: Season Progress & Headlines
         JPanel left = new JPanel(new BorderLayout(0, 12));
         left.setOpaque(true);
         left.setBackground(DesktopTheme.windowBackground());
-        JPanel progress = new JPanel(new GridLayout(0, 1, 4, 4));
+        JPanel progress = new JPanel(new BorderLayout(0, 8));
         progress.setOpaque(false);
         progress.setBorder(DesktopTheme.titledBorder("Season Status"));
-        JLabel p1 = new JLabel("Current Period: " + decodeSeasonPeriod());
-        p1.setForeground(DesktopTheme.textPrimary());
-        progress.add(p1);
-        JLabel p2 = new JLabel("League Year: " + leagueCore.getYear());
-        p2.setForeground(DesktopTheme.textPrimary());
-        progress.add(p2);
-        JLabel p3 = new JLabel("Active Conferences: " + leagueCore.getConferences().size());
-        p3.setForeground(DesktopTheme.textPrimary());
-        progress.add(p3);
-        left.add(progress, BorderLayout.NORTH);
+        JPanel statsRow = new JPanel(new GridLayout(0, 3, 8, 8));
+        statsRow.setOpaque(false);
+
+        Color cardBg = DesktopTheme.pollLeaderCard();
+        Color cardFg = DesktopTheme.textPrimary();
+
+        JPanel periodCard = makeStatCard("Current Period", decodeSeasonPeriod(), cardBg, cardFg);
+        JPanel yearCard = makeStatCard("League Year", String.valueOf(leagueCore.getYear()), cardBg, cardFg);
+        JPanel confCard = makeStatCard("Conferences", String.valueOf(leagueCore.getConferences().size()), cardBg, cardFg);
+        statsRow.add(periodCard);
+        statsRow.add(yearCard);
+        statsRow.add(confCard);
+        progress.add(statsRow, BorderLayout.NORTH);
 
         JPanel news = new JPanel(new BorderLayout());
         news.setOpaque(true);
@@ -2472,7 +2487,7 @@ public class LeagueHomeView extends JFrame {
         news.setBorder(DesktopTheme.titledBorder("Latest Headlines"));
         DefaultListModel<String> newsModel = new DefaultListModel<>();
         if (leagueCore.getNewsHeadlines() != null) {
-            leagueCore.getNewsHeadlines().stream().limit(10).forEach(newsModel::addElement);
+            leagueCore.getNewsHeadlines().stream().limit(8).forEach(newsModel::addElement);
         }
         if (newsModel.isEmpty()) {
             newsModel.addElement("No headlines yet. Advance the week to generate league news.");
@@ -2485,7 +2500,7 @@ public class LeagueHomeView extends JFrame {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 JLabel l = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                l.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10));
+                l.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
                 String fg = isSelected ? "rgb(255,255,255)" : DesktopTheme.cssRgb(DesktopTheme.textPrimary());
                 l.setText("<html><body style='width:250px;color:" + fg + ";'>\u2022 "
                         + DesktopTheme.escapeForHtml(value.toString()) + "</body></html>");
@@ -2497,9 +2512,9 @@ public class LeagueHomeView extends JFrame {
         dashNewsScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
         dashNewsScroll.setOpaque(true);
         news.add(dashNewsScroll, BorderLayout.CENTER);
+        left.add(progress, BorderLayout.NORTH);
         left.add(news, BorderLayout.CENTER);
 
-        // Right column: Top 5 & Heisman Race
         JPanel right = new JPanel(new BorderLayout(0, 12));
         right.setOpaque(true);
         right.setBackground(DesktopTheme.windowBackground());
@@ -2511,13 +2526,13 @@ public class LeagueHomeView extends JFrame {
                 .sorted(Comparator.comparingInt(Team::getRankTeamPollScore))
                 .limit(5)
                 .forEach(t -> {
-                    JLabel l = new JLabel(String.format(" #%d  %-20s  (%d-%d)",
+                    JLabel l = new JLabel(String.format(" #%-2d %-18s  (%d-%d)",
                             t.getRankTeamPollScore(), t.getName(), t.getWins(), t.getLosses()));
-                    l.setFont(new Font("SansSerif", Font.BOLD, 13));
+                    l.setFont(new Font("SansSerif", Font.BOLD, 12));
                     l.setOpaque(true);
                     l.setBackground(DesktopTheme.pollLeaderCard());
                     l.setForeground(DesktopTheme.textPrimary());
-                    l.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
+                    l.setBorder(BorderFactory.createEmptyBorder(4, 10, 4, 10));
                     top5.add(l);
                 });
         right.add(top5, BorderLayout.NORTH);
@@ -2555,7 +2570,7 @@ public class LeagueHomeView extends JFrame {
         quick.add(mkNavButton("News"));
         quick.add(mkNavButton("Recruiting"));
         if (leagueCore.userTeam != null) {
-            JButton my = new JButton("My Program");
+            JButton my = new JButton("\u2605 My Program");
             my.setToolTipText("Roster, depth chart, and team tools (Ctrl+U)");
             my.addActionListener(e -> openUserTeamDetail());
             quick.add(my);
@@ -2564,12 +2579,28 @@ public class LeagueHomeView extends JFrame {
         bottom.add(quick, BorderLayout.NORTH);
 
         JLabel hint = new JLabel("Welcome back, Coach. Use the league office navigation at left to explore the league. F1 for shortcuts.");
-        hint.setFont(new Font(Font.SANS_SERIF, Font.ITALIC, 12));
+        hint.setFont(new Font("SansSerif", Font.ITALIC, 12));
         hint.setForeground(DesktopTheme.textSecondary());
         bottom.add(hint, BorderLayout.SOUTH);
         panel.add(bottom, BorderLayout.SOUTH);
 
         return panel;
+    }
+
+    private JPanel makeStatCard(String label, String value, Color bg, Color fg) {
+        JPanel card = new JPanel(new BorderLayout(4, 2));
+        card.setOpaque(true);
+        card.setBackground(bg);
+        card.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
+        JLabel lbl = new JLabel(label);
+        lbl.setFont(new Font("SansSerif", Font.PLAIN, 10));
+        lbl.setForeground(DesktopTheme.textSecondary());
+        JLabel val = new JLabel(value);
+        val.setFont(new Font("SansSerif", Font.BOLD, 14));
+        val.setForeground(fg);
+        card.add(lbl, BorderLayout.NORTH);
+        card.add(val, BorderLayout.SOUTH);
+return card;
     }
 
     private JButton mkNavButton(String tabTitle) {
@@ -2594,8 +2625,14 @@ public class LeagueHomeView extends JFrame {
 
     private JPanel buildCoachProfilePanel() {
         if (leagueCore.userTeam == null) {
-            JPanel empty = new JPanel();
+            JPanel empty = new JPanel(new BorderLayout());
             DesktopTheme.styleTabRoot(empty);
+            JLabel msg = new JLabel("<html><div style='text-align:center;width:400px'><b>No program selected</b><br><br>"
+                    + "Start or load a career with a team to view your coach profile here.</div></html>");
+            msg.setFont(new Font("SansSerif", Font.PLAIN, 14));
+            msg.setForeground(DesktopTheme.textSecondary());
+            msg.setHorizontalAlignment(JLabel.CENTER);
+            empty.add(msg, BorderLayout.CENTER);
             return empty;
         }
         Team ut = leagueCore.userTeam;
@@ -2632,6 +2669,7 @@ public class LeagueHomeView extends JFrame {
 
         if (!hc.history.isEmpty()) {
             JTextArea hist = new JTextArea("History:\n\n");
+            hist.setFont(new Font("SansSerif", Font.PLAIN, 13));
             for (String s : hc.history) hist.append("  \u2022 " + s + "\n");
             DesktopTheme.styleTextContent(hist);
             JScrollPane histScroll = new JScrollPane(hist);

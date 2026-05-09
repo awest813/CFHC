@@ -196,6 +196,10 @@ public final class DesktopTheme {
         return dark ? new Color(48, 52, 60) : new Color(240, 242, 245);
     }
 
+    public static Color tableHoverTint() {
+        return dark ? new Color(52, 56, 68) : new Color(235, 238, 244);
+    }
+
     public static Color menuBarBackground() {
         if (dark) {
             return new Color(40, 42, 48);
