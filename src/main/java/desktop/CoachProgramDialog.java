@@ -34,13 +34,13 @@ public final class CoachProgramDialog {
         }
         final Staff hc = userTeam.getHeadCoach();
 
-        JDialog d = new JDialog(owner, "Coach Program, NIL & Facilities", true);
+        JDialog d = new JDialog(owner, CoachSkills.PROGRAM_DIALOG_TITLE, true);
         d.setSize(520, 580);
         d.setLocationRelativeTo(owner);
         d.setLayout(new BorderLayout(0, 8));
         d.getContentPane().setBackground(DesktopTheme.windowBackground());
 
-        JTextArea area = new JTextArea(buildSummary(userTeam, hc));
+        JTextArea area = new JTextArea(CoachSkills.buildProgramSummary(userTeam, hc));
         area.setEditable(false);
         area.setLineWrap(true);
         area.setWrapStyleWord(true);
@@ -70,13 +70,13 @@ public final class CoachProgramDialog {
                 super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value instanceof Integer bi) {
                     int r = CoachSkills.getRank(hc.coachSkillRanksBits, bi);
-                    setText(CoachSkills.branchTitle(bi) + "  [Rank " + r + "/3]");
+                    setText(CoachSkills.branchPickerLabel(hc.coachSkillRanksBits, bi));
                 }
                 return this;
             }
         });
 
-        JButton upgrade = new JButton("Upgrade selected branch");
+        JButton upgrade = new JButton(CoachSkills.UPGRADE_BRANCH_BUTTON_LABEL);
         upgrade.addActionListener(e -> {
             int b = (Integer) branchBox.getSelectedItem();
             int cur = CoachSkills.getRank(hc.coachSkillRanksBits, b);
@@ -90,7 +90,7 @@ public final class CoachProgramDialog {
                 return;
             }
             if (hc.tryPurchaseCoachSkillRank(b)) {
-                area.setText(buildSummary(userTeam, hc));
+                area.setText(CoachSkills.buildProgramSummary(userTeam, hc));
                 branchBox.repaint();
                 refreshXp.run();
             }
@@ -101,9 +101,7 @@ public final class CoachProgramDialog {
         south.setBorder(BorderFactory.createEmptyBorder(0, 12, 12, 12));
         south.add(xpLabel, BorderLayout.NORTH);
 
-        JLabel hint = new JLabel("<html><i>XP is earned weekly while you advance the season. "
-                + "NIL tier grows in the offseason when your budget can fund the collective. "
-                + "Training facilities still power player development in the sim core.</i></html>");
+        JLabel hint = new JLabel("<html><i>" + CoachSkills.PROGRAM_DIALOG_FOOTER_HINT + "</i></html>");
         hint.setFont(new Font("SansSerif", Font.PLAIN, 11));
         hint.setForeground(DesktopTheme.textSecondary());
         south.add(hint, BorderLayout.SOUTH);
@@ -125,26 +123,5 @@ public final class CoachProgramDialog {
         d.add(top, BorderLayout.NORTH);
 
         d.setVisible(true);
-    }
-
-    private static String buildSummary(Team t, Staff hc) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Training facilities: L").append(t.getTeamFacilities())
-                .append("  (drives base player development in the sim)\n");
-        sb.append("NIL / booster collective: Tier ").append(t.nilCollectiveLevel)
-                .append("  (home revenue, weekly stipend, recruiting budget)\n\n");
-        sb.append("Coach skills:\n");
-        for (int b = 0; b < CoachSkills.BRANCH_COUNT; b++) {
-            int r = CoachSkills.getRank(hc.coachSkillRanksBits, b);
-            int next = CoachSkills.costForNextRank(r);
-            sb.append("• ").append(CoachSkills.branchTitle(b)).append(" — rank ").append(r).append("/3");
-            if (r < 3) {
-                sb.append("  (next: ").append(next).append(" XP)\n");
-            } else {
-                sb.append("  (max)\n");
-            }
-            sb.append("  ").append(CoachSkills.branchBlurb(b)).append("\n");
-        }
-        return sb.toString();
     }
 }

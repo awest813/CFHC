@@ -15,7 +15,6 @@
             android:id="@+id/textCoachProgramTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Coach Program &amp; NIL"
             android:textColor="@color/textPrimary"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -60,16 +59,15 @@
             android:layout_height="48dp"
             android:layout_marginTop="12dp"
             android:background="@drawable/bg_action_primary"
-            android:text="Spend XP"
             android:textAllCaps="false"
             android:textColor="@color/colorPrimaryDark"
             android:textStyle="bold" />
 
         <TextView
+            android:id="@+id/textCoachProgramHint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="14dp"
-            android:text="Earn XP each week you simulate. NIL tiers auto-upgrade in the offseason when budget allows."
             android:textColor="@color/textSecondary"
             android:textSize="11sp" />
 

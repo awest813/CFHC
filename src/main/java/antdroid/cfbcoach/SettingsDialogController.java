@@ -16,7 +16,7 @@ import simulation.LeagueSettingsOptions;
 import simulation.PracticeFocus;
 
 /**
- * Controller for the Game Settings dialog.
+ * Controller for the League Settings dialog (parity with desktop {@code SettingsDialog}).
  */
 public final class SettingsDialogController {
 
@@ -33,11 +33,17 @@ public final class SettingsDialogController {
 
     private static void show(final MainActivity activity, final League simLeague, final boolean isNewGameSetup) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        String title = isNewGameSetup ? (simLeague.getYear() + " Head Coach Career Setup") : "Game Settings";
+        String title = isNewGameSetup ? (simLeague.getYear() + " Head Coach Career Setup")
+                : activity.getString(R.string.league_settings_title);
         builder.setTitle(title)
                 .setView(activity.getLayoutInflater().inflate(R.layout.settings_menu, null));
         final AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         PlatformUiHelper.showImmersive(dialog);
+
+        final TextView footerHint = dialog.findViewById(R.id.textSettingsFooterHint);
+        if (footerHint != null) {
+            footerHint.setVisibility(isNewGameSetup ? View.GONE : View.VISIBLE);
+        }
 
         final CheckBox checkboxShowPotential = dialog.findViewById(R.id.checkboxShowPotential);
         checkboxShowPotential.setChecked(simLeague.showPotential);
