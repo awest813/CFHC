@@ -158,10 +158,10 @@ The Swing UI is **not** part of the Android APK (`desktop/**` is excluded from m
 | Topic | Notes |
 |:---|:---|
 | **Entry point** | `desktop.Main` (`Main-Class` in `desktopJar`). No CLI args opens **`LauncherFrame`**; CLI modes skip the launcher. |
-| **Working directory** | Run Gradle tasks from the **repository root**. `DesktopResourceProvider` loads `src/main/res/values/*.xml` and `src/main/assets/` relative to `user.dir` (the cwd). |
+| **Working directory** | Run Gradle tasks from the **repository root**. `DesktopResourceProvider` merges the XML files listed in `DesktopResourceContract` under `src/main/res/values/` and opens streams under `src/main/assets/` (classpath or `user.dir`). |
 | **CLI usage** | `new` — new-game wizard then league UI; `play <file.cfb>` / `view <file>` — load save; `inspect <file>` — print metadata; `help` — usage text. |
 | **Engine boundary** | `./gradlew checkEngineImports` fails if `simulation`, `staff`, `positions`, `comparator`, or portable recruiting files `import android.*`, `androidx.*`, or `antdroid.*`. |
-| **Desktop resources** | `desktop.DesktopResourceContract` lists which `res/values/*.xml` files and string keys the Swing shell merges; Gradle `prepareDesktopResources` copies exactly those files plus `src/main/assets/`. Run `./gradlew verifyDesktopResources` to confirm files exist (also runs before `compileDesktopJava`). |
+| **Desktop resources** | `desktop.DesktopResourceContract` lists required `res/values` files and string keys; `prepareDesktopResources` copies those files plus `assets/` into the desktop classpath. File existence is checked automatically before desktop compile (`verifyDesktopResources`). |
 
 ```bash
 ./gradlew desktopVerify        # recommended: full desktop gate (imports + resources + compile)
