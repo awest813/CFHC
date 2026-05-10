@@ -388,14 +388,12 @@ public class NewGameWizard extends JDialog {
         });
 
         JScrollPane confScroll = new JScrollPane(confList);
-        confScroll.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(DesktopTheme.borderSubtle()), "Conference"));
+        confScroll.setBorder(DesktopTheme.titledBorder("Conference"));
         confScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
         confScroll.setPreferredSize(new Dimension(200, 0));
 
         JScrollPane teamScroll = new JScrollPane(teamList);
-        teamScroll.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(DesktopTheme.borderSubtle()), "Teams"));
+        teamScroll.setBorder(DesktopTheme.titledBorder("Teams"));
         teamScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, confScroll, teamScroll);
