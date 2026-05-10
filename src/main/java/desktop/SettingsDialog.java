@@ -77,8 +77,9 @@ public class SettingsDialog extends JDialog {
         content.setOpaque(false);
         content.setBorder(BorderFactory.createEmptyBorder(30, 35, 30, 35));
 
-        JComboBox<PracticeFocus> practiceFocusCombo = null;
-        JLabel practiceFocusDesc = null;
+        @SuppressWarnings("unchecked")
+        final JComboBox<PracticeFocus>[] practiceFocusComboRef = new JComboBox[1];
+        final JLabel[] practiceFocusDescRef = new JLabel[1];
 
         JLabel displaySection = sectionLabel("Display");
         content.add(displaySection);
@@ -109,7 +110,8 @@ public class SettingsDialog extends JDialog {
             pfCaption.setForeground(DesktopTheme.textPrimary());
             pfCaption.setBorder(BorderFactory.createEmptyBorder(0, 0, 4, 0));
             content.add(pfCaption);
-            practiceFocusCombo = new JComboBox<>(PracticeFocus.values());
+            JComboBox<PracticeFocus> practiceFocusCombo = new JComboBox<>(PracticeFocus.values());
+            practiceFocusComboRef[0] = practiceFocusCombo;
             PracticeFocus curPf = league.userTeam.practiceFocus != null
                     ? league.userTeam.practiceFocus
                     : PracticeFocus.BALANCED;
@@ -127,13 +129,14 @@ public class SettingsDialog extends JDialog {
                     return this;
                 }
             });
-            practiceFocusDesc = new JLabel("<html><body style='width: 420px;'>" + curPf.shortDescription() + "</body></html>");
+            JLabel practiceFocusDesc = new JLabel("<html><body style='width: 420px;'>" + curPf.shortDescription() + "</body></html>");
+            practiceFocusDescRef[0] = practiceFocusDesc;
             practiceFocusDesc.setFont(new Font("SansSerif", Font.PLAIN, 11));
             practiceFocusDesc.setForeground(DesktopTheme.textSecondary());
             practiceFocusCombo.addActionListener(e -> {
-                Object sel = practiceFocusCombo.getSelectedItem();
-                if (sel instanceof PracticeFocus pf && practiceFocusDesc != null) {
-                    practiceFocusDesc.setText("<html><body style='width: 420px;'>" + pf.shortDescription() + "</body></html>");
+                Object sel = practiceFocusComboRef[0].getSelectedItem();
+                if (sel instanceof PracticeFocus pf && practiceFocusDescRef[0] != null) {
+                    practiceFocusDescRef[0].setText("<html><body style='width: 420px;'>" + pf.shortDescription() + "</body></html>");
                 }
             });
             content.add(practiceFocusCombo);
@@ -235,8 +238,8 @@ public class SettingsDialog extends JDialog {
             options.advancedRealignment = advRealign.isSelected();
             options.universalProRel = universalProRel.isSelected();
             options.applyTo(league, expandedPlayoffs.isEnabled(), universalProRel.isEnabled(), true);
-            if (practiceFocusCombo != null && league.userTeam != null) {
-                Object sel = practiceFocusCombo.getSelectedItem();
+            if (practiceFocusComboRef[0] != null && league.userTeam != null) {
+                Object sel = practiceFocusComboRef[0].getSelectedItem();
                 if (sel instanceof PracticeFocus pf) {
                     league.userTeam.practiceFocus = pf;
                 }

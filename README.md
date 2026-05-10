@@ -105,8 +105,8 @@ src/main/java/
 │                    (~0.9K LOC, platform-independent)
 ├── comparator/      Sorting/ranking helpers (77 comparator files)
 │                    (~1.3K LOC, platform-independent)
-├── recruiting/      Recruiting flow — controller, activity, session/presentation state
-│                    (~1.7K LOC, partially Android-coupled)
+├── recruiting/      Recruiting flow — portable controller/session code + Android activities
+│                    (~1.7K LOC; Android-only classes excluded from desktop compile)
 ├── ui/              Android list adapters, profiles, roster views
 │                    (~1.8K LOC, Android-only)
 ├── antdroid/        Android shell — activities, dialogs, navigation
@@ -153,12 +153,22 @@ Install the generated APK from `build/outputs/apk/debug/` onto a device or emula
 
 ### Desktop Prototype
 
-```bash
-./gradlew desktopJar
-./gradlew runDesktop -PdesktopArgs="new"
-```
+The Swing UI is **not** part of the Android APK (`desktop/**` is excluded from mobile builds). It shares the same engine packages as Android (`simulation`, `staff`, `positions`, `comparator`, and portable `recruiting` sources). CI runs `./gradlew compileDesktopJava` so the desktop classpath stays valid on every push.
 
-You can also load an exported save with `./gradlew runDesktop -PdesktopArgs="play path/to/save.cfb"`.
+| Topic | Notes |
+|:---|:---|
+| **Entry point** | `desktop.Main` (`Main-Class` in `desktopJar`). No CLI args opens **`LauncherFrame`**; CLI modes skip the launcher. |
+| **Working directory** | Run Gradle tasks from the **repository root**. `DesktopResourceProvider` loads `src/main/res/values/*.xml` and `src/main/assets/` relative to `user.dir` (the cwd). |
+| **CLI usage** | `new` — new-game wizard then league UI; `play <file.cfb>` / `view <file>` — load save; `inspect <file>` — print metadata; `help` — usage text. |
+| **Engine boundary** | `./gradlew checkEngineImports` fails if `simulation`, `staff`, `positions`, `comparator`, or portable recruiting files `import android.*`, `androidx.*`, or `antdroid.*`. |
+
+```bash
+./gradlew compileDesktopJava   # fast compile check (runs checkEngineImports first)
+./gradlew desktopJar           # build CFHC-desktop-*-prototype.jar
+./gradlew runDesktop           # GUI launcher (default)
+./gradlew runDesktop -PdesktopArgs="new"
+java -jar build/libs/CFHC-desktop-prototype.jar play path/to/save.cfb
+```
 
 ---
 

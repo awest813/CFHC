@@ -113,9 +113,51 @@ tasks.register('prepareDesktopResources', Copy) {
     into(desktopResourcesDir)
 }
 
+tasks.register('checkEngineImports') {
+    group = 'verification'
+    description = 'Fails if engine packages import Android APIs (keeps desktop classpath safe).'
+
+    doLast {
+        def forbidden = ~/^\s*import\s+(android\.[^;]+|androidx\.[^;]+|antdroid\.[^;]+)/
+        def violations = []
+        ['comparator', 'positions', 'simulation', 'staff'].each { pkg ->
+            fileTree("${project.projectDir}/src/main/java/${pkg}").matching {
+                include '**/*.java'
+            }.each { f ->
+                int num = 0
+                f.eachLine { line ->
+                    num++
+                    if (line.find(forbidden)) {
+                        violations << "${f.path}:${num}: ${line.trim()}"
+                    }
+                }
+            }
+        }
+        fileTree("${project.projectDir}/src/main/java/recruiting").matching {
+            include '**/*.java'
+            exclude 'RecruitingActivity.java'
+            exclude 'RecruitingDialogController.java'
+        }.each { f ->
+            int num = 0
+            f.eachLine { line ->
+                num++
+                if (line.find(forbidden)) {
+                    violations << "${f.path}:${num}: ${line.trim()}"
+                }
+            }
+        }
+        if (!violations.isEmpty()) {
+            throw new GradleException(
+                    'Engine packages must not import Android/UI APIs:\n' + violations.join('\n'))
+        }
+    }
+}
+
 tasks.register('compileDesktopJava', JavaCompile) {
     group = 'desktop'
     description = 'Compiles the desktop prototype and shared portable engine classes.'
+
+    dependsOn tasks.named('checkEngineImports')
 
     source = desktopSourceFiles
     destinationDirectory = desktopClassesDir
