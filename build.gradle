@@ -96,15 +96,46 @@ def desktopSourceFiles = fileTree('src/main/java') {
 def desktopClassesDir = layout.buildDirectory.dir('desktop/classes')
 def desktopResourcesDir = layout.buildDirectory.dir('desktop/resources')
 
+/** Must match {@code desktop.DesktopResourceContract.VALUE_XML_FILES}. */
+def desktopValueXmlFiles = [
+        'strings.xml',
+        'first_names.xml',
+        'last_names.xml',
+        'conferences.xml',
+        'teams.xml',
+        'bowls.xml',
+]
+
+tasks.register('verifyDesktopResources') {
+    group = 'verification'
+    description = 'Ensures res/values XML and assets exist for DesktopResourceProvider / desktop jar.'
+
+    doLast {
+        desktopValueXmlFiles.each { name ->
+            def f = file("${project.projectDir}/src/main/res/values/${name}")
+            if (!f.file) {
+                throw new GradleException(
+                        "Missing desktop resource file (sync with DesktopResourceContract): ${f}")
+            }
+        }
+        def assetsDir = file("${project.projectDir}/src/main/assets")
+        if (!assetsDir.directory) {
+            throw new GradleException('Missing src/main/assets (desktop needs asset streams).')
+        }
+    }
+}
+
 tasks.register('prepareDesktopResources', Copy) {
     group = 'desktop'
     description = 'Copies desktop runtime resources onto a classpath-friendly layout.'
 
-    from('src/main/res/values') {
-        include '*.xml'
+    dependsOn tasks.named('verifyDesktopResources')
+
+    from("${project.projectDir}/src/main/res/values") {
+        include desktopValueXmlFiles
         into 'values'
     }
-    from('src/main/assets') {
+    from("${project.projectDir}/src/main/assets") {
         into 'assets'
     }
 
@@ -153,7 +184,7 @@ tasks.register('compileDesktopJava', JavaCompile) {
     group = 'desktop'
     description = 'Compiles the desktop prototype and shared portable engine classes.'
 
-    dependsOn tasks.named('checkEngineImports')
+    dependsOn tasks.named('checkEngineImports'), tasks.named('verifyDesktopResources')
 
     source = desktopSourceFiles
     destinationDirectory = desktopClassesDir

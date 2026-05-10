@@ -17,14 +17,6 @@ import java.util.regex.Pattern;
  * Locates assets and strings from the local filesystem.
  */
 public class DesktopResourceProvider implements PlatformResourceProvider {
-    private static final String[] VALUE_FILES = {
-            "strings.xml",
-            "first_names.xml",
-            "last_names.xml",
-            "conferences.xml",
-            "teams.xml",
-            "bowls.xml"
-    };
 
     private final String projectRoot;
     private final Map<String, String> stringMap = new HashMap<>();
@@ -35,22 +27,14 @@ public class DesktopResourceProvider implements PlatformResourceProvider {
     }
 
     private void loadStrings() {
-        for (String fileName : VALUE_FILES) {
+        for (String fileName : DesktopResourceContract.VALUE_XML_FILES) {
             String resourcePath = "values/" + fileName;
             if (!loadXmlFromClasspath(resourcePath)) {
                 loadXmlFromFilesystem(projectRoot + "/src/main/res/" + resourcePath);
             }
         }
 
-        String[] requiredKeys = {
-                KEY_LEAGUE_PLAYER_NAMES,
-                KEY_LEAGUE_LAST_NAMES,
-                KEY_CONFERENCES,
-                KEY_TEAMS,
-                KEY_BOWLS
-        };
-
-        for (String key : requiredKeys) {
+        for (String key : DesktopResourceContract.REQUIRED_STRING_KEYS) {
             if (!stringMap.containsKey(key)) {
                 throw new IllegalStateException("Missing desktop resource key: " + key);
             }

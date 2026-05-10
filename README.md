@@ -161,9 +161,10 @@ The Swing UI is **not** part of the Android APK (`desktop/**` is excluded from m
 | **Working directory** | Run Gradle tasks from the **repository root**. `DesktopResourceProvider` loads `src/main/res/values/*.xml` and `src/main/assets/` relative to `user.dir` (the cwd). |
 | **CLI usage** | `new` — new-game wizard then league UI; `play <file.cfb>` / `view <file>` — load save; `inspect <file>` — print metadata; `help` — usage text. |
 | **Engine boundary** | `./gradlew checkEngineImports` fails if `simulation`, `staff`, `positions`, `comparator`, or portable recruiting files `import android.*`, `androidx.*`, or `antdroid.*`. |
+| **Desktop resources** | `desktop.DesktopResourceContract` lists which `res/values/*.xml` files and string keys the Swing shell merges; Gradle `prepareDesktopResources` copies exactly those files plus `src/main/assets/`. Run `./gradlew verifyDesktopResources` to confirm files exist (also runs before `compileDesktopJava`). |
 
 ```bash
-./gradlew compileDesktopJava   # fast compile check (runs checkEngineImports first)
+./gradlew compileDesktopJava   # fast compile check (runs checkEngineImports + verifyDesktopResources first)
 ./gradlew desktopJar           # build CFHC-desktop-*-prototype.jar
 ./gradlew runDesktop           # GUI launcher (default)
 ./gradlew runDesktop -PdesktopArgs="new"
