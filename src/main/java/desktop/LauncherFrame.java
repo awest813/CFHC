@@ -43,7 +43,7 @@ public class LauncherFrame extends JFrame {
     private JLabel launcherFooterLabel;
 
     public LauncherFrame() {
-        super("CFB Coach - Front Office");
+        super("CFHC — Front Office");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(900, 560);
         setMinimumSize(new Dimension(820, 500));
@@ -78,7 +78,7 @@ public class LauncherFrame extends JFrame {
         side.setBackground(BRAND_PANEL);
         side.setBorder(BorderFactory.createEmptyBorder(40, 20, 40, 20));
 
-        JLabel title = new JLabel("<html><body style='text-align:center;'>CFB COACH<br><span style='font-size:12pt;font-weight:normal;'>Front Office</span></body></html>", SwingConstants.CENTER);
+        JLabel title = new JLabel("<html><body style='text-align:center;'>CFHC<br><span style='font-size:12pt;font-weight:normal;'>College Football Head Coach</span></body></html>", SwingConstants.CENTER);
         title.setForeground(Color.WHITE);
         title.setFont(new Font("SansSerif", Font.BOLD, 28));
         side.add(title, BorderLayout.NORTH);
@@ -240,7 +240,7 @@ public class LauncherFrame extends JFrame {
 
     private void showHelp() {
         String msg = """
-                Welcome to CFB Coach Desktop (CFHC).
+                Welcome to College Football Head Coach (CFHC) for desktop.
 
                 Getting started
                 1. New Career walks you through universe and team selection.

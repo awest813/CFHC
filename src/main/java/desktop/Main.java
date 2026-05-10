@@ -19,7 +19,7 @@ public class Main {
     private static final String TAG = "desktop.Main";
 
     private static final String HEADER =
-            "CFB Coach - Desktop Prototype (Early Alpha)\n" +
+            "College Football Head Coach (CFHC) - Desktop Prototype (Early Alpha)\n" +
             "===========================================";
 
     public static void main(String[] args) {

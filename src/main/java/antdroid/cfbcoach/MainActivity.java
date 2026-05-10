@@ -3358,7 +3358,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private File getExportSaveDir() {
         try {
-            return LeagueSaveStorage.getExportDir(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "CFBCOACH");
+            return LeagueSaveStorage.getExportDir(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "CFHC");
         } catch (IOException ex) {
             throw new IllegalStateException("Unable to prepare export directory", ex);
         }

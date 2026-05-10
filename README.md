@@ -33,7 +33,7 @@
 
 ## Overview
 
-CFHC is an expanded take on the original *College Football Coach* game. It wraps a deep, play-by-play simulation engine in a full career-mode loop — get hired, recruit, call plays, advance your coaching career, or get fired.
+**College Football Head Coach** (**CFHC**) is an expanded take on the original *College Football Coach* game. It wraps a deep, play-by-play simulation engine in a full career-mode loop — get hired, recruit, call plays, advance your coaching career, or get fired.
 
 The Android app runs **100% offline** with no ads, no in-app purchases, and no accounts required. The repository also includes a **Swing desktop prototype** that exercises the same shared simulation code while the project continues its broader platform-decoupling work.
 

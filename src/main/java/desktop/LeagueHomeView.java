@@ -240,7 +240,7 @@ public class LeagueHomeView extends JFrame {
     private String buildWindowTitle() {
         String suffix = lastSavePath != null ? " \u2014 " + lastSavePath.getName() : "";
         String dirtyMark = dirty ? " *" : "";
-        return "CFB Coach \u2014 " + currentRecord.leagueName() + " (" + currentRecord.year() + ")" + suffix + dirtyMark;
+        return "CFHC \u2014 " + currentRecord.leagueName() + " (" + currentRecord.year() + ")" + suffix + dirtyMark;
     }
 
     // =========================================================================
@@ -793,7 +793,7 @@ public class LeagueHomeView extends JFrame {
             JFileChooser chooser = new JFileChooser();
             DesktopTheme.styleFileChooser(chooser);
             chooser.setDialogTitle("Save League");
-            chooser.setFileFilter(new FileNameExtensionFilter("CFB Save (*." + SAVE_EXTENSION + ")", SAVE_EXTENSION));
+            chooser.setFileFilter(new FileNameExtensionFilter("CFHC save (*." + SAVE_EXTENSION + ")", SAVE_EXTENSION));
             chooser.setSelectedFile(new File(suggestedFilename()));
             int result = chooser.showSaveDialog(this);
             if (result != JFileChooser.APPROVE_OPTION) {
@@ -840,7 +840,7 @@ public class LeagueHomeView extends JFrame {
         DesktopTheme.styleFileChooser(chooser);
         chooser.setDialogTitle("Open Save File");
         chooser.setFileFilter(new FileNameExtensionFilter(
-                "CFB Save (*." + SAVE_EXTENSION + ", *.txt)",
+                "CFHC save (*." + SAVE_EXTENSION + ", *.txt)",
                 SAVE_EXTENSION, "txt"));
         int result = chooser.showOpenDialog(this);
         if (result != JFileChooser.APPROVE_OPTION) return;
@@ -1005,10 +1005,10 @@ public class LeagueHomeView extends JFrame {
     private void showAbout() {
         JOptionPane.showMessageDialog(this,
                 DesktopTheme.messageForDialog(
-                "CFB Coach \u2014 Desktop (CFHC)\n"
+                "College Football Head Coach (CFHC) \u2014 Desktop\n"
                         + "Portable Java build of the College Football Head Coach simulation.\n\n"
                         + "Press F1 or Ctrl+/ for the full shortcut list."),
-                "About CFB Coach",
+                "About CFHC",
                 JOptionPane.INFORMATION_MESSAGE);
     }
 
@@ -2844,7 +2844,7 @@ return card;
      */
     public static void showSnapshot(LeagueRecord record) {
         SwingUtilities.invokeLater(() -> {
-            JDialog dialog = new JDialog((JFrame) null, "CFB Coach - " + record.leagueName()
+            JDialog dialog = new JDialog((JFrame) null, "CFHC - " + record.leagueName()
                     + " (" + record.year() + ") [read-only]", true);
             dialog.setSize(900, 600);
             dialog.setLayout(new BorderLayout());

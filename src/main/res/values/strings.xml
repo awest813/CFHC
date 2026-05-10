@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">College Football Coach: Career Edition</string>
+    <string name="app_name">College Football Head Coach</string>
     <string name="title_activity_main">Dynasty Hub</string>
     <string name="action_team_strategy">Manage Strategy</string>
     <string name="action_team_lineup">Manage Lineup</string>
@@ -40,9 +40,9 @@
     <string name="title_activity_main2">League Hub</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">College Football Coach</string>
-    <string name="nav_header_subtitle">Career Edition</string>
-    <string name="nav_header_desc">CFB Coach logo</string>
+    <string name="nav_header_title">College Football Head Coach</string>
+    <string name="nav_header_subtitle">CFHC</string>
+    <string name="nav_header_desc">College Football Head Coach (CFHC) logo</string>
     <string name="main_depth_chart">Depth Chart</string>
     <string name="main_play_week">Play Week</string>
     <string name="main_playbook">Playbook</string>
