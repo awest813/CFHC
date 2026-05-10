@@ -1,4 +1,4 @@
-# Phase 1 (desktop standalone): Android unit tests + engine import guard + desktop Java compile.
+# Android unit tests + desktop standalone gate (engine imports, resource files, Swing classpath compile).
 name: CI
 
 on:
@@ -22,5 +22,5 @@ jobs:
       - name: Run unit tests (Android + shared engine)
         run: ./gradlew test --no-daemon
 
-      - name: Compile desktop prototype (includes engine import check)
-        run: ./gradlew compileDesktopJava --no-daemon
+      - name: Desktop standalone gate (desktopVerify)
+        run: ./gradlew desktopVerify --no-daemon

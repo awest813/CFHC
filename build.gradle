@@ -197,6 +197,13 @@ tasks.register('compileDesktopJava', JavaCompile) {
             .withPathSensitivity(PathSensitivity.RELATIVE)
 }
 
+/** Single entry point for CI / pre-push: engine imports + resource paths + desktop compile. */
+tasks.register('desktopVerify') {
+    group = 'verification'
+    description = 'Runs checkEngineImports, verifyDesktopResources, and compileDesktopJava (desktop standalone gate).'
+    dependsOn tasks.named('compileDesktopJava')
+}
+
 tasks.register('desktopJar', Jar) {
     group = 'desktop'
     description = 'Builds a runnable jar for the desktop prototype.'

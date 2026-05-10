@@ -153,7 +153,7 @@ Install the generated APK from `build/outputs/apk/debug/` onto a device or emula
 
 ### Desktop Prototype
 
-The Swing UI is **not** part of the Android APK (`desktop/**` is excluded from mobile builds). It shares the same engine packages as Android (`simulation`, `staff`, `positions`, `comparator`, and portable `recruiting` sources). CI runs `./gradlew compileDesktopJava` so the desktop classpath stays valid on every push.
+The Swing UI is **not** part of the Android APK (`desktop/**` is excluded from mobile builds). It shares the same engine packages as Android (`simulation`, `staff`, `positions`, `comparator`, and portable `recruiting` sources). CI runs `./gradlew desktopVerify` on every push (engine import scan, required resource files, desktop Java compile).
 
 | Topic | Notes |
 |:---|:---|
@@ -164,8 +164,9 @@ The Swing UI is **not** part of the Android APK (`desktop/**` is excluded from m
 | **Desktop resources** | `desktop.DesktopResourceContract` lists which `res/values/*.xml` files and string keys the Swing shell merges; Gradle `prepareDesktopResources` copies exactly those files plus `src/main/assets/`. Run `./gradlew verifyDesktopResources` to confirm files exist (also runs before `compileDesktopJava`). |
 
 ```bash
-./gradlew compileDesktopJava   # fast compile check (runs checkEngineImports + verifyDesktopResources first)
-./gradlew desktopJar           # build CFHC-desktop-*-prototype.jar
+./gradlew desktopVerify        # recommended: full desktop gate (imports + resources + compile)
+./gradlew compileDesktopJava   # same compile step only (also runs checkEngineImports + verifyDesktopResources first)
+./gradlew desktopJar           # build CFHC-desktop-prototype.jar (+ resources)
 ./gradlew runDesktop           # GUI launcher (default)
 ./gradlew runDesktop -PdesktopArgs="new"
 java -jar build/libs/CFHC-desktop-prototype.jar play path/to/save.cfb
@@ -216,14 +217,14 @@ An April 2026 audit identified the project's biggest technical risks. Several hi
 | Architecture | 6 / 10 | Good platform separation; `League` and `Team` remain God Objects (~6.5K and ~5.5K LOC) |
 | Code Quality | 6 / 10 | Logging and save-failure handling improved; public mutable collections still need cleanup |
 | Testability | 5 / 10 | Initial JUnit coverage exists, but core engine isolation is still difficult |
-| Portability | 6 / 10 | Platform bridge, shared save/export services, and desktop shell are in place; no headless facade yet |
+| Portability | 7 / 10 | Platform bridge, `SimulationFacade`, desktop shell, and CI `desktopVerify` gate |
 | Dependency Health | 7 / 10 | `targetSdk` now matches `compileSdk`; AndroidX stack is current enough for API 35 work |
 
 **Top remaining issues:**
 
 1. **God Objects** — `League.java` (6,485 LOC, 109 public methods) and `Team.java` (5,487 LOC) need decomposition
 2. **Public mutable fields** — 46 in `League`, 31 in `Team`; callers bypass all validation
-3. **No headless simulation facade** — alternate shells still depend on UI-oriented orchestration
+3. **Thin orchestration at UI boundaries** — `SimulationFacade` exists for tests/tools; large flows still live on `League`/`SeasonController`
 4. **Import flow is still Android-heavy** — custom-universe parsing is shared, but roster/coach import orchestration still lives in Android classes
 5. **Test coverage is still thin** — the existing suite needs broader scenario and regression coverage
 
