@@ -1357,18 +1357,12 @@ public class League {
         }
 
         int numOddConf = 0;
-        int largeOddConf = 0;
         for (int i = 0; i < conferences.size(); i++) {
             if(conferences.get(i).confTeams.size() % 2 != 0) {
                 numOddConf++;
                 advancedRealignment = true;
-/*                if(conferences.get(i).confTeams.size() >= 13) {
-                    largeOddConf++;
-                }*/
             }
         }
-        //if (numOddConf > 0) regSeasonWeeks++;
-        //if (largeOddConf > 0) regSeasonWeeks++;
 
         //set up schedule
         for (int i = 0; i < conferences.size(); ++i) {
@@ -1482,19 +1476,6 @@ public class League {
 
 
             if(numOddConf > 0) {
-                for (int c = 0; c < conferences.size(); c++) {
-                    if (conferences.get(c).confTeams.size() < conferences.get(c).minConfTeams) {
-                        Team bye = new Team("BYE", "BYE", "BYE", 0, "BYE", 0, this);
-                        bye.setRankTeamPollScore(teamList.size());
-                        for (int g = 0; g < conferences.get(c).confTeams.size(); ++g) {
-                            Team a = conferences.get(c).confTeams.get(g);
-                            a.addGameToSchedule(new Game(a, bye, "BYE WEEK"));
-                        }
-                    }
-                }
-            }
-
-            if(largeOddConf > 0) {
                 for (int c = 0; c < conferences.size(); c++) {
                     if (conferences.get(c).confTeams.size() < conferences.get(c).minConfTeams) {
                         Team bye = new Team("BYE", "BYE", "BYE", 0, "BYE", 0, this);
@@ -2011,10 +1992,14 @@ public class League {
             if (defPOTYCandidates == null || defPOTYCandidates.isEmpty()) {
                 defPOTYCandidates = getDefPOTY();
             }
-            heismanHistory.add(heismans.get(0).position + " " + heismans.get(0).getInitialName() + " [" + heismans.get(0).getYrStr() + "], "
-                    + heismans.get(0).team.getAbbr() + " (" + heismans.get(0).team.getWins() + "-" + heismans.get(0).team.getLosses() + ")>" +
-                    defPOTYCandidates.get(0).position + " " + defPOTYCandidates.get(0).getInitialName() + " [" + defPOTYCandidates.get(0).getYrStr() + "], "
-                    + defPOTYCandidates.get(0).team.getAbbr() + " (" + defPOTYCandidates.get(0).team.getWins() + "-" + defPOTYCandidates.get(0).team.getLosses() + ")");
+            if (!heismans.isEmpty() && defPOTYCandidates != null && !defPOTYCandidates.isEmpty()) {
+                Player off = heismans.get(0);
+                Player def = defPOTYCandidates.get(0);
+                heismanHistory.add(off.position + " " + off.getInitialName() + " [" + off.getYrStr() + "], "
+                        + off.team.getAbbr() + " (" + off.team.getWins() + "-" + off.team.getLosses() + ")>" +
+                        def.position + " " + def.getInitialName() + " [" + def.getYrStr() + "], "
+                        + def.team.getAbbr() + " (" + def.team.getWins() + "-" + def.team.getLosses() + ")");
+            }
 
             if (expPlayoffs) playExpandedPlayoffFirstRound();
             else playBowlWeek1();
@@ -3297,19 +3282,24 @@ public class League {
 
 
     public void playBowlWeek1() {
+        // Smaller bowls play first (scheduled with currentWeek+2 preview).
         for (int g = 16; g < bowlGames.length; g++) {
             if(bowlGames[g] != null) playBowl(bowlGames[g]);
         }
     }
 
     public void playBowlWeek2() {
-        for (int g = 6; g < bowlGames.length; g++) {
+        // Mid-tier bowls (scheduled with currentWeek+3 preview).
+        int end = Math.min(16, bowlGames.length);
+        for (int g = 6; g < end; g++) {
             if(bowlGames[g] != null) playBowl(bowlGames[g]);
         }
     }
 
     public void playBowlWeek3() {
-        for (int g = 0; g < bowlGames.length; g++) {
+        // Top bowls (scheduled with currentWeek+4 preview).
+        int end = Math.min(6, bowlGames.length);
+        for (int g = 0; g < end; g++) {
             if(bowlGames[g] != null) playBowl(bowlGames[g]);
         }
 

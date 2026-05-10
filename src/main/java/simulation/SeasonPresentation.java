@@ -53,30 +53,36 @@ public final class SeasonPresentation {
     }
 
     public static String getSeasonWeekChipText(League simLeague) {
-        if (simLeague.currentWeek <= 0) {
+        int week = simLeague.currentWeek;
+        int regWeeks = simLeague.regSeasonWeeks;
+        if (week <= 0) {
             return "Week 0  Preseason";
-        } else if (simLeague.currentWeek <= simLeague.regSeasonWeeks) {
-            return "Week " + simLeague.currentWeek;
-        } else if (simLeague.currentWeek == simLeague.regSeasonWeeks + 1) {
-            return "Week " + simLeague.currentWeek + "  CCG";
-        } else if (simLeague.currentWeek <= simLeague.regSeasonWeeks + 4) {
-            return "Week " + simLeague.currentWeek + "  Bowls";
+        } else if (week < regWeeks - 1) {
+            return "Week " + week;
+        } else if (week == regWeeks - 1) {
+            return "Week " + week + "  CCG";
+        } else if (week <= regWeeks + 2) {
+            return "Week " + week + "  Bowls";
+        } else if (week == regWeeks + 3) {
+            return "Week " + week + "  NCG";
         }
-        return "Week " + simLeague.currentWeek + "  Offseason";
+        return "Week " + week + "  Offseason";
     }
 
     public static String getSeasonPhaseChipText(League simLeague) {
-        if (simLeague.currentWeek <= 0) {
+        int week = simLeague.currentWeek;
+        int regWeeks = simLeague.regSeasonWeeks;
+        if (week <= 0) {
             return "Phase  Preseason";
-        } else if (simLeague.currentWeek < simLeague.regSeasonWeeks) {
+        } else if (week < regWeeks - 1) {
             return "Phase  Regular Season";
-        } else if (simLeague.currentWeek == simLeague.regSeasonWeeks) {
-            return "Phase  Rivalry Stretch";
-        } else if (simLeague.currentWeek == simLeague.regSeasonWeeks + 1) {
+        } else if (week == regWeeks - 1) {
             return "Phase  Championship Week";
-        } else if (simLeague.currentWeek <= simLeague.regSeasonWeeks + 4) {
+        } else if (week <= regWeeks + 2) {
             return "Phase  Postseason";
+        } else if (week == regWeeks + 3) {
+            return "Phase  National Championship";
         }
-        return "Phase  Transition";
+        return "Phase  Offseason";
     }
 }
