@@ -63,7 +63,9 @@ public class SaveManager {
             for (LeagueRecord.TeamRecord t : c.teams()) {
                 writer.write(TEAM_PREFIX + sanitizeInlineValue(t.name()) + "," + sanitizeInlineValue(t.abbr()) + ","
                         + t.prestige() + "," + t.wins() + "," + t.losses() + ","
-                        + t.teamPollScore() + "," + t.rankTeamPollScore() + "\n");
+                        + t.teamPollScore() + "," + t.rankTeamPollScore() + ","
+                        + sanitizeInlineValue(t.practiceFocus()) + ","
+                        + t.nilCollectiveLevel() + "\n");
                 
                 // Coaches
                 writer.write(COACH_PREFIX + "HC," + Persistence.toCsv(t.headCoach()) + "\n");
@@ -150,6 +152,8 @@ public class SaveManager {
         int teamRankSnap = 0;
         List<Integer> teamOocWeeksBuf = new ArrayList<>();
         List<String> teamOocNamesBuf = new ArrayList<>();
+        String teamPracticeFocus = "";
+        int teamNilCollectiveLevel = 0;
         List<LeagueRecord.GameRecord> gameRecords = new ArrayList<>();
 
         String line;
@@ -200,7 +204,9 @@ public class SaveManager {
                 teamRankSnap = 0;
                 teamOocWeeksBuf.clear();
                 teamOocNamesBuf.clear();
-                String[] p = line.substring(2).split(",");
+                teamPracticeFocus = "";
+                teamNilCollectiveLevel = 0;
+                String[] p = line.substring(2).split(",", -1);
                 teamName = p[0];
                 teamAbbr = p[1];
                 prestige = Integer.parseInt(p[2]);
@@ -211,6 +217,16 @@ public class SaveManager {
                 if (p.length >= 7) {
                     teamPollSnap = Float.parseFloat(p[5]);
                     teamRankSnap = Integer.parseInt(p[6]);
+                }
+                if (p.length >= 8) {
+                    teamPracticeFocus = p[7];
+                }
+                if (p.length >= 9) {
+                    try {
+                        teamNilCollectiveLevel = Integer.parseInt(p[8].trim());
+                    } catch (NumberFormatException e) {
+                        teamNilCollectiveLevel = 0;
+                    }
                 }
                 roster = new ArrayList<>();
                 history = new ArrayList<>();
@@ -250,7 +266,7 @@ public class SaveManager {
                 confTeams.add(new LeagueRecord.TeamRecord(teamName, teamAbbr, prestige, teamWins, teamLosses,
                         List.copyOf(teamOocWeeksBuf), List.copyOf(teamOocNamesBuf),
                         teamPollSnap, teamRankSnap,
-                        hc, oc, dc, roster, history, tRecords));
+                        hc, oc, dc, roster, history, tRecords, teamPracticeFocus, teamNilCollectiveLevel));
             } else if (line.startsWith(GAME_PREFIX)) {
                 gameRecords.add(LeagueRecord.GameRecord.fromSaveLine(line.substring(GAME_PREFIX.length())));
             }

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_dialog_surface"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/textCoachProgramTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Coach Program &amp; NIL"
+            android:textColor="@color/textPrimary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/textCoachProgramSummary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:lineSpacingExtra="3dp"
+            android:textColor="@color/textPrimary"
+            android:textSize="13sp" />
+
+        <TextView
+            android:id="@+id/textCoachSkillXp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:textColor="@color/textPrimary"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="Upgrade branch"
+            android:textColor="@color/textSecondary"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/spinnerCoachSkillBranch"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:minHeight="48dp" />
+
+        <Button
+            android:id="@+id/buttonCoachSkillUpgrade"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_action_primary"
+            android:text="Spend XP"
+            android:textAllCaps="false"
+            android:textColor="@color/colorPrimaryDark"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="Earn XP each week you simulate. NIL tiers auto-upgrade in the offseason when budget allows."
+            android:textColor="@color/textSecondary"
+            android:textSize="11sp" />
+
+        <Button
+            android:id="@+id/buttonCoachProgramClose"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:background="@drawable/bg_action_secondary"
+            android:text="Close"
+            android:textAllCaps="false"
+            android:textColor="@color/textPrimary"
+            android:textStyle="bold" />
+    </LinearLayout>
+</ScrollView>

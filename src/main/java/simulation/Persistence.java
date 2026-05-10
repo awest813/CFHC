@@ -68,7 +68,8 @@ public final class Persistence {
           .append(",").append(r.defStrat()).append(",").append(r.contractYear()).append(",")
           .append(r.contractLength()).append(",").append(r.baselinePrestige()).append(",")
           .append(r.retired()).append(",").append(r.ratOvr()).append(",").append(r.ratImprovement())
-          .append(",").append(r.user()).append(",&");
+          .append(",").append(r.user()).append(",").append(r.coachSkillXp()).append(",")
+          .append(r.coachSkillRanksBits()).append(",&");
         
         // Stats
         for (int i = 0; i < r.stats().length; i++) {

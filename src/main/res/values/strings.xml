@@ -20,6 +20,7 @@
     <string name="action_export_league">Export Dynasty</string>
     <string name="action_return_main_menu">Exit to Main Menu</string>
     <string name="action_change_team_name">Program Tools</string>
+    <string name="action_coach_program">Coach Program &amp; NIL</string>
     <string name="title_activity_recruiting">Recruiting</string>
     <string name="action_settings">Game Settings</string>
     <string name="title_activity_main2">League Hub</string>

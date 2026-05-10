@@ -40,8 +40,19 @@ public record LeagueRecord(
         StaffRecord defenseCoach,
         List<PlayerRecord> roster,
         List<TeamHistoryRecord> history,
-        List<DataRecord> records
-    ) {}
+        List<DataRecord> records,
+        String practiceFocus,
+        int nilCollectiveLevel
+    ) {
+        public TeamRecord {
+            if (practiceFocus == null) {
+                practiceFocus = "";
+            }
+            if (nilCollectiveLevel < 0) {
+                nilCollectiveLevel = 0;
+            }
+        }
+    }
 
     /**
      * One row per unique {@link Game} (deduped by identity across team schedules).

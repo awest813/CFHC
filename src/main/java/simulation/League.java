@@ -212,6 +212,9 @@ public class League {
     public boolean neverRetire;
     public boolean expPlayoffs;
     public boolean advancedRealignment;
+
+    /** Coach skill XP for the user head coach each simulated week (parity-tuned). */
+    private static final int WEEKLY_USER_COACH_SKILL_XP = 3;
     public int countRealignment;
     public String newsRealignment;
     public boolean updateTV;
@@ -1541,6 +1544,7 @@ public class League {
         }
 
         upgradeFacilities();
+        upgradeNilCollectives();
 
         sb = new StringBuilder();
         for (int i = 0; i < teamList.size(); i++) {
@@ -1552,6 +1556,18 @@ public class League {
         if (sb.length() > 0) {
             newsStories.get(0).add("Upgraded Facilities!>The following teams upgraded their team training facilities this off-season:\n\n" + sb);
             newsHeadlines.add("Off-Season Facilities Upgrades Boost Prestige!");
+        }
+
+        sb = new StringBuilder();
+        for (int i = 0; i < teamList.size(); i++) {
+            if (teamList.get(i).nilCollectiveUpgrade) {
+                sb.append(teamList.get(i).getName() + " : NIL Tier " + teamList.get(i).nilCollectiveLevel + "\n");
+            }
+        }
+
+        if (sb.length() > 0) {
+            newsStories.get(0).add("NIL Collective Investments!>Booster-led collectives funded recruiting operations for:\n\n" + sb);
+            newsHeadlines.add("NIL Collectives Expand!");
         }
 
     }
@@ -1920,14 +1936,48 @@ public class League {
         //Team Facilities Upgrade -- if teams have enough cash, they will spend on this. helps progression of players
         int baselineCost = 17500;
         for (int i = 0; i < teamList.size(); i++) {
-            if (teamList.get(i).getTeamBudget() > baselineCost * (teamList.get(i).getTeamFacilities() + 1)) {
+            Team tm = teamList.get(i);
+            tm.setFacilityUpgrade(false);
+            if (tm.getTeamBudget() > baselineCost * (tm.getTeamFacilities() + 1)) {
                 //spend cash, upgrade facilities
-                teamList.get(i).setTeamBudget(teamList.get(i).getTeamBudget() - baselineCost * (teamList.get(i).getTeamFacilities() + 1));
-                teamList.get(i).setFacilityUpgrade(true);
-                teamList.get(i).setTeamFacilities(teamList.get(i).getTeamFacilities() + 1);
-                teamList.get(i).setTeamPrestige(teamList.get(i).getTeamPrestige() + teamList.get(i).getTeamFacilities());
-                teamList.get(i).getHeadCoach().baselinePrestige += teamList.get(i).getTeamFacilities();
+                tm.setTeamBudget(tm.getTeamBudget() - baselineCost * (tm.getTeamFacilities() + 1));
+                tm.setFacilityUpgrade(true);
+                tm.setTeamFacilities(tm.getTeamFacilities() + 1);
+                tm.setTeamPrestige(tm.getTeamPrestige() + tm.getTeamFacilities());
+                tm.getHeadCoach().baselinePrestige += tm.getTeamFacilities();
             }
+        }
+    }
+
+    /** Booster / NIL collective tiers spent from athletic budgets each offseason. */
+    public void upgradeNilCollectives() {
+        int baselineCost = 22000;
+        final int maxTier = 12;
+        for (Team tm : teamList) {
+            tm.nilCollectiveUpgrade = false;
+            int next = tm.nilCollectiveLevel + 1;
+            if (next > maxTier) {
+                continue;
+            }
+            int cost = baselineCost * next;
+            if (tm.getTeamBudget() > cost) {
+                tm.setTeamBudget(tm.getTeamBudget() - cost);
+                tm.nilCollectiveLevel = next;
+                tm.nilCollectiveUpgrade = true;
+                tm.setTeamPrestige(tm.getTeamPrestige() + 1);
+            }
+        }
+    }
+
+    private void applyWeeklyEconomyPulse() {
+        for (Team t : teamList) {
+            int stipend = t.getWeeklyCollectiveStipend();
+            if (stipend > 0) {
+                t.setTeamBudget(t.getTeamBudget() + stipend);
+            }
+        }
+        if (userTeam != null && userTeam.getHeadCoach() != null) {
+            userTeam.getHeadCoach().addCoachSkillXp(WEEKLY_USER_COACH_SKILL_XP);
         }
     }
 
@@ -2065,6 +2115,8 @@ public class League {
         setTeamRanks();
 
         updateLongestActiveWinStreak();
+
+        applyWeeklyEconomyPulse();
 
         currentWeek++;
     }
@@ -4822,7 +4874,7 @@ Then conferences can see if they want to add them to their list if the teams mee
                                 confList.get(getConfNumber(teamBconf)).confTeams.add(teamA);
 
                                 //Remove some prestige from demoted teams
-                                teamA.setTeamPrestige(teamA.getTeamPrestige() - (int) Math.random() * 4);
+                                teamA.setTeamPrestige(teamA.getTeamPrestige() - (int) (Math.random() * 4));
 
                                 //break the news
                                 newsStories.get(currentWeek + 1).add("Conference Realignment News>The " + teamAconf + " conference announced today they will be adding " + teamB.getName() + " to their conference next season! The " + teamBconf + " conference has agreed to add " + teamA.getName() + " as part of the realignment.");

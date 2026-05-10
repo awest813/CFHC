@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
+import simulation.CoachSkills;
 import simulation.PlaybookDefense;
 import simulation.PlaybookOffense;
 import simulation.Team;
@@ -38,6 +39,8 @@ public class Staff {
         this.user = record.user();
         this.stats = record.stats();
         this.awards = record.awards();
+        this.coachSkillXp = record.coachSkillXp();
+        this.coachSkillRanksBits = record.coachSkillRanksBits();
     }
 
 
@@ -73,6 +76,11 @@ public class Staff {
     private final int min = 0;
 
 
+    /** Skill tree XP (primarily used by head coaches). */
+    public int coachSkillXp;
+    /** Packed ranks for {@link CoachSkills} branches. */
+    public int coachSkillRanksBits;
+
     public boolean promotionCandidate;
     public boolean retirement;
     public boolean wonConfHC;
@@ -94,7 +102,8 @@ public class Staff {
         StringBuilder save = new StringBuilder();
 
         save.append(position + "," + name + "," + age + "," + year + "," + ratOff + "," + ratDef + "," + ratTalent + "," + ratDiscipline + "," + offStrat + "," + defStrat + "," + contractYear + ","
-                + contractLength + "," + baselinePrestige + "," + retired + "," + ratOvr + "," + ratImprovement + "," + user + ",&");
+                + contractLength + "," + baselinePrestige + "," + retired + "," + ratOvr + "," + ratImprovement + "," + user + ","
+                + coachSkillXp + "," + coachSkillRanksBits + ",&");
 
         save.append(Arrays.toString(stats).replace("[", "").replace("]", "").replace(" ", "") + "&");
 
@@ -124,7 +133,21 @@ public class Staff {
         contractLength = Integer.parseInt(a[11]);
         baselinePrestige = Integer.parseInt(a[12]);
         retired = Boolean.parseBoolean(a[13]);
-        if(a.length > 16) user = Boolean.parseBoolean(a[16]);
+        if (a.length > 16) {
+            user = Boolean.parseBoolean(a[16]);
+        }
+        if (a.length >= 19) {
+            try {
+                coachSkillXp = Integer.parseInt(a[17].trim());
+                coachSkillRanksBits = Integer.parseInt(a[18].trim());
+            } catch (NumberFormatException ex) {
+                coachSkillXp = 0;
+                coachSkillRanksBits = 0;
+            }
+        } else {
+            coachSkillXp = 0;
+            coachSkillRanksBits = 0;
+        }
         ratOvr = getStaffOverall(wt);
     }
 
@@ -428,8 +451,52 @@ public class Staff {
         return new simulation.StaffRecord(
                 position, name, age, year, ratOff, ratDef, ratTalent, ratDiscipline,
                 offStrat, defStrat, contractYear, contractLength, baselinePrestige,
-                retired, ratOvr, ratImprovement, user, stats, awards
+                retired, ratOvr, ratImprovement, user, coachSkillXp, coachSkillRanksBits,
+                stats, awards
         );
+    }
+
+    public void addCoachSkillXp(int amount) {
+        if (amount > 0) {
+            coachSkillXp += amount;
+        }
+    }
+
+    public boolean tryPurchaseCoachSkillRank(int branch) {
+        int cur = CoachSkills.getRank(coachSkillRanksBits, branch);
+        int cost = CoachSkills.costForNextRank(cur);
+        if (cur >= 3 || coachSkillXp < cost) {
+            return false;
+        }
+        coachSkillXp -= cost;
+        coachSkillRanksBits = CoachSkills.withRank(coachSkillRanksBits, branch, cur + 1);
+        return true;
+    }
+
+    public int recruitingPitchBonus() {
+        return CoachSkills.getRank(coachSkillRanksBits, CoachSkills.RECRUITING) * 2;
+    }
+
+    public int developmentBonusPoints() {
+        return CoachSkills.getRank(coachSkillRanksBits, CoachSkills.DEVELOPMENT) * 2;
+    }
+
+    public int gamePrepBonus() {
+        return CoachSkills.getRank(coachSkillRanksBits, CoachSkills.GAME_PREP);
+    }
+
+    public int disciplineCultureBonus() {
+        return CoachSkills.getRank(coachSkillRanksBits, CoachSkills.DISCIPLINE_CULTURE);
+    }
+
+    /** Extra recruiting budget dollars during recruiting prep. */
+    public int recruitingBudgetBonus() {
+        return CoachSkills.getRank(coachSkillRanksBits, CoachSkills.RECRUITING) * 22;
+    }
+
+    /** Weekly booster stipend from NIL marketing skill. */
+    public int nilMarketingWeeklyStipend() {
+        return CoachSkills.getRank(coachSkillRanksBits, CoachSkills.NIL_MARKETING) * 85;
     }
 
 

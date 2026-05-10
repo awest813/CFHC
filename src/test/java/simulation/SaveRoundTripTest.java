@@ -190,6 +190,24 @@ public class SaveRoundTripTest {
     }
 
     @Test
+    public void roundTrip_practiceFocus_isPreserved() throws Exception {
+        original.userTeam.practiceFocus = PracticeFocus.FUNDAMENTALS;
+        League loaded = saveAndLoad();
+        Team re = findTeam(loaded, original.userTeam.name);
+        assertNotNull(re);
+        assertEquals(PracticeFocus.FUNDAMENTALS, re.practiceFocus);
+    }
+
+    @Test
+    public void roundTrip_nilCollectiveLevel_isPreserved() throws Exception {
+        original.userTeam.nilCollectiveLevel = 4;
+        League loaded = saveAndLoad();
+        Team re = findTeam(loaded, original.userTeam.name);
+        assertNotNull(re);
+        assertEquals(4, re.nilCollectiveLevel);
+    }
+
+    @Test
     public void roundTrip_oocWeeksAndOpponentNames_isPreserved() throws Exception {
         Team user = original.userTeam;
         Team opponent = original.teamList.stream().filter(x -> x != user).findFirst().orElse(null);

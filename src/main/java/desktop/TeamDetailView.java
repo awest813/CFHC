@@ -455,6 +455,7 @@ public class TeamDetailView extends JDialog {
         model.addRow(new Object[]{"Discipline Budget", "$" + String.format("%,d", team.getTeamDisciplineBudget())});
         model.addRow(new Object[]{"", ""});
         model.addRow(new Object[]{"Facilities Level", team.getTeamFacilities()});
+        model.addRow(new Object[]{"NIL collective tier", team.nilCollectiveLevel});
         model.addRow(new Object[]{"Discipline Score", team.getTeamDisciplineScore() + "%"});
         model.addRow(new Object[]{"", ""});
         model.addRow(new Object[]{"Prestige", team.getTeamPrestige()});

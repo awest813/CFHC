@@ -336,6 +336,11 @@ public class LeagueHomeView extends JFrame {
         playbookItem.setEnabled(leagueCore.userTeam != null);
         team.add(playbookItem);
 
+        JMenuItem coachProgramItem = new JMenuItem("Coach Program & NIL\u2026");
+        coachProgramItem.addActionListener(e -> CoachProgramDialog.show(this, leagueCore.userTeam));
+        coachProgramItem.setEnabled(leagueCore.userTeam != null);
+        team.add(coachProgramItem);
+
         JMenuItem myProgramItem = new JMenuItem("My Program\u2026");
         myProgramItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, KeyEvent.CTRL_DOWN_MASK));
         myProgramItem.addActionListener(e -> openUserTeamDetail());

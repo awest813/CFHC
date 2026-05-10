@@ -3,13 +3,17 @@ package antdroid.cfbcoach;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import simulation.League;
 import simulation.LeagueSettingsOptions;
+import simulation.PracticeFocus;
 
 /**
  * Controller for the Game Settings dialog.
@@ -88,6 +92,40 @@ public final class SettingsDialogController {
         } else {
             checkboxProRelegation.setVisibility(View.INVISIBLE);
             if (textProRel != null) textProRel.setVisibility(View.INVISIBLE);
+        }
+
+        final View sectionPracticeFocus = dialog.findViewById(R.id.sectionPracticeFocus);
+        final Spinner spinnerPracticeFocus = dialog.findViewById(R.id.spinnerPracticeFocus);
+        final TextView textPracticeFocusDesc = dialog.findViewById(R.id.textPracticeFocusDesc);
+        if (!isNewGameSetup && simLeague.userTeam != null && sectionPracticeFocus != null
+                && spinnerPracticeFocus != null && textPracticeFocusDesc != null) {
+            sectionPracticeFocus.setVisibility(View.VISIBLE);
+            PracticeFocus[] values = PracticeFocus.values();
+            String[] labels = new String[values.length];
+            for (int i = 0; i < values.length; i++) {
+                labels[i] = values[i].displayName();
+            }
+            ArrayAdapter<String> pfAdapter = new ArrayAdapter<>(activity,
+                    android.R.layout.simple_spinner_item, labels);
+            pfAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerPracticeFocus.setAdapter(pfAdapter);
+            PracticeFocus currentPf = simLeague.userTeam.practiceFocus != null
+                    ? simLeague.userTeam.practiceFocus
+                    : PracticeFocus.BALANCED;
+            spinnerPracticeFocus.setSelection(currentPf.ordinal());
+            textPracticeFocusDesc.setText(currentPf.shortDescription());
+            spinnerPracticeFocus.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    textPracticeFocusDesc.setText(PracticeFocus.values()[position].shortDescription());
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                }
+            });
+        } else if (sectionPracticeFocus != null) {
+            sectionPracticeFocus.setVisibility(View.GONE);
         }
 
         checkboxAdvRealignment.setOnClickListener(new View.OnClickListener() {
@@ -195,7 +233,15 @@ public final class SettingsDialogController {
 
                     boolean allowPlayoffChange = isNewGameSetup || simLeague.currentWeek < simLeague.regSeasonWeeks;
                     options.applyTo(simLeague, allowPlayoffChange, isNewGameSetup, false);
-                    
+
+                    if (!isNewGameSetup && simLeague.userTeam != null && spinnerPracticeFocus != null) {
+                        int pos = spinnerPracticeFocus.getSelectedItemPosition();
+                        PracticeFocus[] vals = PracticeFocus.values();
+                        if (pos >= 0 && pos < vals.length) {
+                            simLeague.userTeam.practiceFocus = vals[pos];
+                        }
+                    }
+
                     if (isNewGameSetup) {
                         if (proRelRequested && !proRelWasEnabled) {
                             activity.universalProRelAction();

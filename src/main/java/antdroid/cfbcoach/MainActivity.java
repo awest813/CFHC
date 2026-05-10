@@ -1362,7 +1362,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-         if (id == R.id.action_current_team_history) {
+        if (id == R.id.action_coach_program) {
+            CoachProgramDialogController.show(this, userTeam);
+        } else if (id == R.id.action_current_team_history) {
 
              //Current selected team history
             showCurrTeamHistoryDialog();

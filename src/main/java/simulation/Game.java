@@ -222,6 +222,15 @@ public class Game implements Serializable {
             adv = Math.round((awayTeam.getHeadCoach().ratOff + 2*awayTeam.getOC().ratOff + ATstrat - HTstrat - 2*homeTeam.getDC().ratDef - homeTeam.getHeadCoach().ratDef) / 5);
         }
         adv += getTeamChemistryAdv();
+        if (gamePoss) {
+            if (homeTeam.getHeadCoach() != null) {
+                adv += homeTeam.getHeadCoach().gamePrepBonus();
+            }
+        } else {
+            if (awayTeam.getHeadCoach() != null) {
+                adv += awayTeam.getHeadCoach().gamePrepBonus();
+            }
+        }
         if (adv > 4) adv = 4;
         if (adv < -4) adv = -4;
         return adv;
@@ -586,7 +595,9 @@ public class Game implements Serializable {
 
             if (!gameName.equals("Conference") || !gameName.equals("OOC")) {
                 int attendance = ((homeTeam.getTeamPrestige() * 2 + awayTeam.getTeamPrestige()) / 3);
-                homeTeam.setTeamBudget(homeTeam.getTeamBudget() + (int) (tickets * .75 * attendance) + (int) (merch * Math.random() * homeTeam.getTeamPrestige()));
+                int homeAdd = (int) (tickets * .75 * attendance) + (int) (merch * Math.random() * homeTeam.getTeamPrestige());
+                homeAdd = (int) (homeAdd * homeTeam.getHomeGameRevenueMultiplier());
+                homeTeam.setTeamBudget(homeTeam.getTeamBudget() + homeAdd);
                 awayTeam.setTeamBudget(awayTeam.getTeamBudget() + (int) (tickets * .25 * attendance));
             } else {
                 int attendance = ((homeTeam.getTeamPrestige() * 2 + awayTeam.getTeamPrestige()) / 3);
@@ -594,7 +605,9 @@ public class Game implements Serializable {
                 else if(gameName.contains("NCG")) attendance = (int) (attendance * 4);
                 else if(gameName.contains("Semis")) attendance = (int) (attendance * 2.5);
                 else attendance = (int) (attendance * 2);
-                homeTeam.setTeamBudget(homeTeam.getTeamBudget() + (int) (1.25 * tickets * .50 * attendance) + (int) (2 * merch * Math.random() * homeTeam.getTeamPrestige()));
+                int homeAdd = (int) (1.25 * tickets * .50 * attendance) + (int) (2 * merch * Math.random() * homeTeam.getTeamPrestige());
+                homeAdd = (int) (homeAdd * homeTeam.getHomeGameRevenueMultiplier());
+                homeTeam.setTeamBudget(homeTeam.getTeamBudget() + homeAdd);
                 awayTeam.setTeamBudget(awayTeam.getTeamBudget() + (int) (1.25 * tickets * .50 * attendance) + (int) (2 * merch * Math.random() * awayTeam.getTeamPrestige()));
             }
 
@@ -635,6 +648,29 @@ public class Game implements Serializable {
         } else {
             double preferPass = (offense.getPassProf() - defense.getPassDef()) / 100 + Math.random() * offense.getPlaybookOffense().getPassPref();       //STRATEGIES
             double preferRush = (offense.getRushProf() - defense.getRushDef()) / 90 + Math.random() * offense.getPlaybookOffense().getRunPref();
+
+            // Scheme matchup: heavier defensive fronts vs run-first books tighten rushing looks;
+            // pass-favored shells vs pass-heavy offenses chip away at obvious pass advantages.
+            int offRunBook = offense.getPlaybookOffense().getRunPref();
+            int offPassBook = offense.getPlaybookOffense().getPassPref();
+            int defRunBook = defense.getPlaybookDefense().getRunPref();
+            int defPassBook = defense.getPlaybookDefense().getPassPref();
+            preferRush -= (defRunBook - offRunBook) * 0.04;
+            preferPass -= (defPassBook - offPassBook) * 0.03;
+
+            boolean offenseIsHome = offense == homeTeam;
+            boolean offenseLeading = offenseIsHome ? homeScore > awayScore : awayScore > homeScore;
+            boolean offenseTrailing = offenseIsHome ? homeScore < awayScore : awayScore > homeScore;
+            boolean hurryUpPass = !playingOT && gameTime <= 120 && gameTime > 20 && offenseTrailing && gameDown < 4;
+            // Fourth quarter: lean run when protecting a lead (outside the final-snap FG / hail mary window below).
+            if (!playingOT && gameTime <= 480 && gameTime > 20 && offenseLeading && gameDown < 4) {
+                preferRush += 0.35 + 0.15 * Math.random();
+                preferPass -= 0.12;
+            }
+            if (hurryUpPass) {
+                preferPass += 0.45 + 0.15 * Math.random();
+                preferRush -= 0.15;
+            }
 
             // If it's 1st and Goal to go, adjust yards needed to reflect distance for a TD so that play selection reflects actual yards to go
             // If we don't do this, gameYardsNeed may be higher than the actually distance for a TD and suboptimal plays may be chosen
@@ -679,6 +715,9 @@ public class Game implements Serializable {
                         puntPlay(offense, defense);
                     }
                 }
+            } else if (gameDown == 3 && gameYardsNeed <= 2 && (!hurryUpPass || gameYardsNeed == 1)) {
+                // Short-yardage: prefer power run unless late hurry-up on third-and-two (still allow run on third-and-one).
+                rushingPlay(offense, defense);
             } else if ((gameDown == 3 && gameYardsNeed > 4) || ((gameDown == 1 || gameDown == 2) && (preferPass >= preferRush))) {
                 // pass play
                 passingPlay(offense, defense);
@@ -1936,8 +1975,8 @@ public class Game implements Serializable {
             //Returner tackled by playerST?
             if (def >= ret) returnYards = (int) (Math.random() * 10) + 1;
             else if (ret > def + 80) returnYards += 100 - yards;
-            else if (ret > def + 50) returnYards = (int) Math.random() * 40 + 30;
-            else if (ret > def + 35) returnYards = (int) Math.random() * 20 + 20;
+            else if (ret > def + 50) returnYards = (int) (Math.random() * 40) + 30;
+            else if (ret > def + 35) returnYards = (int) (Math.random() * 20) + 20;
             else returnYards = ret - def;
 
             if (kickoff) {

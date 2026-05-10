@@ -29,7 +29,7 @@ public class PlaybookDefense {
     }
 
     public PlaybookDefense(int playbook) {
-        if (playbook < 1 || playbook > 5) playbook = (int) Math.random() * 5 + 1;
+        if (playbook < 1 || playbook > 5) playbook = (int) (Math.random() * 5) + 1;
 
         if (playbook == 1) playBook1();
         else if (playbook == 2) playBook2();

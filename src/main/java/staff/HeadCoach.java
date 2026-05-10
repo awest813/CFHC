@@ -106,6 +106,8 @@ public class HeadCoach extends Staff {
         awards = staff.awards;
         retired = staff.retired;
         user = staff.user;
+        coachSkillXp = staff.coachSkillXp;
+        coachSkillRanksBits = staff.coachSkillRanksBits;
 
     }
 

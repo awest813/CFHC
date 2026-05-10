@@ -59,12 +59,23 @@ public class Team {
     public int playbookOffNum;
     public int playbookDefNum;
 
+    /** User-team practice emphasis; CPU teams use {@link PracticeFocus#BALANCED}. */
+    public PracticeFocus practiceFocus;
+
     //Future Implementation?
     public int teamBudget;
     public int teamRecruitBudget;
     public int teamDiscplineBudget;
     public int teamDisciplineScore;
     public int teamFacilities;
+    /** NIL collective / booster ops tier (0–12); pairs with coach NIL skill & budget economy. */
+    public int nilCollectiveLevel;
+
+    /** Parity-tuned: home revenue boost per NIL collective tier. */
+    private static final double NIL_HOME_REV_PER_TIER = 0.024;
+    /** Weekly athletic-dept stipend dollars per NIL tier before coach NIL skill. */
+    private static final int NIL_WEEKLY_STIPEND_PER_TIER = 95;
+    public boolean nilCollectiveUpgrade;
     public int teamStadium;
 
     //Game Log variables
@@ -498,6 +509,8 @@ public class Team {
 
         this.teamPollScore = record.teamPollScore();
         this.rankTeamPollScore = record.rankTeamPollScore();
+        this.practiceFocus = PracticeFocus.fromSave(record.practiceFocus());
+        this.nilCollectiveLevel = Math.max(0, record.nilCollectiveLevel());
 
         if (record.oocWeeks() != null) {
             for (int w : record.oocWeeks()) {
@@ -551,6 +564,9 @@ public class Team {
 
         playbookOff = new PlaybookOffense(0);
         playbookDef = new PlaybookDefense(0);
+        practiceFocus = PracticeFocus.BALANCED;
+        nilCollectiveLevel = 0;
+        nilCollectiveUpgrade = false;
 
         gameSchedule = new ArrayList<>();
         oocTeams = new ArrayList<>();
@@ -594,8 +610,36 @@ public class Team {
                 HC.toRecord(), OC.toRecord(), DC.toRecord(),
                 roster,
                 new ArrayList<>(teamHistory),
-                teamRecords.toRecordList()
+                teamRecords.toRecordList(),
+                practiceFocus != null ? practiceFocus.toSave() : PracticeFocus.BALANCED.toSave(),
+                nilCollectiveLevel
         );
+    }
+
+    public double getHomeGameRevenueMultiplier() {
+        double m = 1.0 + NIL_HOME_REV_PER_TIER * nilCollectiveLevel;
+        if (HC != null) {
+            m += 0.01 * CoachSkills.getRank(HC.coachSkillRanksBits, CoachSkills.NIL_MARKETING);
+        }
+        return m;
+    }
+
+    public int getWeeklyCollectiveStipend() {
+        int base = nilCollectiveLevel * NIL_WEEKLY_STIPEND_PER_TIER;
+        if (HC != null) {
+            base += HC.nilMarketingWeeklyStipend();
+        }
+        return base;
+    }
+
+    public void stabilizeDisciplineFromCoachSkills() {
+        if (!userControlled || HC == null) {
+            return;
+        }
+        int b = HC.disciplineCultureBonus();
+        if (b > 0) {
+            teamDisciplineScore = Math.min(100, teamDisciplineScore + b);
+        }
     }
 
     public static String normalizeRecordText(String value) {
@@ -2241,9 +2285,9 @@ public class Team {
     }
 
     public void midSeasonProgression() {
-
+        PracticeFocus pf = userControlled ? practiceFocus : PracticeFocus.BALANCED;
         for(Player p : getAllPlayers()) {
-            p.midSeasonProgression();
+            p.midSeasonProgression(pf);
         }
         sortPlayers();
     }
@@ -2271,6 +2315,7 @@ public class Team {
         ArrayList<Player> players = getAllPlayers();
 
         int i = 0;
+        PracticeFocus pf = userControlled ? practiceFocus : PracticeFocus.BALANCED;
         while (i < players.size()) {
             if (players.get(i).year >= 4 && !players.get(i).isTransfer && !players.get(i).isRedshirt || (players.get(i).year == 3 && players.get(i).ratOvr > NFL_OVR && Math.random() < NFL_CHANCE) || (players.get(i).year == 2 && players.get(i).wasRedshirt && players.get(i).ratOvr > NFL_OVR + sophNFL && Math.random() < NFL_CHANCE_SOPH)) {
                 playersLeaving.add(players.get(i));
@@ -2278,11 +2323,12 @@ public class Team {
                 players.remove(i);
                 //need to remove from teamPos array
             } else {
-                players.get(i).advanceSeason();
+                players.get(i).advanceSeason(pf);
                 i++;
             }
         }
 
+        stabilizeDisciplineFromCoachSkills();
         sortPlayers();
         getPlayersTransferring();
     }
@@ -3045,7 +3091,7 @@ public class Team {
             }
         }
         for (int i = 0; i < needs; ++i) {
-            star = (int) Math.random() * 2 + 1;
+            star = (int) (Math.random() * 2) + 1;
             teamQBs.add(new PlayerQB(league.getRandName(), 1, star, this, walkon));
         }
 
@@ -3057,7 +3103,7 @@ public class Team {
             }
         }
         for (int i = 0; i < needs; ++i) {
-            star = (int) Math.random() * 2 + 1;
+            star = (int) (Math.random() * 2) + 1;
             teamRBs.add(new PlayerRB(league.getRandName(), 1, star, this, walkon));
         }
 
@@ -3069,7 +3115,7 @@ public class Team {
             }
         }
         for (int i = 0; i < needs; ++i) {
-            star = (int) Math.random() * 2 + 1;
+            star = (int) (Math.random() * 2) + 1;
             teamWRs.add(new PlayerWR(league.getRandName(), 1, star, this, walkon));
         }
 
@@ -3081,7 +3127,7 @@ public class Team {
             }
         }
         for (int i = 0; i < needs; ++i) {
-            star = (int) Math.random() * 2 + 1;
+            star = (int) (Math.random() * 2) + 1;
             teamTEs.add(new PlayerTE(league.getRandName(), 1, star, this, walkon));
         }
 
@@ -3093,7 +3139,7 @@ public class Team {
             }
         }
         for (int i = 0; i < needs; ++i) {
-            star = (int) Math.random() * 2 + 1;
+            star = (int) (Math.random() * 2) + 1;
             teamOLs.add(new PlayerOL(league.getRandName(), 1, star, this, walkon));
         }
 
@@ -3105,7 +3151,7 @@ public class Team {
             }
         }
         for (int i = 0; i < needs; ++i) {
-            star = (int) Math.random() * 2 + 1;
+            star = (int) (Math.random() * 2) + 1;
             teamKs.add(new PlayerK(league.getRandName(), 1, star, this, walkon));
         }
 
@@ -3117,7 +3163,7 @@ public class Team {
             }
         }
         for (int i = 0; i < needs; ++i) {
-            star = (int) Math.random() * 2 + 1;
+            star = (int) (Math.random() * 2) + 1;
             teamDLs.add(new PlayerDL(league.getRandName(), 1, star, this, walkon));
         }
 
@@ -3129,7 +3175,7 @@ public class Team {
             }
         }
         for (int i = 0; i < needs; ++i) {
-            star = (int) Math.random() * 2 + 1;
+            star = (int) (Math.random() * 2) + 1;
             teamLBs.add(new PlayerLB(league.getRandName(), 1, star, this, walkon));
         }
 
@@ -3141,7 +3187,7 @@ public class Team {
             }
         }
         for (int i = 0; i < needs; ++i) {
-            star = (int) Math.random() * 2 + 1;
+            star = (int) (Math.random() * 2) + 1;
             teamCBs.add(new PlayerCB(league.getRandName(), 1, star, this, walkon));
         }
 
@@ -3153,7 +3199,7 @@ public class Team {
             }
         }
         for (int i = 0; i < needs; ++i) {
-            star = (int) Math.random() * 2 + 1;
+            star = (int) (Math.random() * 2) + 1;
             teamSs.add(new PlayerS(league.getRandName(), 1, star, this, walkon));
         }
 
@@ -6087,6 +6133,14 @@ public class Team {
     public void setTeamDisciplineScore(int score) { this.teamDisciplineScore = score; }
     public int getTeamFacilities() { return teamFacilities; }
     public void setTeamFacilities(int f) { this.teamFacilities = f; }
+
+    public int getNilCollectiveLevel() {
+        return nilCollectiveLevel;
+    }
+
+    public void setNilCollectiveLevel(int nilCollectiveLevel) {
+        this.nilCollectiveLevel = Math.max(0, nilCollectiveLevel);
+    }
     public int getTeamStadium() { return teamStadium; }
     public void setTeamStadium(int s) { this.teamStadium = s; }
 

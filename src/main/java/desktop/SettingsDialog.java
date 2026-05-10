@@ -2,16 +2,20 @@ package desktop;
 
 import simulation.League;
 import simulation.LeagueSettingsOptions;
+import simulation.PracticeFocus;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.DefaultListCellRenderer;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -73,6 +77,9 @@ public class SettingsDialog extends JDialog {
         content.setOpaque(false);
         content.setBorder(BorderFactory.createEmptyBorder(30, 35, 30, 35));
 
+        JComboBox<PracticeFocus> practiceFocusCombo = null;
+        JLabel practiceFocusDesc = null;
+
         JLabel displaySection = sectionLabel("Display");
         content.add(displaySection);
         content.add(Box.createVerticalStrut(8));
@@ -92,6 +99,48 @@ public class SettingsDialog extends JDialog {
         content.add(Box.createVerticalStrut(12));
         JCheckBox enableTv = createStyledCheckBox("TV contracts", league.enableTV, content);
         content.add(Box.createVerticalStrut(12));
+
+        if (league.userTeam != null) {
+            JLabel programSection = sectionLabel("Your program");
+            content.add(programSection);
+            content.add(Box.createVerticalStrut(8));
+            JLabel pfCaption = new JLabel("Practice focus");
+            pfCaption.setFont(new Font("SansSerif", Font.BOLD, 13));
+            pfCaption.setForeground(DesktopTheme.textPrimary());
+            pfCaption.setBorder(BorderFactory.createEmptyBorder(0, 0, 4, 0));
+            content.add(pfCaption);
+            practiceFocusCombo = new JComboBox<>(PracticeFocus.values());
+            PracticeFocus curPf = league.userTeam.practiceFocus != null
+                    ? league.userTeam.practiceFocus
+                    : PracticeFocus.BALANCED;
+            practiceFocusCombo.setSelectedItem(curPf);
+            practiceFocusCombo.setFont(new Font("SansSerif", Font.PLAIN, 13));
+            practiceFocusCombo.setMaximumRowCount(PracticeFocus.values().length);
+            practiceFocusCombo.setRenderer(new DefaultListCellRenderer() {
+                @Override
+                public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                              boolean isSelected, boolean cellHasFocus) {
+                    super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                    if (value instanceof PracticeFocus pf) {
+                        setText(pf.displayName());
+                    }
+                    return this;
+                }
+            });
+            practiceFocusDesc = new JLabel("<html><body style='width: 420px;'>" + curPf.shortDescription() + "</body></html>");
+            practiceFocusDesc.setFont(new Font("SansSerif", Font.PLAIN, 11));
+            practiceFocusDesc.setForeground(DesktopTheme.textSecondary());
+            practiceFocusCombo.addActionListener(e -> {
+                Object sel = practiceFocusCombo.getSelectedItem();
+                if (sel instanceof PracticeFocus pf && practiceFocusDesc != null) {
+                    practiceFocusDesc.setText("<html><body style='width: 420px;'>" + pf.shortDescription() + "</body></html>");
+                }
+            });
+            content.add(practiceFocusCombo);
+            content.add(Box.createVerticalStrut(6));
+            content.add(practiceFocusDesc);
+            content.add(Box.createVerticalStrut(12));
+        }
 
         JLabel universeSection = sectionLabel("Universe Rules");
         content.add(universeSection);
@@ -186,6 +235,12 @@ public class SettingsDialog extends JDialog {
             options.advancedRealignment = advRealign.isSelected();
             options.universalProRel = universalProRel.isSelected();
             options.applyTo(league, expandedPlayoffs.isEnabled(), universalProRel.isEnabled(), true);
+            if (practiceFocusCombo != null && league.userTeam != null) {
+                Object sel = practiceFocusCombo.getSelectedItem();
+                if (sel instanceof PracticeFocus pf) {
+                    league.userTeam.practiceFocus = pf;
+                }
+            }
             DesktopTheme.setDark(desktopDark.isSelected());
             java.awt.Window w = javax.swing.SwingUtilities.getWindowAncestor(SettingsDialog.this);
             if (w instanceof LeagueHomeView) {

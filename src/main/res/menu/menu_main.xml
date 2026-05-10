@@ -7,6 +7,11 @@
         android:orderInCategory="100"
         android:title="@string/action_change_team_name" />
     <item
+        android:id="@+id/action_coach_program"
+        android:orderInCategory="95"
+        android:title="@string/action_coach_program"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_league_history"
         android:orderInCategory="100"
         android:title="@string/action_league_history"

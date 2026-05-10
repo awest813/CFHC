@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Locale;
 
 import simulation.Injury;
+import simulation.PracticeFocus;
 import simulation.Team;
 
 /**
@@ -470,6 +471,10 @@ public class Player {
     //MIDSEASON UPGRADES
 
     public void midSeasonProgression() {
+        midSeasonProgression(PracticeFocus.BALANCED);
+    }
+
+    public void midSeasonProgression(PracticeFocus practiceFocus) {
         final int ratOvrStart = ratOvr;
 
         if (Arrays.asList(offensePos).contains(position)) progression = getProgressionOff();
@@ -484,6 +489,9 @@ public class Player {
         ratAttr3 += (int) (Math.random() * games);
         ratAttr4 += (int) (Math.random() * games)/1.5;
 
+        applyPracticeFocusMidSeason(practiceFocus, games);
+
+        clampCoreRatings();
         ratOvr = getOverall();
         ratImprovement = ratOvr - ratOvrStart;
     }
@@ -491,13 +499,20 @@ public class Player {
     //ADVANCE SEASON UPGRADES
 
     public void advanceSeason() {
+        advanceSeason(PracticeFocus.BALANCED);
+    }
 
-        genericAdvanceSeason();
+    public void advanceSeason(PracticeFocus practiceFocus) {
+        genericAdvanceSeason(practiceFocus != null ? practiceFocus : PracticeFocus.BALANCED);
         addSeasonAwards();
         checkRedshirt();
     }
 
     public void genericAdvanceSeason() {
+        genericAdvanceSeason(PracticeFocus.BALANCED);
+    }
+
+    public void genericAdvanceSeason(PracticeFocus practiceFocus) {
         double games = getGamesBonus();
         if(ratOvrStart == 0) ratOvrStart = ratOvr;
 
@@ -531,11 +546,84 @@ public class Player {
             if(getChemistryProgression() > 0) character += getChemistryProgression()/2;
             if(character > 100) character = 100;
 
+            applyPracticeFocusSeasonEnd(practiceFocus, progression, games);
+
             durabilityProgression();
         }
 
+        clampCoreRatings();
         ratOvr = getOverall();
         ratImprovement = ratOvr - ratOvrStart;
+    }
+
+    /**
+     * Extra mid-season growth from the team's practice focus (user team only in {@link Team#midSeasonProgression}).
+     */
+    private void applyPracticeFocusMidSeason(PracticeFocus focus, double games) {
+        if (focus == null || focus == PracticeFocus.BALANCED || games <= 0) {
+            return;
+        }
+        double scale = games * 0.42;
+        switch (focus) {
+            case FOOTBALL_IQ:
+                ratIntelligence += (int) (Math.random() * scale / 1.2);
+                break;
+            case FUNDAMENTALS:
+                ratAttr1 += (int) (Math.random() * scale);
+                ratAttr2 += (int) (Math.random() * scale);
+                break;
+            case ATHLETICISM:
+                ratAttr3 += (int) (Math.random() * scale);
+                ratAttr4 += (int) (Math.random() * scale / 1.2);
+                break;
+            case PHYSICAL:
+                ratDurability += (int) (Math.random() * scale * 0.55);
+                ratAttr3 += (int) (Math.random() * scale * 0.35);
+                ratAttr4 += (int) (Math.random() * scale * 0.35);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void applyPracticeFocusSeasonEnd(PracticeFocus focus, int prog, double games) {
+        if (focus == null || focus == PracticeFocus.BALANCED) {
+            return;
+        }
+        double span = Math.max(0, prog + games - endseason);
+        double bonusBase = span / endseasonFactor;
+        if (bonusBase <= 0) {
+            return;
+        }
+        switch (focus) {
+            case FOOTBALL_IQ:
+                ratIntelligence += (int) (Math.random() * bonusBase * 1.1);
+                break;
+            case FUNDAMENTALS:
+                ratAttr1 += (int) (Math.random() * bonusBase);
+                ratAttr2 += (int) (Math.random() * bonusBase);
+                break;
+            case ATHLETICISM:
+                ratAttr3 += (int) (Math.random() * bonusBase);
+                ratAttr4 += (int) (Math.random() * bonusBase / 1.1);
+                break;
+            case PHYSICAL:
+                ratDurability += (int) (Math.random() * bonusBase * 0.65);
+                ratAttr3 += (int) (Math.random() * bonusBase * 0.45);
+                ratAttr4 += (int) (Math.random() * bonusBase * 0.45);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void clampCoreRatings() {
+        ratIntelligence = Math.min(100, Math.max(0, ratIntelligence));
+        ratDurability = Math.min(100, Math.max(0, ratDurability));
+        ratAttr1 = Math.min(100, Math.max(0, ratAttr1));
+        ratAttr2 = Math.min(100, Math.max(0, ratAttr2));
+        ratAttr3 = Math.min(100, Math.max(0, ratAttr3));
+        ratAttr4 = Math.min(100, Math.max(0, ratAttr4));
     }
 
     public void addSeasonAwards() {
@@ -641,17 +729,23 @@ public class Player {
 
 
     public int getProgression() {
-        int num = (ratPot * 2 + team.getHeadCoach().ratTalent * 1 + 3 * team.getTeamFacilities() + (int) (Math.random() * getChemistryProgression())) / 3;
+        int dev = team.getHeadCoach() != null ? team.getHeadCoach().developmentBonusPoints() : 0;
+        int num = (ratPot * 2 + team.getHeadCoach().ratTalent * 1 + 3 * team.getTeamFacilities() + dev
+                + (int) (Math.random() * getChemistryProgression())) / 3;
         return num;
     }
 
     public int getProgressionOff() {
-        int num = (ratPot * 4 + team.getHeadCoach().ratTalent * 2 + team.getOC().ratOff + 7 * team.getTeamFacilities() + (int) (Math.random() * getChemistryProgression())) / 7;
+        int dev = team.getHeadCoach() != null ? team.getHeadCoach().developmentBonusPoints() : 0;
+        int num = (ratPot * 4 + team.getHeadCoach().ratTalent * 2 + team.getOC().ratOff + 7 * team.getTeamFacilities() + dev
+                + (int) (Math.random() * getChemistryProgression())) / 7;
         return num;
     }
 
     public int getProgressionDef() {
-        int num = (ratPot * 4 + team.getHeadCoach().ratTalent * 2 + team.getDC().ratDef + 7 * team.getTeamFacilities() + (int) (Math.random() * getChemistryProgression())) / 7;
+        int dev = team.getHeadCoach() != null ? team.getHeadCoach().developmentBonusPoints() : 0;
+        int num = (ratPot * 4 + team.getHeadCoach().ratTalent * 2 + team.getDC().ratDef + 7 * team.getTeamFacilities() + dev
+                + (int) (Math.random() * getChemistryProgression())) / 7;
         return num;
     }
 

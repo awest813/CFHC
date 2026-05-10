@@ -14,6 +14,9 @@ import staff.HeadCoach;
  * desktop UI classes.
  */
 public final class SimulationFacade {
+    /** Extra recruiting budget dollars per NIL collective tier (parity-tuned). */
+    private static final int RECRUITING_BUDGET_PER_NIL_TIER = 24;
+
     public static final int SEASON_START = 2022;
 
     public static final int MIN_QBS = 2;
@@ -325,6 +328,10 @@ public final class SimulationFacade {
     public static RecruitingSessionData prepareRecruitingSession(Team userTeam) {
         RecruitingSessionData session = RecruitingSessionData.fromUserTeamInfo(buildRecruitingPayload(userTeam));
         session.applyBudgetBonuses(MIN_ROSTER_SIZE);
+        session.recruitingBudget += userTeam.getNilCollectiveLevel() * RECRUITING_BUDGET_PER_NIL_TIER;
+        if (userTeam.getHeadCoach() != null) {
+            session.recruitingBudget += userTeam.getHeadCoach().recruitingBudgetBonus();
+        }
         return session;
     }
 
@@ -335,7 +342,7 @@ public final class SimulationFacade {
         StringBuilder sb = new StringBuilder();
         userTeam.sortPlayers();
         HeadCoach hc = userTeam.getHeadCoach();
-        int recruitSkill = hc != null ? hc.ratTalent : 70;
+        int recruitSkill = hc != null ? Math.min(95, hc.ratTalent + hc.recruitingPitchBonus()) : 70;
         sb.append(userTeam.getConference()).append(",")
                 .append(userTeam.getName()).append(",")
                 .append(userTeam.getAbbr()).append(",")

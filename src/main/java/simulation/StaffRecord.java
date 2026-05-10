@@ -21,13 +21,24 @@ public record StaffRecord(
     int ratOvr,
     int ratImprovement,
     boolean user,
+    int coachSkillXp,
+    int coachSkillRanksBits,
     int[] stats,
     int[] awards
 ) {
+    public StaffRecord {
+        if (coachSkillXp < 0) {
+            coachSkillXp = 0;
+        }
+        if (coachSkillRanksBits < 0) {
+            coachSkillRanksBits = 0;
+        }
+    }
+
     public static StaffRecord fromCsv(String csv) {
         String[] parts = csv.split("&");
-        String[] basic = parts[0].split(",");
-        
+        String[] basic = parts[0].split(",", -1);
+
         int[] statsList = new int[0];
         if (parts.length > 1) {
             String[] sStrings = parts[1].split(",");
@@ -43,6 +54,19 @@ public record StaffRecord(
             awardsList = new int[aStrings.length];
             for (int i = 0; i < aStrings.length; i++) {
                 awardsList[i] = Integer.parseInt(aStrings[i].trim());
+            }
+        }
+
+        boolean userFlag = basic.length > 16 && Boolean.parseBoolean(basic[16]);
+        int xp = 0;
+        int bits = 0;
+        if (basic.length >= 19) {
+            try {
+                xp = Integer.parseInt(basic[17].trim());
+                bits = Integer.parseInt(basic[18].trim());
+            } catch (NumberFormatException ignored) {
+                xp = 0;
+                bits = 0;
             }
         }
 
@@ -63,7 +87,9 @@ public record StaffRecord(
             Boolean.parseBoolean(basic[13]),
             Integer.parseInt(basic[14]),
             Integer.parseInt(basic[15]),
-            basic.length > 16 && Boolean.parseBoolean(basic[16]),
+            userFlag,
+            xp,
+            bits,
             statsList,
             awardsList
         );
