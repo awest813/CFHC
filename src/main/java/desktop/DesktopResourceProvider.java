@@ -1,12 +1,13 @@
 package desktop;
 
+import simulation.IoStreams;
 import simulation.PlatformResourceProvider;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -42,11 +43,12 @@ public class DesktopResourceProvider implements PlatformResourceProvider {
     }
 
     private boolean loadXmlFromClasspath(String resourcePath) {
-        try (InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourcePath)) {
+        try (InputStream inputStream =
+                     Thread.currentThread().getContextClassLoader().getResourceAsStream(resourcePath)) {
             if (inputStream == null) {
                 return false;
             }
-            loadXmlContent(new String(inputStream.readAllBytes()));
+            loadXmlContent(new String(IoStreams.readAllBytes(inputStream), StandardCharsets.UTF_8));
             return true;
         } catch (IOException e) {
             throw new IllegalStateException("Error loading classpath resource: " + resourcePath, e);
@@ -58,7 +60,9 @@ public class DesktopResourceProvider implements PlatformResourceProvider {
             if (!new File(path).exists()) {
                 return;
             }
-            loadXmlContent(new String(Files.readAllBytes(Paths.get(path))));
+            try (FileInputStream fis = new FileInputStream(path)) {
+                loadXmlContent(new String(IoStreams.readAllBytes(fis), StandardCharsets.UTF_8));
+            }
         } catch (IOException e) {
             throw new IllegalStateException("Error loading resource: " + path, e);
         }
@@ -105,7 +109,8 @@ public class DesktopResourceProvider implements PlatformResourceProvider {
 
     @Override
     public InputStream openAsset(String path) throws IOException {
-        InputStream inputStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("assets/" + path);
+        InputStream inputStream =
+                Thread.currentThread().getContextClassLoader().getResourceAsStream("assets/" + path);
         if (inputStream != null) {
             return inputStream;
         }

@@ -205,6 +205,22 @@ tasks.register('desktopVerify') {
     dependsOn tasks.named('compileDesktopJava')
 }
 
+/** Desktop prototype + every Android build type (debug / beta / release) + release bundle + lint + unit tests. */
+tasks.register('verifyAllVariants') {
+    group = 'verification'
+    description = 'Stable gate for both targets: desktop jar, APKs (debug, beta, release), AAB, lintDebug/Beta/Release, test.'
+    dependsOn tasks.named('desktopVerify'),
+            tasks.named('desktopJar'),
+            tasks.named('assembleDebug'),
+            tasks.named('assembleBeta'),
+            tasks.named('assembleRelease'),
+            tasks.named('bundleRelease'),
+            tasks.named('lintDebug'),
+            tasks.named('lintBeta'),
+            tasks.named('lintRelease'),
+            tasks.named('test')
+}
+
 tasks.register('desktopJar', Jar) {
     group = 'desktop'
     description = 'Builds a runnable jar for the desktop prototype.'

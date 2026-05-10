@@ -14,8 +14,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -1451,8 +1449,11 @@ public class League {
                     Game gm;
                     gm = new Game(a, b, "OOC");
 
-                    if(a.getGameSchedule().size() != b.getGameSchedule().size())
-                    PlatformLog.d("league", "setupSeason: week " + week + " " + a.getName() + " size" + a.getGameSchedule().size() + " vs " + b.getName() + " size" + b.getGameSchedule().size());
+                    if (a.getGameSchedule().size() != b.getGameSchedule().size()) {
+                        PlatformLog.d("league", "setupSeason: week " + week + " " + a.getName() + " size"
+                                + a.getGameSchedule().size() + " vs " + b.getName() + " size"
+                                + b.getGameSchedule().size());
+                    }
 
                     if (!a.getConference().contains("Independent") && !a.getConference().contains("FCS")) {
                         a.addGameToSchedule(week, gm);
@@ -6597,7 +6598,25 @@ Then conferences can see if they want to add them to their list if the teams mee
             return false;
         }
         try {
-            Files.move(tmp.toPath(), saveFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            if (saveFile.exists() && !saveFile.delete()) {
+                PlatformLog.e("League", "Could not delete existing save file to replace: "
+                        + saveFile.getAbsolutePath());
+                if (!tmp.delete()) {
+                    PlatformLog.w("League", "Could not delete temp save file " + tmp.getAbsolutePath());
+                }
+                return false;
+            }
+            if (tmp.renameTo(saveFile)) {
+                return true;
+            }
+            try (FileInputStream in = new FileInputStream(tmp);
+                 FileOutputStream out = new FileOutputStream(saveFile)) {
+                IoStreams.copy(in, out);
+            }
+            if (!tmp.delete()) {
+                PlatformLog.w("League", "Could not delete temp save file after copy " + tmp.getAbsolutePath());
+            }
+            return true;
         } catch (IOException e) {
             PlatformLog.e("League", "Failed to replace save file " + saveFile.getAbsolutePath(), e);
             if (!tmp.delete()) {
@@ -6605,7 +6624,6 @@ Then conferences can see if they want to add them to their list if the teams mee
             }
             return false;
         }
-        return true;
     }
 
 

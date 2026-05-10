@@ -2,6 +2,7 @@ package antdroid.cfbcoach;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.annotation.SuppressLint;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -59,6 +60,7 @@ public class TutorialActivity extends AppCompatActivity {
     }
 
     @Override
+    @SuppressLint("MissingSuperCall")
     public void onBackPressed() {
         controller.returnToMainHub();
     }

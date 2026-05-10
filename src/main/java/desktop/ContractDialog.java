@@ -23,6 +23,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
+import java.util.Locale;
 
 /**
  * Interactive contract-review dialog shown during the offseason.
@@ -70,7 +71,7 @@ public class ContractDialog extends JDialog {
         header.setForeground(Color.WHITE);
         content.add(header, BorderLayout.NORTH);
 
-        String statsHtml = String.format(
+        String statsHtml = String.format(Locale.US,
             "<html><body style='width: 500px; color:#ABB2BF; font-family:SansSerif; font-size:11pt;'>" +
             "<p>COACH <b style='color:white'>%s</b> (AGE %d)</p><br/>" +
             "<p>You have reached the standard retirement threshold. You may choose to conclude your prestigious career today, or persevere for another campaign.</p><br/>" +
@@ -82,7 +83,8 @@ public class ContractDialog extends JDialog {
             "<tr><td>WIN RATE:</td><td style='color:white'>%.1f%%</td></tr>" +
             "</table>" +
             "</body></html>",
-            hc.name.toUpperCase(), hc.age, hc.stats[0], hc.stats[1], hc.stats[6], hc.stats[2], hc.stats[4], hc.getWinPCT() * 100
+            hc.name.toUpperCase(Locale.ROOT), hc.age, hc.stats[0], hc.stats[1], hc.stats[6], hc.stats[2], hc.stats[4],
+            hc.getWinPCT() * 100
         );
         
         JLabel statsLabel = new JLabel(statsHtml);
@@ -132,7 +134,9 @@ public class ContractDialog extends JDialog {
 
         // Left Card: Contract Details
         JPanel leftCard = createInfoCard("CURRENT AGREEMENT");
-        String contractHtml = (userTeam != null) ? userTeam.getContractString().toUpperCase().replace("\n", "<br/>") : "NO ACTIVE CONTRACT DATA.";
+        String contractHtml = (userTeam != null)
+                ? userTeam.getContractString().toUpperCase(Locale.ROOT).replace("\n", "<br/>")
+                : "NO ACTIVE CONTRACT DATA.";
         JLabel contractLabel = new JLabel("<html><body style='color:#ABB2BF; font-family:SansSerif; font-size:10pt; line-height: 1.4;'>" + contractHtml + "</body></html>");
         contractLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
         leftCard.add(contractLabel);
@@ -140,7 +144,7 @@ public class ContractDialog extends JDialog {
         // Right Card: Coach Status
         JPanel rightCard = createInfoCard("CAREER PROFILE");
         if (hc != null) {
-            String profileHtml = String.format(
+            String profileHtml = String.format(Locale.US,
                 "<html><body style='color:#ABB2BF; font-family:SansSerif; font-size:10pt; line-height: 1.4;'>" +
                 "NAME: <b style='color:white'>%s</b><br/>" +
                 "AGE: <b style='color:white'>%d</b><br/>" +
@@ -151,7 +155,8 @@ public class ContractDialog extends JDialog {
                 "CAREER: %d-%d<br/>" +
                 "WIN RATE: %.1f%%" +
                 "</body></html>",
-                hc.name.toUpperCase(), hc.age, hc.ratOvr, hc.coachStatus().toUpperCase(), hc.getSeasonGrade(),
+                hc.name.toUpperCase(Locale.ROOT), hc.age, hc.ratOvr, hc.coachStatus().toUpperCase(Locale.ROOT),
+                hc.getSeasonGrade(),
                 hc.contractYear, hc.contractLength, hc.stats[0], hc.stats[1], hc.getWinPCT() * 100
             );
             JLabel profileLabel = new JLabel(profileHtml);

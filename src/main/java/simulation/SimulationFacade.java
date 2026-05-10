@@ -172,7 +172,7 @@ public final class SimulationFacade {
             }
             File tempImport = File.createTempFile("cfhc-import-", ".cfb", filesDir);
             try {
-                java.nio.file.Files.copy(inputStream, tempImport.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                IoStreams.copyToFile(inputStream, tempImport);
                 League importedLeague = new League(tempImport,
                         resources.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
                         resources.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES),
@@ -361,4 +361,5 @@ public final class SimulationFacade {
             throw new IllegalStateException("No league has been loaded");
         }
     }
+
 }

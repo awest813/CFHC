@@ -45,6 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import android.annotation.SuppressLint;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -3284,20 +3285,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         defaultScreen();
     }
 
-    // Checks if external storage is available for read and write *//*
+    // Checks if external storage is available for read and write.
     public boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED.equals(state);
     }
 
-    //* Checks if external storage is available to at least read *//*
+    // Checks if external storage is available to at least read.
     private boolean isExternalStorageReadable() {
         String state = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED.equals(state) ||
                 Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
     }
 
-    //* Creates external Save directory *//*
+    // Creates external save directory when exporting (legacy paths).
 
     private void handleImportDocumentSelection(android.net.Uri uri) {
         if (uri == null) {
@@ -3306,7 +3307,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         try {
             importCustomData(uri.toString());
         } catch (IOException e) {
-            e.printStackTrace();
+            PlatformLog.e("MainActivity", "Import from document failed", e);
+            Toast.makeText(this, "Unable to import file.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -3380,6 +3382,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
+    @SuppressLint("MissingSuperCall")
     public void onBackPressed() {
         if(currPage == 0) exitMainActivity();
         else showHome();

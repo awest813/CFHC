@@ -4452,8 +4452,11 @@ public class Team {
 
         roster.add("Passing,Cmp%,Yrds,TD,INT,YPA,QBR");
         for (PlayerQB p : teamQBs) {
-            if(p.getPassAtt()>0)
-            roster.add(p.name + "," + df2.format(p.getPassPCT()) + "," + p.getPassYards() + "," + p.getPassTD() + "," + p.getPassInt() + "," + df2.format(p.getYardsPerAttempt()) + "," + df2.format(p.getPasserRating()));
+            if (p.getPassAtt() > 0) {
+                roster.add(p.name + "," + df2.format(p.getPassPCT()) + "," + p.getPassYards() + "," + p.getPassTD()
+                        + "," + p.getPassInt() + "," + df2.format(p.getYardsPerAttempt()) + ","
+                        + df2.format(p.getPasserRating()));
+            }
         }
 
         roster.add(" , , , , , , ");
@@ -4938,8 +4941,10 @@ public class Team {
                 }
                 Collections.sort(teamQBs, new CompPlayer());
                 for (PlayerQB p : oldQBs) {
-                    if (!teamQBs.contains(p)) teamQBs.add(p);
-                    p.posDepth = 2;
+                    if (!teamQBs.contains(p)) {
+                        teamQBs.add(p);
+                        p.posDepth = 2;
+                    }
                 }
                 break;
             case 1:
@@ -4952,8 +4957,10 @@ public class Team {
                 }
                 Collections.sort(teamRBs, new CompPlayer());
                 for (PlayerRB p : oldRBs) {
-                    if (!teamRBs.contains(p)) teamRBs.add(p);
-                        p.posDepth = 2;   
+                    if (!teamRBs.contains(p)) {
+                        teamRBs.add(p);
+                        p.posDepth = 2;
+                    }
                 }
                 break;
             case 2:
@@ -4966,8 +4973,10 @@ public class Team {
                 }
                 Collections.sort(teamWRs, new CompPlayer());
                 for (PlayerWR p : oldWRs) {
-                    if (!teamWRs.contains(p)) teamWRs.add(p);
-                    p.posDepth = 2;
+                    if (!teamWRs.contains(p)) {
+                        teamWRs.add(p);
+                        p.posDepth = 2;
+                    }
                 }
                 break;
             case 3:
@@ -4980,8 +4989,10 @@ public class Team {
                 }
                 Collections.sort(teamTEs, new CompPlayer());
                 for (PlayerTE p : oldTEs) {
-                    if (!teamTEs.contains(p)) teamTEs.add(p);
-                    p.posDepth = 2;
+                    if (!teamTEs.contains(p)) {
+                        teamTEs.add(p);
+                        p.posDepth = 2;
+                    }
                 }
                 break;
             case 4:
@@ -4994,8 +5005,10 @@ public class Team {
                 }
                 Collections.sort(teamOLs, new CompPlayer());
                 for (PlayerOL p : oldOLs) {
-                    if (!teamOLs.contains(p)) teamOLs.add(p);
-                    p.posDepth = 2;
+                    if (!teamOLs.contains(p)) {
+                        teamOLs.add(p);
+                        p.posDepth = 2;
+                    }
                 }
                 break;
             case 5:
@@ -5008,8 +5021,10 @@ public class Team {
                 }
                 Collections.sort(teamKs, new CompPlayer());
                 for (PlayerK p : oldKs) {
-                    if (!teamKs.contains(p)) teamKs.add(p);
-                    p.posDepth = 2;
+                    if (!teamKs.contains(p)) {
+                        teamKs.add(p);
+                        p.posDepth = 2;
+                    }
                 }
                 break;
             case 6:
@@ -5022,8 +5037,10 @@ public class Team {
                 }
                 Collections.sort(teamDLs, new CompPlayer());
                 for (PlayerDL p : oldDLs) {
-                    if (!teamDLs.contains(p)) teamDLs.add(p);
-                    p.posDepth = 2;
+                    if (!teamDLs.contains(p)) {
+                        teamDLs.add(p);
+                        p.posDepth = 2;
+                    }
                 }
                 break;
             case 7:
@@ -5036,8 +5053,10 @@ public class Team {
                 }
                 Collections.sort(teamLBs, new CompPlayer());
                 for (PlayerLB p : oldLBs) {
-                    if (!teamLBs.contains(p)) teamLBs.add(p);
-                    p.posDepth = 2;
+                    if (!teamLBs.contains(p)) {
+                        teamLBs.add(p);
+                        p.posDepth = 2;
+                    }
                 }
                 break;
             case 8:
@@ -5050,8 +5069,10 @@ public class Team {
                 }
                 Collections.sort(teamCBs, new CompPlayer());
                 for (PlayerCB p : oldCBs) {
-                    if (!teamCBs.contains(p)) teamCBs.add(p);
-                    p.posDepth = 2;
+                    if (!teamCBs.contains(p)) {
+                        teamCBs.add(p);
+                        p.posDepth = 2;
+                    }
                 }
                 break;
             case 9:
@@ -5064,8 +5085,10 @@ public class Team {
                 }
                 Collections.sort(teamSs, new CompPlayer());
                 for (PlayerS p : oldSs) {
-                    if (!teamSs.contains(p)) teamSs.add(p);
-                    p.posDepth = 2;
+                    if (!teamSs.contains(p)) {
+                        teamSs.add(p);
+                        p.posDepth = 2;
+                    }
                 }
                 break;
         }
