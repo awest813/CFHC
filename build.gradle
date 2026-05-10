@@ -91,8 +91,6 @@ def desktopSourceFiles = fileTree('src/main/java') {
     include 'recruiting/**'
     include 'simulation/**'
     include 'staff/**'
-    exclude 'recruiting/RecruitingActivity.java'
-    exclude 'recruiting/RecruitingDialogController.java'
 }
 
 def desktopClassesDir = layout.buildDirectory.dir('desktop/classes')
@@ -135,8 +133,6 @@ tasks.register('checkEngineImports') {
         }
         fileTree("${project.projectDir}/src/main/java/recruiting").matching {
             include '**/*.java'
-            exclude 'RecruitingActivity.java'
-            exclude 'RecruitingDialogController.java'
         }.each { f ->
             int num = 0
             f.eachLine { line ->

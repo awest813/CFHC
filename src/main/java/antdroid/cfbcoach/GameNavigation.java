@@ -5,7 +5,7 @@ import android.content.Intent;
 
 import antdroid.cfbcoach.Home;
 import antdroid.cfbcoach.MainActivity;
-import recruiting.RecruitingActivity;
+import antdroid.cfbcoach.recruiting.RecruitingActivity;
 import simulation.LeagueLaunchCoordinator;
 
 public final class GameNavigation {

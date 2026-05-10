@@ -105,8 +105,8 @@ src/main/java/
 │                    (~0.9K LOC, platform-independent)
 ├── comparator/      Sorting/ranking helpers (77 comparator files)
 │                    (~1.3K LOC, platform-independent)
-├── recruiting/      Recruiting flow — portable controller/session code + Android activities
-│                    (~1.7K LOC; Android-only classes excluded from desktop compile)
+├── recruiting/      Portable recruiting controller, session data, presentation helpers
+│                    (Android recruiting UI lives under `antdroid/cfbcoach/recruiting/`)
 ├── ui/              Android list adapters, profiles, roster views
 │                    (~1.8K LOC, Android-only)
 ├── antdroid/        Android shell — activities, dialogs, navigation

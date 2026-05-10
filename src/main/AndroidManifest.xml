@@ -40,7 +40,7 @@
             android:parentActivityName=".Home"
             android:theme="@style/AppTheme" />
         <activity
-            android:name="recruiting.RecruitingActivity"
+            android:name=".recruiting.RecruitingActivity"
             android:alwaysRetainTaskState="true"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:label="@string/title_activity_recruiting"

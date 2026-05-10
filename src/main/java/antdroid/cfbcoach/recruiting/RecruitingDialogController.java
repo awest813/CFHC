@@ -1,4 +1,4 @@
-package recruiting;
+package antdroid.cfbcoach.recruiting;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -10,10 +10,14 @@ import android.widget.Toast;
 import java.util.List;
 
 import antdroid.cfbcoach.PlatformUiHelper;
+import recruiting.RecruitingController;
+import recruiting.RecruitingPlayerRecord;
+import recruiting.RecruitingPresentation;
+import recruiting.RecruitingSessionData;
 import simulation.RosterRules;
 
 /**
- * Controller for dialogs in the RecruitingActivity.
+ * Controller for dialogs in {@link RecruitingActivity}.
  */
 public final class RecruitingDialogController {
 
@@ -26,10 +30,10 @@ public final class RecruitingDialogController {
     public static void showDisplayOptions(final RecruitingActivity activity, final boolean autoFilter, final List<RecruitingPlayerRecord> players, final ExpandableListView recruitList, final RecruitingActivity.ExpandableListAdapterRecruiting expListAdapter) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle("Board Options");
-        
+
         String filter = autoFilter ? "Disable Auto-Remove Unaffordable Players" : "Enable Auto-Remove Unaffordable Players";
         final String[] sels = {"Expand All", "Collapse All", "Sort by Grade", "Sort by Cost", filter};
-        
+
         builder.setItems(sels, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
                 if (item == 0) {
@@ -52,7 +56,7 @@ public final class RecruitingDialogController {
                 dialog.dismiss();
             }
         });
-        
+
         AlertDialog alert = builder.create();
         PlatformUiHelper.showImmersive(alert);
     }
@@ -65,10 +69,10 @@ public final class RecruitingDialogController {
         builder.setMessage(rosterStr)
                 .setTitle(teamName + " Roster | Team Size: " + totalPlayers)
                 .setPositiveButton("OK", null);
-        
+
         AlertDialog dialog = builder.create();
         PlatformUiHelper.showImmersive(dialog);
-        
+
         TextView msgTxt = dialog.findViewById(android.R.id.message);
         if (msgTxt != null) {
             msgTxt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
@@ -80,7 +84,7 @@ public final class RecruitingDialogController {
      */
     public static void showRecruitConfirmDialog(final RecruitingActivity activity, final RecruitingSessionData sessionData, final RecruitingPlayerRecord recruit, final int groupPosition, final int groupCount, final ExpandableListView recruitList, final RecruitingActivity.ExpandableListAdapterRecruiting expListAdapter, boolean showPopUp) {
         int moneyNeeded = recruit.cost();
-        
+
         if (sessionData.recruitingBudget < moneyNeeded) {
             collapseForRefresh(recruitList, groupPosition, groupCount);
             Toast.makeText(activity, "Not enough budget to recruit this player.", Toast.LENGTH_SHORT).show();
@@ -97,7 +101,7 @@ public final class RecruitingDialogController {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle("Confirm Recruiting");
         builder.setMessage(RecruitingPresentation.buildRecruitConfirmMessage(sessionData, RosterRules.MAX_PLAYERS, recruit));
-        
+
         builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 performRecruit(activity, sessionData, recruit, groupPosition, recruitList, expListAdapter);
@@ -124,7 +128,7 @@ public final class RecruitingDialogController {
 
         AlertDialog dialog = builder.create();
         PlatformUiHelper.showImmersive(dialog);
-        
+
         TextView msgTxt = dialog.findViewById(android.R.id.message);
         if (msgTxt != null) {
             msgTxt.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
@@ -144,7 +148,7 @@ public final class RecruitingDialogController {
                     }
                 })
                 .setNegativeButton("No", null);
-        
+
         AlertDialog dialog = builder.create();
         PlatformUiHelper.showImmersive(dialog);
     }

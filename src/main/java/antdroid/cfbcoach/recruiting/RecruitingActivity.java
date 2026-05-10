@@ -1,12 +1,9 @@
-package recruiting;
+package antdroid.cfbcoach.recruiting;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,11 +18,8 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,15 +27,18 @@ import androidx.appcompat.widget.Toolbar;
 import antdroid.cfbcoach.GameNavigation;
 import antdroid.cfbcoach.PlatformUiHelper;
 import antdroid.cfbcoach.R;
+import recruiting.RecruitingController;
+import recruiting.RecruitingPlayerRecord;
+import recruiting.RecruitingPresentation;
+import recruiting.RecruitingSessionData;
+import simulation.GameFlowManager;
 import simulation.RosterRules;
 
 public class RecruitingActivity extends AppCompatActivity {
 
-    private final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
-    private final DecimalFormat df2 = new DecimalFormat("#.##", symbols);
     private int theme;
     private RecruitingController controller;
-    private simulation.GameFlowManager flowManager;
+    private GameFlowManager flowManager;
     private RecruitingSessionData sessionData;
     // Variables use during recruiting
     private boolean showPopUp;
@@ -80,7 +77,7 @@ public class RecruitingActivity extends AppCompatActivity {
         sessionData = RecruitingSessionData.fromUserTeamInfo(userTeamStr);
         flowManager = new antdroid.cfbcoach.AndroidGameFlowManager(this, theme);
         controller = new RecruitingController(sessionData, flowManager);
-        
+
         getSupportActionBar().setTitle(sessionData.teamName + " | Recruiting");
 
         showPopUp = true;
@@ -326,7 +323,7 @@ public class RecruitingActivity extends AppCompatActivity {
 
 
     //MAIN UI FOR PLAYER DATA IN RECRUITING SCREEN
-    class ExpandableListAdapterRecruiting extends BaseExpandableListAdapter {
+    public class ExpandableListAdapterRecruiting extends BaseExpandableListAdapter {
 
         private final Activity context;
 
