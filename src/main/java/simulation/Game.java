@@ -205,21 +205,21 @@ public class Game implements Serializable {
             else if(awayTeam.getPlaybookDefNum() == awayTeam.getDC().defStrat && awayTeam.getPlaybookDefNum() != awayTeam.getHeadCoach().defStrat) ATstrat = 0;
             else if(awayTeam.getPlaybookDefNum() != awayTeam.getDC().defStrat && awayTeam.getPlaybookDefNum() == awayTeam.getHeadCoach().defStrat) ATstrat = -1;
             
-            adv = Math.round((homeTeam.getHeadCoach().ratOff + 2*homeTeam.getOC().ratOff + HTstrat - ATstrat - 2*awayTeam.getHeadCoach().ratDef - awayTeam.getHeadCoach().ratDef) / 5);
+            adv = Math.round((homeTeam.getHeadCoach().ratOff + 2*homeTeam.getOC().ratOff + HTstrat - ATstrat - 2*awayTeam.getDC().ratDef - awayTeam.getHeadCoach().ratDef) / 5);
 
         } else {
 
             int HTstrat = 0;
-            if(homeTeam.getPlaybookDefNum() != homeTeam.getDC().offStrat && homeTeam.getPlaybookDefNum() != homeTeam.getHeadCoach().offStrat) HTstrat = -2;
-            else if(homeTeam.getPlaybookDefNum() == homeTeam.getDC().offStrat && homeTeam.getPlaybookDefNum() != homeTeam.getHeadCoach().offStrat) HTstrat = 0;
-            else if(homeTeam.getPlaybookDefNum() != homeTeam.getDC().offStrat && homeTeam.getPlaybookDefNum() == homeTeam.getHeadCoach().offStrat) HTstrat = -1;
+            if(homeTeam.getPlaybookDefNum() != homeTeam.getDC().defStrat && homeTeam.getPlaybookDefNum() != homeTeam.getHeadCoach().defStrat) HTstrat = -2;
+            else if(homeTeam.getPlaybookDefNum() == homeTeam.getDC().defStrat && homeTeam.getPlaybookDefNum() != homeTeam.getHeadCoach().defStrat) HTstrat = 0;
+            else if(homeTeam.getPlaybookDefNum() != homeTeam.getDC().defStrat && homeTeam.getPlaybookDefNum() == homeTeam.getHeadCoach().defStrat) HTstrat = -1;
 
-            int ATstrat = Math.abs(awayTeam.getPlaybookDefNum() - awayTeam.getDC().offStrat);
+            int ATstrat = Math.abs(awayTeam.getPlaybookOffNum() - awayTeam.getOC().offStrat);
             if(awayTeam.getPlaybookOffNum() != awayTeam.getOC().offStrat && awayTeam.getPlaybookOffNum() != awayTeam.getHeadCoach().offStrat) ATstrat = -2;
             else if(awayTeam.getPlaybookOffNum() == awayTeam.getOC().offStrat && awayTeam.getPlaybookOffNum() != awayTeam.getHeadCoach().offStrat) ATstrat = 0;
             else if(awayTeam.getPlaybookOffNum() != awayTeam.getOC().offStrat && awayTeam.getPlaybookOffNum() == awayTeam.getHeadCoach().offStrat) ATstrat = -1;
 
-            adv = Math.round((awayTeam.getHeadCoach().ratOff + 2*awayTeam.getOC().ratOff + ATstrat - HTstrat - 2*homeTeam.getHeadCoach().ratDef - homeTeam.getHeadCoach().ratDef) / 5);
+            adv = Math.round((awayTeam.getHeadCoach().ratOff + 2*awayTeam.getOC().ratOff + ATstrat - HTstrat - 2*homeTeam.getDC().ratDef - homeTeam.getHeadCoach().ratDef) / 5);
         }
         adv += getTeamChemistryAdv();
         if (adv > 4) adv = 4;
@@ -1176,7 +1176,7 @@ public class Game implements Serializable {
                     }
                 }
                 if (pos.equals("RB")) {
-                    if (100 * Math.random() < (100 - selTE.getRatCatch()) / 3) {
+                    if (100 * Math.random() < (100 - selRB.getRatCatch()) / 3) {
                         //drop
                         if (homeTeam.league.fullGameLog)
                             gameEventLog += getEventLog() + offense.getAbbr() + " RB " + selRB.name + " dropped the catch.";
@@ -2444,7 +2444,7 @@ public class Game implements Serializable {
     }
 
     private void recordReturnStats() {
-        if (homeKickReturner.position == "RB") {
+        if (homeKickReturner.position.equals("RB")) {
             for (int i = 0; i < homeTeam.startersRB + homeTeam.subRB; i++) {
                 if (homeTeam.getRB(i).name.equals(homeKickReturner.name)) {
                     homeTeam.getRB(i).recordKORets(homeKickReturner.kReturns);
@@ -2455,7 +2455,7 @@ public class Game implements Serializable {
                     homeTeam.getRB(i).recordPuntTDs(homeKickReturner.pTD);
                 }
             }
-        } else if (homeKickReturner.position == "WR") {
+        } else if (homeKickReturner.position.equals("WR")) {
             for (int i = 0; i < homeTeam.startersWR + homeTeam.subWR; i++) {
                 if (homeTeam.getWR(i).name.equals(homeKickReturner.name)) {
                     homeTeam.getWR(i).recordKORets(homeKickReturner.kReturns);
@@ -2479,7 +2479,7 @@ public class Game implements Serializable {
             }
         }
 
-        if (awayKickReturner.position == "RB") {
+        if (awayKickReturner.position.equals("RB")) {
             for (int i = 0; i < awayTeam.startersRB + awayTeam.subRB; i++) {
                 if (awayTeam.getRB(i).name.equals(awayKickReturner.name)) {
                     awayTeam.getRB(i).recordKORets(awayKickReturner.kReturns);
@@ -2490,7 +2490,7 @@ public class Game implements Serializable {
                     awayTeam.getRB(i).recordPuntTDs(awayKickReturner.pTD);
                 }
             }
-        } else if (awayKickReturner.position == "WR") {
+        } else if (awayKickReturner.position.equals("WR")) {
             for (int i = 0; i < awayTeam.startersWR + awayTeam.subWR; i++) {
                 if (awayTeam.getWR(i).name.equals(awayKickReturner.name)) {
                     awayTeam.getWR(i).recordKORets(awayKickReturner.kReturns);
@@ -2651,7 +2651,7 @@ public class Game implements Serializable {
 
     private void recoup(boolean endQT, int qt) {
         int gain = fatigueGain;
-        if (endQT && qt != 2) gain = (int) Math.random() * 35 + 15;
+        if (endQT && qt != 2) gain = (int)(Math.random() * 35) + 15;
         if (endQT && qt == 2) gain = 50;
         //recoup v2.0
         for (int i = 0; i < homeTeam.startersRB; ++i) {
@@ -2943,7 +2943,7 @@ public class Game implements Serializable {
         gameRC.append("\n");
         gameRR.append("\n");
 
-        if (awayRushingStats.size() >= awayRushingStats.size()) {
+        if (awayRushingStats.size() >= homeRushingStats.size()) {
             for (int i = 0; i < awayRushingStats.size(); ++i) {
                 gameRL.append("Name:" + "\nPosition:" + "\nYards:" + "\nCarries:" + "\nYards/Carry:" + "\nTDs:" + "\nFumbles:" + "\n\n");
             }
