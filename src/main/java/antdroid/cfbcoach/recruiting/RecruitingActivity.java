@@ -183,7 +183,7 @@ public class RecruitingActivity extends AppCompatActivity {
     private void updateRecruitingOverview() {
         TextView programName = findViewById(R.id.textRecruitProgramName);
         if (programName != null) {
-            programName.setText(sessionData.teamName + " Recruiting");
+            programName.setText(getString(R.string.recruiting_program_title_format, sessionData.teamName));
         }
 
         TextView summaryText = findViewById(R.id.textRecruitSummary);
@@ -279,7 +279,7 @@ public class RecruitingActivity extends AppCompatActivity {
 
     private void updateBudgetText() {
         if (budgetText != null) {
-            budgetText.setText("Budget: $" + sessionData.recruitingBudget);
+            budgetText.setText(getString(R.string.recruiting_budget_format, sessionData.recruitingBudget));
         }
         updateRecruitingOverview();
     }
@@ -364,7 +364,7 @@ public class RecruitingActivity extends AppCompatActivity {
             potential.setText(RecruitingPresentation.buildPotentialDetails(recruit));
 
             Button scoutPlayerButton = convertView.findViewById(R.id.buttonScoutPlayer);
-            scoutPlayerButton.setText("Scout");
+            scoutPlayerButton.setText(R.string.recruiting_button_scout);
             scoutPlayerButton.setEnabled(!sessionData.isScouted(recruit));
             scoutPlayerButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
@@ -375,9 +375,9 @@ public class RecruitingActivity extends AppCompatActivity {
             Button recruitPlayerButton = convertView.findViewById(R.id.buttonRecruitPlayer);
 
             if (sessionData.teamPlayers.size() + sessionData.playersRecruited.size() < RosterRules.MAX_PLAYERS) {
-                recruitPlayerButton.setText("Recruit: $" + recruit.cost());
+                recruitPlayerButton.setText(context.getString(R.string.recruiting_button_recruit_format, recruit.cost()));
             } else {
-                recruitPlayerButton.setText("ROSTER FULL");
+                recruitPlayerButton.setText(R.string.recruiting_button_roster_full);
                 //recruitPlayerButton.setVisibility(View.INVISIBLE);
             }
 

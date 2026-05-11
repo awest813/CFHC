@@ -139,6 +139,15 @@
     <string name="recruiting_filter_label">Auto-hide unaffordable recruits</string>
     <string name="recruiting_button_roster">Roster Needs</string>
     <string name="recruiting_button_done">Finish Recruiting</string>
+    <string name="recruiting_program_title_default">Program Recruiting</string>
+    <string name="recruiting_program_title_format">%1$s Recruiting</string>
+    <string name="recruiting_budget_default">Budget: $0</string>
+    <string name="recruiting_budget_format">Budget: $%1$,d</string>
+    <string name="recruiting_board_status_default">Board: 0 prospects</string>
+    <string name="recruiting_button_scout">Scout</string>
+    <string name="recruiting_button_recruit_default">Recruit: $0</string>
+    <string name="recruiting_button_recruit_format">Recruit: $%1$,d</string>
+    <string name="recruiting_button_roster_full">Roster Full</string>
     <string name="league_overview_hint">Tap a team or coach entry to jump into its profile.</string>
     <string name="dialog_shell_label">League Center</string>
     <string name="dialog_shell_rankings_title">League Overview</string>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="10dp"
     android:background="@drawable/bg_dialog_section"
@@ -49,7 +49,7 @@
             android:paddingTop="10dp"
             android:paddingEnd="16dp"
             android:paddingBottom="10dp"
-            android:text="Scout"
+            android:text="@string/recruiting_button_scout"
             android:textAllCaps="false"
             android:textAppearance="@style/TextAppearance.Cfhc.ButtonCompactSecondary" />
 
@@ -64,7 +64,7 @@
             android:paddingTop="10dp"
             android:paddingEnd="16dp"
             android:paddingBottom="10dp"
-            android:text="Recruit: $XXX"
+            android:text="@string/recruiting_button_recruit_default"
             android:textAllCaps="false"
             android:textAppearance="@style/TextAppearance.Cfhc.ButtonCompactPrimary" />
     </LinearLayout>

@@ -41,7 +41,7 @@
             android:layout_marginTop="12dp"
             android:ellipsize="end"
             android:maxLines="2"
-            android:text="Program Recruiting"
+            android:text="@string/recruiting_program_title_default"
             android:textAppearance="@style/TextAppearance.Cfhc.HubTitle" />
 
         <TextView
@@ -69,7 +69,7 @@
                 android:gravity="center"
                 android:maxLines="2"
                 android:padding="10dp"
-                android:text="Budget: $XXXX"
+                android:text="@string/recruiting_budget_default"
                 android:textAppearance="@style/TextAppearance.Cfhc.ChipHubMetric" />
 
             <TextView
@@ -83,7 +83,7 @@
                 android:gravity="center"
                 android:maxLines="2"
                 android:padding="10dp"
-                android:text="Board: 0 prospects"
+                android:text="@string/recruiting_board_status_default"
                 android:textAppearance="@style/TextAppearance.Cfhc.ChipHubMetric" />
         </LinearLayout>
     </LinearLayout>
