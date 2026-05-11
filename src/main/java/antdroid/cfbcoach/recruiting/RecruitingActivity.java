@@ -14,7 +14,6 @@ import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ExpandableListView;
 import android.widget.Spinner;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,6 +23,7 @@ import java.util.Map;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 import antdroid.cfbcoach.GameNavigation;
 import antdroid.cfbcoach.PlatformUiHelper;
@@ -127,7 +127,7 @@ public class RecruitingActivity extends AppCompatActivity {
             }
         });
 
-        final Switch filterSwitch = findViewById(R.id.filterSwitch);
+        final SwitchCompat filterSwitch = findViewById(R.id.filterSwitch);
         filterSwitch.setText(getString(R.string.recruiting_filter_label));
         filterSwitch.setChecked(autoFilter);
         filterSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -242,7 +242,7 @@ public class RecruitingActivity extends AppCompatActivity {
 
     public void toggleAutoFilter() {
         autoFilter = !autoFilter;
-        final Switch filterSwitch = findViewById(R.id.filterSwitch);
+        final SwitchCompat filterSwitch = findViewById(R.id.filterSwitch);
         if (filterSwitch != null) filterSwitch.setChecked(autoFilter);
     }
 

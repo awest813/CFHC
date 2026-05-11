@@ -59,6 +59,7 @@
         <item name="android:textColor">@color/textPrimary</item>
         <item name="android:textSize">22sp</item>
         <item name="android:letterSpacing">0.02</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
     <style name="Widget.Cfhc.Button.Primary" parent="Widget.Material3.Button">
@@ -82,6 +83,139 @@
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+
+    <!-- Shared list rows & stat chips: one typography system (tabular lining figures on numeric-heavy lines). -->
+    <style name="TextAppearance.Cfhc.ListRowPrimary" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/textPrimary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.ListRowExpandedPrimary" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/textPrimary</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.ListRowExpandedSecondary" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/textSecondary</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.ChipAccentSmall" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:textColor">@color/accentGold</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.ChipHubMetric" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textColor">@color/textPrimary</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.ChipHubCaption" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:textColor">@color/textPrimary</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.ChipRosterMuted" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textColor">@color/textSecondary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.ChipRosterValue" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textColor">@color/textPrimary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.ChipRosterAccent" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textColor">@color/accentGold</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.ListRowHeadline" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:textColor">@color/textPrimary</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.ListRowCompactBold" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textColor">@color/textPrimary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.ListRankOrdinal" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textColor">@color/textSecondary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.ListRankTitle" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/textPrimary</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.ListRankStat" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textColor">@color/accentGold</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.StatRowLabel" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textColor">@color/textSecondary</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.StatRowValuePrimary" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textColor">@color/textPrimary</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.StatRowValueAccent" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textColor">@color/accentGold</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.HubSummary" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/textSecondary</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:lineSpacingExtra">2dp</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.ButtonCompactPrimary" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textColor">@color/blueDark</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:fontFeatureSettings">tnum</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.ButtonCompactSecondary" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textColor">@color/textPrimary</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.NewsRowHeadline" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/accentGold</item>
+        <item name="android:textSize">13sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.NewsRowBody" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">@color/textPrimary</item>
+        <item name="android:textSize">13sp</item>
     </style>
 
 </resources>

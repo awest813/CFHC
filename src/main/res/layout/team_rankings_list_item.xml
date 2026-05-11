@@ -13,9 +13,7 @@
         android:layout_width="56dp"
         android:layout_height="wrap_content"
         android:gravity="start"
-        android:textColor="@color/textSecondary"
-        android:textSize="12sp"
-        android:textStyle="bold" />
+        android:textAppearance="@style/TextAppearance.Cfhc.ListRankOrdinal" />
 
     <TextView
         android:id="@+id/textTeamRankingsCenter"
@@ -24,16 +22,12 @@
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
         android:layout_weight="1"
-        android:textColor="@color/textPrimary"
-        android:textSize="13sp"
-        android:textStyle="bold" />
+        android:textAppearance="@style/TextAppearance.Cfhc.ListRankTitle" />
 
     <TextView
         android:id="@+id/textTeamRankingsRight"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="end"
-        android:textColor="@color/accentGold"
-        android:textSize="12sp"
-        android:textStyle="bold" />
+        android:textAppearance="@style/TextAppearance.Cfhc.ListRankStat" />
 </LinearLayout>

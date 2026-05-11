@@ -1079,7 +1079,7 @@ public class League {
             bridge.crash();
         }
 
-        //fix team divions
+        // fix team divisions
         for (int c = 0; c < conferences.size(); c++) {
             for (int i = 0; i < conferences.get(c).confTeams.size(); i++) {
                 conferences.get(c).divisions.add(new Division("A", this));
@@ -1166,11 +1166,13 @@ public class League {
             }
 
             int absoluteYear = Integer.parseInt(yearToken);
+            int histSize = leagueHistory != null ? leagueHistory.size() : 0;
             if (recruitingSave) {
-                return absoluteYear - leagueHistory.size() + 1;
+                return absoluteYear - histSize + 1;
             }
-            return absoluteYear - leagueHistory.size();
-        } catch (Exception ex) {
+            return absoluteYear - histSize;
+        } catch (RuntimeException ex) {
+            PlatformLog.w("League", "Could not parse season year from save header: " + saveHeader, ex);
             return LEGACY_SAVE_YEAR;
         }
     }

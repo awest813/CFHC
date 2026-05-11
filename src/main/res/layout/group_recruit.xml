@@ -13,20 +13,19 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:paddingStart="0dp"
         android:paddingEnd="12dp"
-        android:textColor="@color/textPrimary"
-        android:textSize="14sp" />
+        android:textAppearance="@style/TextAppearance.Cfhc.ListRowPrimary" />
 
     <TextView
         android:id="@+id/textRecruitRight"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_mobile_chip"
-        android:paddingStart="10dp"
+        android:paddingStart="12dp"
         android:paddingTop="6dp"
-        android:paddingEnd="10dp"
+        android:paddingEnd="12dp"
         android:paddingBottom="6dp"
         android:textAlignment="viewStart"
-        android:textColor="@color/accentGold"
-        android:textSize="12sp" />
+        android:textAppearance="@style/TextAppearance.Cfhc.ChipAccentSmall" />
 </LinearLayout>

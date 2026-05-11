@@ -29,7 +29,7 @@ public class SeasonControllerResultTest {
         league.setPlatformResourceProvider(resources);
         league.userTeam = league.getTeamList().get(0);
         league.userTeam.setUserControlled(true);
-        controller = new SeasonController(league, noOpBridge(), SimulationFacade.NO_OP_FLOW_MANAGER);
+        controller = new SeasonController(league, noOpBridge());
     }
 
     @Test

@@ -15,9 +15,7 @@
         android:paddingStart="0dp"
         android:paddingEnd="10dp"
         android:text="A. Player Ovr:99 Pot:99 (A+,B-,C+)"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@color/textPrimary"
-        android:textStyle="bold" />
+        android:textAppearance="@style/TextAppearance.Cfhc.ListRowCompactBold" />
 
     <CheckBox
         android:id="@+id/checkboxPlayerStartingLineup"

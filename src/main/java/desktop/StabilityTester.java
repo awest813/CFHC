@@ -5,9 +5,6 @@ import simulation.PlatformLog;
 import simulation.PlatformResourceProvider;
 import simulation.SeasonController;
 import simulation.Team;
-import simulation.GameFlowManager;
-import simulation.LeagueLaunchCoordinator;
-
 import java.io.File;
 
 /**
@@ -79,15 +76,7 @@ public class StabilityTester {
 
                 HeadlessBridge bridge = new HeadlessBridge();
 
-                SeasonController controller = new SeasonController(league, bridge, new GameFlowManager() {
-                    @Override public void startNewGame(LeagueLaunchCoordinator.LaunchRequest.PrestigeMode p, String u) {}
-                    @Override public void loadGame(String s) {}
-                    @Override public void importSave(String u) {}
-                    @Override public void finishRecruiting(String r) {}
-                    @Override public void startRecruiting(String u) {}
-                    @Override public void showNotification(String t, String m) {}
-                    @Override public void returnToMainHub() {}
-                });
+                SeasonController controller = new SeasonController(league, bridge);
 
                 int steps = 0;
                 while (!bridge.recruitingComplete && steps < 200) {

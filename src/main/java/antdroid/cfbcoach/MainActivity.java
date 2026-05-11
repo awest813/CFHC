@@ -330,6 +330,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
+                DrawerLayout drawer = findViewById(R.id.drawer_layout);
+                if (drawer != null && drawer.isDrawerOpen(GravityCompat.START)) {
+                    drawer.closeDrawer(GravityCompat.START);
+                    return;
+                }
                 if (currPage == 0) {
                     exitMainActivity();
                 } else {
@@ -444,7 +449,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             simLeague = result.league;
             simLeague.setPlatformResourceProvider(resProvider);
             season = result.season;
-            seasonController = new simulation.SeasonController(simLeague, this, flowManager);
+            seasonController = new simulation.SeasonController(simLeague, this);
 
             loadedLeague = result.loadedLeague;
             newGame = result.newGame;

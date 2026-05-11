@@ -5,6 +5,8 @@ import positions.Player;
 /**
  * Controller for managing the flow of a season.
  * This should be independent of any UI framework.
+ * Navigation/recruiting intents stay with {@link SimulationFacade} and {@link GameFlowManager};
+ * this class only advances simulation state and pushes UI prompts through {@link GameUiBridge}.
  *
  * <p>Offseason weeks after the national title are mapped relative to {@link League#regSeasonWeeks}:
  * {@code +4} season summary, {@code +5} contracts, {@code +6} job offers, {@code +7} coach carousel,
@@ -20,7 +22,7 @@ public final class SeasonController {
     private final int regSeasonWeeks;
     private boolean redshirtComplete = false;
 
-    public SeasonController(League league, GameUiBridge bridge, GameFlowManager flowManager) {
+    public SeasonController(League league, GameUiBridge bridge) {
         this.league = league;
         this.bridge = bridge;
         this.regSeasonWeeks = league.regSeasonWeeks;

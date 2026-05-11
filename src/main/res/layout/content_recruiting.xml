@@ -32,9 +32,7 @@
             android:paddingBottom="6dp"
             android:text="@string/recruiting_hub_label"
             android:textAllCaps="true"
-            android:textColor="@color/textPrimary"
-            android:textSize="11sp"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.Cfhc.ChipHubCaption" />
 
         <TextView
             android:id="@+id/textRecruitProgramName"
@@ -44,19 +42,15 @@
             android:ellipsize="end"
             android:maxLines="2"
             android:text="Program Recruiting"
-            android:textColor="@color/textPrimary"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.Cfhc.HubTitle" />
 
         <TextView
             android:id="@+id/textRecruitSummary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:lineSpacingExtra="2dp"
             android:text="@string/recruiting_hub_subtitle"
-            android:textColor="@color/textSecondary"
-            android:textSize="13sp" />
+            android:textAppearance="@style/TextAppearance.Cfhc.HubSummary" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -76,9 +70,7 @@
                 android:maxLines="2"
                 android:padding="10dp"
                 android:text="Budget: $XXXX"
-                android:textColor="@color/textPrimary"
-                android:textSize="13sp"
-                android:textStyle="bold" />
+                android:textAppearance="@style/TextAppearance.Cfhc.ChipHubMetric" />
 
             <TextView
                 android:id="@+id/textRecruitBoardStatus"
@@ -92,9 +84,7 @@
                 android:maxLines="2"
                 android:padding="10dp"
                 android:text="Board: 0 prospects"
-                android:textColor="@color/textPrimary"
-                android:textSize="13sp"
-                android:textStyle="bold" />
+                android:textAppearance="@style/TextAppearance.Cfhc.ChipHubMetric" />
         </LinearLayout>
     </LinearLayout>
 
@@ -110,9 +100,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/recruiting_controls_title"
-            android:textColor="@color/textPrimary"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.Cfhc.SectionTitle" />
 
         <TextView
             android:layout_width="match_parent"
@@ -134,7 +122,7 @@
             android:textColor="@color/textPrimary"
             android:textStyle="bold" />
 
-        <Switch
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/filterSwitch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -166,9 +154,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/recruiting_board_title"
-            android:textColor="@color/textPrimary"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.Cfhc.SectionTitle" />
 
         <TextView
             android:layout_width="match_parent"

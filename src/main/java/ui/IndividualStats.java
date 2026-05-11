@@ -5,8 +5,6 @@ package ui;
  */
 
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,7 +22,7 @@ public class IndividualStats extends ArrayAdapter<String> {
     private final MainActivity mainact;
 
     public IndividualStats(Context context, ArrayList<String> values, MainActivity mainact) {
-        super(context, R.layout.team_stats_list_item, values);
+        super(context, R.layout.individual_stats, values);
         this.context = context;
         this.values = values;
         this.mainact = mainact;
@@ -36,7 +34,7 @@ public class IndividualStats extends ArrayAdapter<String> {
         if (rowView == null) {
             LayoutInflater inflater = (LayoutInflater) context
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            rowView = inflater.inflate(R.layout.invididual_stats, parent, false);
+            rowView = inflater.inflate(R.layout.individual_stats, parent, false);
         }
 
 

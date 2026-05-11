@@ -26,9 +26,7 @@
             android:paddingTop="4dp"
             android:text="POS"
             android:textAlignment="center"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/textSecondary"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.Cfhc.ChipRosterMuted" />
 
         <TextView
             android:id="@+id/textTeamRosterClass"
@@ -44,9 +42,7 @@
             android:paddingTop="4dp"
             android:text="YR"
             android:textAlignment="center"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/textSecondary"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.Cfhc.ChipRosterMuted" />
 
         <Space
             android:layout_width="0dp"
@@ -66,9 +62,7 @@
             android:paddingTop="4dp"
             android:text="OVR"
             android:textAlignment="center"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/textPrimary"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.Cfhc.ChipRosterValue" />
 
         <TextView
             android:id="@+id/textTeamRosterProgression"
@@ -84,9 +78,7 @@
             android:paddingTop="4dp"
             android:text=""
             android:textAlignment="center"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:textColor="@color/accentGold"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.Cfhc.ChipRosterAccent" />
     </LinearLayout>
 
     <TextView
@@ -95,7 +87,5 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:text="Player Name"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@color/textPrimary"
-        android:textStyle="bold" />
+        android:textAppearance="@style/TextAppearance.Cfhc.ListRowHeadline" />
 </LinearLayout>

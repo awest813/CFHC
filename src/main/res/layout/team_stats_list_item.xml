@@ -15,9 +15,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1.4"
         android:text="Label"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@color/textSecondary"
-        android:textStyle="bold" />
+        android:textAppearance="@style/TextAppearance.Cfhc.StatRowLabel" />
 
     <TextView
         android:id="@+id/textTeamStatsCenter"
@@ -33,9 +31,7 @@
         android:paddingEnd="10dp"
         android:paddingTop="8dp"
         android:text="You"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@color/textPrimary"
-        android:textStyle="bold" />
+        android:textAppearance="@style/TextAppearance.Cfhc.StatRowValuePrimary" />
 
     <TextView
         android:id="@+id/textTeamStatsRight"
@@ -44,7 +40,5 @@
         android:layout_weight="0.85"
         android:gravity="end"
         android:text="Opponent"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textColor="@color/accentGold"
-        android:textStyle="bold" />
+        android:textAppearance="@style/TextAppearance.Cfhc.StatRowValueAccent" />
 </LinearLayout>

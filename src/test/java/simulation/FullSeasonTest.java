@@ -13,8 +13,8 @@ import static org.junit.Assert.*;
  * phase of a single season: preseason → regular season → bowls/playoffs →
  * offseason (up to just before recruiting).
  *
- * <p>The test runs entirely headless using {@link GameUiBridge#NO_OP} and a
- * stub {@link GameFlowManager}, so no Android framework is required.
+ * <p>The test runs entirely headless using a recording {@link GameUiBridge}, so no Android
+ * framework is required.
  */
 public class FullSeasonTest {
 
@@ -72,17 +72,7 @@ public class FullSeasonTest {
             }
         };
 
-        GameFlowManager flowManager = new GameFlowManager() {
-            @Override public void startNewGame(LeagueLaunchCoordinator.LaunchRequest.PrestigeMode p, String u) {}
-            @Override public void loadGame(String s) {}
-            @Override public void importSave(String u) {}
-            @Override public void finishRecruiting(String r) {}
-            @Override public void startRecruiting(String u) {}
-            @Override public void showNotification(String t, String m) {}
-            @Override public void returnToMainHub() {}
-        };
-
-        controller = new SeasonController(league, bridge, flowManager);
+        controller = new SeasonController(league, bridge);
     }
 
     @Test

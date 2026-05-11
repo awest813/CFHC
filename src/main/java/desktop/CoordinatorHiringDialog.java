@@ -29,6 +29,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * Interactive dialog for hiring offensive and defensive coordinators.
@@ -134,7 +135,7 @@ public class CoordinatorHiringDialog extends JDialog {
         title.setForeground(accent);
         card.add(title, BorderLayout.NORTH);
 
-        String stats = String.format(
+        String stats = String.format(Locale.ROOT,
             "<html><body style='color:#ABB2BF; font-family:SansSerif; font-size:11pt; line-height:1.6;'>" +
             "<b style='color:white; font-size:14pt;'>%s</b><br/><br/>" +
             "AGE: <b style='color:white'>%d</b><br/>" +
@@ -142,7 +143,7 @@ public class CoordinatorHiringDialog extends JDialog {
             "TALENT: <b style='color:white'>%d</b><br/>" +
             "TENURE: YEAR %d OF %d<br/>" +
             "</body></html>",
-            DesktopTheme.escapeForHtml(s.name.toUpperCase()), s.age, (s instanceof OC ? s.ratOff : s.ratDef), s.ratTalent,
+            DesktopTheme.escapeForHtml(s.name.toUpperCase(Locale.ROOT)), s.age, (s instanceof OC ? s.ratOff : s.ratDef), s.ratTalent,
             s.contractYear, s.contractLength
         );
         card.add(new JLabel(stats), BorderLayout.CENTER);
@@ -165,12 +166,12 @@ public class CoordinatorHiringDialog extends JDialog {
 
         if (userTeam.getOC() != null) {
             Staff current = userTeam.getOC();
-            model.addRow(new Object[]{"[CURRENT]", current.name.toUpperCase(), current.age, current.ratOff, current.ratTalent, playbooks[current.offStrat].getStratName().toUpperCase()});
+            model.addRow(new Object[]{"[CURRENT]", current.name.toUpperCase(Locale.ROOT), current.age, current.ratOff, current.ratTalent, playbooks[current.offStrat].getStratName().toUpperCase(Locale.ROOT)});
         }
 
         for (int i = (userTeam.getOC() != null ? 1 : 0); i < candidates.size(); i++) {
             Staff c = candidates.get(i);
-            model.addRow(new Object[]{"", c.name.toUpperCase(), c.age, c.ratOff, c.ratTalent, playbooks[c.offStrat].getStratName().toUpperCase()});
+            model.addRow(new Object[]{"", c.name.toUpperCase(Locale.ROOT), c.age, c.ratOff, c.ratTalent, playbooks[c.offStrat].getStratName().toUpperCase(Locale.ROOT)});
         }
 
         JTable table = createModernTable(model);
@@ -233,12 +234,12 @@ public class CoordinatorHiringDialog extends JDialog {
 
         if (userTeam.getDC() != null) {
             Staff current = userTeam.getDC();
-            model.addRow(new Object[]{"[CURRENT]", current.name.toUpperCase(), current.age, current.ratDef, current.ratTalent, playbooks[current.defStrat].getStratName().toUpperCase()});
+            model.addRow(new Object[]{"[CURRENT]", current.name.toUpperCase(Locale.ROOT), current.age, current.ratDef, current.ratTalent, playbooks[current.defStrat].getStratName().toUpperCase(Locale.ROOT)});
         }
 
         for (int i = (userTeam.getDC() != null ? 1 : 0); i < candidates.size(); i++) {
             Staff c = candidates.get(i);
-            model.addRow(new Object[]{"", c.name.toUpperCase(), c.age, c.ratDef, c.ratTalent, playbooks[c.defStrat].getStratName().toUpperCase()});
+            model.addRow(new Object[]{"", c.name.toUpperCase(Locale.ROOT), c.age, c.ratDef, c.ratTalent, playbooks[c.defStrat].getStratName().toUpperCase(Locale.ROOT)});
         }
 
         JTable table = createModernTable(model);

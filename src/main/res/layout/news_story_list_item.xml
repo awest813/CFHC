@@ -11,9 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Headline"
-        android:textColor="@color/accentGold"
-        android:textSize="13sp"
-        android:textStyle="bold" />
+        android:textAppearance="@style/TextAppearance.Cfhc.NewsRowHeadline" />
 
     <TextView
         android:id="@+id/textNewsContent"
@@ -21,6 +19,5 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:text="Story body"
-        android:textColor="@color/textPrimary"
-        android:textSize="13sp" />
+        android:textAppearance="@style/TextAppearance.Cfhc.NewsRowBody" />
 </LinearLayout>

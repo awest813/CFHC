@@ -25,6 +25,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Read-only table view of the transfer portal.
@@ -200,7 +201,7 @@ public class TransferPortalDialog extends JDialog {
     }
 
     private static Object[] playerRow(Player p) {
-        String teamName = p.team != null ? p.team.getName().toUpperCase() : "UNKNOWN";
+        String teamName = p.team != null ? p.team.getName().toUpperCase(Locale.ROOT) : "UNKNOWN";
         return new Object[]{p.position, p.name, p.ratOvr, p.year, teamName};
     }
 

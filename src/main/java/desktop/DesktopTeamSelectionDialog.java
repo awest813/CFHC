@@ -24,6 +24,7 @@ import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Desktop user-team picker used when a loaded Android/portable save has no
@@ -90,7 +91,7 @@ public class DesktopTeamSelectionDialog extends JDialog {
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                           boolean isSelected, boolean cellHasFocus) {
                 Team team = (Team) value;
-                String labelText = String.format("%-22s  Prestige %d", team.getName(), team.getTeamPrestige());
+                String labelText = String.format(Locale.ROOT, "%-22s  Prestige %d", team.getName(), team.getTeamPrestige());
                 JLabel label = (JLabel) super.getListCellRendererComponent(
                         list, labelText, index, isSelected, cellHasFocus);
                 label.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
@@ -126,7 +127,7 @@ public class DesktopTeamSelectionDialog extends JDialog {
             }
             Team team = teamList.getSelectedValue();
             if (team != null) {
-                teamInfo.setText(String.format("<html><body style='color:%s;'><b>%s</b> (%s) | %s | Prestige %d | HC: %s (OVR %d)</body></html>",
+                teamInfo.setText(String.format(Locale.ROOT, "<html><body style='color:%s;'><b>%s</b> (%s) | %s | Prestige %d | HC: %s (OVR %d)</body></html>",
                         DesktopTheme.cssRgb(DesktopTheme.textPrimary()),
                         DesktopTheme.escapeForHtml(team.getName()),
                         DesktopTheme.escapeForHtml(team.getAbbr()),

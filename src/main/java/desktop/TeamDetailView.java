@@ -28,6 +28,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Detailed dialog for a single team. Combines roster, schedule, coaching-staff,
@@ -390,7 +391,7 @@ public class TeamDetailView extends JDialog {
     }
 
     private JLabel coachLine(String role, String name, int ovr) {
-        JLabel label = new JLabel(String.format("%-25s %s  (Overall %d)", role + ":", name, ovr));
+        JLabel label = new JLabel(String.format(Locale.ROOT, "%-25s %s  (Overall %d)", role + ":", name, ovr));
         label.setFont(new Font("SansSerif", Font.PLAIN, 14));
         label.setForeground(DesktopTheme.textPrimary());
         return label;
@@ -411,20 +412,20 @@ public class TeamDetailView extends JDialog {
         model.addRow(new Object[]{"Poll Rank", "#" + team.getRankTeamPollScore(), ""});
         model.addRow(new Object[]{"Prestige", team.getTeamPrestige(), "#" + team.getRankTeamPrestige()});
         model.addRow(new Object[]{"", "", ""});
-        model.addRow(new Object[]{"Points/Game", String.format("%.1f", (float) team.getTeamPoints() / games), "#" + team.getRankTeamPoints()});
-        model.addRow(new Object[]{"Opp Points/Game", String.format("%.1f", (float) team.getTeamOppPoints() / games), "#" + team.getRankTeamOppPoints()});
-        model.addRow(new Object[]{"Total Yards/Game", String.format("%.1f", (float) team.getTeamYards() / games), "#" + team.getRankTeamYards()});
-        model.addRow(new Object[]{"Opp Yards/Game", String.format("%.1f", (float) team.getTeamOppYards() / games), "#" + team.getRankTeamOppYards()});
-        model.addRow(new Object[]{"Pass Yards/Game", String.format("%.1f", (float) team.getTeamPassYards() / games), "#" + team.getRankTeamPassYards()});
-        model.addRow(new Object[]{"Rush Yards/Game", String.format("%.1f", (float) team.getTeamRushYards() / games), "#" + team.getRankTeamRushYards()});
+        model.addRow(new Object[]{"Points/Game", String.format(Locale.ROOT, "%.1f", (float) team.getTeamPoints() / games), "#" + team.getRankTeamPoints()});
+        model.addRow(new Object[]{"Opp Points/Game", String.format(Locale.ROOT, "%.1f", (float) team.getTeamOppPoints() / games), "#" + team.getRankTeamOppPoints()});
+        model.addRow(new Object[]{"Total Yards/Game", String.format(Locale.ROOT, "%.1f", (float) team.getTeamYards() / games), "#" + team.getRankTeamYards()});
+        model.addRow(new Object[]{"Opp Yards/Game", String.format(Locale.ROOT, "%.1f", (float) team.getTeamOppYards() / games), "#" + team.getRankTeamOppYards()});
+        model.addRow(new Object[]{"Pass Yards/Game", String.format(Locale.ROOT, "%.1f", (float) team.getTeamPassYards() / games), "#" + team.getRankTeamPassYards()});
+        model.addRow(new Object[]{"Rush Yards/Game", String.format(Locale.ROOT, "%.1f", (float) team.getTeamRushYards() / games), "#" + team.getRankTeamRushYards()});
         model.addRow(new Object[]{"", "", ""});
-        model.addRow(new Object[]{"Offensive Talent", String.format("%.1f", team.getOffTalent()), "#" + team.getRankTeamOffTalent()});
-        model.addRow(new Object[]{"Defensive Talent", String.format("%.1f", team.getDefTalent()), "#" + team.getRankTeamDefTalent()});
-        model.addRow(new Object[]{"Chemistry", String.format("%.1f", team.getTeamChemistry()), "#" + team.getRankTeamChemistry()});
+        model.addRow(new Object[]{"Offensive Talent", String.format(Locale.ROOT, "%.1f", team.getOffTalent()), "#" + team.getRankTeamOffTalent()});
+        model.addRow(new Object[]{"Defensive Talent", String.format(Locale.ROOT, "%.1f", team.getDefTalent()), "#" + team.getRankTeamDefTalent()});
+        model.addRow(new Object[]{"Chemistry", String.format(Locale.ROOT, "%.1f", team.getTeamChemistry()), "#" + team.getRankTeamChemistry()});
         model.addRow(new Object[]{"Discipline", team.getTeamDisciplineScore() + "%", "#" + team.getRankTeamDisciplineScore()});
         model.addRow(new Object[]{"", "", ""});
-        model.addRow(new Object[]{"SOS", String.format("%.3f", team.getSOS()), "#" + team.getRankTeamSOS()});
-        model.addRow(new Object[]{"RPI", String.format("%.3f", team.getRPI()), "#" + team.getRankTeamRPI()});
+        model.addRow(new Object[]{"SOS", String.format(Locale.ROOT, "%.3f", team.getSOS()), "#" + team.getRankTeamSOS()});
+        model.addRow(new Object[]{"RPI", String.format(Locale.ROOT, "%.3f", team.getRPI()), "#" + team.getRankTeamRPI()});
 
         JTable table = new JTable(model);
         table.setRowHeight(26);
@@ -450,9 +451,9 @@ public class TeamDetailView extends JDialog {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
 
-        model.addRow(new Object[]{"Team Budget", "$" + String.format("%,d", team.getTeamBudget())});
-        model.addRow(new Object[]{"Recruiting Budget", "$" + String.format("%,d", team.getTeamRecruitBudget())});
-        model.addRow(new Object[]{"Discipline Budget", "$" + String.format("%,d", team.getTeamDisciplineBudget())});
+        model.addRow(new Object[]{"Team Budget", "$" + String.format(Locale.ROOT, "%,d", team.getTeamBudget())});
+        model.addRow(new Object[]{"Recruiting Budget", "$" + String.format(Locale.ROOT, "%,d", team.getTeamRecruitBudget())});
+        model.addRow(new Object[]{"Discipline Budget", "$" + String.format(Locale.ROOT, "%,d", team.getTeamDisciplineBudget())});
         model.addRow(new Object[]{"", ""});
         model.addRow(new Object[]{"Facilities Level", team.getTeamFacilities()});
         model.addRow(new Object[]{"NIL collective tier", team.nilCollectiveLevel});
@@ -465,7 +466,7 @@ public class TeamDetailView extends JDialog {
         int baselineCost = 17_500;
         int nextUpgradeCost = baselineCost * (team.getTeamFacilities() + 1);
         model.addRow(new Object[]{"", ""});
-        model.addRow(new Object[]{"Next Facility Upgrade Cost", "$" + String.format("%,d", nextUpgradeCost)});
+        model.addRow(new Object[]{"Next Facility Upgrade Cost", "$" + String.format(Locale.ROOT, "%,d", nextUpgradeCost)});
         boolean canAfford = team.getTeamBudget() > nextUpgradeCost;
         model.addRow(new Object[]{"Can Afford Upgrade?", canAfford ? "Yes" : "No"});
 
@@ -524,7 +525,7 @@ public class TeamDetailView extends JDialog {
             String holder = LeagueHomeView.formatHolder(dr.holder());
             String value = dr.value() == (int) dr.value()
                     ? String.valueOf((int) dr.value())
-                    : String.format("%.2f", dr.value());
+                    : String.format(Locale.ROOT, "%.2f", dr.value());
             model.addRow(new Object[]{dr.key(), value, holder, dr.year()});
         }
 
@@ -543,12 +544,11 @@ public class TeamDetailView extends JDialog {
         footer.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10));
         String recordText;
         if (live != null) {
-            recordText = String.format(
-                    "%s (%s)  \u2022  Record %d-%d  \u2022  Conf %d-%d  \u2022  Prestige %d  \u2022  Roster %d  \u2022  Double-click rows for details",
+            recordText = String.format(Locale.ROOT, "%s (%s)  \u2022  Record %d-%d  \u2022  Conf %d-%d  \u2022  Prestige %d  \u2022  Roster %d  \u2022  Double-click rows for details",
                     team.name(), team.abbr(), live.getWins(), live.getLosses(),
                     live.getConfWins(), live.getConfLosses(), team.prestige(), team.roster().size());
         } else {
-            recordText = String.format("%s (%s)  \u2022  Prestige %d  \u2022  Roster %d",
+            recordText = String.format(Locale.ROOT, "%s (%s)  \u2022  Prestige %d  \u2022  Roster %d",
                     team.name(), team.abbr(), team.prestige(), team.roster().size());
         }
         footer.add(new JLabel(recordText));

@@ -12,9 +12,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Player Name"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="@color/textPrimary"
-        android:textStyle="bold" />
+        android:textAppearance="@style/TextAppearance.Cfhc.ListRowHeadline" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -33,7 +31,7 @@
             android:gravity="center"
             android:padding="8dp"
             android:text="Games"
-            android:textColor="@color/textSecondary" />
+            android:textAppearance="@style/TextAppearance.Cfhc.StatRowLabel" />
 
         <TextView
             android:id="@+id/textStat1"
@@ -46,7 +44,7 @@
             android:gravity="center"
             android:padding="8dp"
             android:text="Comp %"
-            android:textColor="@color/textSecondary" />
+            android:textAppearance="@style/TextAppearance.Cfhc.StatRowLabel" />
 
         <TextView
             android:id="@+id/textStat2"
@@ -58,7 +56,7 @@
             android:gravity="center"
             android:padding="8dp"
             android:text="Yds"
-            android:textColor="@color/textSecondary" />
+            android:textAppearance="@style/TextAppearance.Cfhc.StatRowLabel" />
     </LinearLayout>
 
     <LinearLayout
@@ -78,7 +76,7 @@
             android:gravity="center"
             android:padding="8dp"
             android:text="TD"
-            android:textColor="@color/textSecondary" />
+            android:textAppearance="@style/TextAppearance.Cfhc.StatRowLabel" />
 
         <TextView
             android:id="@+id/textStat4"
@@ -91,7 +89,7 @@
             android:gravity="center"
             android:padding="8dp"
             android:text="Int"
-            android:textColor="@color/textSecondary" />
+            android:textAppearance="@style/TextAppearance.Cfhc.StatRowLabel" />
 
         <TextView
             android:id="@+id/textStat5"
@@ -103,7 +101,6 @@
             android:gravity="center"
             android:padding="8dp"
             android:text="Rating"
-            android:textColor="@color/accentGold"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.Cfhc.StatRowValueAccent" />
     </LinearLayout>
 </LinearLayout>

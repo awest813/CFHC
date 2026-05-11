@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -101,7 +102,7 @@ public class DesktopResourceProvider implements PlatformResourceProvider {
             return format;
         }
         try {
-            return String.format(format, args);
+            return String.format(Locale.ROOT, format, args);
         } catch (java.util.IllegalFormatException e) {
             return format;
         }

@@ -34,6 +34,7 @@ import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * New-game wizard dialog.  Lets the user pick a prestige mode and then
@@ -347,7 +348,7 @@ public class NewGameWizard extends JDialog {
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                           boolean isSelected, boolean cellHasFocus) {
                 Team t = (Team) value;
-                String label = String.format("%-22s  Prestige %d", t.getName(), t.getTeamPrestige());
+                String label = String.format(Locale.ROOT, "%-22s  Prestige %d", t.getName(), t.getTeamPrestige());
                 JLabel l = (JLabel) super.getListCellRendererComponent(list, label, index, isSelected, cellHasFocus);
                 l.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
                 DesktopTheme.decorateListCellLabel(l, index, isSelected, null);
@@ -376,7 +377,7 @@ public class NewGameWizard extends JDialog {
             if (e.getValueIsAdjusting()) return;
             Team sel = teamList.getSelectedValue();
             if (sel != null) {
-                teamInfo.setText(String.format("<html><body style='color:%s;'><b>%s</b> (%s)  &bull;  %s  &bull;  Prestige %d  &bull;  HC: %s (OVR %d)</body></html>",
+                teamInfo.setText(String.format(Locale.ROOT, "<html><body style='color:%s;'><b>%s</b> (%s)  &bull;  %s  &bull;  Prestige %d  &bull;  HC: %s (OVR %d)</body></html>",
                         DesktopTheme.cssRgb(DesktopTheme.textPrimary()),
                         DesktopTheme.escapeForHtml(sel.getName()),
                         DesktopTheme.escapeForHtml(sel.getAbbr()),

@@ -2317,7 +2317,9 @@ public class Team {
         int i = 0;
         PracticeFocus pf = userControlled ? practiceFocus : PracticeFocus.BALANCED;
         while (i < players.size()) {
-            if (players.get(i).year >= 4 && !players.get(i).isTransfer && !players.get(i).isRedshirt || (players.get(i).year == 3 && players.get(i).ratOvr > NFL_OVR && Math.random() < NFL_CHANCE) || (players.get(i).year == 2 && players.get(i).wasRedshirt && players.get(i).ratOvr > NFL_OVR + sophNFL && Math.random() < NFL_CHANCE_SOPH)) {
+            if ((players.get(i).year >= 4 && !players.get(i).isTransfer && !players.get(i).isRedshirt)
+                    || (players.get(i).year == 3 && players.get(i).ratOvr > NFL_OVR && Math.random() < NFL_CHANCE)
+                    || (players.get(i).year == 2 && players.get(i).wasRedshirt && players.get(i).ratOvr > NFL_OVR + sophNFL && Math.random() < NFL_CHANCE_SOPH)) {
                 playersLeaving.add(players.get(i));
                 removePlayer(players.get(i));
                 players.remove(i);

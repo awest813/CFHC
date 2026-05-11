@@ -16,17 +16,18 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:paddingStart="0dp"
             android:paddingEnd="12dp"
-            android:textColor="@color/textPrimary"
-            android:textSize="13sp" />
+            android:textAppearance="@style/TextAppearance.Cfhc.ListRowExpandedPrimary" />
 
         <TextView
             android:id="@+id/textRecruitPotential"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textColor="@color/textSecondary"
-            android:textSize="13sp" />
+            android:paddingStart="12dp"
+            android:paddingEnd="0dp"
+            android:textAppearance="@style/TextAppearance.Cfhc.ListRowExpandedSecondary" />
     </LinearLayout>
 
     <LinearLayout
@@ -50,9 +51,7 @@
             android:paddingBottom="10dp"
             android:text="Scout"
             android:textAllCaps="false"
-            android:textColor="@color/textPrimary"
-            android:textSize="12sp"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.Cfhc.ButtonCompactSecondary" />
 
         <Button
             android:id="@+id/buttonRecruitPlayer"
@@ -67,9 +66,7 @@
             android:paddingBottom="10dp"
             android:text="Recruit: $XXX"
             android:textAllCaps="false"
-            android:textColor="@color/blueDark"
-            android:textSize="12sp"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.Cfhc.ButtonCompactPrimary" />
     </LinearLayout>
 
 </LinearLayout>

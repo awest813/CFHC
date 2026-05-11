@@ -222,7 +222,7 @@ public final class SimulationFacade {
             this.league.userTeam = this.userTeam;
             this.userTeam.setUserControlled(true);
         }
-        this.seasonController = new SeasonController(league, bridge, flowManager);
+        this.seasonController = new SeasonController(league, bridge);
     }
 
     public League getLeague() {

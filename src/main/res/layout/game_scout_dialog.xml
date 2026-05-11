@@ -41,6 +41,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
+                    android:paddingStart="0dp"
                     android:paddingEnd="8dp"
                     android:text="ha3"
                     android:textColor="@color/textPrimary" />
@@ -52,6 +53,7 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:paddingStart="8dp"
+                    android:paddingEnd="0dp"
                     android:text="ha3"
                     android:textColor="@color/textPrimary" />
             </LinearLayout>

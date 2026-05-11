@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
-    <!-- Swing desktop sources share this tree but are not shipped in the APK; triage DefaultLocale there separately. -->
-    <issue id="DefaultLocale" severity="ignore">
-        <ignore path="**/java/desktop/**" />
-    </issue>
     <!-- AlertDialog custom views use inflate(..., null, false); Lint still flags the null root (issue #36937596). -->
     <issue id="InflateParams" severity="ignore" />
 </lint>
