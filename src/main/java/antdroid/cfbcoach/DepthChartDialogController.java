@@ -21,6 +21,11 @@ final class DepthChartDialogController {
     private DepthChartDialogController() {
     }
 
+    private static final String[] POSITION_NAMES = {
+            "Quarterbacks", "Running Backs", "Wide Receivers", "Tight Ends", "Off Linemen",
+            "Kickers", "Def Linemen", "Linebackers", "Cornerbacks", "Safeties"
+    };
+
     static void showDepthChart(final MainActivity activity, final Team userTeam) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle("Set Team Lineup")
@@ -29,8 +34,7 @@ final class DepthChartDialogController {
         dialog.setCancelable(false);
         PlatformUiHelper.showImmersive(dialog);
 
-        final String[] positionSelection = {"Quarterbacks", "Running Backs", "Wide Receivers", "Tight Ends", "Off Linemen",
-                "Kickers", "Def Linemen", "Linebackers", "Cornerbacks", "Safeties"};
+        final String[] positionSelection = POSITION_NAMES;
         final int[] positionNumberRequired = {userTeam.startersQB, userTeam.startersRB, userTeam.startersWR, userTeam.startersTE, userTeam.startersOL, userTeam.startersK, userTeam.startersDL, userTeam.startersLB, userTeam.startersCB, userTeam.startersS};
         final Spinner teamLineupPositionSpinner = dialog.findViewById(R.id.spinnerTeamLineupPosition);
         PlatformUiHelper.avoidSpinnerDropdownFocus(teamLineupPositionSpinner);
@@ -94,8 +98,7 @@ final class DepthChartDialogController {
         dialog.setCancelable(false);
         PlatformUiHelper.showImmersive(dialog);
 
-        final String[] positionSelection = {"Quarterbacks", "Running Backs", "Wide Receivers", "Tight Ends", "Off Linemen",
-                "Kickers", "Def Linemen", "Linebackers", "Cornerbacks", "Safeties"};
+        final String[] positionSelection = POSITION_NAMES;
         final int[] positionNumberRequired = {userTeam.minQBs, userTeam.minRBs, userTeam.minWRs, userTeam.minTEs, userTeam.minOLs, userTeam.minKs, userTeam.minDLs, userTeam.minLBs, userTeam.minCBs, userTeam.minSs};
         final Spinner teamLineupPositionSpinner = dialog.findViewById(R.id.spinnerTeamLineupPosition);
         PlatformUiHelper.avoidSpinnerDropdownFocus(teamLineupPositionSpinner);
@@ -149,7 +152,7 @@ final class DepthChartDialogController {
                     redshirtSelector.playersRemoved.clear();
                     redshirtLineup(userTeam, positionSpinner, redshirtSelector, positionNumberRequired, positionPlayers, textLineupPositionDescription);
                     minPlayersText.setText("Min Active: " + positionNumberRequired[positionSpinner] + " Current Active: " + userTeam.getActivePlayers(positionSpinner));
-                    Toast.makeText(activity, "Set redshirts for " + positionSelection[positionSpinner] + "! You currently have " + userTeam.countRedshirts() + " (Max: 9) redshirted players.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, "Set redshirts for " + positionSelection[positionSpinner] + "! You currently have " + userTeam.countRedshirts() + " (Max: 10) redshirted players.", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(activity, "A maximum of 10 players can be redshirted each season. You have exceeded this! You currently have " + userTeam.countRedshirts() + " redshirted players.", Toast.LENGTH_SHORT).show();
                 }
@@ -206,7 +209,7 @@ final class DepthChartDialogController {
                 break;
         }
 
-        for (int i = 0; i < teamLineupAdapter.playersRequired; ++i) {
+        for (int i = 0; i < teamLineupAdapter.playersRequired && i < positionPlayers.size(); ++i) {
             teamLineupAdapter.playersSelected.add(positionPlayers.get(i));
         }
         teamLineupAdapter.notifyDataSetChanged();
@@ -228,7 +231,7 @@ final class DepthChartDialogController {
                 positionPlayers.addAll(userTeam.teamRBs);
                 break;
             case 2:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Catch, Speed, Evaasion, Jump)");
+                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Catch, Speed, Evasion, Jump)");
                 positionPlayers.addAll(userTeam.teamWRs);
                 break;
             case 3:

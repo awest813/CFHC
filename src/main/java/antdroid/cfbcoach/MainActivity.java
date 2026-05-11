@@ -474,7 +474,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Update Header Bar
     void updateHeaderBar() {
-        getSupportActionBar().setTitle(currentTeam.getName());
+        if (getSupportActionBar() != null) getSupportActionBar().setTitle(currentTeam.getName());
         SeasonPresentationController.update(this, currentTeam, simLeague, season);
     }
 
@@ -510,8 +510,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         builder.setItems(teams, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
                 // Do something with the selection
-                simLeague.getTeamList().get(item).getHeadCoach().team = null;
-                simLeague.getCoachFreeAgents().add(simLeague.getTeamList().get(item).getHeadCoach());
+                if (simLeague.getTeamList().get(item).getHeadCoach() != null) {
+                    simLeague.getTeamList().get(item).getHeadCoach().team = null;
+                    simLeague.getCoachFreeAgents().add(simLeague.getTeamList().get(item).getHeadCoach());
+                }
                 userTeam.setUserControlled(false);
                 userTeam = simLeague.getTeamList().get(item);
                 simLeague.userTeam = userTeam;
@@ -1182,6 +1184,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public Staff findCoachProfile(String name) {
         Staff p = null;
         String[] nameSplit = name.split(" ");
+        if (nameSplit.length < 2) return p;
         String nameHC = nameSplit[0] + " " + nameSplit[1];
         for(int i = 0; i < simLeague.getTeamList().size(); i++) {
             if(simLeague.getTeamList().get(i).getHeadCoach() != null && simLeague.getTeamList().get(i).getHeadCoach().name.equals(nameHC)) return simLeague.getTeamList().get(i).getHeadCoach();
@@ -1716,8 +1719,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         String[] yearLabels = new String[hc.history.size()];
         for (int i = 0; i < hc.history.size(); i++) {
             if (!hc.history.get(i).equals("")) {
-                series.appendData(new DataPoint(Integer.parseInt(hc.history.get(i).split(": ")[0]), Integer.parseInt(hc.history.get(i).split("Prs: ")[1].split(" ")[0])), true, i + 1, false);
-                yearLabels[i] = hc.history.get(i).split(":")[0];
+                String[] yearPart = hc.history.get(i).split(": ");
+                String[] prsPart = hc.history.get(i).split("Prs: ");
+                if (yearPart.length >= 2 && prsPart.length >= 2) {
+                    String[] prsVal = prsPart[1].split(" ");
+                    if (prsVal.length >= 1) {
+                        try {
+                            series.appendData(new DataPoint(Integer.parseInt(yearPart[0]), Integer.parseInt(prsVal[0])), true, i + 1, false);
+                            yearLabels[i] = hc.history.get(i).split(":")[0];
+                        } catch (NumberFormatException ignored) {
+                        }
+                    }
+                }
             }
         }
         graph.addSeries(series);
@@ -1892,11 +1905,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         public void onItemSelected(
                                 AdapterView<?> parent, View view, int position, long id) {
                             ArrayList<String> rankings = simLeague.getAwardsWatch(position);
-                            if (position == 12) {
-                                teamRankingsAdapter.setUserTeamStrRep(userTeam.getAbbr());
-                            } else {
-                                teamRankingsAdapter.setUserTeamStrRep(userTeam.getAbbr());
-                            }
+                            teamRankingsAdapter.setUserTeamStrRep(userTeam.getAbbr());
                             teamRankingsAdapter.clear();
                             teamRankingsAdapter.addAll(rankings);
                             teamRankingsAdapter.notifyDataSetChanged();
@@ -2119,7 +2128,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // Actually go back to main menu
-                        finish();
                         flowManager.returnToMainHub();
                         finish();
                     }
@@ -2294,9 +2302,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //mid-season summary
     private void midseasonSummary() {
-        String string = "";
         simLeague.midSeasonProgression();
-        string = userTeam.midseasonUserProgression();
+        String string = userTeam.midseasonUserProgression();
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setMessage(string)
                 .setTitle("Mid-Season Progress Report")
@@ -3017,7 +3024,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         sb.append(userTeam.getRecruitsInfoSaveFile());
 
                         //Start Recruiting Activity
-                        finish();
                         flowManager.startRecruiting(sb.toString());
                         finish();
                     }
@@ -3407,21 +3413,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     void fixBowlNames() {
-        String[] bowls = simLeague.bowlNamesText.split(",");
-        simLeague.bowlNames = new String[bowls.length];
-        for(int i = 0; i < bowls.length; i++) {
-            simLeague.bowlNames[i] = bowls[i];
-        }
-    }
-
-    //allow the ability to enable editor to edit player names, positions, attributes, etc.
-    private void playerEditor() {
-
-    }
-
-    public void userHallofFame() {
-        //Retirement Hall of Fame
-
+        simLeague.bowlNames = simLeague.bowlNamesText.split(",");
     }
 
     private void disciplineSetup() {
@@ -3480,32 +3472,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // Actually go back to main menu
-                        finish();
                         flowManager.returnToMainHub();
                         finish();
                     }
                 })
                 .setCancelable(false);
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-    }
-
-    private void openGameWindow() {
-        AlertDialog.Builder GameViewer = new AlertDialog.Builder(this);
-        GameViewer.setTitle("Game Viewer")
-                .setView(getLayoutInflater().inflate(R.layout.playwindow, null, false));
-        final AlertDialog dialog = GameViewer.create();
-
-        GameViewer.setPositiveButton("Close", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Perform action on click
-
-            }
-        });
-
-        TextView teamScores = findViewById(R.id.playScore);
-        TextView playbyplay = findViewById(R.id.playPBP);
         showImmersive(dialog);
     }
 

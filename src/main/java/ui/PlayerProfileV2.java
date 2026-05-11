@@ -112,38 +112,6 @@ public class PlayerProfileV2 extends ArrayAdapter<String> {
         return rowView;
     }
 
-/*    private void colorizeRatings(TextView textV, String rating) {
-        String[] ratSplit = rating.split(" ");
-        // The last index is always the rating: A+, C, etc
-        if (ratSplit.length > 0 && rating.split(",").length == 1) {
-            String letter = ratSplit[ratSplit.length - 1];
-
-            if(isInteger(letter)) {
-                int pRat = Integer.parseInt(letter);
-                if (pRat >= 92) {
-                    textV.setTextColor(Color.parseColor("#5994de"));
-                } else if (pRat < 92 && pRat >= 84) {
-                    textV.setTextColor(Color.parseColor("#00b300"));
-                } else if (pRat < 94 && pRat >= 76) {
-                    textV.setTextColor(Color.parseColor("#ffc34d"));
-                } else if (pRat < 76 && pRat >= 68) {
-                    textV.setTextColor(Color.parseColor("#e68a00"));
-                } else {
-                    textV.setTextColor(Color.RED);
-                }
-            } else {
-
-                } if (letter.equals("Active")) {
-                } else if (letter.equals("Redshirt") || letter.equals("Medical") || letter.equals("Transfer")) {
-                    textV.setTextColor(Color.DKGRAY);
-                } else if (letter.equals("Injured")) {
-                    textV.setTextColor(Color.parseColor("#ffc34d"));
-                } else if (letter.equals("Suspended")) {
-                    textV.setTextColor(Color.RED);
-                }
-            }
-        }*/
-
     public static boolean isInteger(String s) {
         try {
             Integer.parseInt(s);

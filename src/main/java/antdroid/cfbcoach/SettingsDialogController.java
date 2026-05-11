@@ -178,7 +178,7 @@ public final class SettingsDialogController {
             if (fixBowlButton != null) fixBowlButton.setVisibility(View.INVISIBLE);
             if (fixProRel != null) fixProRel.setVisibility(View.INVISIBLE);
         } else {
-            if (activity.userTeam.getHeadCoach().age >= 55 && !simLeague.neverRetire) {
+            if (activity.userTeam.getHeadCoach() != null && activity.userTeam.getHeadCoach().age >= 55 && !simLeague.neverRetire) {
                 if (changeTeamsButton != null) changeTeamsButton.setText("RETIRE");
             }
             if (simLeague.currentWeek < simLeague.regSeasonWeeks + 6) {

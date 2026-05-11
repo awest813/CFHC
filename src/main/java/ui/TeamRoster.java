@@ -25,7 +25,6 @@ public class TeamRoster extends ArrayAdapter<String> {
     private String userTeamStrRep;
     private final MainActivity mainAct;
     private final int week;
-    private Boolean test = false;
 
 
     public TeamRoster(Context context, ArrayList<String> values, MainActivity mainAct, int week) {
@@ -91,10 +90,14 @@ public class TeamRoster extends ArrayAdapter<String> {
         }
 
         if(!teamStat[4].contains(" ")) {
-            if (Integer.parseInt(teamStat[4]) > 90) {
-                textRight.setTextColor(Color.parseColor("#5994de"));
-            } else if (Integer.parseInt(teamStat[4]) > 80) {
-                textRight.setTextColor(Color.parseColor("#8FBC8F"));
+            try {
+                int rating = Integer.parseInt(teamStat[4]);
+                if (rating > 90) {
+                    textRight.setTextColor(Color.parseColor("#5994de"));
+                } else if (rating > 80) {
+                    textRight.setTextColor(Color.parseColor("#8FBC8F"));
+                }
+            } catch (NumberFormatException ignored) {
             }
         }
 

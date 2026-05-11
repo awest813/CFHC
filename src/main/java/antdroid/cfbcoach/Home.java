@@ -283,13 +283,6 @@ public class Home extends AppCompatActivity {
         HomeDialogController.showLoadLeagueDialog(this, getSaveFileInfos(), theme);
     }
 
-    private void importGame() {
-        // Handled via controller Runnable now
-    }
-
-    /**
-     * Delete Save
-     */
     private void deleteSave() {
         HomeDialogController.showDeleteSaveDialog(this, getSaveFileInfos());
     }
@@ -373,17 +366,6 @@ public class Home extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
-
-    // Shows the system bars by removing all the flags
-// except for the ones that make the content appear under the system bars.
-    private void showSystemUI() {
-        View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-    }
-
 
     public void showImmersive(AlertDialog alert) {
         PlatformUiHelper.showImmersive(alert);

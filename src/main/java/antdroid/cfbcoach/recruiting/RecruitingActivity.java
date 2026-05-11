@@ -65,7 +65,7 @@ public class RecruitingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        theme = GameNavigation.getTheme(getIntent(), theme);
+        theme = GameNavigation.getTheme(getIntent(), 1);
         if(theme == 1) setTheme(R.style.AppThemeLight);
         else setTheme(R.style.AppTheme);
 
@@ -337,7 +337,9 @@ public class RecruitingActivity extends AppCompatActivity {
 
         public String getChild(int groupPosition, int childPosition) {
             RecruitingPlayerRecord recruit = players.get(groupPosition);
-            return playersInfo.get(recruit.listKey()).get(childPosition);
+            List<String> info = playersInfo.get(recruit.listKey());
+            if (info == null) return "";
+            return info.get(childPosition);
         }
 
 
