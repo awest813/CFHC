@@ -2,34 +2,39 @@ package antdroid.cfbcoach;
 
 //Google Play Services ID: 116207837258
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+
+import android.app.AlertDialog;
 
 import simulation.LeagueLaunchCoordinator;
 import simulation.LeagueSaveStorage;
 
 
 public class Home extends AppCompatActivity {
+
+    private static final String PREFS_HOME = "cfhc_home";
+    private static final String KEY_THEME = "theme_choice";
+    private static final String KEY_WELCOME_SEEN = "welcome_seen";
+
     private int theme = 1;
+    private SharedPreferences homePrefs;
     private simulation.GameFlowManager flowManager;
-    private simulation.PlatformResourceProvider resProvider;
 
     private final ActivityResultLauncher<String[]> customUniversePicker =
             registerForActivityResult(new ActivityResultContracts.OpenDocument(), this::handleCustomUniverseSelection);
@@ -38,10 +43,17 @@ public class Home extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        homePrefs = getSharedPreferences(PREFS_HOME, MODE_PRIVATE);
+        theme = GameNavigation.getTheme(getIntent(), homePrefs.getInt(KEY_THEME, 1));
+        if (theme == 1) {
+            setTheme(R.style.AppThemeLight);
+        } else {
+            setTheme(R.style.AppTheme);
+        }
+
         super.onCreate(savedInstanceState);
-        theme = GameNavigation.getTheme(getIntent(), theme);
+
         flowManager = new AndroidGameFlowManager(this, theme);
-        resProvider = new AndroidResourceProvider(this);
         setContentView(R.layout.activity_home);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -51,7 +63,7 @@ public class Home extends AppCompatActivity {
 
         hideSystemUI();
 
-        setTheme();
+        applyHomeThemeUi();
 
         ImageView imageLogo = findViewById(R.id.imageLogo);
         imageLogo.setImageResource(R.drawable.main_menu_logo);
@@ -106,20 +118,12 @@ public class Home extends AppCompatActivity {
         });
 
         Button themeButton = findViewById(R.id.buttonChangeTheme);
-        setTheme();
 
         themeButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // Perform action on click
-                if(theme == 0) {
-                    theme = 1;
-                    Toast.makeText(Home.this, "Light Theme Applied!", Toast.LENGTH_SHORT).show();
-                    setTheme();
-                } else {
-                    theme = 0;
-                    Toast.makeText(Home.this, "Dark Theme Applied!", Toast.LENGTH_SHORT).show();
-                    setTheme();
-                }
+                theme = (theme == 0) ? 1 : 0;
+                homePrefs.edit().putInt(KEY_THEME, theme).apply();
+                recreate();
             }
         });
 
@@ -133,14 +137,7 @@ public class Home extends AppCompatActivity {
         Button tutorialButton = findViewById(R.id.buttonTutorial);
         tutorialButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // Perform action on click
-                //Intent myIntent = new Intent(Home.this, TutorialActivity.class);
-                //Home.this.startActivity(myIntent);
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_VIEW);
-                intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                intent.setData(Uri.parse("https://www.antdroid.dev/p/game-manual.html"));
-                startActivity(intent);
+                showManualChooser();
             }
         });
 
@@ -169,7 +166,7 @@ public class Home extends AppCompatActivity {
                 Intent intent = new Intent();
                 intent.setAction(Intent.ACTION_VIEW);
                 intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                intent.setData(Uri.parse("http://m.reddit.com/r/FootballCoach"));
+                intent.setData(Uri.parse("https://m.reddit.com/r/FootballCoach"));
                 startActivity(intent);
             }
         });
@@ -197,6 +194,70 @@ public class Home extends AppCompatActivity {
             }
         });
 
+        homePrefs.edit().putInt(KEY_THEME, theme).apply();
+        updateSaveSlotHint();
+
+        if (!homePrefs.getBoolean(KEY_WELCOME_SEEN, false)) {
+            getWindow().getDecorView().post(new Runnable() {
+                @Override
+                public void run() {
+                    showFirstRunWelcome();
+                }
+            });
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        updateSaveSlotHint();
+    }
+
+    private void showFirstRunWelcome() {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.home_welcome_title)
+                .setMessage(R.string.home_welcome_message)
+                .setPositiveButton(R.string.home_welcome_cta, null)
+                .setOnDismissListener(dialogInterface ->
+                        homePrefs.edit().putBoolean(KEY_WELCOME_SEEN, true).apply())
+                .show();
+    }
+
+    private void showManualChooser() {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle(R.string.home_manual_dialog_title)
+                .setItems(new String[]{
+                        getString(R.string.home_manual_option_in_app),
+                        getString(R.string.home_manual_option_web)
+                }, (dialog, which) -> {
+                    if (which == 0) {
+                        startActivity(GameNavigation.createTutorialIntent(Home.this, theme));
+                    } else {
+                        openGameManualInBrowser();
+                    }
+                })
+                .show();
+    }
+
+    private void openGameManualInBrowser() {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.addCategory(Intent.CATEGORY_BROWSABLE);
+        intent.setData(Uri.parse("https://www.antdroid.dev/p/game-manual.html"));
+        startActivity(intent);
+    }
+
+    private void updateSaveSlotHint() {
+        TextView hint = findViewById(R.id.home_save_hint);
+        if (hint == null) {
+            return;
+        }
+        if (!LeagueSaveStorage.hasAnySave(getFilesDir())) {
+            hint.setVisibility(View.VISIBLE);
+            hint.setText(R.string.home_save_hint_empty);
+        } else {
+            hint.setVisibility(View.GONE);
+        }
     }
 
 
@@ -267,25 +328,24 @@ public class Home extends AppCompatActivity {
         finish();
     }
 
-    private void setTheme() {
+    /** Updates hero badges and panel background (activity theme is set in {@link #onCreate}). */
+    private void applyHomeThemeUi() {
         Button themeButton = findViewById(R.id.buttonChangeTheme);
         TextView themeStatus = findViewById(R.id.homeThemeStatus);
         View layout = findViewById(R.id.homeMain);
 
-        if(theme == 0) {
+        if (theme == 0) {
             themeButton.setText(getString(R.string.home_switch_theme_light));
             if (themeStatus != null) {
                 themeStatus.setText(getString(R.string.home_badge_theme_dark));
             }
             layout.setBackgroundResource(R.drawable.bg_home_menu);
-            setTheme(R.style.AppTheme);
         } else {
             themeButton.setText(getString(R.string.home_switch_theme_dark));
             if (themeStatus != null) {
                 themeStatus.setText(getString(R.string.home_badge_theme_light));
             }
             layout.setBackgroundResource(R.drawable.bg_home_menu);
-            setTheme(R.style.AppThemeLight);
         }
     }
 

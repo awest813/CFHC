@@ -20,6 +20,16 @@ public final class LeagueSaveStorage {
         return getNamedInternalFile(filesDir, "saveLeagueRecruiting.cfb");
     }
 
+    /** True if any internal save slot (0–19) contains a file. */
+    public static boolean hasAnySave(File filesDir) {
+        for (int i = 0; i < 20; ++i) {
+            if (getSlotFile(filesDir, i).exists()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public static String[] getSaveFileInfos(File filesDir) {
         return getSaveFileInfos(filesDir, League.CURRENT_SAVE_VERSION);
     }

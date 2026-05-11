@@ -24,7 +24,7 @@ final class DepthChartDialogController {
     static void showDepthChart(final MainActivity activity, final Team userTeam) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle("Set Team Lineup")
-                .setView(activity.getLayoutInflater().inflate(R.layout.team_lineup_dialog, null));
+                .setView(activity.getLayoutInflater().inflate(R.layout.team_lineup_dialog, null, false));
         final AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
         PlatformUiHelper.showImmersive(dialog);
@@ -89,7 +89,7 @@ final class DepthChartDialogController {
     static void showRedshirt(final MainActivity activity, final Team userTeam) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle("Select Redshirt Players")
-                .setView(activity.getLayoutInflater().inflate(R.layout.team_lineup_dialog, null));
+                .setView(activity.getLayoutInflater().inflate(R.layout.team_lineup_dialog, null, false));
         final AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
         PlatformUiHelper.showImmersive(dialog);

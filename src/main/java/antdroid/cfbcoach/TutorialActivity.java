@@ -2,15 +2,15 @@ package antdroid.cfbcoach;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.annotation.SuppressLint;
+
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
+
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
-
-import java.util.ArrayList;
 
 import java.util.List;
 
@@ -24,11 +24,21 @@ public class TutorialActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         theme = GameNavigation.getTheme(getIntent(), 1);
-        if(theme == 1) setTheme(R.style.AppThemeLight);
-        else setTheme(R.style.AppTheme);
+        if (theme == 1) {
+            setTheme(R.style.AppThemeLight);
+        } else {
+            setTheme(R.style.AppTheme);
+        }
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tutorial);
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                navigateHome();
+            }
+        });
 
         tutorialSpinner = findViewById(R.id.tutorialSpinner);
         tutorialTitle = findViewById(R.id.tutorialTitle);
@@ -59,10 +69,11 @@ public class TutorialActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    @SuppressLint("MissingSuperCall")
-    public void onBackPressed() {
-        controller.returnToMainHub();
+    private void navigateHome() {
+        Intent intent = GameNavigation.createHomeIntent(this, theme);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+        finish();
     }
 
 }

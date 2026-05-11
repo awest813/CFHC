@@ -1,249 +1,208 @@
-
 <div align="center">
 
-# 🏈 College Football Head Coach (CFHC)
+# College Football Head Coach (CFHC)
 
-**Build a dynasty. Recruit legends. Win championships.**
-
-*An open-source college football dynasty simulation for Android, with a Swing desktop prototype built on the same core engine.*
+**Dynasty college football simulation — Android app plus a JVM desktop prototype on one shared engine.**
 
 [![Version](https://img.shields.io/badge/version-v1.4.5-blue?style=flat-square)](https://github.com/awest813/CFHC/releases)
-[![Platform](https://img.shields.io/badge/platform-Android%20%2B%20Desktop%20Prototype-green?style=flat-square&logo=android)](https://developer.android.com)
-[![Language](https://img.shields.io/badge/language-Java%2017-orange?style=flat-square&logo=java)](https://openjdk.org)
-[![Build](https://img.shields.io/badge/build-Gradle%208.9%20%7C%20AGP%208.7-lightgrey?style=flat-square)](https://gradle.org)
+[![Android](https://img.shields.io/badge/Android-minSdk%2024%20%7C%20targetSdk%2035-green?style=flat-square&logo=android)](https://developer.android.com)
+[![Java](https://img.shields.io/badge/Java-17-orange?style=flat-square&logo=openjdk)](https://openjdk.org)
+[![Gradle](https://img.shields.io/badge/Gradle-8.9%20%7C%20AGP%208.7-lightgrey?style=flat-square&logo=gradle)](https://gradle.org)
 [![License](https://img.shields.io/badge/license-see%20LICENSE-informational?style=flat-square)](LICENSE)
-[![Community](https://img.shields.io/badge/reddit-%2Fr%2Ffootballcoach-FF4500?style=flat-square&logo=reddit)](https://www.reddit.com/r/footballcoach/)
+[![Reddit](https://img.shields.io/badge/reddit-r%2Ffootballcoach-FF4500?style=flat-square&logo=reddit)](https://www.reddit.com/r/footballcoach/)
 
 </div>
 
 ---
 
-## Table of Contents
+## About
 
-- [Overview](#overview)
-- [Features](#features)
-- [Architecture](#architecture)
-- [Getting Started](#getting-started)
-- [FAQ](#faq)
-- [Project Status Snapshot](#project-status-snapshot)
-- [Contributing](#contributing)
-- [License](#license)
-
----
-
-## Overview
-
-**College Football Head Coach** (**CFHC**) is an expanded take on the original *College Football Coach* game. It wraps a deep, play-by-play simulation engine in a full career-mode loop — get hired, recruit, call plays, advance your coaching career, or get fired.
-
-The Android app runs **100% offline** with no ads, no in-app purchases, and no accounts required. The repository also includes a **Swing desktop prototype** that exercises the same shared simulation code while the project continues its broader platform-decoupling work.
+**CFHC** is an open-source college football coaching simulation: hire staff, recruit, run seasons with play-by-play detail, and chase titles. The Android build is **fully offline** (no ads, IAP, or accounts). A **Swing desktop shell** lives in the same repository and compiles against the **same engine packages** as mobile (`simulation`, `positions`, `staff`, `comparator`, portable `recruiting`, and `desktop/**`), while Android-specific UI stays under `antdroid/` and `ui/`.
 
 | | |
 |:---|:---|
-| **Version** | v1.4.5 |
-| **Platform** | Android — minSdk 24, targetSdk 35; Swing desktop prototype |
-| **Language** | Java 17 |
-| **Build** | Gradle 8.9 wrapper · Android Gradle Plugin 8.7 |
-| **Codebase** | ~46,000 Java LOC · 207 production files · 8 packages |
-| **Tests** | 6 JUnit tests covering simulation, recruiting, comparators, and save/load |
+| **Current release** | v1.4.5 (`versionCode` 320) |
+| **Package** | `antdroid.cfbcoach` |
+| **Language / toolchain** | Java 17 · Gradle 8.9 · Android Gradle Plugin 8.7 |
+| **Automated tests** | JUnit — engine flows, recruiting, comparators, persistence (coverage is growing, not exhaustive) |
+
+### Gradle modules
+
+| Module | Role |
+|:---|:---|
+| **`:engine`** | `java-library` — portable packages: `simulation`, `positions`, `staff`, `comparator`, `recruiting` (shared with desktop). |
+| **`:app`** | `com.android.application` — `antdroid.*`, `ui.*`, resources, manifest; depends on `:engine`. |
+| **(root)** | Desktop jar tasks (`desktopJar`, `compileDesktopJava`, `desktopVerify`) and project-wide checks; sources still live under `src/main/java` in the repo root. |
+
+`./gradlew assembleDebug` and `./gradlew test` run the Android app module; the debug APK is under `app/build/outputs/apk/debug/`. Run `./gradlew :app:lintDebug` before large UI changes (CI runs it on the **android** job).
 
 ---
 
-## Features
+## Clone and prerequisites
 
-### Career Mode
-- Start as a new hire and build your reputation season by season
-- Get hired, earn promotions, or face the hot seat
-- Hire and manage offensive and defensive coordinators
-- Team facilities investment and a basic monetary system
-- Full coaching-staff influence on player development
+| Goal | You need |
+|:---|:---|
+| **Android app** | Android Studio (or JDK 17 + Android SDK with **API 35**), this repo |
+| **Desktop only** | **JDK 17** only — no Android SDK required |
+| **Optional** | Device or emulator for APK install |
 
-### Recruiting
-- Full off-season recruiting cycle with prospect scouting
-- 7,000+ first/last name database with geographic home regions
-- Scholarship management and roster-size limits
-- Undergraduate and graduate transfers
-- Standard and medical redshirt options
+```bash
+git clone https://github.com/awest813/CFHC.git
+cd CFHC
+```
 
-### Game Simulation
-- Tick-by-tick play-by-play simulation with realistic outcomes
-- Multiple offensive and defensive playbooks
-- Full offensive, defensive, and special-teams stat tracking
-- Box scores, play-by-play logs, and dynamic news articles
-- Mid-season and end-of-season player progression
+---
 
-### League & Structure
-- Realistic multi-division conference structures
-- Bowl games + 4-team playoff (expanded playoff option available)
-- Conference realignment, promotion/relegation, and random team generation
-- Computer poll logic and dynamic school prestige
-- Off-season coaching changes and program infraction system
-- Full league, team, coach, and player stat history
-- Player awards and year-end honors
+## Building and running
 
-### Customization
-- Import custom universes, rosters, and coaches from CSV
-- Edit team names, conference names, and coach names in-game
-- Television contract deals
-- Material Light and Dark themes
+### Android
 
-### Desktop Prototype
-- Swing launcher and in-game shell built from the shared Java simulation core
-- Desktop dark mode, keyboard/mouse workflows, and multi-tab league views
-- Shared export support for league files and portable resource loading
+From the repository root (same directory as `gradlew`):
+
+```bash
+./gradlew test
+./gradlew assembleDebug
+```
+
+Debug APK: `app/build/outputs/apk/debug/`. Other variants (e.g. `beta`, `release`) use the usual Gradle `assemble*` / `bundle*` tasks (e.g. `:app:assembleRelease`). Open the project in Android Studio and use **Run** for iterative development.
+
+### Desktop (no Android SDK)
+
+The standalone JVM project compiles the shared engine, runs the same-style unit tests with the **repository root** as the working directory, and builds the runnable jar — **without** applying the Android plugin.
+
+```bash
+./gradlew -p desktop-standalone :engine:desktopStandaloneGate
+```
+
+If you already use the **root** Gradle build (Android Studio), equivalent desktop tasks live there:
+
+| Task | Purpose |
+|:---|:---|
+| `desktopVerify` | Import scan for forbidden Android APIs in engine packages, required resource files, desktop Java compile |
+| `desktopJar` | Produces `CFHC-desktop-prototype.jar` (see `build/libs/`) |
+| `runDesktop` | Runs `desktop.Main`; optional `-PdesktopArgs="..."` |
+
+```bash
+./gradlew desktopVerify
+./gradlew desktopJar
+./gradlew runDesktop
+./gradlew runDesktop -PdesktopArgs="new"
+java -jar build/libs/CFHC-desktop-prototype.jar play path/to/save.cfb
+java -jar build/libs/CFHC-desktop-prototype.jar help
+```
+
+| CLI (jar or `runDesktop`) | |
+|:---|:---|
+| *(no args)* | Opens the Swing launcher |
+| `new` | New-game flow, then league UI |
+| `play <file.cfb>` / `view <file>` | Load a save |
+| `inspect <file>` | Print save metadata |
+| `help` | Usage |
+
+**Resources:** `DesktopResourceContract` lists required `res/values` XML and asset paths. Gradle desktop tasks must run from the **repo root** so resources and tests resolve consistently.
+
+**Engine rule:** `checkEngineImports` / the standalone build fail if engine packages import `android.*`, `androidx.*`, or `antdroid.*`.
+
+### Continuous integration
+
+GitHub Actions runs two jobs in parallel:
+
+| Job | What it does |
+|:---|:---|
+| **desktop-jvm** | `desktop-standalone` gate: tests + jar + verification — **Android SDK env vars cleared** |
+| **android** | `./gradlew test` with a provisioned SDK (debug / beta / release unit test variants) |
+
+Pushes and PRs to `main` / `master` trigger CI; **workflow_dispatch** allows manual runs.
 
 ---
 
 ## Architecture
 
+### Source layout (high level)
+
 ```
 src/main/java/
-├── simulation/      Core engine — League, Team, Game, conferences, records
-│                    (~21K LOC, platform-independent)
-├── positions/       Player models — 11 position classes + base Player
-│                    (~4.7K LOC, platform-independent)
-├── staff/           Coaching staff — HeadCoach, OC, DC
-│                    (~0.9K LOC, platform-independent)
-├── comparator/      Sorting/ranking helpers (77 comparator files)
-│                    (~1.3K LOC, platform-independent)
-├── recruiting/      Portable recruiting controller, session data, presentation helpers
-│                    (Android recruiting UI lives under `antdroid/cfbcoach/recruiting/`)
-├── ui/              Android list adapters, profiles, roster views
-│                    (~1.8K LOC, Android-only)
-├── antdroid/        Android shell — activities, dialogs, navigation
-│                    (~6.5K LOC, Android-only)
-└── desktop/         Swing desktop shell — launcher, league home, dialogs, theming
-                     (~8.1K LOC, desktop-only)
+├── simulation/   Core sim — leagues, games, seasons, records (platform-neutral)
+├── positions/    Player models
+├── staff/        Coaching staff models
+├── comparator/   Sorting / ranking helpers
+├── recruiting/   Portable recruiting logic (extra UI under antdroid/…/recruiting/)
+├── ui/           Android UI helpers
+├── antdroid/     Android app shell (activities, navigation, dialogs)
+└── desktop/      Swing prototype (excluded from APK via Gradle source set)
 ```
 
-### Platform Bridge (already implemented)
+### Platform bridge
 
-The simulation layer communicates with host shells through four thin interfaces:
+Host code talks to the engine through small interfaces (Android and desktop both wired):
 
-| Interface | Purpose |
+| Interface | Role |
 |:---|:---|
-| `GameUiBridge` | UI callbacks — crash handling, recruiting hand-off, discipline prompts; includes a `NO_OP` default |
-| `PlatformResourceProvider` | Asset and string loading, decoupled from Android resources |
-| `GameFlowManager` | State-transition orchestration (start game, advance season, recruiting hand-off, etc.) |
-| `PlatformLog` | Logging shim that replaces `android.util.Log` |
+| `GameUiBridge` | UI callbacks (errors, recruiting handoffs, etc.); includes a no-op default |
+| `PlatformResourceProvider` | Strings and assets without direct `R` / asset manager coupling |
+| `GameFlowManager` | High-level flow (start game, season advances, recruiting transitions) |
+| `PlatformLog` | Logging without `android.util.Log` |
 
-Android and the desktop prototype already use this bridge. See [Platform Expansion](docs/platform-expansion.md) for the current cross-platform status.
+More detail: [docs/platform-expansion.md](docs/platform-expansion.md).
 
 ---
 
-## Getting Started
+## Features (summary)
 
-### Prerequisites
+- **Career:** hiring, staff, facilities, contracts, promotions and pressure
+- **Recruiting:** full cycle, large name pools, scholarships, transfers, redshirt options
+- **Simulation:** play-by-play, multiple schemes, stats, news, awards, progression
+- **League:** conferences, bowls, playoff options, polls, prestige, infractions, history
+- **Customization:** CSV import for universes/rosters/coaches; in-game renames; light/dark themes
+- **Desktop:** launcher, league shell, recruiting tab, exports — prototype parity with Android varies by screen
 
-| Tool | Version |
+---
+
+## Documentation
+
+| Doc | Contents |
 |:---|:---|
-| Android Studio | Latest stable |
-| JDK | 17+ |
-| Android SDK | API level 35 |
-
-### Android Build & Test
-
-```bash
-git clone https://github.com/awest813/CFHC.git
-cd CFHC
-./gradlew test
-./gradlew assembleDebug
-```
-
-Install the generated APK from `build/outputs/apk/debug/` onto a device or emulator, or run directly via **Run ▶** in Android Studio.
-
-### Desktop Prototype
-
-The Swing UI is **not** part of the Android APK (`desktop/**` is excluded from mobile builds). It shares the same engine packages as Android (`simulation`, `staff`, `positions`, `comparator`, and portable `recruiting` sources). CI runs `./gradlew desktopVerify` on every push (engine import scan, required resource files, desktop Java compile).
-
-| Topic | Notes |
-|:---|:---|
-| **Entry point** | `desktop.Main` (`Main-Class` in `desktopJar`). No CLI args opens **`LauncherFrame`**; CLI modes skip the launcher. |
-| **Working directory** | Run Gradle tasks from the **repository root**. `DesktopResourceProvider` merges the XML files listed in `DesktopResourceContract` under `src/main/res/values/` and opens streams under `src/main/assets/` (classpath or `user.dir`). |
-| **CLI usage** | `new` — new-game wizard then league UI; `play <file.cfb>` / `view <file>` — load save; `inspect <file>` — print metadata; `help` — usage text. |
-| **Engine boundary** | `./gradlew checkEngineImports` fails if `simulation`, `staff`, `positions`, `comparator`, or portable recruiting files `import android.*`, `androidx.*`, or `antdroid.*`. |
-| **Desktop resources** | `desktop.DesktopResourceContract` lists required `res/values` files and string keys; `prepareDesktopResources` copies those files plus `assets/` into the desktop classpath. File existence is checked automatically before desktop compile (`verifyDesktopResources`). |
-
-```bash
-./gradlew desktopVerify        # recommended: full desktop gate (imports + resources + compile)
-./gradlew compileDesktopJava   # same compile step only (also runs checkEngineImports + verifyDesktopResources first)
-./gradlew desktopJar           # build CFHC-desktop-prototype.jar (+ resources)
-./gradlew runDesktop           # GUI launcher (default)
-./gradlew runDesktop -PdesktopArgs="new"
-java -jar build/libs/CFHC-desktop-prototype.jar play path/to/save.cfb
-```
+| [docs/ROADMAP.md](docs/ROADMAP.md) | Priorities, technical debt, planned work |
+| [docs/platform-expansion.md](docs/platform-expansion.md) | Cross-platform bridge and migration notes |
 
 ---
 
 ## FAQ
 
 <details>
-<summary><strong>How do I save my game?</strong></summary>
+<summary><strong>How do I save?</strong></summary>
 
-The game saves automatically at the start of each new season — a prompt will appear. You can also manually save just before recruiting begins. Save files always restore to the beginning of the season in which they were created.
+The game saves automatically at the start of each new season (you’ll see a prompt). You can also save manually just before recruiting. Restoring a save returns you to the **start of the season** in which that file was created.
 </details>
 
 <details>
-<summary><strong>How do I view play-by-play?</strong></summary>
+<summary><strong>Where is play-by-play on Android?</strong></summary>
 
-Go to **Schedule → tap a score box → tap the blue menu bar** at the top of the pop-up.
+**Schedule → tap a score → tap the blue bar** at the top of the pop-up.
 </details>
 
 <details>
-<summary><strong>How do I import a custom universe or roster?</strong></summary>
+<summary><strong>How do I import custom data?</strong></summary>
 
-Prepare your CSV files following the format documented in the sample universes included with the app, then use **Import** from the main menu. Teams, rosters, and coaches can all be imported independently.
+Use formats aligned with the bundled sample universes, then **Import** from the main menu. Teams, rosters, and coaches can be imported separately.
 </details>
 
 <details>
-<summary><strong>Does the repository include automated tests?</strong></summary>
+<summary><strong>What does the desktop build support?</strong></summary>
 
-Yes. The current JUnit suite covers comparator ordering, recruiting session behavior, a full-season simulation flow, and save/load round trips. Coverage is still limited, but the project no longer starts from zero.
+New game flow, loading saves, seasons, recruiting in a docked tab, and league export — still a prototype; some Android flows are more complete.
 </details>
-
-<details>
-<summary><strong>What does the desktop prototype support today?</strong></summary>
-
-The Swing shell can launch a new dynasty, load exported saves, play through seasons, handle recruiting in a docked tab, and export leagues. It is still a prototype, so some Android flows remain more complete.
-</details>
-
----
-
-## Project Status Snapshot
-
-An April 2026 audit identified the project's biggest technical risks. Several high-priority items from that audit have already been addressed, so the current snapshot is:
-
-| Area | Score | Notes |
-|:---|:---:|:---|
-| Architecture | 6 / 10 | Good platform separation; `League` and `Team` remain God Objects (~6.5K and ~5.5K LOC) |
-| Code Quality | 6 / 10 | Logging and save-failure handling improved; public mutable collections still need cleanup |
-| Testability | 5 / 10 | Initial JUnit coverage exists, but core engine isolation is still difficult |
-| Portability | 7 / 10 | Platform bridge, `SimulationFacade`, desktop shell, and CI `desktopVerify` gate |
-| Dependency Health | 7 / 10 | `targetSdk` now matches `compileSdk`; AndroidX stack is current enough for API 35 work |
-
-**Top remaining issues:**
-
-1. **God Objects** — `League.java` (6,485 LOC, 109 public methods) and `Team.java` (5,487 LOC) need decomposition
-2. **Public mutable fields** — 46 in `League`, 31 in `Team`; callers bypass all validation
-3. **Thin orchestration at UI boundaries** — `SimulationFacade` exists for tests/tools; large flows still live on `League`/`SeasonController`
-4. **Import flow is still Android-heavy** — custom-universe parsing is shared, but roster/coach import orchestration still lives in Android classes
-5. **Test coverage is still thin** — the existing suite needs broader scenario and regression coverage
-
-See the full [Roadmap](docs/ROADMAP.md) for the prioritized remediation plan.
 
 ---
 
 ## Contributing
 
-CFHC is free and open-source. All contributions are welcome:
+Contributions are welcome: [Issues](https://github.com/awest813/CFHC/issues) for bugs and ideas, pull requests for code. Keep changes scoped and explain what changed and why. Match the style of the files you touch.
 
-- **Bug reports & feature requests** — open an [issue](https://github.com/awest813/CFHC/issues)
-- **Code contributions** — fork the repo, make your changes, and open a pull request
-- **Community discussion** — join [/r/footballcoach](https://www.reddit.com/r/footballcoach/) on Reddit
-
-Please keep pull requests focused and describe *what* changed and *why*. There is no formal style guide yet — match the conventions in the file you're editing.
+Community: [/r/footballcoach](https://www.reddit.com/r/footballcoach/).
 
 ---
 
 ## License
 
-See [LICENSE](LICENSE) for details.
+See [LICENSE](LICENSE).

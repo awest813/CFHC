@@ -10,6 +10,7 @@ import android.widget.Spinner;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import simulation.Conference;
 import simulation.League;
@@ -29,7 +30,7 @@ public final class LeagueEditorDialogController {
 
         AlertDialog.Builder GameEditor = new AlertDialog.Builder(activity);
         GameEditor.setTitle("Game Universe Editor v2 (BETA)")
-                .setView(activity.getLayoutInflater().inflate(R.layout.game_editor_full, null));
+                .setView(activity.getLayoutInflater().inflate(R.layout.game_editor_full, null, false));
         final AlertDialog dialog = GameEditor.create();
         PlatformUiHelper.showImmersive(dialog);
 
@@ -123,8 +124,8 @@ public final class LeagueEditorDialogController {
             okBtn.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     String newName = changeNameEditText.getText().toString().trim();
-                    String newAbbr = changeAbbrEditText.getText().toString().trim().toUpperCase();
-                    String newLocation = changeLocationText.getText().toString().trim().toUpperCase();
+                    String newAbbr = changeAbbrEditText.getText().toString().trim().toUpperCase(Locale.ROOT);
+                    String newLocation = changeLocationText.getText().toString().trim().toUpperCase(Locale.ROOT);
                     String newConf = changeConfEditText.getText().toString().trim();
                     String newHC = changeHCEditText.getText().toString().trim();
                     int newPrestige = Integer.parseInt(changePrestigeEditText.getText().toString().trim());

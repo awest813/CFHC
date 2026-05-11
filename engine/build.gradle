@@ -1,0 +1,28 @@
+plugins {
+    id 'java-library'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
+}
+
+def sharedJavaRoot = rootProject.file('src/main/java')
+
+sourceSets {
+    main {
+        java {
+            srcDirs = [sharedJavaRoot]
+            include 'simulation/**'
+            include 'positions/**'
+            include 'staff/**'
+            include 'comparator/**'
+            include 'recruiting/**'
+        }
+    }
+}

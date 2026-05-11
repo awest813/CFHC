@@ -1,5 +1,7 @@
 package simulation;
 
+import java.util.Locale;
+
 /**
  * Weekly / seasonal practice emphasis for user-controlled teams.
  * Biases player attribute growth toward football IQ, fundamentals (primary traits),
@@ -17,7 +19,7 @@ public enum PracticeFocus {
             return BALANCED;
         }
         try {
-            return PracticeFocus.valueOf(raw.trim().toUpperCase());
+            return PracticeFocus.valueOf(raw.trim().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
             return BALANCED;
         }

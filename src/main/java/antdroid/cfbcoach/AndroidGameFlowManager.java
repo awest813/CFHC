@@ -67,6 +67,11 @@ public class AndroidGameFlowManager implements GameFlowManager {
 
     @Override
     public void returnToMainHub() {
-        context.startActivity(GameNavigation.createHomeIntent(context, theme));
+        Intent intent = GameNavigation.createHomeIntent(context, theme);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        context.startActivity(intent);
+        if (activity != null) {
+            activity.finish();
+        }
     }
 }

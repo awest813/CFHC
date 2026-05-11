@@ -8,9 +8,4 @@ import android.app.Application;
  * is intentionally disabled to preserve that consistent sports-dashboard look end-to-end.
  */
 public class CfhcApplication extends Application {
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-    }
 }

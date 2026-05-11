@@ -1,0 +1,164 @@
+plugins {
+    id 'java-library'
+}
+
+def repoRoot = rootProject.projectDir.parentFile
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+/** Same package filters as root {@code compileDesktopJava}. */
+sourceSets {
+    main {
+        java {
+            srcDir "${repoRoot}/src/main/java"
+            include 'comparator/**'
+            include 'desktop/**'
+            include 'positions/**'
+            include 'recruiting/**'
+            include 'simulation/**'
+            include 'staff/**'
+        }
+    }
+    test {
+        java {
+            srcDir "${repoRoot}/src/test/java"
+            include 'comparator/**'
+            include 'desktop/**'
+            include 'recruiting/**'
+            include 'simulation/**'
+        }
+    }
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
+}
+
+/** Must match {@code desktop.DesktopResourceContract.VALUE_XML_FILES} / root build.gradle. */
+def desktopValueXmlFiles = [
+        'strings.xml',
+        'first_names.xml',
+        'last_names.xml',
+        'conferences.xml',
+        'teams.xml',
+        'bowls.xml',
+]
+
+tasks.register('verifyDesktopResources') {
+    group = 'verification'
+    description = 'Ensures res/values XML and assets exist for DesktopResourceProvider.'
+    doLast {
+        desktopValueXmlFiles.each { name ->
+            def f = file("${repoRoot}/src/main/res/values/${name}")
+            if (!f.file) {
+                throw new GradleException("Missing desktop resource file (sync with DesktopResourceContract): ${f}")
+            }
+        }
+        def assetsDir = file("${repoRoot}/src/main/assets")
+        if (!assetsDir.directory) {
+            throw new GradleException('Missing src/main/assets (desktop needs asset streams).')
+        }
+    }
+}
+
+tasks.register('checkEngineImports') {
+    group = 'verification'
+    description = 'Fails if engine packages import Android/UI APIs.'
+    doLast {
+        def forbidden = ~/^\s*import\s+(static\s+)?(android\.|androidx\.|antdroid\.)/
+        def violations = []
+        ['comparator', 'positions', 'simulation', 'staff'].each { pkg ->
+            fileTree("${repoRoot}/src/main/java/${pkg}").matching {
+                include '**/*.java'
+            }.each { f ->
+                int num = 0
+                f.eachLine { line ->
+                    num++
+                    if (line.find(forbidden)) {
+                        violations << "${f.path}:${num}: ${line.trim()}"
+                    }
+                }
+            }
+        }
+        fileTree("${repoRoot}/src/main/java/recruiting").matching {
+            include '**/*.java'
+        }.each { f ->
+            int num = 0
+            f.eachLine { line ->
+                num++
+                if (line.find(forbidden)) {
+                    violations << "${f.path}:${num}: ${line.trim()}"
+                }
+            }
+        }
+        if (!violations.isEmpty()) {
+            throw new GradleException(
+                    'Engine packages must not import Android/UI APIs:\n' + violations.join('\n'))
+        }
+    }
+}
+
+tasks.named('compileJava') {
+    dependsOn verifyDesktopResources, checkEngineImports
+    options.encoding = 'UTF-8'
+    options.compilerArgs.add('-Xlint:deprecation')
+}
+
+def desktopResourcesDir = layout.buildDirectory.dir('desktop-resources')
+
+tasks.register('prepareDesktopResources', Copy) {
+    group = 'desktop'
+    dependsOn verifyDesktopResources
+    from("${repoRoot}/src/main/res/values") {
+        include desktopValueXmlFiles
+        into 'values'
+    }
+    from("${repoRoot}/src/main/assets") {
+        into 'assets'
+    }
+    into desktopResourcesDir
+}
+
+/** Runnable fat-style jar (classes + copied resources). */
+tasks.register('desktopJar', Jar) {
+    group = 'desktop'
+    dependsOn compileJava, prepareDesktopResources
+    archiveBaseName = 'CFHC-desktop'
+    archiveClassifier = 'prototype'
+    destinationDirectory = layout.buildDirectory.dir('libs')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from sourceSets.main.output
+    from desktopResourcesDir
+    manifest {
+        attributes('Main-Class': 'desktop.Main')
+    }
+}
+
+tasks.register('runDesktop', JavaExec) {
+    group = 'desktop'
+    dependsOn compileJava, prepareDesktopResources
+    classpath = sourceSets.main.runtimeClasspath + files(desktopResourcesDir.get().asFile)
+    mainClass = 'desktop.Main'
+    if (project.hasProperty('desktopArgs')) {
+        args project.property('desktopArgs').toString().split(/\s+/).findAll { !it.isEmpty() }
+    }
+}
+
+tasks.named('jar') {
+    enabled = false
+}
+
+tasks.named('test', Test) {
+    // Tests use System.getProperty("user.dir") / DesktopResourceProvider(projectRoot) — must be repo root.
+    workingDir = repoRoot
+}
+
+tasks.register('desktopStandaloneGate') {
+    group = 'verification'
+    description = 'Compile shared engine, run JVM unit tests, build desktop jar — no Android SDK.'
+    dependsOn test, desktopJar
+}

@@ -36,7 +36,7 @@ public final class SettingsDialogController {
         String title = isNewGameSetup ? (simLeague.getYear() + " Head Coach Career Setup")
                 : activity.getString(R.string.league_settings_title);
         builder.setTitle(title)
-                .setView(activity.getLayoutInflater().inflate(R.layout.settings_menu, null));
+                .setView(activity.getLayoutInflater().inflate(R.layout.settings_menu, null, false));
         final AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         PlatformUiHelper.showImmersive(dialog);
 

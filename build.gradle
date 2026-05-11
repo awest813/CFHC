@@ -1,16 +1,4 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:8.7.0'
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
-}
+// Root aggregator + desktop packaging tasks. Android app lives in :app; portable engine in :engine.
 
 allprojects {
     repositories {
@@ -19,72 +7,13 @@ allprojects {
     }
 }
 
-apply plugin: 'com.android.application'
-
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.JavaExec
 import org.gradle.jvm.tasks.Jar
 
-android {
-    namespace 'antdroid.cfbcoach'
-    signingConfigs {
-        config {
-        }
-    }
-    compileSdk 35
-    defaultConfig {
-        applicationId "antdroid.cfbcoach"
-        minSdk 24
-        targetSdk 35
-        versionName 'v1.4.5'
-        versionCode 320
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-        debug {
-            versionNameSuffix '-DEBUG'
-        }
-        beta {
-            debuggable true
-            versionNameSuffix '-BETA'
-        }
-    }
-    productFlavors {
-    }
-    sourceSets {
-        main {
-            java {
-                exclude 'desktop/**'
-            }
-        }
-    }
-    applicationVariants.all { variant ->
-        variant.resValue "string", "versionName", variant.versionName
-    }
-}
-
-dependencies {
-    implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.appcompat:appcompat:1.7.0'
-    implementation 'com.google.android.material:material:1.13.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
-    implementation 'androidx.drawerlayout:drawerlayout:1.1.1'
-    implementation 'androidx.gridlayout:gridlayout:1.0.0'
-    implementation 'com.jjoe64:graphview:4.2.2'
-    testImplementation 'junit:junit:4.13.2'
-}
-
-def desktopSourceFiles = fileTree('src/main/java') {
+def desktopSourceFiles = fileTree("${rootProject.projectDir}/src/main/java") {
     include 'comparator/**'
     include 'desktop/**'
     include 'positions/**'
@@ -112,13 +41,13 @@ tasks.register('verifyDesktopResources') {
 
     doLast {
         desktopValueXmlFiles.each { name ->
-            def f = file("${project.projectDir}/src/main/res/values/${name}")
+            def f = file("${rootProject.projectDir}/src/main/res/values/${name}")
             if (!f.file) {
                 throw new GradleException(
                         "Missing desktop resource file (sync with DesktopResourceContract): ${f}")
             }
         }
-        def assetsDir = file("${project.projectDir}/src/main/assets")
+        def assetsDir = file("${rootProject.projectDir}/src/main/assets")
         if (!assetsDir.directory) {
             throw new GradleException('Missing src/main/assets (desktop needs asset streams).')
         }
@@ -131,11 +60,11 @@ tasks.register('prepareDesktopResources', Copy) {
 
     dependsOn tasks.named('verifyDesktopResources')
 
-    from("${project.projectDir}/src/main/res/values") {
+    from("${rootProject.projectDir}/src/main/res/values") {
         include desktopValueXmlFiles
         into 'values'
     }
-    from("${project.projectDir}/src/main/assets") {
+    from("${rootProject.projectDir}/src/main/assets") {
         into 'assets'
     }
 
@@ -147,11 +76,10 @@ tasks.register('checkEngineImports') {
     description = 'Fails if engine packages import Android APIs (keeps desktop classpath safe).'
 
     doLast {
-        // Plain and static imports only (same packages as Android APK / antdroid UI).
         def forbidden = ~/^\s*import\s+(static\s+)?(android\.|androidx\.|antdroid\.)/
         def violations = []
         ['comparator', 'positions', 'simulation', 'staff'].each { pkg ->
-            fileTree("${project.projectDir}/src/main/java/${pkg}").matching {
+            fileTree("${rootProject.projectDir}/src/main/java/${pkg}").matching {
                 include '**/*.java'
             }.each { f ->
                 int num = 0
@@ -163,7 +91,7 @@ tasks.register('checkEngineImports') {
                 }
             }
         }
-        fileTree("${project.projectDir}/src/main/java/recruiting").matching {
+        fileTree("${rootProject.projectDir}/src/main/java/recruiting").matching {
             include '**/*.java'
         }.each { f ->
             int num = 0
@@ -190,6 +118,8 @@ tasks.register('compileDesktopJava', JavaCompile) {
     source = desktopSourceFiles
     destinationDirectory = desktopClassesDir
     classpath = files()
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
     options.encoding = 'UTF-8'
     options.release = 17
     options.compilerArgs.add('-Xlint:deprecation')
@@ -198,7 +128,8 @@ tasks.register('compileDesktopJava', JavaCompile) {
             .withPathSensitivity(PathSensitivity.RELATIVE)
 }
 
-/** Single entry point for CI / pre-push: engine imports + resource paths + desktop compile. */
+/** Single entry point for local pre-push: engine imports + resource paths + desktop compile.
+ *  CI runs the SDK-free equivalent: ./gradlew -p desktop-standalone :engine:desktopStandaloneGate */
 tasks.register('desktopVerify') {
     group = 'verification'
     description = 'Runs checkEngineImports, verifyDesktopResources, and compileDesktopJava (desktop standalone gate).'
@@ -211,14 +142,14 @@ tasks.register('verifyAllVariants') {
     description = 'Stable gate for both targets: desktop jar, APKs (debug, beta, release), AAB, lintDebug/Beta/Release, test.'
     dependsOn tasks.named('desktopVerify'),
             tasks.named('desktopJar'),
-            tasks.named('assembleDebug'),
-            tasks.named('assembleBeta'),
-            tasks.named('assembleRelease'),
-            tasks.named('bundleRelease'),
-            tasks.named('lintDebug'),
-            tasks.named('lintBeta'),
-            tasks.named('lintRelease'),
-            tasks.named('test')
+            tasks.named(':app:assembleDebug'),
+            tasks.named(':app:assembleBeta'),
+            tasks.named(':app:assembleRelease'),
+            tasks.named(':app:bundleRelease'),
+            tasks.named(':app:lintDebug'),
+            tasks.named(':app:lintBeta'),
+            tasks.named(':app:lintRelease'),
+            tasks.named(':app:test')
 }
 
 tasks.register('desktopJar', Jar) {
@@ -250,4 +181,3 @@ tasks.register('runDesktop', JavaExec) {
         args project.property('desktopArgs').toString().split(/\s+/).findAll { !it.isEmpty() }
     }
 }
-

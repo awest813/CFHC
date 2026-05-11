@@ -36,7 +36,7 @@ final class GameDialogController {
                         // Do nothing
                     }
                 })
-                .setView(activity.getLayoutInflater().inflate(R.layout.game_dialog, null));
+                .setView(activity.getLayoutInflater().inflate(R.layout.game_dialog, null, false));
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
         PlatformUiHelper.showImmersive(dialog);
@@ -182,7 +182,7 @@ final class GameDialogController {
                         // Do nothing
                     }
                 })
-                .setView(activity.getLayoutInflater().inflate(R.layout.game_scout_dialog, null));
+                .setView(activity.getLayoutInflater().inflate(R.layout.game_scout_dialog, null, false));
         final AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
         PlatformUiHelper.showImmersive(dialog);

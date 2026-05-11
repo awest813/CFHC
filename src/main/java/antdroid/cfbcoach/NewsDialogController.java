@@ -26,7 +26,7 @@ final class NewsDialogController {
                         // Do nothing
                     }
                 })
-                .setView(activity.getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
+                .setView(activity.getLayoutInflater().inflate(R.layout.team_rankings_dialog, null, false));
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
         PlatformUiHelper.showImmersive(dialog);

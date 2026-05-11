@@ -172,6 +172,17 @@
                 android:text="@string/home_save_subtitle"
                 android:textAppearance="@style/TextAppearance.Cfhc.SectionBody" />
 
+            <TextView
+                android:id="@+id/home_save_hint"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textAppearance="@style/TextAppearance.Cfhc.SectionBody"
+                android:textColor="@color/textSecondary"
+                android:visibility="gone"
+                tools:text="@string/home_save_hint_empty"
+                tools:visibility="visible" />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

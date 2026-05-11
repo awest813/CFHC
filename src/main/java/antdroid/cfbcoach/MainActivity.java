@@ -45,7 +45,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import android.annotation.SuppressLint;
+import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -326,6 +326,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // Only show recruiting classes if not season 1
             showRecruitingClassDialog();
         }
+
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (currPage == 0) {
+                    exitMainActivity();
+                } else {
+                    showHome();
+                }
+            }
+        });
     }
 
 
@@ -523,7 +534,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Enter the full name that will represent your head coach across the league, records, and news stories.");
         builder.setTitle("Name Your Head Coach")
-                .setView(getLayoutInflater().inflate(R.layout.username_dialog, null));
+                .setView(getLayoutInflater().inflate(R.layout.username_dialog, null, false));
         builder.setCancelable(false);
         final AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
@@ -1002,7 +1013,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Player Profile")
-                .setView(getLayoutInflater().inflate(R.layout.player_profile, null))
+                .setView(getLayoutInflater().inflate(R.layout.player_profile, null, false))
                 .setPositiveButton("Close", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -1183,7 +1194,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(p.getName())
-                .setView(getLayoutInflater().inflate(R.layout.coach_profile, null))
+                .setView(getLayoutInflater().inflate(R.layout.coach_profile, null, false))
                 .setPositiveButton("Close", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -1445,7 +1456,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         //do nothing?
                     }
                 })
-                .setView(getLayoutInflater().inflate(R.layout.bowl_ccg_dialog, null));
+                .setView(getLayoutInflater().inflate(R.layout.bowl_ccg_dialog, null, false));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
         PlatformUiHelper.bindArchiveDialogShell(dialog, "AP Poll Archive", "Step through each completed season to review how the national rankings evolved over time.");
@@ -1495,7 +1506,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         //do nothing?
                     }
                 })
-                .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
+                .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null, false));
         final AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
         PlatformUiHelper.bindRankingsDialogShell(dialog, currentTeam.getName() + " Archive", "Review your program history, records, and hall-of-fame legacy from one unified team archive.");
@@ -1554,7 +1565,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         //do nothing?
                     }
                 })
-                .setView(getLayoutInflater().inflate(R.layout.graphview, null));
+                .setView(getLayoutInflater().inflate(R.layout.graphview, null, false));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
         PlatformUiHelper.bindGraphDialogShell(dialog, currentTeam.getName() + " Prestige Trend", "See how program prestige has risen and fallen across your team's historical arc.");
@@ -1594,7 +1605,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         //do nothing?
                     }
                 })
-                .setView(getLayoutInflater().inflate(R.layout.graphview, null));
+                .setView(getLayoutInflater().inflate(R.layout.graphview, null, false));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
         PlatformUiHelper.bindGraphDialogShell(dialog, currentTeam.getName() + " Ranking Trend", "Track where your program has landed in the national pecking order over time.");
@@ -1639,7 +1650,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         //do nothing?
                     }
                 })
-                .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
+                .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null, false));
         final AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
         PlatformUiHelper.bindRankingsDialogShell(dialog, "Head Coach History", "Review one coach's stops and jump into prestige or ranking trend views from the same archive flow.");
@@ -1687,7 +1698,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         //do nothing?
                     }
                 })
-                .setView(getLayoutInflater().inflate(R.layout.graphview, null));
+                .setView(getLayoutInflater().inflate(R.layout.graphview, null, false));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
         PlatformUiHelper.bindGraphDialogShell(dialog, hc.getName() + " Prestige Trend", "Follow how this coach changed program prestige across each stop in his career.");
@@ -1728,7 +1739,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         //do nothing?
                     }
                 })
-                .setView(getLayoutInflater().inflate(R.layout.graphview, null));
+                .setView(getLayoutInflater().inflate(R.layout.graphview, null, false));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
         PlatformUiHelper.bindGraphDialogShell(dialog, hc.getName() + " Ranking Trend", "Follow how this coach's teams climbed or slid in the national rankings over time.");
@@ -1807,7 +1818,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         //do nothing?
                     }
                 })
-                .setView(getLayoutInflater().inflate(R.layout.bowl_ccg_dialog, null));
+                .setView(getLayoutInflater().inflate(R.layout.bowl_ccg_dialog, null, false));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
         PlatformUiHelper.bindArchiveDialogShell(dialog, "Post-Season Archive", "Switch between conference title games and postseason slates in one shared archive shell.");
@@ -1851,7 +1862,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             //do nothing?
                         }
                     })
-                    .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
+                    .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null, false));
             AlertDialog dialog = builder.create(); dialog.setCancelable(false);
             showImmersive(dialog);
             ArrayList<String> rankings = new ArrayList<>();
@@ -1904,7 +1915,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         //do nothing?
                     }
                 })
-                .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
+                .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null, false));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
 
@@ -2329,7 +2340,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void onClick(DialogInterface dialog, int which) {
                     }
                 })
-                .setView(getLayoutInflater().inflate(R.layout.simple_list_dialog, null));
+                .setView(getLayoutInflater().inflate(R.layout.simple_list_dialog, null, false));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
         PlatformUiHelper.bindSimpleListDialogShell(dialog, "Prestige Movement", "See which programs are rising and falling across the current college football landscape.");
@@ -2932,7 +2943,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void onClick(DialogInterface dialog, int which) {
                     }
                 })
-                .setView(getLayoutInflater().inflate(R.layout.simple_list_dialog, null));
+                .setView(getLayoutInflater().inflate(R.layout.simple_list_dialog, null, false));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
         PlatformUiHelper.bindSimpleListDialogShell(dialog, "Budget Landscape", "Compare which programs are operating with the strongest financial footing this cycle.");
@@ -3018,7 +3029,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         saveLeague();
                     }
                 })
-                .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
+                .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null, false));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
         PlatformUiHelper.bindRankingsDialogShell(dialog, "Recruiting Launch", "Check who is leaving your roster or headed to the draft before you enter recruiting season.");
@@ -3080,7 +3091,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         seasonGoals();
                     }
                 })
-                .setView(getLayoutInflater().inflate(R.layout.simple_list_dialog, null));
+                .setView(getLayoutInflater().inflate(R.layout.simple_list_dialog, null, false));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
         PlatformUiHelper.bindSimpleListDialogShell(dialog, "Recruiting Class Rankings", "Measure your incoming class against the rest of the country before you move on to season goals.");
@@ -3141,7 +3152,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         exitMainActivity();
                     }
                 })
-                .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
+                .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null, false));
         builder.setCancelable(false);
         final AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
@@ -3208,7 +3219,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                     }
                 })
-                .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null));
+                .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null, false));
         builder.setCancelable(false);
         final AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
@@ -3381,14 +3392,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return !(name.contains(",") || name.contains(">") || name.contains("%") || name.contains("\\"));
     }
 
-    @Override
-    @SuppressLint("MissingSuperCall")
-    public void onBackPressed() {
-        if(currPage == 0) exitMainActivity();
-        else showHome();
-    }
-
-
     //GAME EDITOR V2
 
     public void gameEditorV2() {
@@ -3429,7 +3432,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Accept/Decline " + p.getTransferStatusMessage() + " Request\n")
-                .setView(getLayoutInflater().inflate(R.layout.player_profile, null));
+                .setView(getLayoutInflater().inflate(R.layout.player_profile, null, false));
 
 
         builder.setPositiveButton("Accept", new DialogInterface.OnClickListener() {
@@ -3483,7 +3486,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void openGameWindow() {
         AlertDialog.Builder GameViewer = new AlertDialog.Builder(this);
         GameViewer.setTitle("Game Viewer")
-                .setView(getLayoutInflater().inflate(R.layout.playwindow, null));
+                .setView(getLayoutInflater().inflate(R.layout.playwindow, null, false));
         final AlertDialog dialog = GameViewer.create();
 
         GameViewer.setPositiveButton("Close", new DialogInterface.OnClickListener() {

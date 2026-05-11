@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import android.annotation.SuppressLint;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import antdroid.cfbcoach.GameNavigation;
@@ -170,6 +170,12 @@ public class RecruitingActivity extends AppCompatActivity {
             }
         });
 
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                exitRecruiting();
+            }
+        });
     }
 
     private void updateRecruitingOverview() {
@@ -313,12 +319,6 @@ public class RecruitingActivity extends AppCompatActivity {
         return sessionData.calculateNeeds(RosterRules.MIN_QBS, RosterRules.MIN_RBS, RosterRules.MIN_WRS, RosterRules.MIN_TES, RosterRules.MIN_OLS, RosterRules.MIN_KS, RosterRules.MIN_DLS, RosterRules.MIN_LBS, RosterRules.MIN_CBS, RosterRules.MIN_SS);
     }
 
-    @Override
-    @SuppressLint("MissingSuperCall")
-    public void onBackPressed() {
-        exitRecruiting();
-    }
-
     public void setShowPopUp(boolean tf) {
         showPopUp = tf;
     }
@@ -351,7 +351,7 @@ public class RecruitingActivity extends AppCompatActivity {
             LayoutInflater inflater = context.getLayoutInflater();
 
             if (convertView == null) {
-                convertView = inflater.inflate(R.layout.child_recruit, null);
+                convertView = inflater.inflate(R.layout.child_recruit, null, false);
             }
 
             // Set up Text for player details

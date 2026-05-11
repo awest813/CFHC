@@ -27,7 +27,7 @@ public final class CoachProgramDialogController {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle(CoachSkills.PROGRAM_DIALOG_TITLE);
-        builder.setView(activity.getLayoutInflater().inflate(R.layout.coach_program_dialog, null));
+        builder.setView(activity.getLayoutInflater().inflate(R.layout.coach_program_dialog, null, false));
         final AlertDialog dialog = builder.create();
         PlatformUiHelper.showImmersive(dialog);
 

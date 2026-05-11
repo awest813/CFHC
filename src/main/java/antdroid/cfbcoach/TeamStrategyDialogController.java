@@ -25,7 +25,7 @@ final class TeamStrategyDialogController {
                         // Dismiss handled by the dialog button.
                     }
                 })
-                .setView(activity.getLayoutInflater().inflate(R.layout.team_strategy_dialog, null));
+                .setView(activity.getLayoutInflater().inflate(R.layout.team_strategy_dialog, null, false));
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
         PlatformUiHelper.showImmersive(dialog);

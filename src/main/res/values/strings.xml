@@ -104,8 +104,15 @@
     <string name="home_primary_subtitle">Fresh careers or your custom league setup.</string>
     <string name="home_save_title">Manage Dynasties</string>
     <string name="home_save_subtitle">Load, import, or delete saves from one hub.</string>
+    <string name="home_save_hint_empty">No saves in your slots yet — start a new career or import an exported file.</string>
+    <string name="home_welcome_title">Welcome to CFHC</string>
+    <string name="home_welcome_message">Here is how to get moving:\n\n• Start New Career — pick a team and begin your dynasty.\n• Load Save — continue when a slot has a game saved.\n• Game Manual — quick in-app topics or the full guide on the web.\n\nYou can change light or dark theme anytime. Good luck this season.</string>
+    <string name="home_welcome_cta">Let\'s go</string>
+    <string name="home_manual_dialog_title">Game Manual</string>
+    <string name="home_manual_option_in_app">In-app guide (offline)</string>
+    <string name="home_manual_option_web">Full manual (website)</string>
     <string name="home_tools_title">Resources and Tools</string>
-    <string name="home_tools_subtitle">Theme, patch notes, manual, and shortcuts.</string>
+    <string name="home_tools_subtitle">Theme, patch notes, manual (in-app or web), and shortcuts.</string>
     <string name="home_external_title">Community and Files</string>
     <string name="home_external_subtitle">Rosters, Reddit, dev updates, and source links.</string>
     <string name="home_button_new">Start New Career</string>

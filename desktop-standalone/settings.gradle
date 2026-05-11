@@ -1,0 +1,20 @@
+// JVM-only CFHC engine + desktop prototype. Invoked as:
+//   ./gradlew -p desktop-standalone :engine:desktopStandaloneGate
+// Does not apply com.android.application — no Android SDK required.
+
+pluginManagement {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositories {
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'cfhc-desktop-standalone'
+include 'engine'

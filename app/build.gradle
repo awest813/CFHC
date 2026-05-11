@@ -1,0 +1,80 @@
+plugins {
+    id 'com.android.application'
+}
+
+def repoRoot = rootProject.projectDir
+
+android {
+    namespace 'antdroid.cfbcoach'
+    signingConfigs {
+        config {
+        }
+    }
+    compileSdk 35
+    defaultConfig {
+        applicationId "antdroid.cfbcoach"
+        minSdk 24
+        targetSdk 35
+        versionName 'v1.4.5'
+        versionCode 320
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'),
+                    "${repoRoot}/proguard-rules.pro"
+        }
+        debug {
+            versionNameSuffix '-DEBUG'
+        }
+        beta {
+            debuggable true
+            versionNameSuffix '-BETA'
+        }
+    }
+    productFlavors {
+    }
+    sourceSets {
+        main {
+            java {
+                srcDirs = ["${repoRoot}/src/main/java"]
+                exclude 'simulation/**'
+                exclude 'positions/**'
+                exclude 'staff/**'
+                exclude 'comparator/**'
+                exclude 'recruiting/**'
+                exclude 'desktop/**'
+            }
+            res.srcDirs = ["${repoRoot}/src/main/res"]
+            assets.srcDirs = ["${repoRoot}/src/main/assets"]
+            manifest.srcFile "${repoRoot}/src/main/AndroidManifest.xml"
+        }
+        test {
+            java.srcDirs = ["${repoRoot}/src/test/java"]
+        }
+    }
+    applicationVariants.all { variant ->
+        variant.resValue "string", "versionName", variant.versionName
+    }
+}
+
+dependencies {
+    implementation project(':engine')
+    implementation fileTree(include: ['*.jar'], dir: "${repoRoot}/libs")
+    implementation 'androidx.appcompat:appcompat:1.7.0'
+    implementation 'com.google.android.material:material:1.13.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.coordinatorlayout:coordinatorlayout:1.2.0'
+    implementation 'androidx.drawerlayout:drawerlayout:1.1.1'
+    implementation 'androidx.gridlayout:gridlayout:1.0.0'
+    implementation 'com.jjoe64:graphview:4.2.2'
+    testImplementation 'junit:junit:4.13.2'
+}
+
+tasks.withType(Test).configureEach {
+    workingDir = repoRoot
+}

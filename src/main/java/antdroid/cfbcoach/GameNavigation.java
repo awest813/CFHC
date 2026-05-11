@@ -3,8 +3,6 @@ package antdroid.cfbcoach;
 import android.content.Context;
 import android.content.Intent;
 
-import antdroid.cfbcoach.Home;
-import antdroid.cfbcoach.MainActivity;
 import antdroid.cfbcoach.recruiting.RecruitingActivity;
 import simulation.LeagueLaunchCoordinator;
 
@@ -20,6 +18,12 @@ public final class GameNavigation {
 
     public static Intent createHomeIntent(Context context, int theme) {
         Intent intent = new Intent(context, Home.class);
+        intent.putExtra(EXTRA_THEME, theme);
+        return intent;
+    }
+
+    public static Intent createTutorialIntent(Context context, int theme) {
+        Intent intent = new Intent(context, TutorialActivity.class);
         intent.putExtra(EXTRA_THEME, theme);
         return intent;
     }
