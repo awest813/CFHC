@@ -600,9 +600,12 @@ public class LeagueHomeView extends JFrame {
         int week = currentRecord.currentWeek();
         int reg = leagueCore.regSeasonWeeks;
         String weekLabel;
-        if (week >= reg + 3) weekLabel = "National Championship";
-        else if (week >= reg + 2) weekLabel = "Playoff Semifinals";
-        else if (week >= reg + 1) weekLabel = "Quarterfinals / Bowls";
+        if (bridge != null && bridge.isAwaitingDockedRecruiting()) weekLabel = "Recruiting (Awaiting Signing)";
+        else if (week >= reg + 13) weekLabel = "Recruiting";
+        else if (week >= reg + 4) weekLabel = "Offseason";
+        else if (week == reg + 3) weekLabel = "National Championship";
+        else if (week == reg + 2) weekLabel = "Playoff Semifinals";
+        else if (week == reg + 1) weekLabel = "Quarterfinals / Bowls";
         else if (week == reg) weekLabel = "Conf. Championships";
         else if (week == 0) weekLabel = "Pre-Season";
         else weekLabel = "Week " + week;
@@ -826,42 +829,92 @@ public class LeagueHomeView extends JFrame {
 
     /** Advances through the entire season including offseason and recruiting. */
     private void advanceFullYear() {
-        long start = System.currentTimeMillis();
-        int played = 0;
+        SimulationProgressDialog dialog = new SimulationProgressDialog(this, "Full-Year Simulation");
+        dialog.setIndeterminate(true);
         bridge.clearNewSeasonPending();
-        while (!bridge.isNewSeasonPending()) {
-            if (bridge.isAwaitingDockedRecruiting()) {
-                JOptionPane.showMessageDialog(this,
-                        DesktopTheme.messageForDialog(
-                        "Bulk advance stopped at recruiting.\n"
-                                + "Open Recruiting, click Finish Recruiting, then use Play Week or Save."),
-                        "Recruiting",
-                        JOptionPane.INFORMATION_MESSAGE);
-                break;
+
+        javax.swing.SwingWorker<Integer, String> worker = new javax.swing.SwingWorker<>() {
+            private final long start = System.currentTimeMillis();
+            private boolean limitReached = false;
+            private boolean cancelled = false;
+
+            @Override
+            protected Integer doInBackground() {
+                int played = 0;
+                while (!bridge.isNewSeasonPending()) {
+                    if (dialog.isCancelled()) {
+                        cancelled = true;
+                        break;
+                    }
+                    if (bridge.isAwaitingDockedRecruiting()) {
+                        break;
+                    }
+                    controller.advanceWeek();
+                    played++;
+                    publish("Advancing " + decodeSeasonPeriod() + " (Week " + leagueCore.currentWeek + ")");
+                    if (played >= MAX_FULL_YEAR_STEPS) {
+                        limitReached = true;
+                        break;
+                    }
+                }
+                return played;
             }
-            controller.advanceWeek();
-            played++;
-            if (played >= MAX_FULL_YEAR_STEPS) {
-                JOptionPane.showMessageDialog(this,
-                        DesktopTheme.messageForDialog(
-                        "Simulation stopped after " + MAX_FULL_YEAR_STEPS + " steps without completing the season.\n"
-                                + "This may indicate a simulation bug. Save your league and report the issue."),
-                        "Simulation Limit Reached", JOptionPane.WARNING_MESSAGE);
-                break;
+
+            @Override
+            protected void process(java.util.List<String> chunks) {
+                dialog.setStatus(chunks.get(chunks.size() - 1));
             }
-        }
-        markDirty();
-        PlatformLog.i(TAG, "Advanced full year (" + played + " steps) in "
-                + (System.currentTimeMillis() - start) + "ms");
-        if (bridge.isNewSeasonPending()) {
-            startNewSeason();
-        } else {
-            scoreboardWeek = leagueCore.currentWeek;
-            refresh();
-            if (bridge.isAwaitingDockedRecruiting()) {
-                selectRecruitingTab();
+
+            @Override
+            protected void done() {
+                dialog.dispose();
+                int played = 0;
+                try {
+                    played = get();
+                } catch (Exception ignored) {
+                }
+
+                if (played > 0) {
+                    markDirty();
+                }
+
+                PlatformLog.i(TAG, "Advanced full year (" + played + " steps) in "
+                        + (System.currentTimeMillis() - start) + "ms");
+
+                if (limitReached) {
+                    JOptionPane.showMessageDialog(LeagueHomeView.this,
+                            DesktopTheme.messageForDialog(
+                                    "Simulation stopped after " + MAX_FULL_YEAR_STEPS + " steps without completing the season.\n"
+                                            + "This may indicate a simulation bug. Save your league and report the issue."),
+                            "Simulation Limit Reached", JOptionPane.WARNING_MESSAGE);
+                } else if (cancelled) {
+                    JOptionPane.showMessageDialog(LeagueHomeView.this,
+                            DesktopTheme.messageForDialog("Full-year simulation was interrupted."),
+                            "Simulation Interrupted",
+                            JOptionPane.INFORMATION_MESSAGE);
+                }
+
+                if (bridge.isNewSeasonPending()) {
+                    startNewSeason();
+                    return;
+                }
+
+                scoreboardWeek = leagueCore.currentWeek;
+                refresh();
+                if (bridge.isAwaitingDockedRecruiting()) {
+                    selectRecruitingTab();
+                    JOptionPane.showMessageDialog(LeagueHomeView.this,
+                            DesktopTheme.messageForDialog(
+                                    "Bulk advance stopped at recruiting.\n"
+                                            + "Open Recruiting, click Finish Recruiting, then use Play Week or Save."),
+                            "Recruiting",
+                            JOptionPane.INFORMATION_MESSAGE);
+                }
             }
-        }
+        };
+
+        worker.execute();
+        dialog.setVisible(true);
     }
 
     private void selectRecruitingTab() {
