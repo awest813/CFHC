@@ -31,6 +31,10 @@ public final class SeasonController {
     public SeasonAdvanceResult advanceWeek() {
         SeasonAdvanceResult.Builder result = new SeasonAdvanceResult.Builder(league.currentWeek);
         league.clearNewsHeadlines();
+        if (league.currentWeek == 0 && redshirtComplete) {
+            // A new season can reset currentWeek to 0 while reusing this controller instance.
+            redshirtComplete = false;
+        }
 
         if (league.currentWeek == 0 && !redshirtComplete) {
             handlePreseasonTransition(result);
@@ -220,4 +224,3 @@ public final class SeasonController {
     }
 
 }
-

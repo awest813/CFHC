@@ -69,6 +69,22 @@ public class SeasonControllerResultTest {
         assertTrue(result.hasEvent(SeasonAdvanceResult.EventType.STATUS_UPDATED));
     }
 
+    @Test
+    public void preseasonRunsAgainAfterWeekResetsToZero() {
+        SeasonAdvanceResult first = controller.advanceWeek();
+        assertEquals(1, first.weekAfter);
+
+        league.startNextSeason();
+        SeasonAdvanceResult nextSeason = controller.advanceWeek();
+
+        assertEquals(0, nextSeason.weekBefore);
+        assertEquals(1, nextSeason.weekAfter);
+        SeasonAdvanceResult.Event status = nextSeason.lastStatusEvent();
+        assertNotNull(status);
+        assertEquals("Preseason", status.statusText);
+        assertEquals("Play Week 1", status.buttonText);
+    }
+
     private static GameUiBridge noOpBridge() {
         return new GameUiBridge() {
             @Override public void crash() {}
