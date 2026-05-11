@@ -85,4 +85,18 @@ public final class SeasonPresentation {
         }
         return "Phase  Offseason";
     }
+
+    /**
+     * Coarse season cycle label for timeline/status UI:
+     * Pre-Season -> Regular Season -> Postseason -> Offseason -> Recruiting.
+     */
+    public static String getSeasonCycleLabel(League simLeague) {
+        int week = simLeague.currentWeek;
+        int regWeeks = simLeague.regSeasonWeeks;
+        if (week >= regWeeks + 13) return "Recruiting";
+        if (week <= 0) return "Pre-Season";
+        if (week <= regWeeks - 1) return "Regular Season";
+        if (week <= regWeeks + 3) return "Postseason";
+        return "Offseason";
+    }
 }
