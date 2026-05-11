@@ -271,7 +271,12 @@ public final class RecruitingSessionData {
     }
 
     public void recruitPlayer(RecruitingPlayerRecord recruit, boolean autoFilter, double recruitOffBoardChance, Random random) {
-        recruitingBudget -= recruit.cost();
+        int cost = recruit.cost();
+        if (cost > recruitingBudget) {
+            throw new IllegalArgumentException(
+                    "Recruit cost $" + cost + " exceeds remaining budget $" + recruitingBudget);
+        }
+        recruitingBudget -= cost;
         removeRecruitFromBoards(recruit);
         playersRecruited.add(recruit);
 

@@ -50,8 +50,7 @@
                 android:layout_marginTop="12dp"
                 android:maxLines="2"
                 android:text="@string/main_hub_title"
-                android:textColor="@color/textPrimary"
-                android:textSize="22sp"
+                android:textAppearance="@style/TextAppearance.Cfhc.HubTitle"
                 android:textStyle="bold" />
 
             <TextView
@@ -61,7 +60,7 @@
                 android:layout_marginTop="6dp"
                 android:maxLines="2"
                 android:text="@string/main_hub_subtitle"
-                android:textColor="@color/textSecondary"
+                android:textAppearance="@style/TextAppearance.Cfhc.SectionBody"
                 android:textSize="13sp" />
 
             <LinearLayout

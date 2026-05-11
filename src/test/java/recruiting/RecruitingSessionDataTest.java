@@ -2,8 +2,11 @@ package recruiting;
 
 import org.junit.Test;
 
+import java.util.Random;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class RecruitingSessionDataTest {
 
@@ -54,6 +57,19 @@ public class RecruitingSessionDataTest {
         assertTrue(low.scoutPlayer(recruit2));
         assertEquals(1000 - costLow, low.recruitingBudget);
         assertTrue(costHigh < costLow);
+    }
+
+    @Test
+    public void recruitPlayer_rejectsOverBudget() {
+        RecruitingSessionData session = newSession(50, 70);
+        RecruitingPlayerRecord recruit = RecruitingPlayerRecord.fromRecruitCsv(
+                "QB,Big Cost,1,45,70,75,3,false,false,70,70,70,500,A,B,C,D,72,200,70,F");
+        try {
+            session.recruitPlayer(recruit, false, 0, new Random(1));
+            fail("Expected IllegalArgumentException when cost exceeds budget");
+        } catch (IllegalArgumentException expected) {
+            assertTrue(expected.getMessage().contains("exceeds"));
+        }
     }
 
     @Test

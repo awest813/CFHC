@@ -2133,9 +2133,13 @@ public class League {
             else if(Math.random() < 0.33) disChance += disciplineScrutiny;
 
             if (Math.random() < disChance) {
+                HeadCoach hc = teamList.get(t).getHeadCoach();
+                if (hc == null) {
+                    continue;
+                }
                 int teamDis = teamList.get(t).getTeamDiscipline();
 
-                if ((int) (Math.random() * (100 - teamDis)) > (int) (Math.random() * teamList.get(t).getHeadCoach().ratDiscipline)) {
+                if ((int) (Math.random() * (100 - teamDis)) > (int) (Math.random() * hc.ratDiscipline)) {
                     teamDiscipline.add(teamList.get(t).getName());
                     teamList.get(t).disciplineFailure();
                 } else {
@@ -5078,11 +5082,9 @@ Then conferences can see if they want to add them to their list if the teams mee
 
     //advances team players
     public void advanceSeason() {
+        ensureCoordinatorsOnceBeforePlayerAdvance();
+
         for (int t = 0; t < teamList.size(); ++t) {
-
-            //temp fix.....
-            if(teamList.get(t).getOC() == null || teamList.get(t).getDC() == null) coordinatorCarousel();
-
             teamList.get(t).advanceTeamPlayers();
         }
 
@@ -5093,6 +5095,21 @@ Then conferences can see if they want to add them to their list if the teams mee
             if (enableTV) conferences.get(c).reviewConfTVDeal();
         }
 
+    }
+
+    /**
+     * If any team is missing coordinators, run the league carousel once.
+     * Previously this ran inside the team loop and could invoke {@link #coordinatorCarousel()}
+     * dozens of times per offseason (duplicate news + wasted work).
+     */
+    private void ensureCoordinatorsOnceBeforePlayerAdvance() {
+        for (int i = 0; i < teamList.size(); ++i) {
+            Team tm = teamList.get(i);
+            if (tm.getOC() == null || tm.getDC() == null) {
+                coordinatorCarousel();
+                return;
+            }
+        }
     }
 
 
@@ -5534,8 +5551,10 @@ Then conferences can see if they want to add them to their list if the teams mee
                 Collections.sort(teams, new CompTeamRecruitClass());
                 for (int i = 0; i < teams.size(); ++i) {
                     t = teams.get(i);
-                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + "\n" + t.getTopRecruit() + "," + df2.format(t.getRecruitingClassRat()));
-
+                    // Three comma-separated fields for TeamRankingsList: rank, school, score · headline recruit
+                    String top = t.getTopRecruit().replace(',', ' ');
+                    rankings.add(t.getRankStr(i + 1) + "," + t.getName() + ","
+                            + df2.format(t.getRecruitingClassRat()) + " · " + top);
                 }
                 break;
             case 18:

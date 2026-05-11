@@ -3,6 +3,7 @@ package recruiting;
 import java.util.List;
 
 public final class RecruitingPresentation {
+    /** Prospect letter-grade bands on the board (not identical to {@link simulation.Team}'s roster star tiers used in {@link simulation.Team#getRecruitingClassRat()}). */
     private static final String[] STATES = {"AS","AZ","CA","HI","ID","MT","NV","OR","UT","WA","CO","KS","MO","NE","NM","ND","OK","SD","TX","WY","IL","IN","IA","KY","MD","MI","MN","OH","TN","WI","CT","DE","ME","MA","NH","NJ","NY","PA","RI","VT","AL","AK","FL","GA","LA","MS","NC","SC","VA","WV"};
     private static final int FIVE = 84;
     private static final int FOUR = 78;

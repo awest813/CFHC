@@ -3486,10 +3486,11 @@ public class Team {
     }
 
     /**
-     * Gets the recruiting class strength.
-     * Adds up all the ovrs of freshmen
+     * Strength index for the current signing class (true freshmen only, excluding RS-year zero).
+     * Each freshman above {@link #two} contributes tier points ({@link #five}+ → 150 … {@link #two}+ → 30);
+     * lower-rated freshmen still dilute the average slightly via the denominator.
      *
-     * @return class strength as a number
+     * @return non-negative score; 0 if there are no eligible freshmen
      */
     public float getRecruitingClassRat() {
         double classStrength = 0;
@@ -3497,22 +3498,36 @@ public class Team {
         int numFreshmanScoring = 0;
         ArrayList<Player> allPlayers = getAllPlayers();
         for (Player p : allPlayers) {
-            if(p.year == 1 && !p.wasRedshirt) numFreshman++;
+            if (p.year == 1 && !p.wasRedshirt) {
+                numFreshman++;
+            }
             if (p.year == 1 && !p.wasRedshirt && p.ratOvr > two) {
                 int pRat;
-                if (p.ratOvr > five) pRat = 150;
-                else if (p.ratOvr > four) pRat = 120;
-                else if (p.ratOvr > three) pRat = 75;
-                else if (p.ratOvr > two) pRat = 30;
-                else pRat = 5;
+                if (p.ratOvr > five) {
+                    pRat = 150;
+                } else if (p.ratOvr > four) {
+                    pRat = 120;
+                } else if (p.ratOvr > three) {
+                    pRat = 75;
+                } else if (p.ratOvr > two) {
+                    pRat = 30;
+                } else {
+                    pRat = 5;
+                }
 
                 classStrength += pRat;
                 numFreshmanScoring++;
             }
         }
-        if (numFreshman > 0)
-            return (float) (classStrength/(numFreshmanScoring + (.33*(numFreshman-numFreshmanScoring))));
-        else return 0;
+        if (numFreshman <= 0) {
+            return 0;
+        }
+        double denom = numFreshmanScoring + (0.33 * (numFreshman - numFreshmanScoring));
+        if (denom <= 0) {
+            return 0;
+        }
+        float out = (float) (classStrength / denom);
+        return Float.isFinite(out) ? out : 0f;
     }
 
     public void getLeagueFreshman() {

@@ -5,6 +5,11 @@ import positions.Player;
 /**
  * Controller for managing the flow of a season.
  * This should be independent of any UI framework.
+ *
+ * <p>Offseason weeks after the national title are mapped relative to {@link League#regSeasonWeeks}:
+ * {@code +4} season summary, {@code +5} contracts, {@code +6} job offers, {@code +7} coach carousel,
+ * {@code +8} coordinator hiring slot (UI may intercept), {@code +9} graduation/advance season,
+ * {@code +10}–{@code +12} transfers/realignment, {@code +13} recruiting begins.
  */
 public final class SeasonController {
 
@@ -158,8 +163,8 @@ public final class SeasonController {
 
     private void handleHireAssistants(SeasonAdvanceResult.Builder result) {
         if (league.userTeam.isUserControlled()) {
-            // This usually triggers a separate flow/activity
-            // Future structured flow result can expose a hire-staff request here.
+            // Coordinator hiring runs in league simulation (see League.coordinatorCarousel).
+            // Dedicated assistant-hire UI can be wired via GameUiBridge when added.
         }
         league.currentWeek++;
         result.weekAdvanced();

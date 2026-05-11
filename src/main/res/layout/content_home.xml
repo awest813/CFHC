@@ -35,6 +35,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_mobile_chip"
+                android:letterSpacing="0.06"
                 android:paddingStart="12dp"
                 android:paddingTop="6dp"
                 android:paddingEnd="12dp"
@@ -51,6 +52,7 @@
                 android:layout_height="160dp"
                 android:layout_marginTop="16dp"
                 android:adjustViewBounds="true"
+                android:contentDescription="@string/home_logo_desc"
                 android:maxWidth="320dp"
                 android:padding="4dp"
                 android:scaleType="fitCenter" />
@@ -62,9 +64,7 @@
                 android:layout_marginTop="12dp"
                 android:gravity="center"
                 android:text="@string/home_hero_title"
-                android:textColor="@color/textPrimary"
-                android:textSize="25sp"
-                android:textStyle="bold" />
+                android:textAppearance="@style/TextAppearance.Cfhc.HeroTitle" />
 
             <TextView
                 android:id="@+id/homeHeroSubtitle"
@@ -72,10 +72,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
                 android:gravity="center"
-                android:lineSpacingExtra="2dp"
                 android:text="@string/home_hero_subtitle"
-                android:textColor="@color/textSecondary"
-                android:textSize="14sp" />
+                android:textAppearance="@style/TextAppearance.Cfhc.HeroBody" />
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -125,49 +123,32 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/home_primary_title"
-                android:textColor="@color/textPrimary"
-                android:textSize="19sp"
-                android:textStyle="bold" />
+                android:textAppearance="@style/TextAppearance.Cfhc.SectionTitle" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="@string/home_primary_subtitle"
-                android:textColor="@color/textSecondary"
-                android:textSize="13sp" />
+                android:textAppearance="@style/TextAppearance.Cfhc.SectionBody" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonNewGame"
+                style="@style/Widget.Cfhc.Button.Primary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:background="@drawable/bg_action_primary"
-                android:paddingStart="18dp"
-                android:paddingTop="14dp"
-                android:paddingEnd="18dp"
-                android:paddingBottom="14dp"
                 android:text="@string/home_button_new"
-                android:textAllCaps="false"
-                android:textColor="@color/blueDark"
-                android:textSize="17sp"
-                android:textStyle="bold" />
+                android:textSize="17sp" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonCustom"
+                style="@style/Widget.Cfhc.Button.Secondary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/bg_action_secondary"
-                android:paddingStart="18dp"
-                android:paddingTop="14dp"
-                android:paddingEnd="18dp"
-                android:paddingBottom="14dp"
                 android:text="@string/home_button_custom"
-                android:textAllCaps="false"
-                android:textColor="@color/textPrimary"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textSize="16sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -182,17 +163,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/home_save_title"
-                android:textColor="@color/textPrimary"
-                android:textSize="19sp"
-                android:textStyle="bold" />
+                android:textAppearance="@style/TextAppearance.Cfhc.SectionTitle" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="@string/home_save_subtitle"
-                android:textColor="@color/textSecondary"
-                android:textSize="13sp" />
+                android:textAppearance="@style/TextAppearance.Cfhc.SectionBody" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -200,47 +178,35 @@
                 android:layout_marginTop="16dp"
                 android:orientation="horizontal">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonLoadGame"
+                    style="@style/Widget.Cfhc.Button.Secondary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_action_secondary"
-                    android:padding="13dp"
                     android:text="@string/home_button_load"
-                    android:textAllCaps="false"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:textSize="15sp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonImportSave"
+                    style="@style/Widget.Cfhc.Button.Secondary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_action_secondary"
-                    android:padding="13dp"
                     android:text="@string/home_button_import"
-                    android:textAllCaps="false"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:textSize="15sp" />
             </LinearLayout>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonDeleteSave"
+                style="@style/Widget.Cfhc.Button.Secondary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:background="@drawable/bg_action_secondary"
-                android:padding="13dp"
                 android:text="@string/home_button_delete"
-                android:textAllCaps="false"
-                android:textColor="@color/textPrimary"
-                android:textSize="15sp"
-                android:textStyle="bold" />
+                android:textSize="15sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -255,17 +221,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/home_tools_title"
-                android:textColor="@color/textPrimary"
-                android:textSize="19sp"
-                android:textStyle="bold" />
+                android:textAppearance="@style/TextAppearance.Cfhc.SectionTitle" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="@string/home_tools_subtitle"
-                android:textColor="@color/textSecondary"
-                android:textSize="13sp" />
+                android:textAppearance="@style/TextAppearance.Cfhc.SectionBody" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -273,33 +236,25 @@
                 android:layout_marginTop="16dp"
                 android:orientation="horizontal">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonChangeTheme"
+                    style="@style/Widget.Cfhc.Button.Secondary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_action_secondary"
-                    android:padding="13dp"
                     android:text="@string/home_button_theme"
-                    android:textAllCaps="false"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    android:textSize="14sp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonUpdates"
+                    style="@style/Widget.Cfhc.Button.Secondary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_action_secondary"
-                    android:padding="13dp"
                     android:text="@string/home_button_changes"
-                    android:textAllCaps="false"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -308,33 +263,25 @@
                 android:layout_marginTop="12dp"
                 android:orientation="horizontal">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonTutorial"
+                    style="@style/Widget.Cfhc.Button.Secondary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_action_secondary"
-                    android:padding="13dp"
                     android:text="@string/home_button_manual"
-                    android:textAllCaps="false"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    android:textSize="14sp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonCredits"
+                    style="@style/Widget.Cfhc.Button.Secondary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_action_secondary"
-                    android:padding="13dp"
                     android:text="@string/home_button_credits"
-                    android:textAllCaps="false"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    android:textSize="14sp" />
             </LinearLayout>
         </LinearLayout>
 
@@ -350,17 +297,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/home_external_title"
-                android:textColor="@color/textPrimary"
-                android:textSize="19sp"
-                android:textStyle="bold" />
+                android:textAppearance="@style/TextAppearance.Cfhc.SectionTitle" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
                 android:text="@string/home_external_subtitle"
-                android:textColor="@color/textSecondary"
-                android:textSize="13sp" />
+                android:textAppearance="@style/TextAppearance.Cfhc.SectionBody" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -368,33 +312,25 @@
                 android:layout_marginTop="16dp"
                 android:orientation="horizontal">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonDonate"
+                    style="@style/Widget.Cfhc.Button.Secondary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_action_secondary"
-                    android:padding="12dp"
                     android:text="@string/home_button_rosters"
-                    android:textAllCaps="false"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
+                    android:textSize="13sp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonSubreddit"
+                    style="@style/Widget.Cfhc.Button.Secondary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_action_secondary"
-                    android:padding="12dp"
                     android:text="@string/home_button_reddit"
-                    android:textAllCaps="false"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
+                    android:textSize="13sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -403,33 +339,25 @@
                 android:layout_marginTop="12dp"
                 android:orientation="horizontal">
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonAntdroid"
+                    style="@style/Widget.Cfhc.Button.Secondary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_action_secondary"
-                    android:padding="12dp"
                     android:text="@string/home_button_site"
-                    android:textAllCaps="false"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
+                    android:textSize="13sp" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonGitHub"
+                    style="@style/Widget.Cfhc.Button.Secondary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_action_secondary"
-                    android:padding="12dp"
                     android:text="@string/home_button_github"
-                    android:textAllCaps="false"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="13sp"
-                    android:textStyle="bold" />
+                    android:textSize="13sp" />
             </LinearLayout>
         </LinearLayout>
 

@@ -3087,7 +3087,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         final ListView teamRankingsList = dialog.findViewById(R.id.listViewDialog);
         final TeamRankingsList teamRankingsAdapter =
-                new TeamRankingsList(this, simLeague.getTeamRankingsStr(17), userTeam.getName() + "\n" + userTeam.getTopRecruit());
+                new TeamRankingsList(this, simLeague.getTeamRankingsStr(17), userTeam.getName());
         teamRankingsList.setAdapter(teamRankingsAdapter);
     }
 

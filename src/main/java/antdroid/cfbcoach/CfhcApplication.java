@@ -2,17 +2,15 @@ package antdroid.cfbcoach;
 
 import android.app.Application;
 
-import com.google.android.material.color.DynamicColors;
-
 /**
- * Application entry for global Material theming. Applies Material dynamic color on
- * API 31+ when available; older devices keep the static palette from {@code styles.xml}.
+ * Application entry. Uses the fixed navy / gold dynasty palette from {@code styles.xml}
+ * so the UI stays cohesive (management-sim readability). Dynamic Material You theming
+ * is intentionally disabled to preserve that consistent sports-dashboard look end-to-end.
  */
 public class CfhcApplication extends Application {
 
     @Override
     public void onCreate() {
         super.onCreate();
-        DynamicColors.applyToActivitiesIfAvailable(this);
     }
 }

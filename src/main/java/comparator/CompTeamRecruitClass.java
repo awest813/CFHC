@@ -11,6 +11,6 @@ import simulation.Team;
 public class CompTeamRecruitClass implements Comparator<Team> {
     @Override
     public int compare(Team a, Team b) {
-        return a.getRecruitingClassRat() > b.getRecruitingClassRat() ? -1 : a.getRecruitingClassRat() == b.getRecruitingClassRat() ? 0 : 1;
+        return Float.compare(b.getRecruitingClassRat(), a.getRecruitingClassRat());
     }
 }
