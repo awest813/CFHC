@@ -873,11 +873,12 @@ public class LeagueHomeView extends JFrame {
                 try {
                     played = get();
                 } catch (InterruptedException ie) {
-                    Thread.currentThread().interrupt();
                     PlatformLog.w(TAG, "Full-year simulation interrupted while collecting result.", ie);
+                    return;
                 } catch (java.util.concurrent.ExecutionException ee) {
                     Throwable cause = ee.getCause() != null ? ee.getCause() : ee;
                     PlatformLog.e(TAG, "Full-year simulation failed.", cause);
+                    return;
                 }
 
                 if (played > 0) {
