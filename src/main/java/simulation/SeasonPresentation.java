@@ -93,8 +93,9 @@ public final class SeasonPresentation {
     public static String getSeasonCycleLabel(League simLeague) {
         int week = simLeague.currentWeek;
         int regWeeks = simLeague.regSeasonWeeks;
+        if (week < 0) week = 0;
         if (week >= regWeeks + 13) return "Recruiting";
-        if (week <= 0) return "Pre-Season";
+        if (week == 0) return "Pre-Season";
         if (week < regWeeks) return "Regular Season"; // Includes CCG week at regWeeks-1.
         if (week <= regWeeks + 3) return "Postseason";
         return "Offseason";
