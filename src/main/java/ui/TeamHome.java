@@ -48,19 +48,22 @@ public class TeamHome extends ArrayAdapter<String> {
         TextView textNews = rowView.findViewById(R.id.home_news);
         TextView textLastGame = rowView.findViewById(R.id.home_lastgame);
 
-        String[] teamStat = values[position].split("&");
-        textTeam.setText(teamStat[0]);
-        textRank.setText(teamStat[1]);
-        textRecord.setText(teamStat[2]);
+        String[] teamStat = values[position].split("&", -1);
+        textTeam.setText(valueAt(teamStat, 0));
+        textRank.setText(valueAt(teamStat, 1));
+        textRecord.setText(valueAt(teamStat, 2));
         textSeason.setText(mainAct.getSeasonYearChipText());
         textWeek.setText(mainAct.getSeasonWeekChipText());
         textPhase.setText(mainAct.getSeasonPhaseChipText());
-        textTeamRatings.setText(teamStat[3]);
-        textInjuries.setText(teamStat[4]);
-        textSuspensions.setText(teamStat[5]);
-        textNextGame.setText(teamStat[6]);
-        textNews.setText(teamStat[7]);
-        textLastGame.setText(teamStat[8]);
+        textTeamRatings.setText(valueAt(teamStat, 3));
+        textInjuries.setText(valueAt(teamStat, 4));
+        textSuspensions.setText(valueAt(teamStat, 5));
+        String nextGame = valueAt(teamStat, 6);
+        String news = valueAt(teamStat, 7);
+        String lastGame = valueAt(teamStat, 8);
+        textNextGame.setText(nextGame);
+        textNews.setText(news);
+        textLastGame.setText(lastGame);
 
         textRank.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,23 +105,27 @@ public class TeamHome extends ArrayAdapter<String> {
             }
         });
 
-        if(!teamStat[6].contains("Bye") && !teamStat[6].contains("End of Season") ) {
+        if(!nextGame.contains("Bye") && !nextGame.contains("End of Season") ) {
             textNextGame.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (week >= games.length) week = games.length - 1;
-                    mainAct.showGameDialog(games[week]);
+                    int gameIndex = safeGameIndex(week);
+                    if (gameIndex >= 0) {
+                        mainAct.showGameDialog(games[gameIndex]);
+                    }
 
                 }
             });
         }
 
-        if(!teamStat[8].contains("Bye") && !teamStat[8].contains("No Game") ) {
+        if(!lastGame.contains("Bye") && !lastGame.contains("No Game") ) {
             textLastGame.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (week > games.length) week = games.length;
-                    mainAct.showGameDialog(games[week - 1]);
+                    int gameIndex = safeGameIndex(week - 1);
+                    if (gameIndex >= 0) {
+                        mainAct.showGameDialog(games[gameIndex]);
+                    }
                 }
             });
         }
@@ -132,5 +139,19 @@ public class TeamHome extends ArrayAdapter<String> {
 
 
         return rowView;
+    }
+
+    private static String valueAt(String[] values, int index) {
+        return index < values.length ? values[index] : "";
+    }
+
+    private int safeGameIndex(int index) {
+        if (games == null || games.length == 0) {
+            return -1;
+        }
+        if (index < 0) {
+            return -1;
+        }
+        return Math.min(index, games.length - 1);
     }
 }

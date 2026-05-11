@@ -47,23 +47,28 @@ public class IndividualStats extends ArrayAdapter<String> {
         TextView textStat5 = rowView.findViewById(R.id.textStat5);
 
 
-        final String[] teamStat = values.get(position).split(",");
-        textPlayer.setText(teamStat[0]);
-        textStat0.setText(teamStat[1]);
-        textStat1.setText(teamStat[2]);
-        textStat2.setText(teamStat[3]);
-        textStat3.setText(teamStat[4]);
-        textStat4.setText(teamStat[5]);
-        textStat5.setText(teamStat[6]);
+        final String[] teamStat = values.get(position).split(",", -1);
+        final String playerName = valueAt(teamStat, 0);
+        textPlayer.setText(playerName);
+        textStat0.setText(valueAt(teamStat, 1));
+        textStat1.setText(valueAt(teamStat, 2));
+        textStat2.setText(valueAt(teamStat, 3));
+        textStat3.setText(valueAt(teamStat, 4));
+        textStat4.setText(valueAt(teamStat, 5));
+        textStat5.setText(valueAt(teamStat, 6));
 
         textPlayer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainact.examinePlayer(teamStat[0]);
+                mainact.examinePlayer(playerName);
             }
         });
 
 
         return rowView;
+    }
+
+    private static String valueAt(String[] values, int index) {
+        return index < values.length ? values[index] : "";
     }
 }

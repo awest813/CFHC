@@ -19,7 +19,6 @@ public class PlayerRankingsList extends ArrayAdapter<String> {
     private final ArrayList<String> values;
     private String userTeamStrRep;
     private final MainActivity mainAct;
-    private Boolean coach;
 
     public PlayerRankingsList(Context context, ArrayList<String> values, String userTeamStrRep, MainActivity mainAct) {
         super(context, R.layout.team_rankings_list_item, values);
@@ -42,10 +41,13 @@ public class PlayerRankingsList extends ArrayAdapter<String> {
         TextView textRight = rowView.findViewById(R.id.textTeamRankingsRight);
 
 
-        final String[] teamStat = values.get(position).split(",");
-        textLeft.setText(teamStat[0]);
-        textCenter.setText(teamStat[1] + " (" + teamStat[2] + ")");
-        textRight.setText(teamStat[3]);
+        final String[] teamStat = values.get(position).split(",", -1);
+        final String rank = valueAt(teamStat, 0);
+        final String player = valueAt(teamStat, 1);
+        final String team = valueAt(teamStat, 2);
+        textLeft.setText(rank);
+        textCenter.setText(player + " (" + team + ")");
+        textRight.setText(valueAt(teamStat, 3));
         textLeft.setTextColor(Color.parseColor("#B7C6D1"));
         textCenter.setTextColor(Color.parseColor("#F5F7FA"));
         textRight.setTextColor(Color.parseColor("#F4C95D"));
@@ -53,7 +55,7 @@ public class PlayerRankingsList extends ArrayAdapter<String> {
         textCenter.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
         textRight.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
 
-        if (teamStat[2].equals(userTeamStrRep)) {
+        if (team.equals(userTeamStrRep)) {
             // Bold user team
             textLeft.setTypeface(textLeft.getTypeface(), Typeface.BOLD);
             textLeft.setTextColor(Color.parseColor("#5994de"));
@@ -66,7 +68,7 @@ public class PlayerRankingsList extends ArrayAdapter<String> {
         textCenter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainAct.examinePlayerandTeam(teamStat[1], teamStat[2]);
+                mainAct.examinePlayerandTeam(player, team);
             }
         });
 
@@ -77,5 +79,9 @@ public class PlayerRankingsList extends ArrayAdapter<String> {
 
     public void setUserTeamStrRep(String userTeamStrRep) {
         this.userTeamStrRep = userTeamStrRep;
+    }
+
+    private static String valueAt(String[] values, int index) {
+        return index < values.length ? values[index] : "";
     }
 }

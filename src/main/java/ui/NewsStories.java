@@ -35,10 +35,14 @@ public class NewsStories extends ArrayAdapter<String> {
         TextView newsTitle = rowView.findViewById(R.id.textNewsTitle);
         TextView newsContent = rowView.findViewById(R.id.textNewsContent);
 
-        String[] story = values.get(position).split(">");
-        newsTitle.setText(story[0]);
-        newsContent.setText(story[1]);
+        String[] story = values.get(position).split(">", 2);
+        newsTitle.setText(valueAt(story, 0));
+        newsContent.setText(valueAt(story, 1));
 
         return rowView;
+    }
+
+    private static String valueAt(String[] values, int index) {
+        return index < values.length ? values[index] : "";
     }
 }

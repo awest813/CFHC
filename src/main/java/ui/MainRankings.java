@@ -45,12 +45,15 @@ public class MainRankings extends ArrayAdapter<String> {
         final TextView textCenter = rowView.findViewById(R.id.textRankCenter);
         TextView textRight = rowView.findViewById(R.id.textRankRight);
 
-        final String[] teamStat = values.get(position).split(",");
-        textLeft.setText(teamStat[0]);
-        textCenter.setText(teamStat[1] + " " + teamStat[2]);
-        textRight.setText(teamStat[3]);
+        final String[] teamStat = values.get(position).split(",", -1);
+        final String rank = valueAt(teamStat, 0);
+        final String team = valueAt(teamStat, 1);
+        final String record = valueAt(teamStat, 2);
+        textLeft.setText(rank);
+        textCenter.setText(team + " " + record);
+        textRight.setText(valueAt(teamStat, 3));
 
-        if (teamStat[1].equals(userTeamStrRep)) {
+        if (team.equals(userTeamStrRep)) {
             // Bold user team
             textLeft.setTypeface(textLeft.getTypeface(), Typeface.BOLD);
             textLeft.setTextColor(Color.parseColor("#5994de"));
@@ -59,7 +62,7 @@ public class MainRankings extends ArrayAdapter<String> {
             textRight.setTypeface(textRight.getTypeface(), Typeface.BOLD);
             textRight.setTextColor(Color.parseColor("#5994de"));
         }
-        if (teamStat[0].equals(" ")) {
+        if (rank.equals(" ")) {
             // Bold user team
             textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
             textCenter.setTextColor(Color.parseColor("#5994de"));
@@ -68,7 +71,7 @@ public class MainRankings extends ArrayAdapter<String> {
         textCenter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainAct.examineTeam(teamStat[1]);
+                mainAct.examineTeam(team);
             }
         });
 
@@ -78,5 +81,8 @@ public class MainRankings extends ArrayAdapter<String> {
     public void setUserTeamStrRep(String userTeamStrRep) {
         this.userTeamStrRep = userTeamStrRep;
     }
-}
 
+    private static String valueAt(String[] values, int index) {
+        return index < values.length ? values[index] : "";
+    }
+}

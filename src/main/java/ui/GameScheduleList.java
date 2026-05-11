@@ -37,9 +37,9 @@ public class GameScheduleList extends ArrayAdapter<Game> {
         Button textRight = rowView.findViewById(R.id.gameScheduleRight);
 
         String[] gameSummary = team.getGameSummaryStr(position);
-        textLeft.setText(gameSummary[0]);
-        gameButton.setText(gameSummary[1]);
-        textRight.setText(gameSummary[2]);
+        textLeft.setText(valueAt(gameSummary, 0));
+        gameButton.setText(valueAt(gameSummary, 1));
+        textRight.setText(valueAt(gameSummary, 2));
 
         if (team.getGameWLSchedule().size() > position) {
             if (team.getGameWLSchedule().get(position).equals("W")) {
@@ -54,8 +54,9 @@ public class GameScheduleList extends ArrayAdapter<Game> {
         gameButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click
-                if (!games[position].gameName.equals("BYE WEEK")) {
-                    mainAct.showGameDialog(games[position]);
+                Game game = gameAt(position);
+                if (game != null && !game.gameName.equals("BYE WEEK")) {
+                    mainAct.showGameDialog(game);
                 }
             }
         });
@@ -64,14 +65,26 @@ public class GameScheduleList extends ArrayAdapter<Game> {
             @Override
             public void onClick(View v) {
                 // Do something on click
-                if (!games[position].gameName.equals("BYE WEEK")) {
-                    if (games[position].awayTeam == team)
-                        mainAct.examineTeam(games[position].homeTeam.getName());
-                    else mainAct.examineTeam(games[position].awayTeam.getName());
+                Game game = gameAt(position);
+                if (game != null && !game.gameName.equals("BYE WEEK")) {
+                    if (game.awayTeam == team)
+                        mainAct.examineTeam(game.homeTeam.getName());
+                    else mainAct.examineTeam(game.awayTeam.getName());
                 }
             }
         });
 
         return rowView;
+    }
+
+    private Game gameAt(int index) {
+        if (games == null || index < 0 || index >= games.length) {
+            return null;
+        }
+        return games[index];
+    }
+
+    private static String valueAt(String[] values, int index) {
+        return index < values.length ? values[index] : "";
     }
 }

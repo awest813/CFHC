@@ -35,11 +35,15 @@ public class TeamStatsList extends ArrayAdapter<String> {
         TextView textCenter = rowView.findViewById(R.id.textTeamStatsCenter);
         TextView textRight = rowView.findViewById(R.id.textTeamStatsRight);
 
-        String[] teamStat = values[position].split(",");
-        textLeft.setText(teamStat[0]);
-        textCenter.setText(teamStat[1]);
-        textRight.setText(teamStat[2]);
+        String[] teamStat = values[position].split(",", -1);
+        textLeft.setText(valueAt(teamStat, 0));
+        textCenter.setText(valueAt(teamStat, 1));
+        textRight.setText(valueAt(teamStat, 2));
 
         return rowView;
+    }
+
+    private static String valueAt(String[] values, int index) {
+        return index < values.length ? values[index] : "";
     }
 }

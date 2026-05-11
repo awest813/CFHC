@@ -7,6 +7,7 @@ import simulation.LeagueSettingsOptions;
 import simulation.PlatformLog;
 import simulation.PlatformResourceProvider;
 import simulation.Team;
+import staff.HeadCoach;
 
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
@@ -377,14 +378,13 @@ public class NewGameWizard extends JDialog {
             if (e.getValueIsAdjusting()) return;
             Team sel = teamList.getSelectedValue();
             if (sel != null) {
-                teamInfo.setText(String.format(Locale.ROOT, "<html><body style='color:%s;'><b>%s</b> (%s)  &bull;  %s  &bull;  Prestige %d  &bull;  HC: %s (OVR %d)</body></html>",
+                teamInfo.setText(String.format(Locale.ROOT, "<html><body style='color:%s;'><b>%s</b> (%s)  &bull;  %s  &bull;  Prestige %d  &bull;  %s</body></html>",
                         DesktopTheme.cssRgb(DesktopTheme.textPrimary()),
                         DesktopTheme.escapeForHtml(sel.getName()),
                         DesktopTheme.escapeForHtml(sel.getAbbr()),
                         DesktopTheme.escapeForHtml(sel.getConference()),
                         sel.getTeamPrestige(),
-                        DesktopTheme.escapeForHtml(sel.getHeadCoach().name),
-                        sel.getHeadCoach().ratOvr));
+                        coachSummary(sel)));
             }
         });
 
@@ -428,7 +428,9 @@ public class NewGameWizard extends JDialog {
             }
             resultTeam = sel;
             resultTeam.setUserControlled(true);
-            resultTeam.getHeadCoach().user = true;
+            if (resultTeam.getHeadCoach() != null) {
+                resultTeam.getHeadCoach().user = true;
+            }
             resultLeague.userTeam = resultTeam;
             confirmed = true;
             dispose();
@@ -476,5 +478,13 @@ public class NewGameWizard extends JDialog {
         wizard.setLocationRelativeTo(owner);
         wizard.setVisible(true);
         return wizard.getLeague();
+    }
+
+    private static String coachSummary(Team team) {
+        HeadCoach coach = team.getHeadCoach();
+        if (coach == null) {
+            return "No head coach assigned";
+        }
+        return "HC: " + DesktopTheme.escapeForHtml(coach.name) + " (OVR " + coach.ratOvr + ")";
     }
 }

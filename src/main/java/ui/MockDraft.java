@@ -32,19 +32,24 @@ public class MockDraft extends ArrayAdapter<String> {
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = inflater.inflate(R.layout.save_list, parent, false);
 
-        String[] detailSplit = values[position].split(">");
+        String[] detailSplit = values[position].split(">", -1);
         TextView itemL = rowView.findViewById(R.id.textPlayerStatsLeftChild);
-        itemL.setText(detailSplit[0]);
+        itemL.setText(valueAt(detailSplit, 0));
         TextView itemR = rowView.findViewById(R.id.textPlayerStatsRightChild);
-        itemR.setText(detailSplit[1]);
+        String detail = valueAt(detailSplit, 1);
+        itemR.setText(detail);
 
-        String[] split = detailSplit[1].split("\n");
+        String[] split = detail.split("\n");
 
-        if (split[1].equals(userTeamStrRep)) {
+        if (valueAt(split, 1).equals(userTeamStrRep)) {
             itemL.setTextColor(Color.parseColor("#5994de"));
             itemR.setTextColor(Color.parseColor("#5994de"));
         }
 
         return rowView;
+    }
+
+    private static String valueAt(String[] values, int index) {
+        return index < values.length ? values[index] : "";
     }
 }

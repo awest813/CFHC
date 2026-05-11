@@ -85,6 +85,17 @@ public class SeasonControllerResultTest {
         assertEquals("Play Week 1", status.buttonText);
     }
 
+    @Test
+    public void nullBridgeDefaultsToNoOpBridge() {
+        SeasonController controllerWithDefaultBridge = new SeasonController(league, null);
+
+        SeasonAdvanceResult result = controllerWithDefaultBridge.advanceWeek();
+
+        assertEquals(0, result.weekBefore);
+        assertEquals(1, result.weekAfter);
+        assertTrue(result.hasEvent(SeasonAdvanceResult.EventType.REFRESH_REQUESTED));
+    }
+
     private static GameUiBridge noOpBridge() {
         return new GameUiBridge() {
             @Override public void crash() {}

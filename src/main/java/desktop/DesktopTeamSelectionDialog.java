@@ -3,6 +3,7 @@ package desktop;
 import simulation.Conference;
 import simulation.League;
 import simulation.Team;
+import staff.HeadCoach;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
@@ -127,14 +128,13 @@ public class DesktopTeamSelectionDialog extends JDialog {
             }
             Team team = teamList.getSelectedValue();
             if (team != null) {
-                teamInfo.setText(String.format(Locale.ROOT, "<html><body style='color:%s;'><b>%s</b> (%s) | %s | Prestige %d | HC: %s (OVR %d)</body></html>",
+                teamInfo.setText(String.format(Locale.ROOT, "<html><body style='color:%s;'><b>%s</b> (%s) | %s | Prestige %d | %s</body></html>",
                         DesktopTheme.cssRgb(DesktopTheme.textPrimary()),
                         DesktopTheme.escapeForHtml(team.getName()),
                         DesktopTheme.escapeForHtml(team.getAbbr()),
                         DesktopTheme.escapeForHtml(team.getConference()),
                         team.getTeamPrestige(),
-                        DesktopTheme.escapeForHtml(team.getHeadCoach().name),
-                        team.getHeadCoach().ratOvr));
+                        coachSummary(team)));
             }
         });
 
@@ -216,5 +216,13 @@ public class DesktopTeamSelectionDialog extends JDialog {
         dialog.setLocationRelativeTo(owner);
         dialog.setVisible(true);
         return dialog.confirmed && dialog.selectedTeam != null;
+    }
+
+    private static String coachSummary(Team team) {
+        HeadCoach coach = team.getHeadCoach();
+        if (coach == null) {
+            return "No head coach assigned";
+        }
+        return "HC: " + DesktopTheme.escapeForHtml(coach.name) + " (OVR " + coach.ratOvr + ")";
     }
 }

@@ -597,7 +597,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 // Perform action on click
                 String newHC = changeHCEditText.getText().toString().trim();
                 if (isNameValid((newHC))) {
-                    userTeam.getHeadCoach().name = newHC;
+                    username = newHC;
+                    HeadCoach coach = ensureUserHeadCoach();
+                    if (coach != null) {
+                        coach.name = newHC;
+                    }
                     examineTeam(currentTeam.getName());
                     dialog.dismiss();
                     setupCoachStyle();
@@ -642,32 +646,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void setupCoachOff() {
-        userTeam.getHeadCoach().ratOff = simLeague.getAvgCoachOff()+5;
-        userTeam.getHeadCoach().ratDef = simLeague.getAvgCoachDef()-5;
-        userTeam.getHeadCoach().ratOvr = userTeam.getHeadCoach().getStaffOverall(userTeam.getHeadCoach().overallWt);
+        HeadCoach coach = ensureUserHeadCoach();
+        if (coach == null) return;
+        coach.ratOff = simLeague.getAvgCoachOff()+5;
+        coach.ratDef = simLeague.getAvgCoachDef()-5;
+        coach.ratOvr = coach.getStaffOverall(coach.overallWt);
         setupPlaybookOff();
     }
 
     private void setupCoachDef() {
-        userTeam.getHeadCoach().ratOff = simLeague.getAvgCoachOff()-5;
-        userTeam.getHeadCoach().ratDef = simLeague.getAvgCoachDef()+5;
-        userTeam.getHeadCoach().ratOvr = userTeam.getHeadCoach().getStaffOverall(userTeam.getHeadCoach().overallWt);
+        HeadCoach coach = ensureUserHeadCoach();
+        if (coach == null) return;
+        coach.ratOff = simLeague.getAvgCoachOff()-5;
+        coach.ratDef = simLeague.getAvgCoachDef()+5;
+        coach.ratOvr = coach.getStaffOverall(coach.overallWt);
         setupPlaybookOff();
     }
 
     private void setupCoachBal() {
-        userTeam.getHeadCoach().ratOff = simLeague.getAvgCoachOff();
-        userTeam.getHeadCoach().ratDef = simLeague.getAvgCoachDef();
-        userTeam.getHeadCoach().ratOvr = userTeam.getHeadCoach().getStaffOverall(userTeam.getHeadCoach().overallWt);
+        HeadCoach coach = ensureUserHeadCoach();
+        if (coach == null) return;
+        coach.ratOff = simLeague.getAvgCoachOff();
+        coach.ratDef = simLeague.getAvgCoachDef();
+        coach.ratOvr = coach.getStaffOverall(coach.overallWt);
         setupPlaybookOff();
     }
 
     private void setupCoachHard() {
-        userTeam.getHeadCoach().ratOff = 50;
-        userTeam.getHeadCoach().ratDef = 50;
-        userTeam.getHeadCoach().ratDiscipline = 60;
-        userTeam.getHeadCoach().ratTalent = 50;
-        userTeam.getHeadCoach().ratOvr = userTeam.getHeadCoach().getStaffOverall(userTeam.getHeadCoach().overallWt);
+        HeadCoach coach = ensureUserHeadCoach();
+        if (coach == null) return;
+        coach.ratOff = 50;
+        coach.ratDef = 50;
+        coach.ratDiscipline = 60;
+        coach.ratTalent = 50;
+        coach.ratOvr = coach.getStaffOverall(coach.overallWt);
         setupPlaybookOff();
     }
 
@@ -685,7 +697,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setSingleChoiceItems(coachChoice, -1, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        userTeam.getHeadCoach().offStrat = i;
+                        HeadCoach coach = ensureUserHeadCoach();
+                        if (coach == null) return;
+                        coach.offStrat = i;
                         if(userTeam.OC != null) userTeam.OC.offStrat = i;
                         if(userTeam.DC != null) userTeam.DC.offStrat = i;
                         userTeam.playbookOffNum = i;
@@ -714,7 +728,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setSingleChoiceItems(coachChoice, -1, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        userTeam.getHeadCoach().defStrat = i;
+                        HeadCoach coach = ensureUserHeadCoach();
+                        if (coach == null) return;
+                        coach.defStrat = i;
                         if(userTeam.OC != null) userTeam.OC.offStrat = i;
                         if(userTeam.DC != null) userTeam.DC.offStrat = i;
                         userTeam.playbookDefNum = i;
@@ -737,6 +753,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currentTeam = userTeam;
         examineTeam(userTeam.getName());
         showHome();
+    }
+
+    private HeadCoach ensureUserHeadCoach() {
+        if (userTeam == null) {
+            return null;
+        }
+        HeadCoach coach = userTeam.getHeadCoach();
+        if (coach == null) {
+            String coachName = username != null && !username.trim().isEmpty()
+                    ? username.trim()
+                    : simLeague.getRandName();
+            userTeam.setupUserCoach(coachName);
+            coach = userTeam.getHeadCoach();
+        }
+        userHC = coach;
+        return coach;
     }
 
     public void resetUI() {
@@ -1097,54 +1129,52 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         ppPlayerName.setText(playerName);
         String[] a = snapshot.basics;
 
-        ppPosition.setText(a[0]);
-        ppClass.setText(a[1]);
-        ppTeam.setText(a[2]);
-        ppHome.setText(a[3]);
-        ppStars.setText(a[4]);
-        ppHeight.setText(a[5]);
-        ppWeight.setText(a[6]);
-        ppOverall.setText(a[7]);
-        ppCharacter.setText(a[8]);
-        ppAwareness.setText(a[9]);
-        ppStatus.setText(a[10]);
-        ppDurability.setText(a[11]);
+        ppPosition.setText(valueAt(a, 0));
+        ppClass.setText(valueAt(a, 1));
+        ppTeam.setText(valueAt(a, 2));
+        ppHome.setText(valueAt(a, 3));
+        ppStars.setText(valueAt(a, 4));
+        ppHeight.setText(valueAt(a, 5));
+        ppWeight.setText(valueAt(a, 6));
+        ppOverall.setText(valueAt(a, 7));
+        ppCharacter.setText(valueAt(a, 8));
+        ppAwareness.setText(valueAt(a, 9));
+        ppStatus.setText(valueAt(a, 10));
+        ppDurability.setText(valueAt(a, 11));
 
         String[] b = snapshot.ratings;
 
-        if(b.length > 7) {
-            ppAttr1Name.setText(b[0]);
-            ppAttr1.setText(b[1]);
-            ppAttr2Name.setText(b[2]);
-            ppAttr2.setText(b[3]);
-            ppAttr3Name.setText(b[4]);
-            ppAttr3.setText(b[5]);
-            ppAttr4Name.setText(b[6]);
-            ppAttr4.setText(b[7]);
-        }
+        ppAttr1Name.setText(valueAt(b, 0));
+        ppAttr1.setText(valueAt(b, 1));
+        ppAttr2Name.setText(valueAt(b, 2));
+        ppAttr2.setText(valueAt(b, 3));
+        ppAttr3Name.setText(valueAt(b, 4));
+        ppAttr3.setText(valueAt(b, 5));
+        ppAttr4Name.setText(valueAt(b, 6));
+        ppAttr4.setText(valueAt(b, 7));
 
         String[] teamStat = snapshot.statColumns;
 
-        ppYear.setText(teamStat[0]);
-        ppStat0.setText(teamStat[1]);
-        ppStat1.setText(teamStat[2]);
-        ppStat2.setText(teamStat[3]);
-        ppStat3.setText(teamStat[4]);
-        ppStat4.setText(teamStat[5]);
-        ppStat5.setText(teamStat[6]);
-        ppStat6.setText(teamStat[7]);
-        ppStat7.setText(teamStat[8]);
+        ppYear.setText(valueAt(teamStat, 0));
+        ppStat0.setText(valueAt(teamStat, 1));
+        ppStat1.setText(valueAt(teamStat, 2));
+        ppStat2.setText(valueAt(teamStat, 3));
+        ppStat3.setText(valueAt(teamStat, 4));
+        ppStat4.setText(valueAt(teamStat, 5));
+        ppStat5.setText(valueAt(teamStat, 6));
+        ppStat6.setText(valueAt(teamStat, 7));
+        ppStat7.setText(valueAt(teamStat, 8));
 
         String[] c = snapshot.featuredStats;
 
-        ppFeatStat1Name.setText(c[0]);
-        ppFeatStat1.setText(c[1]);
-        ppFeatStat2Name.setText(c[2]);
-        ppFeatStat2.setText(c[3]);
-        ppFeatStat3Name.setText(c[4]);
-        ppFeatStat3.setText(c[5]);
-        ppFeatStat4Name.setText(c[6]);
-        ppFeatStat4.setText(c[7]);
+        ppFeatStat1Name.setText(valueAt(c, 0));
+        ppFeatStat1.setText(valueAt(c, 1));
+        ppFeatStat2Name.setText(valueAt(c, 2));
+        ppFeatStat2.setText(valueAt(c, 3));
+        ppFeatStat3Name.setText(valueAt(c, 4));
+        ppFeatStat3.setText(valueAt(c, 5));
+        ppFeatStat4Name.setText(valueAt(c, 6));
+        ppFeatStat4.setText(valueAt(c, 7));
     }
 
     public void cutPlayerDialog(final Player p) {
@@ -1254,34 +1284,38 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final TextView cpFeatStat4 = dialog.findViewById(R.id.cpFeatStat4);
 
         String[] a = snapshot.basics;
-        cpPosition.setText(a[0]);
-        cpClass.setText(a[1]);
-        cpTeam.setText(a[2]);
-        cpOverall.setText(a[3]);
-        cpWins.setText(a[4]);
-        cpLosses.setText(a[5]);
-        cpStatus.setText(a[6]);
-        cpContract.setText(a[7]);
+        cpPosition.setText(valueAt(a, 0));
+        cpClass.setText(valueAt(a, 1));
+        cpTeam.setText(valueAt(a, 2));
+        cpOverall.setText(valueAt(a, 3));
+        cpWins.setText(valueAt(a, 4));
+        cpLosses.setText(valueAt(a, 5));
+        cpStatus.setText(valueAt(a, 6));
+        cpContract.setText(valueAt(a, 7));
 
         String[] b = snapshot.ratings;
-        cpAttr1Name.setText(b[0]);
-        cpAttr1.setText(b[1]);
-        cpAttr2Name.setText(b[2]);
-        cpAttr2.setText(b[3]);
-        cpAttr3Name.setText(b[4]);
-        cpAttr3.setText(b[5]);
-        cpAttr4Name.setText(b[6]);
-        cpAttr4.setText(b[7]);
+        cpAttr1Name.setText(valueAt(b, 0));
+        cpAttr1.setText(valueAt(b, 1));
+        cpAttr2Name.setText(valueAt(b, 2));
+        cpAttr2.setText(valueAt(b, 3));
+        cpAttr3Name.setText(valueAt(b, 4));
+        cpAttr3.setText(valueAt(b, 5));
+        cpAttr4Name.setText(valueAt(b, 6));
+        cpAttr4.setText(valueAt(b, 7));
 
         String[] c = snapshot.featuredStats;
-        cpFeatStat1Name.setText(c[0]);
-        cpFeatStat1.setText(c[1]);
-        cpFeatStat2Name.setText(c[2]);
-        cpFeatStat2.setText(c[3]);
-        cpFeatStat3Name.setText(c[4]);
-        cpFeatStat3.setText(c[5]);
-        cpFeatStat4Name.setText(c[6]);
-        cpFeatStat4.setText(c[7]);
+        cpFeatStat1Name.setText(valueAt(c, 0));
+        cpFeatStat1.setText(valueAt(c, 1));
+        cpFeatStat2Name.setText(valueAt(c, 2));
+        cpFeatStat2.setText(valueAt(c, 3));
+        cpFeatStat3Name.setText(valueAt(c, 4));
+        cpFeatStat3.setText(valueAt(c, 5));
+        cpFeatStat4Name.setText(valueAt(c, 6));
+        cpFeatStat4.setText(valueAt(c, 7));
+    }
+
+    private static String valueAt(String[] values, int index) {
+        return index < values.length ? values[index] : "";
     }
 
 
@@ -2183,7 +2217,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
 
-        goals = "Welcome to the " + simLeague.getYear() + " College Football season, Coach " + userTeam.getHeadCoach().name + "!\n\n";
+        HeadCoach coach = ensureUserHeadCoach();
+        String coachName = coach != null ? coach.name : "Coach";
+        goals = "Welcome to the " + simLeague.getYear() + " College Football season, Coach " + coachName + "!\n\n";
         if (simLeague.isCareerMode()) {
             goals += "Your head coaching career begins at " + userTeam.getName() + ". Job security, performance swings, and future opportunities will all respond to the seasons you build here.\n\n";
         }
@@ -2210,10 +2246,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         goals += "Based on your schedule, your team is projected to finish with a record of " + userTeam.projectedWins + " - " + (games - userTeam.projectedWins) + ".\n\n";
 
-        if (simLeague.isCareerMode()) {
-            int yearsLeft = userTeam.getHeadCoach().contractLength - userTeam.getHeadCoach().contractYear;
+        if (simLeague.isCareerMode() && coach != null) {
+            int yearsLeft = coach.contractLength - coach.contractYear;
             if (yearsLeft < 0) yearsLeft = 0;
-            goals += "Contract outlook: " + yearsLeft + " year(s) remain on your deal, and your current AD pressure is " + userTeam.getHeadCoach().coachStatus() + ".\n\n";
+            goals += "Contract outlook: " + yearsLeft + " year(s) remain on your deal, and your current AD pressure is " + coach.coachStatus() + ".\n\n";
         }
 
         if (simLeague.getYear() > seasonStart) {
@@ -2461,7 +2497,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         userHC = headCoach;
         if (userHC.promotionCandidate) {
 
-            int ratOvr = userHC.getStaffOverall(userTeam.getHeadCoach().overallWt);
+            HeadCoach currentCoach = userTeam != null ? userTeam.getHeadCoach() : null;
+            int[] overallWeights = currentCoach != null ? currentCoach.overallWt : userHC.overallWt;
+            int ratOvr = userHC.getStaffOverall(overallWeights);
             if (ratOvr < 40) ratOvr = 40;
             double offers = 2;
             String oldTeam = "NO TEAM";
@@ -3018,7 +3056,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         //Get String of user team's players and such
                         StringBuilder sb = new StringBuilder();
                         userTeam.sortPlayers();
-                        sb.append(userTeam.getConference() + "," + userTeam.getName() + "," + userTeam.getAbbr() + "," + userTeam.getUserRecruitBudget() + "," + userTeam.getHeadCoach().ratTalent + "%\n");
+                        HeadCoach coach = ensureUserHeadCoach();
+                        int recruitingRating = coach != null ? coach.ratTalent : simLeague.getAvgCoachTal();
+                        sb.append(userTeam.getConference() + "," + userTeam.getName() + "," + userTeam.getAbbr() + "," + userTeam.getUserRecruitBudget() + "," + recruitingRating + "%\n");
                         sb.append(userTeam.getPlayerInfoSaveFile());
                         sb.append("END_TEAM_INFO%\n");
                         sb.append(userTeam.getRecruitsInfoSaveFile());
@@ -3185,6 +3225,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void onItemSelected(
                             AdapterView<?> parent, View view, int position, long id) {
                         if (position == 0) {
+                            if (currentTeam.getHeadCoach() == null) {
+                                return;
+                            }
                             TeamHistoryList teamHistoryAdapter =
                                     new TeamHistoryList(MainActivity.this, currentTeam.getHeadCoach().getCoachHistory());
                             teamHistoryList.setAdapter(teamHistoryAdapter);
@@ -3199,8 +3242,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void reincarnation() {
         userTeam.setTeamPrestige((int)(userTeam.getTeamPrestige() * Team.knockdownRet));
+        HeadCoach currentCoach = currentTeam.getHeadCoach();
+        String currentCoachName = currentCoach != null ? currentCoach.name : "Head Coach";
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Head Coach History: " + currentTeam.getHeadCoach().name)
+        builder.setTitle("Head Coach History: " + currentCoachName)
                 .setPositiveButton("Use Same Team", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -3252,6 +3297,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     public void onItemSelected(
                             AdapterView<?> parent, View view, int position, long id) {
                         if (position == 0) {
+                            if (currentTeam.getHeadCoach() == null) {
+                                return;
+                            }
                             TeamHistoryList teamHistoryAdapter =
                                     new TeamHistoryList(MainActivity.this, currentTeam.getHeadCoach().getCoachHistory());
                             teamHistoryList.setAdapter(teamHistoryAdapter);

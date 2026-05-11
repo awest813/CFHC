@@ -18,15 +18,15 @@ public final class PlayerProfileSnapshot {
     }
 
     public static PlayerProfileSnapshot fromPlayer(Player player) {
-        String[] basics = player.getProfileBasics().split(",");
-        String[] ratings = player.getPlayerRatings().split(",");
+        String[] basics = player.getProfileBasics().split(",", -1);
+        String[] ratings = player.getPlayerRatings().split(",", -1);
         ArrayList<String> stats = player.getPlayerStats();
         String[] statColumns = new String[9];
 
         for (int i = 0; i < statColumns.length; i++) {
             StringBuilder sb = new StringBuilder();
             for (String statRow : stats) {
-                String[] splitRow = statRow.split(",");
+                String[] splitRow = statRow.split(",", -1);
                 if (i < splitRow.length) {
                     sb.append(splitRow[i]).append("\n");
                 }

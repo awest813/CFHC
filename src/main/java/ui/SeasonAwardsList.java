@@ -40,7 +40,7 @@ public class SeasonAwardsList extends ArrayAdapter<String> {
             textTop.setText(player[0]);
             textMiddle.setText(player[1]);
             textBottom.setText(player[2]);
-            if (player[0].split(" ")[0].equals(userTeamAbbr)) {
+            if (firstWord(player[0]).equals(userTeamAbbr)) {
                 // highlight user team players
                 textTop.setTextColor(Color.parseColor("#5994de"));
             }
@@ -48,7 +48,7 @@ public class SeasonAwardsList extends ArrayAdapter<String> {
             textTop.setText(player[0]);
             textMiddle.setText(player[1]);
             textBottom.setVisibility(View.GONE);
-            if (player[0].split(" ")[0].equals(userTeamAbbr)) {
+            if (firstWord(player[0]).equals(userTeamAbbr)) {
                 // highlight user team players
                 textTop.setTextColor(Color.parseColor("#5994de"));
             }
@@ -57,5 +57,10 @@ public class SeasonAwardsList extends ArrayAdapter<String> {
         }
 
         return rowView;
+    }
+
+    private static String firstWord(String value) {
+        String[] parts = value.split(" ");
+        return parts.length > 0 ? parts[0] : "";
     }
 }

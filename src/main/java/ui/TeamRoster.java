@@ -49,11 +49,16 @@ public class TeamRoster extends ArrayAdapter<String> {
         TextView textRight = rowView.findViewById(R.id.textTeamRosterRight);
         TextView textProg = rowView.findViewById(R.id.textTeamRosterProgression);
 
-        final String[] teamStat = values.get(position).split(",");
-        textLeft.setText(teamStat[0]);
-        textClass.setText(teamStat[1]);
-        textCenter.setText(teamStat[2] + " " + teamStat[3]);
-        textRight.setText(teamStat[4]);
+        final String[] teamStat = values.get(position).split(",", -1);
+        final String role = valueAt(teamStat, 0);
+        final String playerClass = valueAt(teamStat, 1);
+        final String name = valueAt(teamStat, 2);
+        String status = valueAt(teamStat, 3);
+        final String ratingText = valueAt(teamStat, 4);
+        textLeft.setText(role);
+        textClass.setText(playerClass);
+        textCenter.setText(name + " " + status);
+        textRight.setText(ratingText);
         textLeft.setTextColor(Color.parseColor("#B7C6D1"));
         textClass.setTextColor(Color.parseColor("#B7C6D1"));
         textCenter.setTextColor(Color.parseColor("#F5F7FA"));
@@ -64,34 +69,34 @@ public class TeamRoster extends ArrayAdapter<String> {
         textCenter.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
         textClass.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
 
-        if (teamStat[0].equals(" ")) {
+        if (role.equals(" ")) {
             textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
             textCenter.setTextColor(Color.parseColor("#5994de"));
         }
-        if (teamStat[3].equals("*")) {
+        if (status.equals("*")) {
             textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
             //textCenter.setTextColor(Color.WHITE);
         }
-        if (teamStat[3].contains("RS") || teamStat[3].contains("[T]")) {
+        if (status.contains("RS") || status.contains("[T]")) {
             textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
             textCenter.setTextColor(Color.DKGRAY);
         }
-        if (teamStat[3].contains("Suspended")) {
+        if (status.contains("Suspended")) {
             textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
             textCenter.setTextColor(Color.RED);
         }
-        if (teamStat[3].contains("INJ")) {
+        if (status.contains("INJ")) {
             textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
             textCenter.setTextColor(Color.parseColor("#ff9933"));
         }
-        if (teamStat[3].contains("Hot Seat")) {
+        if (status.contains("Hot Seat")) {
             textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
             textCenter.setTextColor(Color.RED);
         }
 
-        if(!teamStat[4].contains(" ")) {
+        if(!ratingText.contains(" ")) {
             try {
-                int rating = Integer.parseInt(teamStat[4]);
+                int rating = Integer.parseInt(ratingText);
                 if (rating > 90) {
                     textRight.setTextColor(Color.parseColor("#5994de"));
                 } else if (rating > 80) {
@@ -105,28 +110,28 @@ public class TeamRoster extends ArrayAdapter<String> {
             if (teamStat[5].equals("1")) {
                 textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
                 textCenter.setTextColor(Color.parseColor("#8FBC8F"));
-                teamStat[3] = " :  All-Fr";
-                textCenter.setText(teamStat[2] + " " + teamStat[3]);
+                status = " :  All-Fr";
+                textCenter.setText(name + " " + status);
             } else if (teamStat[5].equals("2")) {
                 textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
                 textCenter.setTextColor(Color.parseColor("#00B300"));
-                teamStat[3] = " :  All-Conf";
-                textCenter.setText(teamStat[2] + " " + teamStat[3]);
+                status = " :  All-Conf";
+                textCenter.setText(name + " " + status);
             } else if (teamStat[5].equals("3")) {
                 textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
                 textCenter.setTextColor(Color.parseColor("#1A75FF"));
-                teamStat[3] = " :  All-Am";
-                textCenter.setText(teamStat[2] + " " + teamStat[3]);
+                status = " :  All-Am";
+                textCenter.setText(name + " " + status);
             } else if (teamStat[5].equals("4")) {
                 textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
                 textCenter.setTextColor(Color.parseColor("#FF9933"));
-                if(teamStat[0].contains("HC")) teamStat[3] = " :  COTY";
-                else teamStat[3] = " :  POTY";
-                textCenter.setText(teamStat[2] + " " + teamStat[3]);
+                if(role.contains("HC")) status = " :  COTY";
+                else status = " :  POTY";
+                textCenter.setText(name + " " + status);
             }
         }
 
-        if(week > 17 && week < 22 && teamStat[1].contains("Sr")) {
+        if(week > 17 && week < 22 && playerClass.contains("Sr")) {
             textCenter.setTypeface(textCenter.getTypeface(), Typeface.ITALIC);
             textCenter.setTextColor(Color.DKGRAY);
             textCenter.setPaintFlags(textCenter.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
@@ -146,12 +151,16 @@ public class TeamRoster extends ArrayAdapter<String> {
         textCenter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(teamStat[0].equals("HC") || teamStat[0].equals("OC") || teamStat[0].equals("DC") ) mainAct.examineCoachDB(teamStat[2]);
-                else mainAct.examinePlayer(teamStat[2]);
+                if(role.equals("HC") || role.equals("OC") || role.equals("DC") ) mainAct.examineCoachDB(name);
+                else mainAct.examinePlayer(name);
             }
         });
 
         return rowView;
+    }
+
+    private static String valueAt(String[] values, int index) {
+        return index < values.length ? values[index] : "";
     }
 
 }

@@ -16,6 +16,7 @@ import java.util.Locale;
 import simulation.Conference;
 import simulation.League;
 import simulation.Team;
+import staff.HeadCoach;
 
 /**
  * Controller for the Game Universe Editor.
@@ -98,7 +99,11 @@ public final class LeagueEditorDialogController {
                 if (changeAbbrEditText != null) changeAbbrEditText.setText(currentTeam[0].abbr);
                 if (changeLocationText != null) changeLocationText.setText(Integer.toString(currentTeam[0].location));
                 if (changeConfEditText != null) changeConfEditText.setText(currentConference[0].confName);
-                if (changeHCEditText != null) changeHCEditText.setText(currentTeam[0].getHeadCoach().name);
+                if (changeHCEditText != null) {
+                    HeadCoach coach = currentTeam[0].getHeadCoach();
+                    changeHCEditText.setText(coach != null ? coach.name : "");
+                    changeHCEditText.setHint(coach != null ? "" : "No head coach assigned");
+                }
                 if (changePrestigeEditText != null) changePrestigeEditText.setText(Integer.toString(currentTeam[0].getTeamPrestige()));
             }
 
@@ -155,7 +160,11 @@ public final class LeagueEditorDialogController {
                         currentTeam[0].abbr = newAbbr;
                         currentTeam[0].location = Integer.parseInt(newLocation);
                         currentConference[0].confName = newConf;
-                        currentTeam[0].getHeadCoach().name = newHC;
+                        if (currentTeam[0].getHeadCoach() != null) {
+                            currentTeam[0].getHeadCoach().name = newHC;
+                        } else {
+                            currentTeam[0].newCustomHeadCoach(newHC, 3, 40);
+                        }
                         currentTeam[0].setTeamPrestige(newPrestige);
                     }
                 }

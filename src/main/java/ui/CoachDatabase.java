@@ -11,10 +11,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import androidx.core.content.ContextCompat;
 import antdroid.cfbcoach.MainActivity;
 import antdroid.cfbcoach.R;
-import simulation.League;
 
 public class CoachDatabase  extends ArrayAdapter<String> {
     private final Context context;
@@ -42,31 +40,34 @@ public class CoachDatabase  extends ArrayAdapter<String> {
         TextView textCenter = rowView.findViewById(R.id.textTeamRankingsCenter);
         TextView textRight = rowView.findViewById(R.id.textTeamRankingsRight);
 
-        final String[] teamStat = values.get(position).split(",");
-        textLeft.setText(teamStat[0]);
-        textCenter.setText(teamStat[1]);
-        textRight.setText(teamStat[2]);
+        final String[] teamStat = values.get(position).split(",", -1);
+        final String left = valueAt(teamStat, 0);
+        final String center = valueAt(teamStat, 1);
+        final String right = valueAt(teamStat, 2);
+        textLeft.setText(left);
+        textCenter.setText(center);
+        textRight.setText(right);
 
 
-        if (!teamStat[1].contains("[U]") && !teamStat[1].contains("[R]")) {
+        if (!center.contains("[U]") && !center.contains("[R]")) {
             // Bold user team
             textCenter.setTextColor(Color.parseColor("#5994de"));
             textRight.setTextColor(Color.parseColor("#5994de"));
         }
-        if (teamStat[1].contains("[R]")) {
+        if (center.contains("[R]")) {
             // Bold user team
             textCenter.setTextColor(Color.GRAY);
             textRight.setTextColor(Color.GRAY);
         }
 
-        if(userNames.contains(teamStat[1])) {
+        if(userNames != null && userNames.contains(center)) {
             textLeft.setTextColor(Color.parseColor("#B68044"));
             textCenter.setTextColor(Color.parseColor("#B68044"));
             textRight.setTextColor(Color.parseColor("#B68044"));
         }
 
 
-        if (teamStat[1].equals(userHC)) {
+        if (center.equals(userHC)) {
             // Bold user team
             textLeft.setTypeface(textLeft.getTypeface(), Typeface.BOLD);
             textLeft.setTextColor(Color.parseColor("#ff9933"));
@@ -76,10 +77,11 @@ public class CoachDatabase  extends ArrayAdapter<String> {
             textRight.setTextColor(Color.parseColor("#ff9933"));
         }
 
-        if (teamStat[2].split(" ").length > 2 && teamStat[2].split(" ")[2].contains("+")) {
+        String[] rightParts = right.split(" ");
+        if (rightParts.length > 2 && rightParts[2].contains("+")) {
             // Highlight Prestige Changes in off-season
             textRight.setTextColor(Color.GREEN);
-        } else if (teamStat[2].split(" ").length > 2 && teamStat[2].split(" ")[2].contains("-")) {
+        } else if (rightParts.length > 2 && rightParts[2].contains("-")) {
             textRight.setTextColor(Color.RED);
         }
 
@@ -87,7 +89,7 @@ public class CoachDatabase  extends ArrayAdapter<String> {
         textCenter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainAct.examineCoachDB(teamStat[1]);
+                mainAct.examineCoachDB(center);
             }
         });
 
@@ -99,5 +101,9 @@ public class CoachDatabase  extends ArrayAdapter<String> {
 
     public void setupUserHC(String userHC) {
         this.userHC = userHC;
+    }
+
+    private static String valueAt(String[] values, int index) {
+        return index < values.length ? values[index] : "";
     }
 }

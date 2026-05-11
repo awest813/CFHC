@@ -23,8 +23,11 @@ public final class SeasonController {
     private boolean redshirtComplete = false;
 
     public SeasonController(League league, GameUiBridge bridge) {
+        if (league == null) {
+            throw new IllegalArgumentException("league is required");
+        }
         this.league = league;
-        this.bridge = bridge;
+        this.bridge = bridge != null ? bridge : GameUiBridge.NO_OP;
         this.regSeasonWeeks = league.regSeasonWeeks;
     }
 

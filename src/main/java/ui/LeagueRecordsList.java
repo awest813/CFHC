@@ -38,26 +38,33 @@ public class LeagueRecordsList extends ArrayAdapter<String> {
         TextView textCenter = rowView.findViewById(R.id.textLeagueRecordCenter);
         TextView textRight = rowView.findViewById(R.id.textLeagueRecordRight);
 
-        String[] record = values[position].split(",");
-        if (record[1].equals("-1")) {
+        String[] record = values[position].split(",", -1);
+        String name = valueAt(record, 0);
+        String value = valueAt(record, 1);
+        String holder = valueAt(record, 2);
+        String year = valueAt(record, 3);
+        if (value.equals("-1")) {
             textLeft.setText("");
-            textCenter.setText(record[0]);
+            textCenter.setText(name);
             textCenter.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
             textRight.setText("");
-        } else if (!record[2].equals("XXX")) {
+        } else if (!holder.equals("XXX")) {
             // Only show record if it exists
-            textLeft.setText(record[1]);
-            textCenter.setText(record[0]);
-            if (record[2].contains("%")) {
-                String[] namesplit = record[2].split("%");
-                textRight.setText(record[2].split("%")[0] + "\n" + record[2].split("%")[1] + " " + record[3]);
-                if (record[2].split("%")[1].equals(userTeamAbbr) || record[2].split("%")[1].equals(userTeamName)) {
+            textLeft.setText(value);
+            textCenter.setText(name);
+            if (holder.contains("%")) {
+                String[] nameSplit = holder.split("%", -1);
+                String team = valueAt(nameSplit, 1);
+                textRight.setText(valueAt(nameSplit, 0) + "\n" + team + " " + year);
+                if (team.equals(userTeamAbbr) || team.equals(userTeamName)) {
                     // User team record, make it special color
                     textRight.setTextColor(Color.parseColor("#5994de"));
                 }
             } else {
-                textRight.setText(record[2] + "\n" + record[3]);
-                if (record[2].split(" ")[0].equals(userTeamAbbr) || record[2].split(" ")[0].equals(userTeamName)) {
+                textRight.setText(holder + "\n" + year);
+                String[] holderParts = holder.split(" ");
+                String team = valueAt(holderParts, 0);
+                if (team.equals(userTeamAbbr) || team.equals(userTeamName)) {
                     // User team record, make it special color
                     textRight.setTextColor(Color.parseColor("#5994de"));
                 }
@@ -65,5 +72,9 @@ public class LeagueRecordsList extends ArrayAdapter<String> {
         }
 
         return rowView;
+    }
+
+    private static String valueAt(String[] values, int index) {
+        return index < values.length ? values[index] : "";
     }
 }

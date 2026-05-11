@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import simulation.League;
 import simulation.PlayerRecord;
 import simulation.Team;
+import staff.HeadCoach;
 import staff.Staff;
 import ui.CoachDatabase;
 import ui.HallofFameList;
@@ -163,7 +164,7 @@ final class LeagueHistoryDialogController {
                     public void onItemSelected(
                             AdapterView<?> parent, View view, int position, long id) {
                         ArrayList<String> rankings = simLeague.getCoachDatabase(position);
-                        coachDatabase.setupUserHC(userTeam.getHeadCoach().getName() + " (" + userTeam.getAbbr() + ")");
+                        coachDatabase.setupUserHC(userCoachLabel(userTeam));
                         coachDatabase.clear();
                         coachDatabase.addAll(rankings);
                         coachDatabase.notifyDataSetChanged();
@@ -173,5 +174,16 @@ final class LeagueHistoryDialogController {
                         // do nothing
                     }
                 });
+    }
+
+    private static String userCoachLabel(Team userTeam) {
+        if (userTeam == null) {
+            return "";
+        }
+        HeadCoach coach = userTeam.getHeadCoach();
+        if (coach == null) {
+            return "";
+        }
+        return coach.getName() + " (" + userTeam.getAbbr() + ")";
     }
 }

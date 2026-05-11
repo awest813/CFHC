@@ -31,14 +31,15 @@ public class PlayerProfile extends ArrayAdapter<String> {
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View rowView = inflater.inflate(R.layout.save_list, parent, false);
 
-        String[] detailSplit = values[position].split(">");
+        String row = values[position];
+        String[] detailSplit = row.split(">", -1);
         if (detailSplit.length == 2) {
             TextView itemL = rowView.findViewById(R.id.textPlayerStatsLeftChild);
             TextView itemR = rowView.findViewById(R.id.textPlayerStatsRightChild);
 
-            if (values[position].substring(0, 3).equals("[B]")) {
+            if (row.startsWith("[B]")) {
                 // Bold it
-                itemL.setText(values[position].substring(3));
+                itemL.setText(row.substring(3));
                 itemR.setTypeface(null, Typeface.BOLD);
             } else {
                 itemL.setText(detailSplit[0]);
@@ -52,13 +53,13 @@ public class PlayerProfile extends ArrayAdapter<String> {
         } else {
             // Only one, center it
             TextView itemC = rowView.findViewById(R.id.textPlayerStatsCenter);
-            if (values[position].substring(0, 3).equals("[B]")) {
+            if (row.startsWith("[B]")) {
                 // Bold it
-                itemC.setText(values[position].substring(3));
+                itemC.setText(row.substring(3));
                 itemC.setTypeface(null, Typeface.BOLD);
                 itemC.setTextColor(Color.parseColor("#5994de"));
             } else {
-                itemC.setText(values[position]);
+                itemC.setText(row);
             }
 
             TextView itemL = rowView.findViewById(R.id.textPlayerStatsLeftChild);

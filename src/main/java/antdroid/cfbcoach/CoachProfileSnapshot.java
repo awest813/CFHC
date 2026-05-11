@@ -16,8 +16,8 @@ public final class CoachProfileSnapshot {
     }
 
     public static CoachProfileSnapshot fromStaff(Staff staff) {
-        String[] basics = staff.getHCProfileBasics().split(",");
-        String[] ratings = staff.getHCRatings().split(",");
+        String[] basics = staff.getHCProfileBasics().split(",", -1);
+        String[] ratings = staff.getHCRatings().split(",", -1);
         ArrayList<String> feature = staff.getHCFeaturedStats();
         String[] featuredStats = new String[8];
         for (int i = 0; i < featuredStats.length; i++) {

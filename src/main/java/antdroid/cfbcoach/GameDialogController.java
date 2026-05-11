@@ -66,20 +66,20 @@ final class GameDialogController {
         final TextView scoreOT = dialog.findViewById(R.id.scoreOT);
 
         awayTeam.setText(g.awayTeam.getAbbr());
-        awayQT1.setText(Integer.toString(g.awayQScore[0]));
-        awayQT2.setText(Integer.toString(g.awayQScore[1]));
-        awayQT3.setText(Integer.toString(g.awayQScore[2]));
-        awayQT4.setText(Integer.toString(g.awayQScore[3]));
+        awayQT1.setText(Integer.toString(scoreAt(g.awayQScore, 0)));
+        awayQT2.setText(Integer.toString(scoreAt(g.awayQScore, 1)));
+        awayQT3.setText(Integer.toString(scoreAt(g.awayQScore, 2)));
+        awayQT4.setText(Integer.toString(scoreAt(g.awayQScore, 3)));
 
         homeTeam.setText(g.homeTeam.getAbbr());
-        homeQT1.setText(Integer.toString(g.homeQScore[0]));
-        homeQT2.setText(Integer.toString(g.homeQScore[1]));
-        homeQT3.setText(Integer.toString(g.homeQScore[2]));
-        homeQT4.setText(Integer.toString(g.homeQScore[3]));
+        homeQT1.setText(Integer.toString(scoreAt(g.homeQScore, 0)));
+        homeQT2.setText(Integer.toString(scoreAt(g.homeQScore, 1)));
+        homeQT3.setText(Integer.toString(scoreAt(g.homeQScore, 2)));
+        homeQT4.setText(Integer.toString(scoreAt(g.homeQScore, 3)));
 
         if (g.numOT > 0) {
-            int awayOTscore = g.awayScore - (g.awayQScore[0] + g.awayQScore[1] + g.awayQScore[2] + g.awayQScore[3]);
-            int homeOTscore = g.homeScore - (g.homeQScore[0] + g.homeQScore[1] + g.homeQScore[2] + g.homeQScore[3]);
+            int awayOTscore = g.awayScore - (scoreAt(g.awayQScore, 0) + scoreAt(g.awayQScore, 1) + scoreAt(g.awayQScore, 2) + scoreAt(g.awayQScore, 3));
+            int homeOTscore = g.homeScore - (scoreAt(g.homeQScore, 0) + scoreAt(g.homeQScore, 1) + scoreAt(g.homeQScore, 2) + scoreAt(g.homeQScore, 3));
             awayOT.setText(Integer.toString(awayOTscore));
             homeOT.setText(Integer.toString(homeOTscore));
         } else {
@@ -94,11 +94,11 @@ final class GameDialogController {
         } else gameDialogScoreDashName.setText("@");
 
         final TextView gameL = dialog.findViewById(R.id.gameDialogLeft);
-        gameL.setText(gameStr[0]);
+        gameL.setText(valueAt(gameStr, 0));
         final TextView gameC = dialog.findViewById(R.id.gameDialogCenter);
-        gameC.setText(gameStr[1]);
+        gameC.setText(valueAt(gameStr, 1));
         final TextView gameR = dialog.findViewById(R.id.gameDialogRight);
-        gameR.setText(gameStr[2]);
+        gameR.setText(valueAt(gameStr, 2));
 
         final View ql = dialog.findViewById(R.id.gameDialogQBLeft);
         final View qc = dialog.findViewById(R.id.gameDialogQBCenter);
@@ -117,22 +117,22 @@ final class GameDialogController {
         final View kr = dialog.findViewById(R.id.gameDialogKickRight);
         final View bottom = dialog.findViewById(R.id.gameDialogBottom);
 
-        ((TextView)ql).setText(gameStr[3]);
-        ((TextView)qc).setText(gameStr[4]);
-        ((TextView)qr).setText(gameStr[5]);
-        ((TextView)rl).setText(gameStr[6]);
-        ((TextView)rc).setText(gameStr[7]);
-        ((TextView)rr).setText(gameStr[8]);
-        ((TextView)wl).setText(gameStr[9]);
-        ((TextView)wc).setText(gameStr[10]);
-        ((TextView)wr).setText(gameStr[11]);
-        ((TextView)dl).setText(gameStr[12]);
-        ((TextView)dc).setText(gameStr[13]);
-        ((TextView)dr).setText(gameStr[14]);
-        ((TextView)kl).setText(gameStr[15]);
-        ((TextView)kc).setText(gameStr[16]);
-        ((TextView)kr).setText(gameStr[17]);
-        ((TextView)bottom).setText(gameStr[18] + "\n\n");
+        ((TextView)ql).setText(valueAt(gameStr, 3));
+        ((TextView)qc).setText(valueAt(gameStr, 4));
+        ((TextView)qr).setText(valueAt(gameStr, 5));
+        ((TextView)rl).setText(valueAt(gameStr, 6));
+        ((TextView)rc).setText(valueAt(gameStr, 7));
+        ((TextView)rr).setText(valueAt(gameStr, 8));
+        ((TextView)wl).setText(valueAt(gameStr, 9));
+        ((TextView)wc).setText(valueAt(gameStr, 10));
+        ((TextView)wr).setText(valueAt(gameStr, 11));
+        ((TextView)dl).setText(valueAt(gameStr, 12));
+        ((TextView)dc).setText(valueAt(gameStr, 13));
+        ((TextView)dr).setText(valueAt(gameStr, 14));
+        ((TextView)kl).setText(valueAt(gameStr, 15));
+        ((TextView)kc).setText(valueAt(gameStr, 16));
+        ((TextView)kr).setText(valueAt(gameStr, 17));
+        ((TextView)bottom).setText(valueAt(gameStr, 18) + "\n\n");
 
         String[] selection = {"menu >> Game Summary", "menu >> Offense Stats", "menu >> Defense Stats", "menu >> Special Teams Stats", "menu >> Game Play Log"};
         Spinner potySpinner = dialog.findViewById(R.id.boxscoreMenu);
@@ -187,10 +187,10 @@ final class GameDialogController {
         dialog.setCancelable(false);
         PlatformUiHelper.showImmersive(dialog);
 
-        ((TextView)dialog.findViewById(R.id.gameScoutDialogLeft)).setText(gameStr[0]);
-        ((TextView)dialog.findViewById(R.id.gameScoutDialogCenter)).setText(gameStr[1]);
-        ((TextView)dialog.findViewById(R.id.gameScoutDialogRight)).setText(gameStr[2]);
-        ((TextView)dialog.findViewById(R.id.gameScoutDialogBottom)).setText(gameStr[3]);
+        ((TextView)dialog.findViewById(R.id.gameScoutDialogLeft)).setText(valueAt(gameStr, 0));
+        ((TextView)dialog.findViewById(R.id.gameScoutDialogCenter)).setText(valueAt(gameStr, 1));
+        ((TextView)dialog.findViewById(R.id.gameScoutDialogRight)).setText(valueAt(gameStr, 2));
+        ((TextView)dialog.findViewById(R.id.gameScoutDialogBottom)).setText(valueAt(gameStr, 3));
 
         if (g.awayTeam == userTeam || g.homeTeam == userTeam) {
             ((TextView)dialog.findViewById(R.id.textScoutOffenseStrategy)).setText(userTeam.getAbbr() + " Off Strategy:");
@@ -249,5 +249,13 @@ final class GameDialogController {
             dialog.findViewById(R.id.textScoutOffenseStrategy).setVisibility(View.GONE);
             dialog.findViewById(R.id.textScoutDefenseStrategy).setVisibility(View.GONE);
         }
+    }
+
+    private static int scoreAt(int[] scores, int index) {
+        return scores != null && index < scores.length ? scores[index] : 0;
+    }
+
+    private static String valueAt(String[] values, int index) {
+        return index < values.length ? values[index] : "";
     }
 }
