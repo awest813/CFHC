@@ -831,6 +831,7 @@ public class LeagueHomeView extends JFrame {
     private void advanceFullYear() {
         SimulationProgressDialog dialog = new SimulationProgressDialog(this, "Full-Year Simulation");
         dialog.setIndeterminate(true);
+        dialog.setStatus("Advancing " + decodeSeasonPeriod() + "...");
         bridge.clearNewSeasonPending();
 
         javax.swing.SwingWorker<Integer, String> worker = new javax.swing.SwingWorker<>() {
@@ -871,7 +872,12 @@ public class LeagueHomeView extends JFrame {
                 int played = 0;
                 try {
                     played = get();
-                } catch (Exception ignored) {
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    PlatformLog.w(TAG, "Full-year simulation interrupted while collecting result.", ie);
+                } catch (java.util.concurrent.ExecutionException ee) {
+                    Throwable cause = ee.getCause() != null ? ee.getCause() : ee;
+                    PlatformLog.e(TAG, "Full-year simulation failed.", cause);
                 }
 
                 if (played > 0) {
