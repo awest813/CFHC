@@ -65,7 +65,7 @@ public class RecruitingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        theme = GameNavigation.getTheme(getIntent(), 1);
+        theme = GameNavigation.getTheme(getIntent(), GameNavigation.DEFAULT_THEME);
         if(theme == 1) setTheme(R.style.AppThemeLight);
         else setTheme(R.style.AppTheme);
 

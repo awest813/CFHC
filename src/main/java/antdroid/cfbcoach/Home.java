@@ -32,7 +32,7 @@ public class Home extends AppCompatActivity {
     private static final String KEY_THEME = "theme_choice";
     private static final String KEY_WELCOME_SEEN = "welcome_seen";
 
-    private int theme = 1;
+    private int theme = GameNavigation.DEFAULT_THEME;
     private SharedPreferences homePrefs;
     private simulation.GameFlowManager flowManager;
 
@@ -44,7 +44,7 @@ public class Home extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         homePrefs = getSharedPreferences(PREFS_HOME, MODE_PRIVATE);
-        theme = GameNavigation.getTheme(getIntent(), homePrefs.getInt(KEY_THEME, 1));
+        theme = GameNavigation.getTheme(getIntent(), homePrefs.getInt(KEY_THEME, GameNavigation.DEFAULT_THEME));
         if (theme == 1) {
             setTheme(R.style.AppThemeLight);
         } else {

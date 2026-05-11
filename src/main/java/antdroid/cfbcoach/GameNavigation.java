@@ -13,6 +13,9 @@ public final class GameNavigation {
     private static final String EXTRA_SAVE_FILE = "SAVE_FILE";
     private static final String EXTRA_RECRUITS = "RECRUITS";
 
+    /** Default theme value: 1 = light, 0 = dark. */
+    public static final int DEFAULT_THEME = 1;
+
     private GameNavigation() {
     }
 
