@@ -1831,7 +1831,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Bowl Games Schedule
     private void showBowlCCGDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Post-Season Games")
+        builder.setTitle("Postseason Games")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -1841,9 +1841,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 .setView(getLayoutInflater().inflate(R.layout.bowl_ccg_dialog, null, false));
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
-        PlatformUiHelper.bindArchiveDialogShell(dialog, "Post-Season Archive", "Switch between conference title games and postseason slates in one shared archive shell.");
+        PlatformUiHelper.bindArchiveDialogShell(dialog, "Postseason Archive", "Switch between conference title games and postseason slates in one shared archive shell.");
 
-        String[] selection = {"Conf Championships", "Post-Season"};
+        String[] selection = {"Conf Championships", "Postseason"};
         Spinner bowlCCGSpinner = dialog.findViewById(R.id.spinnerBowlCCG);
         PlatformUiHelper.avoidSpinnerDropdownFocus(bowlCCGSpinner);
         ArrayAdapter<String> bowlCCGadapter = new ArrayAdapter<>(this,
@@ -1924,7 +1924,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Awards
     private void heismanCeremony() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Post Season Awards")
+        builder.setTitle("Postseason Awards")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -2321,7 +2321,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //End of Season Summary
     private void seasonSummary() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage(simLeague.seasonSummaryStr() + "\n\nNote: You can always review your season summary in the Off-Season News.")
+        builder.setMessage(simLeague.seasonSummaryStr() + "\n\nNote: You can always review your season summary in the Offseason News.")
                 .setTitle(simLeague.getYear() + " Season Summary")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override

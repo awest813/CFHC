@@ -35,7 +35,7 @@ final class NewsDialogController {
         ArrayList<String> rankings = new ArrayList<>();
         String[] weekSelection = new String[simLeague.currentWeek + 1];
         for (int i = 0; i < weekSelection.length; ++i) {
-            if (i == 0) weekSelection[i] = "Pre-Season News";
+            if (i == 0) weekSelection[i] = "Preseason News";
             else if (i == simLeague.regSeasonWeeks) weekSelection[i] = "Conf Champ Week";
             else if (i == simLeague.regSeasonWeeks + 1) weekSelection[i] = "Bowl Week 1";
             else if (i == simLeague.regSeasonWeeks + 2) weekSelection[i] = "Bowl Week 2";
@@ -43,11 +43,11 @@ final class NewsDialogController {
             else if (i == simLeague.regSeasonWeeks + 4) weekSelection[i] = "National Champ";
             else if (i == simLeague.regSeasonWeeks + 5) weekSelection[i] = "Season Summary";
             else if (i == simLeague.regSeasonWeeks + 6) weekSelection[i] = "Coaching Contracts";
-            else if (i == simLeague.regSeasonWeeks + 7) weekSelection[i] = "Off-Season News";
+            else if (i == simLeague.regSeasonWeeks + 7) weekSelection[i] = "Offseason News";
             else if (i == simLeague.regSeasonWeeks + 8) weekSelection[i] = "Head Coach Hirings";
             else if (i == simLeague.regSeasonWeeks + 9) weekSelection[i] = "Coordinator Hirings";
             else if (i == simLeague.regSeasonWeeks + 10) weekSelection[i] = "Transfer News";
-            else if (i == simLeague.regSeasonWeeks + 11) weekSelection[i] = "Off-Season News";
+            else if (i == simLeague.regSeasonWeeks + 11) weekSelection[i] = "Offseason News";
             else if (i == simLeague.regSeasonWeeks + 12) weekSelection[i] = "Recruiting News";
             else weekSelection[i] = "Week " + i;
         }

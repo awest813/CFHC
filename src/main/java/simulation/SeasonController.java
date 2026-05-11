@@ -137,14 +137,14 @@ public final class SeasonController {
         league.updateLeagueHistory();
         league.currentWeek++;
         result.weekAdvanced();
-        updateSimStatus(result, "Offseason", "Off-Season: Contracts", true);
+        updateSimStatus(result, "Offseason", "Offseason: Contracts", true);
     }
 
     private void handleContracts(SeasonAdvanceResult.Builder result) {
         league.advanceStaff();
         league.currentWeek++;
         result.weekAdvanced();
-        updateSimStatus(result, "Offseason", "Off-Season: Job Offers", true);
+        updateSimStatus(result, "Offseason", "Offseason: Job Offers", true);
         bridge.showContractDialog();
         result.needsDialog(SeasonAdvanceResult.DialogType.CONTRACT, null);
     }
@@ -153,7 +153,7 @@ public final class SeasonController {
     private void handleJobOffers(SeasonAdvanceResult.Builder result) {
         league.currentWeek++;
         result.weekAdvanced();
-        updateSimStatus(result, "Offseason", "Off-Season: Coaching Changes", true);
+        updateSimStatus(result, "Offseason", "Offseason: Coaching Changes", true);
         bridge.showJobOffersDialog();
         result.needsDialog(SeasonAdvanceResult.DialogType.JOB_OFFERS, null);
     }
@@ -162,7 +162,7 @@ public final class SeasonController {
         league.coachCarousel();
         league.currentWeek++;
         result.weekAdvanced();
-        updateSimStatus(result, "Offseason", "Off-Season: Coordinator Changes", true);
+        updateSimStatus(result, "Offseason", "Offseason: Coordinator Changes", true);
         bridge.showPromotionsDialog();
         result.needsDialog(SeasonAdvanceResult.DialogType.PROMOTIONS, null);
     }
@@ -174,7 +174,7 @@ public final class SeasonController {
         }
         league.currentWeek++;
         result.weekAdvanced();
-        updateSimStatus(result, "Offseason", "Off-Season: Graduation", true);
+        updateSimStatus(result, "Offseason", "Offseason: Graduation", true);
     }
 
 
@@ -182,7 +182,7 @@ public final class SeasonController {
         league.advanceSeason();
         league.currentWeek++;
         result.weekAdvanced();
-        updateSimStatus(result, "Offseason", "Off-Season: Transfer List", true);
+        updateSimStatus(result, "Offseason", "Offseason: Transfer List", true);
         bridge.showRedshirtList();
         result.needsDialog(SeasonAdvanceResult.DialogType.REDSHIRT_LIST, null);
     }
@@ -192,13 +192,13 @@ public final class SeasonController {
         league.transferPlayers(bridge);
         league.currentWeek++;
         result.weekAdvanced();
-        updateSimStatus(result, "Offseason", "Off-Season: Complete Transfers", true);
+        updateSimStatus(result, "Offseason", "Offseason: Complete Transfers", true);
     }
 
     private void handleTransferList(SeasonAdvanceResult.Builder result) {
         league.currentWeek++;
         result.weekAdvanced();
-        updateSimStatus(result, "Offseason", "Off-Season: Continue", true);
+        updateSimStatus(result, "Offseason", "Offseason: Continue", true);
         bridge.showTransferList();
         result.needsDialog(SeasonAdvanceResult.DialogType.TRANSFER_LIST, null);
     }
