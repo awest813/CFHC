@@ -164,6 +164,9 @@ public class LeagueHomeView extends JFrame {
     private JList<String> navigationList;
     private RecruitingSessionData activeRecruitingSession;
 
+    /** Per-screen component to focus when the user presses Ctrl+F. */
+    private final Map<String, JComponent> screenFocusTargets = new HashMap<>();
+
     private JLabel statusLabel;
     private JLabel playedIndicator;
 
@@ -405,6 +408,50 @@ public class LeagueHomeView extends JFrame {
                 e -> showKeyboardShortcuts(),
                 KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, KeyEvent.CTRL_DOWN_MASK),
                 JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+        // Ctrl+1..Ctrl+9 jump to the first nine sidebar screens.
+        int[] digitKeys = {
+                KeyEvent.VK_1, KeyEvent.VK_2, KeyEvent.VK_3, KeyEvent.VK_4,
+                KeyEvent.VK_5, KeyEvent.VK_6, KeyEvent.VK_7, KeyEvent.VK_8,
+                KeyEvent.VK_9
+        };
+        int navLimit = Math.min(digitKeys.length, NAV_TITLES.length);
+        for (int i = 0; i < navLimit; i++) {
+            final int index = i;
+            getRootPane().registerKeyboardAction(
+                    e -> selectScreen(NAV_TITLES[index]),
+                    KeyStroke.getKeyStroke(digitKeys[i], KeyEvent.CTRL_DOWN_MASK),
+                    JComponent.WHEN_IN_FOCUSED_WINDOW);
+        }
+
+        // Ctrl+F focuses the current screen's search/filter field; falls back to Player Search.
+        getRootPane().registerKeyboardAction(
+                e -> focusActiveSearchField(),
+                KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK),
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
+    }
+
+    /**
+     * Focuses the search/filter component registered for the current screen.
+     * Falls back to the Player Search tab if the active screen has none.
+     */
+    private void focusActiveSearchField() {
+        JComponent target = screenFocusTargets.get(selectedScreen);
+        if (target == null) {
+            target = screenFocusTargets.get("Player Search");
+            if (target != null) {
+                selectScreen("Player Search");
+            }
+        }
+        if (target != null) {
+            final JComponent finalTarget = target;
+            SwingUtilities.invokeLater(() -> {
+                finalTarget.requestFocusInWindow();
+                if (finalTarget instanceof javax.swing.text.JTextComponent tc) {
+                    tc.selectAll();
+                }
+            });
+        }
     }
 
     // =========================================================================
@@ -1069,6 +1116,8 @@ public class LeagueHomeView extends JFrame {
         String text = """
                 Navigation & windows
                   F1, Ctrl+/     This shortcut list
+                  Ctrl+1..9      Jump to sidebar tab (1=Home, 2=Recruiting, ...)
+                  Ctrl+F         Focus filter on current tab (or open Player Search)
                   Ctrl+U         My Program (roster, depth chart, facilities)
                   Ctrl+P         Playbooks
                   Ctrl+,         Settings
@@ -1793,8 +1842,9 @@ public class LeagueHomeView extends JFrame {
         JPanel filterBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 4));
         filterBar.add(new JLabel("Name:"));
         javax.swing.JTextField nameField = new javax.swing.JTextField(12);
-        nameField.setToolTipText("Type any part of a player's name.");
+        nameField.setToolTipText("Type any part of a player's name. (Ctrl+F)");
         filterBar.add(nameField);
+        screenFocusTargets.put("Player Search", nameField);
 
         filterBar.add(new JLabel("Position:"));
         String[] positions = {"ALL", "QB", "RB", "WR", "TE", "OL", "DL", "LB", "CB", "S", "K"};
