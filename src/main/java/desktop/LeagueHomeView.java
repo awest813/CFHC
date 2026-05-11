@@ -14,6 +14,7 @@ import simulation.PlatformLog;
 import simulation.PlatformResourceProvider;
 import simulation.PlayerRecord;
 import simulation.CoachSkills;
+import simulation.SeasonPresentation;
 import simulation.SeasonController;
 import simulation.SimulationFacade;
 import simulation.Team;
@@ -519,10 +520,11 @@ public class LeagueHomeView extends JFrame {
         int reg = leagueCore.regSeasonWeeks;
         if (week >= reg + 13) return "Recruiting\u2026";
         if (week >= reg + 4)  return "Offseason: Step " + (week - reg - 3);
-        if (week >= reg + 3)  return "Play National Championship";
-        if (week >= reg + 2)  return "Play Semifinals";
-        if (week >= reg + 1)  return "Play Quarterfinals / Bowl Week";
-        if (week == reg)      return "Play Conf. Championships";
+        if (week == reg + 3)  return "Play National Championship";
+        if (week == reg + 2)  return "Play Semifinals / Bowl Week 3";
+        if (week == reg + 1)  return "Play Quarterfinals / Bowl Week 2";
+        if (week == reg)      return "Play First Round / Bowl Week 1";
+        if (week == reg - 1)  return "Play Conf. Championships";
         if (week <= 0)        return "Begin Season";
         return "Play Week " + (week + 1);
     }
@@ -604,9 +606,10 @@ public class LeagueHomeView extends JFrame {
         else if (week >= reg + 13) weekLabel = "Recruiting";
         else if (week >= reg + 4) weekLabel = "Offseason";
         else if (week == reg + 3) weekLabel = "National Championship";
-        else if (week == reg + 2) weekLabel = "Playoff Semifinals";
-        else if (week == reg + 1) weekLabel = "Quarterfinals / Bowls";
-        else if (week == reg) weekLabel = "Conf. Championships";
+        else if (week == reg + 2) weekLabel = "Semifinals / Bowl Week 3";
+        else if (week == reg + 1) weekLabel = "Quarterfinals / Bowl Week 2";
+        else if (week == reg) weekLabel = "First Round / Bowl Week 1";
+        else if (week == reg - 1) weekLabel = "Conf. Championships";
         else if (week == 0) weekLabel = "Pre-Season";
         else weekLabel = "Week " + week;
 
@@ -2964,13 +2967,7 @@ public class LeagueHomeView extends JFrame {
     }
 
     private String decodeSeasonPeriod() {
-        int wk = leagueCore.currentWeek;
-        int reg = leagueCore.regSeasonWeeks;
-        if (wk >= reg + 13) return "Recruiting";
-        if (wk <= 0) return "Pre-Season";
-        if (wk <= reg) return "Regular Season";
-        if (wk <= reg + 3) return "Postseason";
-        return "Offseason";
+        return SeasonPresentation.getSeasonCycleLabel(leagueCore);
     }
 
     private String buildNextActionContext() {
