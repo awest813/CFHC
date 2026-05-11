@@ -364,7 +364,7 @@ public class RecruitingActivity extends AppCompatActivity {
             potential.setText(RecruitingPresentation.buildPotentialDetails(recruit));
 
             Button scoutPlayerButton = convertView.findViewById(R.id.buttonScoutPlayer);
-            scoutPlayerButton.setText(R.string.recruiting_button_scout);
+            scoutPlayerButton.setText(context.getString(R.string.recruiting_button_scout));
             scoutPlayerButton.setEnabled(!sessionData.isScouted(recruit));
             scoutPlayerButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
@@ -377,7 +377,7 @@ public class RecruitingActivity extends AppCompatActivity {
             if (sessionData.teamPlayers.size() + sessionData.playersRecruited.size() < RosterRules.MAX_PLAYERS) {
                 recruitPlayerButton.setText(context.getString(R.string.recruiting_button_recruit_format, recruit.cost()));
             } else {
-                recruitPlayerButton.setText(R.string.recruiting_button_roster_full);
+                recruitPlayerButton.setText(context.getString(R.string.recruiting_button_roster_full));
                 //recruitPlayerButton.setVisibility(View.INVISIBLE);
             }
 
