@@ -17,6 +17,7 @@ import javax.swing.JTextArea;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -102,6 +103,7 @@ public class PlaybookDialog extends JDialog {
         closeBtn.setFont(new Font("SansSerif", Font.BOLD, 13));
         closeBtn.setFocusPainted(false);
         closeBtn.setContentAreaFilled(false);
+        closeBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         closeBtn.setBorder(BorderFactory.createEmptyBorder(12, 40, 12, 40));
         closeBtn.addActionListener(e -> dispose());
         bottom.add(closeBtn);

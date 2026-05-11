@@ -17,6 +17,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -167,6 +168,7 @@ public class TransferPortalDialog extends JDialog {
         closeBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
         closeBtn.setFocusPainted(false);
         closeBtn.setContentAreaFilled(false);
+        closeBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         closeBtn.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
         closeBtn.addActionListener(e -> dispose());
         

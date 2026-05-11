@@ -22,6 +22,7 @@ import javax.swing.table.DefaultTableModel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -333,6 +334,7 @@ public class CoordinatorHiringDialog extends JDialog {
         btn.setBackground(bg);
         btn.setFocusPainted(false);
         btn.setContentAreaFilled(false);
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btn.setBorder(BorderFactory.createEmptyBorder(12, 30, 12, 30));
         return btn;
     }

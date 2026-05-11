@@ -23,6 +23,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -34,13 +36,16 @@ import java.util.List;
 public class LauncherFrame extends JFrame {
 
     private static final String TAG = "LauncherFrame";
-    private static final Color BRAND_PANEL = new Color(24, 34, 48);
+    private static final Color BRAND_PANEL = new Color(20, 28, 42);
+    private static final Color BRAND_ACCENT = new Color(50, 100, 180);
 
     private final List<JButton> launcherHubButtons = new ArrayList<>();
     private JPanel launcherMainPanel;
+    private JPanel launcherSidePanel;
     private JLabel launcherHeaderLabel;
     private JLabel launcherSideBlurb;
     private JLabel launcherFooterLabel;
+    private JCheckBox darkToggle;
 
     public LauncherFrame() {
         super("CFHC — Front Office");
@@ -73,20 +78,46 @@ public class LauncherFrame extends JFrame {
     }
 
     private JPanel buildSidePanel() {
-        JPanel side = new JPanel(new BorderLayout());
-        side.setPreferredSize(new Dimension(315, 500));
-        side.setBackground(BRAND_PANEL);
-        side.setBorder(BorderFactory.createEmptyBorder(40, 20, 40, 20));
+        launcherSidePanel = new JPanel(new BorderLayout());
+        launcherSidePanel.setPreferredSize(new Dimension(315, 500));
+        launcherSidePanel.setBackground(BRAND_PANEL);
+        launcherSidePanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createMatteBorder(0, 0, 0, 1, BRAND_ACCENT),
+                BorderFactory.createEmptyBorder(40, 24, 40, 24)));
 
-        JLabel title = new JLabel("<html><body style='text-align:center;'>CFHC<br><span style='font-size:12pt;font-weight:normal;'>College Football Head Coach</span></body></html>", SwingConstants.CENTER);
+        JPanel branding = new JPanel(new GridLayout(0, 1, 0, 4));
+        branding.setOpaque(false);
+        JLabel title = new JLabel("CFHC", SwingConstants.CENTER);
         title.setForeground(Color.WHITE);
-        title.setFont(new Font("SansSerif", Font.BOLD, 28));
-        side.add(title, BorderLayout.NORTH);
+        title.setFont(new Font("SansSerif", Font.BOLD, 32));
+        JLabel subtitle = new JLabel("College Football Head Coach", SwingConstants.CENTER);
+        subtitle.setForeground(new Color(160, 175, 195));
+        subtitle.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        JLabel version = new JLabel("Desktop v1.4e", SwingConstants.CENTER);
+        version.setForeground(new Color(110, 125, 150));
+        version.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        branding.add(title);
+        branding.add(subtitle);
+        branding.add(version);
+
+        JPanel northBlock = new JPanel(new BorderLayout());
+        northBlock.setOpaque(false);
+        northBlock.add(branding, BorderLayout.NORTH);
+        northBlock.setBorder(BorderFactory.createEmptyBorder(0, 0, 30, 0));
+
+        launcherSidePanel.add(northBlock, BorderLayout.NORTH);
 
         launcherSideBlurb = new JLabel(sideBlurbHtml(), SwingConstants.CENTER);
-        side.add(launcherSideBlurb, BorderLayout.CENTER);
+        launcherSideBlurb.setVerticalAlignment(SwingConstants.TOP);
+        launcherSidePanel.add(launcherSideBlurb, BorderLayout.CENTER);
 
-        return side;
+        JLabel footerNote = new JLabel("Simulation core shared with Android", SwingConstants.CENTER);
+        footerNote.setForeground(new Color(90, 105, 130));
+        footerNote.setFont(new Font("SansSerif", Font.PLAIN, 10));
+        footerNote.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
+        launcherSidePanel.add(footerNote, BorderLayout.SOUTH);
+
+        return launcherSidePanel;
     }
 
     private JPanel buildMainControlPanel() {
@@ -127,7 +158,7 @@ public class LauncherFrame extends JFrame {
         centerWrap.setOpaque(false);
         centerWrap.setBorder(BorderFactory.createEmptyBorder(28, 0, 0, 0));
         centerWrap.add(buttonGrid, BorderLayout.CENTER);
-        JCheckBox darkToggle = new JCheckBox("Dark mode", DesktopTheme.isDark());
+        darkToggle = new JCheckBox("Dark mode", DesktopTheme.isDark());
         darkToggle.setOpaque(false);
         darkToggle.setForeground(DesktopTheme.textPrimary());
         darkToggle.setMnemonic('D');
@@ -152,8 +183,13 @@ public class LauncherFrame extends JFrame {
 
     private static String sideBlurbHtml() {
         String muted = DesktopTheme.isDark() ? "#99A0AA" : "#666666";
-        return "<html><p style='text-align:center; color:" + muted
-                + ";'>College Football Head Coach (CFHC)<br>Desktop career management<br><br>v1.4e</p></html>";
+        String heading = DesktopTheme.isDark() ? "#CCD6E0" : "#333333";
+        return "<html><div style='padding: 0 8px;'>"
+                + "<p style='text-align:center; font-size:11pt; color:" + heading
+                + "; font-weight:bold;'>Welcome to the Hub</p>"
+                + "<p style='text-align:center; font-size:10pt; color:" + muted
+                + "; line-height:1.5;'>Start a new career, load an existing save, or learn the basics of college football management.</p>"
+                + "</div></html>";
     }
 
     private void refreshLauncherChrome(JCheckBox darkToggle) {
@@ -180,10 +216,18 @@ public class LauncherFrame extends JFrame {
 
     private JButton createStyledButton(String text, String tooltip) {
         JButton btn = new JButton(text);
-        btn.setPreferredSize(new Dimension(300, 45));
+        btn.setPreferredSize(new Dimension(300, 46));
         btn.setFont(new Font("SansSerif", Font.BOLD, 14));
         btn.setToolTipText(tooltip);
         DesktopTheme.styleLauncherHubButton(btn);
+        Color defaultBg = btn.getBackground();
+        Color hoverBg = DesktopTheme.isDark()
+                ? new Color(92, 144, 224)
+                : new Color(60, 120, 210);
+        btn.addMouseListener(new MouseAdapter() {
+            @Override public void mouseEntered(MouseEvent e) { btn.setBackground(hoverBg); }
+            @Override public void mouseExited(MouseEvent e) { btn.setBackground(defaultBg); }
+        });
         launcherHubButtons.add(btn);
         return btn;
     }

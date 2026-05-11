@@ -17,9 +17,12 @@ import javax.swing.JTree;
 import javax.swing.JViewport;
 import javax.swing.UIManager;
 import javax.swing.border.TitledBorder;
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.util.prefs.Preferences;
 
 /**
@@ -224,6 +227,81 @@ public final class DesktopTheme {
         btn.setBackground(dark ? new Color(72, 124, 204) : new Color(50, 100, 180));
         btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
+        btn.setBorder(BorderFactory.createEmptyBorder(10, 28, 10, 28));
+        btn.setFont(btn.getFont().deriveFont(Font.BOLD, 14f));
+        btn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+    }
+
+    /**
+     * Styles a primary action button consistently across all dialogs.
+     * Uses the accent blue with white text, rounded appearance.
+     */
+    public static void stylePrimaryButton(JButton btn) {
+        if (btn == null) return;
+        btn.setBackground(new Color(50, 100, 180));
+        btn.setForeground(Color.WHITE);
+        btn.setFont(btn.getFont().deriveFont(Font.BOLD, 12f));
+        btn.setFocusPainted(false);
+        btn.setBorder(BorderFactory.createEmptyBorder(10, 24, 10, 24));
+        btn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+    }
+
+    /**
+     * Styles a secondary / cancel button with a subtle appearance.
+     */
+    public static void styleSecondaryButton(JButton btn) {
+        if (btn == null) return;
+        btn.setForeground(textSecondary());
+        btn.setFont(btn.getFont().deriveFont(Font.BOLD, 12f));
+        btn.setFocusPainted(false);
+        btn.setContentAreaFilled(false);
+        btn.setBorder(BorderFactory.createEmptyBorder(10, 24, 10, 24));
+        btn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+    }
+
+    /**
+     * Applies the window background to a content pane for a dialog.
+     */
+    public static void styleDialogContentPane(java.awt.Container pane) {
+        if (pane == null) return;
+        pane.setBackground(windowBackground());
+    }
+
+    /**
+     * Builds a consistent dialog header panel with title and subtitle.
+     */
+    public static JPanel buildDialogHeader(String title, String subtitle) {
+        JPanel header = new JPanel(new BorderLayout(0, 4));
+        header.setOpaque(true);
+        header.setBackground(isDark() ? new Color(25, 32, 45) : new Color(246, 248, 251));
+        header.setBorder(BorderFactory.createEmptyBorder(22, 30, 20, 30));
+
+        JLabel titleLbl = new JLabel(title);
+        titleLbl.setFont(new Font("SansSerif", Font.BOLD, 20));
+        titleLbl.setForeground(textPrimary());
+
+        JLabel subLbl = new JLabel(subtitle);
+        subLbl.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        subLbl.setForeground(textSecondary());
+
+        header.add(titleLbl, BorderLayout.NORTH);
+        header.add(subLbl, BorderLayout.SOUTH);
+        return header;
+    }
+
+    /**
+     * Builds a dialog bottom bar with Apply/Cancel buttons aligned right.
+     */
+    public static JPanel buildDialogBottomBar(JButton... buttons) {
+        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 16));
+        bottom.setOpaque(true);
+        bottom.setBackground(isDark() ? new Color(25, 32, 45) : new Color(246, 248, 251));
+        bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0,
+                isDark() ? new Color(255, 255, 255, 20) : new Color(200, 200, 200)));
+        for (JButton btn : buttons) {
+            bottom.add(btn);
+        }
+        return bottom;
     }
 
     public static Color textAreaEditorBackground() {

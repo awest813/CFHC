@@ -158,12 +158,14 @@ public class DesktopTeamSelectionDialog extends JDialog {
         bottom.setBackground(DesktopTheme.windowBackground());
         bottom.add(teamInfo, BorderLayout.CENTER);
 
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         buttons.setOpaque(true);
         buttons.setBackground(DesktopTheme.windowBackground());
         JButton cancelBtn = new JButton("Cancel");
+        DesktopTheme.styleSecondaryButton(cancelBtn);
         cancelBtn.addActionListener(e -> dispose());
         JButton selectBtn = new JButton("Use Team");
+        DesktopTheme.stylePrimaryButton(selectBtn);
         selectBtn.addActionListener(e -> {
             Team team = teamList.getSelectedValue();
             if (team == null) {

@@ -20,6 +20,7 @@ import javax.swing.table.DefaultTableModel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -314,6 +315,7 @@ public class JobOffersDialog extends JDialog {
         btn.setBackground(bg);
         btn.setFocusPainted(false);
         btn.setContentAreaFilled(false);
+        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btn.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
         return btn;
     }

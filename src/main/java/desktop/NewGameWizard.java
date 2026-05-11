@@ -184,13 +184,15 @@ public class NewGameWizard extends JDialog {
         optScroll.getVerticalScrollBar().setUnitIncrement(18);
         page.add(optScroll, BorderLayout.CENTER);
 
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         buttons.setOpaque(true);
         buttons.setBackground(DesktopTheme.windowBackground());
         JButton cancelBtn = new JButton("Cancel");
+        DesktopTheme.styleSecondaryButton(cancelBtn);
         cancelBtn.addActionListener(e -> dispose());
 
         JButton nextBtn = new JButton("Next: Select Team \u25B6");
+        DesktopTheme.stylePrimaryButton(nextBtn);
         nextBtn.setToolTipText("Create the league with these options and choose your school.");
         nextBtn.addActionListener(e -> {
             NewGameOptions options = new NewGameOptions();
@@ -408,15 +410,17 @@ public class NewGameWizard extends JDialog {
         bottom.setBackground(DesktopTheme.windowBackground());
         bottom.add(teamInfo, BorderLayout.CENTER);
 
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         buttons.setOpaque(true);
         buttons.setBackground(DesktopTheme.windowBackground());
         JButton backBtn = new JButton("\u25C0 Back");
+        DesktopTheme.styleSecondaryButton(backBtn);
         backBtn.addActionListener(e -> {
             resultLeague = null;
             showPrestigeModePage();
         });
         JButton startBtn = new JButton("Start Dynasty \u25B6");
+        DesktopTheme.stylePrimaryButton(startBtn);
         startBtn.addActionListener(e -> {
             Team sel = teamList.getSelectedValue();
             if (sel == null) {

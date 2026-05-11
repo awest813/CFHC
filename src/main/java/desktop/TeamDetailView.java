@@ -23,6 +23,7 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -304,8 +305,10 @@ public class TeamDetailView extends JDialog {
             JPanel buttonPanel = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 6, 4));
             JButton upBtn = new JButton("\u25B2 Move Up");
             upBtn.setToolTipText("Promote the selected player one depth-chart slot");
+            upBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
             JButton downBtn = new JButton("\u25BC Move Down");
             downBtn.setToolTipText("Demote the selected player one depth-chart slot");
+            downBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
 
             upBtn.addActionListener(e -> {
                 int row = table.getSelectedRow();

@@ -36,9 +36,7 @@ public class PlayerDetailView extends JDialog {
         this.player = player;
         setSize(700, 500);
         setLayout(new BorderLayout());
-        JPanel root = (JPanel) getContentPane();
-        root.setOpaque(true);
-        root.setBackground(DesktopTheme.windowBackground());
+        DesktopTheme.styleDialogContentPane(getContentPane());
 
         JTabbedPane tabs = new JTabbedPane();
         tabs.setOpaque(true);

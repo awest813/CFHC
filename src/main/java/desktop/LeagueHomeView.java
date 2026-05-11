@@ -491,21 +491,24 @@ public class LeagueHomeView extends JFrame {
         header.add(leftPanel, BorderLayout.WEST);
 
         // Right: action buttons
-        JPanel controls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 23));
+        JPanel controls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 23));
         controls.setOpaque(false);
 
         JButton playWeekBtn = new JButton(playWeekLabel());
         playWeekBtn.setToolTipText("Simulate the next week (Space)");
         playWeekBtn.addActionListener(e -> playWeek());
+        playWeekBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         JButton advanceBtn = new JButton(bulkAdvanceLabel());
         advanceBtn.setToolTipText(bulkAdvanceTooltip());
         advanceBtn.addActionListener(e -> runBulkAdvanceFromHeader());
         advanceBtn.setEnabled(canBulkAdvanceFromHeader());
+        advanceBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         JButton saveBtn = new JButton("Save");
         saveBtn.setToolTipText("Save the current league (Ctrl+S)");
         saveBtn.addActionListener(e -> saveLeague(false));
+        saveBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         controls.add(playWeekBtn);
         controls.add(advanceBtn);
@@ -2808,6 +2811,9 @@ public class LeagueHomeView extends JFrame {
             JButton button = new JButton(move.label);
             button.setToolTipText(move.tooltip);
             button.setHorizontalAlignment(JButton.LEFT);
+            button.setFont(new Font("SansSerif", Font.PLAIN, 13));
+            button.setFocusPainted(false);
+            button.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
             button.addActionListener(e -> move.action.run());
             moves.add(button);
         }
@@ -2961,6 +2967,9 @@ public class LeagueHomeView extends JFrame {
         JButton b = new JButton(tabTitle);
         b.setToolTipText("Open " + tabTitle);
         b.addActionListener(e -> selectScreen(tabTitle));
+        b.setFont(new Font("SansSerif", Font.BOLD, 12));
+        DesktopTheme.stylePrimaryButton(b);
+        b.setBorder(BorderFactory.createEmptyBorder(6, 14, 6, 14));
         return b;
     }
 

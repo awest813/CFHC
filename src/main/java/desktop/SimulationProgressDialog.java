@@ -23,16 +23,16 @@ public class SimulationProgressDialog extends JDialog {
 
     public SimulationProgressDialog(JFrame owner, String title) {
         super(owner, title, true);
-        setSize(400, 180);
+        setSize(420, 185);
         setResizable(false);
         setLocationRelativeTo(owner);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(DesktopTheme.windowBackground());
+        DesktopTheme.styleDialogContentPane(getContentPane());
 
-        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        JPanel panel = new JPanel(new BorderLayout(12, 12));
         panel.setOpaque(true);
         panel.setBackground(DesktopTheme.windowBackground());
-        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        panel.setBorder(BorderFactory.createEmptyBorder(24, 24, 20, 24));
 
         statusLabel = new JLabel("Simulating season...");
         statusLabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 14));
@@ -41,14 +41,15 @@ public class SimulationProgressDialog extends JDialog {
 
         progressBar = new JProgressBar(0, 100);
         progressBar.setStringPainted(true);
-        progressBar.setPreferredSize(new Dimension(360, 25));
+        progressBar.setPreferredSize(new Dimension(370, 26));
         progressBar.setBackground(DesktopTheme.textAreaEditorBackground());
-        if (DesktopTheme.isDark()) {
-            progressBar.setForeground(new Color(100, 170, 255));
-        }
+        progressBar.setForeground(DesktopTheme.isDark()
+                ? new Color(100, 170, 255)
+                : new Color(50, 120, 210));
         panel.add(progressBar, BorderLayout.CENTER);
 
         JButton cancelBtn = new JButton("Interrupt");
+        DesktopTheme.styleSecondaryButton(cancelBtn);
         cancelBtn.addActionListener(e -> cancelled = true);
         JPanel btnPanel = new JPanel();
         btnPanel.setOpaque(false);

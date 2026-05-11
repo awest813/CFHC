@@ -19,6 +19,7 @@ import javax.swing.DefaultListCellRenderer;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
@@ -199,6 +200,7 @@ public class SettingsDialog extends JDialog {
         cancelBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
         cancelBtn.setContentAreaFilled(false);
         cancelBtn.setFocusPainted(false);
+        cancelBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         cancelBtn.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
         cancelBtn.addActionListener(e -> dispose());
         
@@ -218,6 +220,7 @@ public class SettingsDialog extends JDialog {
         applyBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
         applyBtn.setFocusPainted(false);
         applyBtn.setContentAreaFilled(false);
+        applyBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         applyBtn.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
         applyBtn.addActionListener(e -> {
             boolean enablingProRel = universalProRel.isEnabled()

@@ -4,7 +4,6 @@ import simulation.League;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JPanel;
 
 import java.awt.BorderLayout;
 
@@ -18,11 +17,9 @@ public class RecruitingView extends JDialog {
     private String recruitsSaveData;
 
     public RecruitingView(JFrame owner, League league) {
-        super(owner, "Recruiting - " + getUserTeamName(league), true);
+        super(owner, "Recruiting \u2014 " + getUserTeamName(league), true);
         setLayout(new BorderLayout());
-        JPanel root = (JPanel) getContentPane();
-        root.setOpaque(true);
-        root.setBackground(DesktopTheme.windowBackground());
+        DesktopTheme.styleDialogContentPane(getContentPane());
         RecruitingPanel panel = new RecruitingPanel(league, data -> {
             this.recruitsSaveData = data;
             this.finished = true;

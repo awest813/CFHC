@@ -77,6 +77,7 @@ public final class CoachProgramDialog {
         });
 
         JButton upgrade = new JButton(CoachSkills.UPGRADE_BRANCH_BUTTON_LABEL);
+        DesktopTheme.stylePrimaryButton(upgrade);
         upgrade.addActionListener(e -> {
             int b = (Integer) branchBox.getSelectedItem();
             int cur = CoachSkills.getRank(hc.coachSkillRanksBits, b);
@@ -116,6 +117,7 @@ public final class CoachProgramDialog {
         d.add(south, BorderLayout.SOUTH);
 
         JButton close = new JButton("Close");
+        DesktopTheme.styleSecondaryButton(close);
         close.addActionListener(e -> d.dispose());
         JPanel top = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         top.setOpaque(false);

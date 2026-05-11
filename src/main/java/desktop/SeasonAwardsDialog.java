@@ -12,6 +12,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTextArea;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 
@@ -30,9 +31,7 @@ public class SeasonAwardsDialog extends JDialog {
         super(owner, "End-of-Season Awards", true);
         setSize(700, 540);
         setLayout(new BorderLayout());
-        JPanel root = (JPanel) getContentPane();
-        root.setOpaque(true);
-        root.setBackground(DesktopTheme.windowBackground());
+        DesktopTheme.styleDialogContentPane(getContentPane());
 
         JTabbedPane tabs = new JTabbedPane();
         tabs.setOpaque(true);
@@ -56,6 +55,8 @@ public class SeasonAwardsDialog extends JDialog {
         bottom.setOpaque(true);
         bottom.setBackground(DesktopTheme.windowBackground());
         JButton closeBtn = new JButton("Close");
+        DesktopTheme.stylePrimaryButton(closeBtn);
+        closeBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         closeBtn.addActionListener(e -> dispose());
         bottom.add(closeBtn);
         add(bottom, BorderLayout.SOUTH);

@@ -25,6 +25,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.BorderLayout;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -112,12 +113,9 @@ public class RecruitingPanel extends JPanel {
 
     private JPanel buildToolBar() {
         JPanel bar = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
-        bar.setOpaque(true);
-        bar.setBackground(DesktopTheme.windowBackground());
         bar.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
 
         JLabel filterLbl = new JLabel("Position:");
-        filterLbl.setForeground(DesktopTheme.textPrimary());
         bar.add(filterLbl);
         filterBox = new JComboBox<>(positionLabels.toArray(new String[0]));
         filterBox.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
@@ -129,6 +127,7 @@ public class RecruitingPanel extends JPanel {
         bar.add(filterBox);
 
         JButton sortGradeBtn = new JButton("Sort by Grade");
+        sortGradeBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         sortGradeBtn.addActionListener(e -> {
             controller.sortByGrade();
             loadBoard(filterBox.getSelectedIndex());
@@ -136,6 +135,7 @@ public class RecruitingPanel extends JPanel {
         bar.add(sortGradeBtn);
 
         JButton sortCostBtn = new JButton("Sort by Cost");
+        sortCostBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         sortCostBtn.addActionListener(e -> {
             controller.sortByCost();
             loadBoard(filterBox.getSelectedIndex());
@@ -150,6 +150,7 @@ public class RecruitingPanel extends JPanel {
         recruitedLabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
         bar.add(recruitedLabel);
 
+        DesktopTheme.styleToolbar(bar);
         return bar;
     }
 
@@ -222,10 +223,14 @@ public class RecruitingPanel extends JPanel {
         actionPanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 
         JButton scoutBtn = new JButton("Scout (10% cost)");
+        scoutBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        scoutBtn.setFocusPainted(false);
         scoutBtn.addActionListener(e -> scoutSelected());
         actionPanel.add(scoutBtn);
 
         JButton recruitBtn = new JButton("Recruit");
+        recruitBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        recruitBtn.setFocusPainted(false);
         recruitBtn.addActionListener(e -> recruitSelected());
         actionPanel.add(recruitBtn);
 
@@ -245,6 +250,9 @@ public class RecruitingPanel extends JPanel {
 
         JButton doneBtn = new JButton(finishButtonText);
         doneBtn.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 14));
+        doneBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        doneBtn.setFocusPainted(false);
+        DesktopTheme.stylePrimaryButton(doneBtn);
         doneBtn.addActionListener(e -> finishRecruiting());
         bar.add(doneBtn);
         return bar;
