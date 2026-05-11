@@ -3,7 +3,7 @@ package simulation;
 import staff.Staff;
 
 /**
- * Packed skill ranks for head coaches (five branches, ranks 0–3).
+ * Packed skill ranks for head coaches (five branches, ranks 0-3).
  * Used for recruiting pitch, player development, game prep, discipline culture,
  * and NIL/marketing synergies with {@link Team#getNilCollectiveLevel()}.
  */
@@ -95,7 +95,7 @@ public final class CoachSkills {
         for (int b = 0; b < BRANCH_COUNT; b++) {
             int r = getRank(hc.coachSkillRanksBits, b);
             int next = costForNextRank(r);
-            sb.append("• ").append(branchTitle(b)).append(" — rank ").append(r).append("/3");
+            sb.append("- ").append(branchTitle(b)).append(" - rank ").append(r).append("/3");
             if (r < 3) {
                 sb.append("  (next: ").append(next).append(" XP)\n");
             } else {

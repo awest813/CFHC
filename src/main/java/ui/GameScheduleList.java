@@ -1,7 +1,6 @@
 package ui;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,9 +43,9 @@ public class GameScheduleList extends ArrayAdapter<Game> {
 
         if (team.getGameWLSchedule().size() > position) {
             if (team.getGameWLSchedule().get(position).equals("W")) {
-                gameButton.setBackgroundColor(Color.parseColor("#FF5994DE"));
+                gameButton.setBackgroundResource(R.drawable.bg_action_win);
             } else if (team.getGameWLSchedule().get(position).equals("L")) {
-                gameButton.setBackgroundColor(Color.RED);
+                gameButton.setBackgroundResource(R.drawable.bg_action_danger);
             } else if (team.getGameWLSchedule().get(position).equals("BYE")) {
 
             }

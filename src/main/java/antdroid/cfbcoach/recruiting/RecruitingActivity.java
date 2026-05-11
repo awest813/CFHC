@@ -365,7 +365,7 @@ public class RecruitingActivity extends AppCompatActivity {
 
             Button scoutPlayerButton = convertView.findViewById(R.id.buttonScoutPlayer);
             scoutPlayerButton.setText("Scout");
-            scoutPlayerButton.setEnabled(!recruit.raw().endsWith(",T"));
+            scoutPlayerButton.setEnabled(!sessionData.isScouted(recruit));
             scoutPlayerButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     scoutPlayer(recruit);

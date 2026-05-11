@@ -41,7 +41,7 @@
     <Button
         android:id="@+id/gameScheduleRight"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:layout_marginStart="4dp"
         android:layout_weight="0.85"
         android:background="@android:color/transparent"

@@ -13,9 +13,11 @@ import simulation.LeagueRecord;
 import simulation.PlatformLog;
 import simulation.PlatformResourceProvider;
 import simulation.PlayerRecord;
+import simulation.CoachSkills;
 import simulation.SeasonController;
 import simulation.SimulationFacade;
 import simulation.Team;
+import staff.HeadCoach;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBoxMenuItem;
@@ -72,7 +74,7 @@ import java.util.Locale;
  * hall of fame, league records, and coach database.
  *
  * <p>The view uses {@link SeasonController} for all week advancement so the full
- * season–offseason–new-season loop works correctly without any Android dependencies.
+ * season/offseason/new-season loop works correctly without any Android dependencies.
  */
 public class LeagueHomeView extends JFrame {
 
@@ -84,7 +86,7 @@ public class LeagueHomeView extends JFrame {
     /** Delimiter used by the engine to separate headline from story body in news strings. */
     private static final String NEWS_STORY_DELIMITER = ">";
 
-    /** No-op {@link GameFlowManager} — all transitions are handled in-process. */
+    /** No-op {@link GameFlowManager}; all transitions are handled in-process. */
     private static final GameFlowManager NO_OP_FLOW = new GameFlowManager() {
         @Override public void startNewGame(LeagueLaunchCoordinator.LaunchRequest.PrestigeMode p, String u) {}
         @Override public void loadGame(String s) {}
@@ -132,7 +134,7 @@ public class LeagueHomeView extends JFrame {
     private LeagueRecord currentRecord;
     private File lastSavePath;
 
-    /** Lookup from team name → live Team for O(1) access. */
+    /** Lookup from team name to live Team for O(1) access. */
     private Map<String, Team> liveTeamMap;
 
     private DesktopUiBridge bridge;
@@ -589,7 +591,7 @@ public class LeagueHomeView extends JFrame {
                 dispose();
                 System.exit(0);
             }
-            // CANCEL — do nothing, stay open
+            // CANCEL; do nothing, stay open
         } else {
             dispose();
             System.exit(0);
@@ -1928,7 +1930,7 @@ public class LeagueHomeView extends JFrame {
         historyArea.setLineWrap(false);
         String historyText = leagueCore.getLeagueHistoryStr();
         if (historyText == null || historyText.trim().isEmpty()) {
-            historyText = "No season history yet — play at least one full season.";
+            historyText = "No season history yet - play at least one full season.";
         } else {
             // The engine uses '%' as a line-end sentinel; replace for readability
             historyText = historyText.replace("%", "");
@@ -2436,7 +2438,7 @@ public class LeagueHomeView extends JFrame {
                                         pr.name() + "  (" + pr.position() + ")\n"
                                                 + "Team: " + pr.teamName() + "\n"
                                                 + "Overall: " + pr.ratOvr()),
-                                        "Hall of Fame — " + pr.name(),
+                                        "Hall of Fame - " + pr.name(),
                                         JOptionPane.INFORMATION_MESSAGE);
                             }
                         }
@@ -2630,19 +2632,58 @@ public class LeagueHomeView extends JFrame {
         Color cardFg = DesktopTheme.textPrimary();
         Team user = leagueCore.userTeam;
         cards.add(makeStatCard("Current Period", decodeSeasonPeriod(), cardBg, cardFg));
-        cards.add(makeStatCard("League Year", String.valueOf(leagueCore.getYear()), cardBg, cardFg));
-        cards.add(makeStatCard("Conferences", String.valueOf(leagueCore.getConferences().size()), cardBg, cardFg));
         if (user != null) {
-            cards.add(makeStatCard("Record", user.getWins() + "-" + user.getLosses(), cardBg, cardFg));
-            cards.add(makeStatCard("Poll Rank", "#" + user.getRankTeamPollScore(), cardBg, cardFg));
-            cards.add(makeStatCard("Roster", String.valueOf(user.getAllPlayers().size()), cardBg, cardFg));
+            cards.add(makeStatCard("Next Action", playWeekLabel(), cardBg, cardFg));
+            cards.add(makeStatCard("Recruiting Budget", buildRecruitingBudgetLabel(user), cardBg, cardFg));
+            cards.add(makeStatCard("NIL Collective", "Tier " + user.getNilCollectiveLevel(), cardBg, cardFg));
+            cards.add(makeStatCard("Skill Progress", buildCoachSkillLabel(user), cardBg, cardFg));
+            cards.add(makeStatCard("Roster Health", buildRosterHealthLabel(user), cardBg, cardFg));
         } else {
-            cards.add(makeStatCard("Record", "-", cardBg, cardFg));
-            cards.add(makeStatCard("Poll Rank", "-", cardBg, cardFg));
-            cards.add(makeStatCard("Roster", "-", cardBg, cardFg));
+            cards.add(makeStatCard("Next Action", playWeekLabel(), cardBg, cardFg));
+            cards.add(makeStatCard("Recruiting Budget", "-", cardBg, cardFg));
+            cards.add(makeStatCard("NIL Collective", "-", cardBg, cardFg));
+            cards.add(makeStatCard("Skill Progress", "-", cardBg, cardFg));
+            cards.add(makeStatCard("Roster Health", "-", cardBg, cardFg));
         }
         health.add(cards, BorderLayout.CENTER);
         return health;
+    }
+
+    private String buildRecruitingBudgetLabel(Team user) {
+        if (user == null) {
+            return "-";
+        }
+        try {
+            RecruitingSessionData session = activeRecruitingSession != null
+                    ? activeRecruitingSession
+                    : SimulationFacade.prepareRecruitingSession(user);
+            return "$" + session.recruitingBudget;
+        } catch (RuntimeException ex) {
+            return "$" + user.getUserRecruitBudget();
+        }
+    }
+
+    private String buildCoachSkillLabel(Team user) {
+        HeadCoach hc = user != null ? user.getHeadCoach() : null;
+        if (hc == null) {
+            return "-";
+        }
+        int totalRanks = 0;
+        for (int b = 0; b < CoachSkills.BRANCH_COUNT; b++) {
+            totalRanks += CoachSkills.getRank(hc.coachSkillRanksBits, b);
+        }
+        return hc.coachSkillXp + " XP / " + totalRanks + " ranks";
+    }
+
+    private String buildRosterHealthLabel(Team user) {
+        if (user == null) {
+            return "-";
+        }
+        int roster = user.getAllPlayers().size();
+        if (roster >= SimulationFacade.MIN_ROSTER_SIZE) {
+            return roster + " ready";
+        }
+        return roster + " / " + SimulationFacade.MIN_ROSTER_SIZE;
     }
 
     private JPanel buildNextMovesPanel() {
@@ -2680,7 +2721,11 @@ public class LeagueHomeView extends JFrame {
             moves.add(new DashboardMove("Save league", "Save before signing day.", () -> saveLeague(false)));
         } else if (week >= reg + 4) {
             moves.add(new DashboardMove("Advance offseason", "Continue contracts, jobs, transfers, and recruiting setup.", this::advanceFullYear));
-            moves.add(new DashboardMove("Program tools", "Open coach program and NIL tools.", () -> CoachProgramDialog.show(this, leagueCore.userTeam)));
+            if (leagueCore.userTeam != null) {
+                moves.add(new DashboardMove("Program tools", "Open coach program and NIL tools.", () -> CoachProgramDialog.show(this, leagueCore.userTeam)));
+            } else {
+                moves.add(new DashboardMove("Choose program", "Pick a user-controlled team for program tools.", this::openUserTeamDetail));
+            }
             moves.add(new DashboardMove("Save league", "Save current offseason state.", () -> saveLeague(false)));
         } else if (week >= reg) {
             moves.add(new DashboardMove("Play postseason", "Advance the next postseason game window.", this::playWeek));
@@ -3007,7 +3052,7 @@ public class LeagueHomeView extends JFrame {
 
     /**
      * Formats a {@link DataRecord} holder string for display.
-     * Holders are stored as {@code "TeamName%PlayerName"} — this converts the
+     * Holders are stored as {@code "TeamName%PlayerName"} - this converts the
      * separator to an em-dash for readability.
      */
     static String formatHolder(String holder) {

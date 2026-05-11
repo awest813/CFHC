@@ -5642,6 +5642,15 @@ public class Team {
     //LOAD PLAYER DATA
     public void loadPlayerSaveData(String line, boolean isRedshirt) {
         String[] playerInfo = line.split(",");
+        if (playerInfo.length > 0 && playerInfo[0].contains(":")) {
+            String normalizedPosition = playerInfo[0].substring(playerInfo[0].indexOf(":") + 1).trim();
+            line = normalizedPosition + line.substring(playerInfo[0].length());
+            playerInfo[0] = normalizedPosition;
+        }
+        if (isPortablePlayerSaveData(line)) {
+            addPlayer(Player.fromRecord(PlayerRecord.fromCsv(line), this));
+            return;
+        }
         //Position Check
         if (playerInfo[0].equals("HC")) {
             loadHCSaveData(line);
@@ -5670,6 +5679,19 @@ public class Team {
         } else if (playerInfo[0].equals("S")) {
             loadSSaveData(line);
         }
+    }
+
+    private boolean isPortablePlayerSaveData(String line) {
+        String[] parts = line.split("&", -1);
+        if (parts.length < 2) {
+            return false;
+        }
+        String[] basic = parts[0].split(",", -1);
+        return basic.length > 18 && isBooleanToken(basic[7]) && isBooleanToken(basic[8]);
+    }
+
+    private boolean isBooleanToken(String value) {
+        return "true".equals(value) || "false".equals(value);
     }
 
     public void loadHCSaveData(String data) {

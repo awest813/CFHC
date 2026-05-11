@@ -2,8 +2,10 @@ package recruiting;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 public final class RecruitingSessionData {
     public static final class PositionNeeds {
@@ -72,6 +74,7 @@ public final class RecruitingSessionData {
     public final ArrayList<RecruitingPlayerRecord> central = new ArrayList<>();
     public final ArrayList<RecruitingPlayerRecord> east = new ArrayList<>();
     public final ArrayList<RecruitingPlayerRecord> south = new ArrayList<>();
+    private final Set<String> scoutedRecruitKeys = new HashSet<>();
 
 
     private RecruitingSessionData(String teamName, int recruitingBudget, int coachTalent) {
@@ -148,6 +151,8 @@ public final class RecruitingSessionData {
                 budgetUnits * 15,
                 coachTalent
         );
+        session.recruitingBudget += parsePositiveIntLoose(teamInfo.length > 5 ? teamInfo[5] : "", 0) * simulation.SimulationFacade.RECRUITING_BUDGET_PER_NIL_TIER;
+        session.recruitingBudget += parsePositiveIntLoose(teamInfo.length > 6 ? teamInfo[6] : "", 0);
 
         int i = 1;
         while (i < lines.length && !lines[i].equals("END_TEAM_INFO")) {
@@ -291,6 +296,9 @@ public final class RecruitingSessionData {
 
 
     public boolean scoutPlayer(RecruitingPlayerRecord recruit) {
+        if (isScouted(recruit)) {
+            return true;
+        }
         int base = Math.max(10, recruit.cost() / 10);
         int talentDiscount = Math.min(8, coachTalent / 12);
         int scoutCost = Math.max(5, base - talentDiscount);
@@ -301,6 +309,13 @@ public final class RecruitingSessionData {
         recruitingBudget -= scoutCost;
         markScoutedEverywhere(recruit);
         return true;
+    }
+
+    public boolean isScouted(RecruitingPlayerRecord recruit) {
+        String raw = recruit.raw();
+        return raw.endsWith(",T")
+                || scoutedRecruitKeys.contains(raw)
+                || scoutedRecruitKeys.contains(markRawScouted(raw));
     }
 
     private void markScoutedEverywhere(RecruitingPlayerRecord recruit) {
@@ -329,11 +344,22 @@ public final class RecruitingSessionData {
     private void markScouted(List<RecruitingPlayerRecord> list, RecruitingPlayerRecord recruit) {
         for (int i = 0; i < list.size(); ++i) {
             if (list.get(i).raw().equals(recruit.raw())) {
-                String scoutedRaw = recruit.raw().substring(0, recruit.raw().length() - 1) + "T";
-                list.set(i, RecruitingPlayerRecord.fromRecruitCsv(scoutedRaw));
+                String scoutedRaw = markRawScouted(recruit.raw());
+                scoutedRecruitKeys.add(recruit.raw());
+                scoutedRecruitKeys.add(scoutedRaw);
+                if (!scoutedRaw.equals(recruit.raw())) {
+                    list.set(i, RecruitingPlayerRecord.fromRecruitCsv(scoutedRaw));
+                }
                 break;
             }
         }
+    }
+
+    private String markRawScouted(String raw) {
+        if (raw.endsWith(",F") || raw.endsWith(",T")) {
+            return raw.substring(0, raw.length() - 1) + "T";
+        }
+        return raw;
     }
 
 

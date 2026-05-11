@@ -18,7 +18,7 @@ public class RecruitingView extends JDialog {
     private String recruitsSaveData;
 
     public RecruitingView(JFrame owner, League league) {
-        super(owner, "Recruiting — " + league.userTeam.getName(), true);
+        super(owner, "Recruiting - " + getUserTeamName(league), true);
         setLayout(new BorderLayout());
         JPanel root = (JPanel) getContentPane();
         root.setOpaque(true);
@@ -31,6 +31,10 @@ public class RecruitingView extends JDialog {
         add(panel, BorderLayout.CENTER);
         setSize(1100, 700);
         setLocationRelativeTo(owner);
+    }
+
+    private static String getUserTeamName(League league) {
+        return league != null && league.userTeam != null ? league.userTeam.getName() : "No Program";
     }
 
     public boolean isFinished() {
@@ -47,6 +51,9 @@ public class RecruitingView extends JDialog {
      * @return serialized recruit data, or {@code null} if cancelled
      */
     public static String showRecruiting(JFrame owner, League league) {
+        if (league == null || league.userTeam == null) {
+            return null;
+        }
         RecruitingView view = new RecruitingView(owner, league);
         view.setVisible(true);
 
