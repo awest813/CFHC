@@ -7,6 +7,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -128,7 +129,13 @@ public final class LeagueEditorDialogController {
                     String newLocation = changeLocationText.getText().toString().trim().toUpperCase(Locale.ROOT);
                     String newConf = changeConfEditText.getText().toString().trim();
                     String newHC = changeHCEditText.getText().toString().trim();
-                    int newPrestige = Integer.parseInt(changePrestigeEditText.getText().toString().trim());
+                    int newPrestige;
+                    try {
+                        newPrestige = Integer.parseInt(changePrestigeEditText.getText().toString().trim());
+                    } catch (NumberFormatException e) {
+                        Toast.makeText(activity, "Prestige must be a number.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
 
                     if (simLeague.isNameValid(newName) && simLeague.isAbbrValid(newAbbr) && 
                         simLeague.isNameValid(newConf) && activity.isNameValid(newHC) && 

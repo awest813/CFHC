@@ -707,11 +707,9 @@ public class LeagueHomeView extends JFrame {
     private void showWeekResultSummary(int week) {
         if (leagueCore.userTeam == null) return;
         simulation.Game g = null;
-        for (simulation.Game game : leagueCore.userTeam.getGameSchedule()) {
-            if (leagueCore.userTeam.getGameSchedule().indexOf(game) == week) {
-                g = game;
-                break;
-            }
+        java.util.List<simulation.Game> schedule = leagueCore.userTeam.getGameSchedule();
+        if (week >= 0 && week < schedule.size()) {
+            g = schedule.get(week);
         }
 
         if (g != null && g.hasPlayed && !"BYE WEEK".equals(g.gameName)) {

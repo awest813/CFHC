@@ -37,7 +37,7 @@ public final class PlayerProfileSnapshot {
         ArrayList<String> feature = player.getPlayerFeaturedStats();
         String[] featuredStats = new String[8];
         for (int i = 0; i < featuredStats.length; i++) {
-            featuredStats[i] = feature.get(i);
+            featuredStats[i] = i < feature.size() ? feature.get(i) : "";
         }
 
         return new PlayerProfileSnapshot(basics, ratings, statColumns, featuredStats);

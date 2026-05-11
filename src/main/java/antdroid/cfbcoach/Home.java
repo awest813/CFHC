@@ -32,7 +32,7 @@ public class Home extends AppCompatActivity {
     private static final String KEY_THEME = "theme_choice";
     private static final String KEY_WELCOME_SEEN = "welcome_seen";
 
-    private int theme = 1;
+    private int theme = GameNavigation.DEFAULT_THEME;
     private SharedPreferences homePrefs;
     private simulation.GameFlowManager flowManager;
 
@@ -44,7 +44,7 @@ public class Home extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         homePrefs = getSharedPreferences(PREFS_HOME, MODE_PRIVATE);
-        theme = GameNavigation.getTheme(getIntent(), homePrefs.getInt(KEY_THEME, 1));
+        theme = GameNavigation.getTheme(getIntent(), homePrefs.getInt(KEY_THEME, GameNavigation.DEFAULT_THEME));
         if (theme == 1) {
             setTheme(R.style.AppThemeLight);
         } else {
@@ -283,13 +283,6 @@ public class Home extends AppCompatActivity {
         HomeDialogController.showLoadLeagueDialog(this, getSaveFileInfos(), theme);
     }
 
-    private void importGame() {
-        // Handled via controller Runnable now
-    }
-
-    /**
-     * Delete Save
-     */
     private void deleteSave() {
         HomeDialogController.showDeleteSaveDialog(this, getSaveFileInfos());
     }
@@ -373,17 +366,6 @@ public class Home extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
-
-    // Shows the system bars by removing all the flags
-// except for the ones that make the content appear under the system bars.
-    private void showSystemUI() {
-        View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-    }
-
 
     public void showImmersive(AlertDialog alert) {
         PlatformUiHelper.showImmersive(alert);

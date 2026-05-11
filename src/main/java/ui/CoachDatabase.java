@@ -76,10 +76,10 @@ public class CoachDatabase  extends ArrayAdapter<String> {
             textRight.setTextColor(Color.parseColor("#ff9933"));
         }
 
-        if (teamStat[2].split(" ").length > 1 && teamStat[2].split(" ")[2].contains("+")) {
+        if (teamStat[2].split(" ").length > 2 && teamStat[2].split(" ")[2].contains("+")) {
             // Highlight Prestige Changes in off-season
             textRight.setTextColor(Color.GREEN);
-        } else if (teamStat[2].split(" ").length > 1 && teamStat[2].split(" ")[2].contains("-")) {
+        } else if (teamStat[2].split(" ").length > 2 && teamStat[2].split(" ")[2].contains("-")) {
             textRight.setTextColor(Color.RED);
         }
 
