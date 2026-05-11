@@ -64,6 +64,10 @@ public class Main {
                 }
                 launchPlayMode(args[1]);
                 break;
+            case "stability":
+            case "test-seasons":
+                StabilityTester.runTest();
+                break;
             case "help":
             case "--help":
             case "-h":
@@ -87,6 +91,7 @@ public class Main {
         System.out.println("  new                - Launch a new desktop league from bundled resources");
         System.out.println("  inspect <savefile> - Print save metadata to console");
         System.out.println("  play    <savefile> - Launch graphical league home from an existing save");
+        System.out.println("  stability          - Run a headless 3-season desktop new-game stability test");
         System.out.println("  help               - Show this message");
     }
 

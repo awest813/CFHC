@@ -92,7 +92,7 @@
     <string name="coach_name_prompt">Choose Coach Name</string>
     <string name="coach_name_help">Pick the name your career will use across the league.</string>
     <string name="home_logo_desc">College Football Head Coach logo</string>
-    <string name="home_hero_eyebrow">College Football · Dynasty Career</string>
+    <string name="home_hero_eyebrow">College Football - Dynasty Career</string>
     <string name="home_hero_title">Run your program. Own recruiting. Chase the playoff.</string>
     <string name="home_hero_subtitle">Jump back into your save, start a new career, or load your custom universe files.</string>
     <string name="home_badge_playoff">12-Team Playoff Era</string>
@@ -104,9 +104,9 @@
     <string name="home_primary_subtitle">Fresh careers or your custom league setup.</string>
     <string name="home_save_title">Manage Dynasties</string>
     <string name="home_save_subtitle">Load, import, or delete saves from one hub.</string>
-    <string name="home_save_hint_empty">No saves in your slots yet — start a new career or import an exported file.</string>
+    <string name="home_save_hint_empty">No saves in your slots yet - start a new career or import an exported file.</string>
     <string name="home_welcome_title">Welcome to CFHC</string>
-    <string name="home_welcome_message">Here is how to get moving:\n\n• Start New Career — pick a team and begin your dynasty.\n• Load Save — continue when a slot has a game saved.\n• Game Manual — quick in-app topics or the full guide on the web.\n\nYou can change light or dark theme anytime. Good luck this season.</string>
+    <string name="home_welcome_message">Here is how to get moving:\n\n- Start New Career - pick a team and begin your dynasty.\n- Load Save - continue when a slot has a game saved.\n- Game Manual - quick in-app topics or the full guide on the web.\n\nYou can change light or dark theme anytime. Good luck this season.</string>
     <string name="home_welcome_cta">Let\'s go</string>
     <string name="home_manual_dialog_title">Game Manual</string>
     <string name="home_manual_option_in_app">In-app guide (offline)</string>

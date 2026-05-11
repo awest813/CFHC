@@ -79,7 +79,9 @@ public class RecruitingActivity extends AppCompatActivity {
         flowManager = new antdroid.cfbcoach.AndroidGameFlowManager(this, theme);
         controller = new RecruitingController(sessionData, flowManager);
 
-        getSupportActionBar().setTitle(sessionData.teamName + " | Recruiting");
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(sessionData.teamName + " | Recruiting");
+        }
 
         showPopUp = true;
         autoFilter = true;

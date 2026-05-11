@@ -35,7 +35,7 @@
     <color name="colorOnPrimary">#F5F7FA</color>
     <color name="colorOnSurface">#F5F7FA</color>
     <color name="colorSurface">#0E2433</color>
-    <!-- Deeper “stadium night” gradient stops (home + field hub) -->
+    <!-- Deeper stadium night gradient stops (home + field hub) -->
     <color name="bgNightTop">#0B1A28</color>
     <color name="bgNightBottom">#040A10</color>
 </resources>

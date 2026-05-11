@@ -127,6 +127,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
+            android:minHeight="48dp"
             android:text="@string/recruiting_filter_label"
             android:textColor="@color/textPrimary"
             android:textSize="13sp" />
@@ -134,7 +135,7 @@
         <Spinner
             android:id="@+id/spinnerRec"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:layout_marginTop="12dp"
             android:background="@drawable/bg_mobile_chip"
             android:padding="8dp"

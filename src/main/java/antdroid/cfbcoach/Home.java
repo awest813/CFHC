@@ -178,7 +178,7 @@ public class Home extends AppCompatActivity {
                 Intent intent = new Intent();
                 intent.setAction(Intent.ACTION_VIEW);
                 intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                intent.setData(Uri.parse("http://www.Antdroid.dev"));
+                intent.setData(Uri.parse("https://www.Antdroid.dev"));
                 startActivity(intent);
             }
         });

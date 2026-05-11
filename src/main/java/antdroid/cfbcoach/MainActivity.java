@@ -51,6 +51,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.core.view.GravityCompat;
 import com.google.android.material.navigation.NavigationView;
@@ -283,7 +284,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Button depthchartButton = findViewById(R.id.buttonDepthChart);
         if (!redshirtComplete) {
             depthchartButton.setText("REDSHIRT");
-            depthchartButton.setBackgroundColor(Color.RED);
+            depthchartButton.setBackgroundResource(R.drawable.bg_action_danger);
+            depthchartButton.setTextColor(ContextCompat.getColor(this, R.color.textPrimary));
         }
 
         depthchartButton.setOnClickListener(new View.OnClickListener() {
@@ -297,7 +299,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //Strategy/Playbook
         final Button strategyButton = findViewById(R.id.buttonStrategy);
-        strategyButton.setBackgroundColor(0XFF607D8B);
+        strategyButton.setBackgroundResource(R.drawable.bg_action_secondary);
         strategyButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // Perform action on click

@@ -157,6 +157,8 @@ tasks.register('desktopJar', Jar) {
     description = 'Builds a runnable jar for the desktop prototype.'
     archiveBaseName = 'CFHC-desktop'
     archiveClassifier = 'prototype'
+    archiveVersion = ''
+    destinationDirectory = layout.buildDirectory.dir('libs')
 
     dependsOn tasks.named('compileDesktopJava'), tasks.named('prepareDesktopResources')
 
