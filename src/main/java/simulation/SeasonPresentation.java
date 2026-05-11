@@ -95,7 +95,7 @@ public final class SeasonPresentation {
         int regWeeks = simLeague.regSeasonWeeks;
         if (week >= regWeeks + 13) return "Recruiting";
         if (week <= 0) return "Pre-Season";
-        if (week <= regWeeks - 1) return "Regular Season";
+        if (week < regWeeks) return "Regular Season"; // Includes CCG week at regWeeks-1.
         if (week <= regWeeks + 3) return "Postseason";
         return "Offseason";
     }
