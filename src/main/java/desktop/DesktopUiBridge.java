@@ -12,6 +12,8 @@ import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 
+import simulation.Team;
+
 /**
  * Desktop implementation of {@link GameUiBridge}.  Each callback is handled
  * with a lightweight Swing dialog so that the full season + offseason loop can
@@ -103,7 +105,11 @@ public class DesktopUiBridge implements GameUiBridge {
                     + player.ratOvr + " " + player.position + " " + player.name
                     + " [" + player.getTransferStatus() + "] "
                     + league.userTeam.getName() + " (" + player.team.getAbbr() + ")";
+            Team oldTeam = player.team;
             player.team = league.userTeam;
+            if (oldTeam != null) {
+                oldTeam.removePlayer(player);
+            }
             league.userTeam.addPlayer(player);
         } else {
             // Decline — return player to their original team

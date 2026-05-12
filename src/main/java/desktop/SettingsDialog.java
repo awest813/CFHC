@@ -257,9 +257,8 @@ public class SettingsDialog extends JDialog {
                 }
             }
             DesktopTheme.setDark(desktopDark.isSelected());
-            java.awt.Window w = javax.swing.SwingUtilities.getWindowAncestor(SettingsDialog.this);
-            if (w instanceof LeagueHomeView) {
-                ((LeagueHomeView) w).applyDesktopTheme();
+            if (getOwner() instanceof LeagueHomeView) {
+                ((LeagueHomeView) getOwner()).applyDesktopTheme();
             }
             applied = true;
             dispose();

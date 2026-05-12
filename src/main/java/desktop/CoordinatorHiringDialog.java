@@ -348,6 +348,9 @@ public class CoordinatorHiringDialog extends JDialog {
             Staff hired = candidates.get(selectedIdx);
             userTeam.setOC(new OC(hired, userTeam));
             league.getNewsHeadlines().add(userTeam.getName() + " adds new Off Coord " + userTeam.getOC().name);
+            while (league.getNewsStories().size() <= league.currentWeek) {
+                league.getNewsStories().add(new java.util.ArrayList<>());
+            }
             league.getNewsStories().get(league.currentWeek).add(
                     "Off Coord Change: " + userTeam.getName()
                             + ">After an extensive search for a new coordinator, "
@@ -368,6 +371,9 @@ public class CoordinatorHiringDialog extends JDialog {
             Staff hired = candidates.get(selectedIdx);
             userTeam.setDC(new DC(hired, userTeam));
             league.getNewsHeadlines().add(userTeam.getName() + " adds new Def Coord " + userTeam.getDC().name);
+            while (league.getNewsStories().size() <= league.currentWeek) {
+                league.getNewsStories().add(new java.util.ArrayList<>());
+            }
             league.getNewsStories().get(league.currentWeek).add(
                     "Def Coord Change: " + userTeam.getName()
                             + ">After an extensive search for a new coordinator, "

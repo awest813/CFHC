@@ -3,6 +3,7 @@ package desktop;
 import positions.Player;
 import recruiting.RecruitingSessionData;
 import simulation.AudioEvent;
+import simulation.AudioManager;
 import simulation.Conference;
 import simulation.DataRecord;
 import simulation.Game;
@@ -171,7 +172,7 @@ public class LeagueHomeView extends JFrame {
 
     private JLabel statusLabel;
     private JLabel playedIndicator;
-    private DesktopAudioManager audioManager;
+    private AudioManager audioManager;
 
     public LeagueHomeView(League league) {
         this(league, null);
@@ -189,10 +190,10 @@ public class LeagueHomeView extends JFrame {
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent e) {
+                confirmExit();
                 if (audioManager != null) {
                     audioManager.dispose();
                 }
-                confirmExit();
             }
         });
         setLayout(new BorderLayout());
@@ -234,19 +235,16 @@ public class LeagueHomeView extends JFrame {
      * Silently falls back to the default Java icon if the image is not found.
      */
     private void loadApplicationIcon() {
-        try {
-            java.io.InputStream iconStream = Thread.currentThread()
-                    .getContextClassLoader()
-                    .getResourceAsStream("assets/cfhc_icon.png");
+        try (java.io.InputStream iconStream = Thread.currentThread()
+                .getContextClassLoader()
+                .getResourceAsStream("assets/cfhc_icon.png")) {
             if (iconStream != null) {
                 java.awt.Image icon = javax.imageio.ImageIO.read(iconStream);
                 if (icon != null) {
                     setIconImage(icon);
                 }
-                iconStream.close();
             }
         } catch (Exception ignored) {
-            // Icon is cosmetic; log and continue
             PlatformLog.i(TAG, "Application icon not found; using default.");
         }
     }
@@ -836,10 +834,19 @@ public class LeagueHomeView extends JFrame {
             protected void done() {
                 dialog.dispose();
                 markDirty();
+                int played = 0;
                 try {
-                    int played = get();
+                    played = get();
                     PlatformLog.i(TAG, "Simulated " + played + " weeks.");
-                } catch (Exception ignored) {}
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                    PlatformLog.w(TAG, "Season simulation interrupted.");
+                } catch (java.util.concurrent.ExecutionException e) {
+                    PlatformLog.e(TAG, "Season simulation failed.", e.getCause() != null ? e.getCause() : e);
+                    JOptionPane.showMessageDialog(LeagueHomeView.this,
+                            DesktopTheme.messageForDialog("Season simulation encountered an error:\n" + (e.getCause() != null ? e.getCause().getMessage() : e.getMessage())),
+                            "Simulation Error", JOptionPane.ERROR_MESSAGE);
+                }
 
                 if (bridge.isAwaitingDockedRecruiting()) {
                     scoreboardWeek = leagueCore.currentWeek;
@@ -1125,8 +1132,11 @@ public class LeagueHomeView extends JFrame {
             File bowlsFile = new File(tempDir, "bowls.txt");
 
             java.io.FileInputStream fis = new java.io.FileInputStream(importFile);
+            try {
             simulation.CustomUniverseParser.parse(fis, confFile, teamsFile, bowlsFile);
-            fis.close();
+            } finally {
+                fis.close();
+            }
 
             // Get resource strings
             DesktopResourceProvider res = null;
@@ -1478,8 +1488,20 @@ public class LeagueHomeView extends JFrame {
         if (mainCardLayout != null && mainContentCards != null) {
             mainCardLayout.show(mainContentCards, title);
         }
-        if (navigationList != null && !title.equals(navigationList.getSelectedValue())) {
-            navigationList.setSelectedValue(title, true);
+        if (navigationList != null) {
+            int idx = -1;
+            for (int i = 0; i < NAV_TITLES.length; i++) {
+                if (NAV_TITLES[i].equals(title)) {
+                    idx = i;
+                    break;
+                }
+            }
+            if (idx >= 0) {
+                String prefixed = NAV_ICONS[idx] + "  " + NAV_TITLES[idx];
+                if (!prefixed.equals(navigationList.getSelectedValue())) {
+                    navigationList.setSelectedValue(prefixed, true);
+                }
+            }
         }
     }
 
@@ -2265,8 +2287,9 @@ public class LeagueHomeView extends JFrame {
         // Matchup usually looks like "Team A 24 at Team B 31   Final"
         String[] parts = matchup.split(" at ");
         if (parts.length < 2) return;
-        String teamA = parts[0].replaceAll("\\d+", "").trim();
-        String teamH = parts[1].split("   ")[0].replaceAll("\\d+", "").trim();
+        String teamA = parts[0].replaceFirst("\\s+\\d+$", "").trim();
+        String homePart = parts[1];
+        String teamH = homePart.replaceFirst("\\s+\\d+", "").split("\\s\\s+")[0].trim();
 
         Team away = liveTeamMap.get(teamA);
         Team home = liveTeamMap.get(teamH);

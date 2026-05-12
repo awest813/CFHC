@@ -1,6 +1,7 @@
 package desktop;
 
 import simulation.AudioEvent;
+import simulation.AudioManager;
 import simulation.League;
 import simulation.PlatformLog;
 import simulation.PlatformResourceProvider;
@@ -41,7 +42,7 @@ public class LauncherFrame extends JFrame {
     private static final Color BRAND_ACCENT = new Color(50, 100, 180);
 
     private final List<JButton> launcherHubButtons = new ArrayList<>();
-    private DesktopAudioManager audioManager;
+    private AudioManager audioManager;
     private JPanel launcherMainPanel;
     private JPanel launcherSidePanel;
     private JLabel launcherHeaderLabel;
@@ -171,7 +172,7 @@ public class LauncherFrame extends JFrame {
 
         JButton exitBtn = createStyledButton("Exit", "Close the application.");
         exitBtn.setMnemonic('E');
-        exitBtn.addActionListener(e -> { audioManager.play(AudioEvent.UI_CLICK); System.exit(0); });
+        exitBtn.addActionListener(e -> System.exit(0));
         buttonGrid.add(exitBtn);
 
         JPanel centerWrap = new JPanel(new BorderLayout(0, 14));

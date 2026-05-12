@@ -224,7 +224,7 @@ public final class RecruitingPlayerRecord {
     }
 
     public String listKey() {
-
+        if (raw == null || raw.length() < 2) return raw != null ? raw : "";
         return raw.substring(0, raw.length() - 2);
     }
 }

@@ -65,7 +65,6 @@ import simulation.Conference;
 
 import simulation.CustomUniverseParser;
 import simulation.AudioEvent;
-import simulation.AudioManager;
 import simulation.Game;
 import simulation.GameUiBridge;
 import simulation.League;
@@ -377,25 +376,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             currPage = 5;
             showNewsStoriesDialog();
         } else if (id == R.id.nav_scores) {
-            currPage = 5;
+            currPage = 6;
             showWeeklyScores();
         } else if (id == R.id.nav_standings) {
-            currPage = 5;
+            currPage = 7;
             updateStandings();
         } else if (id == R.id.nav_rankings) {
-            currPage = 5;
+            currPage = 8;
             updateRankings();
         } else if (id == R.id.nav_leagueteamstats) {
-            currPage = 5;
+            currPage = 9;
             showTeamRankingsDialog();
         } else if (id == R.id.nav_leagueplayerstats) {
-            currPage = 5;
+            currPage = 10;
             showPlayerRankingsDialog();
         } else if (id == R.id.nav_awards) {
-            currPage = 5;
+            currPage = 11;
             showLeagueAwards();
         } else if (id == R.id.nav_postseason) {
-            currPage = 5;
+            currPage = 12;
             showBowlCCGDialog();
         }
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -525,7 +524,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 userTeamStr = userTeam.getName();
                 currentTeam = userTeam;
                 userNameDialog();
-                userTeam.setupUserCoach(username);
                 // set rankings so that not everyone is rank #0
                 simLeague.setTeamRanks();
                 simLeague.setTeamBenchMarks();
@@ -602,6 +600,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 String newHC = changeHCEditText.getText().toString().trim();
                 if (isNameValid((newHC))) {
                     username = newHC;
+                    userTeam.setupUserCoach(username);
                     HeadCoach coach = ensureUserHeadCoach();
                     if (coach != null) {
                         coach.name = newHC;
@@ -735,8 +734,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         HeadCoach coach = ensureUserHeadCoach();
                         if (coach == null) return;
                         coach.defStrat = i;
-                        if(userTeam.OC != null) userTeam.OC.offStrat = i;
-                        if(userTeam.DC != null) userTeam.DC.offStrat = i;
+                        if(userTeam.OC != null) userTeam.OC.defStrat = i;
+                        if(userTeam.DC != null) userTeam.DC.defStrat = i;
                         userTeam.playbookDefNum = i;
                         userTeam.playbookDef = userTeam.getPlaybookDef()[i];
                         dialogInterface.dismiss();
@@ -788,7 +787,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (currPage == 1) {
             currPage = 1;
             viewRoster();
-        }else {
+        } else if (currPage == 7) {
+            currPage = 7;
+            updateStandings();
+        } else if (currPage == 8) {
+            currPage = 8;
+            updateRankings();
+        } else {
             currPage = 0;
             showHome();
         }
@@ -924,18 +929,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         for (int i = 0; i < currentConference.confTeams.size(); ++i) {
             String[] spinnerSplit = dataAdapterTeam.getItem(i).split(" ");
-            if (spinnerSplit.length == 2 && spinnerSplit[1].equals(tempT.getName())) {
-                examineTeamSpinner.setSelection(i);
-                currentTeam = tempT;
-                break;
-            } else if (spinnerSplit.length == 3 && (spinnerSplit[1] + " " + spinnerSplit[2]).equals(tempT.getName())) {
-                examineTeamSpinner.setSelection(i);
-                currentTeam = tempT;
-                break;
-            } else if (spinnerSplit.length == 4 && (spinnerSplit[1] + " " + spinnerSplit[2] + " " + spinnerSplit[3]).equals(tempT.getName())) {
-                examineTeamSpinner.setSelection(i);
-                currentTeam = tempT;
-                break;
+            if (spinnerSplit.length >= 2) {
+                String teamNameFromSpinner = String.join(" ",
+                        java.util.Arrays.copyOfRange(spinnerSplit, 1, spinnerSplit.length));
+                if (teamNameFromSpinner.equals(tempT.getName())) {
+                    examineTeamSpinner.setSelection(i);
+                    currentTeam = tempT;
+                    break;
+                }
             }
         }
 
@@ -2424,6 +2425,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Contract Status Dialog
     private void contractDialog() {
+        if (userHC == null) return;
         if (simLeague.isCareerMode()) {
             if (userHC.age > retireAge) {
                 userHC.retirement = true;
@@ -3079,7 +3081,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         userTeam.sortPlayers();
                         HeadCoach coach = ensureUserHeadCoach();
                         int recruitingRating = coach != null ? coach.ratTalent : simLeague.getAvgCoachTal();
-                        sb.append(userTeam.getConference() + "," + userTeam.getName() + "," + userTeam.getAbbr() + "," + userTeam.getUserRecruitBudget() + "," + recruitingRating + "%\n");
+                        sb.append(userTeam.getConference() + "," + userTeam.getName() + "," + userTeam.getAbbr() + "," + userTeam.getUserRecruitBudget() + "," + recruitingRating + "," + userTeam.nilCollectiveLevel + "," + userTeam.teamFacilities + "%\n");
                         sb.append(userTeam.getPlayerInfoSaveFile());
                         sb.append("END_TEAM_INFO%\n");
                         sb.append(userTeam.getRecruitsInfoSaveFile());

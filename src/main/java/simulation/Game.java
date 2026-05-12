@@ -371,20 +371,20 @@ public class Game implements Serializable {
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamWRs().get(i).name, "WR", t.getTeamWRs().get(i).getRatSpeed(), (float) (starterPenalty * t.getTeamWRs().get(i).getRatSpeed() * Math.random())));
         }
         for (int i = 0; i < t.startersRB; i++) {
-            teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamRBs().get(i).name, "RB", t.getTeamRBs().get(i).getRatSpeed(), (float) (starterPenalty * t.getTeamWRs().get(i).getRatSpeed() * Math.random())));
+            teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamRBs().get(i).name, "RB", t.getTeamRBs().get(i).getRatSpeed(), (float) (starterPenalty * t.getTeamRBs().get(i).getRatSpeed() * Math.random())));
         }
         for (int i = 0; i < t.startersCB; i++) {
-            teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamCBs().get(i).name, "CB", t.getTeamCBs().get(i).getRatSpeed(), (float) (starterPenalty * t.getTeamWRs().get(i).getRatSpeed() * Math.random())));
+            teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamCBs().get(i).name, "CB", t.getTeamCBs().get(i).getRatSpeed(), (float) (starterPenalty * t.getTeamCBs().get(i).getRatSpeed() * Math.random())));
         }
         
         for (int i = t.startersWR; i < t.startersWR + t.subWR; i++) {
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamWRs().get(i).name, "WR", t.getTeamWRs().get(i).getRatSpeed(), (float) (t.getTeamWRs().get(i).getRatSpeed() * Math.random())));
         }
         for (int i = t.startersRB; i < t.startersRB + t.subRB; i++) {
-            teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamRBs().get(i).name, "RB", t.getTeamRBs().get(i).getRatSpeed(), (float) (t.getTeamWRs().get(i).getRatSpeed() * Math.random())));
+            teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamRBs().get(i).name, "RB", t.getTeamRBs().get(i).getRatSpeed(), (float) (t.getTeamRBs().get(i).getRatSpeed() * Math.random())));
         }
         for (int i = t.startersCB; i < t.startersCB + t.subCB; i++) {
-            teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamCBs().get(i).name, "CB", t.getTeamCBs().get(i).getRatSpeed(), (float) (t.getTeamWRs().get(i).getRatSpeed() * Math.random())));
+            teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamCBs().get(i).name, "CB", t.getTeamCBs().get(i).getRatSpeed(), (float) (t.getTeamCBs().get(i).getRatSpeed() * Math.random())));
         }
 
         Collections.sort(teamReturner, new CompPlayerReturners());
@@ -593,7 +593,7 @@ public class Game implements Serializable {
             homeTeam.healInjury(1);
             awayTeam.healInjury(1);
 
-            if (!gameName.equals("Conference") || !gameName.equals("OOC")) {
+            if (!gameName.equals("Conference") && !gameName.equals("OOC")) {
                 int attendance = ((homeTeam.getTeamPrestige() * 2 + awayTeam.getTeamPrestige()) / 3);
                 int homeAdd = (int) (tickets * .75 * attendance) + (int) (merch * Math.random() * homeTeam.getTeamPrestige());
                 homeAdd = (int) (homeAdd * homeTeam.getHomeGameRevenueMultiplier());
@@ -1069,7 +1069,7 @@ public class Game implements Serializable {
         selS = Safety.get(0);
         selS2 = Safety.get(1);
 
-        if (selTE.gameFatigue <= 0) selTE = defense.getTE(offense.startersTE);
+        if (selTE.gameFatigue <= 0) selTE = offense.getTE(offense.startersTE);
         if (selS.gameFatigue <= 0) selS = defense.getS(defense.startersS);
 
         selQB.gameSnaps++;
@@ -2435,8 +2435,8 @@ public class Game implements Serializable {
             selRB.recordFumbles(1);
         }
         if (pos.equals("QB")) {
-            selRB.gameFumbles++;
-            selRB.recordFumbles(1);
+            offense.getQB(0).gameFumbles++;
+            offense.getQB(0).recordFumbles(1);
         }
 
         if (player.equals("DL")) {

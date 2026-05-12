@@ -83,6 +83,7 @@ public class DesktopAudioManager implements AudioManager {
 
         AudioInputStream ais = null;
         Clip clip = null;
+        boolean started = false;
         try {
             ais = AudioSystem.getAudioInputStream(new ByteArrayInputStream(data));
             clip = AudioSystem.getClip();
@@ -102,6 +103,7 @@ public class DesktopAudioManager implements AudioManager {
                 }
             });
             clip.start();
+            started = true;
         } catch (LineUnavailableException e) {
             PlatformLog.w(TAG, "Audio line unavailable for event: " + event.name() + " — " + e.getMessage());
         } catch (Exception e) {
@@ -112,6 +114,9 @@ public class DesktopAudioManager implements AudioManager {
                     ais.close();
                 } catch (IOException ignored) {
                 }
+            }
+            if (clip != null && !started) {
+                clip.close();
             }
         }
     }

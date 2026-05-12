@@ -371,10 +371,11 @@ public class League {
         for (int i = 0; i < conferences.size(); ++i) {
             for (int j = 0; j < conferences.get(i).confTeams.size(); ++j) {
                 teamList.add(conferences.get(i).confTeams.get(j));
-                teamList.get(i).setPlaybookOffNum(teamList.get(i).getCPUOffense());
-                teamList.get(i).setPlaybookDefNum(teamList.get(i).getCPUDefense());
-                teamList.get(i).setPlaybookOffense(teamList.get(i).getPlaybookOff()[teamList.get(i).getPlaybookOffNum()]);
-                teamList.get(i).setPlaybookDefense(teamList.get(i).getPlaybookDef()[teamList.get(i).getPlaybookDefNum()]);
+                int idx = teamList.size() - 1;
+                teamList.get(idx).setPlaybookOffNum(teamList.get(idx).getCPUOffense());
+                teamList.get(idx).setPlaybookDefNum(teamList.get(idx).getCPUDefense());
+                teamList.get(idx).setPlaybookOffense(teamList.get(idx).getPlaybookOff()[teamList.get(idx).getPlaybookOffNum()]);
+                teamList.get(idx).setPlaybookDefense(teamList.get(idx).getPlaybookDef()[teamList.get(idx).getPlaybookDefNum()]);
             }
         }
 
@@ -418,14 +419,16 @@ public class League {
 
         String line = null;
 
+        // Read conference definitions
         try {
-            // Always wrap FileReader in BufferedReader.
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(customConf));
-
-            //First ignore the save file info
-            line = bufferedReader.readLine();
-            while ((line = bufferedReader.readLine()) != null && !line.equals("[END_CONFERENCES]")) {
-                conferences.add(new Conference(line, this, false, 0, 0));
+            BufferedReader brConf = new BufferedReader(new FileReader(customConf));
+            try {
+                line = brConf.readLine();
+                while ((line = brConf.readLine()) != null && !line.equals("[END_CONFERENCES]")) {
+                    conferences.add(new Conference(line, this, false, 0, 0));
+                }
+            } finally {
+                brConf.close();
             }
         } catch (FileNotFoundException ex) {
             PlatformLog.e("League", "Unable to open file", ex);
@@ -438,15 +441,14 @@ public class League {
 
         //Set up conference teams
         try {
-            // Always wrap FileReader in BufferedReader.
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(customTeams));
-
-            //First ignore the save file info
-            line = bufferedReader.readLine();
-            countTeam = 0;
-            while ((line = bufferedReader.readLine()) != null && !line.contains("[END_TEAMS]")) {
+            BufferedReader brTeams = new BufferedReader(new FileReader(customTeams));
+            try {
+                //First ignore the save file info
+                line = brTeams.readLine();
+                countTeam = 0;
+                while ((line = brTeams.readLine()) != null && !line.contains("[END_TEAMS]")) {
                 for (int c = 0; c < conferences.size(); ++c) {
-                    while ((line = bufferedReader.readLine()) != null && !line.contains("[END_CONF]")) {
+                    while ((line = brTeams.readLine()) != null && !line.contains("[END_CONF]")) {
                         String[] filesSplit = line.split(", ");
                         if (filesSplit.length > 1) {
                             line.replace("\"", "\\\"");
@@ -486,6 +488,9 @@ public class League {
                     }
                 }
             }
+            } finally {
+                brTeams.close();
+            }
         } catch (FileNotFoundException ex) {
             PlatformLog.e("League", "Unable to open file", ex);
         } catch (IOException ex) {
@@ -497,34 +502,36 @@ public class League {
         for (int i = 0; i < conferences.size(); ++i) {
             for (int j = 0; j < conferences.get(i).confTeams.size(); ++j) {
                 teamList.add(conferences.get(i).confTeams.get(j));
-                teamList.get(i).setPlaybookOffNum(teamList.get(i).getCPUOffense());
-                teamList.get(i).setPlaybookDefNum(teamList.get(i).getCPUDefense());
-                teamList.get(i).setPlaybookOffense(teamList.get(i).getPlaybookOff()[teamList.get(i).getPlaybookOffNum()]);
-                teamList.get(i).setPlaybookDefense(teamList.get(i).getPlaybookDef()[teamList.get(i).getPlaybookDefNum()]);
+                int idx = teamList.size() - 1;
+                teamList.get(idx).setPlaybookOffNum(teamList.get(idx).getCPUOffense());
+                teamList.get(idx).setPlaybookDefNum(teamList.get(idx).getCPUDefense());
+                teamList.get(idx).setPlaybookOffense(teamList.get(idx).getPlaybookOff()[teamList.get(idx).getPlaybookOffNum()]);
+                teamList.get(idx).setPlaybookDefense(teamList.get(idx).getPlaybookDef()[teamList.get(idx).getPlaybookDefNum()]);
             }
         }
 
         try {
-            // Always wrap FileReader in BufferedReader.
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(customBowl));
-
-            //First ignore the save file info
-            line = bufferedReader.readLine();
-            String[] filesSplit = line.split(", ");
-            if (filesSplit.length > 1) {
-                bowlNames = new String[filesSplit.length];
-                line.replaceAll("\"", "\\\"");
-                for (int b = 0; b < filesSplit.length; ++b) {
-                    bowlNames[b] = filesSplit[b];
+            BufferedReader brBowl = new BufferedReader(new FileReader(customBowl));
+            try {
+                //First ignore the save file info
+                line = brBowl.readLine();
+                String[] filesSplit = line.split(", ");
+                if (filesSplit.length > 1) {
+                    bowlNames = new String[filesSplit.length];
+                    line.replaceAll("\"", "\\\"");
+                    for (int b = 0; b < filesSplit.length; ++b) {
+                        bowlNames[b] = filesSplit[b];
+                    }
+                } else {
+                    filesSplit = line.split(",");
+                    bowlNames = new String[filesSplit.length];
+                    for (int b = 0; b < filesSplit.length; ++b) {
+                        bowlNames[b] = filesSplit[b];
+                    }
                 }
-            } else {
-                filesSplit = line.split(",");
-                bowlNames = new String[filesSplit.length];
-                for (int b = 0; b < filesSplit.length; ++b) {
-                    bowlNames[b] = filesSplit[b];
-                }
+            } finally {
+                brBowl.close();
             }
-
         } catch (FileNotFoundException ex) {
             PlatformLog.e("League", "Unable to open file", ex);
             bridge.crash();
@@ -1760,12 +1767,12 @@ public class League {
     public int getConfNumber(String conf) {
         boolean complete = false;
         int i = 0;
-        while (complete == false) {
+        while (i < conferences.size() && !complete) {
             if (conf.equals(conferences.get(i).confName)) {
                 return i;
             } else i++;
         }
-        return i;
+        return 0;
     }
 
     public void sortTeamList() {
