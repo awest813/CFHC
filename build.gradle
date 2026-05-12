@@ -24,6 +24,7 @@ def desktopSourceFiles = fileTree("${rootProject.projectDir}/src/main/java") {
 
 def desktopClassesDir = layout.buildDirectory.dir('desktop/classes')
 def desktopResourcesDir = layout.buildDirectory.dir('desktop/resources')
+def vorbisspiJar = fileTree("${rootProject.projectDir}/libs").matching { include 'vorbisspi*.jar' }
 
 /** Must match {@code desktop.DesktopResourceContract.VALUE_XML_FILES}. */
 def desktopValueXmlFiles = [
@@ -117,7 +118,7 @@ tasks.register('compileDesktopJava', JavaCompile) {
 
     source = desktopSourceFiles
     destinationDirectory = desktopClassesDir
-    classpath = files()
+    classpath = files(vorbisspiJar)
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
     options.encoding = 'UTF-8'
@@ -164,6 +165,7 @@ tasks.register('desktopJar', Jar) {
 
     from(desktopClassesDir)
     from(desktopResourcesDir)
+    vorbisspiJar.each { from(zipTree(it)) }
 
     manifest {
         attributes('Main-Class': 'desktop.Main')
@@ -177,7 +179,7 @@ tasks.register('runDesktop', JavaExec) {
     dependsOn tasks.named('compileDesktopJava'), tasks.named('prepareDesktopResources')
 
     mainClass = 'desktop.Main'
-    classpath = files(desktopClassesDir, desktopResourcesDir)
+    classpath = files(desktopClassesDir, desktopResourcesDir, vorbisspiJar)
 
     if (project.hasProperty('desktopArgs') && project.property('desktopArgs')) {
         args project.property('desktopArgs').toString().split(/\s+/).findAll { !it.isEmpty() }

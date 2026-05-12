@@ -27,6 +27,7 @@ import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 import javax.swing.BoxLayout;
 import javax.swing.Box;
+import javax.swing.JSeparator;
 
 /**
  * Settings / preferences dialog for the desktop app.
@@ -50,7 +51,7 @@ public class SettingsDialog extends JDialog {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setColor(new Color(255, 255, 255, 20));
+                g2.setColor(DesktopTheme.isDark() ? new Color(255, 255, 255, 20) : new Color(200, 200, 200));
                 g2.fillRect(0, getHeight() - 1, getWidth(), 1);
                 g2.dispose();
             }
@@ -88,6 +89,8 @@ public class SettingsDialog extends JDialog {
         JCheckBox desktopDark = createStyledCheckBox("Dark mode", DesktopTheme.isDark(), content);
         content.add(Box.createVerticalStrut(12));
 
+        addSectionDivider(content);
+
         JLabel gameplaySection = sectionLabel("Gameplay");
         content.add(gameplaySection);
         content.add(Box.createVerticalStrut(8));
@@ -119,6 +122,7 @@ public class SettingsDialog extends JDialog {
             practiceFocusCombo.setSelectedItem(curPf);
             practiceFocusCombo.setFont(new Font("SansSerif", Font.PLAIN, 13));
             practiceFocusCombo.setMaximumRowCount(PracticeFocus.values().length);
+            DesktopTheme.styleFormControl(practiceFocusCombo);
             practiceFocusCombo.setRenderer(new DefaultListCellRenderer() {
                 @Override
                 public Component getListCellRendererComponent(JList<?> list, Object value, int index,
@@ -145,6 +149,8 @@ public class SettingsDialog extends JDialog {
             content.add(practiceFocusDesc);
             content.add(Box.createVerticalStrut(12));
         }
+
+        addSectionDivider(content);
 
         JLabel universeSection = sectionLabel("Universe Rules");
         content.add(universeSection);
@@ -183,14 +189,17 @@ public class SettingsDialog extends JDialog {
         // Bottom Bar
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 20));
         bottom.setBackground(dialogSurface());
-        bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(255, 255, 255, 20)));
+        bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0,
+                DesktopTheme.isDark() ? new Color(255, 255, 255, 20) : new Color(200, 200, 200)));
         
         JButton cancelBtn = new JButton("Cancel") {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(255, 255, 255, 10));
+                if (DesktopTheme.isDark()) {
+                    g2.setColor(new Color(255, 255, 255, 10));
+                }
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
                 super.paintComponent(g);
                 g2.dispose();
@@ -300,6 +309,17 @@ public class SettingsDialog extends JDialog {
         return DesktopTheme.isDark() ? new Color(25, 32, 45) : new Color(246, 248, 251);
     }
 
+    /**
+     * Adds a subtle horizontal line to visually separate setting sections.
+     */
+    private void addSectionDivider(JPanel container) {
+        container.add(Box.createVerticalStrut(10));
+        JSeparator sep = new JSeparator();
+        sep.setForeground(DesktopTheme.isDark() ? new Color(72, 76, 84) : new Color(210, 210, 210));
+        container.add(sep);
+        container.add(Box.createVerticalStrut(10));
+    }
+
     private static JLabel sectionLabel(String text) {
         JLabel label = new JLabel(text);
         label.setFont(new Font("SansSerif", Font.BOLD, 12));
@@ -320,7 +340,9 @@ public class SettingsDialog extends JDialog {
             @Override public void paintIcon(Component c, Graphics g, int x, int y) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(DesktopTheme.isDark() ? new Color(60, 75, 95) : new Color(166, 176, 190));
+                boolean disabled = !cb.isEnabled();
+                g2.setColor(disabled ? new Color(80, 80, 85) :
+                        DesktopTheme.isDark() ? new Color(60, 75, 95) : new Color(166, 176, 190));
                 g2.drawRoundRect(x, y, 17, 17, 4, 4);
                 g2.dispose();
             }
@@ -331,12 +353,23 @@ public class SettingsDialog extends JDialog {
             @Override public void paintIcon(Component c, Graphics g, int x, int y) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(ACCENT_BLUE);
+                boolean disabled = !cb.isEnabled();
+                if (disabled) {
+                    g2.setColor(new Color(80, 80, 85));
+                } else {
+                    g2.setColor(ACCENT_BLUE);
+                }
                 g2.fillRoundRect(x, y, 17, 17, 4, 4);
-                g2.setColor(Color.WHITE);
-                g2.setStroke(new java.awt.BasicStroke(2));
-                g2.drawLine(x + 4, y + 9, x + 8, y + 13);
-                g2.drawLine(x + 8, y + 13, x + 13, y + 5);
+                if (!disabled) {
+                    g2.setColor(Color.WHITE);
+                    g2.setStroke(new java.awt.BasicStroke(2));
+                    g2.drawLine(x + 4, y + 9, x + 8, y + 13);
+                    g2.drawLine(x + 8, y + 13, x + 13, y + 5);
+                } else {
+                    g2.setColor(new Color(140, 140, 145));
+                    g2.drawLine(x + 5, y + 5, x + 12, y + 12);
+                    g2.drawLine(x + 5, y + 12, x + 12, y + 5);
+                }
                 g2.dispose();
             }
         });

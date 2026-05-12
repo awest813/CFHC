@@ -2,6 +2,7 @@ package desktop;
 
 import positions.Player;
 import recruiting.RecruitingSessionData;
+import simulation.AudioEvent;
 import simulation.Conference;
 import simulation.DataRecord;
 import simulation.Game;
@@ -170,6 +171,7 @@ public class LeagueHomeView extends JFrame {
 
     private JLabel statusLabel;
     private JLabel playedIndicator;
+    private DesktopAudioManager audioManager;
 
     public LeagueHomeView(League league) {
         this(league, null);
@@ -187,6 +189,9 @@ public class LeagueHomeView extends JFrame {
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(java.awt.event.WindowEvent e) {
+                if (audioManager != null) {
+                    audioManager.dispose();
+                }
                 confirmExit();
             }
         });
@@ -194,6 +199,7 @@ public class LeagueHomeView extends JFrame {
 
         bridge = new DesktopUiBridge(this, leagueCore);
         controller = new SeasonController(leagueCore, bridge);
+        audioManager = new DesktopAudioManager();
         scoreboardWeek = Math.max(0, leagueCore.currentWeek);
 
         loadApplicationIcon();
@@ -381,6 +387,33 @@ public class LeagueHomeView extends JFrame {
         view.add(mockDraft);
 
         bar.add(view);
+
+        JMenu audio = new JMenu("Audio");
+        audio.setMnemonic(KeyEvent.VK_A);
+
+        JCheckBoxMenuItem muteItem = new JCheckBoxMenuItem("Mute sounds", audioManager.isMuted());
+        muteItem.addActionListener(e -> {
+            audioManager.setMuted(muteItem.isSelected());
+        });
+        audio.add(muteItem);
+
+        JMenuItem volItem = new JMenuItem("Volume\u2026");
+        volItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK));
+        volItem.addActionListener(e -> {
+            String input = JOptionPane.showInputDialog(this,
+                    "Enter volume (0-100):", "Sound Volume",
+                    JOptionPane.QUESTION_MESSAGE);
+            if (input != null) {
+                try {
+                    int pct = Integer.parseInt(input.trim());
+                    audioManager.setVolume(Math.max(0, Math.min(100, pct)) / 100f);
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        });
+        audio.add(volItem);
+
+        bar.add(audio);
 
         JMenu help = new JMenu("Help");
         help.setMnemonic(KeyEvent.VK_H);
@@ -676,6 +709,7 @@ public class LeagueHomeView extends JFrame {
 
     private void playWeek() {
         if (bridge.isAwaitingDockedRecruiting()) {
+            audioManager.play(AudioEvent.CONFIRM);
             JOptionPane.showMessageDialog(this,
                     DesktopTheme.messageForDialog(
                     "Finish recruiting in Recruiting, then the new season will roll forward automatically."),
@@ -687,6 +721,7 @@ public class LeagueHomeView extends JFrame {
 
         int weekBefore = leagueCore.currentWeek;
         bridge.clearNewSeasonPending();
+        audioManager.play(AudioEvent.ADVANCE);
         controller.advanceWeek();
         markDirty();
 
@@ -720,6 +755,13 @@ public class LeagueHomeView extends JFrame {
             String site = g.homeTeam == leagueCore.userTeam ? "vs " : "at ";
             int score = g.homeTeam == leagueCore.userTeam ? g.homeScore : g.awayScore;
             int oppScore = g.homeTeam == leagueCore.userTeam ? g.awayScore : g.homeScore;
+
+            if (score > oppScore) {
+                audioManager.play(AudioEvent.WIN);
+            } else {
+                audioManager.play(AudioEvent.LOSS);
+            }
+
             String result = score > oppScore ? "WIN" : (score < oppScore ? "LOSS" : "TIE");
             
             String msg = String.format(Locale.ROOT, "Week %d Result:\n\n%s %s %s\nFinal Score: %d - %d\n\nRecord: %d-%d",
@@ -979,6 +1021,7 @@ public class LeagueHomeView extends JFrame {
 
         boolean ok = leagueCore.saveLeague(target);
         if (ok) {
+            audioManager.play(AudioEvent.CONFIRM);
             lastSavePath = target;
             dirty = false;
             updateDirtyChrome();
@@ -1159,6 +1202,7 @@ public class LeagueHomeView extends JFrame {
                     "No Team", JOptionPane.WARNING_MESSAGE);
             return;
         }
+        audioManager.play(AudioEvent.PLAY_SELECT);
         PlaybookDialog.show(this, leagueCore.userTeam);
     }
 
@@ -1412,6 +1456,7 @@ public class LeagueHomeView extends JFrame {
             if (!e.getValueIsAdjusting()) {
                 String value = list.getSelectedValue();
                 if (value != null) {
+                    audioManager.play(AudioEvent.UI_CLICK);
                     int idx = list.getSelectedIndex();
                     String title = idx >= 0 && idx < NAV_TITLES.length ? NAV_TITLES[idx] : "Home";
                     selectScreen(title);

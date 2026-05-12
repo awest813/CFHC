@@ -1,5 +1,6 @@
 package desktop;
 
+import simulation.AudioEvent;
 import simulation.League;
 import simulation.PlatformLog;
 import simulation.PlatformResourceProvider;
@@ -40,20 +41,33 @@ public class LauncherFrame extends JFrame {
     private static final Color BRAND_ACCENT = new Color(50, 100, 180);
 
     private final List<JButton> launcherHubButtons = new ArrayList<>();
+    private DesktopAudioManager audioManager;
     private JPanel launcherMainPanel;
     private JPanel launcherSidePanel;
     private JLabel launcherHeaderLabel;
     private JLabel launcherSideBlurb;
     private JLabel launcherFooterLabel;
     private JCheckBox darkToggle;
+    private javax.swing.JSeparator headerSeparator;
 
     public LauncherFrame() {
         super("CFHC — Front Office");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                if (audioManager != null) {
+                    audioManager.dispose();
+                }
+                System.exit(0);
+            }
+        });
         setSize(900, 560);
         setMinimumSize(new Dimension(820, 500));
         setLocationRelativeTo(null);
         loadWindowIcon();
+
+        audioManager = new DesktopAudioManager();
 
         setLayout(new BorderLayout());
 
@@ -126,32 +140,38 @@ public class LauncherFrame extends JFrame {
         main.setBackground(DesktopTheme.launcherMainPanel());
         main.setBorder(BorderFactory.createEmptyBorder(42, 56, 42, 56));
 
+        JPanel headerBlock = new JPanel(new BorderLayout(0, 8));
+        headerBlock.setOpaque(false);
         launcherHeaderLabel = new JLabel("<html><b>Career Hub</b><br><span style='font-size:10pt;'>Start, load, and manage your college football universe.</span></html>");
         launcherHeaderLabel.setFont(new Font("SansSerif", Font.PLAIN, 18));
         launcherHeaderLabel.setForeground(DesktopTheme.textPrimary());
-        main.add(launcherHeaderLabel, BorderLayout.NORTH);
+        headerBlock.add(launcherHeaderLabel, BorderLayout.NORTH);
+        headerSeparator = new javax.swing.JSeparator(javax.swing.SwingConstants.HORIZONTAL);
+        headerSeparator.setForeground(DesktopTheme.isDark() ? new Color(72, 76, 84) : new Color(210, 210, 210));
+        headerBlock.add(headerSeparator, BorderLayout.SOUTH);
+        main.add(headerBlock, BorderLayout.NORTH);
 
         JPanel buttonGrid = new JPanel(new GridLayout(0, 1, 0, 15));
         buttonGrid.setOpaque(false);
 
         JButton newBtn = createStyledButton("New Career", "Start a fresh league with standard rosters.");
         newBtn.setMnemonic('N');
-        newBtn.addActionListener(e -> launchNewLeague());
+        newBtn.addActionListener(e -> { audioManager.play(AudioEvent.UI_CLICK); launchNewLeague(); });
         buttonGrid.add(newBtn);
 
         JButton loadBtn = createStyledButton("Load Save", "Continue an existing simulation (.cfb or .sav).");
         loadBtn.setMnemonic('L');
-        loadBtn.addActionListener(e -> launchLoadGame());
+        loadBtn.addActionListener(e -> { audioManager.play(AudioEvent.UI_CLICK); launchLoadGame(); });
         buttonGrid.add(loadBtn);
 
         JButton helpBtn = createStyledButton("How to Play", "Basics of college football management.");
         helpBtn.setMnemonic('H');
-        helpBtn.addActionListener(e -> showHelp());
+        helpBtn.addActionListener(e -> { audioManager.play(AudioEvent.UI_CLICK); showHelp(); });
         buttonGrid.add(helpBtn);
 
         JButton exitBtn = createStyledButton("Exit", "Close the application.");
         exitBtn.setMnemonic('E');
-        exitBtn.addActionListener(e -> System.exit(0));
+        exitBtn.addActionListener(e -> { audioManager.play(AudioEvent.UI_CLICK); System.exit(0); });
         buttonGrid.add(exitBtn);
 
         JPanel centerWrap = new JPanel(new BorderLayout(0, 14));
@@ -211,6 +231,9 @@ public class LauncherFrame extends JFrame {
         }
         for (JButton b : launcherHubButtons) {
             DesktopTheme.styleLauncherHubButton(b);
+        }
+        if (headerSeparator != null) {
+            headerSeparator.setForeground(DesktopTheme.isDark() ? new Color(72, 76, 84) : new Color(210, 210, 210));
         }
     }
 

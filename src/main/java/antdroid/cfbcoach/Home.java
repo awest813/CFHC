@@ -22,6 +22,8 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import android.app.AlertDialog;
 
+import simulation.AudioEvent;
+import simulation.AudioManager;
 import simulation.LeagueLaunchCoordinator;
 import simulation.LeagueSaveStorage;
 
@@ -35,6 +37,7 @@ public class Home extends AppCompatActivity {
     private int theme = GameNavigation.DEFAULT_THEME;
     private SharedPreferences homePrefs;
     private simulation.GameFlowManager flowManager;
+    private AndroidAudioManager audioManager;
 
     private final ActivityResultLauncher<String[]> customUniversePicker =
             registerForActivityResult(new ActivityResultContracts.OpenDocument(), this::handleCustomUniverseSelection);
@@ -54,6 +57,7 @@ public class Home extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         flowManager = new AndroidGameFlowManager(this, theme);
+        audioManager = new AndroidAudioManager(this);
         setContentView(R.layout.activity_home);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -71,6 +75,7 @@ public class Home extends AppCompatActivity {
         Button newGameButton = findViewById(R.id.buttonNewGame);
         newGameButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                audioManager.play(AudioEvent.UI_CLICK);
                 HomeDialogController.showPrestigeModeDialog(Home.this, null, flowManager);
             }
         });
@@ -78,6 +83,7 @@ public class Home extends AppCompatActivity {
         Button newCustomGameButton = findViewById(R.id.buttonCustom);
         newCustomGameButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                audioManager.play(AudioEvent.UI_CLICK);
                 HomeDialogController.showCustomGamePrompt(Home.this, new Runnable() {
                     @Override
                     public void run() {
@@ -91,7 +97,7 @@ public class Home extends AppCompatActivity {
         Button loadGameButton = findViewById(R.id.buttonLoadGame);
         loadGameButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // Perform action on click
+                audioManager.play(AudioEvent.UI_CLICK);
                 loadLeague();
             }
         });
@@ -99,6 +105,7 @@ public class Home extends AppCompatActivity {
         Button importButton = findViewById(R.id.buttonImportSave);
         importButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                audioManager.play(AudioEvent.UI_CLICK);
                 HomeDialogController.showImportGameDialog(Home.this, new Runnable() {
                     @Override
                     public void run() {
@@ -112,7 +119,7 @@ public class Home extends AppCompatActivity {
         Button deleteGameButton = findViewById(R.id.buttonDeleteSave);
         deleteGameButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // Perform action on click
+                audioManager.play(AudioEvent.UI_CLICK);
                 deleteSave();
             }
         });
@@ -121,6 +128,7 @@ public class Home extends AppCompatActivity {
 
         themeButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                audioManager.play(AudioEvent.UI_CLICK);
                 theme = (theme == 0) ? 1 : 0;
                 homePrefs.edit().putInt(KEY_THEME, theme).apply();
                 recreate();
@@ -130,6 +138,7 @@ public class Home extends AppCompatActivity {
         Button recentButton = findViewById(R.id.buttonUpdates);
         recentButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                audioManager.play(AudioEvent.UI_CLICK);
                 HomeDialogController.showMessageDialog(Home.this, "Changelog", getString(R.string.changelog), 14);
             }
         });
@@ -137,6 +146,7 @@ public class Home extends AppCompatActivity {
         Button tutorialButton = findViewById(R.id.buttonTutorial);
         tutorialButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                audioManager.play(AudioEvent.UI_CLICK);
                 showManualChooser();
             }
         });
@@ -144,6 +154,7 @@ public class Home extends AppCompatActivity {
         Button creditsButton = findViewById(R.id.buttonCredits);
         creditsButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                audioManager.play(AudioEvent.UI_CLICK);
                 HomeDialogController.showMessageDialog(Home.this, "Game Acknowledgements", getString(R.string.credits), 12);
             }
         });
@@ -151,8 +162,8 @@ public class Home extends AppCompatActivity {
         Button googleButton = findViewById(R.id.buttonDonate);
         googleButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_VIEW);
+                audioManager.play(AudioEvent.UI_CLICK);
+                Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.addCategory(Intent.CATEGORY_BROWSABLE);
                 intent.setData(Uri.parse("https://drive.google.com/drive/folders/1hfB_lbTaMfhm4lXtMelvgWoZSshL12v0?usp=sharing"));
                 startActivity(intent);
@@ -163,8 +174,8 @@ public class Home extends AppCompatActivity {
         Button subredditButton = findViewById(R.id.buttonSubreddit);
         subredditButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_VIEW);
+                audioManager.play(AudioEvent.UI_CLICK);
+                Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.addCategory(Intent.CATEGORY_BROWSABLE);
                 intent.setData(Uri.parse("https://m.reddit.com/r/FootballCoach"));
                 startActivity(intent);
@@ -175,8 +186,8 @@ public class Home extends AppCompatActivity {
         Button antdroidButton = findViewById(R.id.buttonAntdroid);
         antdroidButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_VIEW);
+                audioManager.play(AudioEvent.UI_CLICK);
+                Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.addCategory(Intent.CATEGORY_BROWSABLE);
                 intent.setData(Uri.parse("https://www.Antdroid.dev"));
                 startActivity(intent);
@@ -186,8 +197,8 @@ public class Home extends AppCompatActivity {
         Button githubButton = findViewById(R.id.buttonGitHub);
         githubButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent intent = new Intent();
-                intent.setAction(Intent.ACTION_VIEW);
+                audioManager.play(AudioEvent.UI_CLICK);
+                Intent intent = new Intent(Intent.ACTION_VIEW);
                 intent.addCategory(Intent.CATEGORY_BROWSABLE);
                 intent.setData(Uri.parse("https://github.com/antdroidx/"));
                 startActivity(intent);
@@ -367,11 +378,17 @@ public class Home extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_FULLSCREEN);
     }
 
+    @Override
+    protected void onDestroy() {
+        if (audioManager != null) {
+            audioManager.dispose();
+        }
+        super.onDestroy();
+    }
+
     public void showImmersive(AlertDialog alert) {
         PlatformUiHelper.showImmersive(alert);
     }
-
-
 
 
 

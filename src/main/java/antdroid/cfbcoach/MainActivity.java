@@ -64,6 +64,8 @@ import positions.PlayerTE;
 import simulation.Conference;
 
 import simulation.CustomUniverseParser;
+import simulation.AudioEvent;
+import simulation.AudioManager;
 import simulation.Game;
 import simulation.GameUiBridge;
 import simulation.League;
@@ -157,12 +159,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             registerForActivityResult(new ActivityResultContracts.OpenDocument(), this::handleImportDocumentSelection);
 
     private simulation.GameFlowManager flowManager;
+    private AndroidAudioManager audioManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         theme = GameNavigation.getTheme(getIntent(), 1);
         flowManager = new AndroidGameFlowManager(this, theme);
+        audioManager = new AndroidAudioManager(this);
         saveLoadService = new simulation.SaveLoadService(getFilesDir());
         if(theme == 1) setTheme(R.style.AppThemeLight);
 
@@ -350,7 +354,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
+        audioManager.play(AudioEvent.UI_CLICK);
         int id = item.getItemId();
         if (id == R.id.nav_home) {
             currentTeam = userTeam;
@@ -1343,7 +1347,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Game Summary
     public void showGameDialog(Game g) {
+        playGameSound(g);
         GameDialogController.show(this, g, userTeam);
+    }
+
+    private void playGameSound(Game g) {
+        if (g == null || !g.hasPlayed) return;
+        boolean isUserGame = userTeam != null && (g.awayTeam == userTeam || g.homeTeam == userTeam);
+        if (!isUserGame) return;
+        int userScore = g.homeTeam == userTeam ? g.homeScore : g.awayScore;
+        int oppScore = g.homeTeam == userTeam ? g.awayScore : g.homeScore;
+        if (userScore > oppScore) {
+            audioManager.play(AudioEvent.WIN);
+        } else {
+            audioManager.play(AudioEvent.LOSS);
+        }
     }
 
     //Weekly Scoreboard
@@ -1382,11 +1400,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Team Stategy/Playbook
     private void showTeamStrategyDialog() {
+        audioManager.play(AudioEvent.PLAY_SELECT);
         TeamStrategyDialogController.show(this, userTeam);
     }
 
     //Simulate Week
     private void simulateWeek() {
+        audioManager.play(AudioEvent.ADVANCE);
         if (seasonController != null) {
             seasonController.advanceWeek();
         }
@@ -2091,6 +2111,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (saveLoadService.isSlotEmpty(itemy)) {
                     // Empty file, don't show dialog confirmation
                     boolean saved = saveLoadService.saveToSlot(simLeague, itemy);
+                    if (saved) audioManager.play(AudioEvent.CONFIRM);
                     Toast.makeText(MainActivity.this,
                             saved ? "Saved league!" : "Error: Failed to save league!",
                             saved ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG).show();
@@ -2102,8 +2123,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             .setPositiveButton("Yes, Overwrite", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    // Actually go back to main menu
                                     boolean saved = saveLoadService.saveToSlot(simLeague, itemy);
+                                    if (saved) audioManager.play(AudioEvent.CONFIRM);
                                     Toast.makeText(MainActivity.this,
                                             saved ? "Saved league!" : "Error: Failed to save league!",
                                             saved ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG).show();
@@ -3583,5 +3604,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         showImmersive(dialog);
         TextView textView = dialog.findViewById(android.R.id.message);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (audioManager != null) {
+            audioManager.dispose();
+        }
+        super.onDestroy();
     }
 }
