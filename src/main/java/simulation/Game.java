@@ -857,7 +857,7 @@ public class Game implements Serializable {
                 defense.getDL(defense.startersDL + z).gameSim = Math.pow(defense.getDL(defense.startersDL + z).getRatPassRush(), 1) * Math.random();
                 defense.getDL(defense.startersDL + 1 + z).gameSim = Math.pow(defense.getDL(defense.startersDL + 1 + z).getRatPassRush(), 1) * Math.random();
                 defense.getDL(defense.startersDL + z).gameSnaps++;
-                defense.getDL(defense.startersDL + z).gameSnaps++;
+                defense.getDL(defense.startersDL + 1 + z).gameSnaps++;
                 DLineman.add(defense.getDL(defense.startersDL + z));
                 DLineman.add(defense.getDL(defense.startersDL + 1 + z));
                 teamDLs.add(defense.getDL(defense.startersDL + z));
@@ -1640,7 +1640,7 @@ public class Game implements Serializable {
         double fgDistChance = (getHFadv() + selK.getRatKickPow() - fgDistRatio * 80);
         double fgAccChance = (getHFadv() + selK.getRatKickAcc() - fgAccRatio * 80);
 
-        if (gameTime > 120 || playingOT == false) {
+        if (gameTime > 120 && !playingOT) {
             if (fgDistChance > 20 && fgAccChance * Math.random() > 15) {
                 // made the fg
                 if (gamePoss) { // home possession
@@ -2822,9 +2822,9 @@ public class Game implements Serializable {
                         Collections.sort(players, new CompPlayerPosDepth());
                         gameEventLog += getEventLog() + "MAJOR INJURY!\n" + t.getAbbr() + " " + p.position + " " + p.name + " is out of the game with an injury.";
 
-                        if(awayKickReturner.name == p.name) {
+                        if(awayKickReturner.name.equals(p.name)) {
                             getReturner(awayTeam);
-                        } else if(homeKickReturner.name == p.name) {
+                        } else if(homeKickReturner.name.equals(p.name)) {
                             getReturner(homeTeam);
                         }
                     }
@@ -2912,14 +2912,14 @@ public class Game implements Serializable {
         }
 
         if (homeKickReturner.kReturns > 0)
-            hkReturnAvg = (double) (homeKickReturner.kYards / homeKickReturner.kReturns);
+            hkReturnAvg = (double) homeKickReturner.kYards / homeKickReturner.kReturns;
         if (awayKickReturner.kReturns > 0)
-            akReturnAvg = (double) (awayKickReturner.kYards / awayKickReturner.kReturns);
+            akReturnAvg = (double) awayKickReturner.kYards / awayKickReturner.kReturns;
 
         if (homeKickReturner.pReturns > 0)
-            hpReturnAvg = (double) (homeKickReturner.pYards / homeKickReturner.pReturns);
+            hpReturnAvg = (double) homeKickReturner.pYards / homeKickReturner.pReturns;
         if (awayKickReturner.pReturns > 0)
-            apReturnAvg = (double) (awayKickReturner.pYards / awayKickReturner.pReturns);
+            apReturnAvg = (double) awayKickReturner.pYards / awayKickReturner.pReturns;
 
         recordReturnStats();
 

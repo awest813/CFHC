@@ -66,7 +66,7 @@ public class ContractDialog extends JDialog {
 
         JLabel header = new JLabel("CAREER FINALITY DECISION");
         header.setFont(new Font("SansSerif", Font.BOLD, 22));
-        header.setForeground(Color.WHITE);
+        header.setForeground(DesktopTheme.textPrimary());
         content.add(header, BorderLayout.NORTH);
 
         String statsHtml = String.format(Locale.US,
@@ -124,7 +124,7 @@ public class ContractDialog extends JDialog {
 
         JLabel header = new JLabel("CONTRACT EVALUATION — " + league.getYear());
         header.setFont(new Font("SansSerif", Font.BOLD, 22));
-        header.setForeground(Color.WHITE);
+        header.setForeground(DesktopTheme.textPrimary());
         content.add(header, BorderLayout.NORTH);
 
         JPanel mainGrid = new JPanel(new java.awt.GridLayout(1, 2, 30, 0));
@@ -181,7 +181,7 @@ public class ContractDialog extends JDialog {
         card.setLayout(new javax.swing.BoxLayout(card, javax.swing.BoxLayout.Y_AXIS));
         card.setBackground(DesktopTheme.tableBase());
         card.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(255, 255, 255, 10), 1),
+            BorderFactory.createLineBorder(DesktopTheme.borderSubtle(), 1),
             BorderFactory.createEmptyBorder(20, 20, 20, 20)
         ));
         

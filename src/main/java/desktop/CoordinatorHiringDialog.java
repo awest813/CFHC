@@ -124,7 +124,7 @@ public class CoordinatorHiringDialog extends JDialog {
         JPanel card = new JPanel(new BorderLayout(15, 15));
         card.setBackground(DesktopTheme.tableBase());
         card.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(255, 255, 255, 10), 1),
+            BorderFactory.createLineBorder(DesktopTheme.borderSubtle(), 1),
             BorderFactory.createEmptyBorder(20, 20, 20, 20)
         ));
 
@@ -179,7 +179,7 @@ public class CoordinatorHiringDialog extends JDialog {
         
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 25, 20));
         buttons.setBackground(DesktopTheme.tableBase());
-        buttons.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(255, 255, 255, 20)));
+        buttons.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.borderSubtle()));
         
         JButton hireBtn = createGlassButton("CONFIRM HIRE", ACCENT_BLUE);
         hireBtn.addActionListener(e -> {
@@ -247,7 +247,7 @@ public class CoordinatorHiringDialog extends JDialog {
 
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 25, 20));
         buttons.setBackground(DesktopTheme.tableBase());
-        buttons.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(255, 255, 255, 20)));
+        buttons.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.borderSubtle()));
 
         JButton hireBtn = createGlassButton("CONFIRM HIRE", ACCENT_BLUE);
         hireBtn.addActionListener(e -> {
@@ -281,7 +281,7 @@ public class CoordinatorHiringDialog extends JDialog {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setColor(new Color(255, 255, 255, 20));
+                g2.setColor(DesktopTheme.borderSubtle());
                 g2.fillRect(0, getHeight() - 1, getWidth(), 1);
                 g2.dispose();
             }
@@ -290,7 +290,7 @@ public class CoordinatorHiringDialog extends JDialog {
         headerPanel.setBorder(BorderFactory.createEmptyBorder(25, 30, 25, 30));
         JLabel header = new JLabel(title);
         header.setFont(new Font("SansSerif", Font.BOLD, 20));
-        header.setForeground(Color.WHITE);
+        header.setForeground(DesktopTheme.textPrimary());
         headerPanel.add(header, BorderLayout.WEST);
         return headerPanel;
     }
@@ -300,8 +300,8 @@ public class CoordinatorHiringDialog extends JDialog {
         table.setRowHeight(40);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setBackground(DesktopTheme.windowBackground());
-        table.setForeground(Color.WHITE);
-        table.setGridColor(new Color(255, 255, 255, 10));
+        table.setForeground(DesktopTheme.textPrimary());
+        table.setGridColor(DesktopTheme.borderSubtle());
         table.setShowVerticalLines(false);
         table.setSelectionBackground(ACCENT_BLUE);
         
@@ -309,7 +309,7 @@ public class CoordinatorHiringDialog extends JDialog {
         table.getTableHeader().setForeground(DesktopTheme.textSecondary());
         table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 10));
         table.getTableHeader().setPreferredSize(new Dimension(0, 45));
-        table.getTableHeader().setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(255, 255, 255, 10)));
+        table.getTableHeader().setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, DesktopTheme.borderSubtle()));
         
         return table;
     }

@@ -167,7 +167,7 @@ public class GameBoxScoreView extends JDialog {
 
     private void addScoreCell(JPanel panel, String text, boolean highlighted) {
         JLabel label = new JLabel(text, JLabel.CENTER);
-        label.setForeground(highlighted ? new Color(100, 200, 255) : Color.WHITE);
+        label.setForeground(highlighted ? DesktopTheme.selectionAccent() : DesktopTheme.textPrimary());
         label.setFont(new Font("SansSerif", highlighted ? Font.BOLD : Font.PLAIN, 14));
         panel.add(label);
     }

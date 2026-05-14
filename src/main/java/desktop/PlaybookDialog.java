@@ -52,7 +52,7 @@ public class PlaybookDialog extends JDialog {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setColor(new Color(255, 255, 255, 20));
+                g2.setColor(DesktopTheme.borderSubtle());
                 g2.fillRect(0, getHeight() - 1, getWidth(), 1);
                 g2.dispose();
             }
@@ -62,7 +62,7 @@ public class PlaybookDialog extends JDialog {
         
         JLabel title = new JLabel("TEAM SCHEMATICS");
         title.setFont(new Font("SansSerif", Font.BOLD, 22));
-        title.setForeground(Color.WHITE);
+        title.setForeground(DesktopTheme.textPrimary());
         header.add(title, BorderLayout.WEST);
         
         JLabel subtitle = new JLabel(team.getAbbr() + " STRATEGY CONFIGURATION");
@@ -82,7 +82,7 @@ public class PlaybookDialog extends JDialog {
         // Bottom Bar
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 20));
         bottom.setBackground(DesktopTheme.tableBase());
-        bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(255, 255, 255, 20)));
+        bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.borderSubtle()));
         
         JButton closeBtn = new JButton("FINALIZE STRATEGY") {
             @Override
@@ -124,9 +124,9 @@ public class PlaybookDialog extends JDialog {
         JComboBox<String> combo = new JComboBox<>(names);
         combo.setSelectedIndex(isOffense ? team.getPlaybookOffNum() : team.getPlaybookDefNum());
         combo.setBackground(DesktopTheme.tableBase());
-        combo.setForeground(Color.WHITE);
+        combo.setForeground(DesktopTheme.textPrimary());
         combo.setFont(new Font("SansSerif", Font.BOLD, 15));
-        combo.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 20)));
+        combo.setBorder(BorderFactory.createLineBorder(DesktopTheme.borderSubtle()));
 
         JTextArea desc = new JTextArea();
         desc.setEditable(false);
@@ -193,7 +193,7 @@ public class PlaybookDialog extends JDialog {
     private void addStatRow(JPanel container, String label, int val) {
         JPanel row = new JPanel(new BorderLayout());
         row.setOpaque(false);
-        row.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(255, 255, 255, 5)));
+        row.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, DesktopTheme.borderSubtle()));
         
         JLabel l = new JLabel(label);
         l.setFont(new Font("SansSerif", Font.BOLD, 10));
@@ -202,7 +202,7 @@ public class PlaybookDialog extends JDialog {
         
         JLabel v = new JLabel((val > 0 ? "+" : "") + val);
         v.setFont(new Font("Monospaced", Font.BOLD, 14));
-        v.setForeground(val > 0 ? new Color(46, 204, 113) : (val < 0 ? new Color(231, 76, 60) : Color.WHITE));
+        v.setForeground(val > 0 ? new Color(46, 204, 113) : (val < 0 ? new Color(231, 76, 60) : DesktopTheme.textPrimary()));
         
         row.add(l, BorderLayout.WEST);
         row.add(v, BorderLayout.EAST);

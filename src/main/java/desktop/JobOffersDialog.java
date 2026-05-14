@@ -135,7 +135,7 @@ public class JobOffersDialog extends JDialog {
         JTextArea area = new JTextArea(message);
         area.setEditable(false);
         area.setFont(new Font("Serif", Font.ITALIC, 18));
-        area.setForeground(new Color(255, 255, 255, 180));
+        area.setForeground(DesktopTheme.textSecondary());
         area.setLineWrap(true);
         area.setWrapStyleWord(true);
         area.setOpaque(false);
@@ -178,8 +178,8 @@ public class JobOffersDialog extends JDialog {
         table.setRowHeight(38);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setBackground(DesktopTheme.windowBackground());
-        table.setForeground(Color.WHITE);
-        table.setGridColor(new Color(255, 255, 255, 10));
+        table.setForeground(DesktopTheme.textPrimary());
+        table.setGridColor(DesktopTheme.borderSubtle());
         table.setShowVerticalLines(false);
         table.setSelectionBackground(ACCENT_BLUE);
         
@@ -187,7 +187,7 @@ public class JobOffersDialog extends JDialog {
         table.getTableHeader().setForeground(DesktopTheme.textSecondary());
         table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 10));
         table.getTableHeader().setPreferredSize(new Dimension(0, 40));
-        table.getTableHeader().setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(255, 255, 255, 10)));
+        table.getTableHeader().setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, DesktopTheme.borderSubtle()));
 
         // Right side: Program Snapshot Card
         JPanel detailPanel = new JPanel(new BorderLayout(15, 15));
@@ -209,7 +209,7 @@ public class JobOffersDialog extends JDialog {
         detail.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         
         JScrollPane detailScroll = new JScrollPane(detail);
-        detailScroll.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 10)));
+        detailScroll.setBorder(BorderFactory.createLineBorder(DesktopTheme.borderSubtle()));
         detailPanel.add(detailScroll, BorderLayout.CENTER);
 
         table.getSelectionModel().addListSelectionListener(e -> {
@@ -250,7 +250,7 @@ public class JobOffersDialog extends JDialog {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setColor(new Color(255, 255, 255, 20));
+                g2.setColor(DesktopTheme.borderSubtle());
                 g2.fillRect(0, getHeight() - 1, getWidth(), 1);
                 g2.dispose();
             }
@@ -260,13 +260,13 @@ public class JobOffersDialog extends JDialog {
         
         JLabel headerLabel = new JLabel(isPromotion ? "CAREER ADVANCEMENT PROTOCOL" : "JOB OPPORTUNITY REGISTRY");
         headerLabel.setFont(new Font("SansSerif", Font.BOLD, 20));
-        headerLabel.setForeground(Color.WHITE);
+        headerLabel.setForeground(DesktopTheme.textPrimary());
         headerPanel.add(headerLabel, BorderLayout.WEST);
 
         // Buttons
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 20));
         buttons.setBackground(DesktopTheme.tableBase());
-        buttons.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(255, 255, 255, 20)));
+        buttons.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.borderSubtle()));
         
         JButton declineBtn = createGlassButton(isPromotion ? "DECLINE ALL OFFERS" : "DECLINE OPPORTUNITY", DANGER_RED);
         declineBtn.addActionListener(e -> {

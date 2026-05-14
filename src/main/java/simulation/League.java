@@ -451,7 +451,7 @@ public class League {
                     while ((line = brTeams.readLine()) != null && !line.contains("[END_CONF]")) {
                         String[] filesSplit = line.split(", ");
                         if (filesSplit.length > 1) {
-                            line.replace("\"", "\\\"");
+                            line = line.replace("\"", "\\\"");
 
                             String tmName = filesSplit[0];
                             String tmAbbr = filesSplit[1];
@@ -518,7 +518,7 @@ public class League {
                 String[] filesSplit = line.split(", ");
                 if (filesSplit.length > 1) {
                     bowlNames = new String[filesSplit.length];
-                    line.replaceAll("\"", "\\\"");
+                    line = line.replaceAll("\"", "\\\"");
                     for (int b = 0; b < filesSplit.length; ++b) {
                         bowlNames[b] = filesSplit[b];
                     }
@@ -2226,7 +2226,7 @@ public class League {
     //Committee News
     public void cfbPlayoffsNews() {
         setTeamRanks();
-        ArrayList<Team> teams = teamList;
+        ArrayList<Team> teams = new ArrayList<>(teamList);
         Collections.sort(teams, new CompTeamPoll());
 
         if (currentWeek == 8) {

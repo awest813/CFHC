@@ -9,6 +9,7 @@ import java.util.Locale;
 import simulation.Injury;
 import simulation.PracticeFocus;
 import simulation.Team;
+import staff.HeadCoach;
 
 /**
  * Base player class that others extend. Has name, overall, potential, and football IQ.
@@ -254,7 +255,7 @@ public class Player {
         cost = (int) (cost / qbImportance);
 
         cost = getLocationCost();
-        if (cost < 0) cost = (int) Math.random() * 5 + 1;
+        if (cost < 0) cost = (int)(Math.random() * 5) + 1;
 
         createNewStats();
     }
@@ -310,7 +311,7 @@ public class Player {
     int getLocationCost() {
         double locFactor = Math.abs(team.getLocation() - (homeState / 10)) - 2.5;
         cost = cost + (int) (Math.random() * (locFactor * locationDiscount));
-        if (cost < 0) cost = (int) Math.random() * 5 + 1;
+        if (cost < 0) cost = (int)(Math.random() * 5) + 1;
         return cost;
     }
 
@@ -415,9 +416,9 @@ public class Player {
 
         String[] x = s.split("!");
 
-        for (int i = 0; i < x.length; i++) {
+        for (int i = 0; i < Math.min(x.length, careerStats.size()); i++) {
             String[] y = x[i].split(",");
-            for (int j = 0; j < y.length; j++) {
+            for (int j = 0; j < Math.min(y.length, stats.length); j++) {
                 careerStats.get(i)[j] = Integer.parseInt(y[j]);
             }
         }
@@ -517,11 +518,11 @@ public class Player {
         if(ratOvrStart == 0) ratOvrStart = ratOvr;
 
         if (!isMedicalRS) {
-            if (wonAllConference) ratPot += (int) Math.random() * allConfPotBonus;
-            if (wonAllAmerican) ratPot += (int) Math.random() * allAmericanBonus;
-            if (wonAllFreshman) ratPot += (int) Math.random() * allFreshmanBonus;
-            if (wonTopFreshman) ratPot += (int) Math.random() * topBonus;
-            if (wonHeisman) ratPot += (int) Math.random() * topBonus;
+            if (wonAllConference) ratPot += (int)(Math.random() * allConfPotBonus);
+            if (wonAllAmerican) ratPot += (int)(Math.random() * allAmericanBonus);
+            if (wonAllFreshman) ratPot += (int)(Math.random() * allFreshmanBonus);
+            if (wonTopFreshman) ratPot += (int)(Math.random() * topBonus);
+            if (wonHeisman) ratPot += (int)(Math.random() * topBonus);
 
             if (Arrays.asList(offensePos).contains(position)) progression = getProgressionOff();
             else if (Arrays.asList(defensePos).contains(position)) progression = getProgressionDef();
@@ -630,8 +631,8 @@ public class Player {
         if (wonHeisman) recordHeismans(1);
         if (wonAllAmerican) recordAllAmericans(1);
         if (wonAllConference) recordAllConference(1);
-        if (wonAllFreshman) recordTopFreshman(1);
-        if (wonTopFreshman) recordAllFreshman(1);
+        if (wonAllFreshman) recordAllFreshman(1);
+        if (wonTopFreshman) recordTopFreshman(1);
     }
 
     public void checkRedshirt() {
@@ -655,6 +656,9 @@ public class Player {
     }
 
     public void seasonStatstoCareer() {
+        while (careerStats.size() <= year) {
+            careerStats.add(new int[stats.length]);
+        }
         for (int i = 0; i < stats.length; i++) {
             careerStats.get(year)[i] = stats[i];
             stats[i] = 0;
@@ -729,35 +733,38 @@ public class Player {
 
 
     public int getProgression() {
-        int dev = team.getHeadCoach() != null ? team.getHeadCoach().developmentBonusPoints() : 0;
-        int num = (ratPot * 2 + team.getHeadCoach().ratTalent * 1 + 3 * team.getTeamFacilities() + dev
+        HeadCoach hc = team.getHeadCoach();
+        int dev = hc != null ? hc.developmentBonusPoints() : 0;
+        int num = (ratPot * 2 + (hc != null ? hc.ratTalent : 0) + 3 * team.getTeamFacilities() + dev
                 + (int) (Math.random() * getChemistryProgression())) / 3;
         return num;
     }
 
     public int getProgressionOff() {
-        int dev = team.getHeadCoach() != null ? team.getHeadCoach().developmentBonusPoints() : 0;
-        int num = (ratPot * 4 + team.getHeadCoach().ratTalent * 2 + team.getOC().ratOff + 7 * team.getTeamFacilities() + dev
+        HeadCoach hc = team.getHeadCoach();
+        int dev = hc != null ? hc.developmentBonusPoints() : 0;
+        int num = (ratPot * 4 + (hc != null ? hc.ratTalent * 2 : 0) + team.getOC().ratOff + 7 * team.getTeamFacilities() + dev
                 + (int) (Math.random() * getChemistryProgression())) / 7;
         return num;
     }
 
     public int getProgressionDef() {
-        int dev = team.getHeadCoach() != null ? team.getHeadCoach().developmentBonusPoints() : 0;
-        int num = (ratPot * 4 + team.getHeadCoach().ratTalent * 2 + team.getDC().ratDef + 7 * team.getTeamFacilities() + dev
+        HeadCoach hc = team.getHeadCoach();
+        int dev = hc != null ? hc.developmentBonusPoints() : 0;
+        int num = (ratPot * 4 + (hc != null ? hc.ratTalent * 2 : 0) + team.getDC().ratDef + 7 * team.getTeamFacilities() + dev
                 + (int) (Math.random() * getChemistryProgression())) / 7;
         return num;
     }
 
     public double getGamesBonus() {
-        double games = (double) (getGamesStarted()) + (double) ((getGames() - getGamesStarted()) / 3);
+        double games = (double) (getGamesStarted()) + (double) ((getGames() - getGamesStarted())) / 3.0;
         games = (games * 2.5);
         return games;
     }
 
     public double getMidSeasonBonus() {
         ratOvrStart = ratOvr;
-        double games = (double) (getGamesStarted()) + (double) ((getGames() - getGamesStarted()) / 3);
+        double games = (double) (getGamesStarted()) + (double) ((getGames() - getGamesStarted())) / 3.0;
         return games;
     }
 
@@ -811,7 +818,7 @@ public class Player {
         } else if (recruitRating == 3) {
             grade = "3 Star";
         } else if (recruitRating == 4) {
-            grade = "4 star";
+            grade = "4 Star";
         } else {
             grade = "5 Star";
         }
@@ -831,7 +838,7 @@ public class Player {
             return "Junior";
         } else if (year == 4) {
             return "Senior";
-        } else if (year == 4) {
+        } else if (year >= 5) {
             return "5th Yr Sr";
         }
         return "ERROR";
@@ -1150,7 +1157,7 @@ public class Player {
             if (getCareerFGAtt() > 0 || getCareerXPAtt() > 0) {
                 pStats.add("Kicking,G,GS,XP,Att,XP%,FG,Att,FG%");
                 for (int i = 0; i < year; i++) {
-                    if (getXRunSnaps(i) > 0 || getXPassSnaps(i) > 0)
+                    if (getXXPAtt(i) > 0 || getXFGAtt(i) > 0)
                         pStats.add(getXSeason(i) + "," + getXGames(i) + "," + getXGamesStarted(i) + "," + getXXPMade(i) + "," + getXXPAtt(i) + "," + df2.format(getXPATpct(i)) + "," + getXFGMade(i) + "," + getXFGAtt(i) + "," + df2.format(getXFGpct(i)));
                 }
                 pStats.add(getSeason() + "," + getGames() + "," + getGamesStarted() + "," + getXPMade() + "," + getXPAtt() + "," + df2.format(getPATpct()) + "," + getFGMade() + "," + getFGAtt() + "," + df2.format(getFGpct()));
@@ -1253,8 +1260,8 @@ public class Player {
         if (getHeismans() > 0) sb.append(getHeismans() + " POTY\n");
         if (getAllAmericans() > 0) sb.append(getAllAmericans() + " All-Amer\n");
         if (getAllConference() > 0) sb.append(getAllConference() + " All-Conf\n");
-        if (getTopFreshman() > 0) sb.append(getAllAmericans() + " Top Fresh\n");
-        if (getAllFreshman() > 0) sb.append(getAllAmericans() + " All-Fresh\n");
+        if (getTopFreshman() > 0) sb.append(getTopFreshman() + " Top Fresh\n");
+        if (getAllFreshman() > 0) sb.append(getAllFreshman() + " All-Fresh\n");
         if (sb.toString().length() == 0) sb.append("none");
         pStats.add(sb.toString());
 
@@ -1278,7 +1285,7 @@ public class Player {
     }
 
     public String getSeasonsPlayed() {
-        return careerStats.get(0)[0] + " to " + careerStats.get(careerStats.size())[0];
+        return careerStats.get(0)[0] + " to " + careerStats.get(careerStats.size() - 1)[0];
     }
 
 
@@ -2360,7 +2367,7 @@ public class Player {
     }
 
     public float getCareerRushYardsPerGame() {
-        if (getGames() < 1) {
+        if (getCareerGames() < 1) {
             return 0;
         } else {
             float rating = (float) getCareerRushYards() / getCareerGames();

@@ -102,13 +102,13 @@ public class LauncherFrame extends JFrame {
         JPanel branding = new JPanel(new GridLayout(0, 1, 0, 4));
         branding.setOpaque(false);
         JLabel title = new JLabel("CFHC", SwingConstants.CENTER);
-        title.setForeground(Color.WHITE);
+        title.setForeground(DesktopTheme.sidebarText());
         title.setFont(new Font("SansSerif", Font.BOLD, 32));
         JLabel subtitle = new JLabel("College Football Head Coach", SwingConstants.CENTER);
-        subtitle.setForeground(new Color(160, 175, 195));
+        subtitle.setForeground(DesktopTheme.textSecondary());
         subtitle.setFont(new Font("SansSerif", Font.PLAIN, 12));
         JLabel version = new JLabel("Desktop v1.4e", SwingConstants.CENTER);
-        version.setForeground(new Color(110, 125, 150));
+        version.setForeground(DesktopTheme.textSecondary());
         version.setFont(new Font("SansSerif", Font.PLAIN, 11));
         branding.add(title);
         branding.add(subtitle);
@@ -126,7 +126,7 @@ public class LauncherFrame extends JFrame {
         launcherSidePanel.add(launcherSideBlurb, BorderLayout.CENTER);
 
         JLabel footerNote = new JLabel("Simulation core shared with Android", SwingConstants.CENTER);
-        footerNote.setForeground(new Color(90, 105, 130));
+        footerNote.setForeground(DesktopTheme.textSecondary());
         footerNote.setFont(new Font("SansSerif", Font.PLAIN, 10));
         footerNote.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
         launcherSidePanel.add(footerNote, BorderLayout.SOUTH);

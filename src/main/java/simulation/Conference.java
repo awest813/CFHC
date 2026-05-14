@@ -621,10 +621,12 @@ public class Conference {
             Team t = teams.get(0);
             int i = 0;
             ArrayList<Team> teamTB = new ArrayList<>();
-            while (t.getConfWins() == winsFirst) {
+            while (t.getConfWins() == winsFirst && i < teams.size()) {
                 teamTB.add(t);
                 ++i;
-                t = teams.get(i);
+                if (i < teams.size()) {
+                    t = teams.get(i);
+                }
             }
             if (teamTB.size() > 2) {
                 // ugh 3 way tiebreaker
@@ -639,10 +641,12 @@ public class Conference {
             t = teams.get(1);
             i = 1;
             teamTB.clear();
-            while (t.getConfWins() == winsSecond) {
+            while (t.getConfWins() == winsSecond && i < teams.size()) {
                 teamTB.add(t);
                 ++i;
-                t = teams.get(i);
+                if (i < teams.size()) {
+                    t = teams.get(i);
+                }
             }
             if (teamTB.size() > 2) {
                 // ugh 3 way tiebreaker
@@ -720,7 +724,7 @@ public class Conference {
                     team2 = t;
                 }
             }*/
-            ArrayList<Team> CT = confTeams;
+            ArrayList<Team> CT = new ArrayList<>(confTeams);
             Collections.sort(CT, new CompTeamPoll());
             Collections.sort(CT, new CompTeamConfWins());
             team1 = CT.get(0);

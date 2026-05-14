@@ -12,8 +12,6 @@ import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
 
-import simulation.Team;
-
 /**
  * Desktop implementation of {@link GameUiBridge}.  Each callback is handled
  * with a lightweight Swing dialog so that the full season + offseason loop can

@@ -48,7 +48,7 @@ public class PlayerQB extends Player {
         cost = (int) (cost / qbImportance);
 
         cost = getLocationCost();
-        if (cost < 0) cost = (int) Math.random() * 5 + 1;
+        if (cost < 0) cost = (int)(Math.random() * 5) + 1;
     }
 
     //Custom Player

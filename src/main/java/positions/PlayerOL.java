@@ -52,7 +52,7 @@ public class PlayerOL extends Player {
         cost = (int) (cost / olImportance);
 
         cost = getLocationCost();
-        if (cost < 0) cost = (int) Math.random() * 5 + 1;
+        if (cost < 0) cost = (int)(Math.random() * 5) + 1;
     }
 
     //Custom Player

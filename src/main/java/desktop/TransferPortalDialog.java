@@ -40,6 +40,8 @@ public class TransferPortalDialog extends JDialog {
 
     private static final String[] COLUMNS = {"Pos", "Name", "OVR", "Yr", "Original Team"};
 
+    private static final Color ACCENT_BLUE = new Color(52, 152, 219);
+
     private final League league;
     private DefaultTableModel tableModel;
     private List<Player> allPlayers;
@@ -80,7 +82,7 @@ public class TransferPortalDialog extends JDialog {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setColor(new Color(255, 255, 255, 20));
+                g2.setColor(DesktopTheme.borderSubtle());
                 g2.fillRect(0, getHeight() - 1, getWidth(), 1);
                 g2.dispose();
             }
@@ -95,7 +97,7 @@ public class TransferPortalDialog extends JDialog {
         JComboBox<String> filterBox = new JComboBox<>(POS_FILTERS);
         filterBox.setFont(new Font("SansSerif", Font.BOLD, 13));
         filterBox.setBackground(DesktopTheme.windowBackground());
-        filterBox.setForeground(Color.WHITE);
+        filterBox.setForeground(DesktopTheme.textPrimary());
         filterBox.setPreferredSize(new Dimension(180, 30));
         topBar.add(filterBox);
 
@@ -119,8 +121,8 @@ public class TransferPortalDialog extends JDialog {
         table.setAutoCreateRowSorter(true);
         table.setFillsViewportHeight(true);
         table.setBackground(DesktopTheme.windowBackground());
-        table.setForeground(Color.WHITE);
-        table.setGridColor(new Color(255, 255, 255, 10));
+        table.setForeground(DesktopTheme.textPrimary());
+        table.setGridColor(DesktopTheme.borderSubtle());
         table.setShowVerticalLines(false);
         table.setSelectionBackground(ACCENT_BLUE);
         
@@ -128,7 +130,7 @@ public class TransferPortalDialog extends JDialog {
         table.getTableHeader().setForeground(DesktopTheme.textSecondary());
         table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 11));
         table.getTableHeader().setPreferredSize(new Dimension(0, 40));
-        table.getTableHeader().setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(255, 255, 255, 10)));
+        table.getTableHeader().setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, DesktopTheme.borderSubtle()));
 
         JScrollPane scroll = new JScrollPane(table);
         scroll.setBorder(BorderFactory.createEmptyBorder());
@@ -138,7 +140,7 @@ public class TransferPortalDialog extends JDialog {
         // Bottom bar
         JPanel bottom = new JPanel(new BorderLayout());
         bottom.setBackground(DesktopTheme.tableBase());
-        bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(255, 255, 255, 20)));
+        bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.borderSubtle()));
         bottom.setPreferredSize(new Dimension(0, 80));
         
         JLabel hintLabel = new JLabel("NOTICE: Portal assignments are finalized during the next off-season cycle.");

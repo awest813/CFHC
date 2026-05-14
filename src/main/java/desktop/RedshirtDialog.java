@@ -58,7 +58,7 @@ public class RedshirtDialog extends JDialog {
 
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT, 30, 20));
         bottom.setBackground(DesktopTheme.tableBase());
-        bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(255, 255, 255, 20)));
+        bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.borderSubtle()));
         
         JButton doneBtn = createGlassButton("CLOSE MANAGEMENT", ACCENT_BLUE);
         doneBtn.addActionListener(e -> dispose());
@@ -73,7 +73,7 @@ public class RedshirtDialog extends JDialog {
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
                 Graphics2D g2 = (Graphics2D) g.create();
-                g2.setColor(new Color(255, 255, 255, 20));
+                g2.setColor(DesktopTheme.borderSubtle());
                 g2.fillRect(0, getHeight() - 1, getWidth(), 1);
                 g2.dispose();
             }
@@ -99,7 +99,7 @@ public class RedshirtDialog extends JDialog {
         leftPanel.add(leftHeader, BorderLayout.NORTH);
         
         JScrollPane currentScroll = new JScrollPane(currentTable);
-        currentScroll.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 10)));
+        currentScroll.setBorder(BorderFactory.createLineBorder(DesktopTheme.borderSubtle()));
         currentScroll.getViewport().setBackground(DesktopTheme.windowBackground());
         leftPanel.add(currentScroll, BorderLayout.CENTER);
 
@@ -132,7 +132,7 @@ public class RedshirtDialog extends JDialog {
         rightPanel.add(rightHeader, BorderLayout.NORTH);
         
         JScrollPane eligibleScroll = new JScrollPane(eligibleTable);
-        eligibleScroll.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 10)));
+        eligibleScroll.setBorder(BorderFactory.createLineBorder(DesktopTheme.borderSubtle()));
         eligibleScroll.getViewport().setBackground(DesktopTheme.windowBackground());
         rightPanel.add(eligibleScroll, BorderLayout.CENTER);
 
@@ -164,8 +164,8 @@ public class RedshirtDialog extends JDialog {
         table.setRowHeight(35);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setBackground(DesktopTheme.windowBackground());
-        table.setForeground(Color.WHITE);
-        table.setGridColor(new Color(255, 255, 255, 10));
+        table.setForeground(DesktopTheme.textPrimary());
+        table.setGridColor(DesktopTheme.borderSubtle());
         table.setShowVerticalLines(false);
         table.setSelectionBackground(ACCENT_BLUE);
         
@@ -173,7 +173,7 @@ public class RedshirtDialog extends JDialog {
         table.getTableHeader().setForeground(DesktopTheme.textSecondary());
         table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 11));
         table.getTableHeader().setPreferredSize(new java.awt.Dimension(0, 40));
-        table.getTableHeader().setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(255, 255, 255, 10)));
+        table.getTableHeader().setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, DesktopTheme.borderSubtle()));
         
         return table;
     }

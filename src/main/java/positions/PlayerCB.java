@@ -46,7 +46,7 @@ public class PlayerCB extends Player {
         cost = (int) (cost / cbImportance);
 
         cost = getLocationCost();
-        if (cost < 0) cost = (int) Math.random() * 5 + 1;
+        if (cost < 0) cost = (int)(Math.random() * 5) + 1;
     }
 
     //Custom Player
@@ -180,13 +180,12 @@ public class PlayerCB extends Player {
         pStats.add("Defended: " +getCareerDefended()+ ">Shutdown Pct: " + df2.format(getCareerShutdownPCT()) + "%");
         if (getCareerKORets() > 0) {
             pStats.add("Kick Rets: " + getCareerKORets() + ">Kick Ret Yards: " + getCareerKOYards() + " yrds");
-            pStats.add("Kick Ret TDs: " + getCareerKOTDs() + ">Ret Avg: " + df2.format((float) (getCareerKOYards() / getCareerKORets())));
+            pStats.add("Kick Ret TDs: " + getCareerKOTDs() + ">Ret Avg: " + df2.format((float) getCareerKOYards() / getCareerKORets()));
         }
         if (getCareerPuntRets() > 0) {
             pStats.add("Punt Rets: " + getCareerPuntRets() + ">Punt Ret Yards: " + getCareerPuntYards() + " yrds");
-            pStats.add("Punt Ret TDs: " + getCareerPuntTDs() + ">Ret Avg: " + df2.format((float) (getCareerPuntYards() / getCareerPuntRets())));
+            pStats.add("Punt Ret TDs: " + getCareerPuntTDs() + ">Ret Avg: " + df2.format((float) getCareerPuntYards() / getCareerPuntRets()));
         }
-        pStats.addAll(super.getCareerStatsList());
         return pStats;
     }
 

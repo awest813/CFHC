@@ -53,7 +53,7 @@ public class PlayerRB extends Player {
         cost = (int) (cost / rbImportance);
 
         cost = getLocationCost();
-        if (cost < 0) cost = (int) Math.random() * 5 + 1;
+        if (cost < 0) cost = (int)(Math.random() * 5) + 1;
     }
 
     //Custom Player
@@ -163,8 +163,8 @@ public class PlayerRB extends Player {
     
     @Override
     public int getCareerScore() {
-        return getCareerRushTDs() * 150 - getCareerFumbles() * 75 + (int) (getCareerRushYards() * 2.65) + 2 * getCareerReceptions() + (int) (getCareerRecYards() * 2.5) + getCareerRecTDs() * 150 + getKOYards() + getKOTDs() * 150
-                + getPuntYards() + getPuntTDs() * 150 + getCareerKOYards() + getCareerKOTDs() * 150 + getCareerPuntYards() + getCareerPuntTDs() * 150 + ratOvr * 10 * year;
+        return getCareerRushTDs() * 150 - getCareerFumbles() * 75 + (int) (getCareerRushYards() * 2.65) + 2 * getCareerReceptions() + (int) (getCareerRecYards() * 2.5) + getCareerRecTDs() * 150
+                + getCareerKOYards() + getCareerKOTDs() * 150 + getCareerPuntYards() + getCareerPuntTDs() * 150 + ratOvr * 10 * year;
     }
 
     //PLAYER RATINGS FOR PROFILE
@@ -184,13 +184,13 @@ public class PlayerRB extends Player {
         pStats.add("Yds/Game: " + df2.format((double) getCareerRushYardsPerGame()) + " yds/g>Yards/Att: " + df2.format(getCareerYardsperCarry()) + " yds");
         pStats.add("Rec Yards: " + getCareerRecYards() + " yds>Receptions: " + getCareerReceptions() + " ");
         pStats.add("Rec TDs: " + getCareerRecTDs() + "> ");
-        if (getKORets() + getCareerKORets() > 0) {
+        if (getCareerKORets() > 0) {
             pStats.add("Kick Rets: " + getCareerKORets() + ">Kick Ret Yards: " + (getKOYards() + getCareerKOYards()) + " yrds");
-            pStats.add("Kick Ret TDs: " + getCareerKOTDs() + ">Ret Avg: " + (double) (getCareerKOYards()/ getCareerKORets()));
+            pStats.add("Kick Ret TDs: " + getCareerKOTDs() + ">Ret Avg: " + (double) getCareerKOYards() / getCareerKORets());
         }
-        if (getPuntRets() + getCareerPuntRets() > 0) {
+        if (getCareerPuntRets() > 0) {
             pStats.add("Punt Rets: " + getCareerPuntRets() + ">Punt Ret Yards: " + getCareerPuntYards() + " yrds");
-            pStats.add("Punt Ret TDs: " + getCareerPuntTDs() + ">Ret Avg: " + (double) (getCareerPuntYards() / getCareerPuntRets()));
+            pStats.add("Punt Ret TDs: " + getCareerPuntTDs() + ">Ret Avg: " + (double) getCareerPuntYards() / getCareerPuntRets());
         }
         pStats.addAll(super.getCareerStatsList());
         return pStats;

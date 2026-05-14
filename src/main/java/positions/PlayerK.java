@@ -50,7 +50,7 @@ public class PlayerK extends Player {
         cost = (int) (cost / kImportance);
 
         cost = getLocationCost();
-        if (cost < 0) cost = (int) Math.random() * 5 + 1;
+        if (cost < 0) cost = (int)(Math.random() * 5) + 1;
     }
 
     //Custom Player
@@ -140,7 +140,7 @@ public class PlayerK extends Player {
 
     @Override
     public int getCareerScore() {
-        return (getFGMade() * 20 + getXPMade() * 5) * (int) getFGpct() / 100 + ratOvr * 10 + (getCareerFGMade() * 25 + getCareerXPMade() * 5) * (int) (getCareerFGpct() / 100) + ratOvr * 10 * year;
+        return (getFGMade() * 20 + getXPMade() * 5) * (int) getFGpct() / 100 + ratOvr * 10 + (getCareerFGMade() * 25 + getCareerXPMade() * 5) * (int) getCareerFGpct() / 100 + ratOvr * 10 * year;
     }
 
     //PLAYER RATINGS FOR PROFILE
@@ -157,7 +157,7 @@ public class PlayerK extends Player {
         ArrayList<String> pStats = new ArrayList<>();
         if ((getXPAtt() + getCareerXPAtt()) > 0) {
             pStats.add("XP Made/Att: " + getCareerXPMade() + "/" + getCareerXPAtt() +
-                    ">XP Percentage: " + df2.format (100 * (float) (getCareerXPMade() / getCareerXPAtt())) + "%");
+                    ">XP Percentage: " + df2.format (100 * (float) getCareerXPMade() / getCareerXPAtt()) + "%");
         } else {
             pStats.add("XP Made/Att: 0/0>XP Percentage: 0%");
         }

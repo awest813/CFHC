@@ -858,7 +858,7 @@ public class Team {
 
         //MAKE HEAD COACH
         if (coach) {
-            int coachNum = 100 * (int) Math.random();
+            int coachNum = (int)(Math.random() * 100);
             if (coachNum < 20) {
                 HC = new HeadCoach(league.getRandName(), stars - 2, 0, this);
             } else if (coachNum > 80) {
@@ -867,7 +867,7 @@ public class Team {
                 HC = new HeadCoach(league.getRandName(), stars, 0, this);
             }
 
-            coachNum = 100 * (int) Math.random();
+            coachNum = (int)(Math.random() * 100);
             if (coachNum < 20) {
                 OC = new OC(league.getRandName(), stars - 2, 0, this);
             } else if (coachNum > 80) {
@@ -876,7 +876,7 @@ public class Team {
                 OC = new OC(league.getRandName(), stars, 0, this);
             }
 
-            coachNum = 100 * (int) Math.random();
+            coachNum = (int)(Math.random() * 100);
             if (coachNum < 20) {
                 DC = new DC(league.getRandName(), stars - 2, 0, this);
             } else if (coachNum > 80) {
@@ -901,6 +901,7 @@ public class Team {
         for(int i = 0; i < teamFRs.size() ; i++) {
             if(teamFRs.get(i).year != 1 || teamFRs.get(i).wasRedshirt) {
                 teamFRs.remove(i);
+                i--;
             }
         }
         Collections.sort(teamFRs, new CompPlayer());

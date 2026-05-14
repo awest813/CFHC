@@ -17,6 +17,7 @@ public class PlayerST {
 
     public String getInitialName() {
         String[] names = name.split(" ");
+        if (names.length < 2) return name;
         return names[0].substring(0, 1) + ". " + names[1];
 }
 }

@@ -41,6 +41,8 @@ public class PlayerDefense {
             return "Jr";
         } else if (year == 4) {
             return "Sr";
+        } else if (year >= 5) {
+            return "5Y-Sr";
         }
         return "ERROR";
     }

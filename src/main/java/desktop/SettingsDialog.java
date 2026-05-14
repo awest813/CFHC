@@ -301,7 +301,7 @@ public class SettingsDialog extends JDialog {
     }
 
     private static Color dialogBackground() {
-        return DesktopTheme.isDark() ? new Color(15, 20, 28) : DesktopTheme.windowBackground();
+        return DesktopTheme.windowBackground();
     }
 
     private static Color dialogSurface() {

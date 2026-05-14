@@ -558,7 +558,7 @@ public final class RecruitingSessionData {
                 avail50.add(recruit);
                 added++;
             }
-            if (added > 50) {
+            if (added >= 50) {
                 break;
             }
         }
