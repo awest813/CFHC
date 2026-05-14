@@ -23,3 +23,6 @@ captures/
 *.jks
 *.keystore
 signing.properties
+
+# Compiled class output (Gradle uses build/, but other builds may produce target/)
+target/
