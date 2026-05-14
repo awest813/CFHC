@@ -70,15 +70,15 @@ public class ContractDialog extends JDialog {
         content.add(header, BorderLayout.NORTH);
 
         String statsHtml = String.format(Locale.US,
-            "<html><body style='width: 500px; color:#ABB2BF; font-family:SansSerif; font-size:11pt;'>" +
-            "<p>COACH <b style='color:white'>%s</b> (AGE %d)</p><br/>" +
+            "<html><body style='width: 500px; color:" + DesktopTheme.cssRgb(DesktopTheme.textSecondary()) + "; font-family:SansSerif; font-size:11pt;'>" +
+            "<p>COACH <b style='color:" + DesktopTheme.cssRgb(DesktopTheme.textPrimary()) + "'>%s</b> (AGE %d)</p><br/>" +
             "<p>You have reached the standard retirement threshold. You may choose to conclude your prestigious career today, or persevere for another campaign.</p><br/>" +
             "<table border='0' cellpadding='6' style='margin-left: 20px;'>" +
-            "<tr><td>CAREER RECORD:</td><td style='color:white'>%d-%d</td></tr>" +
-            "<tr><td>NATIONAL TITLES:</td><td style='color:#F1C40F'>%d</td></tr>" +
-            "<tr><td>CONFERENCE TITLES:</td><td style='color:white'>%d</td></tr>" +
-            "<tr><td>BOWL VICTORIES:</td><td style='color:white'>%d</td></tr>" +
-            "<tr><td>WIN RATE:</td><td style='color:white'>%.1f%%</td></tr>" +
+            "<tr><td>CAREER RECORD:</td><td style='color:" + DesktopTheme.cssRgb(DesktopTheme.textPrimary()) + "'>%d-%d</td></tr>" +
+            "<tr><td>NATIONAL TITLES:</td><td style='color:" + DesktopTheme.cssRgb(new java.awt.Color(241, 196, 15)) + "'>%d</td></tr>" +
+            "<tr><td>CONFERENCE TITLES:</td><td style='color:" + DesktopTheme.cssRgb(DesktopTheme.textPrimary()) + "'>%d</td></tr>" +
+            "<tr><td>BOWL VICTORIES:</td><td style='color:" + DesktopTheme.cssRgb(DesktopTheme.textPrimary()) + "'>%d</td></tr>" +
+            "<tr><td>WIN RATE:</td><td style='color:" + DesktopTheme.cssRgb(DesktopTheme.textPrimary()) + "'>%.1f%%</td></tr>" +
             "</table>" +
             "</body></html>",
             hc.name.toUpperCase(Locale.ROOT), hc.age, hc.stats[0], hc.stats[1], hc.stats[6], hc.stats[2], hc.stats[4],
@@ -135,7 +135,7 @@ public class ContractDialog extends JDialog {
         String contractHtml = (userTeam != null)
                 ? userTeam.getContractString().toUpperCase(Locale.ROOT).replace("\n", "<br/>")
                 : "NO ACTIVE CONTRACT DATA.";
-        JLabel contractLabel = new JLabel("<html><body style='color:#ABB2BF; font-family:SansSerif; font-size:10pt; line-height: 1.4;'>" + contractHtml + "</body></html>");
+        JLabel contractLabel = new JLabel("<html><body style='color:" + DesktopTheme.cssRgb(DesktopTheme.textSecondary()) + "; font-family:SansSerif; font-size:10pt; line-height: 1.4;'>" + contractHtml + "</body></html>");
         contractLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
         leftCard.add(contractLabel);
         
@@ -143,12 +143,12 @@ public class ContractDialog extends JDialog {
         JPanel rightCard = createInfoCard("CAREER PROFILE");
         if (hc != null) {
             String profileHtml = String.format(Locale.US,
-                "<html><body style='color:#ABB2BF; font-family:SansSerif; font-size:10pt; line-height: 1.4;'>" +
-                "NAME: <b style='color:white'>%s</b><br/>" +
-                "AGE: <b style='color:white'>%d</b><br/>" +
-                "RATING: <b style='color:#3498DB'>%d OVR</b><br/>" +
+                "<html><body style='color:" + DesktopTheme.cssRgb(DesktopTheme.textSecondary()) + "; font-family:SansSerif; font-size:10pt; line-height: 1.4;'>" +
+                "NAME: <b style='color:" + DesktopTheme.cssRgb(DesktopTheme.textPrimary()) + "'>%s</b><br/>" +
+                "AGE: <b style='color:" + DesktopTheme.cssRgb(DesktopTheme.textPrimary()) + "'>%d</b><br/>" +
+                "RATING: <b style='color:" + DesktopTheme.cssRgb(new java.awt.Color(52, 152, 219)) + "'>%d OVR</b><br/>" +
                 "STATUS: %s<br/>" +
-                "SEASON GRADE: <b style='color:white'>%s</b><br/><br/>" +
+                "SEASON GRADE: <b style='color:" + DesktopTheme.cssRgb(DesktopTheme.textPrimary()) + "'>%s</b><br/><br/>" +
                 "TENURE: YEAR %d OF %d<br/>" +
                 "CAREER: %d-%d<br/>" +
                 "WIN RATE: %.1f%%" +

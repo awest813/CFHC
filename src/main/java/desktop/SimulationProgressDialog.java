@@ -8,7 +8,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 
@@ -43,9 +42,7 @@ public class SimulationProgressDialog extends JDialog {
         progressBar.setStringPainted(true);
         progressBar.setPreferredSize(new Dimension(370, 26));
         progressBar.setBackground(DesktopTheme.textAreaEditorBackground());
-        progressBar.setForeground(DesktopTheme.isDark()
-                ? new Color(100, 170, 255)
-                : new Color(50, 120, 210));
+        progressBar.setForeground(DesktopTheme.selectionAccent());
         panel.add(progressBar, BorderLayout.CENTER);
 
         JButton cancelBtn = new JButton("Interrupt");

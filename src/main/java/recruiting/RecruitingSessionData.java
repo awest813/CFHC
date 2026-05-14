@@ -178,7 +178,7 @@ public final class RecruitingSessionData {
     public void applyBudgetBonuses(int minPlayers) {
         int recBonus = (int) ((minPlayers - teamPlayers.size()) * 27.5);
         int coachBonus = (int) (coachTalent * 3.5);
-        recruitingBudget += recBonus + coachBonus;
+        recruitingBudget += Math.max(0, recBonus + coachBonus);
     }
 
     public PositionNeeds calculateNeeds(int minQBs, int minRBs, int minWRs, int minTEs, int minOLs, int minKs, int minDLs, int minLBs, int minCBs, int minSs) {
@@ -257,7 +257,7 @@ public final class RecruitingSessionData {
 
     public void sortBoardsByCost() {
         Collections.sort(availAll, new CompRecruitCost());
-        Collections.sort(avail50, new CompRecruitCost());
+        if (avail50 != null) Collections.sort(avail50, new CompRecruitCost());
         Collections.sort(availQBs, new CompRecruitCost());
         Collections.sort(availRBs, new CompRecruitCost());
         Collections.sort(availWRs, new CompRecruitCost());
@@ -535,6 +535,7 @@ public final class RecruitingSessionData {
         Collections.sort(availLBs, new CompRecruitScoutGrade());
         Collections.sort(availCBs, new CompRecruitScoutGrade());
         Collections.sort(availSs, new CompRecruitScoutGrade());
+        if (avail50 != null) Collections.sort(avail50, new CompRecruitScoutGrade());
     }
 
     public void sortTeamByOverall() {

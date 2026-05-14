@@ -2217,11 +2217,11 @@ public class LeagueHomeView extends JFrame {
             @Override
             public java.awt.Component getTableCellRendererComponent(JTable t, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
                 java.awt.Component c = super.getTableCellRendererComponent(t, value, isSelected, hasFocus, row, col);
-                if (!isSelected && userTeamName != null && col == 0 && value != null) {
+                if (!isSelected && c instanceof javax.swing.JLabel jl && userTeamName != null && col == 0 && value != null) {
                     String matchup = value.toString();
                     if (matchup.contains(userTeamName)) {
                         c.setBackground(userTeamTint);
-                        ((JLabel)c).setFont(((JLabel)c).getFont().deriveFont(Font.BOLD));
+                        jl.setFont(jl.getFont().deriveFont(Font.BOLD));
                     }
                 }
                 return c;

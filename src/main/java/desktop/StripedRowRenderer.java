@@ -16,9 +16,6 @@ import java.awt.event.MouseMotionAdapter;
  */
 public class StripedRowRenderer extends DefaultTableCellRenderer {
 
-    private static final Color HOVER_TINT_DARK   = new Color(52, 56, 68);
-    private static final Color HOVER_TINT_LIGHT  = new Color(235, 238, 244);
-
     /**
      * Installs this renderer for {@link Object} and common numeric column classes so
      * {@link DefaultTableModel#getColumnClass(int)} rows (e.g. {@link Float}, {@link Integer}) stay striped.
@@ -99,8 +96,7 @@ public class StripedRowRenderer extends DefaultTableCellRenderer {
             c.setBackground(DesktopTheme.selectionAccent());
             c.setForeground(Color.WHITE);
         } else if (isHovered) {
-            boolean dark = DesktopTheme.isDark();
-            c.setBackground(dark ? HOVER_TINT_DARK : HOVER_TINT_LIGHT);
+            c.setBackground(DesktopTheme.tableHoverTint());
             c.setForeground(DesktopTheme.textPrimary());
         } else {
             c.setBackground(row % 2 == 0 ? DesktopTheme.tableBase() : DesktopTheme.tableStripe());

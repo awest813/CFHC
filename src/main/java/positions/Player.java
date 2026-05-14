@@ -366,6 +366,7 @@ public class Player {
         height = Integer.parseInt(a[17]);
         weight = Integer.parseInt(a[18]);
         ratOvr = getOverall();
+        ratImprovement = Integer.parseInt(a[19]);
     }
 
     public void loadRecruit(String data, int[] wt) {
@@ -405,20 +406,21 @@ public class Player {
     public void loadCareerStats(String s) {
         careerStats = new ArrayList<>();
 
-        if (Arrays.asList(offensePos).contains(position)) stats = new int[offStats];
-        else if (Arrays.asList(defensePos).contains(position)) stats = new int[defStats];
-        else if (Arrays.asList(olPos).contains(position)) stats = new int[olStats];
-        else stats = new int[kickStats];
+        int len;
+        if (Arrays.asList(offensePos).contains(position)) len = offStats;
+        else if (Arrays.asList(defensePos).contains(position)) len = defStats;
+        else if (Arrays.asList(olPos).contains(position)) len = olStats;
+        else len = kickStats;
 
         for (int i = 0; i < 5; i++) {
-            careerStats.add(new int[stats.length]);
+            careerStats.add(new int[len]);
         }
 
         String[] x = s.split("!");
 
         for (int i = 0; i < Math.min(x.length, careerStats.size()); i++) {
             String[] y = x[i].split(",");
-            for (int j = 0; j < Math.min(y.length, stats.length); j++) {
+            for (int j = 0; j < Math.min(y.length, len); j++) {
                 careerStats.get(i)[j] = Integer.parseInt(y[j]);
             }
         }
@@ -530,18 +532,18 @@ public class Player {
 
             if (year > 2 && games < minGamesPot) ratPot -= (int) (Math.random() * 15);
 
-            ratIntelligence += ((int) (Math.random() * (progression + games - endseason)) / endseasonFactor) / 1.5;
+            ratIntelligence += (int) ((Math.random() * (progression + games - endseason)) / (endseasonFactor * 1.5));
             ratAttr1 += (int) (Math.random() * (progression + games - endseason)) / endseasonFactor;
             ratAttr2 += (int) (Math.random() * (progression + games - endseason)) / endseasonFactor;
             ratAttr3 += (int) (Math.random() * (progression + games - endseason)) / endseasonFactor;
-            ratAttr4 += ((int) (Math.random() * (progression + games - endseason)) / endseasonFactor) / 1.5;
+            ratAttr4 += (int) ((Math.random() * (progression + games - endseason)) / (endseasonFactor * 1.5));
 
             if (Math.random() * 100 < progression) {
                 //breakthrough
-                ratAttr1 += ((int) (Math.random() * (progression + games - endseasonBonus)) / endseasonFactor) / 1.5;
-                ratAttr2 += ((int) (Math.random() * (progression + games - endseasonBonus)) / endseasonFactor) / 1.5;
-                ratAttr3 += ((int) (Math.random() * (progression + games - endseasonBonus)) / endseasonFactor) / 1.5;
-                ratAttr4 += ((int) (Math.random() * (progression + games - endseasonBonus)) / endseasonFactor) / 1.5;
+                ratAttr1 += (int) ((Math.random() * (progression + games - endseasonBonus)) / (endseasonFactor * 1.5));
+                ratAttr2 += (int) ((Math.random() * (progression + games - endseasonBonus)) / (endseasonFactor * 1.5));
+                ratAttr3 += (int) ((Math.random() * (progression + games - endseasonBonus)) / (endseasonFactor * 1.5));
+                ratAttr4 += (int) ((Math.random() * (progression + games - endseasonBonus)) / (endseasonFactor * 1.5));
             }
 
             if(getChemistryProgression() > 0) character += getChemistryProgression()/2;
@@ -743,7 +745,8 @@ public class Player {
     public int getProgressionOff() {
         HeadCoach hc = team.getHeadCoach();
         int dev = hc != null ? hc.developmentBonusPoints() : 0;
-        int num = (ratPot * 4 + (hc != null ? hc.ratTalent * 2 : 0) + team.getOC().ratOff + 7 * team.getTeamFacilities() + dev
+        int ocRating = team.getOC() != null ? team.getOC().ratOff : 0;
+        int num = (ratPot * 4 + (hc != null ? hc.ratTalent * 2 : 0) + ocRating + 7 * team.getTeamFacilities() + dev
                 + (int) (Math.random() * getChemistryProgression())) / 7;
         return num;
     }
@@ -751,7 +754,8 @@ public class Player {
     public int getProgressionDef() {
         HeadCoach hc = team.getHeadCoach();
         int dev = hc != null ? hc.developmentBonusPoints() : 0;
-        int num = (ratPot * 4 + (hc != null ? hc.ratTalent * 2 : 0) + team.getDC().ratDef + 7 * team.getTeamFacilities() + dev
+        int dcRating = team.getDC() != null ? team.getDC().ratDef : 0;
+        int num = (ratPot * 4 + (hc != null ? hc.ratTalent * 2 : 0) + dcRating + 7 * team.getTeamFacilities() + dev
                 + (int) (Math.random() * getChemistryProgression())) / 7;
         return num;
     }
@@ -1285,7 +1289,11 @@ public class Player {
     }
 
     public String getSeasonsPlayed() {
-        return careerStats.get(0)[0] + " to " + careerStats.get(careerStats.size() - 1)[0];
+        int firstIdx = 0;
+        for (int i = 0; i < careerStats.size(); i++) {
+            if (careerStats.get(i)[0] > 0) { firstIdx = i; break; }
+        }
+        return careerStats.get(firstIdx)[0] + " to " + careerStats.get(careerStats.size() - 1)[0];
     }
 
 
@@ -2264,7 +2272,7 @@ public class Player {
     }
 
     public float getCareerPasserRating() {
-        if (getPassAtt() < 1) {
+        if (getCareerPassAtt() < 1) {
             return 0;
         } else {
             float rating = (float) (((8.4 * getCareerPassYards()) + (300 * (getCareerPassTD())) + (100 * (getCareerPassComp())) - (200 * (getCareerPassInt()))) / (getCareerPassAtt()));
@@ -2282,11 +2290,10 @@ public class Player {
     }
 
     public float getCareerYardsPerAttempt() {
-        if (getPassAtt() + getCareerPassAtt() < 1) {
+        if (getCareerPassAtt() < 1) {
             return 0;
         } else {
-            float ypa = (float) (getPassYards() + getCareerPassYards()) / (getPassAtt() + getCareerPassAtt());
-            return ypa;
+            return (float) getCareerPassYards() / getCareerPassAtt();
         }
     }
 
@@ -2387,7 +2394,7 @@ public class Player {
     //Receiving
 
     public float getYardsperTGT() {
-        if (getReceptions() < 1) {
+        if (getTargets() < 1) {
             return 0;
         } else {
             float rating = (float) getRecYards() / getTargets();
@@ -2396,7 +2403,7 @@ public class Player {
     }
 
     public float getCareerYardsperTGT() {
-        if (getCareerReceptions() < 1) {
+        if (getCareerTargets() < 1) {
             return 0;
         } else {
             float rating = (float) getCareerRecYards() / getCareerTargets();

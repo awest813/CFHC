@@ -134,11 +134,11 @@ public class CoordinatorHiringDialog extends JDialog {
         card.add(title, BorderLayout.NORTH);
 
         String stats = String.format(Locale.ROOT,
-            "<html><body style='color:#ABB2BF; font-family:SansSerif; font-size:11pt; line-height:1.6;'>" +
-            "<b style='color:white; font-size:14pt;'>%s</b><br/><br/>" +
-            "AGE: <b style='color:white'>%d</b><br/>" +
-            "RATING: <b style='color:white'>%d</b><br/>" +
-            "TALENT: <b style='color:white'>%d</b><br/>" +
+            "<html><body style='color:" + DesktopTheme.cssRgb(DesktopTheme.textSecondary()) + "; font-family:SansSerif; font-size:11pt; line-height:1.6;'>" +
+            "<b style='color:" + DesktopTheme.cssRgb(DesktopTheme.textPrimary()) + "; font-size:14pt;'>%s</b><br/><br/>" +
+            "AGE: <b style='color:" + DesktopTheme.cssRgb(DesktopTheme.textPrimary()) + "'>%d</b><br/>" +
+            "RATING: <b style='color:" + DesktopTheme.cssRgb(DesktopTheme.textPrimary()) + "'>%d</b><br/>" +
+            "TALENT: <b style='color:" + DesktopTheme.cssRgb(DesktopTheme.textPrimary()) + "'>%d</b><br/>" +
             "TENURE: YEAR %d OF %d<br/>" +
             "</body></html>",
             DesktopTheme.escapeForHtml(s.name.toUpperCase(Locale.ROOT)), s.age, (s instanceof OC ? s.ratOff : s.ratDef), s.ratTalent,

@@ -88,6 +88,7 @@ public class RedshirtDialog extends JDialog {
         // Left — currently redshirted players
         currentModel = createModel();
         JTable currentTable = createModernTable(currentModel);
+        StripedRowRenderer.install(currentTable);
 
         JPanel leftPanel = new JPanel(new BorderLayout(0, 15));
         leftPanel.setOpaque(false);
@@ -120,6 +121,7 @@ public class RedshirtDialog extends JDialog {
         // Right — freshmen eligible for redshirt
         eligibleModel = createModel();
         JTable eligibleTable = createModernTable(eligibleModel);
+        StripedRowRenderer.install(eligibleTable);
 
         JPanel rightPanel = new JPanel(new BorderLayout(0, 15));
         rightPanel.setOpaque(false);
@@ -167,7 +169,7 @@ public class RedshirtDialog extends JDialog {
         table.setForeground(DesktopTheme.textPrimary());
         table.setGridColor(DesktopTheme.borderSubtle());
         table.setShowVerticalLines(false);
-        table.setSelectionBackground(ACCENT_BLUE);
+        table.setSelectionBackground(DesktopTheme.selectionAccent());
         
         table.getTableHeader().setBackground(DesktopTheme.tableBase());
         table.getTableHeader().setForeground(DesktopTheme.textSecondary());

@@ -124,7 +124,8 @@ public class TransferPortalDialog extends JDialog {
         table.setForeground(DesktopTheme.textPrimary());
         table.setGridColor(DesktopTheme.borderSubtle());
         table.setShowVerticalLines(false);
-        table.setSelectionBackground(ACCENT_BLUE);
+        table.setSelectionBackground(DesktopTheme.selectionAccent());
+        StripedRowRenderer.install(table);
         
         table.getTableHeader().setBackground(DesktopTheme.tableBase());
         table.getTableHeader().setForeground(DesktopTheme.textSecondary());

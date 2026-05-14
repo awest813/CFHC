@@ -159,9 +159,8 @@ public class PlayerWR extends Player {
 
     @Override
     public int getCareerScore() {
-        return getRecTDs() * 150 - getFumbles() * 75 + getReceptions() * 2 - getDrops() * 25 + (int) (getRecYards() * 2.65) + ratOvr * 10
-                + getCareerRecTDs() * 150 - getCareerFumbles() * 75 + getCareerReceptions() * 2 - getCareerDrops() * 25 + (int) (getCareerRecYards() * 2.65)
-                + getPuntYards() + getPuntTDs() * 150 + getCareerKOYards() + getCareerKOTDs() * 150 + getCareerPuntYards() + getCareerPuntTDs() * 150 + ratOvr * 10 * year;
+        return getCareerRecTDs() * 150 - getCareerFumbles() * 75 + getCareerReceptions() * 2 - getCareerDrops() * 25 + (int) (getCareerRecYards() * 2.65)
+                + getCareerKOYards() + getCareerKOTDs() * 150 + getCareerPuntYards() + getCareerPuntTDs() * 150 + ratOvr * 10 * year;
 
     }
 

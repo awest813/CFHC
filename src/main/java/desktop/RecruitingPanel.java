@@ -225,12 +225,14 @@ public class RecruitingPanel extends JPanel {
         JButton scoutBtn = new JButton("Scout (10% cost)");
         scoutBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         scoutBtn.setFocusPainted(false);
+        DesktopTheme.styleSecondaryButton(scoutBtn);
         scoutBtn.addActionListener(e -> scoutSelected());
         actionPanel.add(scoutBtn);
 
         JButton recruitBtn = new JButton("Recruit");
         recruitBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         recruitBtn.setFocusPainted(false);
+        DesktopTheme.stylePrimaryButton(recruitBtn);
         recruitBtn.addActionListener(e -> recruitSelected());
         actionPanel.add(recruitBtn);
 

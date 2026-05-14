@@ -45,12 +45,12 @@ public final class CoachProgramDialog {
         area.setLineWrap(true);
         area.setWrapStyleWord(true);
         area.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        area.setBackground(DesktopTheme.windowBackground());
-        area.setForeground(DesktopTheme.textPrimary());
+        DesktopTheme.styleTextContent(area);
         area.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
         JScrollPane scroll = new JScrollPane(area);
         scroll.setBorder(BorderFactory.createLineBorder(DesktopTheme.borderSubtle(), 1));
+        scroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
         d.add(scroll, BorderLayout.CENTER);
 
         JLabel xpLabel = new JLabel();

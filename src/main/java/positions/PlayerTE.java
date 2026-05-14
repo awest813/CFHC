@@ -161,8 +161,7 @@ public class PlayerTE extends Player {
 
     @Override
     public int getCareerScore() {
-        return getRecTDs() * 220 - getFumbles() * 75 + getReceptions() * 2 - getDrops() * 25 + getRecYards() * 3 + ratOvr * 10 +
-                getCareerRecTDs() * 220 - getCareerFumbles() * 75 + getCareerReceptions() * 3 - getCareerDrops() * 25 + getCareerRecYards() * 3 + ratOvr * 10 * year;
+        return getCareerRecTDs() * 220 - getCareerFumbles() * 75 + getCareerReceptions() * 2 - getCareerDrops() * 25 + getCareerRecYards() * 3 + ratOvr * 10 * year;
     }
 
     //PLAYER RATINGS FOR PROFILE

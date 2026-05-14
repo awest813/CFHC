@@ -140,7 +140,7 @@ public class PlayerK extends Player {
 
     @Override
     public int getCareerScore() {
-        return (getFGMade() * 20 + getXPMade() * 5) * (int) getFGpct() / 100 + ratOvr * 10 + (getCareerFGMade() * 25 + getCareerXPMade() * 5) * (int) getCareerFGpct() / 100 + ratOvr * 10 * year;
+        return (getCareerFGMade() * 25 + getCareerXPMade() * 5) * (int) getCareerFGpct() / 100 + ratOvr * 10 * year;
     }
 
     //PLAYER RATINGS FOR PROFILE

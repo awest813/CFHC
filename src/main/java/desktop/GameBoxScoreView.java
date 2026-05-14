@@ -44,6 +44,7 @@ public class GameBoxScoreView extends JDialog {
             JTabbedPane tabs = new JTabbedPane();
             tabs.setOpaque(true);
             tabs.setBackground(DesktopTheme.windowBackground());
+            tabs.setForeground(DesktopTheme.textPrimary());
             tabs.addTab("Box Score", buildBoxScorePanel());
             tabs.addTab("Detailed Stats", buildDetailedStatsPanel());
             tabs.addTab("Play-by-Play", buildPlayByPlayPanel());
