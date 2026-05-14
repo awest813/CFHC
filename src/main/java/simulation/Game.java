@@ -24,6 +24,9 @@ import positions.PlayerS;
 import positions.PlayerST;
 import positions.PlayerTE;
 import positions.PlayerWR;
+import staff.HeadCoach;
+import staff.OC;
+import staff.DC;
 
 
 public class Game implements Serializable {
@@ -191,36 +194,52 @@ public class Game implements Serializable {
     }
 
     private int getCoachAdv() {
-        int adv = 0;
         coachingStrategyAdjustments();
+        HeadCoach homeHC = homeTeam.getHeadCoach();
+        HeadCoach awayHC = awayTeam.getHeadCoach();
+        OC homeOC = homeTeam.getOC();
+        DC homeDC = homeTeam.getDC();
+        OC awayOC = awayTeam.getOC();
+        DC awayDC = awayTeam.getDC();
+        int adv = 0;
 
         if (gamePoss) {
 
             int HTstrat = 0;
-            if(homeTeam.getPlaybookOffNum() != homeTeam.getOC().offStrat && homeTeam.getPlaybookOffNum() != homeTeam.getHeadCoach().offStrat) HTstrat = -2;
-            else if(homeTeam.getPlaybookOffNum() == homeTeam.getOC().offStrat && homeTeam.getPlaybookOffNum() != homeTeam.getHeadCoach().offStrat) HTstrat = 0;
-            else if(homeTeam.getPlaybookOffNum() != homeTeam.getOC().offStrat && homeTeam.getPlaybookOffNum() == homeTeam.getHeadCoach().offStrat) HTstrat = -1;
+            if (homeOC != null && homeHC != null) {
+                if(homeTeam.getPlaybookOffNum() != homeOC.offStrat && homeTeam.getPlaybookOffNum() != homeHC.offStrat) HTstrat = -2;
+                else if(homeTeam.getPlaybookOffNum() == homeOC.offStrat && homeTeam.getPlaybookOffNum() != homeHC.offStrat) HTstrat = 0;
+                else if(homeTeam.getPlaybookOffNum() != homeOC.offStrat && homeTeam.getPlaybookOffNum() == homeHC.offStrat) HTstrat = -1;
+            }
 
-            int ATstrat = Math.abs(awayTeam.getPlaybookDefNum() - awayTeam.getDC().defStrat);
-            if(awayTeam.getPlaybookDefNum() != awayTeam.getDC().defStrat && awayTeam.getPlaybookDefNum() != awayTeam.getHeadCoach().defStrat) ATstrat = -2;
-            else if(awayTeam.getPlaybookDefNum() == awayTeam.getDC().defStrat && awayTeam.getPlaybookDefNum() != awayTeam.getHeadCoach().defStrat) ATstrat = 0;
-            else if(awayTeam.getPlaybookDefNum() != awayTeam.getDC().defStrat && awayTeam.getPlaybookDefNum() == awayTeam.getHeadCoach().defStrat) ATstrat = -1;
-            
-            adv = Math.round((homeTeam.getHeadCoach().ratOff + 2*homeTeam.getOC().ratOff + HTstrat - ATstrat - 2*awayTeam.getDC().ratDef - awayTeam.getHeadCoach().ratDef) / 5);
+            int awayDCdef = awayDC != null ? awayDC.defStrat : 0;
+            int ATstrat = Math.abs(awayTeam.getPlaybookDefNum() - awayDCdef);
+            if (awayDC != null && awayHC != null) {
+                if(awayTeam.getPlaybookDefNum() != awayDC.defStrat && awayTeam.getPlaybookDefNum() != awayHC.defStrat) ATstrat = -2;
+                else if(awayTeam.getPlaybookDefNum() == awayDC.defStrat && awayTeam.getPlaybookDefNum() != awayHC.defStrat) ATstrat = 0;
+                else if(awayTeam.getPlaybookDefNum() != awayDC.defStrat && awayTeam.getPlaybookDefNum() == awayHC.defStrat) ATstrat = -1;
+            }
+
+            adv = (int)Math.round(((homeHC != null ? homeHC.ratOff : 0) + 2*(homeOC != null ? homeOC.ratOff : 0) + HTstrat - ATstrat - 2*(awayDC != null ? awayDC.ratDef : 0) - (awayHC != null ? awayHC.ratDef : 0)) / 5.0);
 
         } else {
 
             int HTstrat = 0;
-            if(homeTeam.getPlaybookDefNum() != homeTeam.getDC().defStrat && homeTeam.getPlaybookDefNum() != homeTeam.getHeadCoach().defStrat) HTstrat = -2;
-            else if(homeTeam.getPlaybookDefNum() == homeTeam.getDC().defStrat && homeTeam.getPlaybookDefNum() != homeTeam.getHeadCoach().defStrat) HTstrat = 0;
-            else if(homeTeam.getPlaybookDefNum() != homeTeam.getDC().defStrat && homeTeam.getPlaybookDefNum() == homeTeam.getHeadCoach().defStrat) HTstrat = -1;
+            if (homeDC != null && homeHC != null) {
+                if(homeTeam.getPlaybookDefNum() != homeDC.defStrat && homeTeam.getPlaybookDefNum() != homeHC.defStrat) HTstrat = -2;
+                else if(homeTeam.getPlaybookDefNum() == homeDC.defStrat && homeTeam.getPlaybookDefNum() != homeHC.defStrat) HTstrat = 0;
+                else if(homeTeam.getPlaybookDefNum() != homeDC.defStrat && homeTeam.getPlaybookDefNum() == homeHC.defStrat) HTstrat = -1;
+            }
 
-            int ATstrat = Math.abs(awayTeam.getPlaybookOffNum() - awayTeam.getOC().offStrat);
-            if(awayTeam.getPlaybookOffNum() != awayTeam.getOC().offStrat && awayTeam.getPlaybookOffNum() != awayTeam.getHeadCoach().offStrat) ATstrat = -2;
-            else if(awayTeam.getPlaybookOffNum() == awayTeam.getOC().offStrat && awayTeam.getPlaybookOffNum() != awayTeam.getHeadCoach().offStrat) ATstrat = 0;
-            else if(awayTeam.getPlaybookOffNum() != awayTeam.getOC().offStrat && awayTeam.getPlaybookOffNum() == awayTeam.getHeadCoach().offStrat) ATstrat = -1;
+            int awayOCoff = awayOC != null ? awayOC.offStrat : 0;
+            int ATstrat = Math.abs(awayTeam.getPlaybookOffNum() - awayOCoff);
+            if (awayOC != null && awayHC != null) {
+                if(awayTeam.getPlaybookOffNum() != awayOC.offStrat && awayTeam.getPlaybookOffNum() != awayHC.offStrat) ATstrat = -2;
+                else if(awayTeam.getPlaybookOffNum() == awayOC.offStrat && awayTeam.getPlaybookOffNum() != awayHC.offStrat) ATstrat = 0;
+                else if(awayTeam.getPlaybookOffNum() != awayOC.offStrat && awayTeam.getPlaybookOffNum() == awayHC.offStrat) ATstrat = -1;
+            }
 
-            adv = Math.round((awayTeam.getHeadCoach().ratOff + 2*awayTeam.getOC().ratOff + ATstrat - HTstrat - 2*homeTeam.getDC().ratDef - homeTeam.getHeadCoach().ratDef) / 5);
+            adv = (int)Math.round(((awayHC != null ? awayHC.ratOff : 0) + 2*(awayOC != null ? awayOC.ratOff : 0) + ATstrat - HTstrat - 2*(homeDC != null ? homeDC.ratDef : 0) - (homeHC != null ? homeHC.ratDef : 0)) / 5.0);
         }
         adv += getTeamChemistryAdv();
         if (gamePoss) {
@@ -256,11 +275,13 @@ public class Game implements Serializable {
         homeDefense = homeTeam.getPlaybookDefNum();
         awayOffense = awayTeam.getPlaybookOffNum();
         awayDefense = awayTeam.getPlaybookDefNum();
+        HeadCoach homeHC = homeTeam.getHeadCoach();
+        HeadCoach awayHC = awayTeam.getHeadCoach();
 
         if (awayTeam.isUserControlled() || homeTeam.isUserControlled()) {
 
             //Counter Strategies - performed in snake order.
-            if (!homeTeam.isUserControlled() && homeTeam.getHeadCoach().ratDef > tacticalCoach && Math.random() < 0.35) {
+            if (!homeTeam.isUserControlled() && homeHC != null && homeHC.ratDef > tacticalCoach && Math.random() < 0.35) {
                 if (awayTeam.getPlaybookOffNum() == 0) homeTeam.setPlaybookDefNum(0);
                 if (awayTeam.getPlaybookOffNum() == 1) homeTeam.setPlaybookDefNum(1);
                 if (awayTeam.getPlaybookOffNum() == 2) {
@@ -272,7 +293,7 @@ public class Game implements Serializable {
                 if (awayTeam.getPlaybookOffNum() == 5) homeTeam.setPlaybookDefNum(3);
             }
 
-            if (!awayTeam.isUserControlled() && awayTeam.getHeadCoach().ratDef > tacticalCoach && Math.random() < 0.35) {
+            if (!awayTeam.isUserControlled() && awayHC != null && awayHC.ratDef > tacticalCoach && Math.random() < 0.35) {
                 if (homeTeam.getPlaybookOffNum() == 0) awayTeam.setPlaybookDefNum(0);
                 if (homeTeam.getPlaybookOffNum() == 1) awayTeam.setPlaybookDefNum(1);
                 if (homeTeam.getPlaybookOffNum() == 2) {
@@ -284,7 +305,7 @@ public class Game implements Serializable {
                 if (homeTeam.getPlaybookOffNum() == 5) awayTeam.setPlaybookDefNum(3);
             }
 
-            if (!awayTeam.isUserControlled() && awayTeam.getHeadCoach().ratOff > tacticalCoach && Math.random() < 0.35) {
+            if (!awayTeam.isUserControlled() && awayHC != null && awayHC.ratOff > tacticalCoach && Math.random() < 0.35) {
                 if (awayTeam.getPlaybookOffNum() == 1 && homeTeam.getPlaybookDefNum() == 1 || awayTeam.getPlaybookOffNum() == 4 && homeTeam.getPlaybookDefNum() == 1) {
                     awayTeam.setPlaybookOffNum((int) (Math.random() * 3) + 1);
                     if (awayTeam.getPlaybookOffNum() == 1) awayTeam.setPlaybookOffNum(0);
@@ -295,7 +316,7 @@ public class Game implements Serializable {
                 }
             }
 
-            if (!homeTeam.isUserControlled() && homeTeam.getHeadCoach().ratOff > tacticalCoach && Math.random() < 0.35) {
+            if (!homeTeam.isUserControlled() && homeHC != null && homeHC.ratOff > tacticalCoach && Math.random() < 0.35) {
                 if (homeTeam.getPlaybookOffNum() == 1 && awayTeam.getPlaybookDefNum() == 1 || homeTeam.getPlaybookOffNum() == 4 && awayTeam.getPlaybookDefNum() == 1) {
                     homeTeam.setPlaybookOffNum((int) (Math.random() * 3) + 1);
                     if (homeTeam.getPlaybookOffNum() == 1) homeTeam.setPlaybookOffNum(0);
@@ -309,7 +330,7 @@ public class Game implements Serializable {
         } else {
 
             //Counter Strategies - performed in snake order.
-            if (homeTeam.getHeadCoach().ratDef > tacticalCoach && Math.random() < 0.45) {
+            if (homeHC != null && homeHC.ratDef > tacticalCoach && Math.random() < 0.45) {
                 if (awayTeam.getPlaybookOffNum() == 0) homeTeam.setPlaybookDefNum(0);
                 if (awayTeam.getPlaybookOffNum() == 1) homeTeam.setPlaybookDefNum(1);
                 if (awayTeam.getPlaybookOffNum() == 2) {
@@ -321,7 +342,7 @@ public class Game implements Serializable {
                 if (awayTeam.getPlaybookOffNum() == 5) homeTeam.setPlaybookDefNum(3);
             }
 
-            if (awayTeam.getHeadCoach().ratDef > tacticalCoach && Math.random() < 0.45) {
+            if (awayHC != null && awayHC.ratDef > tacticalCoach && Math.random() < 0.45) {
                 if (homeTeam.getPlaybookOffNum() == 0) awayTeam.setPlaybookDefNum(0);
                 if (homeTeam.getPlaybookOffNum() == 1) awayTeam.setPlaybookDefNum(1);
                 if (homeTeam.getPlaybookOffNum() == 2) {
@@ -333,7 +354,7 @@ public class Game implements Serializable {
                 if (homeTeam.getPlaybookOffNum() == 5) awayTeam.setPlaybookDefNum(3);
             }
 
-            if (awayTeam.getHeadCoach().ratOff > tacticalCoach && Math.random() < 0.45) {
+            if (awayHC != null && awayHC.ratOff > tacticalCoach && Math.random() < 0.45) {
                 if (awayTeam.getPlaybookOffNum() == 1 && homeTeam.getPlaybookDefNum() == 1 || awayTeam.getPlaybookOffNum() == 4 && homeTeam.getPlaybookDefNum() == 1) {
                     awayTeam.setPlaybookOffNum((int) (Math.random() * 3) + 1);
                     if (awayTeam.getPlaybookOffNum() == 1) awayTeam.setPlaybookOffNum(0);
@@ -344,7 +365,7 @@ public class Game implements Serializable {
                 }
             }
 
-            if (homeTeam.getHeadCoach().ratOff > tacticalCoach && Math.random() < 0.45) {
+            if (homeHC != null && homeHC.ratOff > tacticalCoach && Math.random() < 0.45) {
                 if (homeTeam.getPlaybookOffNum() == 1 && awayTeam.getPlaybookDefNum() == 1 || homeTeam.getPlaybookOffNum() == 4 && awayTeam.getPlaybookDefNum() == 1) {
                     homeTeam.setPlaybookOffNum((int) (Math.random() * 3) + 1);
                     if (homeTeam.getPlaybookOffNum() == 1) homeTeam.setPlaybookOffNum(0);
@@ -390,8 +411,10 @@ public class Game implements Serializable {
 
         Collections.sort(teamReturner, new CompPlayerReturners());
 
-        teamReturner.get(0).gameSpeed = (float) (teamReturner.get(0).ratSpeed * Math.random());
-        teamReturner.get(1).gameSpeed = (float) (teamReturner.get(1).ratSpeed * Math.random());
+        if (teamReturner.size() >= 2) {
+            teamReturner.get(0).gameSpeed = (float) (teamReturner.get(0).ratSpeed * Math.random());
+            teamReturner.get(1).gameSpeed = (float) (teamReturner.get(1).ratSpeed * Math.random());
+        }
 
        if(awayTeam == t) {
            if (teamReturner.get(0).gameSpeed > teamReturner.get(1).gameSpeed)
@@ -531,8 +554,8 @@ public class Game implements Serializable {
                 homeTeam.getWinStreak().addWin(homeTeam.league.getYear());
                 homeTeam.league.checkLongestWinStreak(homeTeam.getWinStreak());
                 awayTeam.getWinStreak().resetStreak(awayTeam.league.getYear());
-                homeTeam.getHeadCoach().recordWins(1);
-                awayTeam.getHeadCoach().recordLosses(1);
+                if (homeTeam.getHeadCoach() != null) homeTeam.getHeadCoach().recordWins(1);
+                if (awayTeam.getHeadCoach() != null) awayTeam.getHeadCoach().recordLosses(1);
             } else {
                 homeTeam.incrementLosses();
                 homeTeam.addToGameWLSchedule("L");
@@ -543,7 +566,8 @@ public class Game implements Serializable {
                 awayTeam.getWinStreak().addWin(awayTeam.league.getYear());
                 awayTeam.league.checkLongestWinStreak(awayTeam.getWinStreak());
                 homeTeam.getWinStreak().resetStreak(homeTeam.league.getYear());
-                homeTeam.getHeadCoach().recordLosses(1);
+                if (awayTeam.getHeadCoach() != null) awayTeam.getHeadCoach().recordWins(1);
+                if (homeTeam.getHeadCoach() != null) homeTeam.getHeadCoach().recordLosses(1);
                 awayTeam.getHeadCoach().recordWins(1);
             }
 
@@ -3382,8 +3406,10 @@ public class Game implements Serializable {
         StringBuilder gameC = new StringBuilder();
         StringBuilder gameR = new StringBuilder();
 
-        int homeRating = (int) (homeTeam.getHeadCoach().ratDef + homeTeam.getHeadCoach().ratOff + 3*homeTeam.getTeamOffTalent() + 3*homeTeam.getTeamDefTalent() + 3)/8;
-        int awayRating = (int) (awayTeam.getHeadCoach().ratDef + awayTeam.getHeadCoach().ratOff + 3*awayTeam.getTeamOffTalent() + 3*awayTeam.getTeamDefTalent())/8;
+        HeadCoach homeHC = homeTeam.getHeadCoach();
+        HeadCoach awayHC = awayTeam.getHeadCoach();
+        int homeRating = (int) ((homeHC != null ? homeHC.ratDef + homeHC.ratOff : 0) + 3*homeTeam.getTeamOffTalent() + 3*homeTeam.getTeamDefTalent() + 3)/8;
+        int awayRating = (int) ((awayHC != null ? awayHC.ratDef + awayHC.ratOff : 0) + 3*awayTeam.getTeamOffTalent() + 3*awayTeam.getTeamDefTalent())/8;
 
         gameL.append("Ranking\nRecord\nPPG\nOpp PPG\nYPG\nOpp YPG\n" +
                 "\nPass YPG\nRush YPG\nOpp PYPG\nOpp RYPG\n\nOff Talent\nDef Talent\nPrestige\n\nHC\nHC Ovr\nHC Off\nOffense\nHC Def\nDefense\n\nFavorite");
@@ -3396,8 +3422,8 @@ public class Game implements Serializable {
                 t.getTeamOppPassYards() / g + " (" + t.getRankTeamOppPassYards() + ")\n" + t.getTeamOppRushYards() / g + " (" + t.getRankTeamOppRushYards() + ")\n\n" +
                 df2.format(t.getTeamOffTalent()) + " (" + t.getRankTeamOffTalent() + ")\n" + df2.format(t.getTeamDefTalent()) + " (" + t.getRankTeamDefTalent() + ")\n" +
                 t.getTeamPrestige() + " (" + t.getRankTeamPrestige() + ")\n\n"
-                + t.getHeadCoach().getInitialName() + "\n" +
-                t.getHeadCoach().ratOvr + "\n" + t.getHeadCoach().ratOff + "\n" + t.getPlaybookOffense().getStratName() + "\n" + t.getHeadCoach().ratDef + "\n" + t.getPlaybookDefense().getStratName() +
+                + (t.getHeadCoach() != null ? t.getHeadCoach().getInitialName() : "None") + "\n" +
+                (t.getHeadCoach() != null ? String.valueOf(t.getHeadCoach().ratOvr) : "0") + "\n" + (t.getHeadCoach() != null ? String.valueOf(t.getHeadCoach().ratOff) : "0") + "\n" + t.getPlaybookOffense().getStratName() + "\n" + (t.getHeadCoach() != null ? String.valueOf(t.getHeadCoach().ratDef) : "0") + "\n" + t.getPlaybookDefense().getStratName() +
                 "\n\n" + getFavorite(homeRating, awayRating, false));
         g = homeTeam.numGames();
         t = homeTeam;
@@ -3408,8 +3434,8 @@ public class Game implements Serializable {
                 t.getTeamOppPassYards() / g + " (" + t.getRankTeamOppPassYards() + ")\n" + t.getTeamOppRushYards() / g + " (" + t.getRankTeamOppRushYards() + ")\n\n" +
                 df2.format(t.getTeamOffTalent()) + " (" + t.getRankTeamOffTalent() + ")\n" + df2.format(t.getTeamDefTalent()) + " (" + t.getRankTeamDefTalent() + ")\n" +
                 t.getTeamPrestige() + " (" + t.getRankTeamPrestige() + ")\n\n" +
-                t.getHeadCoach().getInitialName() + "\n" +
-                t.getHeadCoach().ratOvr + "\n" + t.getHeadCoach().ratOff + "\n" + t.getPlaybookOffense().getStratName() + "\n" + t.getHeadCoach().ratDef + "\n" + t.getPlaybookDefense().getStratName() +
+                (t.getHeadCoach() != null ? t.getHeadCoach().getInitialName() : "None") + "\n" +
+                (t.getHeadCoach() != null ? String.valueOf(t.getHeadCoach().ratOvr) : "0") + "\n" + (t.getHeadCoach() != null ? String.valueOf(t.getHeadCoach().ratOff) : "0") + "\n" + t.getPlaybookOffense().getStratName() + "\n" + (t.getHeadCoach() != null ? String.valueOf(t.getHeadCoach().ratDef) : "0") + "\n" + t.getPlaybookDefense().getStratName() +
                 "\n\n" + getFavorite(homeRating, awayRating, true));
 
         gameSum[0] = gameL.toString();

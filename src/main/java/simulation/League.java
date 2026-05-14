@@ -862,7 +862,7 @@ public class League {
 
         try {
             // Always wrap FileReader in BufferedReader.
-            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+            try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream))) {
 
             //First ignore the save file info
             line = bufferedReader.readLine();
@@ -1063,10 +1063,7 @@ public class League {
                 confRealignment = false;
             }
 
-
-            // Always close files.
-            bufferedReader.close();
-
+            } // end try-with-resources (bufferedReader auto-closed)
 
         } catch (FileNotFoundException ex) {
             PlatformLog.e("League", "Unable to open file", ex);
