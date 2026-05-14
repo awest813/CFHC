@@ -306,9 +306,11 @@ public class TeamDetailView extends JDialog {
             JButton upBtn = new JButton("\u25B2 Move Up");
             upBtn.setToolTipText("Promote the selected player one depth-chart slot");
             upBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            DesktopTheme.styleSecondaryButton(upBtn);
             JButton downBtn = new JButton("\u25BC Move Down");
             downBtn.setToolTipText("Demote the selected player one depth-chart slot");
             downBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            DesktopTheme.styleSecondaryButton(downBtn);
 
             upBtn.addActionListener(e -> {
                 int row = table.getSelectedRow();
@@ -331,7 +333,9 @@ public class TeamDetailView extends JDialog {
 
             buttonPanel.add(upBtn);
             buttonPanel.add(downBtn);
-            buttonPanel.add(new JLabel("  Select a player, then promote or demote one depth-chart slot."));
+            JLabel hint = new JLabel("  Select a player, then promote or demote one depth-chart slot.");
+            hint.setForeground(DesktopTheme.textSecondary());
+            buttonPanel.add(hint);
             wrapper.add(buttonPanel, BorderLayout.SOUTH);
         }
 

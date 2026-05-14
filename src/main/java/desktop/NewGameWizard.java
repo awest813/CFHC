@@ -331,6 +331,7 @@ public class NewGameWizard extends JDialog {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                           boolean isSelected, boolean cellHasFocus) {
+                if (value == null) return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 Conference c = (Conference) value;
                 JLabel l = (JLabel) super.getListCellRendererComponent(list, c.confName, index, isSelected, cellHasFocus);
                 l.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
@@ -350,6 +351,7 @@ public class NewGameWizard extends JDialog {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                           boolean isSelected, boolean cellHasFocus) {
+                if (value == null) return super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 Team t = (Team) value;
                 String label = String.format(Locale.ROOT, "%-22s  Prestige %d", t.getName(), t.getTeamPrestige());
                 JLabel l = (JLabel) super.getListCellRendererComponent(list, label, index, isSelected, cellHasFocus);

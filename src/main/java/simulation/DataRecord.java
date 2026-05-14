@@ -10,7 +10,7 @@ public record DataRecord(
     int year
 ) {
     public static DataRecord fromCsv(String csv) {
-        String[] parts = csv.split(",");
+        String[] parts = csv.split(",", 4);
         if (parts.length < 4) return null;
         return new DataRecord(
             parts[0],

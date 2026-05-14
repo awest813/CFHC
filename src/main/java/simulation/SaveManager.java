@@ -62,10 +62,10 @@ public class SaveManager {
             }
             writer.write(confLine + "\n");
             for (LeagueRecord.TeamRecord t : c.teams()) {
-                writer.write(TEAM_PREFIX + sanitizeInlineValue(t.name()) + "," + sanitizeInlineValue(t.abbr()) + ","
-                        + t.prestige() + "," + t.wins() + "," + t.losses() + ","
-                        + t.teamPollScore() + "," + t.rankTeamPollScore() + ","
-                        + sanitizeInlineValue(t.practiceFocus()) + ","
+                writer.write(TEAM_PREFIX + sanitizeInlineValue(t.name()) + "\t" + sanitizeInlineValue(t.abbr()) + "\t"
+                        + t.prestige() + "\t" + t.wins() + "\t" + t.losses() + "\t"
+                        + t.teamPollScore() + "\t" + t.rankTeamPollScore() + "\t"
+                        + sanitizeInlineValue(t.practiceFocus()) + "\t"
                         + t.nilCollectiveLevel() + "\n");
                 
                 // Coaches
@@ -211,7 +211,7 @@ public class SaveManager {
                 teamOocNamesBuf.clear();
                 teamPracticeFocus = "";
                 teamNilCollectiveLevel = 0;
-                String[] p = line.substring(2).split(",", -1);
+                String[] p = line.substring(2).split("\t", -1);
                 teamName = p[0];
                 teamAbbr = p[1];
                 prestige = Integer.parseInt(p[2]);

@@ -185,7 +185,7 @@ public class PlayerRB extends Player {
         pStats.add("Rec Yards: " + getCareerRecYards() + " yds>Receptions: " + getCareerReceptions() + " ");
         pStats.add("Rec TDs: " + getCareerRecTDs() + "> ");
         if (getCareerKORets() > 0) {
-            pStats.add("Kick Rets: " + getCareerKORets() + ">Kick Ret Yards: " + (getKOYards() + getCareerKOYards()) + " yrds");
+            pStats.add("Kick Rets: " + getCareerKORets() + ">Kick Ret Yards: " + getCareerKOYards() + " yrds");
             pStats.add("Kick Ret TDs: " + getCareerKOTDs() + ">Ret Avg: " + (double) getCareerKOYards() / getCareerKORets());
         }
         if (getCareerPuntRets() > 0) {
@@ -199,8 +199,8 @@ public class PlayerRB extends Player {
     @Override
     public String getInfoForLineup() {
         if (injury != null)
-            return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.getHeadCoach().ratTalent) + " " + injury.toString();
-        return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.getHeadCoach().ratTalent) + " (" +
+            return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.getHeadCoach() != null ? team.getHeadCoach().ratTalent : 0) + " " + injury.toString();
+        return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.getHeadCoach() != null ? team.getHeadCoach().ratTalent : 0) + " (" +
                 getRatRushPower() + ", " + getRatSpeed() + ", " + getRatEvasion() + ", " + getRatCatch() + ")";
     }
 

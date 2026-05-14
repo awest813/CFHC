@@ -99,7 +99,7 @@ public class DesktopAudioManager implements AudioManager {
             final Clip toClose = clip;
             clip.addLineListener(e -> {
                 if (e.getType() == LineEvent.Type.STOP) {
-                    toClose.close();
+                    try { toClose.close(); } catch (Exception ignored) {}
                 }
             });
             clip.start();

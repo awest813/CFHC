@@ -32,7 +32,7 @@ public class PlayerDetailView extends JDialog {
     private final Player player;
 
     public PlayerDetailView(JFrame owner, Player player) {
-        super(owner, player.position + " " + player.name + " — " + player.team.getName(), true);
+        super(owner, player.position + " " + player.name + " — " + (player.team != null ? player.team.getName() : "Free Agent"), true);
         this.player = player;
         setSize(700, 500);
         setLayout(new BorderLayout());
@@ -66,7 +66,7 @@ public class PlayerDetailView extends JDialog {
         addField(info, "Name", player.name);
         addField(info, "Position", player.position);
         addField(info, "Year", player.getYrStr());
-        addField(info, "Team", player.team.getName());
+        addField(info, "Team", player.team != null ? player.team.getName() : "Unassigned");
         addField(info, "Overall", String.valueOf(player.ratOvr));
         addField(info, "Potential", String.valueOf(player.ratPot));
         addField(info, "Intelligence", String.valueOf(player.ratIntelligence));

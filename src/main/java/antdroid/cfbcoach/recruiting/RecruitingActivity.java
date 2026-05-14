@@ -408,7 +408,8 @@ public class RecruitingActivity extends AppCompatActivity {
 
         public int getChildrenCount(int groupPosition) {
             RecruitingPlayerRecord recruit = players.get(groupPosition);
-            return playersInfo.get(recruit.listKey()).size();
+            List<String> info = playersInfo.get(recruit.listKey());
+            return info != null ? info.size() : 0;
         }
 
 

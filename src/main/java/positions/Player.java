@@ -940,7 +940,7 @@ public class Player {
         if (injury != null) {
             return getInitialName() + " [" + getYrStr() + "] " + injury.toString();
         }
-        return getInitialName() + " [" + getYrStr() + "] " + "Ovr: " + ratOvr + ", Pot: " + getPotRating(team.getHeadCoach().ratTalent);
+        return getInitialName() + " [" + getYrStr() + "] " + "Ovr: " + ratOvr + ", Pot: " + getPotRating(team.getHeadCoach() != null ? team.getHeadCoach().ratTalent : 0);
     }
 
     public String getInfoLineupTransfer() {

@@ -38,7 +38,7 @@ public final class CoachProgramDialog {
         d.setSize(520, 580);
         d.setLocationRelativeTo(owner);
         d.setLayout(new BorderLayout(0, 8));
-        d.getContentPane().setBackground(DesktopTheme.windowBackground());
+        DesktopTheme.styleDialogContentPane(d.getContentPane());
 
         JTextArea area = new JTextArea(CoachSkills.buildProgramSummary(userTeam, hc));
         area.setEditable(false);
