@@ -2211,6 +2211,23 @@ public class LeagueHomeView extends JFrame {
         table.setFont(new Font("SansSerif", Font.PLAIN, 13));
         StripedRowRenderer.install(table);
 
+        final String userTeamName = leagueCore.userTeam != null ? leagueCore.userTeam.getName() : null;
+        final Color userTeamTint = DesktopTheme.userTeamRowTint();
+        table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
+            @Override
+            public java.awt.Component getTableCellRendererComponent(JTable t, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+                java.awt.Component c = super.getTableCellRendererComponent(t, value, isSelected, hasFocus, row, col);
+                if (!isSelected && userTeamName != null && col == 0 && value != null) {
+                    String matchup = value.toString();
+                    if (matchup.contains(userTeamName)) {
+                        c.setBackground(userTeamTint);
+                        ((JLabel)c).setFont(((JLabel)c).getFont().deriveFont(Font.BOLD));
+                    }
+                }
+                return c;
+            }
+        });
+
         // Week navigation controls
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
@@ -2224,8 +2241,25 @@ public class LeagueHomeView extends JFrame {
         weekLabel.setFont(new Font("SansSerif", Font.BOLD, 15));
         weekLabel.setForeground(DesktopTheme.textPrimary());
 
+        JLabel weekTypeLabel = new JLabel();
+        weekTypeLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        weekTypeLabel.setForeground(DesktopTheme.textSecondary());
+
+        String getWeekType(int week) {
+            int regWeeks = leagueCore.regSeasonWeeks;
+            if (week <= 0) return "Preseason";
+            if (week < regWeeks) return "Regular Season";
+            if (week == regWeeks) return "Conference Championship";
+            if (week == regWeeks + 1) return "Bowl Season";
+            if (week == regWeeks + 2) return "National Championship";
+            if (week >= regWeeks + 3 && week <= regWeeks + 5) return "Postseason";
+            return "Offseason";
+        }
+
         Runnable updateScoreboard = () -> {
             weekLabel.setText(scoreboardWeek <= 0 ? "Pre-Season" : "Week " + scoreboardWeek);
+            weekTypeLabel.setText(getWeekType(scoreboardWeek));
+            int regWeeks = leagueCore.regSeasonWeeks;
             model.setRowCount(0);
             java.util.List<java.util.List<String>> scores = leagueCore.getWeeklyScores();
             if (scores != null && scoreboardWeek >= 0 && scoreboardWeek < scores.size()) {
@@ -2265,8 +2299,28 @@ public class LeagueHomeView extends JFrame {
 
         navPanel.add(prevBtn);
         navPanel.add(weekLabel);
+        navPanel.add(weekTypeLabel);
         navPanel.add(nextBtn);
         navPanel.add(currentBtn);
+
+        panel.setFocusable(true);
+        panel.addKeyListener(new java.awt.event.KeyAdapter() {
+            @Override
+            public void keyPressed(java.awt.event.KeyEvent e) {
+                if (e.getKeyCode() == java.awt.event.KeyEvent.VK_LEFT || 
+                    (e.getModifiersEx() == java.awt.event.KeyEvent.CTRL_DOWN_MASK && e.getKeyCode() == java.awt.event.KeyEvent.VK_KP_LEFT)) {
+                    if(scoreboardWeek > 0) { scoreboardWeek--; updateScoreboard.run(); }
+                } else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_RIGHT ||
+                    (e.getModifiersEx() == java.awt.event.KeyEvent.CTRL_DOWN_MASK && e.getKeyCode() == java.awt.event.KeyEvent.VK_KP_RIGHT)) {
+                    if(scoreboardWeek < leagueCore.currentWeek) { scoreboardWeek++; updateScoreboard.run(); }
+                } else if (e.getKeyCode() == java.awt.event.KeyEvent.VK_HOME) {
+                    scoreboardWeek = Math.max(0, leagueCore.currentWeek);
+                    updateScoreboard.run();
+                }
+            }
+        });
+        panel.setFocusTraversalKeysEnabled(false);
+
         DesktopTheme.styleToolbar(navPanel);
 
         updateScoreboard.run();
