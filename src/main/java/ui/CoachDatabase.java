@@ -33,9 +33,12 @@ public class CoachDatabase  extends ArrayAdapter<String> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        View rowView = convertView;
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rowView = inflater.inflate(R.layout.team_rankings_list_item, parent, false);
+        if (rowView == null) {
+            rowView = inflater.inflate(R.layout.team_rankings_list_item, parent, false);
+        }
         TextView textLeft = rowView.findViewById(R.id.textTeamRankingsLeft);
         TextView textCenter = rowView.findViewById(R.id.textTeamRankingsCenter);
         TextView textRight = rowView.findViewById(R.id.textTeamRankingsRight);

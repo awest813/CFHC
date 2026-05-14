@@ -1,7 +1,6 @@
 package simulation;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileInputStream;
@@ -11,9 +10,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -591,15 +587,12 @@ public class League {
         String line = null;
         String saveHeader = null;
 
-        try {
-            // Always wrap FileReader in BufferedReader.
-            BufferedReader bufferedReader = new BufferedReader(new FileReader(saveFile));
+        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(saveFile))) {
 
             //First ignore the save file info
             line = bufferedReader.readLine();
             if (line != null && line.startsWith("L:")) {
                 // NEW FORMAT DETECTION
-                bufferedReader.close();
                 try (FileInputStream fis = new FileInputStream(saveFile)) {
                     applyLeagueRecord(SaveManager.load(fis));
                 } catch (Exception ex) {
@@ -830,10 +823,6 @@ public class League {
                 confRealignment = false;
                 advancedRealignment = false;
             }
-
-            // Always close files.
-            bufferedReader.close();
-
 
         } catch (FileNotFoundException ex) {
             PlatformLog.e("League", "Unable to open file", ex);

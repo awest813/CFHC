@@ -34,9 +34,12 @@ public class PlayerProfileV2 extends ArrayAdapter<String> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        View rowView = convertView;
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rowView = inflater.inflate(R.layout.player_profile, parent, false);
+        if (rowView == null) {
+            rowView = inflater.inflate(R.layout.player_profile, parent, false);
+        }
 
         TextView ppPosition = rowView.findViewById(R.id.ppPosition);
         TextView ppClass = rowView.findViewById(R.id.ppClass);

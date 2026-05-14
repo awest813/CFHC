@@ -28,9 +28,12 @@ public class MockDraft extends ArrayAdapter<String> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        View rowView = convertView;
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rowView = inflater.inflate(R.layout.save_list, parent, false);
+        if (rowView == null) {
+            rowView = inflater.inflate(R.layout.save_list, parent, false);
+        }
 
         String[] detailSplit = values[position].split(">", -1);
         TextView itemL = rowView.findViewById(R.id.textPlayerStatsLeftChild);

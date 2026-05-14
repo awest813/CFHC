@@ -47,9 +47,12 @@ public class RedshirtAdapter extends ArrayAdapter<Player> {
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
+        View rowView = convertView;
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rowView = inflater.inflate(R.layout.team_lineup_list_item, parent, false);
+        if (rowView == null) {
+            rowView = inflater.inflate(R.layout.team_lineup_list_item, parent, false);
+        }
 
         TextView playerInfo = rowView.findViewById(R.id.textViewLineupPlayerInfo);
 

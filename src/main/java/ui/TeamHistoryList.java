@@ -41,9 +41,12 @@ public class TeamHistoryList extends ArrayAdapter<TeamHistoryRecord> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        View rowView = convertView;
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rowView = inflater.inflate(R.layout.team_history_list_item, parent, false);
+        if (rowView == null) {
+            rowView = inflater.inflate(R.layout.team_history_list_item, parent, false);
+        }
         TextView textTop = rowView.findViewById(R.id.textViewTeamHistoryTitle);
         TextView textBottom = rowView.findViewById(R.id.textViewTeamHistoryDetail);
 

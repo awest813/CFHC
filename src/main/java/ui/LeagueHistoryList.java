@@ -28,9 +28,12 @@ public class LeagueHistoryList extends ArrayAdapter<String> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        View rowView = convertView;
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rowView = inflater.inflate(R.layout.league_history_list_item, parent, false);
+        if (rowView == null) {
+            rowView = inflater.inflate(R.layout.league_history_list_item, parent, false);
+        }
         TextView textTop = rowView.findViewById(R.id.textViewLeagueHistoryTop);
         TextView textMiddle = rowView.findViewById(R.id.textViewLeagueHistoryMiddle);
         TextView textBottom = rowView.findViewById(R.id.textViewLeagueHistoryBottom);

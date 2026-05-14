@@ -1356,7 +1356,7 @@ public class Team {
             int count = 0;
             ArrayList<Player> p = getAllPlayers();
             for(int i = 0; i < p.size(); i++) {
-                if(Arrays.asList(p.get(i).offensePos).contains(p.get(i).position) || Arrays.asList(p.get(i).olPos).contains(p.get(i).position)) {
+                if(p.get(i).offensePos.contains(p.get(i).position) || p.get(i).olPos.contains(p.get(i).position)) {
                     rat += p.get(i).ratOvr;
                     count++;
                 }
@@ -1364,9 +1364,15 @@ public class Team {
             return (float) rat / count;
 
         } else {
+            int wr0 = teamWRs.size() > 0 ? teamWRs.get(0).ratOvr : 0;
+            int wr1 = teamWRs.size() > 1 ? teamWRs.get(1).ratOvr : 0;
+            int wr2 = teamWRs.size() > 2 ? teamWRs.get(2).ratOvr : 0;
+            int rb0 = teamRBs.size() > 0 ? teamRBs.get(0).ratOvr : 0;
+            int rb1 = teamRBs.size() > 1 ? teamRBs.get(1).ratOvr : 0;
+            int te0 = teamTEs.size() > 0 ? teamTEs.get(0).ratOvr : 0;
             return (getQB(0).ratOvr * 5 +
-                    teamWRs.get(0).ratOvr + teamWRs.get(1).ratOvr + teamWRs.get(2).ratOvr +
-                    teamRBs.get(0).ratOvr + teamRBs.get(1).ratOvr + teamTEs.get(0).ratOvr +
+                    wr0 + wr1 + wr2 +
+                    rb0 + rb1 + te0 +
                     getCompositeOLPass() + getCompositeOLRush() + getOffSubTalent()) / 14;
         }
     }
@@ -1386,7 +1392,7 @@ public class Team {
             int count = 0;
             ArrayList<Player> p = getAllPlayers();
             for(int i = 0; i < p.size(); i++) {
-                if(Arrays.asList(p.get(i).defensePos).contains(p.get(i).position)) {
+                if(p.get(i).defensePos.contains(p.get(i).position)) {
                     rat += p.get(i).ratOvr;
                     count++;
                 }
@@ -1474,7 +1480,11 @@ public class Team {
      * @return integer of how good the team is at passing
      */
     public float getPassProf() {
-        float avgWRs = (teamWRs.get(0).ratOvr + teamWRs.get(1).ratOvr + teamWRs.get(2).ratOvr + teamTEs.get(0).getRatCatch()) / 4;
+        float wr0 = teamWRs.size() > 0 ? teamWRs.get(0).ratOvr : 0;
+        float wr1 = teamWRs.size() > 1 ? teamWRs.get(1).ratOvr : 0;
+        float wr2 = teamWRs.size() > 2 ? teamWRs.get(2).ratOvr : 0;
+        float te0c = teamTEs.size() > 0 ? teamTEs.get(0).getRatCatch() : 0;
+        float avgWRs = (wr0 + wr1 + wr2 + te0c) / 4;
         float avgSubs = (2 * getWR(3).getRatCatch() + getTE(1).getRatCatch() + getRB(0).getRatCatch() + getRB(1).getRatCatch() + getRB(2).getRatCatch()) / 6;
 
         return (2 * getCompositeOLPass() + getQB(0).ratOvr * 5 + avgWRs * 4 + HC.ratOff * 2 + avgSubs) / 14;
@@ -1486,8 +1496,10 @@ public class Team {
      * @return integer of how good the team is at rushing
      */
     public float getRushProf() {
-        float avgRBs = (teamRBs.get(0).ratOvr + teamRBs.get(1).ratOvr) / 2;
-        float QB = teamQBs.get(0).getRatSpeed();
+        float rb0 = teamRBs.size() > 0 ? teamRBs.get(0).ratOvr : 0;
+        float rb1 = teamRBs.size() > 1 ? teamRBs.get(1).ratOvr : 0;
+        float avgRBs = (rb0 + rb1) / 2;
+        float QB = teamQBs.size() > 0 ? teamQBs.get(0).getRatSpeed() : 0;
         float avgSub = getRB(2).ratOvr;
 
         return (3 * getCompositeOLRush() + 4 * avgRBs + QB + 2 * HC.ratOff + avgSub) / 11;
@@ -1499,14 +1511,23 @@ public class Team {
      * @return integer of how good
      */
     public float getPassDef() {
-        float avgCBs = (teamCBs.get(0).ratOvr + teamCBs.get(1).ratOvr + teamCBs.get(2).ratOvr) / 3;
-        float avgLBs = (teamLBs.get(0).getRatCoverage() + teamLBs.get(1).getRatCoverage() + teamLBs.get(2).getRatCoverage()) / 3;
-        float S = (teamSs.get(0).getRatCoverage() + teamSs.get(1).getRatCoverage()) / 2;
+        float cb0 = teamCBs.size() > 0 ? teamCBs.get(0).ratOvr : 0;
+        float cb1 = teamCBs.size() > 1 ? teamCBs.get(1).ratOvr : 0;
+        float cb2 = teamCBs.size() > 2 ? teamCBs.get(2).ratOvr : 0;
+        float avgCBs = (cb0 + cb1 + cb2) / 3;
+        float lb0c = teamLBs.size() > 0 ? teamLBs.get(0).getRatCoverage() : 0;
+        float lb1c = teamLBs.size() > 1 ? teamLBs.get(1).getRatCoverage() : 0;
+        float lb2c = teamLBs.size() > 2 ? teamLBs.get(2).getRatCoverage() : 0;
+        float avgLBs = (lb0c + lb1c + lb2c) / 3;
+        float s0c = teamSs.size() > 0 ? teamSs.get(0).getRatCoverage() : 0;
+        float s1c = teamSs.size() > 1 ? teamSs.get(1).getRatCoverage() : 0;
+        float S = (s0c + s1c) / 2;
         float def = (3 * avgCBs + avgLBs + S) / 5;
         float avgSub = (getLB(3).getRatCoverage() + getCB(3).ratOvr * 2 + getS(2).getRatCoverage()) / 4;
 
 
-        return (def * 4 + teamSs.get(0).ratOvr + getCompositeDLPass() * 2 + 2 * HC.ratDef + avgSub) / 10;
+        float ss0r = teamSs.size() > 0 ? teamSs.get(0).ratOvr : 0;
+        return (def * 4 + ss0r + getCompositeDLPass() * 2 + 2 * HC.ratDef + avgSub) / 10;
     }
 
     /**
@@ -1547,7 +1568,7 @@ public class Team {
             compositeOL += (teamOLs.get(i).getRatStrength() * 2 + teamOLs.get(i).getRatRunBlock() * 2 + teamOLs.get(i).getRatVision()) / 5;
         }
         compositeOL = compositeOL / 5;
-        float compositeTE = teamTEs.get(0).getRatRunBlock();
+        float compositeTE = teamTEs.size() > 0 ? teamTEs.get(0).getRatRunBlock() : 0;
 
         float avgSub = (2 * getOL(5).ratOvr + 2 * getOL(6).ratOvr + getTE(1).getRatRunBlock()) / 5;
 
@@ -1593,7 +1614,9 @@ public class Team {
         }
         compositeLB = compositeLB / 3;
 
-        compositeS += teamSs.get(0).getRatRunStop() + teamSs.get(1).getRatRunStop();
+        float ss0rs = teamSs.size() > 0 ? teamSs.get(0).getRatRunStop() : 0;
+        float ss1rs = teamSs.size() > 1 ? teamSs.get(1).getRatRunStop() : 0;
+        compositeS += ss0rs + ss1rs;
         compositeS = compositeS / 2;
 
         float avgSub = (2 * getDL(4).ratOvr + 2 * getDL(5).ratOvr + getLB(3).getRatRunStop() + getS(2).getRatRunStop()) / 6;
@@ -3873,15 +3896,15 @@ public class Team {
 
         if(choice == 1) {
             HC.ratDiscipline -= penalty*.75;
-            if(Arrays.asList(player.offensePos).contains(player.position) || Arrays.asList(player.olPos).contains(player.position)) OC.ratDiscipline -= penalty*.50;
-            if(Arrays.asList(player.defensePos).contains(player.position)) DC.ratDiscipline -= penalty*.50;
+            if(player.offensePos.contains(player.position) || player.olPos.contains(player.position)) OC.ratDiscipline -= penalty*.50;
+            if(player.defensePos.contains(player.position)) DC.ratDiscipline -= penalty*.50;
             disciplinePts --;
             teamDisciplineScore -= penalty;
             teamBudget -= (penalty * 100);
         } else if(choice == 2) {
             HC.ratDiscipline -= penalty*1.25;
-            if(Arrays.asList(player.offensePos).contains(player.position) || Arrays.asList(player.olPos).contains(player.position)) OC.ratDiscipline -= penalty*1.0;
-            if(Arrays.asList(player.defensePos).contains(player.position)) DC.ratDiscipline -= penalty*1.0;
+            if(player.offensePos.contains(player.position) || player.olPos.contains(player.position)) OC.ratDiscipline -= penalty*1.0;
+            if(player.defensePos.contains(player.position)) DC.ratDiscipline -= penalty*1.0;
             disciplinePts --;
             teamDisciplineScore -= penalty*1.45;
             teamBudget -= (penalty * 175);
@@ -3889,8 +3912,8 @@ public class Team {
         } else {
             player.troubledTimes++;
             HC.ratDiscipline -= penalty*1.55;
-            if(Arrays.asList(player.offensePos).contains(player.position) || Arrays.asList(player.olPos).contains(player.position)) OC.ratDiscipline -= penalty*1.40;
-            if(Arrays.asList(player.defensePos).contains(player.position)) DC.ratDiscipline -= penalty*1.40;
+            if(player.offensePos.contains(player.position) || player.olPos.contains(player.position)) OC.ratDiscipline -= penalty*1.40;
+            if(player.defensePos.contains(player.position)) DC.ratDiscipline -= penalty*1.40;
             disciplinePts --;
             teamDisciplineScore -= penalty*1.65;
             teamBudget -= (penalty * 250);
@@ -4104,83 +4127,63 @@ public class Team {
     }
 
     public PlayerQB getQB(int depth) {
-        if (depth < teamQBs.size() && depth >= 0) {
-            return teamQBs.get(depth);
-        } else {
-            return teamQBs.get(0);
-        }
+        if (teamQBs.isEmpty()) return null;
+        if (depth >= teamQBs.size()) depth = 0;
+        return teamQBs.get(depth);
     }
 
     public PlayerRB getRB(int depth) {
-        if (depth < teamRBs.size() && depth >= 0) {
-            return teamRBs.get(depth);
-        } else {
-            return teamRBs.get(0);
-        }
+        if (teamRBs.isEmpty()) return null;
+        if (depth >= teamRBs.size()) depth = 0;
+        return teamRBs.get(depth);
     }
 
     public PlayerWR getWR(int depth) {
-        if (depth < teamWRs.size() && depth >= 0) {
-            return teamWRs.get(depth);
-        } else {
-            return teamWRs.get(0);
-        }
+        if (teamWRs.isEmpty()) return null;
+        if (depth >= teamWRs.size()) depth = 0;
+        return teamWRs.get(depth);
     }
 
     public PlayerTE getTE(int depth) {
-        if (depth < teamTEs.size() && depth >= 0) {
-            return teamTEs.get(depth);
-        } else {
-            return teamTEs.get(0);
-        }
+        if (teamTEs.isEmpty()) return null;
+        if (depth >= teamTEs.size()) depth = 0;
+        return teamTEs.get(depth);
     }
 
     public PlayerK getK(int depth) {
-        if (depth < teamKs.size() && depth >= 0) {
-            return teamKs.get(depth);
-        } else {
-            return teamKs.get(0);
-        }
+        if (teamKs.isEmpty()) return null;
+        if (depth >= teamKs.size()) depth = 0;
+        return teamKs.get(depth);
     }
 
     public PlayerOL getOL(int depth) {
-        if (depth < teamOLs.size() && depth >= 0) {
-            return teamOLs.get(depth);
-        } else {
-            return teamOLs.get(0);
-        }
+        if (teamOLs.isEmpty()) return null;
+        if (depth >= teamOLs.size()) depth = 0;
+        return teamOLs.get(depth);
     }
 
     public PlayerDL getDL(int depth) {
-        if (depth < teamDLs.size() && depth >= 0) {
-            return teamDLs.get(depth);
-        } else {
-            return teamDLs.get(0);
-        }
+        if (teamDLs.isEmpty()) return null;
+        if (depth >= teamDLs.size()) depth = 0;
+        return teamDLs.get(depth);
     }
 
     public PlayerLB getLB(int depth) {
-        if (depth < teamLBs.size() && depth >= 0) {
-            return teamLBs.get(depth);
-        } else {
-            return teamLBs.get(0);
-        }
+        if (teamLBs.isEmpty()) return null;
+        if (depth >= teamLBs.size()) depth = 0;
+        return teamLBs.get(depth);
     }
 
     public PlayerCB getCB(int depth) {
-        if (depth < teamCBs.size() && depth >= 0) {
-            return teamCBs.get(depth);
-        } else {
-            return teamCBs.get(0);
-        }
+        if (teamCBs.isEmpty()) return null;
+        if (depth >= teamCBs.size()) depth = 0;
+        return teamCBs.get(depth);
     }
 
     public PlayerS getS(int depth) {
-        if (depth < teamSs.size() && depth >= 0) {
-            return teamSs.get(depth);
-        } else {
-            return teamSs.get(0);
-        }
+        if (teamSs.isEmpty()) return null;
+        if (depth >= teamSs.size()) depth = 0;
+        return teamSs.get(depth);
     }
 
 

@@ -3,7 +3,6 @@ package desktop;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableModel;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
@@ -39,14 +38,16 @@ public class StripedRowRenderer extends DefaultTableCellRenderer {
      * Safe to call on any JTable. Hover state resets on scroll.
      */
     public static void installWithHover(JTable table) {
-        install(table);
         final StripedRowRenderer r = new StripedRowRenderer();
         table.setDefaultRenderer(Object.class, r);
         table.setDefaultRenderer(String.class, r);
         table.setDefaultRenderer(Integer.class, r);
         table.setDefaultRenderer(Long.class, r);
+        table.setDefaultRenderer(Short.class, r);
+        table.setDefaultRenderer(Byte.class, r);
         table.setDefaultRenderer(Float.class, r);
         table.setDefaultRenderer(Double.class, r);
+        table.setDefaultRenderer(java.math.BigDecimal.class, r);
 
         final int[] hoveredRow = { -1 };
         table.addMouseMotionListener(new MouseMotionAdapter() {
@@ -68,7 +69,6 @@ public class StripedRowRenderer extends DefaultTableCellRenderer {
                 }
             }
         });
-        table.putClientProperty("hoverRenderer", r);
         table.putClientProperty("hoveredRow", hoveredRow);
     }
 

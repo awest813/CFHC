@@ -36,9 +36,12 @@ public class HallofFameList extends ArrayAdapter<PlayerRecord> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        View rowView = convertView;
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rowView = inflater.inflate(R.layout.hall_fame_list_item, parent, false);
+        if (rowView == null) {
+            rowView = inflater.inflate(R.layout.hall_fame_list_item, parent, false);
+        }
         TextView textTop = rowView.findViewById(R.id.textViewHallFameName);
 
         PlayerRecord record = values[position];

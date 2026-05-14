@@ -62,8 +62,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -84,21 +82,8 @@ public class LeagueHomeView extends JFrame {
     private static final String TAG = "LeagueHomeView";
     private static final int HEADER_HEIGHT = 96;
     private static final String SAVE_EXTENSION = "cfb";
-    private static final DecimalFormat DF2 = new DecimalFormat("#.##", DecimalFormatSymbols.getInstance(Locale.ROOT));
-
     /** Delimiter used by the engine to separate headline from story body in news strings. */
     private static final String NEWS_STORY_DELIMITER = ">";
-
-    /** No-op {@link GameFlowManager}; all transitions are handled in-process. */
-    private static final GameFlowManager NO_OP_FLOW = new GameFlowManager() {
-        @Override public void startNewGame(LeagueLaunchCoordinator.LaunchRequest.PrestigeMode p, String u) {}
-        @Override public void loadGame(String s) {}
-        @Override public void importSave(String u) {}
-        @Override public void finishRecruiting(String r) {}
-        @Override public void startRecruiting(String u) {}
-        @Override public void showNotification(String t, String m) {}
-        @Override public void returnToMainHub() {}
-    };
 
     /** Team ranking category names matching League.getTeamRankingsStr(selection). */
     private static final String[] TEAM_RANKING_CATEGORIES = {
@@ -1123,9 +1108,9 @@ public class LeagueHomeView extends JFrame {
         if (result != JFileChooser.APPROVE_OPTION) return;
 
         File importFile = chooser.getSelectedFile();
+        File tempDir = new File(System.getProperty("java.io.tmpdir"), "cfhc_import");
         try {
             // Create temp files for parsed output
-            File tempDir = new File(System.getProperty("java.io.tmpdir"), "cfhc_import");
             if (!tempDir.exists()) tempDir.mkdirs();
             File confFile = new File(tempDir, "conferences.txt");
             File teamsFile = new File(tempDir, "teams.txt");
@@ -1189,7 +1174,6 @@ public class LeagueHomeView extends JFrame {
                     "Import Failed", JOptionPane.ERROR_MESSAGE);
         } finally {
             // Clean up temp files
-            File tempDir = new File(System.getProperty("java.io.tmpdir"), "cfhc_import");
             if (tempDir.exists()) {
                 File[] temps = tempDir.listFiles();
                 if (temps != null) {
@@ -1350,6 +1334,8 @@ public class LeagueHomeView extends JFrame {
     }
 
     private void refresh() {
+        // TODO: Replace full UI rebuild with targeted data model updates
+        // to avoid listener leaks and excessive allocation churn
         this.currentRecord = leagueCore.toRecord();
         rebuildLiveTeamMap();
         setTitle(buildWindowTitle());
@@ -1364,6 +1350,17 @@ public class LeagueHomeView extends JFrame {
         revalidate();
         repaint();
         applyWindowTheme();
+    }
+
+    /** Stub for targeted data model refresh (replaces full UI rebuild in future). */
+    public void refreshModels() {
+        invalidate();
+        if (statusLabel != null) {
+            statusLabel.setText(buildStatusText());
+        }
+        markDirty();
+        revalidate();
+        repaint();
     }
 
     private JPanel buildMainContent() {
@@ -2358,31 +2355,6 @@ public class LeagueHomeView extends JFrame {
         }
     }
 
-    private String buildScoresTextForWeek(int week) {
-        if (week <= 0 || leagueCore.getWeeklyScores() == null
-                || week >= leagueCore.getWeeklyScores().size()) {
-            return "No games have been played yet. Press Space or click Play Week to simulate.";
-        }
-        List<String> lines = leagueCore.getWeeklyScores().get(week);
-        if (lines == null || lines.isEmpty()) {
-            return "No recorded games for week " + week + ".";
-        }
-        StringBuilder sb = new StringBuilder();
-        sb.append("Results for week ").append(week).append('\n');
-        sb.append("=".repeat(Math.min(60, 20 + leagueCore.leagueName.length()))).append("\n\n");
-        for (String line : lines) {
-            int splitIdx = line.indexOf('>');
-            if (splitIdx >= 0) {
-                sb.append(line, 0, splitIdx).append('\n');
-                sb.append("  ").append(line.substring(splitIdx + 1).replace("\n", "\n  ")).append('\n');
-            } else {
-                sb.append(line).append('\n');
-            }
-            sb.append('\n');
-        }
-        return sb.toString();
-    }
-
     // =========================================================================
     // News tab
     // =========================================================================
@@ -2520,40 +2492,6 @@ public class LeagueHomeView extends JFrame {
             }
             if (parts.length >= 1 && headline.startsWith(parts[0].trim())) {
                 return parts.length >= 2 ? parts[1].trim() : parts[0].trim();
-            }
-        }
-        return null;
-    }
-
-    /** @deprecated Use {@link #lookupStoryForWeek(String, int)} instead. */
-    @Deprecated
-    @SuppressWarnings("unused")
-    private String lookupStory(String headline) {
-        if (leagueCore.getNewsStories() == null || leagueCore.getNewsStories().isEmpty()) return null;
-        int week = leagueCore.currentWeek;
-        int maxWeek = Math.min(week + 1, leagueCore.getNewsStories().size() - 1);
-        if (maxWeek < 0) return null;
-        for (int w = maxWeek; w >= 0; w--) {
-            List<String> weekStories = leagueCore.getNewsStories().get(w);
-            if (weekStories == null) continue;
-            for (String story : weekStories) {
-                String[] parts = story.split(NEWS_STORY_DELIMITER);
-                if (parts.length >= 2 && headline.contains(parts[0])) {
-                    return parts[1];
-                }
-                if (parts.length >= 1 && headline.startsWith(parts[0])) {
-                    return parts.length >= 2 ? parts[1] : parts[0];
-                }
-            }
-        }
-        if (week >= 0 && week < leagueCore.getNewsStories().size()) {
-            List<String> weekStories = leagueCore.getNewsStories().get(week);
-            if (weekStories != null && !weekStories.isEmpty()) {
-                StringBuilder sb = new StringBuilder();
-                for (String s : weekStories) {
-                    sb.append(s.replace(NEWS_STORY_DELIMITER, "\n\n")).append("\n\n---\n\n");
-                }
-                return sb.toString();
             }
         }
         return null;

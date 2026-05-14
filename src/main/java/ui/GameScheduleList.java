@@ -29,9 +29,12 @@ public class GameScheduleList extends ArrayAdapter<Game> {
 
     @Override
     public View getView(final int position, View convertView, ViewGroup parent) {
+        View rowView = convertView;
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rowView = inflater.inflate(R.layout.game_schedule_list_item, parent, false);
+        if (rowView == null) {
+            rowView = inflater.inflate(R.layout.game_schedule_list_item, parent, false);
+        }
         TextView textLeft = rowView.findViewById(R.id.gameScheduleLeft);
         Button gameButton = rowView.findViewById(R.id.gameScheduleButtonList);
         Button textRight = rowView.findViewById(R.id.gameScheduleRight);

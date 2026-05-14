@@ -4,7 +4,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.sound.sampled.AudioInputStream;
@@ -23,6 +25,7 @@ public class DesktopAudioManager implements AudioManager {
     private static final String TAG = "DesktopAudioManager";
 
     private final Map<AudioEvent, byte[]> audioCache = new HashMap<>();
+    private final List<Clip> activeClips = new ArrayList<>();
     private float volume = 0.7f;
     private volatile boolean muted = false;
     private volatile boolean available = false;
@@ -96,10 +99,16 @@ public class DesktopAudioManager implements AudioManager {
                 gain.setValue(dB);
             }
 
+            synchronized (activeClips) {
+                activeClips.add(clip);
+            }
             final Clip toClose = clip;
             clip.addLineListener(e -> {
                 if (e.getType() == LineEvent.Type.STOP) {
                     try { toClose.close(); } catch (Exception ignored) {}
+                    synchronized (activeClips) {
+                        activeClips.remove(toClose);
+                    }
                 }
             });
             clip.start();
@@ -144,5 +153,14 @@ public class DesktopAudioManager implements AudioManager {
     @Override
     public void dispose() {
         audioCache.clear();
+        synchronized (activeClips) {
+            for (Clip c : activeClips) {
+                try {
+                    if (c.isRunning()) c.stop();
+                    c.close();
+                } catch (Exception ignored) {}
+            }
+            activeClips.clear();
+        }
     }
 }

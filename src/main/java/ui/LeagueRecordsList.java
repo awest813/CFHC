@@ -31,9 +31,12 @@ public class LeagueRecordsList extends ArrayAdapter<String> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        View rowView = convertView;
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rowView = inflater.inflate(R.layout.league_record_list_item, parent, false);
+        if (rowView == null) {
+            rowView = inflater.inflate(R.layout.league_record_list_item, parent, false);
+        }
         TextView textLeft = rowView.findViewById(R.id.textLeagueRecordLeft);
         TextView textCenter = rowView.findViewById(R.id.textLeagueRecordCenter);
         TextView textRight = rowView.findViewById(R.id.textLeagueRecordRight);

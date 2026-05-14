@@ -15,7 +15,6 @@ import javax.swing.JTextArea;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
 
@@ -26,7 +25,6 @@ import java.awt.GridLayout;
 public class GameBoxScoreView extends JDialog {
 
     private static final Font MONO = new Font("Monospaced", Font.PLAIN, 13);
-    private static final Font HEADER_FONT = new Font("SansSerif", Font.BOLD, 16);
 
     private final Game game;
     private final Team viewerTeam;

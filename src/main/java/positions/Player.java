@@ -5,6 +5,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Set;
 
 import simulation.Injury;
 import simulation.PracticeFocus;
@@ -220,9 +221,9 @@ public class Player {
     public final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
     public final DecimalFormat df2 = new DecimalFormat("#.##", symbols);
 
-    public final String[] offensePos = {"QB", "RB", "WR", "TE"};
-    public final String[] defensePos = {"DE", "DT", "DL", "LB", "CB", "S"};
-    public final String[] olPos = {"OL", "T", "G", "C"};
+    public static final Set<String> offensePos = Set.of("QB", "RB", "WR", "TE");
+    public static final Set<String> defensePos = Set.of("DL", "LB", "CB", "S");
+    public static final Set<String> olPos = Set.of("OL");
     public final String[] kickPos = {"K", "P"};
 
     private final int offStats = 24;
@@ -276,9 +277,9 @@ public class Player {
         careerStats = new ArrayList<>();
         awards = new int[awardCount];
 
-        if (Arrays.asList(offensePos).contains(position)) stats = new int[offStats];
-        else if (Arrays.asList(defensePos).contains(position)) stats = new int[defStats];
-        else if (Arrays.asList(olPos).contains(position)) stats = new int[olStats];
+        if (offensePos.contains(position)) stats = new int[offStats];
+        else if (defensePos.contains(position)) stats = new int[defStats];
+        else if (olPos.contains(position)) stats = new int[olStats];
         else stats = new int[kickStats];
 
         for (int i = 0; i < stats.length; i++) {
@@ -393,9 +394,9 @@ public class Player {
 
     public void loadSeasonStats(String s) {
 
-        if (Arrays.asList(offensePos).contains(position)) stats = new int[offStats];
-        else if (Arrays.asList(defensePos).contains(position)) stats = new int[defStats];
-        else if (Arrays.asList(olPos).contains(position)) stats = new int[olStats];
+        if (offensePos.contains(position)) stats = new int[offStats];
+        else if (defensePos.contains(position)) stats = new int[defStats];
+        else if (olPos.contains(position)) stats = new int[olStats];
         else stats = new int[kickStats];
 
         for (int j = 0; j < stats.length; j++) {
@@ -407,9 +408,9 @@ public class Player {
         careerStats = new ArrayList<>();
 
         int len;
-        if (Arrays.asList(offensePos).contains(position)) len = offStats;
-        else if (Arrays.asList(defensePos).contains(position)) len = defStats;
-        else if (Arrays.asList(olPos).contains(position)) len = olStats;
+        if (offensePos.contains(position)) len = offStats;
+        else if (defensePos.contains(position)) len = defStats;
+        else if (olPos.contains(position)) len = olStats;
         else len = kickStats;
 
         for (int i = 0; i < 5; i++) {
@@ -480,8 +481,8 @@ public class Player {
     public void midSeasonProgression(PracticeFocus practiceFocus) {
         final int ratOvrStart = ratOvr;
 
-        if (Arrays.asList(offensePos).contains(position)) progression = getProgressionOff();
-        else if (Arrays.asList(defensePos).contains(position)) progression = getProgressionDef();
+        if (offensePos.contains(position)) progression = getProgressionOff();
+        else if (defensePos.contains(position)) progression = getProgressionDef();
         else progression = getProgression();
 
         double games = getMidSeasonBonus();
@@ -526,8 +527,8 @@ public class Player {
             if (wonTopFreshman) ratPot += (int)(Math.random() * topBonus);
             if (wonHeisman) ratPot += (int)(Math.random() * topBonus);
 
-            if (Arrays.asList(offensePos).contains(position)) progression = getProgressionOff();
-            else if (Arrays.asList(defensePos).contains(position)) progression = getProgressionDef();
+            if (offensePos.contains(position)) progression = getProgressionOff();
+            else if (defensePos.contains(position)) progression = getProgressionDef();
             else progression = getProgression();
 
             if (year > 2 && games < minGamesPot) ratPot -= (int) (Math.random() * 15);
@@ -1017,13 +1018,13 @@ public class Player {
         if (getTopFreshman() > 0 || wonTopFreshman) awards.add("Top Freshman");
         if (getAllFreshman() > 0 || wonAllFreshman) awards.add("All-Fresh");
 
-        String awardsStr = "";
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < awards.size(); ++i) {
-            awardsStr += awards.get(i);
-            if (i != awards.size() - 1) awardsStr += ", ";
+            sb.append(awards.get(i));
+            if (i != awards.size() - 1) sb.append(", ");
         }
 
-        return awardsStr;
+        return sb.toString();
     }
 
     //PLAYER PROFILE MAKER
@@ -1068,7 +1069,7 @@ public class Player {
     public ArrayList<String> getPlayerStats() {
         ArrayList<String> pStats = new ArrayList<>();
 
-        if (Arrays.asList(offensePos).contains(position)) {
+        if (offensePos.contains(position)) {
             if (getCareerPassAtt() > 0) {
                 pStats.add("Passing,G,GS,Cmp%,Yrds,TD,INT,SCK,QBR");
                 for (int i = 0; i < year; i++) {
@@ -1116,7 +1117,7 @@ public class Player {
             }
 
 
-        } else if (Arrays.asList(defensePos).contains(position)) {
+        } else if (defensePos.contains(position)) {
 
             if (getGames() > 0) {
                 pStats.add("Defense,G,GS,Tckl,Sacks,Int,Fum,Def, ");
@@ -1143,7 +1144,7 @@ public class Player {
             }
 
 
-        } else if (Arrays.asList(olPos).contains(position)) {
+        } else if (olPos.contains(position)) {
             if (getCareerRunSnaps() > 0 || getCareerPassSnaps() > 0) {
                 pStats.add("OL,G,GS,RSnaps,RYPG,PSnaps,PYPG,Sacks, ");
                 for (int i = 0; i < year; i++) {

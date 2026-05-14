@@ -27,9 +27,12 @@ public class PlayerProfile extends ArrayAdapter<String> {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
+        View rowView = convertView;
         LayoutInflater inflater = (LayoutInflater) context
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View rowView = inflater.inflate(R.layout.save_list, parent, false);
+        if (rowView == null) {
+            rowView = inflater.inflate(R.layout.save_list, parent, false);
+        }
 
         String row = values[position];
         String[] detailSplit = row.split(">", -1);
