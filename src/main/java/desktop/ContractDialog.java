@@ -32,12 +32,9 @@ import java.util.Locale;
  */
 public class ContractDialog extends JDialog {
 
-    private static final Color BG_COLOR = new Color(15, 20, 28);
-    private static final Color SURFACE_COLOR = new Color(25, 32, 45);
     private static final Color ACCENT_BLUE = new Color(52, 152, 219);
     private static final Color SUCCESS_GREEN = new Color(46, 204, 113);
     private static final Color DANGER_RED = new Color(231, 76, 60);
-    private static final Color TEXT_SECONDARY = new Color(171, 178, 191);
 
     private static final int RETIREMENT_AGE = 65;
 
@@ -49,7 +46,7 @@ public class ContractDialog extends JDialog {
         this.league = league;
         setSize(700, 500);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(BG_COLOR);
+        getContentPane().setBackground(DesktopTheme.windowBackground());
 
         Team userTeam = league.userTeam;
         HeadCoach hc = userTeam != null ? userTeam.getHeadCoach() : null;
@@ -182,7 +179,7 @@ public class ContractDialog extends JDialog {
     private JPanel createInfoCard(String title) {
         JPanel card = new JPanel();
         card.setLayout(new javax.swing.BoxLayout(card, javax.swing.BoxLayout.Y_AXIS));
-        card.setBackground(SURFACE_COLOR);
+        card.setBackground(DesktopTheme.tableBase());
         card.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(new Color(255, 255, 255, 10), 1),
             BorderFactory.createEmptyBorder(20, 20, 20, 20)

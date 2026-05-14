@@ -304,7 +304,7 @@ public class Player {
     }
 
     int getInitialCost() {
-        return (int) ((Math.pow((float) ratOvr - costBaseRating, 2) / 5) + (int) Math.random() * recruitTolerance);
+        return (int) ((Math.pow((float) ratOvr - costBaseRating, 2) / 5) + (int) (Math.random() * recruitTolerance));
     }
 
     int getLocationCost() {

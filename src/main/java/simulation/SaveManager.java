@@ -31,6 +31,7 @@ public class SaveManager {
 
     public static void save(LeagueRecord league, OutputStream out) throws IOException {
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
+        try {
         
         // Save League Base (tab-separated so names may contain commas)
         writer.write(LEAGUE_PREFIX + sanitizeInlineValue(league.leagueName()) + "\t" + league.year() + "\t"
@@ -119,6 +120,9 @@ public class SaveManager {
             }
         }
         writer.flush();
+        } finally {
+            writer.close();
+        }
     }
 
     private static String sanitizeInlineValue(String value) {
@@ -172,7 +176,8 @@ public class SaveManager {
             } else if (line.startsWith("HOF:")) {
                 hof.add(PlayerRecord.fromCsv(line.substring(4)));
             } else if (line.startsWith("LR:")) {
-                lRecords.add(DataRecord.fromCsv(line.substring(3)));
+                DataRecord dr = DataRecord.fromCsv(line.substring(3));
+                if (dr != null) lRecords.add(dr);
             } else if (line.startsWith(CONF_PREFIX)) {
                 confTeams = new ArrayList<>();
                 String raw = line.substring(2);
@@ -242,7 +247,8 @@ public class SaveManager {
             } else if (line.startsWith(HISTORY_PREFIX)) {
                 history.add(TeamHistoryRecord.fromCsv(line.substring(2)));
             } else if (line.startsWith(RECORD_PREFIX)) {
-                tRecords.add(DataRecord.fromCsv(line.substring(2)));
+                DataRecord dr = DataRecord.fromCsv(line.substring(2));
+                if (dr != null) tRecords.add(dr);
             } else if (line.startsWith(TEAM_OOC_PREFIX)) {
                 teamOocWeeksBuf.clear();
                 teamOocNamesBuf.clear();

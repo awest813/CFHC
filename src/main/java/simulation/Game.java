@@ -177,7 +177,7 @@ public class Game implements Serializable {
 
     private int getHFadv() {
         //home field advantage
-        int footIQadv = (int) (homeTeam.getCompositeFootIQ() - awayTeam.getCompositeFootIQ()) / 5;
+        int footIQadv = (int) ((homeTeam.getCompositeFootIQ() - awayTeam.getCompositeFootIQ()) / 5);
         if (footIQadv > 3) footIQadv = 3;
         if (footIQadv < -3) footIQadv = -3;
         if (gameName.contains("Bowl") || gameName.contains("NC") || gameName.contains("SF"))
@@ -1357,7 +1357,7 @@ public class Game implements Serializable {
         if (gotFumble) {
             String defender;
             if (pos.equals("WR")) {
-                selDL.gameSim = selDL.getRatTackle() * Math.random() * 0;
+                selDL.gameSim = selDL.getRatTackle() * Math.random() * 15;
                 selCB.gameSim = selCB.getRatTackle() * Math.random() * 100;
                 selS.gameSim = selS.getRatTackle() * Math.random() * 60;
                 selLB.gameSim = selLB.getRatTackle() * Math.random() * 40;

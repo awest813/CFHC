@@ -37,12 +37,9 @@ public class RedshirtDialog extends JDialog {
 
     private static final String[] COLUMNS = {"Pos", "Name", "Yr", "OVR", "Team"};
     
-    private static final Color BG_COLOR = new Color(15, 20, 28);
-    private static final Color SURFACE_COLOR = new Color(25, 32, 45);
     private static final Color ACCENT_BLUE = new Color(52, 152, 219);
     private static final Color SUCCESS_GREEN = new Color(46, 204, 113);
     private static final Color DANGER_RED = new Color(231, 76, 60);
-    private static final Color TEXT_SECONDARY = new Color(171, 178, 191);
 
     private final League league;
     private DefaultTableModel currentModel;
@@ -55,12 +52,12 @@ public class RedshirtDialog extends JDialog {
         this.league = league;
         setSize(1000, 650);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(BG_COLOR);
+        getContentPane().setBackground(DesktopTheme.windowBackground());
 
         buildContent();
 
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT, 30, 20));
-        bottom.setBackground(SURFACE_COLOR);
+        bottom.setBackground(DesktopTheme.tableBase());
         bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(255, 255, 255, 20)));
         
         JButton doneBtn = createGlassButton("CLOSE MANAGEMENT", ACCENT_BLUE);
@@ -81,10 +78,10 @@ public class RedshirtDialog extends JDialog {
                 g2.dispose();
             }
         };
-        hintBar.setBackground(SURFACE_COLOR);
+        hintBar.setBackground(DesktopTheme.tableBase());
         JLabel hint = new JLabel("TACTICAL NOTE: Redshirts preserve eligibility for players with minimal game participation.");
         hint.setFont(new Font("SansSerif", Font.ITALIC, 11));
-        hint.setForeground(TEXT_SECONDARY);
+        hint.setForeground(DesktopTheme.textSecondary());
         hintBar.add(hint);
         add(hintBar, BorderLayout.NORTH);
 
@@ -103,10 +100,10 @@ public class RedshirtDialog extends JDialog {
         
         JScrollPane currentScroll = new JScrollPane(currentTable);
         currentScroll.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 10)));
-        currentScroll.getViewport().setBackground(BG_COLOR);
+        currentScroll.getViewport().setBackground(DesktopTheme.windowBackground());
         leftPanel.add(currentScroll, BorderLayout.CENTER);
 
-        JButton removeBtn = createGlassButton("REMOVE STATUS \u25B6", SURFACE_COLOR);
+        JButton removeBtn = createGlassButton("REMOVE STATUS \u25B6", DesktopTheme.tableBase());
         removeBtn.setForeground(DANGER_RED);
         removeBtn.addActionListener(e -> {
             int row = currentTable.getSelectedRow();
@@ -136,7 +133,7 @@ public class RedshirtDialog extends JDialog {
         
         JScrollPane eligibleScroll = new JScrollPane(eligibleTable);
         eligibleScroll.setBorder(BorderFactory.createLineBorder(new Color(255, 255, 255, 10)));
-        eligibleScroll.getViewport().setBackground(BG_COLOR);
+        eligibleScroll.getViewport().setBackground(DesktopTheme.windowBackground());
         rightPanel.add(eligibleScroll, BorderLayout.CENTER);
 
         JButton grantBtn = createGlassButton("\u25C0 GRANT REDSHIRT", SUCCESS_GREEN);
@@ -166,14 +163,14 @@ public class RedshirtDialog extends JDialog {
         JTable table = new JTable(model);
         table.setRowHeight(35);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setBackground(BG_COLOR);
+        table.setBackground(DesktopTheme.windowBackground());
         table.setForeground(Color.WHITE);
         table.setGridColor(new Color(255, 255, 255, 10));
         table.setShowVerticalLines(false);
         table.setSelectionBackground(ACCENT_BLUE);
         
-        table.getTableHeader().setBackground(SURFACE_COLOR);
-        table.getTableHeader().setForeground(TEXT_SECONDARY);
+        table.getTableHeader().setBackground(DesktopTheme.tableBase());
+        table.getTableHeader().setForeground(DesktopTheme.textSecondary());
         table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 11));
         table.getTableHeader().setPreferredSize(new java.awt.Dimension(0, 40));
         table.getTableHeader().setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(255, 255, 255, 10)));

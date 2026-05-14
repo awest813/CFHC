@@ -40,12 +40,9 @@ import java.util.Locale;
  */
 public class JobOffersDialog extends JDialog {
 
-    private static final Color BG_COLOR = new Color(15, 20, 28);
-    private static final Color SURFACE_COLOR = new Color(25, 32, 45);
     private static final Color ACCENT_BLUE = new Color(52, 152, 219);
     private static final Color SUCCESS_GREEN = new Color(46, 204, 113);
     private static final Color DANGER_RED = new Color(231, 76, 60);
-    private static final Color TEXT_SECONDARY = new Color(171, 178, 191);
 
     private static final String[] COLUMNS = {"Team", "Prestige", "Conf", "Off Tal", "Def Tal", "Fit Req"};
     private static final DecimalFormat DF = new DecimalFormat("#0.0", DecimalFormatSymbols.getInstance(Locale.ROOT));
@@ -68,7 +65,7 @@ public class JobOffersDialog extends JDialog {
         this.userHC = league.userTeam != null ? league.userTeam.getHeadCoach() : null;
         setSize(1000, 650);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(BG_COLOR);
+        getContentPane().setBackground(DesktopTheme.windowBackground());
 
         if (!league.isCareerMode() || userHC == null) {
             buildNoCareerPanel();
@@ -109,7 +106,7 @@ public class JobOffersDialog extends JDialog {
         
         JLabel desc = new JLabel("<html><center>Job offers and career transitions are only available in a persistent career universe.</center></html>", JLabel.CENTER);
         desc.setFont(new Font("SansSerif", Font.PLAIN, 14));
-        desc.setForeground(TEXT_SECONDARY);
+        desc.setForeground(DesktopTheme.textSecondary());
         panel.add(desc, BorderLayout.CENTER);
 
         JButton ok = createGlassButton("RETURN TO HUB", ACCENT_BLUE);
@@ -128,7 +125,7 @@ public class JobOffersDialog extends JDialog {
         
         JLabel msg = new JLabel("NO ACTIVE OPPORTUNITIES", JLabel.CENTER);
         msg.setFont(new Font("SansSerif", Font.BOLD, 20));
-        msg.setForeground(TEXT_SECONDARY);
+        msg.setForeground(DesktopTheme.textSecondary());
         panel.add(msg, BorderLayout.NORTH);
         
         String message = isPromotion
@@ -180,21 +177,21 @@ public class JobOffersDialog extends JDialog {
         JTable table = new JTable(model);
         table.setRowHeight(38);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setBackground(BG_COLOR);
+        table.setBackground(DesktopTheme.windowBackground());
         table.setForeground(Color.WHITE);
         table.setGridColor(new Color(255, 255, 255, 10));
         table.setShowVerticalLines(false);
         table.setSelectionBackground(ACCENT_BLUE);
         
-        table.getTableHeader().setBackground(SURFACE_COLOR);
-        table.getTableHeader().setForeground(TEXT_SECONDARY);
+        table.getTableHeader().setBackground(DesktopTheme.tableBase());
+        table.getTableHeader().setForeground(DesktopTheme.textSecondary());
         table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 10));
         table.getTableHeader().setPreferredSize(new Dimension(0, 40));
         table.getTableHeader().setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(255, 255, 255, 10)));
 
         // Right side: Program Snapshot Card
         JPanel detailPanel = new JPanel(new BorderLayout(15, 15));
-        detailPanel.setBackground(SURFACE_COLOR);
+        detailPanel.setBackground(DesktopTheme.tableBase());
         detailPanel.setBorder(BorderFactory.createEmptyBorder(25, 25, 25, 25));
 
         JLabel snapshotTitle = new JLabel("PROGRAM INTELLIGENCE");
@@ -205,8 +202,8 @@ public class JobOffersDialog extends JDialog {
         JTextArea detail = new JTextArea("SELECT A PROGRAM TO VIEW PERSONNEL EVALUATIONS AND ALUMNI EXPECTATIONS.");
         detail.setEditable(false);
         detail.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        detail.setBackground(BG_COLOR);
-        detail.setForeground(TEXT_SECONDARY);
+        detail.setBackground(DesktopTheme.windowBackground());
+        detail.setForeground(DesktopTheme.textSecondary());
         detail.setLineWrap(true);
         detail.setWrapStyleWord(true);
         detail.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
@@ -239,7 +236,7 @@ public class JobOffersDialog extends JDialog {
 
         JScrollPane tableScroll = new JScrollPane(table);
         tableScroll.setBorder(BorderFactory.createEmptyBorder());
-        tableScroll.getViewport().setBackground(BG_COLOR);
+        tableScroll.getViewport().setBackground(DesktopTheme.windowBackground());
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableScroll, detailPanel);
         split.setDividerLocation(550);
@@ -258,7 +255,7 @@ public class JobOffersDialog extends JDialog {
                 g2.dispose();
             }
         };
-        headerPanel.setBackground(SURFACE_COLOR);
+        headerPanel.setBackground(DesktopTheme.tableBase());
         headerPanel.setBorder(BorderFactory.createEmptyBorder(25, 30, 25, 30));
         
         JLabel headerLabel = new JLabel(isPromotion ? "CAREER ADVANCEMENT PROTOCOL" : "JOB OPPORTUNITY REGISTRY");
@@ -268,7 +265,7 @@ public class JobOffersDialog extends JDialog {
 
         // Buttons
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 15, 20));
-        buttons.setBackground(SURFACE_COLOR);
+        buttons.setBackground(DesktopTheme.tableBase());
         buttons.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(255, 255, 255, 20)));
         
         JButton declineBtn = createGlassButton(isPromotion ? "DECLINE ALL OFFERS" : "DECLINE OPPORTUNITY", DANGER_RED);

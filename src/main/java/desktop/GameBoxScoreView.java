@@ -138,7 +138,7 @@ public class GameBoxScoreView extends JDialog {
         scoreboard.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(60, 70, 80), 1),
                 BorderFactory.createEmptyBorder(12, 12, 12, 12)));
-        scoreboard.setBackground(new Color(28, 32, 38));
+        scoreboard.setBackground(DesktopTheme.tableBase());
 
         // Header row
         addScoreCell(scoreboard, "TEAM", true);

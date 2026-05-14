@@ -1231,8 +1231,9 @@ public class Team {
 
         float teamWP  = 0;
         for (Game g : gameSchedule) {
-            if (!g.gameName.equals("BYE")) teamWP += 0;
-            else if (!g.gameName.equals("Conference") || !g.gameName.equals("OOC")) {
+            if (g.gameName.equals("BYE")) {
+                // skip bye week
+            } else if (!g.gameName.equals("Conference") && !g.gameName.equals("OOC")) {
                 if (g.homeTeam == this && g.homeScore> g.awayScore) teamWP += 0.6 * (league.countTeam - g.awayTeam.rankTeamPollScore);
                 else if(g.homeTeam == this && g.homeScore < g.awayScore) teamWP -= 1.4 * (league.countTeam - g.awayTeam.rankTeamPollScore);
                 else if (g.awayTeam == this && g.awayScore > g.homeScore) teamWP += 1.4 * (league.countTeam - g.homeTeam.rankTeamPollScore);
@@ -1260,13 +1261,9 @@ public class Team {
         return defRating;
     }
 
-
-
-
     public void calcRPI() {
         teamRPI = (float) getRPI();
     }
-
 
     public float getRPI() {
 
@@ -1279,8 +1276,9 @@ public class Team {
 
         float teamWP = 0;
         for (Game g : gameSchedule) {
-            if (!g.gameName.equals("BYE")) teamWP += 0;
-            else if (!g.gameName.equals("Conference") || !g.gameName.equals("OOC")) {
+            if (g.gameName.equals("BYE")) {
+                // skip bye week
+            } else if (!g.gameName.equals("Conference") && !g.gameName.equals("OOC")) {
                 if (g.homeTeam == this && g.homeScore> g.awayScore) teamWP += 0.6;
                 else if(g.homeTeam == this && g.homeScore < g.awayScore) teamWP -= 1.4;
                 else if (g.awayTeam == this && g.awayScore > g.homeScore) teamWP += 1.4;
@@ -1373,7 +1371,7 @@ public class Team {
     }
 
     public float getOffSubTalent() {
-        return ((getQB(1).ratOvr + getRB(2).ratOvr + getWR(3).ratOvr + getWR(4).ratOvr + getTE(1).ratOvr + getOL(5).ratOvr + getOL(6).ratOvr) / 7);
+        return ((getQB(1).ratOvr + getRB(2).ratOvr + getWR(3).ratOvr + getWR(4).ratOvr + getTE(1).ratOvr + getOL(5).ratOvr + getOL(6).ratOvr) / 7f);
     }
 
     /**
@@ -3830,7 +3828,7 @@ public class Team {
             int duration = (int) (Math.random() * (66 - player.character) / 2);
             if (duration <= 0) duration = 1;
             int issueNo = duration-1;
-            if(issueNo > issue.length) issueNo = issue.length;
+            if(issueNo >= issue.length) issueNo = issue.length - 1;
             String description = issue[issueNo];
 
             int choice = HC.ratDiscipline - (int)(80*Math.random());
@@ -3862,7 +3860,7 @@ public class Team {
         if (duration <= 0) duration = 1;
         int duration2 = duration * 2;
         int issueNo = duration-1;
-        if(issueNo > issue.length) issueNo = issue.length;
+        if(issueNo >= issue.length) issueNo = issue.length - 1;
         String description = issue[issueNo];
 
         bridge.disciplineAction(player, description, duration, duration2);

@@ -38,7 +38,6 @@ import java.util.List;
 public class LauncherFrame extends JFrame {
 
     private static final String TAG = "LauncherFrame";
-    private static final Color BRAND_PANEL = new Color(20, 28, 42);
     private static final Color BRAND_ACCENT = new Color(50, 100, 180);
 
     private final List<JButton> launcherHubButtons = new ArrayList<>();
@@ -95,7 +94,7 @@ public class LauncherFrame extends JFrame {
     private JPanel buildSidePanel() {
         launcherSidePanel = new JPanel(new BorderLayout());
         launcherSidePanel.setPreferredSize(new Dimension(315, 500));
-        launcherSidePanel.setBackground(BRAND_PANEL);
+        launcherSidePanel.setBackground(DesktopTheme.sidebarBackground());
         launcherSidePanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 0, 0, 1, BRAND_ACCENT),
                 BorderFactory.createEmptyBorder(40, 24, 40, 24)));
