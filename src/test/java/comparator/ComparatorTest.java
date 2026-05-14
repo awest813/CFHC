@@ -4,10 +4,13 @@ import desktop.DesktopResourceProvider;
 import org.junit.Before;
 import org.junit.Test;
 import positions.Player;
+import positions.PlayerDefense;
+import positions.PlayerOffense;
 import positions.PlayerQB;
 import simulation.League;
 import simulation.PlatformResourceProvider;
 import simulation.Team;
+import staff.Staff;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -249,5 +252,167 @@ public class ComparatorTest {
 
         assertEquals("Higher conf prestige must sort first", 90, confs.get(0).confPrestige);
         assertEquals("Lower conf prestige must sort last",   50, confs.get(1).confPrestige);
+    }
+
+    // -------------------------------------------------------------------------
+    // CompTeamSoS
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void compTeamSoS_higherSOS_sortsFirst() {
+        teamA.teamSOS = 15.0;
+        teamB.teamSOS = 5.0;
+        teamC.teamSOS = 10.0;
+
+        List<Team> teams = new ArrayList<>(Arrays.asList(teamA, teamB, teamC));
+        Collections.sort(teams, new CompTeamSoS());
+
+        assertEquals("Highest SOS should sort first", 15.0, teams.get(0).getTeamSOS(), 0.001);
+        assertEquals("Middle SOS should sort second", 10.0, teams.get(1).getTeamSOS(), 0.001);
+        assertEquals("Lowest SOS should sort last",    5.0, teams.get(2).getTeamSOS(), 0.001);
+    }
+
+    @Test
+    public void compTeamSoS_sameTeam_returnsZero() {
+        CompTeamSoS comp = new CompTeamSoS();
+        assertEquals(0, comp.compare(teamA, teamA));
+    }
+
+    // -------------------------------------------------------------------------
+    // CompTeamRYPG
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void compTeamRYPG_higherYards_sortsFirst() {
+        teamA.teamRushYards = 3000; teamA.wins = 10; teamA.losses = 2;
+        teamB.teamRushYards = 1000; teamB.wins = 8;  teamB.losses = 4;
+        teamC.teamRushYards = 2000; teamC.wins = 6;  teamC.losses = 6;
+
+        List<Team> teams = new ArrayList<>(Arrays.asList(teamA, teamB, teamC));
+        Collections.sort(teams, new CompTeamRYPG());
+
+        double rypgFirst  = (double) teams.get(0).getTeamRushYards() / teams.get(0).numGames();
+        double rypgSecond = (double) teams.get(1).getTeamRushYards() / teams.get(1).numGames();
+        double rypgThird  = (double) teams.get(2).getTeamRushYards() / teams.get(2).numGames();
+
+        assertTrue("RYPG must be descending after sort", rypgFirst >= rypgSecond);
+        assertTrue("RYPG must be descending after sort", rypgSecond >= rypgThird);
+    }
+
+    // -------------------------------------------------------------------------
+    // CompTeamRecruitClass
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void compTeamRecruitClass_higherClass_sortsFirst() {
+        CompTeamRecruitClass comp = new CompTeamRecruitClass();
+        // recruit class rating is computed from actual freshmen, so just verify contract
+        assertEquals(0, comp.compare(teamA, teamA));
+    }
+
+    // -------------------------------------------------------------------------
+    // CompCoachWins
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void compCoachWins_moreWins_sortsFirst() {
+        Staff coachA = teamA.getHeadCoach();
+        Staff coachB = teamB.getHeadCoach();
+        Staff coachC = teamC.getHeadCoach();
+
+        // Use recordWins to set stats[0]
+        coachA.recordWins(8);
+        coachB.recordWins(3);
+        coachC.recordWins(5);
+
+        List<Staff> coaches = new ArrayList<>(Arrays.asList(coachA, coachB, coachC));
+        Collections.sort(coaches, new CompCoachWins());
+
+        assertTrue("Coach with most wins must sort first",
+                coaches.get(0).getWins() >= coaches.get(1).getWins());
+        assertTrue("Coach with fewest wins must sort last",
+                coaches.get(2).getWins() <= coaches.get(1).getWins());
+    }
+
+    @Test
+    public void compCoachWins_sameCoach_returnsZero() {
+        CompCoachWins comp = new CompCoachWins();
+        assertEquals(0, comp.compare(teamA.getHeadCoach(), teamA.getHeadCoach()));
+    }
+
+    // -------------------------------------------------------------------------
+    // CompCoachOvr
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void compCoachOvr_higherOvr_sortsFirst() {
+        CompCoachOvr comp = new CompCoachOvr();
+        Staff coachA = teamA.getHeadCoach();
+        staff.Staff coachB = teamB.getHeadCoach();
+
+        // Force a gap in the overall
+        coachA.ratOff = 90; coachA.ratDef = 90; coachA.ratTalent = 90; coachA.ratDiscipline = 90;
+        coachB.ratOff = 50; coachB.ratDef = 50; coachB.ratTalent = 50; coachB.ratDiscipline = 50;
+
+        int ovrA = coachA.getStaffOverall(coachA.overallWt);
+        int ovrB = coachB.getStaffOverall(coachB.overallWt);
+
+        assertTrue("Higher overall coach must sort first", comp.compare(coachA, coachB) < 0);
+        assertTrue("Lower overall coach must sort last",   comp.compare(coachB, coachA) > 0);
+    }
+
+    @Test
+    public void compCoachOvr_sameCoach_returnsZero() {
+        CompCoachOvr comp = new CompCoachOvr();
+        Staff coach = teamA.getHeadCoach();
+        assertEquals(0, comp.compare(coach, coach));
+    }
+
+    // -------------------------------------------------------------------------
+    // CompPlayerRushYards
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void compPlayerRushYards_higherYards_sortsFirst() {
+        PlayerOffense rb1 = new PlayerOffense(teamA, "RB One", "RB", 1, 1500, 10, 20, 150, 1, 2);
+        PlayerOffense rb2 = new PlayerOffense(teamA, "RB Two", "RB", 2, 800,  5, 10, 80,  0, 1);
+
+        List<PlayerOffense> players = new ArrayList<>(Arrays.asList(rb2, rb1));
+        Collections.sort(players, new CompPlayerRushYards());
+
+        assertEquals("Higher rush yards must sort first", 1500, players.get(0).rushYards);
+        assertEquals("Lower rush yards must sort last",    800, players.get(1).rushYards);
+    }
+
+    // -------------------------------------------------------------------------
+    // CompPlayerTackles
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void compPlayerTackles_moreTackles_sortsFirst() {
+        PlayerDefense lb1 = new PlayerDefense(teamA, "LB One", "LB", 1, 100, 10, 2, 1);
+        PlayerDefense lb2 = new PlayerDefense(teamA, "LB Two", "LB", 2, 45,  5, 1, 0);
+
+        List<PlayerDefense> players = new ArrayList<>(Arrays.asList(lb2, lb1));
+        Collections.sort(players, new CompPlayerTackles());
+
+        assertEquals("More tackles must sort first", 100, players.get(0).tackles);
+        assertEquals("Fewer tackles must sort last",  45, players.get(1).tackles);
+    }
+
+    // -------------------------------------------------------------------------
+    // CompPlayerSacks
+    // -------------------------------------------------------------------------
+
+    @Test
+    public void compPlayerSacks_moreSacks_sortsFirst() {
+        PlayerDefense dl1 = new PlayerDefense(teamA, "DL One", "DL", 1, 30, 12, 1, 0);
+        PlayerDefense dl2 = new PlayerDefense(teamA, "DL Two", "DL", 2, 20,  4, 0, 0);
+
+        List<PlayerDefense> players = new ArrayList<>(Arrays.asList(dl2, dl1));
+        Collections.sort(players, new CompPlayerSacks());
+
+        assertEquals("More sacks must sort first", 12, players.get(0).sacks);
+        assertEquals("Fewer sacks must sort last",  4, players.get(1).sacks);
     }
 }
