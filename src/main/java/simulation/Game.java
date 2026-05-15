@@ -1900,9 +1900,6 @@ public class Game implements Serializable {
 
                 gameTime -= 4 + 4 * Math.random(); //Onside kicks are very fast, unless there's a weird fight for the ball. Chance to burn a lot of time, odds are you'll burn a little time.
             } else {
-                // Just regular kick off
-                //gameYardLine = (int) (115 - (offense.getK(0).getRatKickPow() + 20 - 40 * Math.random()));
-                //if (gameYardLine <= 0) gameYardLine = 25;
                 gameYardLine = 80;
                 gameYardLine = returnPlay(gameYardLine, offense.getK(0), returner, specialTeams, true);
 

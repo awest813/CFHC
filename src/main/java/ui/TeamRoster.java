@@ -140,7 +140,6 @@ public class TeamRoster extends ArrayAdapter<String> {
             textClass.setPaintFlags(textClass.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         }
 
-        //if(week > 5 && week < 8 && teamStat.length > 6 || week > 21 && teamStat.length > 6) {
         if(teamStat.length > 6) {
             textProg.setText(teamStat[6]);
         } else {

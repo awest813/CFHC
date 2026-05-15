@@ -2599,10 +2599,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final String[] teams = simLeague.getTeamListStr();
         builder.setItems(teams, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
-                // Do something with the selection
-                //changeTeams(coachList, item);
-                //updateHeaderBar();
-                //examineTeam(currentTeam.getName());
                 viewTeam(jobList, item);
             }
         });

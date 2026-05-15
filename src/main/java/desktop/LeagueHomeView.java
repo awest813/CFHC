@@ -1352,13 +1352,8 @@ public class LeagueHomeView extends JFrame {
         applyWindowTheme();
     }
 
-    /** Stub for targeted data model refresh (replaces full UI rebuild in future). */
+    /** Targeted refresh for data model changes (avoids full UI rebuild). */
     public void refreshModels() {
-        invalidate();
-        if (statusLabel != null) {
-            statusLabel.setText(buildStatusText());
-        }
-        markDirty();
         revalidate();
         repaint();
     }

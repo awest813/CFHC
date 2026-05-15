@@ -1273,8 +1273,6 @@ public class Team {
 
         float rpi = 0;
 
-        //float teamWP = (float)(wins /(wins + losses));
-
         float teamWP = 0;
         for (Game g : gameSchedule) {
             if (g.gameName.equals("BYE")) {

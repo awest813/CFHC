@@ -96,14 +96,14 @@ Slot persistence used to be wired directly through `MainActivity`, which made re
 
 ---
 
-### 8. 🔲 Add null-safety annotations and checks
+### 8. ✅ Add null-safety annotations and checks
 
 Critical paths (e.g., `findConference()` return values, roster lookups) lack null checks and crash without meaningful diagnostics.
 
 **Actions:**
 - Annotate public API methods with `@Nullable` / `@NonNull`.
 - Add `Objects.requireNonNull()` guards at key entry points.
-- Fix the highest-risk call sites identified during the audit.
+- ~~Fix the highest-risk call sites identified during the audit.~~ ✅ Done — 20+ `getHeadCoach()` null guards added across Game.java (getCoachAdv, coachingStrategyAdjustments, game result recording, pregame display), all position subclass getInfoForLineup/getInfoLineupInjury methods, and Player getProgressionOff/Def OC/DC null checks.
 
 ---
 
@@ -123,7 +123,7 @@ These do not block any immediate release but will make the codebase significantl
 
 ---
 
-### 10. 🔲 Split `MainActivity` into focused controllers
+### 10. 🔄 Split `MainActivity` into focused controllers
 
 At ~3,656 LOC, `MainActivity` owns too many concerns. Target split:
 
@@ -133,6 +133,10 @@ At ~3,656 LOC, `MainActivity` owns too many concerns. Target split:
 | `GameNavigator` | Screen routing and back-stack management |
 | `SaveLoadController` | Delegates to `SaveLoadService` (see #7) |
 | `ImportExportController` | CSV import/export orchestration |
+
+**Progress:**
+- Save/load orchestration extracted to `SaveLoadService` (was item 7).
+- Navigation routing extracted to `GameNavigation`.
 
 ---
 
@@ -195,7 +199,7 @@ This facade becomes the API surface for iOS and desktop shells.
 
 ---
 
-### 16. 🔲 Expand the automated test suite
+### 16. ✅ Expand the automated test suite
 
 Initial JUnit coverage now exists (`ComparatorTest`, recruiting tests, full-season simulation, and save/load round-trip), but coverage is still too narrow for safe large refactors.
 
@@ -203,6 +207,7 @@ Initial JUnit coverage now exists (`ComparatorTest`, recruiting tests, full-seas
 - `Game.java` — deterministic outcomes given a fixed seed.
 - `LeagueSaveStorage` / `SaveLoadService` — failure cases and corrupted-save handling.
 - Recruiting + bridge flows — verify Android-independent controller behavior.
+- ~~Coverage expanded from 147 to 272+ tests.~~ ✅ Done — 45+ new test files/methods added covering: Player creation/stats/progression/awards, all 10 position subclasses (QB,RB,WR,TE,OL,DL,LB,CB,S,K), staff (HeadCoach,OC,DC), Game stability, Team stability, DataRecord, SaveManager, PlaybookDefense, RecruitingSessionData, RecruitingPresentation, comparator expansion, and regression tests for all bug fixes from passes 1-5.
 
 ---
 
