@@ -59,7 +59,7 @@ public class DesktopAudioManager implements AudioManager {
         }
     }
 
-    private static String fileNameFor(AudioEvent event) {
+    static String fileNameFor(AudioEvent event) {
         return switch (event) {
             case UI_CLICK -> "click.ogg";
             case PLAY_SELECT -> "play.ogg";

@@ -55,11 +55,49 @@ tasks.register('verifyDesktopResources') {
     }
 }
 
+tasks.register('verifyAudioResources') {
+    group = 'verification'
+    description = 'Validates OGG audio files exist and have correct OggS headers (desktop audio).'
+
+    def soundsDir = file("${rootProject.projectDir}/src/main/assets/sounds")
+    inputs.dir soundsDir
+
+    doLast {
+        if (!soundsDir.directory) {
+            throw new GradleException('Missing src/main/assets/sounds/ (desktop needs audio OGG files).')
+        }
+
+        def expected = ['advance', 'click', 'confirm', 'error', 'firstdown',
+                        'loss', 'play', 'whistle', 'win'].sort()
+        def found = soundsDir.listFiles()
+                .findAll { it.name.endsWith('.ogg') }
+                .collect { it.name.replace('.ogg', '') }
+                .sort()
+
+        def missing = expected - found
+        def extra = found - expected
+        if (missing) throw new GradleException("Missing OGG files: ${missing}")
+        if (extra)   logger.warn("Unexpected OGG files (not wired in DesktopAudioManager): ${extra}")
+
+        soundsDir.listFiles().findAll { it.name.endsWith('.ogg') }.each { f ->
+            def bytes = f.bytes
+            if (bytes.length < 4 ||
+                bytes[0] != 0x4F as byte ||
+                bytes[1] != 0x67 as byte ||
+                bytes[2] != 0x67 as byte ||
+                bytes[3] != 0x53 as byte) {
+                throw new GradleException("Invalid OGG header in: ${f.name}")
+            }
+        }
+        logger.lifecycle "Audio OK — ${found.size()} OGG files validated"
+    }
+}
+
 tasks.register('prepareDesktopResources', Copy) {
     group = 'desktop'
     description = 'Copies desktop runtime resources onto a classpath-friendly layout.'
 
-    dependsOn tasks.named('verifyDesktopResources')
+    dependsOn tasks.named('verifyDesktopResources'), tasks.named('verifyAudioResources')
 
     from("${rootProject.projectDir}/src/main/res/values") {
         include desktopValueXmlFiles
