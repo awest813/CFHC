@@ -72,9 +72,9 @@ public class Team {
     public int nilCollectiveLevel;
 
     /** Parity-tuned: home revenue boost per NIL collective tier. */
-    private static final double NIL_HOME_REV_PER_TIER = 0.024;
+    static final double NIL_HOME_REV_PER_TIER = 0.024;
     /** Weekly athletic-dept stipend dollars per NIL tier before coach NIL skill. */
-    private static final int NIL_WEEKLY_STIPEND_PER_TIER = 95;
+    static final int NIL_WEEKLY_STIPEND_PER_TIER = 95;
     public boolean nilCollectiveUpgrade;
     public int teamStadium;
 
@@ -195,6 +195,14 @@ public class Team {
 
     public String suspensionNews;
     public boolean suspension;
+
+    public RosterManager rosterManager;
+
+    public DepthChartManager depthChartManager;
+
+    public StatsTracker statsTracker;
+
+    public TeamFinance teamFinance;
 
     public int HoFCount = 0;
     //Defined Variables
@@ -585,6 +593,10 @@ public class Team {
         playersLeaving = new ArrayList<>();
         playersTransferring = new ArrayList<>();
         redshirtList = new ArrayList<>();
+        rosterManager = new RosterManager(this);
+        depthChartManager = new DepthChartManager(this);
+        statsTracker = new StatsTracker(this);
+        teamFinance = new TeamFinance(this);
     }
 
     public LeagueRecord.TeamRecord toRecord() {
@@ -617,29 +629,15 @@ public class Team {
     }
 
     public double getHomeGameRevenueMultiplier() {
-        double m = 1.0 + NIL_HOME_REV_PER_TIER * nilCollectiveLevel;
-        if (HC != null) {
-            m += 0.01 * CoachSkills.getRank(HC.coachSkillRanksBits, CoachSkills.NIL_MARKETING);
-        }
-        return m;
+        return teamFinance.getHomeGameRevenueMultiplier();
     }
 
     public int getWeeklyCollectiveStipend() {
-        int base = nilCollectiveLevel * NIL_WEEKLY_STIPEND_PER_TIER;
-        if (HC != null) {
-            base += HC.nilMarketingWeeklyStipend();
-        }
-        return base;
+        return teamFinance.getWeeklyCollectiveStipend();
     }
 
     public void stabilizeDisciplineFromCoachSkills() {
-        if (!userControlled || HC == null) {
-            return;
-        }
-        int b = HC.disciplineCultureBonus();
-        if (b > 0) {
-            teamDisciplineScore = Math.min(100, teamDisciplineScore + b);
-        }
+        teamFinance.stabilizeDisciplineFromCoachSkills();
     }
 
     public static String normalizeRecordText(String value) {
@@ -689,11 +687,7 @@ public class Team {
     }
 
     public double teamPowerRating() {
-        double rating = 0;
-        updateTalentRatings();
-        rating = (teamPrestige + 2 * teamOffTalent + 2 * teamDefTalent) / 5;
-
-        return rating;
+        return statsTracker.teamPowerRating();
     }
 
     public void setupUserCoach(String name) {
@@ -1025,321 +1019,72 @@ public class Team {
     }
 
     public void addPlayer(Player p) {
-        if(p.position.equals("QB")) teamQBs.add(new PlayerQB(p, this));
-        if(p.position.equals("RB")) teamRBs.add(new PlayerRB(p, this));
-        if(p.position.equals("WR")) teamWRs.add(new PlayerWR(p, this));
-        if(p.position.equals("TE")) teamTEs.add(new PlayerTE(p, this));
-        if(p.position.equals("OL")) teamOLs.add(new PlayerOL(p, this));
-        if(p.position.equals("K")) teamKs.add(new PlayerK(p, this));
-        if(p.position.equals("DL")) teamDLs.add(new PlayerDL(p, this));
-        if(p.position.equals("LB")) teamLBs.add(new PlayerLB(p, this));
-        if(p.position.equals("CB")) teamCBs.add(new PlayerCB(p, this));
-        if(p.position.equals("S")) teamSs.add(new PlayerS(p, this));
+        rosterManager.addPlayer(p);
     }
 
     /**
      * Sorts players so that best players are higher in depth chart.
      */
     public void sortPlayers() {
-        //sort players based on overall ratings to assemble best starting lineup
-        Collections.sort(teamQBs, new CompPlayer());
-        Collections.sort(teamRBs, new CompPlayer());
-        Collections.sort(teamWRs, new CompPlayer());
-        Collections.sort(teamTEs, new CompPlayer());
-        Collections.sort(teamKs, new CompPlayer());
-        Collections.sort(teamOLs, new CompPlayer());
-        Collections.sort(teamDLs, new CompPlayer());
-        Collections.sort(teamLBs, new CompPlayer());
-        Collections.sort(teamCBs, new CompPlayer());
-        Collections.sort(teamSs, new CompPlayer());
+        rosterManager.sortPlayers();
     }
 
     /**
      * Updates poll score based on team stats.
      */
     public void updatePollScore() {
-        updateStrengthOfWins();
-        updateLossStrength();
-        int offRating = offenseRating();
-        int defRating = defenseRating();
-        teamOffTalent = getOffTalent();
-        teamDefTalent = getDefTalent();
-
-        int univProRelBonus = 0;
-        if (league.enableUnivProRel) {
-            univProRelBonus = 20 * (10 - league.getConfNumber(conference));
-        }
-
-        double preseasonBias = 15 - (wins + losses);
-        if (preseasonBias < 3) preseasonBias = 3;
-        preseasonBias = preseasonBias / 15;
-        teamPollScore =
-                (float) (preseasonBias * getPreseasonBiasScore()) +
-                        (float) (offRating + defRating + teamStrengthOfWins - teamStrengthOfLosses + 500 + univProRelBonus);
-
-        /*teamPollScore =
-                (float) (preseasonBias * getPreseasonBiasScore()) +
-                        (float) (offRating + defRating + getSOSPollScore() + 500 + univProRelBonus);*/
-
-        if (league.currentWeek == 0) {
-            teamPollScore = getPreseasonBiasScore();
-        }
-
-
-        if ("CC".equals(confChampion)) {
-            //bonus for winning conference
-            teamPollScore += 20;
-        }
-        if ("NCW".equals(natChampWL)) {
-            //bonus for winning champ game
-            teamPollScore += 1000;
-        }
-        if ("NCL".equals(natChampWL)) {
-            //bonus for winning champ game
-            teamPollScore += 500;
-        }
-        if ("SFW".equals(semiFinalWL)) {
-            //bonus for winning champ game
-            teamPollScore += 200;
-        }
-        if ("SFL".equals(semiFinalWL)) {
-            //bonus for winning champ game
-            teamPollScore += 150;
-        }
-        if ("QTW".equals(qtFinalWL)) {
-            //bonus for winning champ game
-            teamPollScore += 150;
-        }
-        if ("QTL".equals(qtFinalWL)) {
-            //bonus for winning champ game
-            teamPollScore += 50;
-        }
-        if ("S16W".equals(sweet16) || "FRW".equals(sweet16)) {
-            //bonus for winning champ game
-            teamPollScore += 50;
-        }
-        if ("S16L".equals(sweet16) || "FRL".equals(sweet16)) {
-            //bonus for winning champ game
-            teamPollScore += 25;
-        }
+        statsTracker.updatePollScore();
     }
 
-    public float  getPreseasonBiasScore() {
-        float score = 0;
-
-        if (league.currentWeek > 0) {
-            score += league.getTeamList().size() - rankTeamOffTalent;
-            score += league.getTeamList().size() - rankTeamDefTalent;
-            score += 1.5 * (league.getTeamList().size() - rankTeamPrestige);
-            if (league.getConferences().get(league.getConfNumber(conference)).confTeams.size() < league.getConferences().get(league.getConfNumber(conference)).minConfTeams) {
-                score += teamPrestige / 1.2;
-            } else {
-                score += confPrestige;
-            }
-        } else {
-            score += 1 * getOffTalent();
-            score += 1 * getDefTalent();
-            score += 3 * teamPrestige;
-            if (league.getConferences().get(league.getConfNumber(conference)).confTeams.size() < league.getConferences().get(league.getConfNumber(conference)).minConfTeams) {
-                score += teamPrestige / 1.2;
-            } else {
-                score += confPrestige;
-            }
-        }
-
-        return score;
+    public float getPreseasonBiasScore() {
+        return statsTracker.getPreseasonBiasScore();
     }
 
     public void updateSOS() {
-        for (int i = 0; i < gameSchedule.size(); ++i) {
-            Game g = gameSchedule.get(i);
-            if (g.homeTeam == this) {
-                teamSOS += league.getTeamList().size() - g.awayTeam.rankTeamPollScore;
-            } else {
-                teamSOS += league.getTeamList().size() - g.homeTeam.rankTeamPollScore;
-            }
-        }
+        statsTracker.updateSOS();
     }
 
     public double getSOS() {
-        if (league.currentWeek < 2) return 0;
-        float sos = 0;
-
-        float oppWP=0;
-        float oppoppWP=0;
-        int teamOPWP=0;
-        float rpi = 0;
-
-
-        float teamWP = 0;
-        if (wins + losses > 0) teamWP = (float)wins / (wins + losses);
-
-        for(Team t : gameWinsAgainst) {
-            if (t.wins + t.losses > 0) oppWP += (float)t.wins/(t.wins+t.losses);
-
-            for (int i = 0; i < t.getGameWinsAgainst().size(); i++) {
-                for (int j = 0; j <t.getGameWinsAgainst().get(i).getGameWinsAgainst().size(); j++) {
-                    Team teamX = t.getGameWinsAgainst().get(i).getGameWinsAgainst().get(j);
-                    if (teamX.wins + teamX.losses > 0) oppoppWP += (float)teamX.wins/(teamX.wins+teamX.losses);
-                    teamOPWP++;
-                }
-            }
-        }
-        for(Team t : gameLossesAgainst) {
-            if (t.wins + t.losses > 0) oppWP += (float)t.wins/(t.wins+t.losses);
-
-            for (int i = 0; i < t.getGameLossesAgainst().size(); i++) {
-                for (int j = 0; j <t.getGameLossesAgainst().get(i).getGameLossesAgainst().size(); j++) {
-                    Team teamX = t.getGameLossesAgainst().get(i).getGameLossesAgainst().get(j);
-                    if (teamX.wins + teamX.losses > 0) oppoppWP += (float)teamX.wins/(teamX.wins+teamX.losses);
-                    teamOPWP++;
-                }
-            }
-        }
-
-        if (gameWinsAgainst.size() + gameLossesAgainst.size() > 0) {
-            oppWP = (float) oppWP / (gameWinsAgainst.size() + gameLossesAgainst.size());
-        }
-
-        if (teamOPWP > 0) {
-            oppoppWP = (float) oppoppWP / teamOPWP;
-        }
-
-        sos = (float)(0.67 * oppWP + 0.33 * oppoppWP);
-
-        return sos;
+        return statsTracker.getSOS();
     }
 
     /**
      * Updates strength of wins based on how opponents have fared.
      */
     public void updateStrengthOfWins() {
-        teamStrengthOfWins = 0;
-        for (int i = 0; i < gameWinsAgainst.size(); ++i) {
-            teamStrengthOfWins += 5 + (league.countTeam - gameWinsAgainst.get(i).rankTeamPollScore);
-        }
+        statsTracker.updateStrengthOfWins();
     }
 
 
     public void updateLossStrength() {
-        teamStrengthOfLosses = 0;
-        for (int i = 0; i < gameLossesAgainst.size(); ++i) {
-            teamStrengthOfLosses += gameLossesAgainst.get(i).rankTeamPollScore;
-        }
+        statsTracker.updateLossStrength();
     }
 
     public float getSOSPollScore() {
-
-        float teamWP  = 0;
-        for (Game g : gameSchedule) {
-            if (g.gameName.equals("BYE")) {
-                // skip bye week
-            } else if (!g.gameName.equals("Conference") && !g.gameName.equals("OOC")) {
-                if (g.homeTeam == this && g.homeScore> g.awayScore) teamWP += 0.6 * (league.countTeam - g.awayTeam.rankTeamPollScore);
-                else if(g.homeTeam == this && g.homeScore < g.awayScore) teamWP -= 1.4 * (league.countTeam - g.awayTeam.rankTeamPollScore);
-                else if (g.awayTeam == this && g.awayScore > g.homeScore) teamWP += 1.4 * (league.countTeam - g.homeTeam.rankTeamPollScore);
-                else if (g.awayTeam == this && g.awayScore < g.homeScore) teamWP -= 0.6 * (league.countTeam - g.homeTeam.rankTeamPollScore);
-            } else {
-                if (g.homeTeam == this && g.homeScore> g.awayScore) teamWP += 1 * (league.countTeam - g.awayTeam.rankTeamPollScore);
-                else if(g.homeTeam == this && g.homeScore < g.awayScore) teamWP -= 1 * (league.countTeam - g.awayTeam.rankTeamPollScore);
-                else if (g.awayTeam == this && g.awayScore > g.homeScore) teamWP += 1 * (league.countTeam - g.homeTeam.rankTeamPollScore);
-                else if (g.awayTeam == this && g.awayScore < g.homeScore) teamWP -= 1 * (league.countTeam - g.homeTeam.rankTeamPollScore);
-            }
-        }
-
-        return teamWP;
+        return statsTracker.getSOSPollScore();
     }
 
     public int offenseRating() {
-        int offRating = 0;
-        offRating = (league.countTeam - rankTeamPoints) + (league.countTeam - rankTeamYards);
-        return offRating;
+        return statsTracker.offenseRating();
     }
 
     public int defenseRating() {
-        int defRating = 0;
-        defRating = (league.countTeam - rankTeamOppPoints) + (league.countTeam - rankTeamOppYards);
-        return defRating;
+        return statsTracker.defenseRating();
     }
 
     public void calcRPI() {
-        teamRPI = (float) getRPI();
+        statsTracker.calcRPI();
     }
 
     public float getRPI() {
-
-        if (league.currentWeek < 7) return 0;
-        if (wins+losses <= 0) return 0;
-
-        float rpi = 0;
-
-        float teamWP = 0;
-        for (Game g : gameSchedule) {
-            if (g.gameName.equals("BYE")) {
-                // skip bye week
-            } else if (!g.gameName.equals("Conference") && !g.gameName.equals("OOC")) {
-                if (g.homeTeam == this && g.homeScore> g.awayScore) teamWP += 0.6;
-                else if(g.homeTeam == this && g.homeScore < g.awayScore) teamWP -= 1.4;
-                else if (g.awayTeam == this && g.awayScore > g.homeScore) teamWP += 1.4;
-                else if (g.awayTeam == this && g.awayScore < g.homeScore) teamWP -= 0.6;
-            } else {
-                if (g.homeTeam == this && g.homeScore> g.awayScore) teamWP += 1;
-                else if(g.homeTeam == this && g.homeScore < g.awayScore) teamWP -= 1;
-                else if (g.awayTeam == this && g.awayScore > g.homeScore) teamWP += 1;
-                else if (g.awayTeam == this && g.awayScore < g.homeScore) teamWP -= 1;
-            }
-        }
-
-        teamWP = teamWP / (wins+losses);
-
-        float oppWP=0;
-        float oppoppWP=0;
-        int teamOPWP=0;
-
-        for(Team t : gameWinsAgainst) {
-            if (t.wins + t.losses > 0) oppWP += (float)t.wins/(t.wins+t.losses);
-
-            for (int i = 0; i < t.getGameWinsAgainst().size(); i++) {
-                for (int j = 0; j <t.getGameWinsAgainst().get(i).getGameWinsAgainst().size(); j++) {
-                    Team teamX = t.getGameWinsAgainst().get(i).getGameWinsAgainst().get(j);
-                    if (teamX.wins + teamX.losses > 0) oppoppWP += (float)teamX.wins/(teamX.wins+teamX.losses);
-                    teamOPWP++;
-                }
-            }
-        }
-        for(Team t : gameLossesAgainst) {
-            if (t.wins + t.losses > 0) oppWP += (float)t.wins/(t.wins+t.losses);
-
-            for (int i = 0; i < t.getGameLossesAgainst().size(); i++) {
-                for (int j = 0; j <t.getGameLossesAgainst().get(i).getGameLossesAgainst().size(); j++) {
-                    Team teamX = t.getGameLossesAgainst().get(i).getGameLossesAgainst().get(j);
-                    if (teamX.wins + teamX.losses > 0) oppoppWP += (float)teamX.wins/(teamX.wins+teamX.losses);
-                    teamOPWP++;
-                }
-            }
-        }
-
-        if (gameWinsAgainst.size() + gameLossesAgainst.size() > 0) {
-            oppWP = (float) oppWP / (gameWinsAgainst.size() + gameLossesAgainst.size());
-        }
-
-        if (teamOPWP > 0) {
-            oppoppWP = (float) oppoppWP / teamOPWP;
-        }
-
-        rpi = (float)(0.25 * teamWP + 0.5 * oppWP + 0.25 * oppoppWP);
-
-        return rpi;
+        return statsTracker.getRPI();
     }
 
     /**
      * Gets the OffTalent, DefTalent, poll score
      */
     public void updateTalentRatings() {
-        teamOffTalent = getOffTalent();
-        teamDefTalent = getDefTalent();
-        teamPollScore = teamPrestige + teamOffTalent + teamDefTalent;
-        teamChemistry = getTeamChemistry();
+        statsTracker.updateTalentRatings();
     }
 
     /**
@@ -1348,35 +1093,11 @@ public class Team {
      * @return Offensive Talent Level
      */
     public float getOffTalent() {
-
-        if(league.currentWeek> league.regSeasonWeeks+4) {
-            int rat = 0;
-            int count = 0;
-            ArrayList<Player> p = getAllPlayers();
-            for(int i = 0; i < p.size(); i++) {
-                if(p.get(i).offensePos.contains(p.get(i).position) || p.get(i).olPos.contains(p.get(i).position)) {
-                    rat += p.get(i).ratOvr;
-                    count++;
-                }
-            }
-            return (float) rat / count;
-
-        } else {
-            int wr0 = teamWRs.size() > 0 ? teamWRs.get(0).ratOvr : 0;
-            int wr1 = teamWRs.size() > 1 ? teamWRs.get(1).ratOvr : 0;
-            int wr2 = teamWRs.size() > 2 ? teamWRs.get(2).ratOvr : 0;
-            int rb0 = teamRBs.size() > 0 ? teamRBs.get(0).ratOvr : 0;
-            int rb1 = teamRBs.size() > 1 ? teamRBs.get(1).ratOvr : 0;
-            int te0 = teamTEs.size() > 0 ? teamTEs.get(0).ratOvr : 0;
-            return (getQB(0).ratOvr * 5 +
-                    wr0 + wr1 + wr2 +
-                    rb0 + rb1 + te0 +
-                    getCompositeOLPass() + getCompositeOLRush() + getOffSubTalent()) / 14;
-        }
+        return statsTracker.getOffTalent();
     }
 
     public float getOffSubTalent() {
-        return ((getQB(1).ratOvr + getRB(2).ratOvr + getWR(3).ratOvr + getWR(4).ratOvr + getTE(1).ratOvr + getOL(5).ratOvr + getOL(6).ratOvr) / 7f);
+        return statsTracker.getOffSubTalent();
     }
 
     /**
@@ -1385,22 +1106,7 @@ public class Team {
      * @return Defensive Talent Level
      */
     public float getDefTalent() {
-        if(league.currentWeek > league.regSeasonWeeks + 4) {
-            int rat = 0;
-            int count = 0;
-            ArrayList<Player> p = getAllPlayers();
-            for(int i = 0; i < p.size(); i++) {
-                if(p.get(i).defensePos.contains(p.get(i).position)) {
-                    rat += p.get(i).ratOvr;
-                    count++;
-                }
-            }
-            return (float) rat / count;
-
-        } else {
-            return (getRushDef() + getPassDef()) / 2;
-        }
-
+        return statsTracker.getDefTalent();
     }
 
     /**
@@ -1409,66 +1115,25 @@ public class Team {
      * @return football iq of the team
      */
     public float getCompositeFootIQ() {
-        float comp = 0;
-        //Offense: 16
-        comp += getQB(0).ratIntelligence * 5; //5
-        comp += getRB(0).ratIntelligence + getRB(1).ratIntelligence; //2
-        comp += getWR(0).ratIntelligence + getWR(1).ratIntelligence + getWR(2).ratIntelligence; //3
-        comp += getTE(0).ratIntelligence; //1
-        for (int i = 0; i < 5; ++i) { //5
-            comp += getOL(i).ratIntelligence;
-        }
-        //Defense: 14
-        comp += getS(0).ratIntelligence * 4 + getS(1).ratIntelligence * 4; //8
-        comp += getCB(0).ratIntelligence + getCB(1).ratIntelligence + getCB(2).ratIntelligence; //3
-        for (int i = 0; i < 4; ++i) { //4
-            comp += getDL(i).ratIntelligence;
-        }
-        for (int i = 0; i < 3; ++i) { //3
-            comp += getLB(i).ratIntelligence;
-        }
-
-        //coach: 8
-        comp += HC.ratDef * 4 + HC.ratOff * 4; //8
-
-        //subs: 1
-        comp += (getRB(2).ratIntelligence + getWR(3).ratIntelligence + getWR(4).ratIntelligence + getTE(1).ratIntelligence + getOL(5).ratIntelligence + getOL(6).ratIntelligence +
-                getDL(4).ratIntelligence + getDL(5).ratIntelligence + getLB(3).ratIntelligence + getCB(4).ratIntelligence + 2 * getS(2).ratIntelligence) / 12;
-
-        return comp / 43;
+        return statsTracker.getCompositeFootIQ();
     }
 
     /**
      * team disicipline rating
      */
     public int getTeamDiscipline() {
-        int rating = 0;
-        ArrayList<Player> roster = getAllPlayers();
-        for (int i = 0; i < roster.size(); ++i) {
-            rating += roster.get(i).character;
-        }
-        return rating / roster.size();
+        return statsTracker.getTeamDiscipline();
     }
 
     /**
      * team disicipline rating
      */
     public double getTeamChemistry() {
-        double rating = 0;
-        ArrayList<Player> roster = getAllPlayers();
-        for (int i = 0; i < roster.size(); ++i) {
-            rating += roster.get(i).character;
-            rating += roster.get(i).ratIntelligence;
-        }
-        return rating / (2*roster.size());
+        return statsTracker.getTeamChemistry();
     }
 
     public int getStaffDiscipline() {
-        int staff;
-
-        staff = (3*HC.ratDiscipline + OC.ratDiscipline + DC.ratDiscipline) / 5;
-
-        return staff;
+        return statsTracker.getStaffDiscipline();
     }
 
 
@@ -1478,14 +1143,7 @@ public class Team {
      * @return integer of how good the team is at passing
      */
     public float getPassProf() {
-        float wr0 = teamWRs.size() > 0 ? teamWRs.get(0).ratOvr : 0;
-        float wr1 = teamWRs.size() > 1 ? teamWRs.get(1).ratOvr : 0;
-        float wr2 = teamWRs.size() > 2 ? teamWRs.get(2).ratOvr : 0;
-        float te0c = teamTEs.size() > 0 ? teamTEs.get(0).getRatCatch() : 0;
-        float avgWRs = (wr0 + wr1 + wr2 + te0c) / 4;
-        float avgSubs = (2 * getWR(3).getRatCatch() + getTE(1).getRatCatch() + getRB(0).getRatCatch() + getRB(1).getRatCatch() + getRB(2).getRatCatch()) / 6;
-
-        return (2 * getCompositeOLPass() + getQB(0).ratOvr * 5 + avgWRs * 4 + HC.ratOff * 2 + avgSubs) / 14;
+        return statsTracker.getPassProf();
     }
 
     /**
@@ -1494,13 +1152,7 @@ public class Team {
      * @return integer of how good the team is at rushing
      */
     public float getRushProf() {
-        float rb0 = teamRBs.size() > 0 ? teamRBs.get(0).ratOvr : 0;
-        float rb1 = teamRBs.size() > 1 ? teamRBs.get(1).ratOvr : 0;
-        float avgRBs = (rb0 + rb1) / 2;
-        float QB = teamQBs.size() > 0 ? teamQBs.get(0).getRatSpeed() : 0;
-        float avgSub = getRB(2).ratOvr;
-
-        return (3 * getCompositeOLRush() + 4 * avgRBs + QB + 2 * HC.ratOff + avgSub) / 11;
+        return statsTracker.getRushProf();
     }
 
     /**
@@ -1509,23 +1161,7 @@ public class Team {
      * @return integer of how good
      */
     public float getPassDef() {
-        float cb0 = teamCBs.size() > 0 ? teamCBs.get(0).ratOvr : 0;
-        float cb1 = teamCBs.size() > 1 ? teamCBs.get(1).ratOvr : 0;
-        float cb2 = teamCBs.size() > 2 ? teamCBs.get(2).ratOvr : 0;
-        float avgCBs = (cb0 + cb1 + cb2) / 3;
-        float lb0c = teamLBs.size() > 0 ? teamLBs.get(0).getRatCoverage() : 0;
-        float lb1c = teamLBs.size() > 1 ? teamLBs.get(1).getRatCoverage() : 0;
-        float lb2c = teamLBs.size() > 2 ? teamLBs.get(2).getRatCoverage() : 0;
-        float avgLBs = (lb0c + lb1c + lb2c) / 3;
-        float s0c = teamSs.size() > 0 ? teamSs.get(0).getRatCoverage() : 0;
-        float s1c = teamSs.size() > 1 ? teamSs.get(1).getRatCoverage() : 0;
-        float S = (s0c + s1c) / 2;
-        float def = (3 * avgCBs + avgLBs + S) / 5;
-        float avgSub = (getLB(3).getRatCoverage() + getCB(3).ratOvr * 2 + getS(2).getRatCoverage()) / 4;
-
-
-        float ss0r = teamSs.size() > 0 ? teamSs.get(0).ratOvr : 0;
-        return (def * 4 + ss0r + getCompositeDLPass() * 2 + 2 * HC.ratDef + avgSub) / 10;
+        return statsTracker.getPassDef();
     }
 
     /**
@@ -1534,7 +1170,7 @@ public class Team {
      * @return integer of how good
      */
     public float getRushDef() {
-        return getCompositeDLRush();
+        return statsTracker.getRushDef();
     }
 
     /**
@@ -1544,14 +1180,7 @@ public class Team {
      * @return how good they are at blocking the pass.
      */
     public float getCompositeOLPass() {
-        float compositeOL = 0;
-        for (int i = 0; i < 5; ++i) {
-            compositeOL += (teamOLs.get(i).getRatStrength() * 2 + teamOLs.get(i).getRatPassBlock() * 2 + teamOLs.get(i).getRatVision()) / 5;
-        }
-        compositeOL = compositeOL / 5;
-        float avgSub = (getOL(5).ratOvr + getOL(6).ratOvr) / 2;
-
-        return (9 * compositeOL + avgSub + 3 * HC.ratOff) / 13;
+        return statsTracker.getCompositeOLPass();
     }
 
     /**
@@ -1561,16 +1190,7 @@ public class Team {
      * @return how good they are at blocking the rush.
      */
     public float getCompositeOLRush() {
-        float compositeOL = 0;
-        for (int i = 0; i < 5; ++i) {
-            compositeOL += (teamOLs.get(i).getRatStrength() * 2 + teamOLs.get(i).getRatRunBlock() * 2 + teamOLs.get(i).getRatVision()) / 5;
-        }
-        compositeOL = compositeOL / 5;
-        float compositeTE = teamTEs.size() > 0 ? teamTEs.get(0).getRatRunBlock() : 0;
-
-        float avgSub = (2 * getOL(5).ratOvr + 2 * getOL(6).ratOvr + getTE(1).getRatRunBlock()) / 5;
-
-        return (9 * compositeOL + 2 * compositeTE + 3 * HC.ratOff + avgSub) / 15;
+        return statsTracker.getCompositeOLRush();
     }
 
     /**
@@ -1580,15 +1200,7 @@ public class Team {
      * @return how good they are at putting pressure on passer.
      */
     public float getCompositeDLPass() {
-        float compositeDL = 0;
-        for (int i = 0; i < 4; ++i) {
-            compositeDL += (teamDLs.get(i).getRatStrength() + teamDLs.get(i).getRatPassRush()) / 2;
-        }
-        compositeDL = compositeDL / 4;
-
-        float avgSub = getDL(4).ratOvr + getDL(5).ratOvr;
-
-        return (5 * compositeDL + 2 * HC.ratDef + avgSub) / 8;
+        return statsTracker.getCompositeDLPass();
     }
 
     /**
@@ -1598,137 +1210,12 @@ public class Team {
      * @return how good they are at stopping the RB.
      */
     public float getCompositeDLRush() {
-        float compositeDL = 0;
-        float compositeLB = 0;
-        float compositeS = 0;
-
-        for (int i = 0; i < 4; ++i) {
-            compositeDL += (teamDLs.get(i).getRatStrength() + teamDLs.get(i).getRatRunStop()) / 2;
-        }
-        compositeDL = compositeDL / 4;
-
-        for (int i = 0; i < 3; ++i) {
-            compositeLB += teamLBs.get(i).getRatRunStop();
-        }
-        compositeLB = compositeLB / 3;
-
-        float ss0rs = teamSs.size() > 0 ? teamSs.get(0).getRatRunStop() : 0;
-        float ss1rs = teamSs.size() > 1 ? teamSs.get(1).getRatRunStop() : 0;
-        compositeS += ss0rs + ss1rs;
-        compositeS = compositeS / 2;
-
-        float avgSub = (2 * getDL(4).ratOvr + 2 * getDL(5).ratOvr + getLB(3).getRatRunStop() + getS(2).getRatRunStop()) / 6;
-        return (4 * compositeDL + 2 * compositeLB + 2 * compositeS + 2 * HC.ratDef + avgSub) / 11;
+        return statsTracker.getCompositeDLRush();
     }
 
     //get team info
     public String getTeamHomeInfo() {
-        StringBuilder data = new StringBuilder();
-
-        //TEAM STATUS
-        data.append(name + "&");
-        data.append(getRankStr(rankTeamPollScore) + " Ranked&");
-        data.append(wins + " wins and " + losses + " losses&");
-        data.append("Offense: " + df2.format(getOffTalent()) + " (" + getRankStr(rankTeamOffTalent) + ") | Defense: " + df2.format(getDefTalent()) + " (" + getRankStr(rankTeamDefTalent) + ")\n");
-        data.append("Prestige: " + getRankStr(rankTeamPrestige) + " | Discipline: " + teamDisciplineScore + "% | Facilities: L" + teamFacilities + "&");
-
-        //INJURY LIST
-        data.append("\n");
-
-        for (Player p : getAllPlayers()) {
-            if (p.injury == null) {
-                p.isInjured = false;
-                playersInjured.remove(p);
-            }
-        }
-
-        if (playersInjured.isEmpty()) {
-            data.append("No Injuries\n");
-        } else {
-            for (Player p : playersInjured) {
-                if(p.isInjured)  data.append(p.position + " " + p.name + " [" + p.ratOvr + "] " + p.injury.duration + "wk\n");
-            }
-        }
-
-        //Suspensions
-        data.append("&\n");
-        int i = 0;
-        for (Player p : getAllPlayers()) {
-            if (p.isSuspended) {
-                data.append(p.position + " " + p.name + " [" + p.ratOvr + "] " + p.weeksSuspended + "wk\n");
-                i++;
-            }
-        }
-        if (i == 0) data.append("No Suspensions\n");
-
-        //NEXT OPPONENT
-        data.append("&\n");
-
-        int gamesplayed = 0;
-        for(Game g:gameSchedule) {
-            if(!g.hasPlayed) {
-                if(g.gameName.equals("BYE WEEK")) {
-                    data.append("Bye\n&");
-                    break;
-                }
-                else {
-                    data.append(g.gameName + " Game\n");
-                    if (g.awayTeam.name != name) {
-                        data.append("vs #" + g.awayTeam.rankTeamPollScore + " " + g.awayTeam.name + "\n" + "Rec: (" + g.awayTeam.wins + " - " + g.awayTeam.losses + ")\nOff: " + df2.format(g.awayTeam.getOffTalent()) + " | Def: " + df2.format(g.awayTeam.getDefTalent()) + "\n");
-                        data.append(g.awayTeam.playbookOff.getStratName() + " | " + g.awayTeam.playbookDef.getStratName() + "\n&");
-                    } else {
-                        data.append("at #" + g.homeTeam.rankTeamPollScore + " " + g.homeTeam.name + "\n" + "Rec: (" + g.homeTeam.wins + " - " + g.homeTeam.losses + ")\nOff: " + df2.format(g.homeTeam.getOffTalent()) + " | Def: " + df2.format(g.homeTeam.getDefTalent()) + "\n");
-                        data.append(g.homeTeam.playbookOff.getStratName() + " | " + g.homeTeam.playbookDef.getStratName() + "\n&");
-                    }
-                    break;
-                }
-            }
-            gamesplayed++;
-        }
-        if(gamesplayed >= gameSchedule.size()) {
-            data.append("End of Season\n\n\n&");
-        }
-
-        //NEWS
-        for(int n = 0; n < league.getNewsHeadlines().size(); n++) {
-            data.append("+ " + league.getNewsHeadlines().get(n) + "\n\n");
-        }
-
-        data.append("&");
-
-
-        //LAST OPPONENT
-        data.append("\n");
-        if(league.currentWeek < 1) data.append("No Game\n&");
-
-        else {
-            int played = 0;
-            for (i = 0; i < gameSchedule.size(); i++) {
-
-                if (!gameSchedule.get(i).hasPlayed) {
-                    Game g = gameSchedule.get(i - 1);
-
-                    if(gameSchedule.get(i - 1).gameName.equals("BYE WEEK")) {
-                        data.append("Bye\n&");
-                        break;
-                    } else {
-                        data.append(g.gameName + "\n");
-                        data.append(g.awayTeam.name + " " + g.awayScore + "\n");
-                        data.append(g.homeTeam.name + " " + g.homeScore + "\n&");
-                        break;
-                    }
-                }
-                played++;
-            }
-            if(played >= gameSchedule.size()) {
-                Game g = gameSchedule.get(gameSchedule.size()-1);
-                data.append(g.gameName + "\n");
-                data.append(g.awayTeam.name + " " + g.awayScore + "\n");
-                data.append(g.homeTeam.name + " " + g.homeScore + "\n&");
-            }
-        }
-
-        return data.toString();
+        return statsTracker.getTeamHomeInfo();
     }
 
     public void enterOffSeason() {
@@ -1995,218 +1482,15 @@ public class Team {
     }
 
     public void checkFacilitiesUpgradeBonus() {
-        if(facilityUpgrade) {
-            teamPrestige += teamFacilities;
-            if(HC != null) HC.baselinePrestige += teamFacilities*.5;
-        }
+        teamFinance.checkFacilitiesUpgradeBonus();
     }
 
     public void coachContracts(int totalPDiff) {
-        int max = 78;
-        int min = 60;
-        Random rand = new Random();
-        int retire = rand.nextInt((max - min) + 1) + min;
-        int age = HC.age;
-        int wins = HC.getWins();
-        int losses = HC.getLosses();
-        boolean proveIt = false;
-
-        //RETIREMENT
-        if (HC.age > retire && !userControlled) {
-            retired = true;
-            HC.retired = true;
-            if(HC.getCumulativePrestige() >= 25) teamPrestige = (int)(teamPrestige*knockdownRet);
-            else teamPrestige = (int)(teamPrestige*knockdownFired);
-            league.addCoachFreeAgent(new HeadCoach(HC, this));
-            String oldCoach = HC.name;
-            fired = true;
-            newCoachTeamChanges();
-            league.addNewsStory(league.currentWeek + 1,name + " Coaching Retirement>" + oldCoach + " has announced his retirement at the age of " + age +
-                    ". His former team, " + name + " have not announced a new successor to replace the retired coach. Head Coach " + oldCoach + " had a career record of " + wins + "-" + losses + ".");
-            league.addNewsHeadline(name + " coach " + oldCoach + " has announced his retirement at age " + age + ".");
-            HC = null;
-        }
-
-        if (!retired) {
-            if (!userControlled && ((teamPrestige > (HC.baselinePrestige + 9) && rankTeamPrestige > (int) (league.countTeam * 0.35) && HC.age < 50) || (teamPrestige > (HC.baselinePrestige + 12) && confPrestige < league.confAvg && rankTeamPrestige < (int) (league.countTeam * 0.20) && HC.age < 48))) {
-                league.addNewsStory(league.currentWeek + 1,"Head Coach Rumor Mill>After another successful season at " + name + ", " + age + " year old head coach " + HC.name + " has moved to the top of" +
-                        " many of the schools looking for a replacement at that position. He has a career record of " + wins + "-" + losses + ". ");
-                league.addNewsHeadline(name + " " + HC.position + " " + HC.name + " rumored for a bigger program?");
-                if (Math.random() > 0.50) {
-                    league.getCoachStarList().add(HC);
-                }
-            }
-            //New Contracts or Firing
-            if ((HC.contractYear) >= HC.contractLength || natChampWL.equals("NCW") || natChampWL.equals("NCL") || (HC.contractYear + 1 == HC.contractLength && Math.random() < 0.38) || (HC.contractYear + 2 == HC.contractLength && Math.random() < 0.23)) {
-                if (totalPDiff > 15 || (natChampWL.equals("NCW"))) {
-                    HC.contractLength = 7;
-                    HC.contractYear = 0;
-                    HC.baselinePrestige = (HC.baselinePrestige + 2 * teamPrestige) / 3;
-                    newContract = true;
-                    league.addNewsStory(league.currentWeek + 1,"Long-Term Extension!>" + name + " has extended their head coach, " + HC.name +
-                            " for 7 additional seasons for his successful tenure at the university.");
-                    league.addNewsHeadline(name + " has extended their head coach, " + HC.name + " for 7 additional seasons");
-                } else if (totalPDiff > 10) {
-                    HC.contractLength = 5;
-                    HC.contractYear = 0;
-                    HC.baselinePrestige = (HC.baselinePrestige + 2 * teamPrestige) / 3;
-                    newContract = true;
-                    league.addNewsStory(league.currentWeek + 1,"New 5-Year Contract Awarded!>" + name + " has extended their head coach, " + HC.name +
-                            " for 5 additional seasons for his successful tenure at the university.");
-                    league.addNewsHeadline(name + " has extended their head coach, " + HC.name + " for 5 additional seasons");
-                } else if (totalPDiff > 7) {
-                    HC.contractLength = 4;
-                    HC.contractYear = 0;
-                    HC.baselinePrestige = (HC.baselinePrestige + 2 * teamPrestige) / 3;
-                    newContract = true;
-                } else if (totalPDiff > 5 || (natChampWL.equals("NCL"))) {
-                    if ((natChampWL.equals("NCL")) && HC.contractLength - HC.contractYear > 2) {
-
-                    } else {
-                        HC.contractLength = 3;
-                        HC.contractYear = 0;
-                        HC.baselinePrestige = (HC.baselinePrestige + 2 * teamPrestige) / 3;
-                        newContract = true;
-                    }
-                } else if (totalPDiff < 0 && (teamPrestige - teamPrestigeStart) > 2 || rankTeamPrestige > 15 && (teamPrestige - teamPrestigeStart) > 2) {
-                    if (Math.random() > 0.40) {
-                        HC.contractLength = 2;
-                        HC.contractYear = 0;
-                        HC.baselinePrestige = HC.baselinePrestige;
-                        league.addNewsStory(league.currentWeek + 1,"2-Year Prove-It Contract Given by " + name + ">" + name + " has an additional 2-year contract to " + HC.name +
-                                " despite a disappointing tenure. He has a career record of " + wins + "-" + losses + ", however the recent success of the team this season has inspired some confidence with the head coach from the AD.");
-                        newContract = true;
-                        proveIt = true;
-                    } else {
-                        fired = true;
-                        league.addNewsStory(league.currentWeek + 1,"Polarizing Head Coach Firing at " + name + ">" + strRankTeamRecord() + " has fired their head coach, " + HC.name +
-                                " despite finally getting the team on the right track. The team struggled during his first few seasons at the school, but had shown some promise this season." +
-                                " He has a career record of " + wins + "-" + losses + ".  The team is now searching for a new head coach.");
-                        league.addNewsHeadline(name + " has fired Head Coach " + HC.name + ".");
-                        newCoachTeamChanges();
-                        if (!userControlled) {
-                            league.addCoach(new HeadCoach(HC, this));
-                            HC = null;
-                        }
-                    }
-                } else if (!userControlled && (((!league.isCareerMode()) && totalPDiff < -2 && rankTeamPollScore > 15) || (rankTeamPollScore > 25 && totalPDiff < -1))) {
-                    fired = true;
-                    league.addNewsStory(league.currentWeek + 1,"Head Coach Firing at " + name + ">" + strRankTeamRecord() + " has fired their head coach, " + HC.name +
-                            " after a disappointing tenure. He has a career record of " + wins + "-" + losses + ". The team is now searching for a new head coach.");
-                    league.addNewsHeadline(name + " has fired Head Coach " + HC.name + ".");
-                    newCoachTeamChanges();
-                    league.addCoach(new HeadCoach(HC, this));
-                    HC = null;
-                } else if ((league.isCareerMode() && totalPDiff < -2 && rankTeamPollScore > 15) || (rankTeamPollScore > 25 && totalPDiff < -1)) {
-                    fired = true;
-                    league.addNewsStory(league.currentWeek + 1,"Head Coach Firing at " + name + ">" + strRankTeamRecord() + " has fired their head coach, " + HC.name +
-                            " after a disappointing tenure. He has a career record of " + wins + "-" + losses + ".  The team is now searching for a new head coach.");
-                    league.addNewsHeadline(name + " has fired Head Coach " + HC.name + ".");
-                    newCoachTeamChanges();
-                    if (!userControlled) {
-                        league.addCoach(new HeadCoach(HC, this));
-                        HC = null;
-                    }
-
-                } else {
-                    HC.contractLength = 2;
-                    HC.contractYear = 0;
-                    HC.baselinePrestige = (3 * HC.baselinePrestige + teamPrestige) / 4;
-                    newContract = true;
-                }
-            }
-        }
-        if (userControlled) {
-            if (newContract && proveIt)
-                contractString = "You have been given an additional " + HC.contractLength + "-year prove-it contract based on your team's recent momentum despite the uneven start to your tenure.";
-            else if (newContract) {
-                contractString = "Congratulations. You have been awarded a new " + HC.contractLength + "-year contract extension after this season's progress.";
-            } else if (fired) {
-                contractString = "Due to your performance as head coach, the Athletic Director has terminated your contract and you are no longer the head coach of this school.";
-            } else {
-                contractString = "You have " + (HC.contractLength - HC.contractYear)
-                        + " years left on your contract. Current prestige: " + teamPrestige + ". Baseline prestige: " + HC.baselinePrestige +
-                        ". Current status: " + HC.coachStatus() + ".";
-            }
-        }
+        teamFinance.coachContracts(totalPDiff);
     }
 
     public void coordinatorContracts(Staff coord) {
-        final String pos = coord.position;
-        int cpres = coord.baselinePrestige;
-        int max = 78;
-        int min = 60;
-        Random rand = new Random();
-        int retire = rand.nextInt((max - min) + 1) + min;
-        int age = coord.age;
-
-        //RETIREMENT
-        if (coord.age > retire) {
-            coord.retired = true;
-            if(coord.getWins() > 0) league.addCoachFreeAgent(new HeadCoach(coord, this));
-            String oldCoach = coord.name;
-            league.addNewsStory(league.currentWeek + 1,name + " Coordinator Retirement>" + coord.position + " " + oldCoach + " has announced his retirement at the age of " + age +
-                    ". His former team, " + name + " have not announced a new successor to replace the retired coordinator.");
-            league.addNewsHeadline(name + " " + coord.position + " " + oldCoach + " has announced his retirement at age " + age + ".");
-            if(pos.equals("OC")) OC = null;
-            if(pos.equals("DC")) DC = null;
-        } else if (!coord.retired) {
-            int[] ovr = {1,1,1,1};
-
-            if (coord.getStaffOverall(ovr) >= 75 || coord.baselinePrestige >= 5 || coord.baselinePrestige >= 2 && coord.getCumulativeCoord() >= 10) {
-                if (Math.random() > 0.50) {
-                    league.getCoachStarList().add(coord);
-                    if(coord.getStaffOverall(ovr) >= 80) {
-                        league.addNewsStory(league.currentWeek + 1,"Coordinator Advancement Rumor>After another successful season at " + name + ", " + age + " year " + coord.position + " " + coord.name + " has sparked interest at many of the schools looking for a replacement at Head Coach. He has a career record of " + wins + "-" + losses + ". ");
-                        league.addNewsHeadline(name + " " + coord.position + " " + coord.name + " heading for a possible HC job?");
-                    }
-                }
-            }
-
-            if(userControlled) {
-                //SKIP TO DIALOG
-
-            } else {
-                //New Contracts or Firing
-                if (coord.contractYear >= coord.contractLength || (coord.contractYear + 1 == coord.contractLength && Math.random() < 0.38) || (coord.contractYear + 2 == coord.contractLength && Math.random() < 0.23)) {
-                    if (cpres > 5) {
-                        coord.contractLength = 4;
-                        coord.contractYear = 0;
-                        coord.baselinePrestige = 0;
-                    } else if (cpres > 3) {
-                        coord.contractLength = 3;
-                        coord.contractYear = 0;
-                        coord.baselinePrestige = 0;
-                    } else if (cpres < 0) {
-                        if (Math.random() > 0.50) {
-                            coord.contractLength = 1;
-                            coord.contractYear = 0;
-                            coord.baselinePrestige = 0;
-                        } else {
-                            league.addNewsStory(league.currentWeek + 1,"Coordinator Firing at " + name + ">" + strRankTeamRecord() + " has fired their " + coord.position + ", " + coord.name +
-                                    " after a disappointing tenure.");
-                            league.addNewsHeadline(name + " has fired " + coord.position + " " + coord.name + ".");
-                            league.addCoach(new HeadCoach(coord, this));
-                            if(pos.equals("OC")) OC = null;
-                            else if(pos.equals("DC")) DC = null;
-                        }
-                    } else if (cpres < -2 && rankTeamPollScore > 15 || rankTeamPollScore > 25 && cpres < -1) {
-                        league.addNewsStory(league.currentWeek + 1,"Coordinator Firing at " + name + ">" + strRankTeamRecord() + " has fired their " + coord.position + ", " + coord.name +
-                                " after a disappointing tenure.");
-                        league.addNewsHeadline(name + " has fired " + coord.position + " " + coord.name + ".");
-                        league.addCoach(new HeadCoach(coord, this));
-                        if(pos.equals("OC")) OC = null;
-                        else if(pos.equals("DC")) DC = null;
-
-                    } else {
-                        coord.contractLength = 2;
-                        coord.contractYear = 0;
-                        coord.baselinePrestige = 0;
-                    }
-                }
-            }
-        }
-
+        teamFinance.coordinatorContracts(coord);
     }
     
 
@@ -2299,9 +1583,7 @@ public class Team {
 
     //Provide the minimum overall rating for a new coach hire
     public int getMinCoachHireReq() {
-        int req = (league.getTeamList().size() - rankTeamPrestige) / 2 + (int)Math.round(league.getTeamList().size()/3.6);
-        if (req >= 87) req = 87;
-        return req;
+        return teamFinance.getMinCoachHireReq();
     }
 
     public void midSeasonProgression() {
@@ -2897,45 +2179,19 @@ public class Team {
     }
 
     public int getTeamSize() {
-        int size = teamQBs.size() + teamRBs.size() + teamWRs.size() + teamTEs.size() + teamOLs.size() + teamKs.size() + teamDLs.size() + teamLBs.size() + teamCBs.size() + teamSs.size();
-        return size;
+        return rosterManager.getTeamSize();
     }
 
     public int getRecruitLevel() {
-        float level = (league.getTeamList().size() - rankTeamPrestige) / (float)(league.getTeamList().size()/10.5);
-        for (int i = 0; i < league.getConferences().size(); ++i) {
-            league.getConferences().get(i).updateConfPrestige();
-        }
-        float confBias = confPrestige - league.getAverageConfPrestige();
-        if (level < 4 && confBias < 0) level = 4;
-        if (level > 6 && confBias < 0) level = 6;
-        if (level < 7 && confBias > 0) level = 7;
-        return Math.round(level);
+        return teamFinance.getRecruitLevel();
     }
 
     public int getUserRecruitBudget() {
-        float level = (league.getTeamList().size() - rankTeamPrestige) / (float)(league.getTeamList().size()/10);
-        for (int i = 0; i < league.getConferences().size(); ++i) {
-            league.getConferences().get(i).updateConfPrestige();
-        }
-        float confBias = confPrestige - league.getAverageConfPrestige();
-        if (level < 4 && confBias < 0) level = 4;
-        if (level > 6 && confBias < 0) level = 6;
-        if (level < 7 && confBias > 0) level = 7;
-
-        return (int) Math.round(level * 8.5);
+        return teamFinance.getUserRecruitBudget();
     }
 
     public int getUserRecruitStars() {
-        float level = (league.getTeamList().size() - rankTeamPrestige) / (float)(league.getTeamList().size()/10.5);
-        for (int i = 0; i < league.getConferences().size(); ++i) {
-            league.getConferences().get(i).updateConfPrestige();
-        }
-        float confBias = confPrestige - league.getAverageConfPrestige();
-        if (level < 4 && confBias < 0) level = 4;
-        if (level > 6 && confBias < 0) level = 6;
-        if (level < 7 && confBias > 0) level = 7;
-        return Math.round(level);
+        return teamFinance.getUserRecruitStars();
     }
 
     /**
@@ -3078,12 +2334,7 @@ public class Team {
      * separate uniform scales movement toward {@code maxStarRating} or down toward zero.
      */
     private int nudgeCpuFreshmanStarRating(int stars, int recruitChance) {
-        if (recruitChance * Math.random() > Math.random() * 50) {
-            stars += Math.random() * (maxStarRating - stars);
-        } else {
-            stars -= Math.random() * (stars);
-        }
-        return stars;
+        return teamFinance.nudgeCpuFreshmanStarRating(stars, recruitChance);
     }
 
     /**
@@ -3674,77 +2925,12 @@ public class Team {
     }
 
     public int countRedshirts() {
-        int count = 0;
-        for (int i = 0; i < getAllPlayers().size(); ++i) {
-            if (getAllPlayers().get(i).isRedshirt && !getAllPlayers().get(i).isTransfer) count++;
-        }
-        return count;
+        return rosterManager.countRedshirts();
     }
 
     //Set Redshirts
     public int getActivePlayers(int position) {
-        int numPlayers = 0;
-        switch (position) {
-            case 0:
-                for (Player p : teamQBs) {
-                    if (p.isRedshirt) numPlayers++;
-                }
-                return teamQBs.size() - numPlayers;
-            case 1:
-                for (Player p : teamRBs) {
-                    if (p.isRedshirt) numPlayers++;
-                }
-                return teamRBs.size() - numPlayers;
-            case 2:
-                for (Player p : teamWRs) {
-                    if (p.isRedshirt) numPlayers++;
-                }
-                return teamWRs.size() - numPlayers;
-
-            case 3:
-                for (Player p : teamTEs) {
-                    if (p.isRedshirt) numPlayers++;
-                }
-                return teamTEs.size() - numPlayers;
-
-            case 4:
-                for (Player p : teamOLs) {
-                    if (p.isRedshirt) numPlayers++;
-                }
-                return teamOLs.size() - numPlayers;
-
-            case 5:
-                for (Player p : teamKs) {
-                    if (p.isRedshirt) numPlayers++;
-                }
-                return teamKs.size() - numPlayers;
-
-            case 6:
-                for (Player p : teamDLs) {
-                    if (p.isRedshirt) numPlayers++;
-                }
-                return teamDLs.size() - numPlayers;
-
-            case 7:
-                for (Player p : teamLBs) {
-                    if (p.isRedshirt) numPlayers++;
-                }
-                return teamLBs.size() - numPlayers;
-
-            case 8:
-                for (Player p : teamCBs) {
-                    if (p.isRedshirt) numPlayers++;
-                }
-                return teamCBs.size() - numPlayers;
-
-            case 9:
-                for (Player p : teamSs) {
-                    if (p.isRedshirt) numPlayers++;
-                }
-                return teamSs.size() - numPlayers;
-
-        }
-        return numPlayers;
+        return rosterManager.getActivePlayers(position);
     }
 
 
@@ -3998,85 +3184,26 @@ public class Team {
 
     //Update Injury List
     public void healInjury(int w) {
-        ArrayList<Player> teamPlayers = getAllPlayers();
-        for (Player z : teamPlayers) {
-            if (z.injury != null && !z.isSuspended && !z.isTransfer) {
-                z.injury.advanceGame(w);
-                if (z.injury == null || !z.isInjured) {
-                    playersInjured.remove(z);
-                    sortByPosition(z);
-                }
-            }
-        }
+        rosterManager.healInjury(w);
     }
     
     public void sortByPosition(Player p) {
-        ArrayList<? extends Player> players = new ArrayList<>();
-
-        if (p.position.equals("QB")) {
-            players = teamQBs;
-        } else if (p.position.equals("RB")) {
-            players = teamRBs;
-        } else if (p.position.equals("WR")) {
-            players = teamWRs;
-        } else if (p.position.equals("TE")) {
-            players = teamTEs;
-        } else if (p.position.equals("OL")) {
-            players = teamOLs;
-        } else if (p.position.equals("K")) {
-            players = teamKs;
-        } else if (p.position.equals("DL")) {
-            players = teamDLs;
-        } else if (p.position.equals("LB")) {
-            players = teamLBs;
-        } else if (p.position.equals("CB")) {
-            players = teamCBs;
-        } else if (p.position.equals("S")) {
-            players = teamSs;
-        }
-
-        Collections.sort(players, new CompPlayer());
-        //Collections.sort(players, new CompPlayerPosDepth());
+        rosterManager.sortByPosition(p);
     }
 
     /**
      * Get rid of all injuries
      */
     public void curePlayers() {
-        curePlayersPosition(teamQBs);
-        curePlayersPosition(teamRBs);
-        curePlayersPosition(teamWRs);
-        curePlayersPosition(teamTEs);
-        curePlayersPosition(teamOLs);
-        curePlayersPosition(teamKs);
-        curePlayersPosition(teamDLs);
-        curePlayersPosition(teamLBs);
-        curePlayersPosition(teamCBs);
-        curePlayersPosition(teamSs);
-        playersInjured.clear();
-        sortPlayers();
+        rosterManager.curePlayers();
     }
 
     public void curePlayersPosition(ArrayList<? extends Player> players) {
-        for (Player p : players) {
-            p.injury = null;
-            p.isInjured = false;
-        }
+        rosterManager.curePlayersPosition(players);
     }
 
     public ArrayList<Player> getAllPlayers() {
-        ArrayList<Player> allPlayersList = new ArrayList<>();
-        allPlayersList.addAll(teamQBs);
-        allPlayersList.addAll(teamRBs);
-        allPlayersList.addAll(teamWRs);
-        allPlayersList.addAll(teamTEs);
-        allPlayersList.addAll(teamOLs);
-        allPlayersList.addAll(teamKs);
-        allPlayersList.addAll(teamDLs);
-        allPlayersList.addAll(teamLBs);
-        allPlayersList.addAll(teamCBs);
-        allPlayersList.addAll(teamSs);
-        return allPlayersList;
+        return rosterManager.getAllPlayers();
     }
 
     /**
@@ -4087,101 +3214,55 @@ public class Team {
      * @return the live mutable list for that position, or {@code null} if unknown
      */
     public java.util.List<? extends Player> getPositionList(String pos) {
-        return switch (pos) {
-            case "QB" -> teamQBs;
-            case "RB" -> teamRBs;
-            case "WR" -> teamWRs;
-            case "TE" -> teamTEs;
-            case "OL" -> teamOLs;
-            case "K"  -> teamKs;
-            case "DL" -> teamDLs;
-            case "LB" -> teamLBs;
-            case "CB" -> teamCBs;
-            case "S"  -> teamSs;
-            default   -> null;
-        };
+        return depthChartManager.getPositionList(pos);
     }
 
-    /**
-     * Swaps two players in the depth chart for the given position.
-     * The depth chart is determined by the list order in the internal position roster.
-     *
-     * @param pos   position abbreviation (e.g. "QB")
-     * @param idxA  index of first player to swap
-     * @param idxB  index of second player to swap
-     * @return {@code true} if the swap was performed, {@code false} if indices were invalid
-     */
     public boolean swapDepthChartOrder(String pos, int idxA, int idxB) {
-        java.util.List<? extends Player> list = getPositionList(pos);
-        if (list == null || idxA < 0 || idxB < 0 || idxA >= list.size() || idxB >= list.size()) {
-            return false;
-        }
-        java.util.Collections.swap(list, idxA, idxB);
-        return true;
+        return depthChartManager.swapDepthChartOrder(pos, idxA, idxB);
     }
 
-    public HeadCoach getHC(int depth) {
-        return HC;
+    public HeadCoach getHC() {
+        return depthChartManager.getHC();
     }
 
     public PlayerQB getQB(int depth) {
-        if (teamQBs.isEmpty()) return null;
-        if (depth >= teamQBs.size()) depth = 0;
-        return teamQBs.get(depth);
+        return depthChartManager.getQB(depth);
     }
 
     public PlayerRB getRB(int depth) {
-        if (teamRBs.isEmpty()) return null;
-        if (depth >= teamRBs.size()) depth = 0;
-        return teamRBs.get(depth);
+        return depthChartManager.getRB(depth);
     }
 
     public PlayerWR getWR(int depth) {
-        if (teamWRs.isEmpty()) return null;
-        if (depth >= teamWRs.size()) depth = 0;
-        return teamWRs.get(depth);
+        return depthChartManager.getWR(depth);
     }
 
     public PlayerTE getTE(int depth) {
-        if (teamTEs.isEmpty()) return null;
-        if (depth >= teamTEs.size()) depth = 0;
-        return teamTEs.get(depth);
+        return depthChartManager.getTE(depth);
     }
 
     public PlayerK getK(int depth) {
-        if (teamKs.isEmpty()) return null;
-        if (depth >= teamKs.size()) depth = 0;
-        return teamKs.get(depth);
+        return depthChartManager.getK(depth);
     }
 
     public PlayerOL getOL(int depth) {
-        if (teamOLs.isEmpty()) return null;
-        if (depth >= teamOLs.size()) depth = 0;
-        return teamOLs.get(depth);
+        return depthChartManager.getOL(depth);
     }
 
     public PlayerDL getDL(int depth) {
-        if (teamDLs.isEmpty()) return null;
-        if (depth >= teamDLs.size()) depth = 0;
-        return teamDLs.get(depth);
+        return depthChartManager.getDL(depth);
     }
 
     public PlayerLB getLB(int depth) {
-        if (teamLBs.isEmpty()) return null;
-        if (depth >= teamLBs.size()) depth = 0;
-        return teamLBs.get(depth);
+        return depthChartManager.getLB(depth);
     }
 
     public PlayerCB getCB(int depth) {
-        if (teamCBs.isEmpty()) return null;
-        if (depth >= teamCBs.size()) depth = 0;
-        return teamCBs.get(depth);
+        return depthChartManager.getCB(depth);
     }
 
     public PlayerS getS(int depth) {
-        if (teamSs.isEmpty()) return null;
-        if (depth >= teamSs.size()) depth = 0;
-        return teamSs.get(depth);
+        return depthChartManager.getS(depth);
     }
 
 
@@ -4937,203 +4018,25 @@ public class Team {
 
     //Set Starters
     public void setStarters(ArrayList<Player> starters, int position) {
-        switch (position) {
-            case 0:
-                ArrayList<PlayerQB> oldQBs = new ArrayList<>();
-                oldQBs.addAll(teamQBs);
-                teamQBs.clear();
-                for (Player p : starters) {
-                    teamQBs.add((PlayerQB) p);
-                    p.posDepth = 1;
-                }
-                Collections.sort(teamQBs, new CompPlayer());
-                for (PlayerQB p : oldQBs) {
-                    if (!teamQBs.contains(p)) {
-                        teamQBs.add(p);
-                        p.posDepth = 2;
-                    }
-                }
-                break;
-            case 1:
-                ArrayList<PlayerRB> oldRBs = new ArrayList<>();
-                oldRBs.addAll(teamRBs);
-                teamRBs.clear();
-                for (Player p : starters) {
-                    teamRBs.add((PlayerRB) p);
-                    p.posDepth = 1;
-                }
-                Collections.sort(teamRBs, new CompPlayer());
-                for (PlayerRB p : oldRBs) {
-                    if (!teamRBs.contains(p)) {
-                        teamRBs.add(p);
-                        p.posDepth = 2;
-                    }
-                }
-                break;
-            case 2:
-                ArrayList<PlayerWR> oldWRs = new ArrayList<>();
-                oldWRs.addAll(teamWRs);
-                teamWRs.clear();
-                for (Player p : starters) {
-                    teamWRs.add((PlayerWR) p);
-                    p.posDepth = 1;
-                }
-                Collections.sort(teamWRs, new CompPlayer());
-                for (PlayerWR p : oldWRs) {
-                    if (!teamWRs.contains(p)) {
-                        teamWRs.add(p);
-                        p.posDepth = 2;
-                    }
-                }
-                break;
-            case 3:
-                ArrayList<PlayerTE> oldTEs = new ArrayList<>();
-                oldTEs.addAll(teamTEs);
-                teamTEs.clear();
-                for (Player p : starters) {
-                    teamTEs.add((PlayerTE) p);
-                    p.posDepth = 1;
-                }
-                Collections.sort(teamTEs, new CompPlayer());
-                for (PlayerTE p : oldTEs) {
-                    if (!teamTEs.contains(p)) {
-                        teamTEs.add(p);
-                        p.posDepth = 2;
-                    }
-                }
-                break;
-            case 4:
-                ArrayList<PlayerOL> oldOLs = new ArrayList<>();
-                oldOLs.addAll(teamOLs);
-                teamOLs.clear();
-                for (Player p : starters) {
-                    teamOLs.add((PlayerOL) p);
-                    p.posDepth = 1;
-                }
-                Collections.sort(teamOLs, new CompPlayer());
-                for (PlayerOL p : oldOLs) {
-                    if (!teamOLs.contains(p)) {
-                        teamOLs.add(p);
-                        p.posDepth = 2;
-                    }
-                }
-                break;
-            case 5:
-                ArrayList<PlayerK> oldKs = new ArrayList<>();
-                oldKs.addAll(teamKs);
-                teamKs.clear();
-                for (Player p : starters) {
-                    teamKs.add((PlayerK) p);
-                    p.posDepth = 1;
-                }
-                Collections.sort(teamKs, new CompPlayer());
-                for (PlayerK p : oldKs) {
-                    if (!teamKs.contains(p)) {
-                        teamKs.add(p);
-                        p.posDepth = 2;
-                    }
-                }
-                break;
-            case 6:
-                ArrayList<PlayerDL> oldDLs = new ArrayList<>();
-                oldDLs.addAll(teamDLs);
-                teamDLs.clear();
-                for (Player p : starters) {
-                    teamDLs.add((PlayerDL) p);
-                    p.posDepth = 1;
-                }
-                Collections.sort(teamDLs, new CompPlayer());
-                for (PlayerDL p : oldDLs) {
-                    if (!teamDLs.contains(p)) {
-                        teamDLs.add(p);
-                        p.posDepth = 2;
-                    }
-                }
-                break;
-            case 7:
-                ArrayList<PlayerLB> oldLBs = new ArrayList<>();
-                oldLBs.addAll(teamLBs);
-                teamLBs.clear();
-                for (Player p : starters) {
-                    teamLBs.add((PlayerLB) p);
-                    p.posDepth = 1;
-                }
-                Collections.sort(teamLBs, new CompPlayer());
-                for (PlayerLB p : oldLBs) {
-                    if (!teamLBs.contains(p)) {
-                        teamLBs.add(p);
-                        p.posDepth = 2;
-                    }
-                }
-                break;
-            case 8:
-                ArrayList<PlayerCB> oldCBs = new ArrayList<>();
-                oldCBs.addAll(teamCBs);
-                teamCBs.clear();
-                for (Player p : starters) {
-                    teamCBs.add((PlayerCB) p);
-                    p.posDepth = 1;
-                }
-                Collections.sort(teamCBs, new CompPlayer());
-                for (PlayerCB p : oldCBs) {
-                    if (!teamCBs.contains(p)) {
-                        teamCBs.add(p);
-                        p.posDepth = 2;
-                    }
-                }
-                break;
-            case 9:
-                ArrayList<PlayerS> oldSs = new ArrayList<>();
-                oldSs.addAll(teamSs);
-                teamSs.clear();
-                for (Player p : starters) {
-                    teamSs.add((PlayerS) p);
-                    p.posDepth = 1;
-                }
-                Collections.sort(teamSs, new CompPlayer());
-                for (PlayerS p : oldSs) {
-                    if (!teamSs.contains(p)) {
-                        teamSs.add(p);
-                        p.posDepth = 2;
-                    }
-                }
-                break;
-        }
-
-        // Set ranks so that Off/Def Talent rankings are updated
+        depthChartManager.setStarters(starters, position);
         if (league.currentWeek < league.regSeasonWeeks+2) league.setTeamRanks();
     }
 
     public void setRosterDepth3 () {
-        for(Player p : getAllPlayers()) {
-            if(p.isTransfer || p.isRedshirt || p.isMedicalRS) p.posDepth = 3;
-        }
+        depthChartManager.setRosterDepth3();
     }
 
     //Adds a Game Start to each Starter
     public void addGamePlayedPlayers() {
-        for (int i = 0; i < getAllPlayers().size(); ++i) {
-            if (getAllPlayers().get(i).gameSnaps > 0) getAllPlayers().get(i).recordGame(1);
-        }
+        depthChartManager.addGamePlayedPlayers();
     }
 
     public void addGamesStartedPlayers() {
-        addGamePlayedList(teamQBs, startersQB);
-        addGamePlayedList(teamRBs, startersRB);
-        addGamePlayedList(teamWRs, startersWR);
-        addGamePlayedList(teamTEs, startersTE);
-        addGamePlayedList(teamOLs, startersOL);
-        addGamePlayedList(teamKs, startersK);
-        addGamePlayedList(teamDLs, startersDL);
-        addGamePlayedList(teamLBs, startersLB);
-        addGamePlayedList(teamCBs, startersCB);
-        addGamePlayedList(teamSs, startersS);
+        depthChartManager.addGamesStartedPlayers();
     }
 
     public void addGamePlayedList(ArrayList<? extends Player> playerList, int starters) {
-        for (int i = 0; i < starters; ++i) {
-            playerList.get(i).recordGameStarted(1);
-        }
+        depthChartManager.addGamePlayedList(playerList, starters);
     }
 
 
@@ -6211,65 +5114,65 @@ public class Team {
     // Season/career record stats
     public int getWins() { return wins; }
     public void setWins(int wins) { this.wins = wins; }
-    public void incrementWins() { wins++; }
+    public void incrementWins() { statsTracker.incrementWins(); }
     public int getLosses() { return losses; }
     public void setLosses(int losses) { this.losses = losses; }
-    public void incrementLosses() { losses++; }
+    public void incrementLosses() { statsTracker.incrementLosses(); }
     public int getTotalWins() { return totalWins; }
     public void setTotalWins(int tw) { this.totalWins = tw; }
-    public void incrementTotalWins() { totalWins++; }
+    public void incrementTotalWins() { statsTracker.incrementTotalWins(); }
     public int getTotalLosses() { return totalLosses; }
     public void setTotalLosses(int tl) { this.totalLosses = tl; }
-    public void incrementTotalLosses() { totalLosses++; }
+    public void incrementTotalLosses() { statsTracker.incrementTotalLosses(); }
     public int getTotalCCs() { return totalCCs; }
     public void setTotalCCs(int n) { this.totalCCs = n; }
-    public void incrementTotalCCs() { totalCCs++; }
+    public void incrementTotalCCs() { statsTracker.incrementTotalCCs(); }
     public int getTotalNCs() { return totalNCs; }
     public void setTotalNCs(int n) { this.totalNCs = n; }
-    public void incrementTotalNCs() { totalNCs++; }
+    public void incrementTotalNCs() { statsTracker.incrementTotalNCs(); }
     public int getTotalCCLosses() { return totalCCLosses; }
     public void setTotalCCLosses(int n) { this.totalCCLosses = n; }
-    public void incrementTotalCCLosses() { totalCCLosses++; }
+    public void incrementTotalCCLosses() { statsTracker.incrementTotalCCLosses(); }
     public int getTotalNCLosses() { return totalNCLosses; }
     public void setTotalNCLosses(int n) { this.totalNCLosses = n; }
-    public void incrementTotalNCLosses() { totalNCLosses++; }
+    public void incrementTotalNCLosses() { statsTracker.incrementTotalNCLosses(); }
     public int getTotalBowls() { return totalBowls; }
     public void setTotalBowls(int n) { this.totalBowls = n; }
-    public void incrementTotalBowls() { totalBowls++; }
+    public void incrementTotalBowls() { statsTracker.incrementTotalBowls(); }
     public int getTotalBowlLosses() { return totalBowlLosses; }
     public void setTotalBowlLosses(int n) { this.totalBowlLosses = n; }
-    public void incrementTotalBowlLosses() { totalBowlLosses++; }
+    public void incrementTotalBowlLosses() { statsTracker.incrementTotalBowlLosses(); }
     public TeamStreak getWinStreak() { return winStreak; }
     public void setWinStreak(TeamStreak ws) { this.winStreak = ws; }
 
     // Season performance stats
     public int getTeamPoints() { return teamPoints; }
     public void setTeamPoints(int pts) { this.teamPoints = pts; }
-    public void addTeamPoints(int pts) { teamPoints += pts; }
+    public void addTeamPoints(int pts) { statsTracker.addTeamPoints(pts); }
     public int getTeamOppPoints() { return teamOppPoints; }
     public void setTeamOppPoints(int pts) { this.teamOppPoints = pts; }
-    public void addTeamOppPoints(int pts) { teamOppPoints += pts; }
+    public void addTeamOppPoints(int pts) { statsTracker.addTeamOppPoints(pts); }
     public int getTeamYards() { return teamYards; }
     public void setTeamYards(int y) { this.teamYards = y; }
-    public void addTeamYards(int y) { teamYards += y; }
+    public void addTeamYards(int y) { statsTracker.addTeamYards(y); }
     public int getTeamOppYards() { return teamOppYards; }
     public void setTeamOppYards(int y) { this.teamOppYards = y; }
-    public void addTeamOppYards(int y) { teamOppYards += y; }
+    public void addTeamOppYards(int y) { statsTracker.addTeamOppYards(y); }
     public int getTeamPassYards() { return teamPassYards; }
     public void setTeamPassYards(int y) { this.teamPassYards = y; }
-    public void addTeamPassYards(int y) { teamPassYards += y; }
+    public void addTeamPassYards(int y) { statsTracker.addTeamPassYards(y); }
     public int getTeamRushYards() { return teamRushYards; }
     public void setTeamRushYards(int y) { this.teamRushYards = y; }
-    public void addTeamRushYards(int y) { teamRushYards += y; }
+    public void addTeamRushYards(int y) { statsTracker.addTeamRushYards(y); }
     public int getTeamOppPassYards() { return teamOppPassYards; }
     public void setTeamOppPassYards(int y) { this.teamOppPassYards = y; }
-    public void addTeamOppPassYards(int y) { teamOppPassYards += y; }
+    public void addTeamOppPassYards(int y) { statsTracker.addTeamOppPassYards(y); }
     public int getTeamOppRushYards() { return teamOppRushYards; }
     public void setTeamOppRushYards(int y) { this.teamOppRushYards = y; }
-    public void addTeamOppRushYards(int y) { teamOppRushYards += y; }
+    public void addTeamOppRushYards(int y) { statsTracker.addTeamOppRushYards(y); }
     public int getTeamTODiff() { return teamTODiff; }
     public void setTeamTODiff(int v) { this.teamTODiff = v; }
-    public void addTeamTODiff(int v) { teamTODiff += v; }
+    public void addTeamTODiff(int v) { statsTracker.addTeamTODiff(v); }
     public int getTeamPrestige() { return teamPrestige; }
     public void setTeamPrestige(int prestige) { this.teamPrestige = prestige; }
     public int getTeamPrestigeStart() { return teamPrestigeStart; }

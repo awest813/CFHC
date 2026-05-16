@@ -93,6 +93,14 @@ interface LeagueScreen {
 ### 1.5 Desktop Testing Gap
 **Priority: Medium | Effort: 2-3 days**
 
+> **Status (May 2026):** DesktopResourceProviderTest added (4 tests, resource loading verification).
+> DesktopAudioManagerTest, DesktopThemeTest, and DesktopUiBridgeTest created but **cannot compile**
+> in the current test structure: `src/test/java/` runs through Android's `:app:test*` tasks which
+> exclude `desktop/` classes and lack `java.awt`/`javax.swing`/`javax.sound` classpaths.
+>
+> **Blocked by:** Need a separate JVM-only test source set (e.g., `src/desktopTest/java/` with its
+> own `compileDesktopTestJava` + `desktopTest` Gradle tasks, wired into `quickVerify`).
+
 Currently only 2 desktop tests. Add:
 - `DesktopThemeTest` — verify all color constants are non-null, contrast ratios
 - `DesktopResourceProviderTest` — verify all required resources load
