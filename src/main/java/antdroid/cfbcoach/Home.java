@@ -2,6 +2,7 @@ package antdroid.cfbcoach;
 
 //Google Play Services ID: 116207837258
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -23,7 +24,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import android.app.AlertDialog;
 
 import simulation.AudioEvent;
-import simulation.LeagueLaunchCoordinator;
 import simulation.LeagueSaveStorage;
 
 
@@ -159,50 +159,16 @@ public class Home extends AppCompatActivity {
         });
 
         Button googleButton = findViewById(R.id.buttonDonate);
-        googleButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                audioManager.play(AudioEvent.UI_CLICK);
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                intent.setData(Uri.parse("https://drive.google.com/drive/folders/1hfB_lbTaMfhm4lXtMelvgWoZSshL12v0?usp=sharing"));
-                startActivity(intent);
-            }
-        });
-
+        googleButton.setOnClickListener(v -> openUrl("https://drive.google.com/drive/folders/1hfB_lbTaMfhm4lXtMelvgWoZSshL12v0?usp=sharing"));
 
         Button subredditButton = findViewById(R.id.buttonSubreddit);
-        subredditButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                audioManager.play(AudioEvent.UI_CLICK);
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                intent.setData(Uri.parse("https://m.reddit.com/r/FootballCoach"));
-                startActivity(intent);
-            }
-        });
-
+        subredditButton.setOnClickListener(v -> openUrl("https://m.reddit.com/r/FootballCoach"));
 
         Button antdroidButton = findViewById(R.id.buttonAntdroid);
-        antdroidButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                audioManager.play(AudioEvent.UI_CLICK);
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                intent.setData(Uri.parse("https://www.Antdroid.dev"));
-                startActivity(intent);
-            }
-        });
+        antdroidButton.setOnClickListener(v -> openUrl("https://www.Antdroid.dev"));
 
         Button githubButton = findViewById(R.id.buttonGitHub);
-        githubButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                audioManager.play(AudioEvent.UI_CLICK);
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.addCategory(Intent.CATEGORY_BROWSABLE);
-                intent.setData(Uri.parse("https://github.com/antdroidx/"));
-                startActivity(intent);
-            }
-        });
+        githubButton.setOnClickListener(v -> openUrl("https://github.com/antdroidx/"));
 
         homePrefs.edit().putInt(KEY_THEME, theme).apply();
         updateSaveSlotHint();
@@ -249,12 +215,24 @@ public class Home extends AppCompatActivity {
                 .show();
     }
 
-    private void openGameManualInBrowser() {
-        Intent intent = new Intent();
-        intent.setAction(Intent.ACTION_VIEW);
+    private void openUrl(String url) {
+        audioManager.play(AudioEvent.UI_CLICK);
+        Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.addCategory(Intent.CATEGORY_BROWSABLE);
-        intent.setData(Uri.parse("https://www.antdroid.dev/p/game-manual.html"));
-        startActivity(intent);
+        intent.setData(Uri.parse(url));
+        try {
+            startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            PlatformUiHelper.showImmersive(
+                    new AlertDialog.Builder(this)
+                            .setMessage("No web browser found to open this link.")
+                            .setPositiveButton("OK", null)
+                            .create());
+        }
+    }
+
+    private void openGameManualInBrowser() {
+        openUrl("https://www.antdroid.dev/p/game-manual.html");
     }
 
     private void updateSaveSlotHint() {

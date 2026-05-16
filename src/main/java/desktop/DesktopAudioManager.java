@@ -9,12 +9,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.SourceDataLine;
 
 import simulation.AudioEvent;
 import simulation.AudioManager;
@@ -89,44 +92,77 @@ public class DesktopAudioManager implements AudioManager {
         boolean started = false;
         try {
             ais = AudioSystem.getAudioInputStream(new ByteArrayInputStream(data));
-            clip = AudioSystem.getClip();
-            clip.open(ais);
-
-            if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
-                FloatControl gain = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-                float dB = volume > 0 ? (float) (Math.log10(volume) * 20.0) : -80f;
-                dB = Math.max(gain.getMinimum(), Math.min(gain.getMaximum(), dB));
-                gain.setValue(dB);
-            }
-
-            synchronized (activeClips) {
-                activeClips.add(clip);
-            }
-            final Clip toClose = clip;
-            clip.addLineListener(e -> {
-                if (e.getType() == LineEvent.Type.STOP) {
-                    try { toClose.close(); } catch (Exception ignored) {}
-                    synchronized (activeClips) {
-                        activeClips.remove(toClose);
+            AudioFormat format = ais.getFormat();
+            try {
+                clip = AudioSystem.getClip();
+                clip.open(ais);
+                applyVolume(clip);
+                final Clip toClose = clip;
+                clip.addLineListener(e -> {
+                    if (e.getType() == LineEvent.Type.STOP) {
+                        try { toClose.close(); } catch (Exception ignored) {}
+                        synchronized (activeClips) {
+                            activeClips.remove(toClose);
+                        }
                     }
+                });
+                clip.start();
+                started = true;
+                synchronized (activeClips) {
+                    activeClips.add(clip);
                 }
-            });
-            clip.start();
-            started = true;
-        } catch (LineUnavailableException e) {
-            PlatformLog.w(TAG, "Audio line unavailable for event: " + event.name() + " — " + e.getMessage());
+            } catch (LineUnavailableException clipEx) {
+                if (clip != null) clip.close();
+                playViaSourceDataLine(data, format);
+            }
         } catch (Exception e) {
             PlatformLog.e(TAG, "Failed to play sound: " + event.name(), e);
         } finally {
             if (ais != null) {
-                try {
-                    ais.close();
-                } catch (IOException ignored) {
-                }
+                try { ais.close(); } catch (IOException ignored) {}
             }
             if (clip != null && !started) {
                 clip.close();
             }
+        }
+    }
+
+    private void playViaSourceDataLine(byte[] data, AudioFormat format) {
+        try (AudioInputStream ais = AudioSystem.getAudioInputStream(new ByteArrayInputStream(data))) {
+            AudioFormat fmt = ais.getFormat();
+            DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
+            if (!AudioSystem.isLineSupported(info)) {
+                PlatformLog.w(TAG, "SourceDataLine not supported for format: " + format);
+                return;
+            }
+            SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
+            line.open(format);
+            if (line.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+                FloatControl gain = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
+                float dB = volume > 0 ? (float) (Math.log10(volume) * 20.0) : -80f;
+                dB = Math.max(gain.getMinimum(), Math.min(gain.getMaximum(), dB));
+                gain.setValue(dB);
+            }
+            line.start();
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = ais.read(buffer)) != -1) {
+                line.write(buffer, 0, bytesRead);
+            }
+            line.drain();
+            line.stop();
+            line.close();
+        } catch (Exception e) {
+            PlatformLog.e(TAG, "SourceDataLine fallback also failed", e);
+        }
+    }
+
+    private void applyVolume(Clip clip) {
+        if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+            FloatControl gain = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            float dB = volume > 0 ? (float) (Math.log10(volume) * 20.0) : -80f;
+            dB = Math.max(gain.getMinimum(), Math.min(gain.getMaximum(), dB));
+            gain.setValue(dB);
         }
     }
 

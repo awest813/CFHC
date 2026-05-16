@@ -137,20 +137,34 @@ tasks.register('desktopVerify') {
     dependsOn tasks.named('compileDesktopJava')
 }
 
-/** Desktop prototype + every Android build type (debug / beta / release) + release bundle + lint + unit tests. */
+/** Full gate: desktop + all Android variants + lint + tests. */
 tasks.register('verifyAllVariants') {
     group = 'verification'
-    description = 'Stable gate for both targets: desktop jar, APKs (debug, beta, release), AAB, lintDebug/Beta/Release, test.'
+    description = 'Full gate: desktop jar, APKs (debug, beta, release), AAB, lint, tests.'
     dependsOn tasks.named('desktopVerify'),
-            tasks.named('desktopJar'),
-            tasks.named(':app:assembleDebug'),
-            tasks.named(':app:assembleBeta'),
-            tasks.named(':app:assembleRelease'),
-            tasks.named(':app:bundleRelease'),
-            tasks.named(':app:lintDebug'),
-            tasks.named(':app:lintBeta'),
-            tasks.named(':app:lintRelease'),
-            tasks.named(':app:test')
+            tasks.named('desktopJar')
+}
+
+/** Quick gate: desktop compile + Android debug build + unit tests. Fast enough for pre-push. */
+tasks.register('quickVerify') {
+    group = 'verification'
+    description = 'Fast gate: desktop jar + Android debug APK + unit tests.'
+    dependsOn tasks.named('desktopJar')
+}
+
+// Wire Android tasks after all projects are evaluated (Android plugin creates tasks lazily).
+gradle.projectsEvaluated {
+    def appProject = project(':app')
+    ['assembleDebug', 'assembleBeta', 'assembleRelease',
+     'bundleRelease', 'lintDebug', 'lintBeta',
+     'lintRelease', 'test'].each { name ->
+        def t = appProject.tasks.findByName(name)
+        if (t) tasks.named('verifyAllVariants').configure { dependsOn(t) }
+    }
+    ['assembleDebug', 'test'].each { name ->
+        def t = appProject.tasks.findByName(name)
+        if (t) tasks.named('quickVerify').configure { dependsOn(t) }
+    }
 }
 
 tasks.register('desktopJar', Jar) {

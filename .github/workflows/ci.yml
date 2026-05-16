@@ -27,6 +27,9 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Engine imports check (zero Android/Swing leaks)
+        run: ./gradlew -p desktop-standalone :engine:checkEngineImports --no-daemon
+
       - name: Desktop standalone gate (no Android SDK)
         run: |
           unset ANDROID_HOME ANDROID_SDK_ROOT ANDROID_SDK_HOME || true
@@ -57,5 +60,14 @@ jobs:
       - name: Run unit tests (Android + shared engine)
         run: ./gradlew test --no-daemon
 
+      - name: Assemble debug APK
+        run: ./gradlew :app:assembleDebug --no-daemon
+
       - name: Android lint (debug)
         run: ./gradlew :app:lintDebug --no-daemon
+
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: cfhc-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk

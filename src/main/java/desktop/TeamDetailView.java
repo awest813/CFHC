@@ -528,7 +528,7 @@ public class TeamDetailView extends JDialog {
 
         for (DataRecord dr : records) {
             if (dr == null) continue;
-            String holder = LeagueHomeView.formatHolder(dr.holder());
+            String holder = LeagueScreenContext.formatHolder(dr.holder());
             String value = dr.value() == (int) dr.value()
                     ? String.valueOf((int) dr.value())
                     : String.format(Locale.ROOT, "%.2f", dr.value());
