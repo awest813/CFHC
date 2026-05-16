@@ -152,6 +152,39 @@ tasks.register('quickVerify') {
     dependsOn tasks.named('desktopJar')
 }
 
+/** Bumps the Android version (versionName + versionCode) in app/build.gradle. */
+tasks.register('bumpVersion') {
+    group = 'publishing'
+    description = 'Bump Android version. Usage: ./gradlew bumpVersion [-Pmajor | -Pminor | -Ppatch] (default: patch)'
+
+    doLast {
+        def buildFile = file("app/build.gradle")
+        def text = buildFile.text
+
+        def vnMatch = text =~ /versionName\s+'v(\d+)\.(\d+)\.(\d+)/
+        def vcMatch = text =~ /versionCode\s+(\d+)/
+        if (!vnMatch.find() || !vcMatch.find()) throw new GradleException("Could not parse version in app/build.gradle")
+
+        def major = vnMatch.group(1) as int
+        def minor = vnMatch.group(2) as int
+        def patch = vnMatch.group(3) as int
+        def code  = vcMatch.group(1) as int
+
+        if (project.hasProperty('major')) { major++; minor = 0; patch = 0 }
+        else if (project.hasProperty('minor')) { minor++; patch = 0 }
+        else { patch++ }
+
+        def newVersionName = "v${major}.${minor}.${patch}"
+        def newVersionCode = code + 1
+
+        text = text.replaceFirst(/versionName\s+'v(\d+\.\d+\.\d+)'/, "versionName '${newVersionName}'")
+        text = text.replaceFirst(/versionCode\s+\d+/, "versionCode ${newVersionCode}")
+        buildFile.text = text
+
+        logger.lifecycle "Bumped: ${newVersionName} (code ${newVersionCode})"
+    }
+}
+
 // Wire Android tasks after all projects are evaluated (Android plugin creates tasks lazily).
 gradle.projectsEvaluated {
     def appProject = project(':app')

@@ -67,120 +67,83 @@ public class Home extends AppCompatActivity {
         hideSystemUI();
 
         applyHomeThemeUi();
-
-        ImageView imageLogo = findViewById(R.id.imageLogo);
-        imageLogo.setImageResource(R.drawable.main_menu_logo);
-
-        Button newGameButton = findViewById(R.id.buttonNewGame);
-        newGameButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                audioManager.play(AudioEvent.UI_CLICK);
-                HomeDialogController.showPrestigeModeDialog(Home.this, null, flowManager);
-            }
-        });
-
-        Button newCustomGameButton = findViewById(R.id.buttonCustom);
-        newCustomGameButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                audioManager.play(AudioEvent.UI_CLICK);
-                HomeDialogController.showCustomGamePrompt(Home.this, new Runnable() {
-                    @Override
-                    public void run() {
-                        isExternalStorageReadable();
-                        customUniversePicker.launch(new String[]{"*/*"});
-                    }
-                });
-            }
-        });
-
-        Button loadGameButton = findViewById(R.id.buttonLoadGame);
-        loadGameButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                audioManager.play(AudioEvent.UI_CLICK);
-                loadLeague();
-            }
-        });
-
-        Button importButton = findViewById(R.id.buttonImportSave);
-        importButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                audioManager.play(AudioEvent.UI_CLICK);
-                HomeDialogController.showImportGameDialog(Home.this, new Runnable() {
-                    @Override
-                    public void run() {
-                        isExternalStorageReadable();
-                        importSavePicker.launch(new String[]{"text/plain"});
-                    }
-                });
-            }
-        });
-
-        Button deleteGameButton = findViewById(R.id.buttonDeleteSave);
-        deleteGameButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                audioManager.play(AudioEvent.UI_CLICK);
-                deleteSave();
-            }
-        });
-
-        Button themeButton = findViewById(R.id.buttonChangeTheme);
-
-        themeButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                audioManager.play(AudioEvent.UI_CLICK);
-                theme = (theme == 0) ? 1 : 0;
-                homePrefs.edit().putInt(KEY_THEME, theme).apply();
-                recreate();
-            }
-        });
-
-        Button recentButton = findViewById(R.id.buttonUpdates);
-        recentButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                audioManager.play(AudioEvent.UI_CLICK);
-                HomeDialogController.showMessageDialog(Home.this, "Changelog", getString(R.string.changelog), 14);
-            }
-        });
-
-        Button tutorialButton = findViewById(R.id.buttonTutorial);
-        tutorialButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                audioManager.play(AudioEvent.UI_CLICK);
-                showManualChooser();
-            }
-        });
-
-        Button creditsButton = findViewById(R.id.buttonCredits);
-        creditsButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                audioManager.play(AudioEvent.UI_CLICK);
-                HomeDialogController.showMessageDialog(Home.this, "Game Acknowledgements", getString(R.string.credits), 12);
-            }
-        });
-
-        Button googleButton = findViewById(R.id.buttonDonate);
-        googleButton.setOnClickListener(v -> openUrl("https://drive.google.com/drive/folders/1hfB_lbTaMfhm4lXtMelvgWoZSshL12v0?usp=sharing"));
-
-        Button subredditButton = findViewById(R.id.buttonSubreddit);
-        subredditButton.setOnClickListener(v -> openUrl("https://m.reddit.com/r/FootballCoach"));
-
-        Button antdroidButton = findViewById(R.id.buttonAntdroid);
-        antdroidButton.setOnClickListener(v -> openUrl("https://www.Antdroid.dev"));
-
-        Button githubButton = findViewById(R.id.buttonGitHub);
-        githubButton.setOnClickListener(v -> openUrl("https://github.com/antdroidx/"));
-
+        setupButtons();
         homePrefs.edit().putInt(KEY_THEME, theme).apply();
         updateSaveSlotHint();
 
         if (!homePrefs.getBoolean(KEY_WELCOME_SEEN, false)) {
-            getWindow().getDecorView().post(new Runnable() {
-                @Override
-                public void run() {
-                    showFirstRunWelcome();
-                }
-            });
+            getWindow().getDecorView().post(this::showFirstRunWelcome);
         }
+    }
+
+    private void setupButtons() {
+        ImageView imageLogo = findViewById(R.id.imageLogo);
+        imageLogo.setImageResource(R.drawable.main_menu_logo);
+
+        findViewById(R.id.buttonNewGame).setOnClickListener(v -> {
+            audioManager.play(AudioEvent.UI_CLICK);
+            HomeDialogController.showPrestigeModeDialog(Home.this, null, flowManager);
+        });
+
+        findViewById(R.id.buttonCustom).setOnClickListener(v -> {
+            audioManager.play(AudioEvent.UI_CLICK);
+            HomeDialogController.showCustomGamePrompt(Home.this, () -> {
+                isExternalStorageReadable();
+                customUniversePicker.launch(new String[]{"*/*"});
+            });
+        });
+
+        findViewById(R.id.buttonLoadGame).setOnClickListener(v -> {
+            audioManager.play(AudioEvent.UI_CLICK);
+            loadLeague();
+        });
+
+        findViewById(R.id.buttonImportSave).setOnClickListener(v -> {
+            audioManager.play(AudioEvent.UI_CLICK);
+            HomeDialogController.showImportGameDialog(Home.this, () -> {
+                isExternalStorageReadable();
+                importSavePicker.launch(new String[]{"text/plain"});
+            });
+        });
+
+        findViewById(R.id.buttonDeleteSave).setOnClickListener(v -> {
+            audioManager.play(AudioEvent.UI_CLICK);
+            deleteSave();
+        });
+
+        findViewById(R.id.buttonChangeTheme).setOnClickListener(v -> {
+            audioManager.play(AudioEvent.UI_CLICK);
+            theme = (theme == 0) ? 1 : 0;
+            homePrefs.edit().putInt(KEY_THEME, theme).apply();
+            recreate();
+        });
+
+        findViewById(R.id.buttonUpdates).setOnClickListener(v -> {
+            audioManager.play(AudioEvent.UI_CLICK);
+            HomeDialogController.showMessageDialog(Home.this, "Changelog", getString(R.string.changelog), 14);
+        });
+
+        findViewById(R.id.buttonTutorial).setOnClickListener(v -> {
+            audioManager.play(AudioEvent.UI_CLICK);
+            showManualChooser();
+        });
+
+        findViewById(R.id.buttonCredits).setOnClickListener(v -> {
+            audioManager.play(AudioEvent.UI_CLICK);
+            HomeDialogController.showMessageDialog(Home.this, "Game Acknowledgements", getString(R.string.credits), 12);
+        });
+
+        findViewById(R.id.buttonDonate).setOnClickListener(v ->
+                openUrl("https://drive.google.com/drive/folders/1hfB_lbTaMfhm4lXtMelvgWoZSshL12v0?usp=sharing"));
+
+        findViewById(R.id.buttonSubreddit).setOnClickListener(v ->
+                openUrl("https://m.reddit.com/r/FootballCoach"));
+
+        findViewById(R.id.buttonAntdroid).setOnClickListener(v ->
+                openUrl("https://www.Antdroid.dev"));
+
+        findViewById(R.id.buttonGitHub).setOnClickListener(v ->
+                openUrl("https://github.com/antdroidx/"));
     }
 
     @Override

@@ -15,6 +15,32 @@ android {
         applicationId "antdroid.cfbcoach"
         minSdk 24
         targetSdk 35
+
+        /*
+         * Versioning policy:
+         *
+         *   versionCode — monotonically increasing integer used by Google Play
+         *   to compare versions.  Each release (debug, beta, production) must
+         *   bump this.  Increment by 1 per stable release; use +1000 for
+         *   internal pre-releases if needed.
+         *
+         *   versionName — human-readable string displayed to users.  Format:
+         *     v<major>.<minor>.<patch>[-<pre>]
+         *   Examples:
+         *     v1.4.5        stable release
+         *     v1.5.0-beta1  pre-release beta
+         *     v1.5.0-DEBUG  local debug build (appended automatically)
+         *
+         *   Bump:
+         *     patch — bug fixes (backward compatible)
+         *     minor — new features (backward compatible)
+         *     major — breaking changes or large rewrites
+         *
+         *   To auto-bump, run:
+         *     ./gradlew bumpVersion -Ppatch   # next patch
+         *     ./gradlew bumpVersion -Pminor   # next minor
+         *     ./gradlew bumpVersion -Pmajor   # next major
+         */
         versionName 'v1.4.5'
         versionCode 320
     }
