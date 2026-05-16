@@ -157,9 +157,7 @@ public class TeamFinance {
                     team.HC.baselinePrestige = (team.HC.baselinePrestige + 2 * team.teamPrestige) / 3;
                     team.newContract = true;
                 } else if (totalPDiff > 5 || (team.natChampWL.equals("NCL"))) {
-                    if ((team.natChampWL.equals("NCL")) && team.HC.contractLength - team.HC.contractYear > 2) {
-
-                    } else {
+                    if (!(team.natChampWL.equals("NCL") && team.HC.contractLength - team.HC.contractYear > 2)) {
                         team.HC.contractLength = 3;
                         team.HC.contractYear = 0;
                         team.HC.baselinePrestige = (team.HC.baselinePrestige + 2 * team.teamPrestige) / 3;

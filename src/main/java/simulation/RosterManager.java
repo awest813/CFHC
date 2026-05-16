@@ -92,10 +92,6 @@ public class RosterManager {
         }
     }
 
-    public ArrayList<Player> getPlayersDis() {
-        return team.playersDis;
-    }
-
     public java.util.List<Player> getPlayersInjured() {
         return java.util.Collections.unmodifiableList(team.playersInjured);
     }
@@ -176,14 +172,15 @@ public class RosterManager {
 
     public int countRedshirts() {
         int count = 0;
-        for (int i = 0; i < getAllPlayers().size(); ++i) {
-            if (getAllPlayers().get(i).isRedshirt && !getAllPlayers().get(i).isTransfer) count++;
+        java.util.List<Player> all = getAllPlayers();
+        for (int i = 0; i < all.size(); ++i) {
+            if (all.get(i).isRedshirt && !all.get(i).isTransfer) count++;
         }
         return count;
     }
 
     public void sortByPosition(Player p) {
-        ArrayList<? extends Player> players = new ArrayList<>();
+        ArrayList<? extends Player> players;
 
         if (p.position.equals("QB")) {
             players = team.teamQBs;
@@ -205,6 +202,8 @@ public class RosterManager {
             players = team.teamCBs;
         } else if (p.position.equals("S")) {
             players = team.teamSs;
+        } else {
+            return;
         }
 
         Collections.sort(players, new CompPlayer());

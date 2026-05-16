@@ -280,8 +280,8 @@ public class StatsTracker {
     public float getSOSPollScore() {
         float teamWP = 0;
         for (Game g : team.gameSchedule) {
-            if (g.gameName.equals("BYE")) {
-            } else if (!g.gameName.equals("Conference") && !g.gameName.equals("OOC")) {
+            if (g.gameName.equals("BYE")) continue;
+            if (!g.gameName.equals("Conference") && !g.gameName.equals("OOC")) {
                 if (g.homeTeam == team && g.homeScore > g.awayScore) teamWP += 0.6 * (team.league.countTeam - g.awayTeam.rankTeamPollScore);
                 else if (g.homeTeam == team && g.homeScore < g.awayScore) teamWP -= 1.4 * (team.league.countTeam - g.awayTeam.rankTeamPollScore);
                 else if (g.awayTeam == team && g.awayScore > g.homeScore) teamWP += 1.4 * (team.league.countTeam - g.homeTeam.rankTeamPollScore);
@@ -306,8 +306,8 @@ public class StatsTracker {
         float rpi = 0;
         float teamWP = 0;
         for (Game g : team.gameSchedule) {
-            if (g.gameName.equals("BYE")) {
-            } else if (!g.gameName.equals("Conference") && !g.gameName.equals("OOC")) {
+            if (g.gameName.equals("BYE")) continue;
+            if (!g.gameName.equals("Conference") && !g.gameName.equals("OOC")) {
                 if (g.homeTeam == team && g.homeScore > g.awayScore) teamWP += 0.6;
                 else if (g.homeTeam == team && g.homeScore < g.awayScore) teamWP -= 1.4;
                 else if (g.awayTeam == team && g.awayScore > g.homeScore) teamWP += 1.4;
