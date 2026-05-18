@@ -2261,11 +2261,7 @@ public class Team {
         for (int i = 0; i < olNeeds; ++i) {
             stars = getRecruitLevel();
             if (stars < minRecruitStar) stars = minRecruitStar;
-            if (recruitChance * Math.random() > Math.random() * 50) {
-                stars += Math.random() * (maxStarRating - stars);
-            } else {
-                stars -= Math.random() * (stars);
-            }
+            stars = nudgeCpuFreshmanStarRating(stars, recruitChance);
             if (stars > 10) stars = 10;
 
             //make OLs

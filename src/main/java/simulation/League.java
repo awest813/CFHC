@@ -2030,9 +2030,9 @@ public class League {
             Collections.sort(teamList, new CompTeamPoll());
 
             if (expPlayoffs) {
-                bowlManager.scheduleExpPlayoff();
+                scheduleExpPlayoff();
             } else {
-                bowlManager.scheduleNormalCFP();
+                scheduleNormalCFP();
             }
 
         } else if (currentWeek == regSeasonWeeks) {
@@ -2049,16 +2049,16 @@ public class League {
                         + def.team.getAbbr() + " (" + def.team.getWins() + "-" + def.team.getLosses() + ")");
             }
 
-            if (expPlayoffs) bowlManager.playExpandedPlayoffFirstRound();
-            else bowlManager.playBowlWeek1();
+            if (expPlayoffs) playExpandedPlayoffFirstRound();
+            else playBowlWeek1();
 
         } else if (currentWeek == regSeasonWeeks+1) {
-            if (expPlayoffs) bowlManager.playExpandedPlayoffQuarterfinals();
-            else bowlManager.playBowlWeek2();
+            if (expPlayoffs) playExpandedPlayoffQuarterfinals();
+            else playBowlWeek2();
 
         } else if (currentWeek == regSeasonWeeks+2) {
-            if (expPlayoffs) bowlManager.playExpandedPlayoffSemifinals();
-            else bowlManager.playBowlWeek3();
+            if (expPlayoffs) playExpandedPlayoffSemifinals();
+            else playBowlWeek3();
 
         } else if (currentWeek == regSeasonWeeks+3) {
             ncg.playGame();

@@ -2,8 +2,6 @@ package antdroid.cfbcoach;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
 import android.text.Editable;
@@ -20,11 +18,6 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.helper.StaticLabelsFormatter;
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,30 +53,14 @@ import simulation.PlatformLog;
 import simulation.PlatformResourceProvider;
 import simulation.PlaybookDefense;
 import simulation.PlaybookOffense;
-import simulation.PlayerRecord;
 import simulation.SimulationFacade;
 import simulation.Team;
-import simulation.TeamHistoryRecord;
-import staff.DC;
 import staff.HeadCoach;
-import staff.OC;
 import staff.Staff;
-import ui.CoachDatabase;
-import ui.GameScheduleList;
-import ui.HallofFameList;
-import ui.IndividualStats;
-import ui.LeagueRecordsList;
-import ui.MainRankings;
 import ui.MockDraft;
 import ui.PlayerProfile;
-import ui.RedshirtAdapter;
 import ui.SaveFilesList;
-import ui.SeasonAwardsList;
-import ui.TeamHistoryList;
-import ui.TeamHome;
 import ui.TeamRankingsList;
-import ui.TeamRoster;
-import ui.TeamStatsList;
 
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, GameUiBridge, LeagueImportFlowController.Host {
@@ -978,10 +955,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Open Player Profile
     public void examinePlayer(String player) {
         Player p = currentTeam.findTeamPlayer(player);
-        if (p == null) {
-            //Do nothing
-        } else {
-            openPlayerProfile(p);
+        if (p != null) {
+            PlayerProfileDialogController.showProfile(this, p, userTeam);
         }
     }
 
@@ -991,172 +966,20 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return;
         }
         Player p = tempTeam.findTeamPlayer(player);
-        if (p == null) {
-            //Do nothing
-        } else {
-            openPlayerProfile(p);
+        if (p != null) {
+            PlayerProfileDialogController.showProfile(this, p, userTeam);
         }
     }
 
     public void openPlayerProfile(final Player p) {
-        PlayerProfileSnapshot snapshot = PlayerProfileSnapshot.fromPlayer(p);
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Player Profile")
-                .setView(getLayoutInflater().inflate(R.layout.player_profile, null, false))
-                .setPositiveButton("Close", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //do nothing
-                    }
-                });
-
-        if(p.team == userTeam) {
-            builder.setNeutralButton("Cut", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    //do nothing
-                    cutPlayerDialog(p);
-                }
-            });
-        }
-
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-        bindPlayerProfile(dialog, p.getName(), snapshot);
+        PlayerProfileDialogController.showProfile(this, p, userTeam);
     }
 
-    private void bindPlayerProfile(AlertDialog dialog, String playerName, PlayerProfileSnapshot snapshot) {
-        final TextView ppPlayerName = dialog.findViewById(R.id.ppPlayerName);
-        final TextView ppPosition = dialog.findViewById(R.id.ppPosition);
-        final TextView ppClass = dialog.findViewById(R.id.ppClass);
-        final TextView ppTeam = dialog.findViewById(R.id.ppTeam);
-        final TextView ppStars = dialog.findViewById(R.id.ppStars);
-        final TextView ppHome = dialog.findViewById(R.id.ppHome);
-        final TextView ppHeight = dialog.findViewById(R.id.ppHeight);
-        final TextView ppWeight = dialog.findViewById(R.id.ppWeight);
-        final TextView ppOverall = dialog.findViewById(R.id.ppOverall);
-
-        final TextView ppAwarenessName = dialog.findViewById(R.id.ppAwarenessName);
-        final TextView ppCharacterName = dialog.findViewById(R.id.ppCharacterName);
-        final TextView ppDurabilityName = dialog.findViewById(R.id.ppDurabilityName);
-        final TextView ppStatusName = dialog.findViewById(R.id.ppStatusName);
-        final TextView ppAwareness = dialog.findViewById(R.id.ppAwarness);
-        final TextView ppCharacter = dialog.findViewById(R.id.ppCharacter);
-        final TextView ppDurability = dialog.findViewById(R.id.ppDurability);
-        final TextView ppStatus = dialog.findViewById(R.id.ppStatus);
-
-        final TextView ppAttr1Name = dialog.findViewById(R.id.ppAttr1Name);
-        final TextView ppAttr1 = dialog.findViewById(R.id.ppAttr1);
-        final TextView ppAttr2Name = dialog.findViewById(R.id.ppAttr2Name);
-        final TextView ppAttr2 = dialog.findViewById(R.id.ppAttr2);
-        final TextView ppAttr3Name = dialog.findViewById(R.id.ppAttr3Name);
-        final TextView ppAttr3 = dialog.findViewById(R.id.ppAttr3);
-        final TextView ppAttr4Name = dialog.findViewById(R.id.ppAttr4Name);
-        final TextView ppAttr4 = dialog.findViewById(R.id.ppAttr4);
-
-
-        final TextView ppYear = dialog.findViewById(R.id.ppYear);
-        final TextView ppStat0 = dialog.findViewById(R.id.ppStat0);
-        final TextView ppStat1 = dialog.findViewById(R.id.ppStat1);
-        final TextView ppStat2 = dialog.findViewById(R.id.ppStat2);
-        final TextView ppStat3 = dialog.findViewById(R.id.ppStat3);
-        final TextView ppStat4 = dialog.findViewById(R.id.ppStat4);
-        final TextView ppStat5 = dialog.findViewById(R.id.ppStat5);
-        final TextView ppStat6 = dialog.findViewById(R.id.ppStat6);
-        final TextView ppStat7 = dialog.findViewById(R.id.ppStat7);
-
-        final TextView ppFeatStat1Name = dialog.findViewById(R.id.ppFeatStat1Name);
-        final TextView ppFeatStat1 = dialog.findViewById(R.id.ppFeatStat1);
-        final TextView ppFeatStat2Name = dialog.findViewById(R.id.ppFeatStat2Name);
-        final TextView ppFeatStat2 = dialog.findViewById(R.id.ppFeatStat2);
-        final TextView ppFeatStat3Name = dialog.findViewById(R.id.ppFeatStat3Name);
-        final TextView ppFeatStat3 = dialog.findViewById(R.id.ppFeatStat3);
-        final TextView ppFeatStat4Name = dialog.findViewById(R.id.ppFeatStat4Name);
-        final TextView ppFeatStat4 = dialog.findViewById(R.id.ppFeatStat4);
-
-        ppPlayerName.setText(playerName);
-        String[] a = snapshot.basics;
-
-        ppPosition.setText(valueAt(a, 0));
-        ppClass.setText(valueAt(a, 1));
-        ppTeam.setText(valueAt(a, 2));
-        ppHome.setText(valueAt(a, 3));
-        ppStars.setText(valueAt(a, 4));
-        ppHeight.setText(valueAt(a, 5));
-        ppWeight.setText(valueAt(a, 6));
-        ppOverall.setText(valueAt(a, 7));
-        ppCharacter.setText(valueAt(a, 8));
-        ppAwareness.setText(valueAt(a, 9));
-        ppStatus.setText(valueAt(a, 10));
-        ppDurability.setText(valueAt(a, 11));
-
-        String[] b = snapshot.ratings;
-
-        ppAttr1Name.setText(valueAt(b, 0));
-        ppAttr1.setText(valueAt(b, 1));
-        ppAttr2Name.setText(valueAt(b, 2));
-        ppAttr2.setText(valueAt(b, 3));
-        ppAttr3Name.setText(valueAt(b, 4));
-        ppAttr3.setText(valueAt(b, 5));
-        ppAttr4Name.setText(valueAt(b, 6));
-        ppAttr4.setText(valueAt(b, 7));
-
-        String[] teamStat = snapshot.statColumns;
-
-        ppYear.setText(valueAt(teamStat, 0));
-        ppStat0.setText(valueAt(teamStat, 1));
-        ppStat1.setText(valueAt(teamStat, 2));
-        ppStat2.setText(valueAt(teamStat, 3));
-        ppStat3.setText(valueAt(teamStat, 4));
-        ppStat4.setText(valueAt(teamStat, 5));
-        ppStat5.setText(valueAt(teamStat, 6));
-        ppStat6.setText(valueAt(teamStat, 7));
-        ppStat7.setText(valueAt(teamStat, 8));
-
-        String[] c = snapshot.featuredStats;
-
-        ppFeatStat1Name.setText(valueAt(c, 0));
-        ppFeatStat1.setText(valueAt(c, 1));
-        ppFeatStat2Name.setText(valueAt(c, 2));
-        ppFeatStat2.setText(valueAt(c, 3));
-        ppFeatStat3Name.setText(valueAt(c, 4));
-        ppFeatStat3.setText(valueAt(c, 5));
-        ppFeatStat4Name.setText(valueAt(c, 6));
-        ppFeatStat4.setText(valueAt(c, 7));
-    }
-
-    public void cutPlayerDialog(final Player p) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Player Cut")
-                .setMessage("Are you sure you want to cut " + p.position + " " + p.getName() + "?\n\nIf this is cut occurs during season, he may be replaced with a walk-on to fill roster spots.")
-                .setPositiveButton("Cut Player", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //do nothing
-                        userTeam.cutPlayer(p);
-                        resetUI();
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-
-                    }
-                });
-
-        AlertDialog dialog = builder.create();
-        dialog.setCancelable(false);
-        showImmersive(dialog);
-    }
-
-    //Open HeadCoach Profile from Database
+    //Open Head Coach Profile from Database
     public void examineCoachDB(String player) {
         final Staff p = findCoachProfile(player);
-        if (p == null) {
-            //Do Nothing
-        } else {
-            openCoachProfile(p);
+        if (p != null) {
+            CoachProfileDialogController.showProfile(this, p, () -> showCoachHistoryDialog(p));
         }
     }
 
@@ -1179,105 +1002,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void openCoachProfile(final Staff p) {
-        CoachProfileSnapshot snapshot = CoachProfileSnapshot.fromStaff(p);
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(p.getName())
-                .setView(getLayoutInflater().inflate(R.layout.coach_profile, null, false))
-                .setPositiveButton("Close", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //do nothing
-                    }
-                })
-                .setNeutralButton("Coach History", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        showCoachHistoryDialog(p);
-                    }
-                });
-
-        AlertDialog dialog = builder.create();
-        dialog.setCancelable(false);
-        showImmersive(dialog);
-        bindCoachProfile(dialog, snapshot);
+        CoachProfileDialogController.showProfile(this, p, () -> showCoachHistoryDialog(p));
     }
 
-    private void bindCoachProfile(AlertDialog dialog, CoachProfileSnapshot snapshot) {
-        final TextView cpPosition = dialog.findViewById(R.id.cpPosition);
-        final TextView cpClass = dialog.findViewById(R.id.cpClass);
-        final TextView cpTeam = dialog.findViewById(R.id.cpTeam);
-        final TextView cpOverall = dialog.findViewById(R.id.cpOverall);
 
-        final TextView cpWins = dialog.findViewById(R.id.cpWins);
-        final TextView cpLosses = dialog.findViewById(R.id.cpLosses);
-        final TextView cpContract = dialog.findViewById(R.id.cpContract);
-        final TextView cpStatus = dialog.findViewById(R.id.cpStatus);
-
-        final TextView cpAttr1Name = dialog.findViewById(R.id.cpAttr1Name);
-        final TextView cpAttr1 = dialog.findViewById(R.id.cpAttr1);
-        final TextView cpAttr2Name = dialog.findViewById(R.id.cpAttr2Name);
-        final TextView cpAttr2 = dialog.findViewById(R.id.cpAttr2);
-        final TextView cpAttr3Name = dialog.findViewById(R.id.cpAttr3Name);
-        final TextView cpAttr3 = dialog.findViewById(R.id.cpAttr3);
-        final TextView cpAttr4Name = dialog.findViewById(R.id.cpAttr4Name);
-        final TextView cpAttr4 = dialog.findViewById(R.id.cpAttr4);
-
-        final TextView cpFeatStat1Name = dialog.findViewById(R.id.cpFeatStat1Name);
-        final TextView cpFeatStat1 = dialog.findViewById(R.id.cpFeatStat1);
-        final TextView cpFeatStat2Name = dialog.findViewById(R.id.cpFeatStat2Name);
-        final TextView cpFeatStat2 = dialog.findViewById(R.id.cpFeatStat2);
-        final TextView cpFeatStat3Name = dialog.findViewById(R.id.cpFeatStat3Name);
-        final TextView cpFeatStat3 = dialog.findViewById(R.id.cpFeatStat3);
-        final TextView cpFeatStat4Name = dialog.findViewById(R.id.cpFeatStat4Name);
-        final TextView cpFeatStat4 = dialog.findViewById(R.id.cpFeatStat4);
-
-        String[] a = snapshot.basics;
-        cpPosition.setText(valueAt(a, 0));
-        cpClass.setText(valueAt(a, 1));
-        cpTeam.setText(valueAt(a, 2));
-        cpOverall.setText(valueAt(a, 3));
-        cpWins.setText(valueAt(a, 4));
-        cpLosses.setText(valueAt(a, 5));
-        cpStatus.setText(valueAt(a, 6));
-        cpContract.setText(valueAt(a, 7));
-
-        String[] b = snapshot.ratings;
-        cpAttr1Name.setText(valueAt(b, 0));
-        cpAttr1.setText(valueAt(b, 1));
-        cpAttr2Name.setText(valueAt(b, 2));
-        cpAttr2.setText(valueAt(b, 3));
-        cpAttr3Name.setText(valueAt(b, 4));
-        cpAttr3.setText(valueAt(b, 5));
-        cpAttr4Name.setText(valueAt(b, 6));
-        cpAttr4.setText(valueAt(b, 7));
-
-        String[] c = snapshot.featuredStats;
-        cpFeatStat1Name.setText(valueAt(c, 0));
-        cpFeatStat1.setText(valueAt(c, 1));
-        cpFeatStat2Name.setText(valueAt(c, 2));
-        cpFeatStat2.setText(valueAt(c, 3));
-        cpFeatStat3Name.setText(valueAt(c, 4));
-        cpFeatStat3.setText(valueAt(c, 5));
-        cpFeatStat4Name.setText(valueAt(c, 6));
-        cpFeatStat4.setText(valueAt(c, 7));
-    }
-
-    private static String valueAt(String[] values, int index) {
-        return index < values.length ? values[index] : "";
-    }
 
 
 
 
     //Player Awards for Bio
     public int checkAwardPlayer(String player) {
-        Player p = currentTeam.findTeamPlayer(player);
-        if (p == null) return 0;
-        if (p.wonHeisman) return 3;
-        if (p.wonAllAmerican) return 2;
-        if (p.wonAllConference) return 1;
-        return 0;
+        return PlayerProfileDialogController.checkAward(currentTeam, player);
     }
 
     //Schedule
@@ -1444,291 +1179,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //AP Poll History
     private void showTop25History() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("AP Poll History")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //do nothing?
-                    }
-                })
-                .setView(getLayoutInflater().inflate(R.layout.bowl_ccg_dialog, null, false));
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-        PlatformUiHelper.bindArchiveDialogShell(dialog, "AP Poll Archive", "Step through each completed season to review how the national rankings evolved over time.");
-        if (season == seasonStart) {
-            String[] selection = {"No History to Display"};
-            Spinner top25hisSpinner = dialog.findViewById(R.id.spinnerBowlCCG);
-            PlatformUiHelper.avoidSpinnerDropdownFocus(top25hisSpinner);
-            final ArrayAdapter<String> top25Adapter = new ArrayAdapter<>(this,
-                    android.R.layout.simple_spinner_item, selection);
-            top25Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            top25hisSpinner.setAdapter(top25Adapter);
-        } else {
-            String[] selection = new String[simLeague.getLeagueHistory().size()];
-            for (int i = 0; i < simLeague.getLeagueHistory().size(); ++i) {
-                selection[i] = Integer.toString(seasonStart + i);
-            }
-            Spinner top25hisSpinner = dialog.findViewById(R.id.spinnerBowlCCG);
-            PlatformUiHelper.avoidSpinnerDropdownFocus(top25hisSpinner);
-            final ArrayAdapter<String> top25Adapter = new ArrayAdapter<>(this,
-                    android.R.layout.simple_spinner_item, selection);
-            top25Adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            top25hisSpinner.setAdapter(top25Adapter);
-
-            final TextView top25his = dialog.findViewById(R.id.textViewBowlCCGDialog);
-
-            top25hisSpinner.setOnItemSelectedListener(
-                    new AdapterView.OnItemSelectedListener() {
-                        public void onItemSelected(
-                                AdapterView<?> parent, View view, int position, long id) {
-                            top25his.setText(simLeague.getLeagueTop25History(position));
-                        }
-
-                        public void onNothingSelected(AdapterView<?> parent) {
-                            // do nothing
-                        }
-                    });
-        }
+        HistoryDialogController.showTop25History(this, simLeague, seasonStart);
     }
 
-    //Team History
     private void showCurrTeamHistoryDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(currentTeam.getName() + " History")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //do nothing?
-                    }
-                })
-                .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null, false));
-        final AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-        PlatformUiHelper.bindRankingsDialogShell(dialog, currentTeam.getName() + " Archive", "Review your program history, records, and hall-of-fame legacy from one unified team archive.");
-
-        String[] selection = {"Team History", "Team Records", "Hall of Fame", "Graph View: Prestige", "Graph View: Rankings"};
-        Spinner teamHistSpinner = dialog.findViewById(R.id.spinnerTeamRankings);
-        PlatformUiHelper.avoidSpinnerDropdownFocus(teamHistSpinner);
-        final ArrayAdapter<String> teamHistAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, selection);
-        teamHistAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        teamHistSpinner.setAdapter(teamHistAdapter);
-
-        final ListView teamHistoryList = dialog.findViewById(R.id.listViewTeamRankings);
-        final PlayerRecord[] hofPlayers = currentTeam.getHallOfFame().toArray(new PlayerRecord[0]);
-
-        teamHistSpinner.setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    public void onItemSelected(
-                            AdapterView<?> parent, View view, int position, long id) {
-                        if (position == 0) {
-                            TeamHistoryRecord[] histArray = currentTeam.getTeamHistory().toArray(new TeamHistoryRecord[0]);
-                            TeamHistoryList teamHistoryAdapter =
-                                    new TeamHistoryList(MainActivity.this, histArray);
-                            teamHistoryList.setAdapter(teamHistoryAdapter);
-                        } else if (position == 1) {
-                            LeagueRecordsList leagueRecordsAdapter =
-                                    new LeagueRecordsList(MainActivity.this, currentTeam.teamRecords.getRecordsStr().split("\n"), "---", "---");
-                            teamHistoryList.setAdapter(leagueRecordsAdapter);
-                        } else if (position == 2) {
-                            HallofFameList hofAdapter = new HallofFameList(MainActivity.this, hofPlayers, userTeam.getName(), true, MainActivity.this);
-                            teamHistoryList.setAdapter(hofAdapter);
-                        } else if (position == 3) {
-                            dialog.dismiss();
-                            teamPrestigeGraphView();
-                        } else if (position == 4) {
-                            dialog.dismiss();
-                            teamRankingGraphView();
-                        }
-                    }
-
-                    public void onNothingSelected(AdapterView<?> parent) {
-                        // do nothing
-                    }
-                });
-    }
-
-    //Graph View
-
-    private interface GraphDataProvider {
-        DataPoint createDataPoint(int index);
-        String createLabel(int index);
-        int getDataCount();
-    }
-
-    private void showGraphDialog(String title, String shellTitle, String shellDesc,
-                                  GraphDataProvider provider, int numHorizontalLabels,
-                                  Double maxY, Double minY,
-                                  String[] verticalLabels) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(title)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .setView(getLayoutInflater().inflate(R.layout.graphview, null, false));
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-        PlatformUiHelper.bindGraphDialogShell(dialog, shellTitle, shellDesc);
-
-        GraphView graph = dialog.findViewById(R.id.graph);
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
-        String[] yearLabels = new String[provider.getDataCount()];
-        for (int i = 0; i < provider.getDataCount(); i++) {
-            series.appendData(provider.createDataPoint(i), true, i + 1, false);
-            yearLabels[i] = provider.createLabel(i);
-        }
-        graph.addSeries(series);
-
-        if (yearLabels.length > 1) {
-            StaticLabelsFormatter years = new StaticLabelsFormatter(graph);
-            years.setHorizontalLabels(yearLabels);
-            if (verticalLabels != null) years.setVerticalLabels(verticalLabels);
-            graph.getGridLabelRenderer().setLabelFormatter(years);
-            graph.getGridLabelRenderer().setNumHorizontalLabels(numHorizontalLabels);
-            if (verticalLabels != null) graph.getGridLabelRenderer().setNumVerticalLabels(6);
-        }
-        graph.getViewport().setScalable(true);
-        graph.getViewport().setScrollable(true);
-        graph.getViewport().setYAxisBoundsManual(true);
-        if (maxY != null) graph.getViewport().setMaxY(maxY);
-        if (minY != null) graph.getViewport().setMinY(minY);
-    }
-
-    private void teamPrestigeGraphView() {
-        simLeague.sortTeamList();
-        showGraphDialog(
-                currentTeam.getName() + ": Prestige History",
-                currentTeam.getName() + " Prestige Trend",
-                "See how program prestige has risen and fallen across your team's historical arc.",
-                new GraphDataProvider() {
-                    public DataPoint createDataPoint(int i) {
-                        return new DataPoint(currentTeam.getTeamHistory().get(i).year, currentTeam.getTeamHistory().get(i).prestige);
-                    }
-                    public String createLabel(int i) { return Integer.toString(currentTeam.getTeamHistory().get(i).year); }
-                    public int getDataCount() { return currentTeam.getTeamHistory().size(); }
-                },
-                5, simLeague.getTeamList().get(0).teamPrestige + 10.0, 0.0, null);
-    }
-
-    private void teamRankingGraphView() {
-        String[] rankLabels = new String[simLeague.getTeamList().size() + 1];
-        for (int i = simLeague.getTeamList().size(); i >= 0; i--) {
-            rankLabels[simLeague.getTeamList().size() - i] = Integer.toString(i);
-        }
-        showGraphDialog(
-                currentTeam.getName() + ": Rankings History",
-                currentTeam.getName() + " Ranking Trend",
-                "Track where your program has landed in the national pecking order over time.",
-                new GraphDataProvider() {
-                    public DataPoint createDataPoint(int i) {
-                        return new DataPoint(currentTeam.getTeamHistory().get(i).year, simLeague.getTeamList().size() - currentTeam.getTeamHistory().get(i).rank);
-                    }
-                    public String createLabel(int i) { return Integer.toString(i + seasonStart); }
-                    public int getDataCount() { return currentTeam.getTeamHistory().size(); }
-                },
-                5, (double) simLeague.getTeamList().size(), 0.0, rankLabels);
-    }
-
-    private void coachGraphView(final Staff hc) {
-        simLeague.sortTeamList();
-        showGraphDialog(
-                hc.getName() + ": Prestige History",
-                hc.getName() + " Prestige Trend",
-                "Follow how this coach changed program prestige across each stop in his career.",
-                new GraphDataProvider() {
-                    public DataPoint createDataPoint(int i) {
-                        if (!hc.history.get(i).equals("")) {
-                            String[] prsPart = hc.history.get(i).split("Prs: ");
-                            if (prsPart.length >= 2) {
-                                String[] prsVal = prsPart[1].split(" ");
-                                if (prsVal.length >= 1) {
-                                    try {
-                                        return new DataPoint(Integer.parseInt(hc.history.get(i).split(": ")[0]), Integer.parseInt(prsVal[0]));
-                                    } catch (NumberFormatException ignored) {}
-                                }
-                            }
-                        }
-                        return new DataPoint(i, 0);
-                    }
-                    public String createLabel(int i) { return hc.history.get(i).split(":")[0]; }
-                    public int getDataCount() { return hc.history.size(); }
-                },
-                4, simLeague.getTeamList().get(0).teamPrestige + 10.0, 0.0, null);
-    }
-
-    private void coachGraphViewRank(final Staff hc) {
-        String[] rankLabels = new String[simLeague.getTeamList().size() + 1];
-        for (int i = simLeague.getTeamList().size(); i >= 0; i--) {
-            rankLabels[simLeague.getTeamList().size() - i] = Integer.toString(i);
-        }
-        showGraphDialog(
-                hc.getName() + ": Rankings History",
-                hc.getName() + " Ranking Trend",
-                "Follow how this coach's teams climbed or slid in the national rankings over time.",
-                new GraphDataProvider() {
-                    public DataPoint createDataPoint(int i) {
-                        if (!hc.history.get(i).equals("")) {
-                            try {
-                                return new DataPoint(Integer.parseInt(hc.history.get(i).split(": ")[0]), simLeague.getTeamList().size() - Integer.parseInt(hc.history.get(i).split("#")[1].split(" ")[0]));
-                            } catch (NumberFormatException ignored) {}
-                        }
-                        return new DataPoint(i, 0);
-                    }
-                    public String createLabel(int i) { return hc.history.get(i).split(":")[0]; }
-                    public int getDataCount() { return hc.history.size(); }
-                },
-                4, (double) simLeague.getTeamList().size(), 0.0, rankLabels);
+        HistoryDialogController.showCurrTeamHistoryDialog(this, currentTeam, userTeam, simLeague, seasonStart);
     }
 
     private void showCoachHistoryDialog(Staff p) {
-        final Staff hc = p;
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Head Coach History: " + hc.getName())
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //do nothing?
-                    }
-                })
-                .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null, false));
-        final AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-        PlatformUiHelper.bindRankingsDialogShell(dialog, "Head Coach History", "Review one coach's stops and jump into prestige or ranking trend views from the same archive flow.");
-
-        String[] selection = {"Team History", "Graph View: Prestige", "Graph View: Rankings"};
-        Spinner teamHistSpinner = dialog.findViewById(R.id.spinnerTeamRankings);
-        PlatformUiHelper.avoidSpinnerDropdownFocus(teamHistSpinner);
-        final ArrayAdapter<String> teamHistAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, selection);
-        teamHistAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        teamHistSpinner.setAdapter(teamHistAdapter);
-
-        final ListView teamHistoryList = dialog.findViewById(R.id.listViewTeamRankings);
-
-        teamHistSpinner.setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    public void onItemSelected(
-                            AdapterView<?> parent, View view, int position, long id) {
-                        if (position == 0) {
-                            TeamHistoryList teamHistoryAdapter =
-                                    new TeamHistoryList(MainActivity.this, hc.getCoachHistory());
-                            teamHistoryList.setAdapter(teamHistoryAdapter);
-                        } else if (position == 1) {
-                            dialog.dismiss();
-                            coachGraphView(hc);
-                        } else if (position == 2) {
-                            dialog.dismiss();
-                            coachGraphViewRank(hc);
-                        }
-                    }
-
-                    public void onNothingSelected(AdapterView<?> parent) {
-                        // do nothing
-                    }
-                });
+        HistoryDialogController.showCoachHistoryDialog(this, p, simLeague, seasonStart);
     }
 
     //Open Hall of Fame Profile from Database
@@ -2006,24 +1465,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void showSeasonGoalsDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage(goals + "\nNote: You can always review your season goals in the Pre-Season News.")
-                .setTitle(simLeague.getYear() + " Season Goals")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .setNegativeButton("SAVE PROGRESS", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        saveLeague();
-                    }
-                });
-        builder.setCancelable(false);
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-        setDialogMessageTextSize(dialog);
+        CareerDialogController.showSeasonGoalsDialog(this, goals, this::saveLeague);
     }
 
     //Pre-Season Options
@@ -2140,33 +1582,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             skipRetirementQ = true;
 
         } else {
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setMessage(userTeam.getContractString())
-                    .setTitle(simLeague.getYear() + " Contract Status")
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    })
-                    .setNeutralButton("Season Goals", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            if (goals == null || goals.isEmpty()) {
-                                seasonGoals();
-                            } else {
-                                showSeasonGoalsDialog();
-                            }
-                        }
-                    })
-                    .setNegativeButton("View Coaching News", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            showNewsStoriesDialog();
-                        }
-                    });
-            AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-            showImmersive(dialog);
-            setDialogMessageTextSize(dialog);
+            CareerDialogController.showContractDialog(this,
+                    userTeam.getContractString(), simLeague.getYear() + " Contract Status",
+                    () -> { if (goals == null || goals.isEmpty()) seasonGoals(); },
+                    this::showSeasonGoalsDialog,
+                    this::showNewsStoriesDialog);
         }
     }
 
@@ -2182,34 +1602,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         String oldTeam = "NO TEAM";
         if(userHC.team != null) oldTeam = userHC.team.getName();
         updateHeaderBar();
-        //get user team from list dialog
         jobList = simLeague.getCoachListFired(ratOvr, oldTeam);
-        String[] teams = setJobTeamList(jobList);
+        String[] teams = CareerDialogController.buildJobTeamList(jobList, userHC, df2);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
         if (jobList.isEmpty()) {
-            builder.setTitle("Head Coach Opportunities")
-                    .setMessage("No immediate head coach openings are available right now. You will remain on the market until a program makes a move.")
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    });
-            AlertDialog alert = builder.create();
-            alert.setCancelable(false);
-            showImmersive(alert);
+            CareerDialogController.showJobOffersEmpty(this, "Head Coach Opportunities",
+                    "No immediate head coach openings are available right now. You will remain on the market until a program makes a move.");
         } else {
-            builder.setTitle("Head Coach Opportunities")
-                    .setMessage("Review each opening before you decide. Every move resets your contract clock and ties your new expectations to that program's prestige.")
-                    .setCancelable(false);
-            builder.setItems(teams, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int item) {
-                    viewTeam(jobList, item);
-                }
-            });
-            AlertDialog alert = builder.create();
-            alert.setCancelable(false);
-            showImmersive(alert);
+            CareerDialogController.showJobOffersDialog(this, "Head Coach Opportunities",
+                    "Review each opening before you decide. Every move resets your contract clock and ties your new expectations to that program's prestige.",
+                    teams, item -> viewTeam(jobList, item));
         }
     }
 
@@ -2221,7 +1623,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         userHC = headCoach;
         if (userHC.promotionCandidate) {
-
             HeadCoach currentCoach = userTeam != null ? userTeam.getHeadCoach() : null;
             int[] overallWeights = currentCoach != null ? currentCoach.overallWt : userHC.overallWt;
             int ratOvr = userHC.getStaffOverall(overallWeights);
@@ -2230,58 +1631,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             String oldTeam = "NO TEAM";
             if(userHC.team != null) oldTeam = userHC.team.getName();
             updateHeaderBar();
-            //get user team from list dialog
             jobList = simLeague.getCoachPromotionList(ratOvr, offers, oldTeam);
-
-            String[] teams = setJobTeamList(jobList);
+            String[] teams = CareerDialogController.buildJobTeamList(jobList, userHC, df2);
 
             if (jobList.isEmpty()) {
                 userHC.promotionCandidate = false;
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Head Coach Opportunities")
-                        .setMessage("No job offers came through this cycle. Build on this season and stronger offers should return if you keep climbing.")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        });
-                AlertDialog alert = builder.create();
-                alert.setCancelable(false);
-                showImmersive(alert);
-
+                CareerDialogController.showJobOffersEmpty(this, "Head Coach Opportunities",
+                        "No job offers came through this cycle. Build on this season and stronger offers should return if you keep climbing.");
             } else {
-                AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                builder.setTitle("Career Advancement Opportunities")
-                        .setMessage("Programs are interested in your work. Review the roster foundation, prestige, and expectations before making your move.")
-                        .setPositiveButton("Decline Offers", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                userHC.promotionCandidate = false;
-                            }
-                        });
-                builder.setCancelable(false);
-                builder.setItems(teams, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int item) {
-                        // Do something with the selection
-                        viewTeam(jobList, item);
-                    }
-                });
-                AlertDialog alert = builder.create();
-                alert.setCancelable(false);
-                showImmersive(alert);
+                CareerDialogController.showPromotionsDialog(this,
+                        "Career Advancement Opportunities",
+                        "Programs are interested in your work. Review the roster foundation, prestige, and expectations before making your move.",
+                        teams, item -> viewTeam(jobList, item),
+                        () -> userHC.promotionCandidate = false);
             }
         } else {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Career Advancement Opportunities")
-                    .setMessage("No job offers are available this offseason. Your program did not build enough momentum to put you on other schools' short lists.")
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    });
-            AlertDialog alert = builder.create();
-            alert.setCancelable(false);
-            showImmersive(alert);
+            CareerDialogController.showJobOffersEmpty(this, "Career Advancement Opportunities",
+                    "No job offers are available this offseason. Your program did not build enough momentum to put you on other schools' short lists.");
         }
     }
 
@@ -2293,96 +1659,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         userHC = headCoach;
         updateHeaderBar();
-        //get user team from list dialog
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Choose your new team:");
         jobList = new ArrayList<>(simLeague.getTeamList());
-
-        final String[] teams = simLeague.getTeamListStr();
-        builder.setItems(teams, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int item) {
-                viewTeam(jobList, item);
-            }
-        });
-        builder.setCancelable(false);
-        AlertDialog alert = builder.create(); alert.setCancelable(false);
-        showImmersive(alert);
-    }
-
-    //Make a list of Team Names for the Team Selection Window
-    private String[] setJobTeamList(ArrayList<Team> jobListTemp) {
-        String[] temp = new String[jobListTemp.size()];
-
-        for(int i=0; i < jobListTemp.size(); i++) {
-            Team team = jobListTemp.get(i);
-            int prestigeDelta = team.getTeamPrestige() - userHC.baselinePrestige;
-            String direction = prestigeDelta > 0 ? "+" : "";
-            temp[i] = team.getName()
-                    + "\nPrestige #" + team.getRankTeamPrestige()
-                    + "  |  Talent " + df2.format(team.getTeamOffTalent() + team.getTeamDefTalent())
-                    + "  |  Fit Req " + team.getMinCoachHireReq()
-                    + "\nProgram swing: " + direction + prestigeDelta + " prestige vs your current baseline";
-        }
-
-        return temp;
-    }
-
-    private String buildJobOpportunitySummary(Team team) {
-        int prestigeDelta = team.getTeamPrestige() - userHC.baselinePrestige;
-        String direction = prestigeDelta > 0 ? "+" : "";
-        StringBuilder summary = new StringBuilder();
-        summary.append("Program snapshot\n");
-        summary.append("Prestige: #").append(team.getRankTeamPrestige())
-                .append(" (").append(team.getTeamPrestige()).append(")  |  Conference: ").append(team.getConfPrestige()).append("\n");
-        summary.append("Roster talent: Off ").append(df2.format(team.getTeamOffTalent()))
-                .append("  |  Def ").append(df2.format(team.getTeamDefTalent()))
-                .append("  |  Combined ").append(df2.format(team.getTeamOffTalent() + team.getTeamDefTalent())).append("\n");
-        summary.append("Coach fit threshold: ").append(team.getMinCoachHireReq())
-                .append("  |  Career swing: ").append(direction).append(prestigeDelta).append(" prestige\n");
-        summary.append("If you accept, your head coach contract resets to a fresh 6-year deal and your AD expectations will be recalibrated to this job.\n\n");
-        return summary.toString();
+        CareerDialogController.showSelectNewTeamDialog(this, simLeague.getTeamListStr(),
+                item -> viewTeam(jobList, item));
     }
 
     //View Team prior to choosing
     private void viewTeam(final ArrayList<Team> teamList, final int item) {
-        String[] teamRoster = teamList.get(item).getTeamRosterString();
         final Team selectedTeam = teamList.get(item);
+        String summary = CareerDialogController.buildJobOpportunitySummary(selectedTeam, userHC, df2);
 
-        AlertDialog.Builder roster = new AlertDialog.Builder(this);
-        roster.setTitle(selectedTeam.getName() + " Program Review" +
-                        "\nPrestige #" + selectedTeam.getRankTeamPrestige() + " | Off " + df2.format(selectedTeam.getTeamOffTalent()) + " | Def " + df2.format(selectedTeam.getTeamDefTalent()));
-        roster.setNeutralButton("Back to Offers", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-
-                if(jobType == 2)  promotions(userHC);
-                else if (jobType == 1) jobOffers(userHC);
-                else selectNewTeam(userHC);
-
-            }
-        });
-        roster.setPositiveButton("Accept", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                userHC.promotionCandidate = false;
-                changeTeams(jobList, item);
-                if(jobType == 2) simLeague.coachCarousel();
-            }
-        });
-
-        StringBuilder sb = new StringBuilder();
-        sb.append(buildJobOpportunitySummary(selectedTeam));
-        sb.append("Projected roster\n");
-        for(String s : teamRoster) {
-            if(s != null) sb.append(s).append("\n");
-        }
-        roster.setMessage(sb);
-
-
-        roster.setCancelable(false);
-        AlertDialog teamWindow = roster.create();
-        teamWindow.setCancelable(false);
-        showImmersive(teamWindow);
+        CareerDialogController.showTeamReviewDialog(this, selectedTeam, summary,
+                () -> {
+                    if (jobType == 2) promotions(userHC);
+                    else if (jobType == 1) jobOffers(userHC);
+                    else selectNewTeam(userHC);
+                },
+                () -> {
+                    userHC.promotionCandidate = false;
+                    changeTeams(jobList, item);
+                    if (jobType == 2) simLeague.coachCarousel();
+                });
     }
 
 
@@ -2441,90 +1738,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         final ArrayList<Staff> list = isOffense
                 ? simLeague.getOCList(userTeam.getHeadCoach())
                 : simLeague.getDCList(userTeam.getHeadCoach());
-        String[] items = new String[list.size()];
-        int num = 0;
-
-        if (isOffense) {
-            final PlaybookOffense[] playbook = userTeam.getPlaybookOff();
-            if (userTeam.OC != null) {
-                num = 1;
-                items[0] = userTeam.OC.getName() + " [current]\nAge: " + userTeam.OC.age
-                        + "  Off: " + userTeam.OC.ratOff + "  Tal: " + userTeam.OC.ratTalent
-                        + "  " + playbook[userTeam.OC.offStrat].getStratName() + "\n";
-            }
-            for (int i = num; i < list.size(); i++) {
-                items[i] = list.get(i).name + "\nAge: " + list.get(i).age
-                        + "  Off: " + list.get(i).ratOff + "  Tal: " + list.get(i).ratTalent
-                        + "  " + playbook[list.get(i).offStrat].getStratName() + "\n";
-            }
-        } else {
-            final PlaybookDefense[] playbook = userTeam.getPlaybookDef();
-            if (userTeam.DC != null) {
-                num = 1;
-                items[0] = userTeam.DC.getName() + " [current]\nAge: " + userTeam.DC.age
-                        + "  Def: " + userTeam.DC.ratDef + "  Tal: " + userTeam.DC.ratTalent
-                        + "  " + playbook[userTeam.DC.defStrat].getStratName() + "\n";
-            }
-            for (int i = num; i < list.size(); i++) {
-                items[i] = list.get(i).name + "\nAge: " + list.get(i).age
-                        + "  Def: " + list.get(i).ratDef + " Tal: " + list.get(i).ratTalent
-                        + "  " + playbook[list.get(i).defStrat].getStratName() + "\n";
-            }
-        }
-
-        String title = isOffense ? "Off Coordinators Available:" : "Def Coordinators Available:";
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(title);
-        builder.setCancelable(false);
-        builder.setItems(items, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int item) {
-                if (isOffense) {
-                    if (item == 0 && userTeam.OC != null) {
-                        userTeam.OC.contractLength = 3;
-                        userTeam.OC.contractYear = 0;
-                        userTeam.OC.baselinePrestige = 0;
-                    } else {
-                        userTeam.OC = new OC(list.get(item), userTeam);
-                        simLeague.getNewsHeadlines().add(userTeam.getName() + " adds new Off Coord " + userTeam.OC.getName());
-                        simLeague.getNewsStories().get(simLeague.currentWeek).add("Off Coord Change: " + userTeam.getName()
-                                + ">After an extensive search for a new coordinator, " + userTeam.getName()
-                                + " has hired " + userTeam.OC.getName() + " to lead the offense.");
-                        userTeam.OC.contractLength = 3;
-                        userTeam.OC.contractYear = 0;
-                        simLeague.getCoachFreeAgents().remove(list.get(item));
-
-                        if (isNewTeam) {
-                            dialog.dismiss();
-                            showHireCoordinatorDialog(false, true);
-                        } else if (userTeam.DC == null || userTeam.DC.contractYear >= userTeam.DC.contractLength) {
-                            showHireCoordinatorDialog(false, false);
-                        } else {
-                            simLeague.coordinatorCarousel();
-                        }
-                    }
-                } else {
-                    if (item == 0 && userTeam.DC != null) {
-                        userTeam.DC.contractLength = 3;
-                        userTeam.DC.contractYear = 0;
-                        userTeam.DC.baselinePrestige = 0;
-                    } else {
-                        userTeam.DC = new DC(list.get(item), userTeam);
-                        simLeague.getNewsHeadlines().add(userTeam.getName() + " adds new Def Coord " + userTeam.DC.getName());
-                        simLeague.getNewsStories().get(simLeague.currentWeek).add("Def Coord Change: " + userTeam.getName()
-                                + ">After an extensive search for a new coordinator, " + userTeam.getName()
-                                + " has hired " + userTeam.DC.getName() + " to lead the defense.");
-                        userTeam.DC.contractLength = 3;
-                        userTeam.DC.contractYear = 0;
-                        simLeague.getCoachFreeAgents().remove(list.get(item));
-                        simLeague.coordinatorCarousel();
-                    }
-                }
-                resetUI();
-            }
-        });
-        AlertDialog alert = builder.create();
-        alert.setCancelable(false);
-        showImmersive(alert);
+        CareerDialogController.showHireCoordinatorDialog(this, isOffense, isNewTeam,
+                list, userTeam, simLeague, this::resetUI);
     }
 
     public void hireOC() {
@@ -2805,163 +2020,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Retirement vs Eternal
     private void retirementQuestion() {
-        String string = "";
-        string = "You have reached that time in your life when you need to decide to hang it up and retire or continue on. " +
-                "At this point, if you choose to continue, your ability to increase skill ratings will be much more challenging. " +
-                "You may also retire and end your career. " +
-                "Finally, you can choose to reincarnate yourself as a fresh new head coach in his 30s in this same universe!";
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage(string)
-                .setTitle("Retirement Age")
-                .setPositiveButton("Continue Career", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (skipRetirementQ) contractDialog();
-                        dialog.dismiss();
-
-                    }
-                })
-                .setNeutralButton("Reincarnate", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        reincarnation();
-                        dialog.dismiss();
-
-                    }
-                })
-                .setNegativeButton("Retire", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        retire();
-                        dialog.dismiss();
-
-                    }
-                });
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-        setDialogMessageTextSize(dialog);
+        CareerDialogController.showRetirementQuestion(this,
+                () -> { if (skipRetirementQ) contractDialog(); },
+                this::reincarnation,
+                this::retire);
     }
 
     private void retire() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("A brief look back...")
-                .setPositiveButton("EXIT GAME", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        exitMainActivity();
-                    }
-                })
-                .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null, false));
-        builder.setCancelable(false);
-        final AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-        setDialogMessageTextSize(dialog);
-
-        String[] selection = {"Team History"};
-        Spinner teamHistSpinner = dialog.findViewById(R.id.spinnerTeamRankings);
-        PlatformUiHelper.avoidSpinnerDropdownFocus(teamHistSpinner);
-        final ArrayAdapter<String> teamHistAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, selection);
-        teamHistAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        teamHistSpinner.setAdapter(teamHistAdapter);
-
-        final ListView teamHistoryList = dialog.findViewById(R.id.listViewTeamRankings);
-
-        teamHistSpinner.setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    public void onItemSelected(
-                            AdapterView<?> parent, View view, int position, long id) {
-                        if (position == 0) {
-                            if (currentTeam.getHeadCoach() == null) {
-                                return;
-                            }
-                            TeamHistoryList teamHistoryAdapter =
-                                    new TeamHistoryList(MainActivity.this, currentTeam.getHeadCoach().getCoachHistory());
-                            teamHistoryList.setAdapter(teamHistoryAdapter);
-                        }
-                    }
-
-                    public void onNothingSelected(AdapterView<?> parent) {
-                        // do nothing
-                    }
-                });
+        CareerDialogController.showRetireSummary(this, currentTeam, this::exitMainActivity);
     }
 
     private void reincarnation() {
         userTeam.setTeamPrestige((int)(userTeam.getTeamPrestige() * Team.knockdownRet));
-        HeadCoach currentCoach = currentTeam.getHeadCoach();
-        String currentCoachName = currentCoach != null ? currentCoach.name : "Head Coach";
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Head Coach History: " + currentCoachName)
-                .setPositiveButton("Use Same Team", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        userTeam.newCoachTeamChanges();
-                        userHC.retired = true;
-                        userHC.team = null;
-                        simLeague.getCoachFreeAgents().add(new HeadCoach(userHC, userTeam));
-                        userTeam.setupUserCoach(userHC.getName());
-                        newGame = true;
-                        userNameDialog();
-                        dialog.dismiss();
-
-                    }
-                })
-                .setNeutralButton("Pick New Team", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        userTeam.newCoachTeamChanges();
-                        reincarnate = true;
-                        userHC.retired = true;
-                        userHC.team = null;
-                        simLeague.getCoachFreeAgents().add(new HeadCoach(userHC, userTeam));
-
-                        jobOffers(userHC);
-
-                        newGame = true;
-
-                        dialog.dismiss();
-
-                    }
-                })
-                .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null, false));
-        builder.setCancelable(false);
-        final AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-
-        String[] selection = {"Team History"};
-        Spinner teamHistSpinner = dialog.findViewById(R.id.spinnerTeamRankings);
-        PlatformUiHelper.avoidSpinnerDropdownFocus(teamHistSpinner);
-        final ArrayAdapter<String> teamHistAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, selection);
-        teamHistAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        teamHistSpinner.setAdapter(teamHistAdapter);
-
-        final ListView teamHistoryList = dialog.findViewById(R.id.listViewTeamRankings);
-
-        teamHistSpinner.setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    public void onItemSelected(
-                            AdapterView<?> parent, View view, int position, long id) {
-                        if (position == 0) {
-                            if (currentTeam.getHeadCoach() == null) {
-                                return;
-                            }
-                            TeamHistoryList teamHistoryAdapter =
-                                    new TeamHistoryList(MainActivity.this, currentTeam.getHeadCoach().getCoachHistory());
-                            teamHistoryList.setAdapter(teamHistoryAdapter);
-                        }
-                    }
-
-                    public void onNothingSelected(AdapterView<?> parent) {
-                        // do nothing
-                    }
+        CareerDialogController.showReincarnationDialog(this, userTeam, currentTeam,
+                () -> {
+                    userTeam.newCoachTeamChanges();
+                    userHC.retired = true;
+                    userHC.team = null;
+                    simLeague.getCoachFreeAgents().add(new HeadCoach(userHC, userTeam));
+                    userTeam.setupUserCoach(userHC.getName());
+                    newGame = true;
+                    userNameDialog();
+                },
+                () -> {
+                    userTeam.newCoachTeamChanges();
+                    reincarnate = true;
+                    userHC.retired = true;
+                    userHC.team = null;
+                    simLeague.getCoachFreeAgents().add(new HeadCoach(userHC, userTeam));
+                    jobOffers(userHC);
+                    newGame = true;
                 });
-
     }
 
     //CUSTOM DATA
-
 
     private LeagueLaunchCoordinator.CustomUniverseFiles customLeague(String uriString) throws IOException {
         try {
@@ -3143,7 +2235,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         AlertDialog dialog = builder.create(); dialog.setCancelable(false);
         showImmersive(dialog);
-        bindPlayerProfile(dialog, p.getName(), snapshot);
+        PlayerProfileDialogController.bindProfile(dialog, p.getName(), snapshot);
     }
 
     @Override

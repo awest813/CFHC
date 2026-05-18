@@ -39,41 +39,36 @@ public class TeamFinance {
         }
     }
 
-    public int getRecruitLevel() {
-        float level = (team.league.getTeamList().size() - team.rankTeamPrestige) / (float)(team.league.getTeamList().size()/10.5);
+    private void refreshConfPrestige() {
         for (int i = 0; i < team.league.getConferences().size(); ++i) {
             team.league.getConferences().get(i).updateConfPrestige();
         }
+    }
+
+    private int applyConfBias(float level) {
         float confBias = team.confPrestige - team.league.getAverageConfPrestige();
         if (level < 4 && confBias < 0) level = 4;
         if (level > 6 && confBias < 0) level = 6;
         if (level < 7 && confBias > 0) level = 7;
         return Math.round(level);
+    }
+
+    public int getRecruitLevel() {
+        refreshConfPrestige();
+        float level = (team.league.getTeamList().size() - team.rankTeamPrestige) / (float)(team.league.getTeamList().size()/10.5);
+        return applyConfBias(level);
     }
 
     public int getUserRecruitBudget() {
+        refreshConfPrestige();
         float level = (team.league.getTeamList().size() - team.rankTeamPrestige) / (float)(team.league.getTeamList().size()/10);
-        for (int i = 0; i < team.league.getConferences().size(); ++i) {
-            team.league.getConferences().get(i).updateConfPrestige();
-        }
-        float confBias = team.confPrestige - team.league.getAverageConfPrestige();
-        if (level < 4 && confBias < 0) level = 4;
-        if (level > 6 && confBias < 0) level = 6;
-        if (level < 7 && confBias > 0) level = 7;
-
-        return (int) Math.round(level * 8.5);
+        return (int) Math.round(applyConfBias(level) * 8.5);
     }
 
     public int getUserRecruitStars() {
+        refreshConfPrestige();
         float level = (team.league.getTeamList().size() - team.rankTeamPrestige) / (float)(team.league.getTeamList().size()/10.5);
-        for (int i = 0; i < team.league.getConferences().size(); ++i) {
-            team.league.getConferences().get(i).updateConfPrestige();
-        }
-        float confBias = team.confPrestige - team.league.getAverageConfPrestige();
-        if (level < 4 && confBias < 0) level = 4;
-        if (level > 6 && confBias < 0) level = 6;
-        if (level < 7 && confBias > 0) level = 7;
-        return Math.round(level);
+        return applyConfBias(level);
     }
 
     public int nudgeCpuFreshmanStarRating(int stars, int recruitChance) {
