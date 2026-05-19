@@ -30,7 +30,9 @@ public final class CoachSkills {
     public static final int BRANCH_COUNT = 5;
     private static final int BITS_PER_BRANCH = 3;
     private static final int RANK_MASK = 7;
-    private static final int MAX_RANK = 3;
+    public static final int MAX_RANK = 3;
+    private static final int BASE_XP_COST = 40;
+    private static final int XP_COST_PER_RANK = 38;
 
     private CoachSkills() {
     }
@@ -54,10 +56,10 @@ public final class CoachSkills {
 
     /** XP cost to move from {@code currentRank} to {@code currentRank + 1}. */
     public static int costForNextRank(int currentRank) {
-        if (currentRank >= MAX_RANK) {
+        if (currentRank < 0 || currentRank >= MAX_RANK) {
             return Integer.MAX_VALUE;
         }
-        return 40 + currentRank * 38;
+        return BASE_XP_COST + currentRank * XP_COST_PER_RANK;
     }
 
     public static String branchTitle(int branch) {

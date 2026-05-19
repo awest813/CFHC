@@ -22,7 +22,6 @@ import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Locale;
-import java.util.Map;
 
 public class PlayerSearchPanel implements LeagueScreen {
 

@@ -1,11 +1,9 @@
 package desktop;
 
 import simulation.League;
-import simulation.PlatformLog;
 import simulation.PlatformResourceProvider;
 import simulation.SeasonController;
 import simulation.Team;
-import java.io.File;
 
 /**
  * Headless stability tester that runs three full consecutive seasons

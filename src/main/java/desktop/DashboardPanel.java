@@ -2,7 +2,6 @@ package desktop;
 
 import recruiting.RecruitingSessionData;
 import simulation.CoachSkills;
-import simulation.GameUiBridge;
 import simulation.League;
 import simulation.SimulationFacade;
 import simulation.Team;

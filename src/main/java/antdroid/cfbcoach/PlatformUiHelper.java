@@ -79,4 +79,11 @@ public final class PlatformUiHelper {
         AlertDialog dialog = builder.create();
         showImmersive(dialog);
     }
+
+    public static void setDialogMessageTextSize(AlertDialog dialog) {
+        TextView textView = dialog.findViewById(android.R.id.message);
+        if (textView != null) {
+            textView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+        }
+    }
 }

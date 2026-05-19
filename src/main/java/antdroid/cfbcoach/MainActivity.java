@@ -57,7 +57,6 @@ import simulation.SimulationFacade;
 import simulation.Team;
 import staff.HeadCoach;
 import staff.Staff;
-import ui.MockDraft;
 import ui.PlayerProfile;
 import ui.SaveFilesList;
 import ui.TeamRankingsList;
@@ -837,7 +836,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void showRedshirtList() {
-        showRedshirtListFix();
+                        TransferDialogController.showRedshirtList(this, simLeague, userTeam);
     }
 
     @Override
@@ -1471,101 +1470,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Pre-Season Options
     //Redshirts, Set Budgets, etc.
     private void preseasonOptions() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage("This will let you redshirt and set budgets in the future")
-                .setTitle(simLeague.getYear() + " Pre-Season")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .setNegativeButton("SAVE PROGRESS", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        saveLeague();
-                    }
-                });
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-        setDialogMessageTextSize(dialog);
+        SeasonalDialogController.showPreseasonOptions(this, simLeague, this::saveLeague);
     }
 
     public void showSuspensions() {
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage(userTeam.suspensionNews)
-                .setTitle("DISCIPLINARY ACTION")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-        setDialogMessageTextSize(dialog);
-        userTeam.suspension = false;
+        SeasonalDialogController.showSuspensions(this, userTeam);
     }
 
-    //mid-season summary
     private void midseasonSummary() {
-        simLeague.midSeasonProgression();
-        String string = userTeam.midseasonUserProgression();
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage(string)
-                .setTitle("Mid-Season Progress Report")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-        setDialogMessageTextSize(dialog);
+        SeasonalDialogController.showMidseasonSummary(this, userTeam, simLeague);
     }
 
-    //End of Season Summary
     private void seasonSummary() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage(simLeague.seasonSummaryStr() + "\n\nNote: You can always review your season summary in the Offseason News.")
-                .setTitle(simLeague.getYear() + " Season Summary")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .setNegativeButton("All Prestige Changes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        showPrestigeChange();
-                    }
-                });
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-        setDialogMessageTextSize(dialog);
-
-        simLeague.getNewsStories().get(simLeague.currentWeek + 1).add("Season Summary>" + simLeague.seasonSummaryStr());
-        simLeague.getNewsHeadlines().add("That wraps up the " + simLeague.getYear() + " Season");
+        SeasonalDialogController.showSeasonSummary(this, simLeague, userTeam, this::showPrestigeChange);
     }
 
-    //Show Prestige Change
     private void showPrestigeChange() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setCancelable(false);
-        builder.setTitle("Prestige Rankings")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .setView(getLayoutInflater().inflate(R.layout.simple_list_dialog, null, false));
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-        PlatformUiHelper.bindSimpleListDialogShell(dialog, "Prestige Movement", "See which programs are rising and falling across the current college football landscape.");
-
-        final ListView teamRankingsList = dialog.findViewById(R.id.listViewDialog);
-        final TeamRankingsList teamRankingsAdapter =
-                new TeamRankingsList(this, simLeague.getTeamRankingsStr(1), userTeam.getName());
-        teamRankingsList.setAdapter(teamRankingsAdapter);
+        SeasonalDialogController.showPrestigeChange(this, simLeague, userTeam);
     }
 
     //Contract Status Dialog
@@ -1802,25 +1723,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     //Television Contract News
-    private void showRedshirtListFix() {
-        StringBuilder update = new StringBuilder();
-        update.append("The following is the list of players that were redshirted this season. Some players automatically received redshirts if they did not play in at least 4 games.\n\n");
-        for (int i = 0; i < userTeam.redshirtList.size(); ++i) {
-            update.append(userTeam.redshirtList.get(i) + "\n");
-        }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage(update)
-                .setTitle(simLeague.getYear() + " Redshirts")
-                .setPositiveButton("Close", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-        setDialogMessageTextSize(dialog);
-    }
 
 
     //Television Contract News
@@ -1870,118 +1773,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         teamRankingsList.setAdapter(teamRankingsAdapter);
     }
 
-    //Transfers Dialog
     private void transfers() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage(simLeague.userTransfers)
-                .setTitle(simLeague.getYear() + " Transfers")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                })
-                .setNegativeButton("View All Transfers", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        AlertDialog.Builder builder1 = new AlertDialog.Builder(MainActivity.this);
-                        builder1.setMessage(simLeague.sumTransfers)
-                                .setTitle(simLeague.getYear() + " Transfers")
-                                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                    }
-                                });
-                        AlertDialog dialog1 = builder1.create();
-                        dialog1.show();
-                        TextView textView1 = dialog1.findViewById(android.R.id.message);
-                        textView1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
-                    }
-                });
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-        setDialogMessageTextSize(dialog);
-
+        TransferDialogController.showTransfers(this, simLeague, userTeam);
     }
 
     //Recruiting Begins
     public void beginRecruiting() {
         simLeague.recruitPlayers();
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(userTeam.getAbbr() + " Players Leaving")
-                .setPositiveButton("Recruiting", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        simLeague.currentWeek = 0;
-                        saveLoadService.saveForRecruiting(simLeague);
+        RecruitingDialogController.showBeginRecruiting(this, userTeam, simLeague, null,
+                () -> {
+                    simLeague.currentWeek = 0;
+                    saveLoadService.saveForRecruiting(simLeague);
 
+                    StringBuilder sb = new StringBuilder();
+                    userTeam.sortPlayers();
+                    HeadCoach coach = ensureUserHeadCoach();
+                    int recruitingRating = coach != null ? coach.ratTalent : simLeague.getAvgCoachTal();
+                    sb.append(userTeam.getConference() + "," + userTeam.getName() + "," + userTeam.getAbbr() + "," + userTeam.getUserRecruitBudget() + "," + recruitingRating + "," + userTeam.nilCollectiveLevel + "," + userTeam.teamFacilities + "%\n");
+                    sb.append(userTeam.getPlayerInfoSaveFile());
+                    sb.append("END_TEAM_INFO%\n");
+                    sb.append(userTeam.getRecruitsInfoSaveFile());
 
-                        //Get String of user team's players and such
-                        StringBuilder sb = new StringBuilder();
-                        userTeam.sortPlayers();
-                        HeadCoach coach = ensureUserHeadCoach();
-                        int recruitingRating = coach != null ? coach.ratTalent : simLeague.getAvgCoachTal();
-                        sb.append(userTeam.getConference() + "," + userTeam.getName() + "," + userTeam.getAbbr() + "," + userTeam.getUserRecruitBudget() + "," + recruitingRating + "," + userTeam.nilCollectiveLevel + "," + userTeam.teamFacilities + "%\n");
-                        sb.append(userTeam.getPlayerInfoSaveFile());
-                        sb.append("END_TEAM_INFO%\n");
-                        sb.append(userTeam.getRecruitsInfoSaveFile());
-
-                        //Start Recruiting Activity
-                        flowManager.startRecruiting(sb.toString());
-                        finish();
-                    }
-                })
-                .setNegativeButton("Back", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                })
-                .setNeutralButton("Save", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        simLeague.currentWeek = 99;
-                        dialog.dismiss();
-                        saveLeague();
-                    }
-                })
-                .setView(getLayoutInflater().inflate(R.layout.team_rankings_dialog, null, false));
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-        PlatformUiHelper.bindRankingsDialogShell(dialog, "Recruiting Launch", "Check who is leaving your roster or headed to the draft before you enter recruiting season.");
-        String[] spinnerSelection = {"Players Leaving", "Pro Mock Draft"};
-        Spinner beginRecruitingSpinner = dialog.findViewById(R.id.spinnerTeamRankings);
-        PlatformUiHelper.avoidSpinnerDropdownFocus(beginRecruitingSpinner);
-        ArrayAdapter<String> beginRecruitingSpinnerAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, spinnerSelection);
-        beginRecruitingSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        beginRecruitingSpinner.setAdapter(beginRecruitingSpinnerAdapter);
-
-        final ListView playerList = dialog.findViewById(R.id.listViewTeamRankings);
-        final PlayerProfile playerStatsAdapter =
-                new PlayerProfile(this, userTeam.getGradPlayersList());
-        final MockDraft mockDraftAdapter =
-                new MockDraft(this, simLeague.getMockDraftPlayersList(), userTeam.getName());
-        playerList.setAdapter(playerStatsAdapter);
-
-        beginRecruitingSpinner.setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    public void onItemSelected(
-                            AdapterView<?> parent, View view, int position, long id) {
-                        if (position == 0) {
-                            // Players Leaving
-                            playerList.setAdapter(playerStatsAdapter);
-                        } else {
-                            // Mock Draft
-                            playerList.setAdapter(mockDraftAdapter);
-                        }
-                    }
-
-                    public void onNothingSelected(AdapterView<?> parent) {
-                        // do nothing
-                    }
+                    flowManager.startRecruiting(sb.toString());
+                    finish();
+                },
+                () -> {
+                    simLeague.currentWeek = 99;
+                    saveLeague();
                 });
-
     }
 
     @Override
@@ -1996,26 +1815,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         flowManager.startRecruiting(SimulationFacade.buildRecruitingPayload(userTeam));
     }
 
-    //Recruiting Score
     private void showRecruitingClassDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setCancelable(false);
-        builder.setTitle("Recruiting Class Rankings")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        seasonGoals();
-                    }
-                })
-                .setView(getLayoutInflater().inflate(R.layout.simple_list_dialog, null, false));
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-        PlatformUiHelper.bindSimpleListDialogShell(dialog, "Recruiting Class Rankings", "Measure your incoming class against the rest of the country before you move on to season goals.");
-
-        final ListView teamRankingsList = dialog.findViewById(R.id.listViewDialog);
-        final TeamRankingsList teamRankingsAdapter =
-                new TeamRankingsList(this, simLeague.getTeamRankingsStr(17), userTeam.getName());
-        teamRankingsList.setAdapter(teamRankingsAdapter);
+        RecruitingDialogController.showRecruitingClassRankings(this, simLeague, userTeam, this::seasonGoals);
     }
 
     //Retirement vs Eternal

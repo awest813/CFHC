@@ -104,19 +104,6 @@ public class PlaybookDefense {
         passSpy = 1;
     }
 
-    public void playBook6() {
-        stratName = "3-4 Defense";
-        stratDescription = "TBD";
-        runPref = 1;
-        runStop = 0;
-        runCoverage = 0;
-        runSpy = 1;
-        passPref = 1;
-        passRush = 0;
-        passCoverage = 0;
-        passSpy = 1;
-    }
-
     public String getStratName() {
         return stratName;
     }

@@ -97,6 +97,67 @@ public class CoachSkillsTest {
     }
 
     @Test
+    public void costForNextRank_returnsMaxForNegativeRank() {
+        assertEquals(Integer.MAX_VALUE, CoachSkills.costForNextRank(-1));
+        assertEquals(Integer.MAX_VALUE, CoachSkills.costForNextRank(-99));
+    }
+
+    @Test
+    public void withRank_preservesOtherBranches() {
+        int packed = CoachSkills.withRank(0, CoachSkills.RECRUITING, 3);
+        packed = CoachSkills.withRank(packed, CoachSkills.DEVELOPMENT, 2);
+        int modified = CoachSkills.withRank(packed, CoachSkills.NIL_MARKETING, 1);
+        // RECRUITING should still be 3, DEVELOPMENT 2
+        assertEquals(3, CoachSkills.getRank(modified, CoachSkills.RECRUITING));
+        assertEquals(2, CoachSkills.getRank(modified, CoachSkills.DEVELOPMENT));
+        assertEquals(1, CoachSkills.getRank(modified, CoachSkills.NIL_MARKETING));
+    }
+
+    @Test
+    public void getRank_handlesPackedWithGarbageBits() {
+        // Bits 15+ could be set; rank extraction should only use 3 bits per branch
+        int packed = 0xFFFF;
+        for (int b = 0; b < CoachSkills.BRANCH_COUNT; b++) {
+            assertEquals(CoachSkills.MAX_RANK, CoachSkills.getRank(packed, b));
+        }
+    }
+
+    @Test
+    public void withRank_chainAllBranchesIndependently() {
+        int packed = 0;
+        int[] expected = {2, 0, 3, 1, 3};
+        for (int b = 0; b < CoachSkills.BRANCH_COUNT; b++) {
+            packed = CoachSkills.withRank(packed, b, expected[b]);
+        }
+        for (int b = 0; b < CoachSkills.BRANCH_COUNT; b++) {
+            assertEquals("branch " + b, expected[b], CoachSkills.getRank(packed, b));
+        }
+    }
+
+    @Test
+    public void costForNextRank_isMonotonicallyIncreasing() {
+        int prev = -1;
+        for (int r = 0; r < CoachSkills.MAX_RANK; r++) {
+            int cost = CoachSkills.costForNextRank(r);
+            assertTrue("cost for rank " + r + " should increase", cost > prev);
+            prev = cost;
+        }
+    }
+
+    @Test
+    public void MAX_RANK_cannotBeExceeded() {
+        int packed = CoachSkills.withRank(0, CoachSkills.RECRUITING, CoachSkills.MAX_RANK + 10);
+        assertEquals(CoachSkills.MAX_RANK, CoachSkills.getRank(packed, CoachSkills.RECRUITING));
+    }
+
+    @Test
+    public void withRank_negativeBranchReturnsUnmodified() {
+        int packed = CoachSkills.withRank(123, CoachSkills.DEVELOPMENT, 2);
+        int unchanged = CoachSkills.withRank(packed, -1, 3);
+        assertEquals(packed, unchanged);
+    }
+
+    @Test
     public void branchBlurb_returnsExpectedStrings() {
         assertTrue(CoachSkills.branchBlurb(CoachSkills.RECRUITING).contains("recruiting"));
         assertTrue(CoachSkills.branchBlurb(CoachSkills.DEVELOPMENT).contains("attribute"));
