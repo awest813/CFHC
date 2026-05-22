@@ -31,8 +31,16 @@ import staff.DC;
 
 public class Game implements Serializable {
 
+    private final GameNewsService newsService;
+    private final GameStatRecorder statRecorder;
     private final DecimalFormat df2 = new DecimalFormat("#.##");
     private static final DecimalFormat DF2_DOT = new DecimalFormat(".##");
+    private GameBoxScore boxScore;
+
+    private GameBoxScore getBoxScore() {
+        if (boxScore == null) boxScore = new GameBoxScore(this);
+        return boxScore;
+    }
 
     public final Team homeTeam;
     public final Team awayTeam;
@@ -49,51 +57,51 @@ public class Game implements Serializable {
     public final int[] homeQScore;
     public int awayScore;
     public final int[] awayQScore;
-    private int homeYards;
-    private int awayYards;
+    int homeYards;
+    int awayYards;
 
     public int numOT;
-    private int homeTOs;
-    private int awayTOs;
+    int homeTOs;
+    int awayTOs;
 
-    private PlayerReturner homeKickReturner;
-    private PlayerReturner awayKickReturner;
+    PlayerReturner homeKickReturner;
+    PlayerReturner awayKickReturner;
     private ArrayList<PlayerST> teamST;
     private PlayerST playerST;
 
-    private ArrayList<String> homePassingStats;
-    private ArrayList<String> homeRushingStats;
-    private ArrayList<String> homeReceivingStats;
-    private ArrayList<String> homeDefenseStats;
-    private ArrayList<String> homeKickingStats;
-    private ArrayList<String> awayPassingStats;
-    private ArrayList<String> awayRushingStats;
-    private ArrayList<String> awayReceivingStats;
-    private ArrayList<String> awayDefenseStats;
-    private ArrayList<String> awayKickingStats;
+    ArrayList<String> homePassingStats;
+    ArrayList<String> homeRushingStats;
+    ArrayList<String> homeReceivingStats;
+    ArrayList<String> homeDefenseStats;
+    ArrayList<String> homeKickingStats;
+    ArrayList<String> awayPassingStats;
+    ArrayList<String> awayRushingStats;
+    ArrayList<String> awayReceivingStats;
+    ArrayList<String> awayDefenseStats;
+    ArrayList<String> awayKickingStats;
 
-    private ArrayList<PlayerOL> teamOLs;
+    ArrayList<PlayerOL> teamOLs;
     private ArrayList<PlayerDL> teamDLs;
 
-    private int homePassYards;
-    private int awayPassYards;
-    private int homeRushYards;
-    private int awayRushYards;
+    int homePassYards;
+    int awayPassYards;
+    int homeRushYards;
+    int awayRushYards;
 
-    private final StringBuilder gameEventLog = new StringBuilder(4096);
-    private String tdInfo;
+    final StringBuilder gameEventLog = new StringBuilder(4096);
+    String tdInfo;
 
     //private variables used when simming games
-    private int gameTime;
-    private boolean gamePoss; //1 if home, 0 if away
-    private int gameYardLine;
+    int gameTime;
+    boolean gamePoss;
+    int gameYardLine;
     private int gameYardLinePlay;
-    private int gameDown;
-    private int gameYardsNeed;
-    private boolean playingOT;
+    int gameDown;
+    int gameYardsNeed;
+    boolean playingOT;
     private boolean bottomOT;
 
-    private final int timePerPlay = 18; //affects snaps per game! (18 ~135-140) (20 ~ 125) (22 ~ 110-120)
+    final int timePerPlay = 18;
     private final int intValue = 135; //higher less ints
     private final int sackValue = 200; //higher less sacks
     private final int escapeValue = 150;
@@ -106,7 +114,7 @@ public class Game implements Serializable {
     private int snapCount = 0;
     private final int touchback = 25;
 
-    private double hkReturnAvg = 0, akReturnAvg = 0, hpReturnAvg = 0, apReturnAvg = 0;
+    double hkReturnAvg = 0, akReturnAvg = 0, hpReturnAvg = 0, apReturnAvg = 0;
 
     private int returnYards;
 
@@ -145,6 +153,8 @@ public class Game implements Serializable {
             gameName = "Game";
         }
 
+        newsService = new GameNewsService(this);
+        statRecorder = new GameStatRecorder(this);
     }
 
     public Game(Team home, Team away) {
@@ -163,6 +173,8 @@ public class Game implements Serializable {
 
         hasPlayed = false;
 
+        newsService = new GameNewsService(this);
+        statRecorder = new GameStatRecorder(this);
     }
 
     public Game(Team home, Team away, boolean hp,  int hscore, int ascore) {
@@ -174,6 +186,8 @@ public class Game implements Serializable {
         hasPlayed = hp;
         homeQScore = new int[10];
         awayQScore = new int[10];
+        newsService = new GameNewsService(this);
+        statRecorder = new GameStatRecorder(this);
     }
 
 
@@ -1860,7 +1874,7 @@ public class Game implements Serializable {
         }
     }
 
-    private void freeKick(Team offense, Team defense) {
+    void freeKick(Team offense, Team defense) {
         if (gameTime <= 0) return;
         else {
             PlayerReturner returner = selectReturner();
@@ -2004,565 +2018,59 @@ public class Game implements Serializable {
     //STATISTICS MANAGEMENT
 
     private void recordRushAttempt(Team offense, PlayerQB selQB, PlayerRB selRB, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS, int yardsGain, boolean gotTD) {
-        String defender = "";
-        if (selRB.gameSim >= selQB.gameSim) {
-            selRB.recordRushAtt(1);
-            selRB.recordRushYards(yardsGain);
-            selRB.gameRushAttempts++;
-            selRB.gameRushYards += yardsGain;
-        } else {
-            selQB.recordRushAtt(1);
-            selQB.recordRushYards(yardsGain);
-            selQB.gameRushAttempts++;
-            selQB.gameRushYards += yardsGain;
-        }
-
-        for (int i = 0; i < Math.min(5, teamOLs.size()); i++) {
-            teamOLs.get(i).recordOLRunYards(yardsGain);
-            teamOLs.get(i).recordRunSnaps(1);
-        }
-
-        if (yardsGain < 2 && !gotTD) {
-            selDL.gameTackles++;
-            selDL.recordTackles(1);
-            defender = "DL " + selDL.name;
-        } else if (yardsGain >= 2 && yardsGain < 12 && !gotTD) {
-            selLB.gameTackles++;
-            selLB.recordTackles(1);
-            defender = "LB " + selLB.name;
-        } else if (yardsGain >= 12 && !gotTD) {
-            if (selCB.getRatTackle() * Math.random() * 50 >= selS.getRatTackle() * Math.random() * 100) {
-                selCB.gameTackles++;
-                selCB.recordTackles(1);
-                defender = "CB " + selCB.name;
-            } else {
-                selS.gameTackles++;
-                selS.recordTackles(1);
-                defender = "S " + selS.name;
-            }
-        }
-
-        if (gamePoss) { // home possession
-            homeTeam.addTeamRushYards(yardsGain);
-        } else {
-            awayTeam.addTeamRushYards(yardsGain);
-        }
-
-        //RECORD TOUCHDOWN
-        if (gotTD) {
-            if (selRB.gameSim >= selQB.gameSim) {
-                selRB.gameRushTDs++;
-                selRB.recordRushTDs(1);
-                tdInfo = offense.getAbbr() + " RB " + selRB.name + " rushed " + yardsGain + " yards for a TD.";
-            } else {
-                selQB.gameRushTDs++;
-                selQB.recordRushTDs(1);
-                tdInfo = offense.getAbbr() + " QB " + selQB.name + " rushed " + yardsGain + " yards for a TD.";
-            }
-
-            if (gamePoss) { // home possession
-                homeScore += 6;
-            } else {
-                awayScore += 6;
-            }
-        } else {
-            if (homeTeam.league.fullGameLog)
-                if (selRB.gameSim >= selQB.gameSim) {
-                    gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" RB ").append(selRB.name).append(" rushed for ").append(yardsGain).append(" yards, and was tackled by ").append(defender).append(".");
-                } else {
-                    gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" QB ").append(selQB.name).append(" scrambled for ").append(yardsGain).append(" yards, and was tackled by ").append(defender).append(".");
-                }
-
-        }
+        statRecorder.recordRushAttempt(offense, selQB, selRB, selDL, selLB, selCB, selS, yardsGain, gotTD);
     }
 
     private void recordRushFumble(Team offense, PlayerQB selQB, PlayerRB selRB, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS) {
-        String defender;
-        ArrayList<Player> def = new ArrayList<>();
-        def.add(selDL);
-        def.add(selCB);
-        def.add(selLB);
-        def.add(selS);
-        Collections.sort(def, new CompGamePlayerPicker());
-        String pos = def.get(0).position;
-
-        if (selRB.gameSim >= selQB.gameSim) {
-            selRB.gameFumbles++;
-            selRB.recordFumbles(1);
-        } else {
-            selQB.gameFumbles++;
-            selQB.recordFumbles(1);
-        }
-
-        if (gamePoss) {
-            homeTOs++;
-        } else {
-            awayTOs++;
-        }
-
-        if (pos.equals("DL")) {
-            selDL.gameTackles++;
-            selDL.recordTackles(1);
-            selDL.gameFumbles++;
-            selDL.recordFumblesRec(1);
-            defender = ("DL " + selDL.name);
-        } else if (pos.equals("CB")) {
-            selCB.gameTackles++;
-            selCB.recordTackles(1);
-            selCB.gameFumbles++;
-            selCB.recordFumblesRec(1);
-            defender = ("CB " + selCB.name);
-        } else if (pos.equals("S")) {
-            selS.gameTackles++;
-            selS.recordTackles(1);
-            selS.gameFumbles++;
-            selS.recordFumblesRec(1);
-            defender = ("S " + selS.name);
-        } else {
-            selLB.gameTackles++;
-            selLB.recordTackles(1);
-            selLB.gameFumbles++;
-            selLB.recordFumblesRec(1);
-            defender = ("LB " + selLB.name);
-        }
-
-        if (selRB.gameSim >= selQB.gameSim) {
-            gameEventLog.append(getEventLog()).append("FUMBLE!\n").append(offense.getAbbr()).append(" RB ").append(selRB.name).append(" fumbled the ball while rushing and recovered by ").append(defender).append(".");
-        } else {
-            gameEventLog.append(getEventLog()).append("FUMBLE!\n").append(offense.getAbbr()).append(" QB ").append(selQB.name).append(" fumbled the ball while rushing and recovered by ").append(defender).append(".");
-        }
-
+        statRecorder.recordRushFumble(offense, selQB, selRB, selDL, selLB, selCB, selS);
     }
 
     private void recordPassingTD(Team offense, PlayerQB selQB, PlayerRB selRB, PlayerWR selWR, PlayerTE selTE, int yardsGain, String pos) {
-        if (gamePoss) { // home possession
-            homeScore += 6;
-        } else {
-            awayScore += 6;
-        }
-
-        selQB.gamePassTDs++;
-        selQB.recordPassTD(1);
-
-        if (pos.equals("WR")) {
-            selWR.gameRecTDs++;
-            selWR.recordRecTDs(1);
-            tdInfo = offense.getAbbr() + " QB " + selQB.name + " threw a " + yardsGain + " yard TD to WR " + selWR.name + ".";
-        } else if (pos.equals("TE")) {
-            selTE.gameRecTDs++;
-            selTE.recordRecTDs(1);
-            tdInfo = offense.getAbbr() + " QB " + selQB.name + " threw a " + yardsGain + " yard TD to TE " + selTE.name + ".";
-        } else {
-            selRB.gameRecTDs++;
-            selRB.recordRecTDs(1);
-            tdInfo = offense.getAbbr() + " QB " + selQB.name + " threw a " + yardsGain + " yard TD to RB " + selRB.name + ".";
-        }
-
-
+        statRecorder.recordPassingTD(offense, selQB, selRB, selWR, selTE, yardsGain, pos);
     }
 
     private void recordPassCompletion(Team offense, PlayerQB selQB, PlayerRB selRB, PlayerWR selWR, PlayerTE selTE, PlayerLB selLB, PlayerCB selCB, PlayerS selS, int yardsGain, String pos, boolean gotTD) {
-        String defender;
-        ArrayList<Player> def = new ArrayList<>();
-        def.add(selCB);
-        def.add(selLB);
-        def.add(selS);
-        Collections.sort(def, new CompGamePlayerPicker());
-        String tackler = def.get(0).position;
-
-        selQB.recordPassComp(1);
-        selQB.recordPassYards(yardsGain);
-        selQB.gamePassComplete++;
-        selQB.gamePassYards += yardsGain;
-
-        for (int i = 0; i < Math.min(5, teamOLs.size()); i++) {
-            teamOLs.get(i).recordOLPassYards(yardsGain);
-        }
-
-        if (pos.equals("WR")) {
-            selWR.recordReceptions(1);
-            selWR.recordRecYards(yardsGain);
-            selWR.gameReceptions++;
-            selWR.gameRecYards += yardsGain;
-        }
-        if (pos.equals("TE")) {
-            selTE.recordReceptions(1);
-            selTE.recordRecYards(yardsGain);
-            selTE.gameReceptions++;
-            selTE.gameRecYards += yardsGain;
-        }
-        if (pos.equals("RB")) {
-            selRB.recordReceptions(1);
-            selRB.recordRecYards(yardsGain);
-            selRB.gameReceptions++;
-            selRB.gameRecYards += yardsGain;
-        }
-
-        if (!gotTD) {
-            if (tackler.equals("CB")) {
-                selCB.gameTackles++;
-                selCB.recordTackles(1);
-
-            } else if (tackler.equals("S")) {
-                selS.gameTackles++;
-                selS.recordTackles(1);
-
-            } else {
-                selLB.gameTackles++;
-                selLB.recordTackles(1);
-
-            }
-        }
-
-        offense.addTeamPassYards(yardsGain);
+        statRecorder.recordPassCompletion(offense, selQB, selRB, selWR, selTE, selLB, selCB, selS, yardsGain, pos, gotTD);
     }
 
     private void recordPassAttempt(PlayerQB selQB, PlayerRB selRB, PlayerWR selWR, PlayerTE selTE, PlayerLB selLB, PlayerCB selCB, String pos) {
-        selQB.recordPassAtt(1);
-        selQB.gamePassAtempts++;
-
-        for (int i = 0; i < Math.min(5, teamOLs.size()); i++) {
-            teamOLs.get(i).recordPassSnaps(1);
-        }
-
-        if (pos.equals("WR")) {
-            selWR.recordTargets(1);
-            selWR.gameTargets++;
-            selCB.recordTargeted(1);
-            selCB.gameTargets++;
-        }
-        if (pos.equals("TE")) {
-            selTE.recordTargets(1);
-            selTE.gameTargets++;
-            selLB.recordTargeted(1);
-            selLB.gameTargets++;
-        }
-        if (pos.equals("RB")) {
-            selRB.recordTargets(1);
-            selRB.gameTargets++;
-        }
+        statRecorder.recordPassAttempt(selQB, selRB, selWR, selTE, selLB, selCB, pos);
     }
 
     private void recordDrop(PlayerRB selRB, PlayerTE selTE, PlayerWR selWR, PlayerCB selCB, PlayerLB selLB, String pos) {
-        if (pos.equals("WR")) {
-            selWR.gameDrops++;
-            selWR.recordDrops(1);
-            selCB.recordDefIncompleted(1);
-            selCB.gameIncomplete++;
-        }
-        if (pos.equals("TE")) {
-            selTE.gameDrops++;
-            selTE.recordDrops(1);
-            selLB.recordDefIncompleted(1);
-            selLB.gameIncomplete++;
-        }
-        if (pos.equals("RB")) {
-            selRB.gameDrops++;
-            selRB.recordDrops(1);
-        }
+        statRecorder.recordDrop(selRB, selTE, selWR, selCB, selLB, pos);
     }
 
     private void recordDefendedCB(PlayerWR selWR, PlayerCB selCB) {
-
-        if ((selCB.getRatJump() * Math.random() + selCB.getRatCoverage() * Math.random()) > (selWR.getRatJump() * Math.random() + selWR.getRatCatch() * Math.random()) * 2) {
-            selCB.recordDefended(1);
-            selCB.gameDefended++;
-        }
-        selCB.recordDefIncompleted(1);
-        selCB.gameIncomplete++;
+        statRecorder.recordDefendedCB(selWR, selCB);
     }
 
     private void recordDefendedLB(PlayerTE selTE, PlayerLB selLB) {
-
-        if ((selLB.getRatSpeed() * Math.random() + selLB.getRatCoverage() * Math.random()) > (selTE.getRatSpeed() * Math.random() + selTE.getRatCatch() * Math.random()) * 2) {
-            selLB.recordDefended(1);
-            selLB.gameDefended++;
-        }
-        selLB.recordDefIncompleted(1);
-        selLB.gameIncomplete++;
+        statRecorder.recordDefendedLB(selTE, selLB);
     }
 
     private void recordDefendedLB2(PlayerRB selRB, PlayerLB selLB) {
-
-        if ((selLB.getRatSpeed() * Math.random() + selLB.getRatCoverage() * Math.random()) > (selRB.getRatSpeed() * Math.random() + selRB.getRatCatch() * Math.random()) * 2) {
-            selLB.recordDefended(1);
-            selLB.gameDefended++;
-        }
+        statRecorder.recordDefendedLB2(selRB, selLB);
     }
 
     private void recordInterception(Team offense, PlayerQB selQB, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS, String position) {
-        String defender;
-        ArrayList<Player> def = new ArrayList<>();
-        def.add(selDL);
-        def.add(selCB);
-        def.add(selLB);
-        def.add(selS);
-        Collections.sort(def, new CompGamePlayerPicker());
-        String pos = def.get(0).position;
-
-        if(position.equals("RB")) {
-            selLB.recordDefIncompleted(1);
-            selLB.gameIncomplete++;
-        } else if(position.equals("WR")) {
-            selCB.recordDefIncompleted(1);
-            selCB.gameIncomplete++;
-        } else {
-            selLB.recordDefIncompleted(1);
-            selLB.gameIncomplete++;
-        }
-
-        if (pos.equals("DL")) {
-            selDL.gameInterceptions++;
-            selDL.recordInterceptions(1);
-            defender = ("DL " + selDL.name);
-        } else if (pos.equals("CB")) {
-            selCB.gameInterceptions++;
-            selCB.recordInterceptions(1);
-            defender = ("CB " + selCB.name);
-        } else if (pos.equals("S")) {
-            selS.gameInterceptions++;
-            selS.recordInterceptions(1);
-            defender = ("S " + selS.name);
-        } else {
-            selLB.gameInterceptions++;
-            selLB.recordInterceptions(1);
-            defender = ("LB " + selLB.name);
-        }
-
-        if (gamePoss) { // home possession
-            homeTOs++;
-        } else {
-            awayTOs++;
-        }
-
-        selQB.recordPassInt(1);
-        selQB.gamePassInts++;
-
-        //Log the event before decreasing the time, in keeping with the standard of other logged plays (TD, Fumble, etc.)
-        gameEventLog.append(getEventLog()).append("INTERCEPTED!\n").append(offense.getAbbr()).append(" QB ").append(offense.getQB(0).name).append(" was intercepted by ").append(defender).append(".");
-        //Clock stops after a pick, so just run time off the clock for the play that occurred
-        //NOTE: If the ability to run an interception back is ever added, this should be changed to be more time
-        gameTime -= timePerPlay * Math.random();
-        if (!playingOT) {
-            gameDown = 1;
-            gameYardsNeed = 10;
-            gamePoss = !gamePoss;
-            gameYardLine = 100 - gameYardLine;
-        } else resetForOT();
-
+        statRecorder.recordInterception(offense, selQB, selDL, selLB, selCB, selS, position);
     }
 
     private void recordSack(Team offense, Team defense, PlayerQB selQB, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS) {
-        String defender = "";
-        int sackloss = (3 + (int) (Math.random() * (((int) defense.getCompositeDLPass()) - ((int) offense.getCompositeOLPass())) / 2));
-        if (sackloss < 2) sackloss = 2;
-
-        ArrayList<Player> def = new ArrayList<>();
-        def.add(selDL);
-        def.add(selCB);
-        def.add(selLB);
-        def.add(selS);
-        Collections.sort(def, new CompGamePlayerPicker());
-        String pos = def.get(0).position;
-
-        selQB.recordSacked(1);
-        selQB.gameSacks++;
-        selQB.recordRushYards(-sackloss);
-        selQB.gameRushYards -= sackloss;
-
-
-        if (pos.equals("DL")) {
-            selDL.gameTackles++;
-            selDL.gameSacks++;
-            selDL.recordTackles(1);
-            selDL.recordSacks(1);
-            defender = ("DL " + selDL.name);
-            for (int i = 0; i < Math.min(5, teamOLs.size()); i++) {
-                teamOLs.get(i).recordOLSacksAllowed(1);
-                teamOLs.get(i).recordPassSnaps(1);
-            }
-        } else if (pos.equals("LB")) {
-            selLB.gameTackles++;
-            selLB.gameSacks++;
-            selLB.recordTackles(1);
-            selLB.recordSacks(1);
-            defender = ("LB " + selLB.name);
-        } else if (pos.equals("CB")) {
-            selCB.gameTackles++;
-            selCB.gameSacks++;
-            selCB.recordTackles(1);
-            selCB.recordSacks(1);
-            defender = ("CB " + selCB.name);
-        } else if (pos.equals("S")) {
-            selS.gameTackles++;
-            selS.gameSacks++;
-            selS.recordTackles(1);
-            selS.recordSacks(1);
-            defender = ("S " + selS.name);
-        }
-
-        if (gameYardLine < 0) {
-            // Safety!
-            // Eat some time up for the play that was run, stop it once play is over
-            gameTime -= 10 * Math.random();
-            recordSafety(defender);
-            return;
-        }
-
-        if (homeTeam.league.fullGameLog)
-            gameEventLog.append(getEventLog()).append("SACK!\n").append(" QB ").append(offense.getQB(0).name).append(
-                    " was sacked for a loss of ").append(sackloss).append(" by ").append(defender).append(".");
-
-        gameDown++; // Advance gameDown after checking for Safety, otherwise game log reports Safety occurring one down later than it did
-        gameYardsNeed += sackloss;
-        gameYardLine -= sackloss;
-
-        //Similar amount of time as rushing, minus some in-play time -- sacks are faster (usually)
-        gameTime -= timePerPlay + timePerPlay * Math.random();
+        statRecorder.recordSack(offense, defense, selQB, selDL, selLB, selCB, selS);
     }
 
     private void recordRecFumble(Team offense, PlayerRB selRB, PlayerWR selWR, PlayerTE selTE, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS, String pos) {
-        String defender;
-        ArrayList<Player> def = new ArrayList<>();
-        def.add(selDL);
-        def.add(selCB);
-        def.add(selLB);
-        def.add(selS);
-        Collections.sort(def, new CompGamePlayerPicker());
-        String player = def.get(0).position;
-
-
-        if (pos.equals("WR")) {
-            selWR.gameFumbles++;
-            selWR.recordFumbles(1);
-        }
-        if (pos.equals("TE")) {
-            selTE.gameFumbles++;
-            selTE.recordFumbles(1);
-        }
-        if (pos.equals("RB")) {
-            selRB.gameFumbles++;
-            selRB.recordFumbles(1);
-        }
-        if (pos.equals("QB")) {
-            offense.getQB(0).gameFumbles++;
-            offense.getQB(0).recordFumbles(1);
-        }
-
-        if (player.equals("DL")) {
-            selDL.gameTackles++;
-            selDL.recordTackles(1);
-            selDL.gameFumbles++;
-            selDL.recordFumblesRec(1);
-            defender = ("DL " + selDL.name);
-        } else if (player.equals("CB")) {
-            selCB.gameTackles++;
-            selCB.recordTackles(1);
-            selCB.gameFumbles++;
-            selCB.recordFumblesRec(1);
-            defender = ("CB " + selCB.name);
-        } else if (player.equals("S")) {
-            selS.gameTackles++;
-            selS.recordTackles(1);
-            selS.gameFumbles++;
-            selS.recordFumblesRec(1);
-            defender = ("S " + selS.name);
-        } else {
-            selLB.gameTackles++;
-            selLB.recordTackles(1);
-            selLB.gameFumbles++;
-            selLB.recordFumblesRec(1);
-            defender = ("LB " + selLB.name);
-        }
-
-        gameEventLog.append(getEventLog()).append("FUMBLE!\n").append(offense.getAbbr()).append(" receiver ").append(selWR.name).append(" fumbled the ball after a catch. It was recovered by ").append(defender).append(".");
+        statRecorder.recordRecFumble(offense, selRB, selWR, selTE, selDL, selLB, selCB, selS, pos);
     }
 
     private void recordSafety(String defender) {
-        if (gamePoss) {
-            awayScore += 2;
-            gameEventLog.append(getEventLogScoring()).append("SAFETY!\n").append(homeTeam.getAbbr()).append(" QB ").append(homeTeam.getQB(0).name).append(
-                    " was tackled in the endzone by ").append(defender).append("! Result is a Safety and ").append(awayTeam.getAbbr()).append(" will get possession.");
-            freeKick(homeTeam, awayTeam);
-        } else {
-            homeScore += 2;
-            gameEventLog.append(getEventLogScoring()).append("SAFETY!\n").append(awayTeam.getAbbr()).append(" QB ").append(awayTeam.getQB(0).name)
-                    .append(" was tackled in the endzone by ").append(defender).append("! Result is a Safety and ").append(homeTeam.getAbbr()).append(" will get possession.");
-            freeKick(awayTeam, homeTeam);
-        }
+        statRecorder.recordSafety(defender);
     }
 
-    private void recordReturnStats() {
-        if (homeKickReturner.position.equals("RB")) {
-            for (int i = 0; i < homeTeam.startersRB + homeTeam.subRB; i++) {
-                if (homeTeam.getRB(i).name.equals(homeKickReturner.name)) {
-                    homeTeam.getRB(i).recordKORets(homeKickReturner.kReturns);
-                    homeTeam.getRB(i).recordKOYards(homeKickReturner.kYards);
-                    homeTeam.getRB(i).recordKOTDs(homeKickReturner.kTD);
-                    homeTeam.getRB(i).recordPuntRets(homeKickReturner.pReturns);
-                    homeTeam.getRB(i).recordPuntYards(homeKickReturner.pYards);
-                    homeTeam.getRB(i).recordPuntTDs(homeKickReturner.pTD);
-                }
-            }
-        } else if (homeKickReturner.position.equals("WR")) {
-            for (int i = 0; i < homeTeam.startersWR + homeTeam.subWR; i++) {
-                if (homeTeam.getWR(i).name.equals(homeKickReturner.name)) {
-                    homeTeam.getWR(i).recordKORets(homeKickReturner.kReturns);
-                    homeTeam.getWR(i).recordKOYards(homeKickReturner.kYards);
-                    homeTeam.getWR(i).recordKOTDs(homeKickReturner.kTD);
-                    homeTeam.getWR(i).recordPuntRets(homeKickReturner.pReturns);
-                    homeTeam.getWR(i).recordPuntYards(homeKickReturner.pYards);
-                    homeTeam.getWR(i).recordPuntTDs(homeKickReturner.pTD);
-                }
-            }
-        } else {
-            for (int i = 0; i < homeTeam.startersCB + homeTeam.subCB; i++) {
-                if (homeTeam.getCB(i).name.equals(homeKickReturner.name)) {
-                    homeTeam.getCB(i).recordKORets(homeKickReturner.kReturns);
-                    homeTeam.getCB(i).recordKOYards(homeKickReturner.kYards);
-                    homeTeam.getCB(i).recordKOTDs(homeKickReturner.kTD);
-                    homeTeam.getCB(i).recordPuntRets(homeKickReturner.pReturns);
-                    homeTeam.getCB(i).recordPuntYards(homeKickReturner.pYards);
-                    homeTeam.getCB(i).recordPuntTDs(homeKickReturner.pTD);
-                }
-            }
-        }
-
-        if (awayKickReturner.position.equals("RB")) {
-            for (int i = 0; i < awayTeam.startersRB + awayTeam.subRB; i++) {
-                if (awayTeam.getRB(i).name.equals(awayKickReturner.name)) {
-                    awayTeam.getRB(i).recordKORets(awayKickReturner.kReturns);
-                    awayTeam.getRB(i).recordKOYards(awayKickReturner.kYards);
-                    awayTeam.getRB(i).recordKOTDs(awayKickReturner.kTD);
-                    awayTeam.getRB(i).recordPuntRets(awayKickReturner.pReturns);
-                    awayTeam.getRB(i).recordPuntYards(awayKickReturner.pYards);
-                    awayTeam.getRB(i).recordPuntTDs(awayKickReturner.pTD);
-                }
-            }
-        } else if (awayKickReturner.position.equals("WR")) {
-            for (int i = 0; i < awayTeam.startersWR + awayTeam.subWR; i++) {
-                if (awayTeam.getWR(i).name.equals(awayKickReturner.name)) {
-                    awayTeam.getWR(i).recordKORets(awayKickReturner.kReturns);
-                    awayTeam.getWR(i).recordKOYards(awayKickReturner.kYards);
-                    awayTeam.getWR(i).recordKOTDs(awayKickReturner.kTD);
-                    awayTeam.getWR(i).recordPuntRets(awayKickReturner.pReturns);
-                    awayTeam.getWR(i).recordPuntYards(awayKickReturner.pYards);
-                    awayTeam.getWR(i).recordPuntTDs(awayKickReturner.pTD);
-                }
-            }
-        } else {
-            for (int i = 0; i < awayTeam.startersCB + awayTeam.subCB; i++) {
-                if (awayTeam.getCB(i).name.equals(awayKickReturner.name)) {
-                    awayTeam.getCB(i).recordKORets(awayKickReturner.kReturns);
-                    awayTeam.getCB(i).recordKOYards(awayKickReturner.kYards);
-                    awayTeam.getCB(i).recordKOTDs(awayKickReturner.kTD);
-                    awayTeam.getCB(i).recordPuntRets(awayKickReturner.pReturns);
-                    awayTeam.getCB(i).recordPuntYards(awayKickReturner.pYards);
-                    awayTeam.getCB(i).recordPuntTDs(awayKickReturner.pTD);
-                }
-            }
-        }
-
+    void recordReturnStats() {
+        statRecorder.recordReturnStats();
     }
 
     //CLOCK AND HEALTH MANAGEMENT
@@ -2599,7 +2107,7 @@ public class Game implements Serializable {
         }
     }
 
-    private void resetForOT() {
+    void resetForOT() {
         if (bottomOT && homeScore == awayScore) {
             //Add some gameFatigue points
             List<Player> allHomePlayers = homeTeam.getAllPlayers();
@@ -2848,518 +2356,16 @@ public class Game implements Serializable {
     //PREVIEW & BOXSCORE
 
     private void gameStatistics() {
-        Player player;
-        homePassingStats = new ArrayList<>();
-        awayPassingStats = new ArrayList<>();
-        homeRushingStats = new ArrayList<>();
-        awayRushingStats = new ArrayList<>();
-        homeReceivingStats = new ArrayList<>();
-        awayReceivingStats = new ArrayList<>();
-        homeKickingStats = new ArrayList<>();
-        awayKickingStats = new ArrayList<>();
-        homeDefenseStats = new ArrayList<>();
-        awayDefenseStats = new ArrayList<>();
-
-        List<Player> allHomePlayers = homeTeam.getAllPlayers();
-        List<Player> allAwayPlayers = awayTeam.getAllPlayers();
-
-        for (int i = 0; i < allHomePlayers.size(); ++i) {
-            if (allHomePlayers.get(i).gamePassAtempts > 0) {
-                player = allHomePlayers.get(i);
-                homePassingStats.add(player.getInitialName() + "," + player.team.getName() + "," + player.position + "," + player.gamePassYards + "," + player.gamePassComplete + "," + player.gamePassAtempts + "," + player.gamePassTDs + "," + player.gamePassInts + "," + player.gameSacks);
-            }
-        }
-
-        for (int i = 0; i < allAwayPlayers.size(); ++i) {
-            if (allAwayPlayers.get(i).gamePassAtempts > 0) {
-                player = allAwayPlayers.get(i);
-                awayPassingStats.add(player.getInitialName() + "," + player.team.getName() + "," + player.position + "," + player.gamePassYards + "," + player.gamePassComplete + "," + player.gamePassAtempts + "," + player.gamePassTDs + "," + player.gamePassInts + "," + player.gameSacks);
-            }
-        }
-
-        for (int i = 0; i < allHomePlayers.size(); ++i) {
-            if (allHomePlayers.get(i).gameRushAttempts > 0) {
-                player = allHomePlayers.get(i);
-                homeRushingStats.add(player.getInitialName() + "," + player.team.getName() + "," + player.position + "," + player.gameRushYards + "," + player.gameRushAttempts + "," + player.gameRushTDs + "," + player.gameFumbles);
-            }
-        }
-
-        for (int i = 0; i < allAwayPlayers.size(); ++i) {
-            if (allAwayPlayers.get(i).gameRushAttempts > 0) {
-                player = allAwayPlayers.get(i);
-                awayRushingStats.add(player.getInitialName() + "," + player.team.getName() + "," + player.position + "," + player.gameRushYards + "," + player.gameRushAttempts + "," + player.gameRushTDs + "," + player.gameFumbles);
-            }
-        }
-
-        for (int i = 0; i < allHomePlayers.size(); ++i) {
-            if (allHomePlayers.get(i).gameReceptions > 0) {
-                player = allHomePlayers.get(i);
-                homeReceivingStats.add(player.getInitialName() + "," + player.team.getName() + "," + player.position + "," + player.gameRecYards + "," + player.gameReceptions + "," + player.gameTargets + "," + player.gameRecTDs + "," + player.gameDrops);
-            }
-        }
-
-        for (int i = 0; i < allAwayPlayers.size(); ++i) {
-            if (allAwayPlayers.get(i).gameReceptions > 0) {
-                player = allAwayPlayers.get(i);
-                awayReceivingStats.add(player.getInitialName() + "," + player.team.getName() + "," + player.position + "," + player.gameRecYards + "," + player.gameReceptions + "," + player.gameTargets + "," + player.gameRecTDs + "," + player.gameDrops);
-            }
-        }
-
-        player = homeTeam.getK(0);
-        homeKickingStats.add(player.getInitialName() + "," + player.team.getName() + "," + player.position + "," + player.gameFGMade + "," + player.gameFGAttempts + "," + player.gameXPMade + "," + player.gameXPAttempts);
-        player = awayTeam.getK(0);
-        awayKickingStats.add(player.getInitialName() + "," + player.team.getName() + "," + player.position + "," + player.gameFGMade + "," + player.gameFGAttempts + "," + player.gameXPMade + "," + player.gameXPAttempts);
-
-        for (int i = 0; i < allHomePlayers.size(); ++i) {
-            if (allHomePlayers.get(i).gameTackles > 0) {
-                player = allHomePlayers.get(i);
-                homeDefenseStats.add(player.getInitialName() + "," + player.team.getName() + "," + player.position + "," + player.gameTackles + "," + player.gameSacks + "," + player.gameFumbles + "," + player.gameInterceptions + "," + player.gameTargets + "," + player.gameDefended);
-            }
-
-        }
-
-        for (int i = 0; i < allAwayPlayers.size(); ++i) {
-            if (allAwayPlayers.get(i).gameTackles > 0) {
-                player = allAwayPlayers.get(i);
-                awayDefenseStats.add(player.getInitialName() + "," + player.team.getName() + "," + player.position + "," + player.gameTackles + "," + player.gameSacks + "," + player.gameFumbles + "," + player.gameInterceptions + "," + player.gameTargets + "," + player.gameDefended);
-            }
-        }
-
-        if (homeKickReturner.kReturns > 0)
-            hkReturnAvg = (double) homeKickReturner.kYards / homeKickReturner.kReturns;
-        if (awayKickReturner.kReturns > 0)
-            akReturnAvg = (double) awayKickReturner.kYards / awayKickReturner.kReturns;
-
-        if (homeKickReturner.pReturns > 0)
-            hpReturnAvg = (double) homeKickReturner.pYards / homeKickReturner.pReturns;
-        if (awayKickReturner.pReturns > 0)
-            apReturnAvg = (double) awayKickReturner.pYards / awayKickReturner.pReturns;
-
-        recordReturnStats();
-
+        getBoxScore().buildStatistics();
     }
 
 
     public String[] getGameSummaryStrV2() {
-
-        String[] gameSum = new String[19];
-        StringBuilder gameL = new StringBuilder();
-        StringBuilder gameC = new StringBuilder();
-        StringBuilder gameR = new StringBuilder();
-
-        gameL.append("\nPoints\nYards\nPass Yards\nRush Yards\nTOs\n");
-        gameC.append("#" + awayTeam.getRankTeamPollScore() + " " + awayTeam.getAbbr() + "\n" + awayScore + "\n" + awayYards + " yds\n" +
-                awayPassYards + " pyds\n" + awayRushYards + " ryds\n" + awayTOs + " TOs\n");
-        gameR.append("#" + homeTeam.getRankTeamPollScore() + " " + homeTeam.getAbbr() + "\n" + homeScore + "\n" + homeYards + " yds\n" +
-                homePassYards + " pyds\n" + homeRushYards + " ryds\n" + homeTOs + " TOs\n");
-
-        StringBuilder gamePL = new StringBuilder();
-        StringBuilder gamePC = new StringBuilder();
-        StringBuilder gamePR = new StringBuilder();
-
-        gamePL.append("\n");
-        gamePC.append("[PASSING]\n");
-        gamePR.append("\n");
-        gamePL.append("\n");
-        gamePC.append("\n");
-        gamePR.append("\n");
-
-        if (homePassingStats.size() >= awayPassingStats.size()) {
-            for (int i = 0; i < homePassingStats.size(); ++i) {
-                gamePL.append("QB:" + "\nYards:" + "\nComp/Att:" + "\nPass TDs:" + "\nPass Ints:" + "\nSacks:" + "\nRating:" + "\n\n");
-            }
-        } else {
-            for (int i = 0; i < awayPassingStats.size(); ++i) {
-                gamePL.append("QB:" + "\nYards:" + "\nComp/Att:" + "\nPass TDs:" + "\nPass Ints:" + "\nSacks:" + "\nRating:" + "\n\n");
-            }
-        }
-
-        for (int i = 0; i < awayPassingStats.size(); ++i) {
-            String[] stats = awayPassingStats.get(i).split(",");
-            gamePC.append(stats[0] + "\n" + stats[3] + "\n" + stats[4] + "/" + stats[5] + "\n" + stats[6] + "\n" + stats[7] + "\n" + stats[8] + "\n" + getPasserRating(Integer.parseInt(stats[3]), Integer.parseInt(stats[6]), Integer.parseInt(stats[4]), Integer.parseInt(stats[5]), Integer.parseInt(stats[7])) + "\n\n");
-        }
-        for (int i = 0; i < homePassingStats.size(); ++i) {
-            String[] stats = homePassingStats.get(i).split(",");
-            gamePR.append(stats[0] + "\n" + stats[3] + "\n" + stats[4] + "/" + stats[5] + "\n" + stats[6] + "\n" + stats[7] + "\n" + stats[8] + "\n" + getPasserRating(Integer.parseInt(stats[3]), Integer.parseInt(stats[6]), Integer.parseInt(stats[4]), Integer.parseInt(stats[5]), Integer.parseInt(stats[7])) + "\n\n");
-        }
-
-
-        StringBuilder gameRL = new StringBuilder();
-        StringBuilder gameRC = new StringBuilder();
-        StringBuilder gameRR = new StringBuilder();
-
-        gameRL.append("\n");
-        gameRC.append("[RUSHING]\n");
-        gameRR.append("\n");
-        gameRL.append("\n");
-        gameRC.append("\n");
-        gameRR.append("\n");
-
-        if (awayRushingStats.size() >= homeRushingStats.size()) {
-            for (int i = 0; i < awayRushingStats.size(); ++i) {
-                gameRL.append("Name:" + "\nPosition:" + "\nYards:" + "\nCarries:" + "\nYards/Carry:" + "\nTDs:" + "\nFumbles:" + "\n\n");
-            }
-        } else {
-            for (int i = 0; i < awayRushingStats.size(); ++i) {
-                gameRL.append("Name:" + "\nPosition:" + "\nYards:" + "\nCarries:" + "\nYards/Carry:" + "\nTDs:" + "\nFumbles:" + "\n\n");
-            }
-        }
-
-        for (int i = 0; i < awayRushingStats.size(); ++i) {
-            String[] stats = awayRushingStats.get(i).split(",");
-            gameRC.append(stats[0] + "\n" + stats[2] + "\n" + stats[3] + "\n" + stats[4] + "\n" + DF2_DOT.format((Double.parseDouble(stats[3]) / Double.parseDouble(stats[4]))) + "\n" + stats[5] + "\n" + stats[6] + "\n\n");
-        }
-        for (int i = 0; i < homeRushingStats.size(); ++i) {
-            String[] stats = homeRushingStats.get(i).split(",");
-            gameRR.append(stats[0] + "\n" + stats[2] + "\n" + stats[3] + "\n" + stats[4] + "\n" + DF2_DOT.format((Double.parseDouble(stats[3]) / Double.parseDouble(stats[4]))) + "\n" + stats[5] + "\n" + stats[6] + "\n\n");
-        }
-
-
-        StringBuilder gameWL = new StringBuilder();
-        StringBuilder gameWC = new StringBuilder();
-        StringBuilder gameWR = new StringBuilder();
-
-        gameWL.append("\n");
-        gameWC.append("[RECEIVING]\n");
-        gameWR.append("\n");
-        gameWL.append("\n");
-        gameWC.append("\n");
-        gameWR.append("\n");
-
-        if (homeReceivingStats.size() >= awayReceivingStats.size()) {
-            for (int i = 0; i < homeReceivingStats.size(); ++i) {
-                gameWL.append("Name:" + "\nPosition:" + "\nYards:" + "\nReceptions:" + "\nYards/Rec:" + "\nRec/Targets:" + "\nTDs:" + "\nDrops:" + "\n\n");
-            }
-        } else {
-            for (int i = 0; i < awayReceivingStats.size(); ++i) {
-                gameWL.append("Name:" + "\nPosition:" + "\nYards:" + "\nReceptions:" + "\nYards/Rec:" + "\nRec/Targets:" + "\nTDs:" + "\nDrops:" + "\n\n");
-            }
-        }
-
-        for (int i = 0; i < awayReceivingStats.size(); ++i) {
-            String[] stats = awayReceivingStats.get(i).split(",");
-            gameWC.append(stats[0] + "\n" + stats[2] + "\n" + stats[3] + "\n" + stats[4] + "\n" + DF2_DOT.format(getRecYardsperCatch(Double.parseDouble(stats[3]), Double.parseDouble(stats[4]))) + "\n" + stats[4] + "/" + stats[5] + "\n" + stats[6] + "\n" + stats[7] + "\n\n");
-        }
-        for (int i = 0; i < homeReceivingStats.size(); ++i) {
-            String[] stats = homeReceivingStats.get(i).split(",");
-            gameWR.append(stats[0] + "\n" + stats[2] + "\n" + stats[3] + "\n" + stats[4] + "\n" + DF2_DOT.format(getRecYardsperCatch(Double.parseDouble(stats[3]), Double.parseDouble(stats[4]))) + "\n" + stats[4] + "/" + stats[5] + "\n" + stats[6] + "\n" + stats[7] + "\n\n");
-        }
-
-        StringBuilder gameDL = new StringBuilder();
-        StringBuilder gameDC = new StringBuilder();
-        StringBuilder gameDR = new StringBuilder();
-
-        gameDL.append("\n");
-        gameDC.append("[DEFENDING]\n");
-        gameDR.append("\n");
-        gameDL.append("\n");
-        gameDC.append("\n");
-        gameDR.append("\n");
-
-        if (homeDefenseStats.size() >= awayDefenseStats.size()) {
-            for (int i = 0; i < homeDefenseStats.size(); ++i) {
-                gameDL.append("Name:" + "\nPosition:" + "\nTackles:" + "\nSacks:" + "\nFumbles:" + "\nInts:" + "\nDefended:" + "\n\n");
-            }
-        } else {
-            for (int i = 0; i < awayDefenseStats.size(); ++i) {
-                gameDL.append("Name:" + "\nPosition:" + "\nTackles:" + "\nSacks:" + "\nFumbles:" + "\nInts:" + "\nDefended:" + "\n\n");
-            }
-        }
-
-        for (int i = 0; i < awayDefenseStats.size(); ++i) {
-            String[] stats = awayDefenseStats.get(i).split(",");
-            gameDC.append(stats[0] + "\n" + stats[2] + "\n" + stats[3] + "\n" + stats[4] + "\n" + stats[5] + "\n" + stats[6] + "\n" + stats[8] + "\n\n");
-        }
-        for (int i = 0; i < homeDefenseStats.size(); ++i) {
-            String[] stats = homeDefenseStats.get(i).split(",");
-            gameDR.append(stats[0] + "\n" + stats[2] + "\n" + stats[3] + "\n" + stats[4] + "\n" + stats[5] + "\n" + stats[6] + "\n" + stats[8] + "\n\n");
-        }
-
-        StringBuilder gameKL = new StringBuilder();
-        StringBuilder gameKC = new StringBuilder();
-        StringBuilder gameKR = new StringBuilder();
-
-        gameKL.append("\n");
-        gameKC.append("[KICKING]\n");
-        gameKR.append("\n");
-        gameKL.append("\n");
-        gameKC.append("\n");
-        gameKR.append("\n");
-
-
-        if (homeKickingStats.size() >= awayKickingStats.size()) {
-            for (int i = 0; i < homeKickingStats.size(); ++i) {
-                gameKL.append("Name:" + "\nFG Made:" + "\nFG Att:" + "\nXP Made:" + "\nXP Att:" + "\n\n");
-            }
-        } else {
-            for (int i = 0; i < awayKickingStats.size(); ++i) {
-                gameKL.append("Name:" + "\nFG Made:" + "\nFG Att:" + "\nXP Made:" + "\nXP Att:" + "\n\n");
-            }
-        }
-
-        for (int i = 0; i < awayKickingStats.size(); ++i) {
-            String[] stats = awayKickingStats.get(i).split(",");
-            gameKC.append(stats[0] + "\n" + stats[3] + "\n" + stats[4] + "\n" + stats[5] + "\n" + stats[6] + "\n\n");
-        }
-        for (int i = 0; i < homeKickingStats.size(); ++i) {
-            String[] stats = homeKickingStats.get(i).split(",");
-            gameKR.append(stats[0] + "\n" + stats[3] + "\n" + stats[4] + "\n" + stats[5] + "\n" + stats[6] + "\n\n");
-        }
-
-        gameKL.append("\n");
-        gameKC.append("[RETURNS]\n");
-        gameKR.append("\n");
-        gameKL.append("\n");
-        gameKC.append("\n");
-        gameKR.append("\n");
-
-        gameKL.append("Name:" + "\nKick Rets:" + "\nK Ret Yrds:" + "\nK Yrds/Ret:" + "\nK Ret TDs" + "\nPunt Rets:" + "\nP Ret Yrds:" + "\nP Yrds/Ret:" + "\nP Ret TDs" + "\n\n");
-        gameKC.append(awayKickReturner.getInitialName() + "\n" + awayKickReturner.kReturns + "\n" + awayKickReturner.kYards + "\n" + akReturnAvg + "\n" + awayKickReturner.kTD + "\n" + awayKickReturner.pReturns + "\n" + awayKickReturner.pYards + "\n" + apReturnAvg + "\n" + awayKickReturner.pTD + "\n\n");
-        gameKR.append(homeKickReturner.getInitialName() + "\n" + homeKickReturner.kReturns + "\n" + homeKickReturner.kYards + "\n" + hkReturnAvg + "\n" + homeKickReturner.kTD + "\n" + homeKickReturner.pReturns + "\n" + homeKickReturner.pYards + "\n" + hpReturnAvg + "\n" + homeKickReturner.pTD + "\n\n");
-
-
-        //Send data
-
-        gameSum[0] = gameL.toString();
-        gameSum[1] = gameC.toString();
-        gameSum[2] = gameR.toString();
-
-        gameSum[3] = gamePL.toString();
-        gameSum[4] = gamePC.toString();
-        gameSum[5] = gamePR.toString();
-
-        gameSum[6] = gameRL.toString();
-        gameSum[7] = gameRC.toString();
-        gameSum[8] = gameRR.toString();
-
-        gameSum[9] = gameWL.toString();
-        gameSum[10] = gameWC.toString();
-        gameSum[11] = gameWR.toString();
-
-        gameSum[12] = gameDL.toString();
-        gameSum[13] = gameDC.toString();
-        gameSum[14] = gameDR.toString();
-
-        gameSum[15] = gameKL.toString();
-        gameSum[16] = gameKC.toString();
-        gameSum[17] = gameKR.toString();
-
-        gameSum[18] = getPlayByPlayLog();
-
-
-        return gameSum;
-
+        return getBoxScore().getGameSummaryStrV2();
     }
 
     public String[] getGameSummaryStr() {
-
-        String[] gameSum = new String[19];
-        StringBuilder gameL = new StringBuilder();
-        StringBuilder gameC = new StringBuilder();
-        StringBuilder gameR = new StringBuilder();
-
-        gameL.append("\nPoints\nYards\nPass Yards\nRush Yards\nTOs\n\nOffense\nDefense\n");
-        gameC.append("#" + awayTeam.getRankTeamPollScore() + " " + awayTeam.getName() + "\n" + awayScore + "\n" + awayYards + " yds\n" +
-                awayPassYards + " pyds\n" + awayRushYards + " ryds\n" + awayTOs + " TOs\n\n" + awayTeam.getPlaybookOffense().getStratName() + "\n" + awayTeam.getPlaybookDefense().getStratName() + " \n");
-        gameR.append("#" + homeTeam.getRankTeamPollScore() + " " + homeTeam.getName() + "\n" + homeScore + "\n" + homeYards + " yds\n" +
-                homePassYards + " pyds\n" + homeRushYards + " ryds\n" + homeTOs + " TOs\n\n" + homeTeam.getPlaybookOffense().getStratName() + "\n" + homeTeam.getPlaybookDefense().getStratName() + " \n");
-
-        StringBuilder gamePL = new StringBuilder();
-        StringBuilder gamePC = new StringBuilder();
-        StringBuilder gamePR = new StringBuilder();
-
-        gamePL.append("[PASSING]\n");
-        gamePC.append("\n");
-        gamePR.append("\n");
-        gamePL.append("\n");
-        gamePC.append("\n");
-        gamePR.append("\n");
-
-        if (homePassingStats.size() >= awayPassingStats.size()) {
-            for (int i = 0; i < homePassingStats.size(); ++i) {
-                gamePL.append("QB" + "\nYards" + "\nComp/Att" + "\nPass TDs" + "\nPass Ints" + "\nSacks" + "\nRating" + "\n\n");
-            }
-        } else {
-            for (int i = 0; i < awayPassingStats.size(); ++i) {
-                gamePL.append("QB" + "\nYards" + "\nComp/Att" + "\nPass TDs" + "\nPass Ints" + "\nSacks" + "\nRating" + "\n\n");
-            }
-        }
-
-        for (int i = 0; i < awayPassingStats.size(); ++i) {
-            String[] stats = awayPassingStats.get(i).split(",");
-            gamePC.append(stats[0] + "\n" + stats[3] + "\n" + stats[4] + "/" + stats[5] + "\n" + stats[6] + "\n" + stats[7] + "\n" + stats[8] + "\n" + getPasserRating(Integer.parseInt(stats[3]), Integer.parseInt(stats[6]), Integer.parseInt(stats[4]), Integer.parseInt(stats[5]), Integer.parseInt(stats[7])) + "\n\n");
-        }
-        for (int i = 0; i < homePassingStats.size(); ++i) {
-            String[] stats = homePassingStats.get(i).split(",");
-            gamePR.append(stats[0] + "\n" + stats[3] + "\n" + stats[4] + "/" + stats[5] + "\n" + stats[6] + "\n" + stats[7] + "\n" + stats[8] + "\n" + getPasserRating(Integer.parseInt(stats[3]), Integer.parseInt(stats[6]), Integer.parseInt(stats[4]), Integer.parseInt(stats[5]), Integer.parseInt(stats[7])) + "\n\n");
-        }
-
-
-        StringBuilder gameRL = new StringBuilder();
-        StringBuilder gameRC = new StringBuilder();
-        StringBuilder gameRR = new StringBuilder();
-
-        gameRL.append("[RUSHING]\n");
-        gameRC.append("\n");
-        gameRR.append("\n");
-        gameRL.append("\n");
-        gameRC.append("\n");
-        gameRR.append("\n");
-
-        if (homeRushingStats.size() >= awayRushingStats.size()) {
-            for (int i = 0; i < awayRushingStats.size(); ++i) {
-                gameRL.append("Name" + "\nPosition" + "\nYards" + "\nCarries" + "\nYards/Carry" + "\nTDs" + "\nFumbles" + "\n\n");
-            }
-        } else {
-            for (int i = 0; i < awayRushingStats.size(); ++i) {
-                gameRL.append("Name" + "\nPosition" + "\nYards" + "\nCarries" + "\nYards/Carry" + "\nTDs" + "\nFumbles" + "\n\n");
-            }
-        }
-
-        for (int i = 0; i < awayRushingStats.size(); ++i) {
-            String[] stats = awayRushingStats.get(i).split(",");
-            gameRC.append(stats[0] + "\n" + stats[2] + "\n" + stats[3] + "\n" + stats[4] + "\n" + DF2_DOT.format((Double.parseDouble(stats[3]) / Double.parseDouble(stats[4]))) + "\n" + stats[5] + "\n" + stats[6] + "\n\n");
-        }
-        for (int i = 0; i < homeRushingStats.size(); ++i) {
-            String[] stats = homeRushingStats.get(i).split(",");
-            gameRR.append(stats[0] + "\n" + stats[2] + "\n" + stats[3] + "\n" + stats[4] + "\n" + DF2_DOT.format((Double.parseDouble(stats[3]) / Double.parseDouble(stats[4]))) + "\n" + stats[5] + "\n" + stats[6] + "\n\n");
-        }
-
-
-        StringBuilder gameWL = new StringBuilder();
-        StringBuilder gameWC = new StringBuilder();
-        StringBuilder gameWR = new StringBuilder();
-
-        gameWL.append("[RECEIVING]\n");
-        gameWC.append("\n");
-        gameWR.append("\n");
-        gameWL.append("\n");
-        gameWC.append("\n");
-        gameWR.append("\n");
-
-        if (homeReceivingStats.size() >= awayReceivingStats.size()) {
-            for (int i = 0; i < homeReceivingStats.size(); ++i) {
-                gameWL.append("Name" + "\nPosition" + "\nYards" + "\nReceptions" + "\nYards/Rec" + "\nRec/Targets" + "\nTDs" + "\nDrops" + "\n\n");
-            }
-        } else {
-            for (int i = 0; i < awayReceivingStats.size(); ++i) {
-                gameWL.append("Name" + "\nPosition" + "\nYards" + "\nReceptions" + "\nYards/Rec" + "\nRec/Targets" + "\nTDs" + "\nDrops" + "\n\n");
-            }
-        }
-
-        for (int i = 0; i < awayReceivingStats.size(); ++i) {
-            String[] stats = awayReceivingStats.get(i).split(",");
-            gameWC.append(stats[0] + "\n" + stats[2] + "\n" + stats[3] + "\n" + stats[4] + "\n" + DF2_DOT.format(getRecYardsperCatch(Double.parseDouble(stats[3]), Double.parseDouble(stats[4]))) + "\n" + stats[4] + "/" + stats[5] + "\n" + stats[6] + "\n" + stats[7] + "\n\n");
-        }
-        for (int i = 0; i < homeReceivingStats.size(); ++i) {
-            String[] stats = homeReceivingStats.get(i).split(",");
-            gameWR.append(stats[0] + "\n" + stats[2] + "\n" + stats[3] + "\n" + stats[4] + "\n" + DF2_DOT.format(getRecYardsperCatch(Double.parseDouble(stats[3]), Double.parseDouble(stats[4]))) + "\n" + stats[4] + "/" + stats[5] + "\n" + stats[6] + "\n" + stats[7] + "\n\n");
-        }
-
-        StringBuilder gameDL = new StringBuilder();
-        StringBuilder gameDC = new StringBuilder();
-        StringBuilder gameDR = new StringBuilder();
-
-        gameDL.append("[DEFENDING]\n");
-        gameDC.append("\n");
-        gameDR.append("\n");
-        gameDL.append("\n");
-        gameDC.append("\n");
-        gameDR.append("\n");
-
-        if (homeDefenseStats.size() >= awayDefenseStats.size()) {
-            for (int i = 0; i < homeDefenseStats.size(); ++i) {
-                gameDL.append("Name" + "\nPosition" + "\nTackles" + "\nSacks" + "\nFumbles" + "\nInts" + "\nDefended" + "\n\n");
-            }
-        } else {
-            for (int i = 0; i < awayDefenseStats.size(); ++i) {
-                gameDL.append("Name" + "\nPosition" + "\nTackles" + "\nSacks" + "\nFumbles" + "\nInts" + "\nDefended" + "\n\n");
-            }
-        }
-
-        for (int i = 0; i < awayDefenseStats.size(); ++i) {
-            String[] stats = awayDefenseStats.get(i).split(",");
-            gameDC.append(stats[0] + "\n" + stats[2] + "\n" + stats[3] + "\n" + stats[4] + "\n" + stats[5] + "\n" + stats[6] + "\n" + stats[8] + "\n\n");
-        }
-        for (int i = 0; i < homeDefenseStats.size(); ++i) {
-            String[] stats = homeDefenseStats.get(i).split(",");
-            gameDR.append(stats[0] + "\n" + stats[2] + "\n" + stats[3] + "\n" + stats[4] + "\n" + stats[5] + "\n" + stats[6] + "\n" + stats[8] + "\n\n");
-        }
-
-        StringBuilder gameKL = new StringBuilder();
-        StringBuilder gameKC = new StringBuilder();
-        StringBuilder gameKR = new StringBuilder();
-
-        gameKL.append("[KICKING]\n");
-        gameKC.append("\n");
-        gameKR.append("\n");
-        gameKL.append("\n");
-        gameKC.append("\n");
-        gameKR.append("\n");
-
-
-        if (homeKickingStats.size() >= awayKickingStats.size()) {
-            for (int i = 0; i < homeKickingStats.size(); ++i) {
-                gameKL.append("Name" + "\nFG Made" + "\nFG Att" + "\nXP Made" + "\nXP Att" + "\n\n");
-            }
-        } else {
-            for (int i = 0; i < awayKickingStats.size(); ++i) {
-                gameKL.append("Name" + "\nFG Made" + "\nFG Att" + "\nXP Made" + "\nXP Att" + "\n\n");
-            }
-        }
-
-        for (int i = 0; i < awayKickingStats.size(); ++i) {
-            String[] stats = awayKickingStats.get(i).split(",");
-            gameKC.append(stats[0] + "\n" + stats[3] + "\n" + stats[4] + "\n" + stats[5] + "\n" + stats[6] + "\n\n");
-        }
-        for (int i = 0; i < homeKickingStats.size(); ++i) {
-            String[] stats = homeKickingStats.get(i).split(",");
-            gameKR.append(stats[0] + "\n" + stats[3] + "\n" + stats[4] + "\n" + stats[5] + "\n" + stats[6] + "\n\n");
-        }
-
-        gameKL.append("[RETURNS]\n");
-        gameKC.append("\n");
-        gameKR.append("\n");
-        gameKL.append("\n");
-        gameKC.append("\n");
-        gameKR.append("\n");
-
-        gameKL.append("Name" + "\nKick Rets" + "\nK Ret Yrds" + "\nK Yrds/Ret" + "\nK Ret TDs" + "\nPunt Rets" + "\nP Ret Yrds" + "\nP Yrds/Ret" + "\nP Ret TDs" + "\n\n");
-        gameKC.append(awayKickReturner.getInitialName() + "\n" + awayKickReturner.kReturns + "\n" + awayKickReturner.kYards + "\n" + akReturnAvg + "\n" + awayKickReturner.kTD + "\n" + awayKickReturner.pReturns + "\n" + awayKickReturner.pYards + "\n" + apReturnAvg + "\n" + awayKickReturner.pTD + "\n\n");
-        gameKR.append(homeKickReturner.getInitialName() + "\n" + homeKickReturner.kReturns + "\n" + homeKickReturner.kYards + "\n" + hkReturnAvg + "\n" + homeKickReturner.kTD + "\n" + homeKickReturner.pReturns + "\n" + homeKickReturner.pYards + "\n" + hpReturnAvg + "\n" + homeKickReturner.pTD + "\n\n");
-
-
-        //Send data
-
-        gameSum[0] = gameL.toString();
-        gameSum[1] = gameC.toString();
-        gameSum[2] = gameR.toString();
-
-        gameSum[3] = gamePL.toString();
-        gameSum[4] = gamePC.toString();
-        gameSum[5] = gamePR.toString();
-
-        gameSum[6] = gameRL.toString();
-        gameSum[7] = gameRC.toString();
-        gameSum[8] = gameRR.toString();
-
-        gameSum[9] = gameWL.toString();
-        gameSum[10] = gameWC.toString();
-        gameSum[11] = gameWR.toString();
-
-        gameSum[12] = gameDL.toString();
-        gameSum[13] = gameDC.toString();
-        gameSum[14] = gameDR.toString();
-
-        gameSum[15] = gameKL.toString();
-        gameSum[16] = gameKC.toString();
-        gameSum[17] = gameKR.toString();
-
-        gameSum[18] = getPlayByPlayLog();
-
-
-        return gameSum;
-
+        return getBoxScore().getGameSummaryStr();
     }
 
 
@@ -3372,104 +2378,22 @@ public class Game implements Serializable {
      *         has not been played yet
      */
     public String getPlayByPlayLog() {
-        if (gameEventLog.length() == 0) {
-            return "No play-by-play data available for this game.";
-        }
-        return "GAME PLAY-BY-PLAY LOG\n" + gameEventLog.toString();
+        return getBoxScore().getPlayByPlayLog();
     }
 
     public String[] getGameScoutStr() {
-        /*
-          [0] is left side
-          [1] is center
-          [2] is right
-          [3] is bottom (will be empty for scouting)
-         */
-        String[] gameSum = new String[4];
-        StringBuilder gameL = new StringBuilder();
-        StringBuilder gameC = new StringBuilder();
-        StringBuilder gameR = new StringBuilder();
-
-        HeadCoach homeHC = homeTeam.getHeadCoach();
-        HeadCoach awayHC = awayTeam.getHeadCoach();
-        int homeRating = (int) ((homeHC != null ? homeHC.ratDef + homeHC.ratOff : 0) + 3*homeTeam.getTeamOffTalent() + 3*homeTeam.getTeamDefTalent() + 3)/8;
-        int awayRating = (int) ((awayHC != null ? awayHC.ratDef + awayHC.ratOff : 0) + 3*awayTeam.getTeamOffTalent() + 3*awayTeam.getTeamDefTalent())/8;
-
-        gameL.append("Ranking\nRecord\nPPG\nOpp PPG\nYPG\nOpp YPG\n" +
-                "\nPass YPG\nRush YPG\nOpp PYPG\nOpp RYPG\n\nOff Talent\nDef Talent\nPrestige\n\nHC\nHC Ovr\nHC Off\nOffense\nHC Def\nDefense\n\nFavorite");
-        int g = Math.max(1, awayTeam.numGames());
-        Team t = awayTeam;
-        gameC.append("#" + t.getRankTeamPollScore() + " " + t.getAbbr() + "\n" + t.getWins() + "-" + t.getLosses() + "\n" +
-                t.getTeamPoints() / g + " (" + t.getRankTeamPoints() + ")\n" + t.getTeamOppPoints() / g + " (" + t.getRankTeamOppPoints() + ")\n" +
-                t.getTeamYards() / g + " (" + t.getRankTeamYards() + ")\n" + t.getTeamOppYards() / g + " (" + t.getRankTeamOppYards() + ")\n\n" +
-                t.getTeamPassYards() / g + " (" + t.getRankTeamPassYards() + ")\n" + t.getTeamRushYards() / g + " (" + t.getRankTeamRushYards() + ")\n" +
-                t.getTeamOppPassYards() / g + " (" + t.getRankTeamOppPassYards() + ")\n" + t.getTeamOppRushYards() / g + " (" + t.getRankTeamOppRushYards() + ")\n\n" +
-                df2.format(t.getTeamOffTalent()) + " (" + t.getRankTeamOffTalent() + ")\n" + df2.format(t.getTeamDefTalent()) + " (" + t.getRankTeamDefTalent() + ")\n" +
-                t.getTeamPrestige() + " (" + t.getRankTeamPrestige() + ")\n\n"
-                + (t.getHeadCoach() != null ? t.getHeadCoach().getInitialName() : "None") + "\n" +
-                (t.getHeadCoach() != null ? String.valueOf(t.getHeadCoach().ratOvr) : "0") + "\n" + (t.getHeadCoach() != null ? String.valueOf(t.getHeadCoach().ratOff) : "0") + "\n" + t.getPlaybookOffense().getStratName() + "\n" + (t.getHeadCoach() != null ? String.valueOf(t.getHeadCoach().ratDef) : "0") + "\n" + t.getPlaybookDefense().getStratName() +
-                "\n\n" + getFavorite(homeRating, awayRating, false));
-        g = Math.max(1, homeTeam.numGames());
-        t = homeTeam;
-        gameR.append("#" + t.getRankTeamPollScore() + " " + t.getAbbr() + "\n" + t.getWins() + "-" + t.getLosses() + "\n" +
-                t.getTeamPoints() / g + " (" + t.getRankTeamPoints() + ")\n" + t.getTeamOppPoints() / g + " (" + t.getRankTeamOppPoints() + ")\n" +
-                t.getTeamYards() / g + " (" + t.getRankTeamYards() + ")\n" + t.getTeamOppYards() / g + " (" + t.getRankTeamOppYards() + ")\n\n" +
-                t.getTeamPassYards() / g + " (" + t.getRankTeamPassYards() + ")\n" + t.getTeamRushYards() / g + " (" + t.getRankTeamRushYards() + ")\n" +
-                t.getTeamOppPassYards() / g + " (" + t.getRankTeamOppPassYards() + ")\n" + t.getTeamOppRushYards() / g + " (" + t.getRankTeamOppRushYards() + ")\n\n" +
-                df2.format(t.getTeamOffTalent()) + " (" + t.getRankTeamOffTalent() + ")\n" + df2.format(t.getTeamDefTalent()) + " (" + t.getRankTeamDefTalent() + ")\n" +
-                t.getTeamPrestige() + " (" + t.getRankTeamPrestige() + ")\n\n" +
-                (t.getHeadCoach() != null ? t.getHeadCoach().getInitialName() : "None") + "\n" +
-                (t.getHeadCoach() != null ? String.valueOf(t.getHeadCoach().ratOvr) : "0") + "\n" + (t.getHeadCoach() != null ? String.valueOf(t.getHeadCoach().ratOff) : "0") + "\n" + t.getPlaybookOffense().getStratName() + "\n" + (t.getHeadCoach() != null ? String.valueOf(t.getHeadCoach().ratDef) : "0") + "\n" + t.getPlaybookDefense().getStratName() +
-                "\n\n" + getFavorite(homeRating, awayRating, true));
-
-        gameSum[0] = gameL.toString();
-        gameSum[1] = gameC.toString();
-        gameSum[2] = gameR.toString();
-
-        StringBuilder gameScout = new StringBuilder();
-        if (awayTeam.getPlayersInjured() != null && !awayTeam.getPlayersInjured().isEmpty()) {
-            ArrayList<Player> awayInjured = new ArrayList<>(awayTeam.getPlayersInjured());
-            Collections.sort(awayInjured, new CompPlayerPosition());
-            gameScout.append("\n" + awayTeam.getAbbr() + " Injury Report:\n");
-            for (Player p : awayInjured) {
-                gameScout.append(p.getPosNameYrOvrPot_OneLine() + "\n");
-            }
-        }
-        if (homeTeam.getPlayersInjured() != null && !homeTeam.getPlayersInjured().isEmpty()) {
-            ArrayList<Player> homeInjured = new ArrayList<>(homeTeam.getPlayersInjured());
-            Collections.sort(homeInjured, new CompPlayerPosition());
-            gameScout.append("\n" + homeTeam.getAbbr() + " Injury Report:\n");
-            for (Player p : homeInjured) {
-                gameScout.append(p.getPosNameYrOvrPot_OneLine() + "\n");
-            }
-        }
-
-        gameSum[3] = gameScout.toString();
-
-        return gameSum;
+        return getBoxScore().getGameScoutStr();
     }
 
-    private String getFavorite(int home, int away, boolean hometeam) {
-        String fav = "";
-
-        if (hometeam) {
-            if (home > away) {
-                fav = "by " + 2*(home-away);
-            }
-        } else {
-            if (away > home) {
-                fav = "by " + 2*(away-home);
-            }
-        }
-
-        return fav;
+    private void addNewsStory() {
+        newsService.addNewsStory();
     }
 
-    private String getEventLogScoring() {
+    String getEventLogScoring() {
         return "\n\n[ " + homeTeam.getAbbr() + " " + homeScore + " - " + awayScore + " " + awayTeam.getAbbr() + " ]\n\t" + convGameTime() + " ";
     }
 
-    private String getEventLog() {
+    String getEventLog() {
         String possStr;
         if (gamePoss) possStr = homeTeam.getAbbr();
         else possStr = awayTeam.getAbbr();
@@ -3527,191 +2451,20 @@ public class Game implements Serializable {
         }
     }
 
-    private int getPasserRating(int yards, int td, int comp, int att, int ints) {
-        int rating;
-        if (att < 1) {
-            return 0;
-        } else {
-            rating = (int) (((8.4 * yards + (300 * td) + (100 * comp) - (200 * ints)) / att));
-            return rating;
-        }
-    }
-
-    private double getRecYardsperCatch(double yards, double rec) {
-        double rating;
-        if (rec < 1) {
-            return 0;
-        } else {
-            rating = yards / rec;
-            return rating;
-        }
-    }
-
-    private void addNewsStory() {
-
-        //Weekly Scoreboard Update
-        if (gameName.equals("Conference"))
-            homeTeam.league.addWeeklyScore(homeTeam.league.currentWeek + 1, homeTeam.getConference() + " " + gameName + ">#" + awayTeam.getRankTeamPollScore() + " " + awayTeam.getName() + " " + awayScore + "\n" + "#" + homeTeam.getRankTeamPollScore() + " " + homeTeam.getName() + " " + homeScore);
-        else
-            homeTeam.league.addWeeklyScore(homeTeam.league.currentWeek + 1, gameName + ">#" + awayTeam.getRankTeamPollScore() + " " + awayTeam.getName() + " " + awayScore + "\n" + "#" + homeTeam.getRankTeamPollScore() + " " + homeTeam.getName() + " " + homeScore);
-
-
-        if (numOT >= 3) {
-            // Thriller in OT
-            Team winner, loser;
-            int winScore, loseScore;
-            if (awayScore > homeScore) {
-                winner = awayTeam;
-                loser = homeTeam;
-                winScore = awayScore;
-                loseScore = homeScore;
-            } else {
-                winner = homeTeam;
-                loser = awayTeam;
-                winScore = homeScore;
-                loseScore = awayScore;
-            }
-
-            homeTeam.league.addNewsStory(homeTeam.league.currentWeek + 1,
-                    numOT + "OT Thriller!>" + winner.getStrAbbrWL() + " and " + loser.getStrAbbrWL() + " played an absolutely thrilling game " +
-                            "that went to " + numOT + " overtimes, with " + winner.getName() + " finally emerging victorious " + winScore + " to " + loseScore + ".");
-        } else if (homeScore > awayScore && awayTeam.getLosses() == 1 && awayTeam.league.currentWeek > 5 && awayTeam.getRankTeamPollScore() < awayTeam.league.countTeam) {
-            // 5-0 or better team given first loss
-            awayTeam.league.addNewsStory(homeTeam.league.currentWeek + 1,
-                    "Undefeated no more! " + awayTeam.getName() + " suffers first loss!" +
-                            ">" + homeTeam.getStrAbbrWL() + " hands " + awayTeam.getStrAbbrWL() +
-                            " their first loss of the season, winning " + homeScore + " to " + awayScore + ".");
-            awayTeam.league.addNewsHeadline("Undefeated no more! " + awayTeam.getName() + " suffers first loss!");
-
-        } else if (awayScore > homeScore && homeTeam.getLosses() == 1 && homeTeam.league.currentWeek > 5 && homeTeam.getRankTeamPollScore() < homeTeam.league.countTeam) {
-            // 5-0 or better team given first loss
-            homeTeam.league.addNewsStory(homeTeam.league.currentWeek + 1,
-                    "Undefeated no more! " + homeTeam.getName() + " suffers first loss!" +
-                            ">" + awayTeam.getStrAbbrWL() + " hands " + homeTeam.getStrAbbrWL() +
-                            " their first loss of the season, winning " + awayScore + " to " + homeScore + ".");
-            homeTeam.league.addNewsHeadline("Undefeated no more! " + homeTeam.getName() + " suffers first loss!");
-
-        } else if (awayScore > homeScore && homeTeam.getRankTeamPollScore() < 20 &&
-                (awayTeam.getRankTeamPollScore() - homeTeam.getRankTeamPollScore()) > 20 && !awayTeam.getName().contains("FCS") && !homeTeam.getName().contains("FCS")) {
-            // Upset!
-            awayTeam.league.addNewsStory(awayTeam.league.currentWeek + 1,
-                    "Upset! " + awayTeam.getStrAbbrWL() + " beats " + homeTeam.getStrAbbrWL() +
-                            ">#" + awayTeam.getRankTeamPollScore() + " " + awayTeam.getName() + " was able to pull off the upset on the road against #" +
-                            homeTeam.getRankTeamPollScore() + " " + homeTeam.getName() + ", winning " + awayScore + " to " + homeScore + ".");
-            awayTeam.league.addNewsHeadline("Upset! " + awayTeam.getStrAbbrWL() + " beats " + homeTeam.getStrAbbrWL());
-
-        } else if (homeScore > awayScore && awayTeam.getRankTeamPollScore() < 20 &&
-                (homeTeam.getRankTeamPollScore() - awayTeam.getRankTeamPollScore()) > 20 && !awayTeam.getName().contains("FCS") && !homeTeam.getName().contains("FCS")) {
-            // Upset!
-            homeTeam.league.addNewsStory(homeTeam.league.currentWeek + 1,
-                    "Upset! " + homeTeam.getStrAbbrWL() + " beats " + awayTeam.getStrAbbrWL() +
-                            ">#" + homeTeam.getRankTeamPollScore() + " " + homeTeam.getName() + " was able to pull off the upset at home against #" +
-                            awayTeam.getRankTeamPollScore() + " " + awayTeam.getName() + ", winning " + homeScore + " to " + awayScore + ".");
-            homeTeam.league.addNewsHeadline("Upset! " + homeTeam.getStrAbbrWL() + " beats " + awayTeam.getStrAbbrWL());
-
-        } else if (awayScore > homeScore && homeTeam.getRankTeamPollScore() < 40 && awayTeam.getName().contains("FCS") && !homeTeam.getName().contains("FCS")) {
-            // Upset!
-            awayTeam.league.addNewsStory(awayTeam.league.currentWeek + 1,
-                    "Upset! " + awayTeam.getStrAbbrWL() + " beats " + homeTeam.getStrAbbrWL() +
-                            ">#" + awayTeam.getRankTeamPollScore() + " " + awayTeam.getName() + " was able to pull off the upset on the road against #" +
-                            homeTeam.getRankTeamPollScore() + " " + homeTeam.getName() + ", winning " + awayScore + " to " + homeScore + ".");
-            awayTeam.league.addNewsHeadline("Upset! " + awayTeam.getStrAbbrWL() + " beats " + homeTeam.getStrAbbrWL());
-
-        } else if (homeScore > awayScore && awayTeam.getRankTeamPollScore() < 20 && awayTeam.getName().contains("FCS") && !homeTeam.getName().contains("FCS")) {
-            // Upset!
-            homeTeam.league.addNewsStory(homeTeam.league.currentWeek + 1,
-                    "Upset! " + homeTeam.getStrAbbrWL() + " beats " + awayTeam.getStrAbbrWL() +
-                            ">#" + homeTeam.getRankTeamPollScore() + " " + homeTeam.getName() + " was able to pull off the upset at home against #" +
-                            awayTeam.getRankTeamPollScore() + " " + awayTeam.getName() + ", winning " + homeScore + " to " + awayScore + ".");
-            homeTeam.league.addNewsHeadline("Upset! " + homeTeam.getStrAbbrWL() + " beats " + awayTeam.getStrAbbrWL());
-        }
-
-
-        if (homeTeam.league.currentWeek < 12) {
-            if (awayTeam.getRankTeamPollScore() < 11 && homeTeam.getRankTeamPollScore() < 11) {
-                if (awayScore > homeScore) {
-                    homeTeam.league.addNewsStory(homeTeam.league.currentWeek + 1, "#" + awayTeam.getRankTeamPollScore() + " " + awayTeam.getName() + " defeats #" +
-                            homeTeam.getRankTeamPollScore() + " " + homeTeam.getName() + ">" + awayTeam.getStrAbbrWL() + " went on the road and beat " + homeTeam.getStrAbbrWL() + " today, " + awayScore + " - " + homeScore + ", in the Game of the Week.");
-                    homeTeam.league.addNewsHeadline("#" + awayTeam.getRankTeamPollScore() + " " + awayTeam.getName() + " defeats #" + homeTeam.getRankTeamPollScore() + " " + homeTeam.getName());
-
-                } else {
-                    homeTeam.league.addNewsStory(homeTeam.league.currentWeek + 1, "#" + homeTeam.getRankTeamPollScore() + " " + homeTeam.getName() + " defeats #" +
-                            awayTeam.getRankTeamPollScore() + " " + awayTeam.getName() + ">" + homeTeam.getStrAbbrWL() + " defeated " + awayTeam.getStrAbbrWL() + " at home today, " + homeScore + " - " + awayScore + ", in an important game of the season between two Top 10 schools.");
-                    awayTeam.league.addNewsHeadline("#" + homeTeam.getRankTeamPollScore() + " " + homeTeam.getName() + " defeats #" + awayTeam.getRankTeamPollScore() + " " + awayTeam.getName());
-
-                }
-            } else if (awayTeam.getRankTeamPollScore() < 26 && homeTeam.getRankTeamPollScore() < 26) {
-                if (awayScore > homeScore) {
-                    homeTeam.league.addNewsStory(homeTeam.league.currentWeek + 1, "#" + awayTeam.getRankTeamPollScore() + " " + awayTeam.getName() + " defeats #" +
-                            homeTeam.getRankTeamPollScore() + " " + homeTeam.getName() + ">" + awayTeam.getStrAbbrWL() + " defeated " + homeTeam.getStrAbbrWL() + " today, " + awayScore + " - " + homeScore + ", in a battle of two Top 25 ranked teams.");
-                } else {
-                    homeTeam.league.addNewsStory(homeTeam.league.currentWeek + 1, "#" + homeTeam.getRankTeamPollScore() + " " + homeTeam.getName() + " defeats #" +
-                            awayTeam.getRankTeamPollScore() + " " + awayTeam.getName() + ">" + homeTeam.getStrAbbrWL() + " defeated " + awayTeam.getStrAbbrWL() + " at home today, " + homeScore + " - " + awayScore + ", in one of the big match-ups of the week.");
-                }
-            }
-        }
-    }
-
     public void addUpcomingGames(Team name) {
-        if (name == awayTeam) {
-            if (awayTeam.getRankTeamPollScore() < 11 && homeTeam.getRankTeamPollScore() < 11 && !awayTeam.getName().contains("FCS") && !homeTeam.getName().contains("FCS")) {
-                homeTeam.league.addNewsStory(homeTeam.league.currentWeek + 1, "Upcoming Game: #" + awayTeam.getRankTeamPollScore() + " " + awayTeam.getName() + " vs #" +
-                        homeTeam.getRankTeamPollScore() + " " + homeTeam.getName() + ">The premier game of the week has " + awayTeam.getStrAbbrWL() + " visiting " + homeTeam.getStrAbbrWL() + ", as these two Top Ten teams fight for a crucial playoff spot. " +
-                        awayTeam.getName() + " plays a " + awayTeam.getPlaybookOffense().getStratName() + " offense, which is averaging " + (awayTeam.getTeamYards() / Math.max(1, awayTeam.numGames())) + " yards per game. " + homeTeam.getName() + " plays a " +
-                        homeTeam.getPlaybookOffense().getStratName() + " offense, averaging " + (homeTeam.getTeamYards() / Math.max(1, homeTeam.numGames())) + " yards per game.");
-            } else if (awayTeam.getRankTeamPollScore() < 26 && homeTeam.getRankTeamPollScore() < 26 && !awayTeam.getName().contains("FCS") && !homeTeam.getName().contains("FCS")) {
-                homeTeam.league.addNewsStory(homeTeam.league.currentWeek + 1, "Upcoming Game: #" + awayTeam.getRankTeamPollScore() + " " + awayTeam.getName() + " vs #" +
-                        homeTeam.getRankTeamPollScore() + " " + homeTeam.getName() + ">Next week, " + awayTeam.getStrAbbrWL() + " visits " + homeTeam.getStrAbbrWL() + " in a battle of two ranked schools. " +
-                        awayTeam.getName() + " plays a " + awayTeam.getPlaybookOffense().getStratName() + " offense, which is averaging " + (awayTeam.getTeamYards() / Math.max(1, awayTeam.numGames())) + " yards per game. " + homeTeam.getName() + " plays a " +
-                        homeTeam.getPlaybookOffense().getStratName() + " offense, averaging " + (homeTeam.getTeamYards() / Math.max(1, homeTeam.numGames())) + " yards per game.");
-            }
-            if (awayTeam.league.currentWeek + 2 < awayTeam.league.regSeasonWeeks + 5)
-                awayTeam.league.addWeeklyScore(homeTeam.league.currentWeek + 2, gameName + ">" + awayTeam.strRankTeamRecord() + "\n" + homeTeam.strRankTeamRecord());
-        }
+        newsService.addUpcomingGames(name);
     }
 
     public void addNewSeasonGames(Team name) {
-        if (name == awayTeam) {
-            if (awayTeam.getRankTeamPollScore() < 11 && homeTeam.getRankTeamPollScore() < 11 && !awayTeam.getName().contains("FCS") && !homeTeam.getName().contains("FCS")) {
-                homeTeam.league.addNewsStory(0, "Kick-Off: #" + awayTeam.getRankTeamPollScore() + " " + awayTeam.getName() + " vs #" +
-                        homeTeam.getRankTeamPollScore() + " " + homeTeam.getName() + ">The season kicks off with an exciting game between vistors " + awayTeam.getName() + " and home team, " + homeTeam.getName() + ". " +
-                        "These two teams are in the pre-season Top Ten, and both are expected to have big seasons this year. " + awayTeam.getName() + " plays a " + awayTeam.getPlaybookOffense().getStratName() + " offense, while " + homeTeam.getName() + " plays a " +
-                        homeTeam.getPlaybookOffense().getStratName() + " offense.");
-
-            } else if (awayTeam.getRankTeamPollScore() < 26 && homeTeam.getRankTeamPollScore() < 26 && !awayTeam.getName().contains("FCS") && !homeTeam.getName().contains("FCS")) {
-                homeTeam.league.addNewsStory(0, "Kick-Off: #" + awayTeam.getRankTeamPollScore() + " " + awayTeam.getName() + " vs #" +
-                        homeTeam.getRankTeamPollScore() + " " + homeTeam.getName() + ">The " + homeTeam.league.getYear() + " season starts off with " + awayTeam.getName() + " visiting " + homeTeam.getName()
-                        + " in one of the interesting early season games pitting two ranked teams. " + awayTeam.getName() + " plays a " + awayTeam.getPlaybookOffense().getStratName() + " offense, while " + homeTeam.getName() + " plays a " +
-                        homeTeam.getPlaybookOffense().getStratName() + " offense.");
-            }
-        }
-        awayTeam.league.addWeeklyScore(1, gameName + ">" + awayTeam.strRankTeamRecord() + "\n" + homeTeam.strRankTeamRecord());
-
+        newsService.addNewSeasonGames(name);
     }
 
-
-
-    /**
-     * Resolves a team name from persisted game data; unknown names become a throwaway FCS-style
-     * opponent (same approach as schedule restore) so {@link Game} invariants stay valid.
-     */
-    private static Team resolveTeamFromSave(League league, String rawName) {
-        Team found = league.findTeam(rawName);
-        if (found != null) {
-            return found;
-        }
-        String nm = rawName == null ? "" : rawName.trim();
-        if (nm.isEmpty()) {
-            nm = "Unknown";
-        }
-        return new Team(nm, "FCS", "FCS Division", (int) (Math.random() * 40), "FCS1", 0, league, false);
-    }
 
     public Game(Team t, String saveData) {
         String[] save = saveData.split(java.util.regex.Pattern.quote("$$"));
         hasPlayed = Boolean.parseBoolean(save[0]);
-        homeTeam = resolveTeamFromSave(t.league, save.length > 1 ? save[1] : null);
-        awayTeam = resolveTeamFromSave(t.league, save.length > 2 ? save[2] : null);
+        homeTeam = GameSerializer.resolveTeamFromSave(t.league, save.length > 1 ? save[1] : null);
+        awayTeam = GameSerializer.resolveTeamFromSave(t.league, save.length > 2 ? save[2] : null);
         gameName = save[3];
         gameEventLog.setLength(0);
         gameEventLog.append(save[4]);
@@ -3804,72 +2557,13 @@ public class Game implements Serializable {
         if (gameName == null) {
             gameName = "Game";
         }
+        newsService = new GameNewsService(this);
+        statRecorder = new GameStatRecorder(this);
     }
     
 
     public ArrayList<String> saveGameData() {
-        ArrayList<String> gameData = new ArrayList<>();
-        gameData.add(Boolean.toString(hasPlayed));
-        gameData.add(homeTeam.getName()); //0
-        gameData.add(awayTeam.getName()); //1
-        gameData.add(gameName); //2
-        gameData.add(gameEventLog.toString()); //3
-        gameData.add(homeScore + "," + awayScore + "," + homeYards + "," + awayYards + "," + homePassYards + "," + awayPassYards+ "," + homeRushYards + "," + awayRushYards+ "," + homeTOs + "," + awayTOs + "," + numOT);
-        
-        StringBuilder sb = new StringBuilder();
-        for(int x = 0; x < homeQScore.length; x++) {
-            sb.append(homeQScore[x]+ ",");
-        }
-        gameData.add(sb.toString());
-        
-        sb = new StringBuilder();
-        for(int x = 0; x < awayQScore.length; x++) {
-            sb.append(awayQScore[x]+ ",");
-        }
-        gameData.add(sb.toString());
-
-
-        for(String x : homePassingStats) {
-            gameData.add(x + "%");
-        }
-
-        for(String x : awayPassingStats) {
-            gameData.add(x + "%");
-        }
-
-        for(String x : homeRushingStats) {
-            gameData.add(x + "%");
-        }
-
-        for(String x : awayRushingStats) {
-            gameData.add(x + "%");
-        }
-
-        for(String x : homeReceivingStats) {
-            gameData.add(x + "%");
-        }
-
-        for(String x : awayReceivingStats) {
-            gameData.add(x + "%");
-        }
-
-        for(String x : homeKickingStats) {
-            gameData.add(x + "%");
-        }
-
-        for(String x : awayKickingStats) {
-            gameData.add(x + "%");
-        }
-
-        for(String x : homeDefenseStats) {
-            gameData.add(x + "%");
-        }
-
-        for(String x : awayDefenseStats) {
-            gameData.add(x + "%");
-        }
-
-       return gameData;
+        return GameSerializer.saveGameData(this);
     }
 
     
