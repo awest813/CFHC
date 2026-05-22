@@ -56,8 +56,6 @@ public class Game implements Serializable {
     private int homeTOs;
     private int awayTOs;
 
-    private ArrayList<PlayerReturner> homeReturner;
-    private ArrayList<PlayerReturner> awayReturner;
     private PlayerReturner homeKickReturner;
     private PlayerReturner awayKickReturner;
     private ArrayList<PlayerST> teamST;
@@ -380,13 +378,7 @@ public class Game implements Serializable {
 
     private void getReturner(Team t) {
         ArrayList<PlayerReturner> teamReturner = new ArrayList<>();
-        
-        if(homeTeam == t) {
-            t = homeTeam;
-        } else {
-            t = awayTeam;
-        }
-        
+
         double starterPenalty = 0.85;
         //Choose Kickoff Returners
         for (int i = 0; i < t.startersWR; i++) {
@@ -568,7 +560,6 @@ public class Game implements Serializable {
                 homeTeam.getWinStreak().resetStreak(homeTeam.league.getYear());
                 if (awayTeam.getHeadCoach() != null) awayTeam.getHeadCoach().recordWins(1);
                 if (homeTeam.getHeadCoach() != null) homeTeam.getHeadCoach().recordLosses(1);
-                awayTeam.getHeadCoach().recordWins(1);
             }
 
             // Add points/opp points
@@ -686,7 +677,7 @@ public class Game implements Serializable {
 
             boolean offenseIsHome = offense == homeTeam;
             boolean offenseLeading = offenseIsHome ? homeScore > awayScore : awayScore > homeScore;
-            boolean offenseTrailing = offenseIsHome ? homeScore < awayScore : awayScore > homeScore;
+            boolean offenseTrailing = offenseIsHome ? homeScore < awayScore : awayScore < homeScore;
             boolean hurryUpPass = !playingOT && gameTime <= 120 && gameTime > 20 && offenseTrailing && gameDown < 4;
             // Fourth quarter: lean run when protecting a lead (outside the final-snap FG / hail mary window below).
             if (!playingOT && gameTime <= 480 && gameTime > 20 && offenseLeading && gameDown < 4) {
@@ -783,7 +774,6 @@ public class Game implements Serializable {
         ArrayList<PlayerTE> TightEnd = new ArrayList<>();
         ArrayList<PlayerDL> DLineman = new ArrayList<>();
         ArrayList<PlayerLB> Linebacker = new ArrayList<>();
-        ArrayList<PlayerCB> Cornerback = new ArrayList<>();
         ArrayList<PlayerS> Safety = new ArrayList<>();
 
         //Receiver Options
@@ -916,13 +906,13 @@ public class Game implements Serializable {
         selRB = RunningBack.get(0);
         selTE = TightEnd.get(0);
         selWR = WideReceiver.get(0);
-        selWR2 = WideReceiver.get(1);
+        selWR2 = WideReceiver.size() > 1 ? WideReceiver.get(1) : WideReceiver.get(0);
         selDL = DLineman.get(0);
         selLB = Linebacker.get(0);
-        selLB2 = Linebacker.get(1);
+        selLB2 = Linebacker.size() > 1 ? Linebacker.get(1) : Linebacker.get(0);
         selCB = defense.getCB(WideReceiver.get(0).posDepth);
         selS = Safety.get(0);
-        selS2 = Safety.get(1);
+        selS2 = Safety.size() > 1 ? Safety.get(1) : Safety.get(0);
 
         if (selCB.gameFatigue <= 0) selCB = defense.getCB(defense.startersCB);
 
@@ -992,7 +982,7 @@ public class Game implements Serializable {
                 rusher.add(offense.getRB(i));
                 RunningBack.add(offense.getRB(i));
             } else {
-                offense.getRB(offense.startersRB).gameSim = Math.pow(offense.getRB(i).ratOvr, 1.5) * Math.random();
+                offense.getRB(offense.startersRB).gameSim = Math.pow(offense.getRB(offense.startersRB).ratOvr, 1.5) * Math.random();
                 offense.getRB(offense.startersRB).gameSnaps++;
                 rusher.add(offense.getRB(offense.startersRB));
                 RunningBack.add(offense.getRB(offense.startersRB));
@@ -1093,7 +1083,7 @@ public class Game implements Serializable {
         selLB = Linebacker.get(0);
         selCB = Cornerback.get(0);
         selS = Safety.get(0);
-        selS2 = Safety.get(1);
+        selS2 = Safety.size() > 1 ? Safety.get(1) : Safety.get(0);
 
         if (selTE.gameFatigue <= 0) selTE = offense.getTE(offense.startersTE);
         if (selS.gameFatigue <= 0) selS = defense.getS(defense.startersS);
@@ -1194,21 +1184,21 @@ public class Game implements Serializable {
 
             if (pos.equals("WR")) {
                 completion = getHFadv() + getCoachAdv() + 2 * offense.getPlaybookOffense().getPassProtection() + 4 * offense.getPlaybookOffense().getPassPref() +
-                        1.5 * normalize(selQB.getRatPassAcc()) + normalize(selWR.getRatCatch());
+                        1.5 * (selQB.getRatPassAcc()) + (selWR.getRatCatch());
 
-                coverage = 2 * defense.getPlaybookDefense().getPassRush() + 4 * defense.getPlaybookDefense().getPassCoverage() + normalize(selCB.getRatCoverage()) + pressureOnQB;
+                coverage = 2 * defense.getPlaybookDefense().getPassRush() + 4 * defense.getPlaybookDefense().getPassCoverage() + (selCB.getRatCoverage()) + pressureOnQB;
 
             } else if (pos.equals("TE")) {
                 completion = getHFadv() + getCoachAdv() + 2 * offense.getPlaybookOffense().getPassProtection() + 4 * offense.getPlaybookOffense().getPassPref() +
-                        1.5 * normalize(selQB.getRatPassAcc()) + normalize(selTE.getRatCatch());
+                        1.5 * (selQB.getRatPassAcc()) + (selTE.getRatCatch());
 
-                coverage = 2 * defense.getPlaybookDefense().getPassRush() + 4 * defense.getPlaybookDefense().getPassCoverage() + normalize(selLB.getRatCoverage()) + pressureOnQB;
+                coverage = 2 * defense.getPlaybookDefense().getPassRush() + 4 * defense.getPlaybookDefense().getPassCoverage() + (selLB.getRatCoverage()) + pressureOnQB;
 
             } else {
                 completion = getHFadv() + getCoachAdv() + 2 * offense.getPlaybookOffense().getPassProtection() + 4 * offense.getPlaybookOffense().getPassPref() +
-                        1.5 * normalize(selQB.getRatPassAcc()) + normalize(selRB.getRatCatch());
+                        1.5 * (selQB.getRatPassAcc()) + (selRB.getRatCatch());
 
-                coverage = 2 * defense.getPlaybookDefense().getPassRush() + 4 * defense.getPlaybookDefense().getPassCoverage() + normalize(selLB2.getRatCoverage()) + pressureOnQB;
+                coverage = 2 * defense.getPlaybookDefense().getPassRush() + 4 * defense.getPlaybookDefense().getPassCoverage() + (selLB2.getRatCoverage()) + pressureOnQB;
             }
 
             if (coverage * Math.random() > completion * Math.random()) {
@@ -1281,24 +1271,24 @@ public class Game implements Serializable {
 
                 if (pos.equals("WR")) {
 
-                    yardsGain = (int) ((normalize(selQB.getRatPassPow()) + normalize(selWR.getRatSpeed()) - normalize(selCB.getRatSpeed())) * Math.random() / 4.8 //STRATEGIES
+                    yardsGain = (int) (((selQB.getRatPassPow()) + (selWR.getRatSpeed()) - (selCB.getRatSpeed())) * Math.random() / 4.8 //STRATEGIES
                             + offense.getPlaybookOffense().getPassPotential() - defense.getPlaybookDefense().getPassCoverage());
                     //see if receiver can get yards after catch
-                    escapeChance = (normalize(selWR.getRatEvasion()) * 3 - selCB.getRatTackle() - selS.getRatTackle()) * Math.random()   //STRATEGIES
+                    escapeChance = ((selWR.getRatEvasion()) * 3 - selCB.getRatTackle() - selS.getRatTackle()) * Math.random()   //STRATEGIES
                             + offense.getPlaybookOffense().getPassPotential() - defense.getPlaybookDefense().getPassCoverage();
                 } else if (pos.equals("TE")) {
 
-                    yardsGain = (int) ((normalize(selQB.getRatPassPow()) + normalize(selTE.getRatSpeed()) - normalize(selLB.getRatSpeed())) * Math.random() / 4.8 //STRATEGIES
+                    yardsGain = (int) (((selQB.getRatPassPow()) + (selTE.getRatSpeed()) - (selLB.getRatSpeed())) * Math.random() / 4.8 //STRATEGIES
                             + offense.getPlaybookOffense().getPassPotential() - defense.getPlaybookDefense().getPassCoverage());
                     //see if receiver can get yards after catch
-                    escapeChance = (normalize(selTE.getRatEvasion()) * 3 - selLB.getRatTackle() - defense.getS(0).ratOvr) * Math.random()  //STRATEGIES
+                    escapeChance = ((selTE.getRatEvasion()) * 3 - selLB.getRatTackle() - defense.getS(0).ratOvr) * Math.random()  //STRATEGIES
                             + offense.getPlaybookOffense().getPassPotential() - defense.getPlaybookDefense().getPassCoverage();
                 } else {
 
-                    yardsGain = (int) ((normalize(selQB.getRatPassPow()) + normalize(selRB.getRatSpeed()) - normalize(selLB.getRatSpeed())) * Math.random() / 4.8 //STRATEGIES
+                    yardsGain = (int) (((selQB.getRatPassPow()) + (selRB.getRatSpeed()) - (selLB.getRatSpeed())) * Math.random() / 4.8 //STRATEGIES
                             + offense.getPlaybookOffense().getPassPotential() - defense.getPlaybookDefense().getPassCoverage()) - 2;  //subtract 2 for screen pass behind line of scrimmage
                     //see if receiver can get yards after catch
-                    escapeChance = (normalize(selRB.getRatEvasion()) * 3 - selLB2.getRatTackle() - defense.getS(0).ratOvr) * Math.random()  //STRATEGIES
+                    escapeChance = ((selRB.getRatEvasion()) * 3 - selLB2.getRatTackle() - defense.getS(0).ratOvr) * Math.random()  //STRATEGIES
                             + offense.getPlaybookOffense().getPassPotential() - defense.getPlaybookDefense().getPassCoverage();
                 }
 
@@ -1691,12 +1681,9 @@ public class Game implements Serializable {
                 selK.recordFGAtt(1);
                 selK.gameFGAttempts++;
                 if (!playingOT) {
-                    gameYardLine = Math.max(100 - gameYardLine, 20); //Misses inside the 20 = defense takes over on the 20
+                    gameYardLine = Math.max(100 - gameYardLine, 20);
                     gameDown = 1;
                     gameYardsNeed = 10;
-                    if (gamePoss) { // home possession
-                    } else {
-                    }
                     gamePoss = !gamePoss;
                 } else resetForOT();
             }
@@ -1773,7 +1760,7 @@ public class Game implements Serializable {
                     }
                 } else {
                     int pressureOnQB = (int) defense.getCompositeDLPass() * 2 - (int) offense.getCompositeOLPass();
-                    double completion = (normalize(offense.getQB(0).getRatPassAcc()) + offense.getWR(0).getRatCatch() - defense.getCB(0).getRatCoverage()) / 2 + 25 - pressureOnQB / 20;
+                    double completion = ((offense.getQB(0).getRatPassAcc()) + offense.getWR(0).getRatCatch() - defense.getCB(0).getRatCoverage()) / 2 + 25 - pressureOnQB / 20;
                     if (100 * Math.random() < completion) {
                         successConversion = true;
                         if (gamePoss) { // home possession
@@ -2367,7 +2354,7 @@ public class Game implements Serializable {
 
     private void recordSack(Team offense, Team defense, PlayerQB selQB, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS) {
         String defender = "";
-        int sackloss = (3 + (int) (Math.random() * (normalize((int) defense.getCompositeDLPass()) - normalize((int) offense.getCompositeOLPass())) / 2));
+        int sackloss = (3 + (int) (Math.random() * (((int) defense.getCompositeDLPass()) - ((int) offense.getCompositeOLPass())) / 2));
         if (sackloss < 2) sackloss = 2;
 
         ArrayList<Player> def = new ArrayList<>();
@@ -3410,7 +3397,7 @@ public class Game implements Serializable {
 
         gameL.append("Ranking\nRecord\nPPG\nOpp PPG\nYPG\nOpp YPG\n" +
                 "\nPass YPG\nRush YPG\nOpp PYPG\nOpp RYPG\n\nOff Talent\nDef Talent\nPrestige\n\nHC\nHC Ovr\nHC Off\nOffense\nHC Def\nDefense\n\nFavorite");
-        int g = awayTeam.numGames();
+        int g = Math.max(1, awayTeam.numGames());
         Team t = awayTeam;
         gameC.append("#" + t.getRankTeamPollScore() + " " + t.getAbbr() + "\n" + t.getWins() + "-" + t.getLosses() + "\n" +
                 t.getTeamPoints() / g + " (" + t.getRankTeamPoints() + ")\n" + t.getTeamOppPoints() / g + " (" + t.getRankTeamOppPoints() + ")\n" +
@@ -3422,7 +3409,7 @@ public class Game implements Serializable {
                 + (t.getHeadCoach() != null ? t.getHeadCoach().getInitialName() : "None") + "\n" +
                 (t.getHeadCoach() != null ? String.valueOf(t.getHeadCoach().ratOvr) : "0") + "\n" + (t.getHeadCoach() != null ? String.valueOf(t.getHeadCoach().ratOff) : "0") + "\n" + t.getPlaybookOffense().getStratName() + "\n" + (t.getHeadCoach() != null ? String.valueOf(t.getHeadCoach().ratDef) : "0") + "\n" + t.getPlaybookDefense().getStratName() +
                 "\n\n" + getFavorite(homeRating, awayRating, false));
-        g = homeTeam.numGames();
+        g = Math.max(1, homeTeam.numGames());
         t = homeTeam;
         gameR.append("#" + t.getRankTeamPollScore() + " " + t.getAbbr() + "\n" + t.getWins() + "-" + t.getLosses() + "\n" +
                 t.getTeamPoints() / g + " (" + t.getRankTeamPoints() + ")\n" + t.getTeamOppPoints() / g + " (" + t.getRankTeamOppPoints() + ")\n" +
@@ -3479,17 +3466,6 @@ public class Game implements Serializable {
     }
 
     private String getEventLogScoring() {
-        String possStr;
-        if (gamePoss) possStr = homeTeam.getAbbr();
-        else possStr = awayTeam.getAbbr();
-        String yardsNeedAdj = "" + gameYardsNeed;
-        if (gameYardLine + gameYardsNeed >= 100) yardsNeedAdj = "Goal";
-        int gameDownAdj;
-        if (gameDown > 4) {
-            gameDownAdj = 4;
-        } else {
-            gameDownAdj = gameDown;
-        }
         return "\n\n[ " + homeTeam.getAbbr() + " " + homeScore + " - " + awayScore + " " + awayTeam.getAbbr() + " ]\n\t" + convGameTime() + " ";
     }
 
@@ -3713,9 +3689,7 @@ public class Game implements Serializable {
 
     }
 
-    private int normalize(int rating) {
-        return rating;
-    }
+
 
     /**
      * Resolves a team name from persisted game data; unknown names become a throwaway FCS-style
@@ -3734,7 +3708,7 @@ public class Game implements Serializable {
     }
 
     public Game(Team t, String saveData) {
-        String[] save = saveData.split("$$");
+        String[] save = saveData.split(java.util.regex.Pattern.quote("$$"));
         hasPlayed = Boolean.parseBoolean(save[0]);
         homeTeam = resolveTeamFromSave(t.league, save.length > 1 ? save[1] : null);
         awayTeam = resolveTeamFromSave(t.league, save.length > 2 ? save[2] : null);

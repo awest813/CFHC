@@ -224,7 +224,7 @@ public class Player {
     public static final Set<String> offensePos = Set.of("QB", "RB", "WR", "TE");
     public static final Set<String> defensePos = Set.of("DL", "LB", "CB", "S");
     public static final Set<String> olPos = Set.of("OL");
-    public final String[] kickPos = {"K", "P"};
+    public static final String[] kickPos = {"K", "P"};
 
     private final int offStats = 24;
     private final int defStats = 16;
@@ -366,8 +366,8 @@ public class Player {
         recruitRating = Integer.parseInt(a[16]);
         height = Integer.parseInt(a[17]);
         weight = Integer.parseInt(a[18]);
-        ratOvr = getOverall();
-        ratImprovement = Integer.parseInt(a[19]);
+        ratOvr = Integer.parseInt(a[19]);
+        ratImprovement = Integer.parseInt(a[20]);
     }
 
     public void loadRecruit(String data, int[] wt) {
@@ -486,6 +486,7 @@ public class Player {
         else progression = getProgression();
 
         double games = getMidSeasonBonus();
+        this.ratOvrStart = ratOvr;
 
         ratIntelligence += (int) (Math.random() * games)/1.5;
         ratAttr1 += (int) (Math.random() * games);
@@ -669,11 +670,8 @@ public class Player {
     }
 
     public boolean getWasRedshirtStatus() {
-        wasRedshirt = false;
-        int rs = (int) (Math.random() * 5);
-        if (year > 1 && rs > 1) wasRedshirt = true;
-
-        return wasRedshirt;
+        if (year <= 1) return false;
+        return (int) (Math.random() * 5) > 1;
     }
 
     public int getSeasonAwards() {
@@ -768,7 +766,6 @@ public class Player {
     }
 
     public double getMidSeasonBonus() {
-        ratOvrStart = ratOvr;
         double games = (double) (getGamesStarted()) + (double) ((getGames() - getGamesStarted())) / 3.0;
         return games;
     }
@@ -2476,7 +2473,7 @@ public class Player {
     }
 
     public float getWRPassRatingCareer() {
-        if (getTargets() + getCareerTargets() < 1) {
+        if (getCareerTargets() < 1) {
             return 0;
         } else {
             float rating = (float) (((8.4 * getCareerRecYards()) + (300 * getCareerRecTDs()) + (100 * getCareerReceptions()) - (200 * getCareerDrops())) / getCareerTargets());
