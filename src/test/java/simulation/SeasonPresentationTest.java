@@ -124,4 +124,40 @@ public class SeasonPresentationTest {
         league.currentWeek = league.regSeasonWeeks + 13;
         assertEquals("Recruiting", SeasonPresentation.getSeasonCycleLabel(league));
     }
+
+    @Test
+    public void cycleLabel_clampsNegativeWeekToPreseason() {
+        league.currentWeek = -1;
+        assertEquals("Pre-Season", SeasonPresentation.getSeasonCycleLabel(league));
+        league.currentWeek = -99;
+        assertEquals("Pre-Season", SeasonPresentation.getSeasonCycleLabel(league));
+    }
+
+    @Test
+    public void cycleLabel_postseasonBoundaries() {
+        league.currentWeek = league.regSeasonWeeks;
+        assertEquals("Postseason", SeasonPresentation.getSeasonCycleLabel(league));
+        league.currentWeek = league.regSeasonWeeks + 1;
+        assertEquals("Postseason", SeasonPresentation.getSeasonCycleLabel(league));
+        league.currentWeek = league.regSeasonWeeks + 2;
+        assertEquals("Postseason", SeasonPresentation.getSeasonCycleLabel(league));
+        league.currentWeek = league.regSeasonWeeks + 3;
+        assertEquals("Postseason", SeasonPresentation.getSeasonCycleLabel(league));
+    }
+
+    @Test
+    public void cycleLabel_regularSeasonBoundaries() {
+        league.currentWeek = 1;
+        assertEquals("Regular Season", SeasonPresentation.getSeasonCycleLabel(league));
+        league.currentWeek = league.regSeasonWeeks - 2;
+        assertEquals("Regular Season", SeasonPresentation.getSeasonCycleLabel(league));
+        league.currentWeek = league.regSeasonWeeks - 1;
+        assertEquals("Regular Season", SeasonPresentation.getSeasonCycleLabel(league));
+    }
+
+    @Test
+    public void weekChip_negativeWeek() {
+        league.currentWeek = -1;
+        assertEquals("Week 0  Preseason", SeasonPresentation.getSeasonWeekChipText(league));
+    }
 }

@@ -54,7 +54,9 @@ public final class SeasonController {
 
     private void handlePreseasonTransition(SeasonAdvanceResult.Builder result) {
         redshirtComplete = true;
-        league.userTeam.recruitWalkOns();
+        if (league.userTeam != null) {
+            league.userTeam.recruitWalkOns();
+        }
         league.preseasonNews();
         league.currentWeek++; // Advance to Week 1
         updateSimStatus(result, "Preseason", "Play Week 1", true);
@@ -85,6 +87,7 @@ public final class SeasonController {
             String awards = league.getHeismanCeremonyStr();
             Player heismanWinner = league.getHeismanWinner();
             String awardsSummary = heismanWinner != null ? heismanWinner.getAwardDescription() : awards;
+            if (awardsSummary == null) awardsSummary = "";
             bridge.showAwardsSummary(awardsSummary);
             result.needsDialog(SeasonAdvanceResult.DialogType.AWARDS_SUMMARY, awardsSummary);
 
@@ -171,7 +174,7 @@ public final class SeasonController {
     }
 
     private void handleHireAssistants(SeasonAdvanceResult.Builder result) {
-        if (league.userTeam.isUserControlled()) {
+        if (league.userTeam != null && league.userTeam.isUserControlled()) {
             // Coordinator hiring runs in league simulation (see League.coordinatorCarousel).
             // Dedicated assistant-hire UI can be wired via GameUiBridge when added.
         }

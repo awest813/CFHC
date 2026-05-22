@@ -118,4 +118,42 @@ public class SeasonControllerResultTest {
             @Override public void startRecruitingFlow() {}
         };
     }
+
+    @Test
+    public void nullUserTeam_doesNotCrashPreseason() {
+        league.userTeam = null;
+        SeasonAdvanceResult result = controller.advanceWeek();
+        assertEquals(1, result.weekAfter);
+    }
+
+    @Test
+    public void nullUserTeam_doesNotCrashHireAssistants() {
+        league.userTeam = null;
+        league.currentWeek = league.regSeasonWeeks + 8;
+        SeasonAdvanceResult result = controller.advanceWeek();
+        assertTrue(result.hasEvent(SeasonAdvanceResult.EventType.WEEK_ADVANCED));
+        assertEquals(league.regSeasonWeeks + 9, result.weekAfter);
+    }
+
+    @Test
+    public void fullSeason_advancesThroughAllPhases() {
+        int reg = league.regSeasonWeeks;
+        // Preseason: 0 -> 1
+        SeasonAdvanceResult r = controller.advanceWeek();
+        assertEquals(1, r.weekAfter);
+        // In-season: weeks 1..reg+3 (playWeek increments internally)
+        for (int w = 0; w < reg + 3; w++) {
+            r = controller.advanceWeek();
+        }
+        assertEquals(reg + 4, r.weekAfter);
+        // Offseason: reg+4 -> reg+13 (9 steps, each handler increments)
+        for (int w = 0; w < 9; w++) {
+            r = controller.advanceWeek();
+        }
+        assertEquals(reg + 13, r.weekAfter);
+        // Recruiting trigger (no week increment)
+        r = controller.advanceWeek();
+        assertEquals(reg + 13, r.weekAfter);
+        assertTrue(r.hasEvent(SeasonAdvanceResult.EventType.RECRUITING_STARTED));
+    }
 }
