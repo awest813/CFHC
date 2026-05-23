@@ -5,6 +5,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 
 import simulation.Injury;
@@ -691,15 +692,16 @@ public class Player {
     public int getHeismanScore() {
         int adjGames = getGamesStarted();
         if (adjGames > 11) adjGames = 11;
-        return ratOvr * adjGames + team.getConfPrestige() * 5;
+        return ratOvr * adjGames + (team != null ? team.getConfPrestige() : 0) * 5;
     }
 
     public int getCareerScore() {
         int adjGames = getCareerGames();
-        return ratOvr * adjGames + team.getConfPrestige() * 5;
+        return ratOvr * adjGames + (team != null ? team.getConfPrestige() : 0) * 5;
     }
 
     int getConfPrestigeBonus() {
+        if (team == null) return 0;
         return team.getTeamPrestige() * 3 + team.getConfPrestige() * 7 + ((120 - team.getRankTeamPollScore()) * 3);
     }
 
@@ -736,6 +738,7 @@ public class Player {
 
 
     public int getProgression() {
+        if (team == null) return ratPot * 2 / 3;
         HeadCoach hc = team.getHeadCoach();
         int dev = hc != null ? hc.developmentBonusPoints() : 0;
         int num = (ratPot * 2 + (hc != null ? hc.ratTalent : 0) + 3 * team.getTeamFacilities() + dev
@@ -773,6 +776,7 @@ public class Player {
     }
 
     public double getChemistryProgression() {
+        if (team == null || team.league == null) return 0;
         return team.getTeamChemistry() - team.league.getAverageTeamChemistry();
     }
 
@@ -2724,4 +2728,16 @@ public class Player {
         gameXPMade = 0;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Player player = (Player) o;
+        return year == player.year && name.equals(player.name) && position.equals(player.position) && Objects.equals(team, player.team);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, position, team, year);
+    }
 }
