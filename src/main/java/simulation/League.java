@@ -230,6 +230,9 @@ public class League {
     public final double confRealignmentChance = .25; //chance of event .25
     public final double realignmentChance = .25; //chance of invite .33
     public boolean heismanDecided;
+    public boolean defPOTYDecided;
+    public boolean freshmanDecided;
+    public boolean coachAwardDecided;
     public Player heisman;
     public Player defPOTY;
     public HeadCoach coachWinner;
@@ -1108,6 +1111,9 @@ public class League {
         nameList = new ArrayList<>();
         lastNameList = new ArrayList<>();
         heismanDecided = false;
+        defPOTYDecided = false;
+        freshmanDecided = false;
+        coachAwardDecided = false;
         hasScheduledBowls = false;
         bowlGames = new Game[bowlNamesText.split(",").length];
         bowlNames = new String[bowlNamesText.split(",").length];
@@ -2344,7 +2350,8 @@ public class League {
      */
     public String getDefensePOTYStr() {
         boolean putNewsStory = false;
-        if (!heismanDecided) {
+        if (!defPOTYDecided) {
+            defPOTYDecided = true;
             defPOTYCandidates = getDefPOTY();
             defPOTY = defPOTYCandidates.get(0);
             defPOTY.wonHeisman = true;
@@ -2590,7 +2597,8 @@ public class League {
      */
     public String getFreshmanCeremonyStr() {
         boolean putNewsStory = false;
-        if (!heismanDecided) {
+        if (!freshmanDecided) {
+            freshmanDecided = true;
             freshmanCandidates = getTopFreshman();
             freshman = freshmanCandidates.get(0);
             freshman.wonTopFreshman = true;
@@ -2621,7 +2629,8 @@ public class League {
     }
 
     public String getCoachAwardStr() {
-        if (!heismanDecided) {
+        if (!coachAwardDecided) {
+            coachAwardDecided = true;
             ArrayList<HeadCoach> coachCandidates = rankHC();
             coachWinner = coachCandidates.get(0);
             String coachAwardTopList = "";
@@ -5963,6 +5972,9 @@ Then conferences can see if they want to add them to their list if the teams mee
     public void startNextSeason() {
         // Reset league-level per-season state
         heismanDecided = false;
+        defPOTYDecided = false;
+        freshmanDecided = false;
+        coachAwardDecided = false;
         hasScheduledBowls = false;
         heisman = null;
         defPOTY = null;

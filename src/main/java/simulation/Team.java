@@ -246,9 +246,6 @@ public class Team {
     public final int minRecruitStar = 4;
     public final int maxStarRating = 10;
     public final int numRecruits = 40;
-    public boolean walkon;
-
-
     public final int ratTransfer = 70;
     public final int promotionNum = 0;
     public int qbtransferNum = 0;
@@ -2349,7 +2346,7 @@ public class Team {
      */
     public void recruitWalkOns() {
         int star;
-        walkon = true;
+        boolean walkon = true;
 
 
         //QUARTERBACKS
@@ -4192,7 +4189,7 @@ public class Team {
             records.checkRecord("Interceptions", getS(i).getInterceptions(), getS(i).name + "%" + abbr, league.getYear());
         }
         for (int i = 0; i < teamKs.size(); ++i) {
-            records.checkRecord("Field Goals", getK(i).getFGMade(), getS(i).name + "%" + abbr, league.getYear());
+            records.checkRecord("Field Goals", getK(i).getFGMade(), getK(i).name + "%" + abbr, league.getYear());
         }
     }
 
@@ -4348,7 +4345,7 @@ public class Team {
             records.checkRecord("Interceptions", getS(i).getInterceptions(), getS(i).name + "%" + abbr, league.getYear());
         }
         for (int i = 0; i < teamKs.size(); ++i) {
-            records.checkRecord("Field Goals", getK(i).getFGMade(), getS(i).name + "%" + abbr, league.getYear());
+            records.checkRecord("Field Goals", getK(i).getFGMade(), getK(i).name + "%" + abbr, league.getYear());
         }
     }
 

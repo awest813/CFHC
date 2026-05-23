@@ -535,9 +535,9 @@ public class Player {
             if (year > 2 && games < minGamesPot) ratPot -= (int) (Math.random() * 15);
 
             ratIntelligence += (int) ((Math.random() * (progression + games - endseason)) / (endseasonFactor * 1.5));
-            ratAttr1 += (int) (Math.random() * (progression + games - endseason)) / endseasonFactor;
-            ratAttr2 += (int) (Math.random() * (progression + games - endseason)) / endseasonFactor;
-            ratAttr3 += (int) (Math.random() * (progression + games - endseason)) / endseasonFactor;
+            ratAttr1 += (int) ((Math.random() * (progression + games - endseason)) / endseasonFactor);
+            ratAttr2 += (int) ((Math.random() * (progression + games - endseason)) / endseasonFactor);
+            ratAttr3 += (int) ((Math.random() * (progression + games - endseason)) / endseasonFactor);
             ratAttr4 += (int) ((Math.random() * (progression + games - endseason)) / (endseasonFactor * 1.5));
 
             if (Math.random() * 100 < progression) {
@@ -556,6 +556,8 @@ public class Player {
             durabilityProgression();
         }
 
+        if (ratPot > 100) ratPot = 100;
+        if (ratPot < 0) ratPot = 0;
         clampCoreRatings();
         ratOvr = getOverall();
         ratImprovement = ratOvr - ratOvrStart;

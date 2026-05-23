@@ -161,6 +161,10 @@ class GameStatRecorder {
 
         selQB.gamePassTDs++;
         selQB.recordPassTD(1);
+        selQB.recordPassComp(1);
+        selQB.recordPassYards(yardsGain);
+        selQB.gamePassComplete++;
+        selQB.gamePassYards += yardsGain;
 
         if (pos.equals("WR")) {
             selWR.gameRecTDs++;
@@ -416,12 +420,6 @@ class GameStatRecorder {
             defender = ("S " + selS.name);
         }
 
-        if (game.gameYardLine < 0) {
-            game.gameTime -= 10 * Math.random();
-            recordSafety(defender);
-            return;
-        }
-
         if (game.homeTeam.league.fullGameLog)
             game.gameEventLog.append(game.getEventLog()).append("SACK!\n").append(" QB ").append(offense.getQB(0).name).append(
                     " was sacked for a loss of ").append(sackloss).append(" by ").append(defender).append(".");
@@ -430,11 +428,18 @@ class GameStatRecorder {
         game.gameYardsNeed += sackloss;
         game.gameYardLine -= sackloss;
 
+        if (game.gameYardLine < 0) {
+            game.gameTime -= 10 * Math.random();
+            recordSafety(defender);
+            return;
+        }
+
         game.gameTime -= game.timePerPlay + game.timePerPlay * Math.random();
     }
 
     void recordRecFumble(Team offense, PlayerRB selRB, PlayerWR selWR, PlayerTE selTE, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS, String pos) {
         String defender;
+        String fumblerName;
         ArrayList<Player> def = new ArrayList<>();
         def.add(selDL);
         def.add(selCB);
@@ -447,18 +452,19 @@ class GameStatRecorder {
         if (pos.equals("WR")) {
             selWR.gameFumbles++;
             selWR.recordFumbles(1);
-        }
-        if (pos.equals("TE")) {
+            fumblerName = selWR.name;
+        } else if (pos.equals("TE")) {
             selTE.gameFumbles++;
             selTE.recordFumbles(1);
-        }
-        if (pos.equals("RB")) {
+            fumblerName = selTE.name;
+        } else if (pos.equals("RB")) {
             selRB.gameFumbles++;
             selRB.recordFumbles(1);
-        }
-        if (pos.equals("QB")) {
+            fumblerName = selRB.name;
+        } else {
             offense.getQB(0).gameFumbles++;
             offense.getQB(0).recordFumbles(1);
+            fumblerName = offense.getQB(0).name;
         }
 
         if (player.equals("DL")) {
@@ -487,7 +493,7 @@ class GameStatRecorder {
             defender = ("LB " + selLB.name);
         }
 
-        game.gameEventLog.append(game.getEventLog()).append("FUMBLE!\n").append(offense.getAbbr()).append(" receiver ").append(selWR.name).append(" fumbled the ball after a catch. It was recovered by ").append(defender).append(".");
+        game.gameEventLog.append(game.getEventLog()).append("FUMBLE!\n").append(offense.getAbbr()).append(" receiver ").append(fumblerName).append(" fumbled the ball after a catch. It was recovered by ").append(defender).append(".");
     }
 
     void recordSafety(String defender) {

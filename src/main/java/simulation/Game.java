@@ -422,33 +422,35 @@ public class Game implements Serializable {
             teamReturner.get(1).gameSpeed = (float) (teamReturner.get(1).ratSpeed * Math.random());
         }
 
-       if(awayTeam == t) {
-           if (teamReturner.get(0).gameSpeed > teamReturner.get(1).gameSpeed)
-               awayKickReturner = teamReturner.get(0);
-           else awayKickReturner = teamReturner.get(1);
+       if (teamReturner.size() >= 2) {
+           if(awayTeam == t) {
+                if (teamReturner.get(0).gameSpeed > teamReturner.get(1).gameSpeed)
+                    awayKickReturner = teamReturner.get(0);
+                else awayKickReturner = teamReturner.get(1);
 
-           awayKickReturner.kYards = 0;
-           awayKickReturner.kReturns = 0;
-           awayKickReturner.pYards = 0;
-           awayKickReturner.pReturns = 0;
-           awayKickReturner.kTD = 0;
-           awayKickReturner.pTD = 0;
+                awayKickReturner.kYards = 0;
+                awayKickReturner.kReturns = 0;
+                awayKickReturner.pYards = 0;
+                awayKickReturner.pReturns = 0;
+                awayKickReturner.kTD = 0;
+                awayKickReturner.pTD = 0;
 
-           awayKickReturner.startPos = 0;
-       } else {
-           if (teamReturner.get(0).gameSpeed > teamReturner.get(1).gameSpeed)
-               homeKickReturner = teamReturner.get(0);
-           else homeKickReturner = teamReturner.get(1);
+                awayKickReturner.startPos = 0;
+            } else {
+                if (teamReturner.get(0).gameSpeed > teamReturner.get(1).gameSpeed)
+                    homeKickReturner = teamReturner.get(0);
+                else homeKickReturner = teamReturner.get(1);
 
-           homeKickReturner.kYards = 0;
-           homeKickReturner.kReturns = 0;
-           homeKickReturner.pYards = 0;
-           homeKickReturner.pReturns = 0;
-           homeKickReturner.kTD = 0;
-           homeKickReturner.pTD = 0;
+                homeKickReturner.kYards = 0;
+                homeKickReturner.kReturns = 0;
+                homeKickReturner.pYards = 0;
+                homeKickReturner.pReturns = 0;
+                homeKickReturner.kTD = 0;
+                homeKickReturner.pTD = 0;
 
-           homeKickReturner.startPos = 0;
-       }
+                homeKickReturner.startPos = 0;
+            }
+        }
     }
     
     private int getSpecialTeamsD(Team specialTeams) {
@@ -471,7 +473,8 @@ public class Game implements Serializable {
         Collections.sort(teamST, new CompPlayerSTSpeed());
         playerST = teamST.get(0);
 
-        ST = ST / (specialTeams.subLB + specialTeams.subCB + specialTeams.subS);
+        int stDenom = specialTeams.subLB + specialTeams.subCB + specialTeams.subS;
+        ST = ST / Math.max(1, stDenom);
 
         return ST;
     }
@@ -707,8 +710,14 @@ public class Game implements Serializable {
             // If we don't do this, gameYardsNeed may be higher than the actually distance for a TD and suboptimal plays may be chosen
             if (gameDown == 1 && gameYardLine >= 91) gameYardsNeed = 100 - gameYardLine;
 
-            //Under 30 seconds to play, check that the team with the ball is trailing or tied, do something based on the score difference
-            if (gameTime <= 20 && !playingOT && ((gamePoss && (awayScore >= homeScore)) || (!gamePoss && (homeScore >= awayScore)))) {
+            //Under 20 seconds to play: winning team kneels, trailing team goes for it
+            if (gameTime <= 20 && !playingOT) {
+                if ((gamePoss && (homeScore > awayScore)) || (!gamePoss && (awayScore > homeScore))) {
+                    gameTime -= timePerPlay * Math.random();
+                    gameDown++;
+                    gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" kneels to run out the clock.");
+                    return;
+                }
                 //Down by 3 or less, or tied, and you have the ball
                 if (((gamePoss && (awayScore - homeScore) <= 3) || (!gamePoss && (homeScore - awayScore) <= 3)) && gameYardLine > 60) {
                     //last second FGA
@@ -1165,7 +1174,7 @@ public class Game implements Serializable {
 
             //check for int
             if (!pos.equals("RB")) {
-                double intChance = (pressureOnQB + defense.getS(0).ratOvr - (2 * selQB.getRatPassAcc() + selQB.ratIntelligence + 100) / 4) / 18
+                double intChance = (pressureOnQB + defense.getS(0).ratOvr - (2 * selQB.getRatPassAcc() + selQB.ratIntelligence + 100) / 4.0) / 18.0
                         - offense.getPlaybookOffense().getPassProtection() + defense.getPlaybookDefense().getPassRush();
                 if (intChance < 0.015) intChance = 0.015;
                 if (intValue * Math.random() < intChance) {
@@ -1686,8 +1695,8 @@ public class Game implements Serializable {
                 selK.gameFGMade++;
                 selK.gameFGAttempts++;
 
-                if (!playingOT) kickOff(offense, defense);
-                else resetForOT();
+                if (!playingOT) { kickOff(offense, defense); return; }
+                else { resetForOT(); return; }
 
             } else {
                 //miss
@@ -1716,8 +1725,8 @@ public class Game implements Serializable {
                 selK.gameFGMade++;
                 selK.gameFGAttempts++;
 
-                if (!playingOT) kickOff(offense, defense);
-                else resetForOT();
+                if (!playingOT) { kickOff(offense, defense); return; }
+                else { resetForOT(); return; }
 
             } else {
                 //miss
@@ -2132,20 +2141,6 @@ public class Game implements Serializable {
             bottomOT = false;
             //runPlay( awayTeam, homeTeam );
         } else if (!bottomOT) {
-            //Add some gameFatigue points
-            List<Player> allHomePlayers = homeTeam.getAllPlayers();
-            List<Player> allAwayPlayers = awayTeam.getAllPlayers();
-            for (int i = 0; i < allHomePlayers.size(); ++i) {
-                allHomePlayers.get(i).gameFatigue += 50;
-                if (allHomePlayers.get(i).gameFatigue > 100)
-                    allHomePlayers.get(i).gameFatigue = 100;
-            }
-            for (int i = 0; i < allAwayPlayers.size(); ++i) {
-                allAwayPlayers.get(i).gameFatigue += 50;
-                if (allAwayPlayers.get(i).gameFatigue > 100)
-                    allAwayPlayers.get(i).gameFatigue = 100;
-            }
-
             gamePoss = !gamePoss;
             gameYardLine = 75;
             gameYardsNeed = 10;
@@ -2493,62 +2488,62 @@ public class Game implements Serializable {
             awayQScore[i] = Integer.parseInt(x[i]);
         }
 
-        ArrayList<String> homePassingStats = new ArrayList<>();
+        homePassingStats = new ArrayList<>();
         x = save[8].split("%");
         for (int i = 0; i < x.length; i++) {
             homePassingStats.add(x[i]);
         }
 
-        ArrayList<String> awayPassingStats = new ArrayList<>();
+        awayPassingStats = new ArrayList<>();
         x = save[9].split("%");
         for (int i = 0; i < x.length; i++) {
             awayPassingStats.add(x[i]);
         }
 
-        ArrayList<String> homeRushingStats = new ArrayList<>();
+        homeRushingStats = new ArrayList<>();
         x = save[10].split("%");
         for (int i = 0; i < x.length; i++) {
             homeRushingStats.add(x[i]);
         }
 
-        ArrayList<String> awayRushingStats = new ArrayList<>();
+        awayRushingStats = new ArrayList<>();
         x = save[11].split("%");
         for (int i = 0; i < x.length; i++) {
             awayRushingStats.add(x[i]);
         }
 
-        ArrayList<String> homeReceivingStats = new ArrayList<>();
+        homeReceivingStats = new ArrayList<>();
         x = save[12].split("%");
         for (int i = 0; i < x.length; i++) {
             homeReceivingStats.add(x[i]);
         }
 
-        ArrayList<String> awayReceivingStats = new ArrayList<>();
+        awayReceivingStats = new ArrayList<>();
         x = save[13].split("%");
         for (int i = 0; i < x.length; i++) {
             awayReceivingStats.add(x[i]);
         }
 
-        ArrayList<String> homeDefenseStats = new ArrayList<>();
+        homeDefenseStats = new ArrayList<>();
         x = save[14].split("%");
         for (int i = 0; i < x.length; i++) {
             homeDefenseStats.add(x[i]);
         }
 
-        ArrayList<String> awayDefenseStats = new ArrayList<>();
+        awayDefenseStats = new ArrayList<>();
         x = save[15].split("%");
         for (int i = 0; i < x.length; i++) {
             awayDefenseStats.add(x[i]);
         }
 
-        ArrayList<String> homeKickingStats = new ArrayList<>();
+        homeKickingStats = new ArrayList<>();
         x = save[16].split("%");
         for (int i = 0; i < x.length; i++) {
             homeKickingStats.add(x[i]);
         }
 
 
-        ArrayList<String> awayKickingStats = new ArrayList<>();
+        awayKickingStats = new ArrayList<>();
         x = save[17].split("%");
         for (int i = 0; i < x.length; i++) {
             awayKickingStats.add(x[i]);
