@@ -252,14 +252,14 @@ public class League {
 
     public ArrayList<String> teamsFCSList;
 
-    public final String[] proTeams = {"New England", "Buffalo", "New Jersey", "Miami", "Pittsburgh", "Baltimore", "Cincinnati", "Cleveland", "Jacksonville", "Indianapolis", "Houston", "Tennessee", "Kansas City", "Oakland", "Anaheim", "Denver",
-            "New York", "Philadelphia", "Dallas", "Washington", "Minnesota", "Chicago", "Green Bay", "Detroit", "New Orleans", "Carolina", "Tampa Bay", "Atlanta", "Seattle", "Los Angeles", "San Francisco", "Arizona"};
+    public final String[] proTeams = {"New England", "Buffalo", "New York Jets", "Miami", "Pittsburgh", "Baltimore", "Cincinnati", "Cleveland", "Jacksonville", "Indianapolis", "Houston", "Tennessee", "Kansas City", "Las Vegas", "Denver",
+            "New York Giants", "Philadelphia", "Dallas", "Washington", "Minnesota", "Chicago", "Green Bay", "Detroit", "New Orleans", "Carolina", "Tampa Bay", "Atlanta", "Seattle", "Los Angeles", "San Francisco", "Arizona"};
 
-    public final String[] states = {"AS", "AZ", "CA", "HI", "ID", "MT", "NV", "OR", "UT", "WA", "CO", "KS", "MO", "NE", "NM", "ND", "OK", "SD", "TX", "WY", "IL", "IN", "IA", "KY", "MD", "MI", "MN", "OH", "TN", "WI", "CT", "DE", "ME", "MA", "NH", "NJ", "NY", "PA", "RI", "VT", "AL", "AK", "FL", "GA", "LA", "MS", "NC", "SC", "VA", "WV"};
+    public final String[] states = {"AR", "AZ", "CA", "HI", "ID", "MT", "NV", "OR", "UT", "WA", "CO", "KS", "MO", "NE", "NM", "ND", "OK", "SD", "TX", "WY", "IL", "IN", "IA", "KY", "MD", "MI", "MN", "OH", "TN", "WI", "CT", "DE", "ME", "MA", "NH", "NJ", "NY", "PA", "RI", "VT", "AL", "AK", "FL", "GA", "LA", "MS", "NC", "SC", "VA", "WV"};
 
-    public final String bowlNamesText = "Carnation Bowl, Mandarin Bowl, Honey Bowl, Fiesta Bowl, Nectarine Bowl, Polyester Bowl, Twister Bowl, Gator Bowl, Desert Bowl, Fort Bowl, Vacation Bowl, Star Bowl, Bell Bowl, Freedom Bowl, Casino Bowl, American Bowl, Island Bowl, Charity Bowl, Steak Bowl, Camping Bowl, Spud Bowl, Music Bowl, New Orleans Bowl, Cowboy Bowl, Santa Fe Bowl, Burrito Bowl, Mexico Bowl, Chick Bowl, Empire Bowl, Rainbow Bowl, Mushroom Bowl, Coffee Bowl, Cascade Bowl, Great Lakes Bowl, Cowboy Bowl, Alliance Bowl, Appalachian Bowl, Bayou Bowl, Nexus Bowl, Space Bowl, Everest Bowl, Cloud Bowl, Healthcare Bowl, More Chicken Bowl, Avocado Bowl, Realtors Bowl, Search Engine Bowl, Instant Photo Bowl, Social Faces Bowl, Grape Bowl, Tesla Bowl, Earthquake Bowl, Rainforest Bowl";
+    public final String bowlNamesText = "Carnation Bowl, Mandarin Bowl, Honey Bowl, Fiesta Bowl, Nectarine Bowl, Polyester Bowl, Twister Bowl, Gator Bowl, Desert Bowl, Fort Bowl, Vacation Bowl, Star Bowl, Bell Bowl, Freedom Bowl, Casino Bowl, American Bowl, Island Bowl, Charity Bowl, Steak Bowl, Camping Bowl, Spud Bowl, Music Bowl, New Orleans Bowl, Cowboy Bowl, Santa Fe Bowl, Burrito Bowl, Mexico Bowl, Chick Bowl, Empire Bowl, Rainbow Bowl, Mushroom Bowl, Coffee Bowl, Cascade Bowl, Great Lakes Bowl, Alliance Bowl, Appalachian Bowl, Bayou Bowl, Nexus Bowl, Space Bowl, Everest Bowl, Cloud Bowl, Healthcare Bowl, More Chicken Bowl, Avocado Bowl, Realtors Bowl, Search Engine Bowl, Instant Photo Bowl, Social Faces Bowl, Grape Bowl, Tesla Bowl, Earthquake Bowl, Rainforest Bowl";
 
-    public String[] teamsFCS = {"Alabama State", "Albany", "Cal-Poly", "Central Arkansas", "Chattanooga", "Columbia", "Dayton", "Delaware", "Eastern Wash", "Eastern Tenn", "Spokane", "Harvard", "Yale", "Princeton", "Grambling", "Georgetown", "Idaho", "Idaho State", "James Madison", "Maine", "Miss Valley", "Montana", "Montana State", "New Hampshire", "North Dakota", "North Dakota St", "South Dakota", "South Dakota St", "Northern Arizona", "Northern Colorado", "Portland", "Rhode Island", "Sacramento", "Southern", "Southern TX", "Western llinois", "Youngstown"};
+    public String[] teamsFCS = {"Alabama State", "Albany", "Cal Poly", "Central Arkansas", "Chattanooga", "Columbia", "Dayton", "Delaware", "Eastern Washington", "East Tennessee St", "Idaho", "Harvard", "Yale", "Princeton", "Grambling", "Georgetown", "Idaho State", "James Madison", "Maine", "Mississippi Valley St", "Montana", "Montana State", "New Hampshire", "North Dakota", "North Dakota St", "South Dakota", "South Dakota St", "Northern Arizona", "Northern Colorado", "Portland State", "Rhode Island", "Sacramento State", "Southern", "Texas Southern", "Western Illinois", "Youngstown St"};
 
     public String[] confNamesNew = {"Antdroid", "Big 8", "National", "Constitution", "Colonial", "Continental"};
 
@@ -315,7 +315,8 @@ public class League {
                             Integer.parseInt(normalizeSeedText(teamID[3])),
                             normalizeSeedText(teamID[4]),
                             Integer.parseInt(normalizeSeedText(teamID[5])),
-                            this
+                            this,
+                            teamID.length > 6 ? normalizeSeedText(teamID[6]) : ""
                     ));
                     x++;
                 }
@@ -337,7 +338,8 @@ public class League {
                             tmPres,
                             normalizeSeedText(teamID[4]),
                             Integer.parseInt(normalizeSeedText(teamID[5])),
-                            this
+                            this,
+                            teamID.length > 6 ? normalizeSeedText(teamID[6]) : ""
                     ));
                     x++;
                 }
@@ -357,7 +359,8 @@ public class League {
                             tmPres,
                             normalizeSeedText(teamID[4]),
                             Integer.parseInt(normalizeSeedText(teamID[5])),
-                            this
+                            this,
+                            teamID.length > 6 ? normalizeSeedText(teamID[6]) : ""
                     ));
                     x++;
                 }

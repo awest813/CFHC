@@ -42,7 +42,8 @@ public record LeagueRecord(
         List<TeamHistoryRecord> history,
         List<DataRecord> records,
         String practiceFocus,
-        int nilCollectiveLevel
+        int nilCollectiveLevel,
+        String nickname
     ) {
         public TeamRecord {
             if (practiceFocus == null) {
@@ -50,6 +51,9 @@ public record LeagueRecord(
             }
             if (nilCollectiveLevel < 0) {
                 nilCollectiveLevel = 0;
+            }
+            if (nickname == null) {
+                nickname = "";
             }
         }
     }

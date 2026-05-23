@@ -272,7 +272,7 @@ public class SaveManager {
                 confTeams.add(new LeagueRecord.TeamRecord(teamName, teamAbbr, prestige, teamWins, teamLosses,
                         List.copyOf(teamOocWeeksBuf), List.copyOf(teamOocNamesBuf),
                         teamPollSnap, teamRankSnap,
-                        hc, oc, dc, roster, history, tRecords, teamPracticeFocus, teamNilCollectiveLevel));
+                        hc, oc, dc, roster, history, tRecords, teamPracticeFocus, teamNilCollectiveLevel, ""));
             } else if (line.startsWith(GAME_PREFIX)) {
                 gameRecords.add(LeagueRecord.GameRecord.fromSaveLine(line.substring(GAME_PREFIX.length())));
             }

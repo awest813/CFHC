@@ -37,6 +37,7 @@ public class Team {
     public final DecimalFormat df3 = new DecimalFormat("#.###", symbols);
     public final League league;
     public String name;
+    public String nickname;
     public String abbr;
     public String conference;
     public String division;
@@ -285,7 +286,12 @@ public class Team {
      * @param prestige   prestige of that team, between 0-100
      */
     public Team(String name, String abbr, String conference, int prestige, String div, int loc, League league) {
+        this(name, abbr, conference, prestige, div, loc, league, "");
+    }
+
+    public Team(String name, String abbr, String conference, int prestige, String div, int loc, League league, String nickname) {
         this.name = name;
+        this.nickname = nickname;
         this.abbr = abbr;
         this.conference = conference;
         this.league = league;
@@ -340,6 +346,7 @@ public class Team {
     //Creates an FCS team
     public Team(String name, String abbr, String conference, int prestige, String div, int loc, League league, boolean FCS) {
         this.name = name;
+        this.nickname = "";
         this.abbr = abbr;
         this.conference = conference;
         this.league = league;
@@ -467,6 +474,7 @@ public class Team {
             recentPenalty = Boolean.parseBoolean(teamInfo[23]);
             teamFacilities = Integer.parseInt((teamInfo[24]));
             teamStadium = Integer.parseInt((teamInfo[25]));
+            nickname = teamInfo.length > 26 ? teamInfo[26] : "";
         }
 
         // Lines 1 is Team Home/Away Rotation
@@ -481,6 +489,7 @@ public class Team {
     public Team(LeagueRecord.TeamRecord record, League league) {
         this.league = league;
         this.name = record.name();
+        this.nickname = record.nickname() != null ? record.nickname() : "";
         this.abbr = record.abbr();
         this.teamPrestige = record.prestige();
         commonInitializer();
@@ -624,7 +633,8 @@ public class Team {
                 new ArrayList<>(teamHistory),
                 teamRecords.toRecordList(),
                 practiceFocus != null ? practiceFocus.toSave() : PracticeFocus.BALANCED.toSave(),
-                nilCollectiveLevel
+                nilCollectiveLevel,
+                nickname != null ? nickname : ""
         );
     }
 
