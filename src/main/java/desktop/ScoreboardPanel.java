@@ -73,7 +73,7 @@ public class ScoreboardPanel implements LeagueScreen {
 
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
-        topPanel.add(buildScreenHeader("Scoreboard", "Browse completed weeks and open box scores."), BorderLayout.NORTH);
+        topPanel.add(DesktopTheme.buildScreenHeader("Scoreboard", "Browse completed weeks and open box scores."), BorderLayout.NORTH);
 
         JPanel navPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 4));
         JButton prevBtn = new JButton("\u25C0 Previous");
@@ -161,20 +161,6 @@ public class ScoreboardPanel implements LeagueScreen {
         scoreHint.setForeground(DesktopTheme.textSecondary());
         panel.add(scoreHint, BorderLayout.SOUTH);
         return panel;
-    }
-
-    private static JPanel buildScreenHeader(String title, String subtitle) {
-        JPanel header = new JPanel(new BorderLayout());
-        header.setOpaque(false);
-        JLabel titleLabel = new JLabel(title);
-        titleLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 18));
-        titleLabel.setForeground(DesktopTheme.textPrimary());
-        JLabel subtitleLabel = new JLabel(subtitle);
-        subtitleLabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
-        subtitleLabel.setForeground(DesktopTheme.textSecondary());
-        header.add(titleLabel, BorderLayout.NORTH);
-        header.add(subtitleLabel, BorderLayout.SOUTH);
-        return header;
     }
 
     private static String getWeekType(int week, League league) {

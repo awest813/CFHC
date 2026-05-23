@@ -36,10 +36,6 @@ import java.util.Locale;
 public class RedshirtDialog extends JDialog {
 
     private static final String[] COLUMNS = {"Pos", "Name", "Yr", "OVR", "Team"};
-    
-    private static final Color ACCENT_BLUE = new Color(52, 152, 219);
-    private static final Color SUCCESS_GREEN = new Color(46, 204, 113);
-    private static final Color DANGER_RED = new Color(231, 76, 60);
 
     private final League league;
     private DefaultTableModel currentModel;
@@ -60,7 +56,7 @@ public class RedshirtDialog extends JDialog {
         bottom.setBackground(DesktopTheme.tableBase());
         bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.borderSubtle()));
         
-        JButton doneBtn = createGlassButton("CLOSE MANAGEMENT", ACCENT_BLUE);
+        JButton doneBtn = DesktopTheme.createGlassButton("CLOSE MANAGEMENT", DesktopTheme.accentBlue());
         doneBtn.addActionListener(e -> dispose());
         bottom.add(doneBtn);
         add(bottom, BorderLayout.SOUTH);
@@ -96,7 +92,7 @@ public class RedshirtDialog extends JDialog {
         
         JLabel leftHeader = new JLabel("INACTIVE REDSHIRT POOL");
         leftHeader.setFont(new Font("SansSerif", Font.BOLD, 12));
-        leftHeader.setForeground(DANGER_RED);
+        leftHeader.setForeground(DesktopTheme.dangerRed());
         leftPanel.add(leftHeader, BorderLayout.NORTH);
         
         JScrollPane currentScroll = new JScrollPane(currentTable);
@@ -104,8 +100,8 @@ public class RedshirtDialog extends JDialog {
         currentScroll.getViewport().setBackground(DesktopTheme.windowBackground());
         leftPanel.add(currentScroll, BorderLayout.CENTER);
 
-        JButton removeBtn = createGlassButton("REMOVE STATUS \u25B6", DesktopTheme.tableBase());
-        removeBtn.setForeground(DANGER_RED);
+        JButton removeBtn = DesktopTheme.createGlassButton("REMOVE STATUS \u25B6", DesktopTheme.tableBase());
+        removeBtn.setForeground(DesktopTheme.dangerRed());
         removeBtn.addActionListener(e -> {
             int row = currentTable.getSelectedRow();
             if (row < 0 || row >= currentList.size()) return;
@@ -130,7 +126,7 @@ public class RedshirtDialog extends JDialog {
         String teamName = (league.userTeam != null) ? league.userTeam.getAbbr() + " ELIGIBLE PROSPECTS" : "FRESHMEN ELIGIBLES";
         JLabel rightHeader = new JLabel(teamName.toUpperCase(Locale.ROOT));
         rightHeader.setFont(new Font("SansSerif", Font.BOLD, 12));
-        rightHeader.setForeground(SUCCESS_GREEN);
+        rightHeader.setForeground(DesktopTheme.successGreen());
         rightPanel.add(rightHeader, BorderLayout.NORTH);
         
         JScrollPane eligibleScroll = new JScrollPane(eligibleTable);
@@ -138,7 +134,7 @@ public class RedshirtDialog extends JDialog {
         eligibleScroll.getViewport().setBackground(DesktopTheme.windowBackground());
         rightPanel.add(eligibleScroll, BorderLayout.CENTER);
 
-        JButton grantBtn = createGlassButton("\u25C0 GRANT REDSHIRT", SUCCESS_GREEN);
+        JButton grantBtn = DesktopTheme.createGlassButton("\u25C0 GRANT REDSHIRT", DesktopTheme.successGreen());
         grantBtn.addActionListener(e -> {
             int row = eligibleTable.getSelectedRow();
             if (row < 0 || row >= eligibleList.size()) return;
@@ -178,28 +174,6 @@ public class RedshirtDialog extends JDialog {
         table.getTableHeader().setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, DesktopTheme.borderSubtle()));
         
         return table;
-    }
-
-    private JButton createGlassButton(String text, Color bg) {
-        JButton btn = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(getBackground());
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
-                super.paintComponent(g);
-                g2.dispose();
-            }
-        };
-        btn.setFont(new Font("SansSerif", Font.BOLD, 12));
-        btn.setForeground(Color.WHITE);
-        btn.setBackground(bg);
-        btn.setFocusPainted(false);
-        btn.setContentAreaFilled(false);
-        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btn.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
-        return btn;
     }
 
     private DefaultTableModel createModel() {
@@ -246,23 +220,11 @@ public class RedshirtDialog extends JDialog {
 
     private static Object[] playerRow(Player p) {
         String teamName = p.team != null ? p.team.getAbbr() : "";
-        return new Object[]{p.position, p.name, yearLabel(p.year), p.ratOvr, teamName};
+        return new Object[]{p.position, p.name, DesktopTheme.yearAbbreviation(p.year), p.ratOvr, teamName};
     }
 
     private static boolean isRedshirtEligible(Player p) {
         return p.year == 1 && !p.isRedshirt && !p.wasRedshirt && !p.isMedicalRS;
-    }
-
-    private static String yearLabel(int year) {
-        return switch (year) {
-            case 0 -> "RS";
-            case 1 -> "FR";
-            case 2 -> "SO";
-            case 3 -> "JR";
-            case 4 -> "SR";
-            case 5 -> "5SR";
-            default -> String.valueOf(year);
-        };
     }
 
     public static void show(JFrame owner, League league) {

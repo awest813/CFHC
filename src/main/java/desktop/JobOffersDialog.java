@@ -40,10 +40,6 @@ import java.util.Locale;
  */
 public class JobOffersDialog extends JDialog {
 
-    private static final Color ACCENT_BLUE = new Color(52, 152, 219);
-    private static final Color SUCCESS_GREEN = new Color(46, 204, 113);
-    private static final Color DANGER_RED = new Color(231, 76, 60);
-
     private static final String[] COLUMNS = {"Team", "Prestige", "Conf", "Off Tal", "Def Tal", "Fit Req"};
     private static final DecimalFormat DF = new DecimalFormat("#0.0", DecimalFormatSymbols.getInstance(Locale.ROOT));
     private static final int MIN_COACH_RATING = 40;
@@ -101,7 +97,7 @@ public class JobOffersDialog extends JDialog {
         
         JLabel msg = new JLabel("CAREER MODE DEACTIVATED", JLabel.CENTER);
         msg.setFont(new Font("SansSerif", Font.BOLD, 20));
-        msg.setForeground(DANGER_RED);
+        msg.setForeground(DesktopTheme.dangerRed());
         panel.add(msg, BorderLayout.NORTH);
         
         JLabel desc = new JLabel("<html><center>Job offers and career transitions are only available in a persistent career universe.</center></html>", JLabel.CENTER);
@@ -109,7 +105,7 @@ public class JobOffersDialog extends JDialog {
         desc.setForeground(DesktopTheme.textSecondary());
         panel.add(desc, BorderLayout.CENTER);
 
-        JButton ok = createGlassButton("RETURN TO HUB", ACCENT_BLUE);
+        JButton ok = DesktopTheme.createGlassButton("RETURN TO HUB", DesktopTheme.accentBlue());
         ok.addActionListener(e -> dispose());
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.CENTER));
         bottom.setOpaque(false);
@@ -141,7 +137,7 @@ public class JobOffersDialog extends JDialog {
         area.setOpaque(false);
         panel.add(area, BorderLayout.CENTER);
 
-        JButton ok = createGlassButton("ACKNOWLEDGE", ACCENT_BLUE);
+        JButton ok = DesktopTheme.createGlassButton("ACKNOWLEDGE", DesktopTheme.accentBlue());
         ok.addActionListener(e -> {
             if (isPromotion) userHC.promotionCandidate = false;
             dispose();
@@ -181,7 +177,7 @@ public class JobOffersDialog extends JDialog {
         table.setForeground(DesktopTheme.textPrimary());
         table.setGridColor(DesktopTheme.borderSubtle());
         table.setShowVerticalLines(false);
-        table.setSelectionBackground(ACCENT_BLUE);
+        table.setSelectionBackground(DesktopTheme.accentBlue());
         
         table.getTableHeader().setBackground(DesktopTheme.tableBase());
         table.getTableHeader().setForeground(DesktopTheme.textSecondary());
@@ -196,7 +192,7 @@ public class JobOffersDialog extends JDialog {
 
         JLabel snapshotTitle = new JLabel("PROGRAM INTELLIGENCE");
         snapshotTitle.setFont(new Font("SansSerif", Font.BOLD, 12));
-        snapshotTitle.setForeground(ACCENT_BLUE);
+        snapshotTitle.setForeground(DesktopTheme.accentBlue());
         detailPanel.add(snapshotTitle, BorderLayout.NORTH);
 
         JTextArea detail = new JTextArea("SELECT A PROGRAM TO VIEW PERSONNEL EVALUATIONS AND ALUMNI EXPECTATIONS.");
@@ -268,13 +264,13 @@ public class JobOffersDialog extends JDialog {
         buttons.setBackground(DesktopTheme.tableBase());
         buttons.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.borderSubtle()));
         
-        JButton declineBtn = createGlassButton(isPromotion ? "DECLINE ALL OFFERS" : "DECLINE OPPORTUNITY", DANGER_RED);
+        JButton declineBtn = DesktopTheme.createGlassButton(isPromotion ? "DECLINE ALL OFFERS" : "DECLINE OPPORTUNITY", DesktopTheme.dangerRed());
         declineBtn.addActionListener(e -> {
             if (isPromotion) userHC.promotionCandidate = false;
             dispose();
         });
 
-        JButton acceptBtn = createGlassButton("ACCEPT CONTRACT", SUCCESS_GREEN);
+        JButton acceptBtn = DesktopTheme.createGlassButton("ACCEPT CONTRACT", DesktopTheme.successGreen());
         acceptBtn.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row >= 0 && row < vacancies.size()) {
@@ -293,28 +289,6 @@ public class JobOffersDialog extends JDialog {
         add(headerPanel, BorderLayout.NORTH);
         add(split, BorderLayout.CENTER);
         add(buttons, BorderLayout.SOUTH);
-    }
-
-    private JButton createGlassButton(String text, Color bg) {
-        JButton btn = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(getBackground());
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
-                super.paintComponent(g);
-                g2.dispose();
-            }
-        };
-        btn.setFont(new Font("SansSerif", Font.BOLD, 12));
-        btn.setForeground(Color.WHITE);
-        btn.setBackground(bg);
-        btn.setFocusPainted(false);
-        btn.setContentAreaFilled(false);
-        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btn.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
-        return btn;
     }
 
     private String buildTeamSummary(Team team) {

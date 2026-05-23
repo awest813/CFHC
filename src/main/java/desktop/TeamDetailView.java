@@ -161,7 +161,7 @@ public class TeamDetailView extends JDialog {
                 .forEach(p -> model.addRow(new Object[]{
                         p.position(),
                         p.name(),
-                        yearLabel(p.year()),
+                        DesktopTheme.yearAbbreviation(p.year()),
                         p.ratOvr(),
                         p.ratPot(),
                         p.ratIntelligence()
@@ -369,7 +369,7 @@ public class TeamDetailView extends JDialog {
             if (p.position.equals(pos)) {
                 model.addRow(new Object[]{
                         depth == 1 ? "Starter" : "Backup " + depth,
-                        pos, p.name, yearLabel(p.year), p.ratOvr
+                        pos, p.name, DesktopTheme.yearAbbreviation(p.year), p.ratOvr
                 });
                 depth++;
             }
@@ -564,18 +564,6 @@ public class TeamDetailView extends JDialog {
     // -------------------------------------------------------------------------
     // Utilities
     // -------------------------------------------------------------------------
-
-    private static String yearLabel(int year) {
-        return switch (year) {
-            case 0 -> "RS";
-            case 1 -> "FR";
-            case 2 -> "SO";
-            case 3 -> "JR";
-            case 4 -> "SR";
-            case 5 -> "5SR";
-            default -> String.valueOf(year);
-        };
-    }
 
     private static Player findPlayerByName(Team team, String name) {
         if (team == null || name == null) return null;

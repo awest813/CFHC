@@ -40,7 +40,7 @@ public class PlayerSearchPanel implements LeagueScreen {
 
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
-        topPanel.add(buildScreenHeader("Player Search", "Find players across every roster by name, position, and class."), BorderLayout.NORTH);
+        topPanel.add(DesktopTheme.buildScreenHeader("Player Search", "Find players across every roster by name, position, and class."), BorderLayout.NORTH);
 
         JPanel filterBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 4));
         filterBar.add(new JLabel("Name:"));
@@ -122,7 +122,7 @@ public class PlayerSearchPanel implements LeagueScreen {
                     if (!"ALL".equals(posFilter) && !p.position.equals(posFilter)) continue;
                     if (yearInt != -1 && p.year != yearInt) continue;
                     model.addRow(new Object[]{
-                            p.name, p.position, t.getName(), formatYear(p.year), p.ratOvr, p.ratPot
+                            p.name, p.position, t.getName(), DesktopTheme.yearAbbreviation(p.year), p.ratOvr, p.ratPot
                     });
                 }
             }
@@ -146,32 +146,6 @@ public class PlayerSearchPanel implements LeagueScreen {
     @Override
     public JComponent searchTarget() {
         return searchTarget;
-    }
-
-    private static JPanel buildScreenHeader(String title, String subtitle) {
-        JPanel header = new JPanel(new BorderLayout());
-        header.setOpaque(false);
-        JLabel titleLabel = new JLabel(title);
-        titleLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 18));
-        titleLabel.setForeground(DesktopTheme.textPrimary());
-        JLabel subtitleLabel = new JLabel(subtitle);
-        subtitleLabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
-        subtitleLabel.setForeground(DesktopTheme.textSecondary());
-        header.add(titleLabel, BorderLayout.NORTH);
-        header.add(subtitleLabel, BorderLayout.SOUTH);
-        return header;
-    }
-
-    private static String formatYear(int year) {
-        return switch (year) {
-            case 0 -> "RS";
-            case 1 -> "FR";
-            case 2 -> "SO";
-            case 3 -> "JR";
-            case 4 -> "SR";
-            case 5 -> "5SR";
-            default -> String.valueOf(year);
-        };
     }
 
     private static Player findPlayerByName(Team team, String name) {

@@ -34,8 +34,6 @@ import javax.swing.JSeparator;
  */
 public class SettingsDialog extends JDialog {
 
-    private static final Color ACCENT_BLUE = new Color(52, 152, 219);
-
     private boolean applied = false;
 
     public SettingsDialog(JFrame owner, League league) {
@@ -224,7 +222,7 @@ public class SettingsDialog extends JDialog {
                 g2.dispose();
             }
         };
-        applyBtn.setBackground(ACCENT_BLUE);
+        applyBtn.setBackground(DesktopTheme.accentBlue());
         applyBtn.setForeground(Color.WHITE);
         applyBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
         applyBtn.setFocusPainted(false);
@@ -356,7 +354,7 @@ public class SettingsDialog extends JDialog {
                 if (disabled) {
                     g2.setColor(new Color(80, 80, 85));
                 } else {
-                    g2.setColor(ACCENT_BLUE);
+                    g2.setColor(DesktopTheme.accentBlue());
                 }
                 g2.fillRoundRect(x, y, 17, 17, 4, 4);
                 if (!disabled) {

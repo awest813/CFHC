@@ -56,7 +56,7 @@ public class NewsPanel implements LeagueScreen {
 
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setOpaque(false);
-        topPanel.add(buildScreenHeader("News", "Review weekly headlines and league storylines."), BorderLayout.NORTH);
+        topPanel.add(DesktopTheme.buildScreenHeader("News", "Review weekly headlines and league storylines."), BorderLayout.NORTH);
 
         JPanel navPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 4));
         JButton prevBtn = new JButton("\u25C0 Prev Week");
@@ -137,20 +137,6 @@ public class NewsPanel implements LeagueScreen {
 
         loadNewsForWeek.run();
         return panel;
-    }
-
-    private static JPanel buildScreenHeader(String title, String subtitle) {
-        JPanel header = new JPanel(new BorderLayout());
-        header.setOpaque(false);
-        JLabel titleLabel = new JLabel(title);
-        titleLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 18));
-        titleLabel.setForeground(DesktopTheme.textPrimary());
-        JLabel subtitleLabel = new JLabel(subtitle);
-        subtitleLabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
-        subtitleLabel.setForeground(DesktopTheme.textSecondary());
-        header.add(titleLabel, BorderLayout.NORTH);
-        header.add(subtitleLabel, BorderLayout.SOUTH);
-        return header;
     }
 
     private static String lookupStoryForWeek(String headline, int week, LeagueScreenContext ctx) {

@@ -39,8 +39,6 @@ public class TransferPortalDialog extends JDialog {
 
     private static final String[] COLUMNS = {"Pos", "Name", "OVR", "Yr", "Original Team"};
 
-    private static final Color ACCENT_BLUE = new Color(52, 152, 219);
-
     private final League league;
     private DefaultTableModel tableModel;
     private List<Player> allPlayers;
@@ -90,7 +88,7 @@ public class TransferPortalDialog extends JDialog {
 
         JLabel posLabel = new JLabel("PORTAL FILTER:");
         posLabel.setFont(new Font("SansSerif", Font.BOLD, 10));
-        posLabel.setForeground(ACCENT_BLUE);
+        posLabel.setForeground(DesktopTheme.accentBlue());
         topBar.add(posLabel);
 
         JComboBox<String> filterBox = new JComboBox<>(POS_FILTERS);
@@ -149,24 +147,7 @@ public class TransferPortalDialog extends JDialog {
         hintLabel.setBorder(BorderFactory.createEmptyBorder(0, 30, 0, 0));
         bottom.add(hintLabel, BorderLayout.WEST);
 
-        JButton closeBtn = new JButton("CLOSE PORTAL") {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(getBackground());
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
-                super.paintComponent(g);
-                g2.dispose();
-            }
-        };
-        closeBtn.setBackground(ACCENT_BLUE);
-        closeBtn.setForeground(Color.WHITE);
-        closeBtn.setFont(new Font("SansSerif", Font.BOLD, 12));
-        closeBtn.setFocusPainted(false);
-        closeBtn.setContentAreaFilled(false);
-        closeBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        closeBtn.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
+        JButton closeBtn = DesktopTheme.createGlassButton("CLOSE PORTAL", DesktopTheme.accentBlue());
         closeBtn.addActionListener(e -> dispose());
         
         JPanel closePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 30, 20));

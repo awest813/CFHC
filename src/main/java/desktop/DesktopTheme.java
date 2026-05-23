@@ -589,4 +589,68 @@ public final class DesktopTheme {
             }
         }
     }
+
+    public static Color accentBlue() {
+        return new Color(52, 152, 219);
+    }
+
+    public static Color successGreen() {
+        return new Color(46, 204, 113);
+    }
+
+    public static Color dangerRed() {
+        return new Color(231, 76, 60);
+    }
+
+    public static Color dialogSurface() {
+        return isDark() ? new Color(25, 32, 45) : new Color(246, 248, 251);
+    }
+
+    public static JButton createGlassButton(String text, Color bg) {
+        JButton btn = new JButton(text) {
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(getBackground());
+                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
+                super.paintComponent(g);
+                g2.dispose();
+            }
+        };
+        btn.setFont(new Font("SansSerif", Font.BOLD, 12));
+        btn.setForeground(Color.WHITE);
+        btn.setBackground(bg);
+        btn.setFocusPainted(false);
+        btn.setContentAreaFilled(false);
+        btn.setCursor(java.awt.Cursor.getPredefinedCursor(java.awt.Cursor.HAND_CURSOR));
+        btn.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
+        return btn;
+    }
+
+    public static String yearAbbreviation(int year) {
+        return switch (year) {
+            case 0 -> "RS";
+            case 1 -> "FR";
+            case 2 -> "SO";
+            case 3 -> "JR";
+            case 4 -> "SR";
+            case 5 -> "5SR";
+            default -> String.valueOf(year);
+        };
+    }
+
+    public static JPanel buildScreenHeader(String title, String subtitle) {
+        JPanel header = new JPanel(new BorderLayout());
+        header.setOpaque(false);
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 18));
+        titleLabel.setForeground(textPrimary());
+        JLabel subtitleLabel = new JLabel(subtitle);
+        subtitleLabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
+        subtitleLabel.setForeground(textSecondary());
+        header.add(titleLabel, BorderLayout.NORTH);
+        header.add(subtitleLabel, BorderLayout.SOUTH);
+        return header;
+    }
 }

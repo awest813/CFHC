@@ -31,10 +31,6 @@ import java.util.Locale;
  */
 public class PlaybookDialog extends JDialog {
 
-    private static final String TAG = "PlaybookDialog";
-    
-    private static final Color ACCENT_BLUE = new Color(52, 152, 219);
-
     private final Team team;
 
     public PlaybookDialog(JFrame owner, Team team) {
@@ -65,7 +61,7 @@ public class PlaybookDialog extends JDialog {
         
         JLabel subtitle = new JLabel(team.getAbbr() + " STRATEGY CONFIGURATION");
         subtitle.setFont(new Font("SansSerif", Font.BOLD, 10));
-        subtitle.setForeground(ACCENT_BLUE);
+        subtitle.setForeground(DesktopTheme.accentBlue());
         header.add(subtitle, BorderLayout.SOUTH);
         add(header, BorderLayout.NORTH);
 
@@ -93,7 +89,7 @@ public class PlaybookDialog extends JDialog {
                 g2.dispose();
             }
         };
-        closeBtn.setBackground(ACCENT_BLUE);
+        closeBtn.setBackground(DesktopTheme.accentBlue());
         closeBtn.setForeground(Color.WHITE);
         closeBtn.setFont(new Font("SansSerif", Font.BOLD, 13));
         closeBtn.setFocusPainted(false);
@@ -111,7 +107,7 @@ public class PlaybookDialog extends JDialog {
         
         JLabel label = new JLabel(title);
         label.setFont(new Font("SansSerif", Font.BOLD, 11));
-        label.setForeground(ACCENT_BLUE);
+        label.setForeground(DesktopTheme.accentBlue());
         panel.add(label, BorderLayout.NORTH);
 
         String[] names = new String[options.length];

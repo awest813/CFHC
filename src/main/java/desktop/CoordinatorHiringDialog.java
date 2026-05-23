@@ -38,7 +38,6 @@ import java.util.Locale;
  */
 public class CoordinatorHiringDialog extends JDialog {
 
-    private static final Color ACCENT_BLUE = new Color(52, 152, 219);
     private static final int COORDINATOR_CONTRACT_LENGTH = 3;
 
     private final League league;
@@ -77,7 +76,7 @@ public class CoordinatorHiringDialog extends JDialog {
         panel.setBorder(BorderFactory.createEmptyBorder(40, 40, 40, 40));
         panel.add(new JLabel("<html><center style='color:#E74C3C; font-size:14pt;'>"
                 + DesktopTheme.escapeForHtml(msg) + "</center></html>", JLabel.CENTER), BorderLayout.CENTER);
-        JButton ok = createGlassButton("CLOSE", ACCENT_BLUE);
+        JButton ok = DesktopTheme.createGlassButton("CLOSE", DesktopTheme.accentBlue());
         ok.addActionListener(e -> dispose());
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.CENTER));
         bottom.setOpaque(false);
@@ -93,7 +92,7 @@ public class CoordinatorHiringDialog extends JDialog {
 
         JLabel header = new JLabel("COACHING STAFF STABILITY");
         header.setFont(new Font("SansSerif", Font.BOLD, 22));
-        header.setForeground(ACCENT_BLUE);
+        header.setForeground(DesktopTheme.accentBlue());
         panel.add(header, BorderLayout.NORTH);
 
         JPanel cardsPanel = new JPanel(new java.awt.GridLayout(1, 2, 25, 0));
@@ -108,7 +107,7 @@ public class CoordinatorHiringDialog extends JDialog {
 
         panel.add(cardsPanel, BorderLayout.CENTER);
 
-        JButton ok = createGlassButton("PROCEED TO SEASON", ACCENT_BLUE);
+        JButton ok = DesktopTheme.createGlassButton("PROCEED TO SEASON", DesktopTheme.accentBlue());
         ok.addActionListener(e -> {
             league.coordinatorCarousel();
             dispose();
@@ -181,7 +180,7 @@ public class CoordinatorHiringDialog extends JDialog {
         buttons.setBackground(DesktopTheme.tableBase());
         buttons.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.borderSubtle()));
         
-        JButton hireBtn = createGlassButton("CONFIRM HIRE", ACCENT_BLUE);
+        JButton hireBtn = DesktopTheme.createGlassButton("CONFIRM HIRE", DesktopTheme.accentBlue());
         hireBtn.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row < 0) {
@@ -249,7 +248,7 @@ public class CoordinatorHiringDialog extends JDialog {
         buttons.setBackground(DesktopTheme.tableBase());
         buttons.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.borderSubtle()));
 
-        JButton hireBtn = createGlassButton("CONFIRM HIRE", ACCENT_BLUE);
+        JButton hireBtn = DesktopTheme.createGlassButton("CONFIRM HIRE", DesktopTheme.accentBlue());
         hireBtn.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row < 0) {
@@ -303,7 +302,7 @@ public class CoordinatorHiringDialog extends JDialog {
         table.setForeground(DesktopTheme.textPrimary());
         table.setGridColor(DesktopTheme.borderSubtle());
         table.setShowVerticalLines(false);
-        table.setSelectionBackground(ACCENT_BLUE);
+        table.setSelectionBackground(DesktopTheme.accentBlue());
         
         table.getTableHeader().setBackground(DesktopTheme.tableBase());
         table.getTableHeader().setForeground(DesktopTheme.textSecondary());
@@ -312,28 +311,6 @@ public class CoordinatorHiringDialog extends JDialog {
         table.getTableHeader().setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, DesktopTheme.borderSubtle()));
         
         return table;
-    }
-
-    private JButton createGlassButton(String text, Color bg) {
-        JButton btn = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(getBackground());
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
-                super.paintComponent(g);
-                g2.dispose();
-            }
-        };
-        btn.setFont(new Font("SansSerif", Font.BOLD, 12));
-        btn.setForeground(Color.WHITE);
-        btn.setBackground(bg);
-        btn.setFocusPainted(false);
-        btn.setContentAreaFilled(false);
-        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btn.setBorder(BorderFactory.createEmptyBorder(12, 30, 12, 30));
-        return btn;
     }
 
     private void hireOC(ArrayList<Staff> candidates, int selectedIdx) {

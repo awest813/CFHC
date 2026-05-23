@@ -5,7 +5,6 @@ import recruiting.RecruitingSessionData;
 import simulation.AudioEvent;
 import simulation.AudioManager;
 import simulation.Conference;
-import simulation.Game;
 import simulation.League;
 import simulation.LeagueExportController;
 import simulation.LeagueLaunchCoordinator;
@@ -69,39 +68,6 @@ public class LeagueHomeView extends JFrame {
     private static final String TAG = "LeagueHomeView";
     private static final int HEADER_HEIGHT = 96;
     private static final String SAVE_EXTENSION = "cfb";
-    /** Delimiter used by the engine to separate headline from story body in news strings. */
-    private static final String NEWS_STORY_DELIMITER = ">";
-
-    /** Team ranking category names matching League.getTeamRankingsStr(selection). */
-    private static final String[] TEAM_RANKING_CATEGORIES = {
-            "Poll Score", "Prestige", "RPI", "Strength of Schedule", "Strength of Wins",
-            "Points/Game", "Opp Points/Game", "Yards/Game", "Opp Yards/Game",
-            "Pass Yards/Game", "Rush Yards/Game", "Opp Pass YPG", "Opp Rush YPG",
-            "Turnover Diff", "Off. Talent", "Def. Talent", "Chemistry",
-            "Recruiting Class", "Discipline", "Budget", "Facilities",
-            "Coach Overall", "Coach Score"
-    };
-
-    /** Hint shown below the player rankings table. */
-    private static final String PLAYER_RANKINGS_HINT = "Statistics update after each simulated week.";
-
-    /** Player ranking category names matching League.getPlayerRankStr(selection). */
-    private static final String[] PLAYER_RANKING_CATEGORIES = {
-            "QB Pass Rating", "QB Pass Yards", "QB Pass TDs", "QB INTs", "QB Completion %",
-            "Rush Yards", "Rush TDs",
-            "Receptions", "Receiving Yards", "Receiving TDs",
-            "Tackles", "Sacks", "Fumbles Recovered", "Interceptions",
-            "FG Made", "FG %",
-            "KO Return Yards", "KO Return TDs", "Punt Return Yards", "Punt Return TDs",
-            "Coach Overall", "Coach Score"
-    };
-
-    /** League history stat category names matching League.getLeagueHistoryStats(selection). */
-    private static final String[] LEAGUE_HISTORY_STAT_CATEGORIES = {
-            "National Championships", "Conference Championships", "Bowl Wins",
-            "Total Wins", "Hall of Fame Players"
-    };
-
     /** Maximum simulation steps for advanceFullYear() before surfacing an error. */
     private static final int MAX_FULL_YEAR_STEPS = 200;
 
@@ -191,7 +157,7 @@ public class LeagueHomeView extends JFrame {
         });
         registerScreens();
 
-loadApplicationIcon();
+        loadApplicationIcon();
         registerGlobalShortcuts();
         setJMenuBar(buildMenuBar());
         headerPanel = buildHeader();
@@ -781,7 +747,6 @@ loadApplicationIcon();
                 "New Season", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    /** Advances the regular season (weeks 1 through regSeasonWeeks+4) silently. */
     /**
      * Async simulation that stops at a specific target week or major event.
      * Keeps the UI responsive and provides feedback.
@@ -970,21 +935,6 @@ loadApplicationIcon();
 
     private void selectRecruitingTab() {
         selectScreen("Recruiting");
-    }
-
-    private static JPanel buildScreenHeader(String title, String subtitle) {
-        JPanel header = new JPanel(new GridLayout(0, 1, 0, 2));
-        header.setOpaque(false);
-        header.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
-        JLabel titleLabel = new JLabel(title);
-        titleLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
-        titleLabel.setForeground(DesktopTheme.textPrimary());
-        JLabel subtitleLabel = new JLabel(subtitle);
-        subtitleLabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
-        subtitleLabel.setForeground(DesktopTheme.textSecondary());
-        header.add(titleLabel);
-        header.add(subtitleLabel);
-        return header;
     }
 
     // =========================================================================

@@ -29,10 +29,6 @@ import java.util.Locale;
  */
 public class ContractDialog extends JDialog {
 
-    private static final Color ACCENT_BLUE = new Color(52, 152, 219);
-    private static final Color SUCCESS_GREEN = new Color(46, 204, 113);
-    private static final Color DANGER_RED = new Color(231, 76, 60);
-
     private static final int RETIREMENT_AGE = 65;
 
     private final League league;
@@ -88,13 +84,13 @@ public class ContractDialog extends JDialog {
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.CENTER, 25, 10));
         buttons.setOpaque(false);
         
-        JButton continueBtn = createGlassButton("CONTINUE CAREER", SUCCESS_GREEN);
+        JButton continueBtn = DesktopTheme.createGlassButton("CONTINUE CAREER", DesktopTheme.successGreen());
         continueBtn.addActionListener(e -> {
             retired = false;
             dispose();
         });
         
-        JButton retireBtn = createGlassButton("RETIRE IMMEDIATELY", DANGER_RED);
+        JButton retireBtn = DesktopTheme.createGlassButton("RETIRE IMMEDIATELY", DesktopTheme.dangerRed());
         retireBtn.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(this,
                     DesktopTheme.messageForDialog(
@@ -165,7 +161,7 @@ public class ContractDialog extends JDialog {
 
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         buttons.setOpaque(false);
-        JButton okBtn = createGlassButton("PROCEED TO OFF-SEASON", ACCENT_BLUE);
+        JButton okBtn = DesktopTheme.createGlassButton("PROCEED TO OFF-SEASON", DesktopTheme.accentBlue());
         okBtn.addActionListener(e -> dispose());
         buttons.add(okBtn);
         content.add(buttons, BorderLayout.SOUTH);
@@ -184,32 +180,10 @@ public class ContractDialog extends JDialog {
         
         JLabel titleLabel = new JLabel(title);
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 11));
-        titleLabel.setForeground(ACCENT_BLUE);
+        titleLabel.setForeground(DesktopTheme.accentBlue());
         card.add(titleLabel);
         
         return card;
-    }
-
-    private JButton createGlassButton(String text, Color bg) {
-        JButton btn = new JButton(text) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(getBackground());
-                g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
-                super.paintComponent(g);
-                g2.dispose();
-            }
-        };
-        btn.setFont(new Font("SansSerif", Font.BOLD, 12));
-        btn.setForeground(Color.WHITE);
-        btn.setBackground(bg);
-        btn.setFocusPainted(false);
-        btn.setContentAreaFilled(false);
-        btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        btn.setBorder(BorderFactory.createEmptyBorder(12, 30, 12, 30));
-        return btn;
     }
 
     public boolean didRetire() {
