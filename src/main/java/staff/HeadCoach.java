@@ -48,14 +48,19 @@ public class HeadCoach extends Staff {
     public HeadCoach(Team t, String data) {
         team = t;
 
-        String x = data.split("&")[0];
-        String y = data.split("&")[1];
-        String z = data.split("&")[2];
+        String[] parts = data.split("&");
+        String x = parts[0];
+        String y = parts[1];
+        String z = parts[2];
 
         loadAttributes(x, overallWt);
         loadSeasonStats(y);
         loadAwards(z);
         history = new ArrayList<>();
+        if (parts.length > 3 && !parts[3].isEmpty()) {
+            String[] h = parts[3].split("\\^");
+            for (String s : h) history.add(s);
+        }
 
     }
 
@@ -69,14 +74,19 @@ public class HeadCoach extends Staff {
     public HeadCoach(String data) {
         team = null;
 
-        String x = data.split("&")[0];
-        String y = data.split("&")[1];
-        String z = data.split("&")[2];
+        String[] parts = data.split("&");
+        String x = parts[0];
+        String y = parts[1];
+        String z = parts[2];
 
         loadAttributes(x, overallWt);
         loadSeasonStats(y);
         loadAwards(z);
         history = new ArrayList<>();
+        if (parts.length > 3 && !parts[3].isEmpty()) {
+            String[] h = parts[3].split("\\^");
+            for (String s : h) history.add(s);
+        }
 
     }
     

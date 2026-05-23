@@ -83,6 +83,13 @@ public final class Persistence {
             sb.append(r.awards()[i]);
             if (i < r.awards().length - 1) sb.append(",");
         }
+        sb.append("&");
+
+        // History
+        for (int i = 0; i < r.history().size(); i++) {
+            if (i > 0) sb.append("^");
+            sb.append(r.history().get(i));
+        }
 
         return sb.toString();
     }

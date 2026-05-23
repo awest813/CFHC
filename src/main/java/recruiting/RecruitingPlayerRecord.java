@@ -227,5 +227,18 @@ public final class RecruitingPlayerRecord {
         if (raw == null || raw.length() < 2) return raw != null ? raw : "";
         return raw.substring(0, raw.length() - 2);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RecruitingPlayerRecord that = (RecruitingPlayerRecord) o;
+        return listKey().equals(that.listKey());
+    }
+
+    @Override
+    public int hashCode() {
+        return listKey().hashCode();
+    }
 }
 

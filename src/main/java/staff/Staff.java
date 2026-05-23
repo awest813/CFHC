@@ -41,6 +41,7 @@ public class Staff {
         this.awards = record.awards();
         this.coachSkillXp = record.coachSkillXp();
         this.coachSkillRanksBits = record.coachSkillRanksBits();
+        this.history = new ArrayList<>(record.history());
     }
 
 
@@ -108,6 +109,12 @@ public class Staff {
         save.append(Arrays.toString(stats).replace("[", "").replace("]", "").replace(" ", "") + "&");
 
         save.append(Arrays.toString(awards).replace("[", "").replace("]", "").replace(" ", ""));
+
+        save.append("&");
+        for (int i = 0; i < history.size(); i++) {
+            if (i > 0) save.append("^");
+            save.append(history.get(i));
+        }
 
         return save.toString();
     }
@@ -452,7 +459,7 @@ public class Staff {
                 position, name, age, year, ratOff, ratDef, ratTalent, ratDiscipline,
                 offStrat, defStrat, contractYear, contractLength, baselinePrestige,
                 retired, ratOvr, ratImprovement, user, coachSkillXp, coachSkillRanksBits,
-                stats, awards
+                stats, awards, history != null ? new ArrayList<>(history) : new ArrayList<>()
         );
     }
 

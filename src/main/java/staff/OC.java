@@ -7,7 +7,7 @@ import java.util.Locale;
 import simulation.Team;
 
 public class OC extends Staff {
-    public final int[] overallWt = {0,4,3,1};
+    public final int[] overallWt = {4,0,3,1};
 
     //New Coach
     public OC(String nm, int stars, int a, Team t) {
@@ -34,14 +34,19 @@ public class OC extends Staff {
     public OC(Team t, String data) {
         team = t;
 
-        String x = data.split("&")[0];
-        String y = data.split("&")[1];
-        String z = data.split("&")[2];
+        String[] parts = data.split("&");
+        String x = parts[0];
+        String y = parts[1];
+        String z = parts[2];
 
         loadAttributes(x, overallWt);
         loadSeasonStats(y);
         loadAwards(z);
         history = new ArrayList<>();
+        if (parts.length > 3 && !parts[3].isEmpty()) {
+            String[] h = parts[3].split("\\^");
+            for (String s : h) history.add(s);
+        }
 
     }
 
@@ -137,7 +142,7 @@ public class OC extends Staff {
 
         if (age > 60 && !team.isUserControlled()) {
             ratOff -= (int) (Math.random() * (age / 10));
-            ratOff -= (int) (Math.random() * (age / 10));
+            ratDef -= (int) (Math.random() * (age / 10));
             ratTalent -= (int)(Math.random() * (age / 10));
             ratDiscipline -= (int) (Math.random() * (age / 10));
         }

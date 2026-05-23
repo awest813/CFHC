@@ -1,5 +1,8 @@
 package simulation;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Portable data record for coaching staff members.
  */
@@ -24,7 +27,8 @@ public record StaffRecord(
     int coachSkillXp,
     int coachSkillRanksBits,
     int[] stats,
-    int[] awards
+    int[] awards,
+    List<String> history
 ) {
     public StaffRecord {
         if (coachSkillXp < 0) {
@@ -32,6 +36,9 @@ public record StaffRecord(
         }
         if (coachSkillRanksBits < 0) {
             coachSkillRanksBits = 0;
+        }
+        if (history == null) {
+            history = new ArrayList<>();
         }
     }
 
@@ -55,6 +62,12 @@ public record StaffRecord(
             for (int i = 0; i < aStrings.length; i++) {
                 awardsList[i] = Integer.parseInt(aStrings[i].trim());
             }
+        }
+
+        List<String> historyList = new ArrayList<>();
+        if (parts.length > 3 && !parts[3].isEmpty()) {
+            String[] h = parts[3].split("\\^");
+            for (String s : h) historyList.add(s);
         }
 
         boolean userFlag = basic.length > 16 && Boolean.parseBoolean(basic[16]);
@@ -91,7 +104,8 @@ public record StaffRecord(
             xp,
             bits,
             statsList,
-            awardsList
+            awardsList,
+            historyList
         );
     }
 }

@@ -64,8 +64,8 @@ public class OCTest {
     @Test
     public void overallWt_favorsOffAndTalent() {
         OC coach = new OC("Weights Test", 5, 35, team);
-        assertArrayEquals(new int[]{0, 4, 3, 1}, coach.overallWt);
-        int expectedOvr = (0 * coach.ratOff + 4 * coach.ratDef + 3 * coach.ratTalent + 1 * coach.ratDiscipline) / 8;
+        assertArrayEquals(new int[]{4, 0, 3, 1}, coach.overallWt);
+        int expectedOvr = (4 * coach.ratOff + 0 * coach.ratDef + 3 * coach.ratTalent + 1 * coach.ratDiscipline) / 8;
         assertEquals(expectedOvr, coach.ratOvr);
     }
 
