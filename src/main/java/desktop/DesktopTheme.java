@@ -691,4 +691,81 @@ public final class DesktopTheme {
         header.add(subtitleLabel, BorderLayout.SOUTH);
         return header;
     }
+
+    public static void paintHeaderGradient(java.awt.Graphics g, int width, int height, Color accent) {
+        java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+        Color top = accent != null ? accent : _headerBg;
+        Color bot = darkerClamped(top, 0.25f, 30);
+        g2.setPaint(new java.awt.GradientPaint(0, 0, top, 0, height, bot));
+        g2.fillRect(0, 0, width, height);
+        g2.dispose();
+    }
+
+    public static void paintSidebarGradient(java.awt.Graphics g, int width, int height) {
+        java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+        Color top = _sidebarBg;
+        Color bot = new Color(
+            Math.max(0, top.getRed() - 12),
+            Math.max(0, top.getGreen() - 12),
+            Math.max(0, top.getBlue() - 12));
+        g2.setPaint(new java.awt.GradientPaint(0, 0, top, 0, height, bot));
+        g2.fillRect(0, 0, width, height);
+        g2.dispose();
+    }
+
+    public static void paintCardGradient(java.awt.Graphics g, int width, int height, Color accent) {
+        java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+        g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+        Color base = accent != null ? accent : _selectionAccent;
+        Color top = transparent(base, 0.20f);
+        Color bot = transparent(darker(base, 0.25f), 0.12f);
+        g2.setPaint(new java.awt.GradientPaint(0, 0, top, 0, height, bot));
+        g2.fillRoundRect(0, 0, width, height, 12, 12);
+        g2.dispose();
+    }
+
+    public static void paintTableRowGradient(java.awt.Graphics g, int width, int height, Color accent, boolean selected) {
+        if (accent == null) return;
+        java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+        Color tint = selected ? accent : transparent(accent, 0.12f);
+        g2.setPaint(new java.awt.GradientPaint(0, 0, tint, width, 0, transparent(tint, 0f)));
+        g2.fillRect(0, 0, width, height);
+        g2.dispose();
+    }
+
+    private static Color darker(Color c, float factor) {
+        return new Color(
+            Math.max(0, (int)(c.getRed() * (1f - factor))),
+            Math.max(0, (int)(c.getGreen() * (1f - factor))),
+            Math.max(0, (int)(c.getBlue() * (1f - factor))));
+    }
+
+    private static Color darkerClamped(Color c, float factor, int minBrightness) {
+        return new Color(
+            Math.max(minBrightness, (int)(c.getRed() * (1f - factor))),
+            Math.max(minBrightness, (int)(c.getGreen() * (1f - factor))),
+            Math.max(minBrightness, (int)(c.getBlue() * (1f - factor))));
+    }
+
+    private static Color brighter(Color c, float factor) {
+        int r = c.getRed();
+        int g = c.getGreen();
+        int b = c.getBlue();
+        int i = (int)(1.0f / (1.0f - factor));
+        if (r == 0 && g == 0 && b == 0) {
+            return new Color(i, i, i);
+        }
+        if (r > 0 && r < i) r = i;
+        if (g > 0 && g < i) g = i;
+        if (b > 0 && b < i) b = i;
+        return new Color(
+            Math.min(255, (int)(r / (1f - factor))),
+            Math.min(255, (int)(g / (1f - factor))),
+            Math.min(255, (int)(b / (1f - factor))));
+    }
+
+    private static Color transparent(Color c, float alpha) {
+        return new Color(c.getRed(), c.getGreen(), c.getBlue(),
+            Math.min(255, Math.max(0, (int)(alpha * 255f))));
+    }
 }

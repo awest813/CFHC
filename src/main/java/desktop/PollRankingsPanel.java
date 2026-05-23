@@ -55,7 +55,7 @@ public class PollRankingsPanel implements LeagueScreen {
         table.setAutoCreateRowSorter(true);
         table.setRowHeight(22);
         table.setFillsViewportHeight(true);
-        StripedRowRenderer.install(table);
+        StripedRowRenderer.installWithTeamColors(table, ctx.teamMap(), 1);
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {

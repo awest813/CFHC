@@ -6,6 +6,7 @@ import simulation.League;
 import simulation.SeasonPresentation;
 import simulation.SimulationFacade;
 import simulation.Team;
+import simulation.TeamColors;
 import staff.HeadCoach;
 
 import javax.swing.BorderFactory;
@@ -21,6 +22,7 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -142,9 +144,17 @@ public class DashboardPanel implements LeagueScreen {
     }
 
     private JPanel buildCommandCenterHero() {
-        JPanel hero = new JPanel(new BorderLayout(16, 0));
-        hero.setOpaque(true);
-        hero.setBackground(DesktopTheme.pollLeaderCard());
+        JPanel hero = new JPanel(new BorderLayout(16, 0)) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                DesktopTheme.paintCardGradient(g, getWidth(), getHeight(),
+                    league.userTeam != null
+                        ? TeamColors.primary(league.userTeam.getAbbr())
+                        : null);
+                super.paintComponent(g);
+            }
+        };
+        hero.setOpaque(false);
         hero.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(DesktopTheme.borderSubtle(), 1),
                 BorderFactory.createEmptyBorder(14, 16, 14, 16)));

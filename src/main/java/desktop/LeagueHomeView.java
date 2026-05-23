@@ -15,6 +15,7 @@ import simulation.SeasonPresentation;
 import simulation.SeasonController;
 import simulation.SimulationFacade;
 import simulation.Team;
+import simulation.TeamColors;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBoxMenuItem;
@@ -46,6 +47,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -437,8 +439,17 @@ public class LeagueHomeView extends JFrame {
     // =========================================================================
 
     private JPanel buildHeader() {
-        JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(DesktopTheme.headerBackground());
+        JPanel header = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                DesktopTheme.paintHeaderGradient(g, getWidth(), getHeight(),
+                    leagueCore.userTeam != null
+                        ? TeamColors.primary(leagueCore.userTeam.getAbbr())
+                        : null);
+                super.paintComponent(g);
+            }
+        };
+        header.setOpaque(false);
         header.setPreferredSize(new Dimension(getWidth(), HEADER_HEIGHT));
 
         // Left: league title + optional user-team summary
@@ -1336,15 +1347,20 @@ public class LeagueHomeView extends JFrame {
         navScroll.setBorder(BorderFactory.createEmptyBorder());
         navScroll.getViewport().setBackground(DesktopTheme.sidebarBackground());
 
-        JPanel sidebar = new JPanel(new BorderLayout());
-        sidebar.setOpaque(true);
+        JPanel sidebar = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                DesktopTheme.paintSidebarGradient(g, getWidth(), getHeight());
+                super.paintComponent(g);
+            }
+        };
+        sidebar.setOpaque(false);
         sidebar.setBackground(DesktopTheme.sidebarBackground());
         sidebar.setPreferredSize(new Dimension(205, 0));
         sidebar.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, DesktopTheme.borderSubtle()));
 
         JPanel navHeader = new JPanel(new GridLayout(0, 1, 0, 2));
-        navHeader.setOpaque(true);
-        navHeader.setBackground(DesktopTheme.sidebarBackground());
+        navHeader.setOpaque(false);
         navHeader.setBorder(BorderFactory.createEmptyBorder(14, 14, 12, 14));
         JLabel office = new JLabel("LEAGUE OFFICE");
         office.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 13));

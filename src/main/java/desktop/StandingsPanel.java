@@ -2,6 +2,7 @@ package desktop;
 
 import simulation.Conference;
 import simulation.Team;
+import simulation.TeamColors;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
@@ -17,6 +18,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -172,29 +174,41 @@ public class StandingsPanel implements LeagueScreen {
         confTable.getColumnModel().getColumn(4).setPreferredWidth(40);
 
         javax.swing.table.TableCellRenderer confRenderer = new javax.swing.table.DefaultTableCellRenderer() {
+            private boolean _selected;
+
             @Override
             public Component getTableCellRendererComponent(JTable tbl, Object value,
                                                            boolean isSelected, boolean hasFocus,
                                                            int row, int column) {
+                this._selected = isSelected;
                 Component c = super.getTableCellRendererComponent(tbl, value, isSelected, hasFocus, row, column);
                 if (!(c instanceof JLabel jl)) {
                     return c;
                 }
-                jl.setOpaque(true);
+                jl.setOpaque(false);
                 jl.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
-                if (isSelected) {
-                    c.setBackground(DesktopTheme.selectionAccent());
-                    c.setForeground(Color.WHITE);
-                    return c;
-                }
-                String name = (String) tbl.getValueAt(row, 1);
-                if (ctx.league().userTeam != null && ctx.league().userTeam.getName().equals(name)) {
-                    c.setBackground(DesktopTheme.userTeamRowTint());
-                } else {
-                    c.setBackground(row % 2 == 0 ? DesktopTheme.tableBase() : DesktopTheme.tableStripe());
-                }
                 c.setForeground(DesktopTheme.textPrimary());
+                if (isSelected) {
+                    c.setForeground(Color.WHITE);
+                }
                 return c;
+            }
+
+            @Override
+            protected void paintComponent(Graphics g) {
+                String name = getText();
+                if (name != null) {
+                    Team team = ctx.teamMap().get(name);
+                    if (team != null) {
+                        Color accent = TeamColors.primary(team.getAbbr());
+                        if (_selected) {
+                            DesktopTheme.paintTableRowGradient(g, getWidth(), getHeight(), accent, true);
+                        } else {
+                            DesktopTheme.paintTableRowGradient(g, getWidth(), getHeight(), accent, false);
+                        }
+                    }
+                }
+                super.paintComponent(g);
             }
         };
         confTable.setDefaultRenderer(Object.class, confRenderer);
