@@ -233,13 +233,13 @@ public class LauncherFrame extends JFrame {
         btn.setFont(new Font("SansSerif", Font.BOLD, 14));
         btn.setToolTipText(tooltip);
         DesktopTheme.styleLauncherHubButton(btn);
-        Color defaultBg = btn.getBackground();
-        Color hoverBg = DesktopTheme.isDark()
-                ? new Color(92, 144, 224)
-                : new Color(60, 120, 210);
         btn.addMouseListener(new MouseAdapter() {
-            @Override public void mouseEntered(MouseEvent e) { btn.setBackground(hoverBg); }
-            @Override public void mouseExited(MouseEvent e) { btn.setBackground(defaultBg); }
+            @Override public void mouseEntered(MouseEvent e) {
+                btn.setBackground(DesktopTheme.isDark() ? new Color(92, 144, 224) : new Color(60, 120, 210));
+            }
+            @Override public void mouseExited(MouseEvent e) {
+                DesktopTheme.styleLauncherHubButton(btn);
+            }
         });
         launcherHubButtons.add(btn);
         return btn;

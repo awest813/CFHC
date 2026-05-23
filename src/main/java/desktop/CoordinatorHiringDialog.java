@@ -331,7 +331,9 @@ public class CoordinatorHiringDialog extends JDialog {
             }
             String side = offense ? "Off" : "Def";
             String sideFull = offense ? "offense" : "defense";
-            league.getNewsHeadlines().add(userTeam.getName() + " adds new " + side + " Coord " + coordName);
+            if (league.getNewsHeadlines() != null) {
+                league.getNewsHeadlines().add(userTeam.getName() + " adds new " + side + " Coord " + coordName);
+            }
             while (league.getNewsStories().size() <= league.currentWeek) {
                 league.getNewsStories().add(new java.util.ArrayList<>());
             }

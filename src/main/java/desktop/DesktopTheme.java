@@ -221,8 +221,10 @@ public final class DesktopTheme {
 
     public static Color nliBannerBackground() { return _nliBannerBg; }
 
+    private static final Color _nliBannerBorder = new Color(200, 160, 60);
+
     public static Color nliBannerBorder() {
-        return new Color(200, 160, 60);
+        return _nliBannerBorder;
     }
 
     public static Color pollLeaderCard() { return _pollLeader; }
@@ -767,5 +769,27 @@ public final class DesktopTheme {
     private static Color transparent(Color c, float alpha) {
         return new Color(c.getRed(), c.getGreen(), c.getBlue(),
             Math.min(255, Math.max(0, (int)(alpha * 255f))));
+    }
+
+    public static void wireMutuallyExclusiveLeagueModes(JCheckBox realignment,
+                                                         JCheckBox advanced,
+                                                         JCheckBox proRel) {
+        advanced.addActionListener(e -> {
+            if (advanced.isSelected()) {
+                realignment.setSelected(true);
+                proRel.setSelected(false);
+            }
+        });
+        realignment.addActionListener(e -> {
+            if (realignment.isSelected()) {
+                proRel.setSelected(false);
+            }
+        });
+        proRel.addActionListener(e -> {
+            if (proRel.isSelected()) {
+                realignment.setSelected(false);
+                advanced.setSelected(false);
+            }
+        });
     }
 }

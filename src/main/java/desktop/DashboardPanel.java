@@ -365,7 +365,7 @@ public class DashboardPanel implements LeagueScreen {
         } else if (week >= reg + 4) {
             moves.add(new DashboardMove("Advance offseason", "Continue contracts, jobs, transfers, and recruiting setup.", advanceFullYear));
             if (league.userTeam != null) {
-                moves.add(new DashboardMove("Program tools", "Open coach program and NIL tools.", () -> {}));
+                moves.add(new DashboardMove("Review roster", "Open your program detail.", openUserTeamDetail));
             } else {
                 moves.add(new DashboardMove("Choose program", "Pick a user-controlled team for program tools.", openUserTeamDetail));
             }

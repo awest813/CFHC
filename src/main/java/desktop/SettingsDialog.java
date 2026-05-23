@@ -268,25 +268,9 @@ public class SettingsDialog extends JDialog {
     }
 
     private void wireMutuallyExclusiveLeagueModes(JCheckBox confRealign,
-                                                  JCheckBox advRealign,
-                                                  JCheckBox universalProRel) {
-        advRealign.addActionListener(e -> {
-            if (advRealign.isSelected()) {
-                confRealign.setSelected(true);
-                universalProRel.setSelected(false);
-            }
-        });
-        confRealign.addActionListener(e -> {
-            if (confRealign.isSelected()) {
-                universalProRel.setSelected(false);
-            }
-        });
-        universalProRel.addActionListener(e -> {
-            if (universalProRel.isSelected()) {
-                confRealign.setSelected(false);
-                advRealign.setSelected(false);
-            }
-        });
+                                                   JCheckBox advRealign,
+                                                   JCheckBox universalProRel) {
+        DesktopTheme.wireMutuallyExclusiveLeagueModes(confRealign, advRealign, universalProRel);
     }
 
     private boolean confirmPromotionRelegationConversion() {

@@ -34,6 +34,17 @@ public class CoachProfilePanel implements LeagueScreen {
         }
         Team ut = ctx.league().userTeam;
         HeadCoach hc = ut.getHeadCoach();
+        if (hc == null) {
+            JPanel empty = new JPanel(new BorderLayout());
+            DesktopTheme.styleTabRoot(empty);
+            JLabel msg = new JLabel("<html><div style='text-align:center;width:400px'><b>No head coach found</b><br><br>"
+                    + "This team does not have a head coach assigned.</div></html>");
+            msg.setFont(new Font("SansSerif", Font.PLAIN, 14));
+            msg.setForeground(DesktopTheme.textSecondary());
+            msg.setHorizontalAlignment(JLabel.CENTER);
+            empty.add(msg, BorderLayout.CENTER);
+            return empty;
+        }
 
         JPanel panel = new JPanel(new BorderLayout(16, 16));
         DesktopTheme.styleTabRoot(panel);

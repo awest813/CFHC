@@ -267,25 +267,9 @@ public class NewGameWizard extends JDialog {
     }
 
     private void wireMutuallyExclusiveLeagueModes(JCheckBox confRealignment,
-                                                  JCheckBox advancedRealignment,
-                                                  JCheckBox universalProRel) {
-        advancedRealignment.addActionListener(e -> {
-            if (advancedRealignment.isSelected()) {
-                confRealignment.setSelected(true);
-                universalProRel.setSelected(false);
-            }
-        });
-        confRealignment.addActionListener(e -> {
-            if (confRealignment.isSelected()) {
-                universalProRel.setSelected(false);
-            }
-        });
-        universalProRel.addActionListener(e -> {
-            if (universalProRel.isSelected()) {
-                confRealignment.setSelected(false);
-                advancedRealignment.setSelected(false);
-            }
-        });
+                                                   JCheckBox advancedRealignment,
+                                                   JCheckBox universalProRel) {
+        DesktopTheme.wireMutuallyExclusiveLeagueModes(confRealignment, advancedRealignment, universalProRel);
     }
 
     private static final class NewGameOptions {

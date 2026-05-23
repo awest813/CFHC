@@ -71,7 +71,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private Conference currentConference;
     private Team currentTeam;
     Team userTeam;
-    private File saveLeagueFile;
     private String username;
     private LeagueImportWorkflow.ImportType pendingImportType;
     private String goals;
@@ -141,9 +140,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 super.onDrawerOpened(drawerView);
                 View headerView = navigationView.getHeaderView(0);
                 TextView navTeam = headerView.findViewById(R.id.navTextTeam);
-                navTeam.setText("#" + currentTeam.getRankTeamPollScore() +
-                        " " + currentTeam.getName() + " (" + currentTeam.getWins() + "-" + currentTeam.getLosses() + ") " +
-                        currentTeam.getConfChampion() + " " + currentTeam.semiFinalWL + currentTeam.natChampWL);
+                if (currentTeam != null) {
+                    navTeam.setText("#" + currentTeam.getRankTeamPollScore() +
+                            " " + currentTeam.getName() + " (" + currentTeam.getWins() + "-" + currentTeam.getLosses() + ") " +
+                            currentTeam.getConfChampion() + " " + currentTeam.semiFinalWL + currentTeam.natChampWL);
+                } else {
+                    navTeam.setText("No team selected");
+                }
             }
         };
         drawer.addDrawerListener(toggle);
@@ -163,13 +166,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         try {
             if (!loadedLeague) {
+                if (simLeague.getTeamList().isEmpty()) {
+                    crash();
+                    return;
+                }
                 // Set it to 1st team until one selected
                 userTeam = simLeague.getTeamList().get(0);
                 simLeague.userTeam = userTeam;
                 userTeam.setUserControlled(true);
                 userTeamStr = userTeam.getName();
                 currentTeam = simLeague.getTeamList().get(0);
-                currentConference = simLeague.getConferences().get(0);
+                if (!simLeague.getConferences().isEmpty()) {
+                    currentConference = simLeague.getConferences().get(0);
+                }
 
                 LeagueLaunchCoordinator.LaunchRequest launchRequest = getLaunchRequest();
                 if (launchRequest != null && launchRequest.isCustomUniverse()) importDataPrompt();
@@ -1166,10 +1175,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         LeagueHistoryDialogController.show(this, simLeague, userTeam);
     }
 
-    private void showLeagueHistoryStats() {
-        LeagueHistoryDialogController.showLeagueHistoryStats(this, simLeague, userTeam);
-    }
-
     private void showCoachDatabase() {
         LeagueHistoryDialogController.showCoachDatabase(this, simLeague, userTeam);
     }
@@ -1191,9 +1196,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Open Hall of Fame Profile from Database
     public void examineHOF(String player) {
-        if (player == null) {
-
-        } else {
+        if (player != null) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
             String[] pStatsArray = player.split("&");
@@ -1930,32 +1933,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Empty file, don't show dialog confirmation
         isExternalStorageReadable();
         isExternalStorageWritable();
-        saveLeagueFile = LeagueExportController.exportPrimarySave(getExportSaveDir(), simLeague);
+        LeagueExportController.exportPrimarySave(getExportSaveDir(), simLeague);
         Toast.makeText(MainActivity.this, "Exported Save to Storage", Toast.LENGTH_SHORT).show();
-    }
-
-    //Export Save File
-    private void exportData(java.util.function.Function<League, File> exporter) {
-        isExternalStorageReadable();
-        isExternalStorageWritable();
-        saveLeagueFile = exporter.apply(simLeague);
-        Toast.makeText(MainActivity.this, "Saved league!", Toast.LENGTH_SHORT).show();
-    }
-
-    private void exportTeams() {
-        exportData(league -> LeagueExportController.exportTeams(getExportSaveDir(), league));
-    }
-
-    private void exportBowlNames() {
-        exportData(league -> LeagueExportController.exportBowls(getExportSaveDir(), league));
-    }
-
-    private void exportPlayers() {
-        exportData(league -> LeagueExportController.exportPlayers(getExportSaveDir(), league));
-    }
-
-    private void exportConferences() {
-        exportData(league -> LeagueExportController.exportConferences(getExportSaveDir(), league));
     }
 
     private File getExportSaveDir() {
@@ -2094,22 +2073,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void showImmersive(AlertDialog alert) {
         PlatformUiHelper.showImmersive(alert);
-    }
-
-    //DEBUG
-    private void showFreeAgents() {
-        String msg = simLeague.getFreeAgentCoachList();
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage(msg)
-                .setTitle("Coach Free Agent List")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
-                });
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        showImmersive(dialog);
-        setDialogMessageTextSize(dialog);
     }
 
     @Override

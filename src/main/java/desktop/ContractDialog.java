@@ -125,8 +125,9 @@ public class ContractDialog extends JDialog {
 
         // Left Card: Contract Details
         JPanel leftCard = createInfoCard("CURRENT AGREEMENT");
-        String contractHtml = (userTeam != null)
-                ? userTeam.getContractString().toUpperCase(Locale.ROOT).replace("\n", "<br/>")
+        String contractStr = userTeam != null ? userTeam.getContractString() : null;
+        String contractHtml = (contractStr != null)
+                ? contractStr.toUpperCase(Locale.ROOT).replace("\n", "<br/>")
                 : "NO ACTIVE CONTRACT DATA.";
         JLabel contractLabel = new JLabel("<html><body style='color:" + DesktopTheme.cssRgb(DesktopTheme.textSecondary()) + "; font-family:SansSerif; font-size:10pt; line-height: 1.4;'>" + contractHtml + "</body></html>");
         contractLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
