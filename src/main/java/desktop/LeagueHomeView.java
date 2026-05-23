@@ -192,18 +192,7 @@ public class LeagueHomeView extends JFrame {
      * Silently falls back to the default Java icon if the image is not found.
      */
     private void loadApplicationIcon() {
-        try (java.io.InputStream iconStream = Thread.currentThread()
-                .getContextClassLoader()
-                .getResourceAsStream("assets/cfhc_icon.png")) {
-            if (iconStream != null) {
-                java.awt.Image icon = javax.imageio.ImageIO.read(iconStream);
-                if (icon != null) {
-                    setIconImage(icon);
-                }
-            }
-        } catch (Exception ignored) {
-            PlatformLog.i(TAG, "Application icon not found; using default.");
-        }
+        DesktopTheme.applyWindowIcon(this);
     }
 
     private String buildWindowTitle() {
@@ -507,17 +496,7 @@ public class LeagueHomeView extends JFrame {
     }
 
     private String playWeekLabel() {
-        int week = leagueCore.currentWeek;
-        int reg = leagueCore.regSeasonWeeks;
-        if (week >= reg + 13) return "Recruiting\u2026";
-        if (week >= reg + 4)  return "Offseason: Step " + (week - reg - 3);
-        if (week == reg + 3)  return "Play National Championship";
-        if (week == reg + 2)  return "Play Semifinals / Bowl Week 3";
-        if (week == reg + 1)  return "Play Quarterfinals / Bowl Week 2";
-        if (week == reg)      return "Play First Round / Bowl Week 1";
-        if (week == reg - 1)  return "Play Conf. Championships";
-        if (week <= 0)        return "Begin Season";
-        return "Play Week " + (week + 1);
+        return SeasonPresentation.getPlayWeekLabel(leagueCore.currentWeek, leagueCore.regSeasonWeeks);
     }
 
     private String bulkAdvanceLabel() {
@@ -1260,17 +1239,7 @@ public class LeagueHomeView extends JFrame {
     }
 
     private void showScrollableText(String title, String text) {
-        JTextArea area = new JTextArea(text);
-        area.setEditable(false);
-        area.setFont(new Font("Monospaced", Font.PLAIN, 13));
-        DesktopTheme.styleTextContent(area);
-        area.setLineWrap(true);
-        area.setWrapStyleWord(true);
-        area.setCaretPosition(0);
-        JScrollPane scroll = new JScrollPane(area);
-        scroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
-        scroll.setPreferredSize(new Dimension(650, 450));
-        JOptionPane.showMessageDialog(this, scroll, title, JOptionPane.INFORMATION_MESSAGE);
+        DesktopTheme.showScrollableText(this, title, text);
     }
 
     private void openSettingsDialog() {

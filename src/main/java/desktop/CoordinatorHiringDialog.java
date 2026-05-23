@@ -190,7 +190,7 @@ public class CoordinatorHiringDialog extends JDialog {
                         JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            hireOC(candidates, row);
+            hireCoordinator(true, candidates, row);
             dispose();
             if (alsoNeedDC || userTeam.getDC() == null || userTeam.getDC().contractYear >= userTeam.getDC().contractLength) {
                 showDCOnly(ownerFrame(), league);
@@ -258,7 +258,7 @@ public class CoordinatorHiringDialog extends JDialog {
                         JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            hireDC(candidates, row);
+            hireCoordinator(false, candidates, row);
             league.coordinatorCarousel();
             container.dispose();
         });
@@ -313,48 +313,40 @@ public class CoordinatorHiringDialog extends JDialog {
         return table;
     }
 
-    private void hireOC(ArrayList<Staff> candidates, int selectedIdx) {
-        if (selectedIdx == 0 && userTeam.getOC() != null) {
-            userTeam.getOC().contractLength = COORDINATOR_CONTRACT_LENGTH;
-            userTeam.getOC().contractYear = 0;
-            userTeam.getOC().baselinePrestige = 0;
+    private void hireCoordinator(boolean offense, ArrayList<Staff> candidates, int selectedIdx) {
+        Staff existing = offense ? userTeam.getOC() : userTeam.getDC();
+        if (selectedIdx == 0 && existing != null) {
+            existing.contractLength = COORDINATOR_CONTRACT_LENGTH;
+            existing.contractYear = 0;
+            existing.baselinePrestige = 0;
         } else {
             Staff hired = candidates.get(selectedIdx);
-            userTeam.setOC(new OC(hired, userTeam));
-            league.getNewsHeadlines().add(userTeam.getName() + " adds new Off Coord " + userTeam.getOC().name);
+            String coordName;
+            if (offense) {
+                userTeam.setOC(new OC(hired, userTeam));
+                coordName = userTeam.getOC().name;
+            } else {
+                userTeam.setDC(new DC(hired, userTeam));
+                coordName = userTeam.getDC().name;
+            }
+            String side = offense ? "Off" : "Def";
+            String sideFull = offense ? "offense" : "defense";
+            league.getNewsHeadlines().add(userTeam.getName() + " adds new " + side + " Coord " + coordName);
             while (league.getNewsStories().size() <= league.currentWeek) {
                 league.getNewsStories().add(new java.util.ArrayList<>());
             }
             league.getNewsStories().get(league.currentWeek).add(
-                    "Off Coord Change: " + userTeam.getName()
+                    side + " Coord Change: " + userTeam.getName()
                             + ">After an extensive search for a new coordinator, "
-                            + userTeam.getName() + " has hired " + userTeam.getOC().name
-                            + " to lead the offense.");
-            userTeam.getOC().contractLength = COORDINATOR_CONTRACT_LENGTH;
-            userTeam.getOC().contractYear = 0;
-            league.getCoachFreeAgents().remove(hired);
-        }
-    }
-
-    private void hireDC(ArrayList<Staff> candidates, int selectedIdx) {
-        if (selectedIdx == 0 && userTeam.getDC() != null) {
-            userTeam.getDC().contractLength = COORDINATOR_CONTRACT_LENGTH;
-            userTeam.getDC().contractYear = 0;
-            userTeam.getDC().baselinePrestige = 0;
-        } else {
-            Staff hired = candidates.get(selectedIdx);
-            userTeam.setDC(new DC(hired, userTeam));
-            league.getNewsHeadlines().add(userTeam.getName() + " adds new Def Coord " + userTeam.getDC().name);
-            while (league.getNewsStories().size() <= league.currentWeek) {
-                league.getNewsStories().add(new java.util.ArrayList<>());
+                            + userTeam.getName() + " has hired " + coordName
+                            + " to lead the " + sideFull + ".");
+            if (offense) {
+                userTeam.getOC().contractLength = COORDINATOR_CONTRACT_LENGTH;
+                userTeam.getOC().contractYear = 0;
+            } else {
+                userTeam.getDC().contractLength = COORDINATOR_CONTRACT_LENGTH;
+                userTeam.getDC().contractYear = 0;
             }
-            league.getNewsStories().get(league.currentWeek).add(
-                    "Def Coord Change: " + userTeam.getName()
-                            + ">After an extensive search for a new coordinator, "
-                            + userTeam.getName() + " has hired " + userTeam.getDC().name
-                            + " to lead the defense.");
-            userTeam.getDC().contractLength = COORDINATOR_CONTRACT_LENGTH;
-            userTeam.getDC().contractYear = 0;
             league.getCoachFreeAgents().remove(hired);
         }
     }

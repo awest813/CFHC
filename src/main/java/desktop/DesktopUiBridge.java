@@ -248,16 +248,7 @@ public class DesktopUiBridge implements GameUiBridge {
     }
 
     private void showScrollableText(String title, String text) {
-        JTextArea area = new JTextArea(text);
-        area.setEditable(false);
-        area.setLineWrap(true);
-        area.setWrapStyleWord(true);
-        DesktopTheme.styleTextContent(area);
-        area.setCaretPosition(0);
-        JScrollPane scroll = new JScrollPane(area);
-        scroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
-        scroll.setPreferredSize(new Dimension(600, 400));
-        JOptionPane.showMessageDialog(owner, scroll, title, JOptionPane.INFORMATION_MESSAGE);
+        DesktopTheme.showScrollableText(owner, title, text);
     }
 
     private String buildMidseasonSummary() {

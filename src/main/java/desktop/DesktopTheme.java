@@ -37,7 +37,73 @@ public final class DesktopTheme {
     private static boolean dark;
     private static boolean loaded;
 
+    private static Color _windowBg, _textPrimary, _textSecondary, _warningText;
+    private static Color _headerBg, _confHeaderBg, _statusBg, _sidebarBg, _sidebarText;
+    private static Color _sidebarSelBg, _borderSubtle, _userTeamRow, _nliBannerBg;
+    private static Color _pollLeader, _tableBase, _tableStripe, _tableHdrBg, _tableHover;
+    private static Color _menuBarBg, _launcherMain, _launcherFooter, _textAreaBg;
+    private static Color _selectionAccent, _accentBlue, _successGreen, _dangerRed;
+    private static Color _dialogSurface, _inputFieldBg, _inputListBg;
+
     private DesktopTheme() {}
+
+    private static void recache() {
+        if (dark) {
+            _windowBg = new Color(34, 36, 40);
+            _textPrimary = new Color(232, 232, 238);
+            _textSecondary = new Color(160, 165, 175);
+            _warningText = new Color(255, 205, 110);
+            _headerBg = new Color(20, 22, 26);
+            _confHeaderBg = new Color(38, 42, 50);
+            _statusBg = new Color(46, 48, 54);
+            _sidebarBg = new Color(28, 31, 36);
+            _sidebarText = new Color(210, 216, 224);
+            _sidebarSelBg = new Color(58, 96, 150);
+            _borderSubtle = new Color(72, 76, 84);
+            _userTeamRow = new Color(32, 52, 82);
+            _nliBannerBg = new Color(62, 52, 28);
+            _pollLeader = new Color(48, 52, 60);
+            _tableBase = new Color(34, 36, 40);
+            _tableStripe = new Color(42, 45, 52);
+            _tableHdrBg = new Color(48, 52, 60);
+            _tableHover = new Color(52, 56, 68);
+            _launcherMain = new Color(28, 30, 34);
+            _launcherFooter = new Color(120, 125, 135);
+            _textAreaBg = new Color(42, 44, 50);
+            _menuBarBg = new Color(40, 42, 48);
+        } else {
+            _windowBg = Color.WHITE;
+            _textPrimary = Color.BLACK;
+            _textSecondary = new Color(80, 80, 80);
+            _warningText = new Color(150, 90, 0);
+            _headerBg = new Color(33, 37, 41);
+            _confHeaderBg = new Color(52, 58, 64);
+            _statusBg = new Color(240, 240, 240);
+            _sidebarBg = new Color(246, 248, 251);
+            _sidebarText = new Color(35, 42, 50);
+            _sidebarSelBg = new Color(50, 100, 180);
+            _borderSubtle = Color.GRAY;
+            _userTeamRow = new Color(220, 235, 255);
+            _nliBannerBg = new Color(255, 248, 220);
+            _pollLeader = new Color(245, 245, 250);
+            _tableBase = Color.WHITE;
+            _tableStripe = new Color(245, 247, 250);
+            _tableHdrBg = new Color(240, 242, 245);
+            _tableHover = new Color(235, 238, 244);
+            _launcherMain = Color.WHITE;
+            _launcherFooter = Color.LIGHT_GRAY;
+            _textAreaBg = Color.WHITE;
+            Color def = UIManager.getColor("MenuBar.background");
+            _menuBarBg = def != null ? def : new Color(240, 240, 240);
+        }
+        _selectionAccent = new Color(50, 100, 180);
+        _accentBlue = new Color(52, 152, 219);
+        _successGreen = new Color(46, 204, 113);
+        _dangerRed = new Color(231, 76, 60);
+        _dialogSurface = dark ? new Color(25, 32, 45) : new Color(246, 248, 251);
+        _inputFieldBg = dark ? new Color(48, 50, 56) : Color.WHITE;
+        _inputListBg = dark ? new Color(42, 44, 50) : Color.WHITE;
+    }
 
     /**
      * Reads stored preference and applies {@link UIManager} hints. Call once after
@@ -49,6 +115,7 @@ public final class DesktopTheme {
             Preferences p = Preferences.userRoot().node(PREF_NODE);
             dark = p.getBoolean(KEY_DARK, false);
         }
+        recache();
         applyGlobalHints();
     }
 
@@ -62,6 +129,7 @@ public final class DesktopTheme {
         }
         dark = value;
         Preferences.userRoot().node(PREF_NODE).putBoolean(KEY_DARK, value);
+        recache();
         applyGlobalHints();
     }
 
@@ -127,104 +195,58 @@ public final class DesktopTheme {
         }
     }
 
-    public static Color windowBackground() {
-        return dark ? new Color(34, 36, 40) : Color.WHITE;
-    }
+    public static Color windowBackground() { return _windowBg; }
 
-    public static Color textPrimary() {
-        return dark ? new Color(232, 232, 238) : Color.BLACK;
-    }
+    public static Color textPrimary() { return _textPrimary; }
 
-    public static Color textSecondary() {
-        return dark ? new Color(160, 165, 175) : new Color(80, 80, 80);
-    }
+    public static Color textSecondary() { return _textSecondary; }
 
-    public static Color warningText() {
-        return dark ? new Color(255, 205, 110) : new Color(150, 90, 0);
-    }
+    public static Color warningText() { return _warningText; }
 
-    public static Color headerBackground() {
-        return dark ? new Color(20, 22, 26) : new Color(33, 37, 41);
-    }
+    public static Color headerBackground() { return _headerBg; }
 
-    public static Color conferenceHeaderBackground() {
-        return dark ? new Color(38, 42, 50) : new Color(52, 58, 64);
-    }
+    public static Color conferenceHeaderBackground() { return _confHeaderBg; }
 
-    public static Color statusBackground() {
-        return dark ? new Color(46, 48, 54) : new Color(240, 240, 240);
-    }
+    public static Color statusBackground() { return _statusBg; }
 
-    public static Color sidebarBackground() {
-        return dark ? new Color(28, 31, 36) : new Color(246, 248, 251);
-    }
+    public static Color sidebarBackground() { return _sidebarBg; }
 
-    public static Color sidebarText() {
-        return dark ? new Color(210, 216, 224) : new Color(35, 42, 50);
-    }
+    public static Color sidebarText() { return _sidebarText; }
 
-    public static Color sidebarSelectionBackground() {
-        return dark ? new Color(58, 96, 150) : selectionAccent();
-    }
+    public static Color sidebarSelectionBackground() { return _sidebarSelBg; }
 
-    public static Color borderSubtle() {
-        return dark ? new Color(72, 76, 84) : Color.GRAY;
-    }
+    public static Color borderSubtle() { return _borderSubtle; }
 
-    public static Color userTeamRowTint() {
-        return dark ? new Color(32, 52, 82) : new Color(220, 235, 255);
-    }
+    public static Color userTeamRowTint() { return _userTeamRow; }
 
-    public static Color nliBannerBackground() {
-        return dark ? new Color(62, 52, 28) : new Color(255, 248, 220);
-    }
+    public static Color nliBannerBackground() { return _nliBannerBg; }
 
     public static Color nliBannerBorder() {
         return new Color(200, 160, 60);
     }
 
-    public static Color pollLeaderCard() {
-        return dark ? new Color(48, 52, 60) : new Color(245, 245, 250);
-    }
+    public static Color pollLeaderCard() { return _pollLeader; }
 
-    public static Color tableBase() {
-        return dark ? new Color(34, 36, 40) : Color.WHITE;
-    }
+    public static Color tableBase() { return _tableBase; }
 
-    public static Color tableStripe() {
-        return dark ? new Color(42, 45, 52) : new Color(245, 247, 250);
-    }
+    public static Color tableStripe() { return _tableStripe; }
 
-    public static Color tableHeaderBackground() {
-        return dark ? new Color(48, 52, 60) : new Color(240, 242, 245);
-    }
+    public static Color tableHeaderBackground() { return _tableHdrBg; }
 
-    public static Color tableHoverTint() {
-        return dark ? new Color(52, 56, 68) : new Color(235, 238, 244);
-    }
+    public static Color tableHoverTint() { return _tableHover; }
 
-    public static Color menuBarBackground() {
-        if (dark) {
-            return new Color(40, 42, 48);
-        }
-        Color def = UIManager.getColor("MenuBar.background");
-        return def != null ? def : new Color(240, 240, 240);
-    }
+    public static Color menuBarBackground() { return _menuBarBg; }
 
-    public static Color launcherMainPanel() {
-        return dark ? new Color(28, 30, 34) : Color.WHITE;
-    }
+    public static Color launcherMainPanel() { return _launcherMain; }
 
-    public static Color launcherFooter() {
-        return dark ? new Color(120, 125, 135) : Color.LIGHT_GRAY;
-    }
+    public static Color launcherFooter() { return _launcherFooter; }
 
     /** Primary actions on the desktop launcher hub (contrasts in light vs dark). */
     public static void styleLauncherHubButton(JButton btn) {
         if (btn == null) {
             return;
         }
-        btn.setBackground(dark ? new Color(72, 124, 204) : new Color(50, 100, 180));
+        btn.setBackground(dark ? new Color(72, 124, 204) : _selectionAccent);
         btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
         btn.setBorder(BorderFactory.createEmptyBorder(10, 28, 10, 28));
@@ -238,7 +260,7 @@ public final class DesktopTheme {
      */
     public static void stylePrimaryButton(JButton btn) {
         if (btn == null) return;
-        btn.setBackground(new Color(50, 100, 180));
+        btn.setBackground(_selectionAccent);
         btn.setForeground(Color.WHITE);
         btn.setFont(btn.getFont().deriveFont(Font.BOLD, 12f));
         btn.setFocusPainted(false);
@@ -273,7 +295,7 @@ public final class DesktopTheme {
     public static JPanel buildDialogHeader(String title, String subtitle) {
         JPanel header = new JPanel(new BorderLayout(0, 4));
         header.setOpaque(true);
-        header.setBackground(isDark() ? new Color(25, 32, 45) : new Color(246, 248, 251));
+        header.setBackground(_dialogSurface);
         header.setBorder(BorderFactory.createEmptyBorder(22, 30, 20, 30));
 
         JLabel titleLbl = new JLabel(title);
@@ -295,7 +317,7 @@ public final class DesktopTheme {
     public static JPanel buildDialogBottomBar(JButton... buttons) {
         JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 16));
         bottom.setOpaque(true);
-        bottom.setBackground(isDark() ? new Color(25, 32, 45) : new Color(246, 248, 251));
+        bottom.setBackground(_dialogSurface);
         bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0,
                 isDark() ? new Color(255, 255, 255, 20) : new Color(200, 200, 200)));
         for (JButton btn : buttons) {
@@ -304,9 +326,7 @@ public final class DesktopTheme {
         return bottom;
     }
 
-    public static Color textAreaEditorBackground() {
-        return dark ? new Color(42, 44, 50) : Color.WHITE;
-    }
+    public static Color textAreaEditorBackground() { return _textAreaBg; }
 
     /** Apply table + viewport colors after the table is inside a {@link javax.swing.JScrollPane}. */
     public static void styleDataTable(JTable table) {
@@ -483,9 +503,7 @@ public final class DesktopTheme {
     }
 
     /** Strong list / table selection color (same in light and dark). */
-    public static Color selectionAccent() {
-        return new Color(50, 100, 180);
-    }
+    public static Color selectionAccent() { return _selectionAccent; }
 
     /** CSS {@code rgb(r,g,b)} for inline HTML in {@link javax.swing.JLabel}. */
     public static String cssRgb(Color c) {
@@ -590,20 +608,40 @@ public final class DesktopTheme {
         }
     }
 
-    public static Color accentBlue() {
-        return new Color(52, 152, 219);
+    public static Color accentBlue() { return _accentBlue; }
+
+    public static Color successGreen() { return _successGreen; }
+
+    public static Color dangerRed() { return _dangerRed; }
+
+    public static Color dialogSurface() { return _dialogSurface; }
+
+    public static void applyWindowIcon(java.awt.Window window) {
+        try (java.io.InputStream iconStream = Thread.currentThread()
+                .getContextClassLoader()
+                .getResourceAsStream("assets/cfhc_icon.png")) {
+            if (iconStream != null) {
+                java.awt.Image icon = javax.imageio.ImageIO.read(iconStream);
+                if (icon != null) {
+                    window.setIconImage(icon);
+                }
+            }
+        } catch (Exception ignored) {
+        }
     }
 
-    public static Color successGreen() {
-        return new Color(46, 204, 113);
-    }
-
-    public static Color dangerRed() {
-        return new Color(231, 76, 60);
-    }
-
-    public static Color dialogSurface() {
-        return isDark() ? new Color(25, 32, 45) : new Color(246, 248, 251);
+    public static void showScrollableText(java.awt.Component parent, String title, String text) {
+        javax.swing.JTextArea area = new javax.swing.JTextArea(text);
+        area.setEditable(false);
+        area.setFont(new java.awt.Font("Monospaced", java.awt.Font.PLAIN, 13));
+        DesktopTheme.styleTextContent(area);
+        area.setLineWrap(true);
+        area.setWrapStyleWord(true);
+        area.setCaretPosition(0);
+        javax.swing.JScrollPane scroll = new javax.swing.JScrollPane(area);
+        scroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
+        scroll.setPreferredSize(new java.awt.Dimension(650, 450));
+        javax.swing.JOptionPane.showMessageDialog(parent, scroll, title, javax.swing.JOptionPane.INFORMATION_MESSAGE);
     }
 
     public static JButton createGlassButton(String text, Color bg) {

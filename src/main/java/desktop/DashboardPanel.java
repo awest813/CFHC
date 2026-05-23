@@ -3,6 +3,7 @@ package desktop;
 import recruiting.RecruitingSessionData;
 import simulation.CoachSkills;
 import simulation.League;
+import simulation.SeasonPresentation;
 import simulation.SimulationFacade;
 import simulation.Team;
 import staff.HeadCoach;
@@ -174,17 +175,7 @@ public class DashboardPanel implements LeagueScreen {
     }
 
     private String playWeekLabel() {
-        int week = league.currentWeek;
-        int reg = league.regSeasonWeeks;
-        if (week >= reg + 13) return "Recruiting\u2026";
-        if (week >= reg + 4)  return "Offseason: Step " + (week - reg - 3);
-        if (week == reg + 3)  return "Play National Championship";
-        if (week == reg + 2)  return "Play Semifinals / Bowl Week 3";
-        if (week == reg + 1)  return "Play Quarterfinals / Bowl Week 2";
-        if (week == reg)      return "Play First Round / Bowl Week 1";
-        if (week == reg - 1)  return "Play Conf. Championships";
-        if (week <= 0)        return "Begin Season";
-        return "Play Week " + (week + 1);
+        return SeasonPresentation.getPlayWeekLabel(league.currentWeek, league.regSeasonWeeks);
     }
 
     private String buildNextActionContext() {

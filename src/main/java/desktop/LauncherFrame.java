@@ -78,17 +78,7 @@ public class LauncherFrame extends JFrame {
     }
 
     private void loadWindowIcon() {
-        try (InputStream iconStream = Thread.currentThread().getContextClassLoader()
-                .getResourceAsStream("assets/cfhc_icon.png")) {
-            if (iconStream != null) {
-                java.awt.Image icon = javax.imageio.ImageIO.read(iconStream);
-                if (icon != null) {
-                    setIconImage(icon);
-                }
-            }
-        } catch (Exception ignored) {
-            // optional branding
-        }
+        DesktopTheme.applyWindowIcon(this);
     }
 
     private JPanel buildSidePanel() {

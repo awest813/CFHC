@@ -86,6 +86,18 @@ public final class SeasonPresentation {
         return "Phase  Offseason";
     }
 
+    public static String getPlayWeekLabel(int week, int regSeasonWeeks) {
+        if (week >= regSeasonWeeks + 13) return "Recruiting\u2026";
+        if (week >= regSeasonWeeks + 4)  return "Offseason: Step " + (week - regSeasonWeeks - 3);
+        if (week == regSeasonWeeks + 3)  return "Play National Championship";
+        if (week == regSeasonWeeks + 2)  return "Play Semifinals / Bowl Week 3";
+        if (week == regSeasonWeeks + 1)  return "Play Quarterfinals / Bowl Week 2";
+        if (week == regSeasonWeeks)      return "Play First Round / Bowl Week 1";
+        if (week == regSeasonWeeks - 1)  return "Play Conf. Championships";
+        if (week <= 0)                   return "Begin Season";
+        return "Play Week " + (week + 1);
+    }
+
     /**
      * Coarse season cycle label for timeline/status UI:
      * Pre-Season -> Regular Season -> Postseason -> Offseason -> Recruiting.
