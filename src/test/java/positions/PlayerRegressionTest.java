@@ -52,11 +52,12 @@ public class PlayerRegressionTest {
     @Test
     public void ratAttr4_canIncreaseFromSeasonProgression() {
         PlayerQB player = new PlayerQB("Test QB Attr4", 1, 3, team);
-        int initial = player.ratAttr4;
+        player.ratAttr4 = 50;
         player.ratOvr = 60;
         player.ratPot = 85;
         player.progression = 80;
 
+        int initial = 50;
         boolean increased = false;
         for (int i = 0; i < 50; i++) {
             player.ratAttr4 = initial;

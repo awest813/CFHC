@@ -22,10 +22,8 @@ public class StripedRowRenderer extends DefaultTableCellRenderer {
 
     private final Map<String, Team> teamMap;
     private final int nameColumn;
-    private JTable currentTable;
-    private int currentRow;
     private boolean currentSelected;
-    private Color currentStripe;
+    private Color teamAccent;
 
     public StripedRowRenderer() {
         this(null, -1);
@@ -85,11 +83,18 @@ public class StripedRowRenderer extends DefaultTableCellRenderer {
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value,
-                                                  boolean isSelected, boolean hasFocus, int row, int column) {
-        this.currentTable = table;
-        this.currentRow = row;
+                                                   boolean isSelected, boolean hasFocus, int row, int column) {
         this.currentSelected = isSelected;
         Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+        this.teamAccent = null;
+        if (teamMap != null && nameColumn >= 0) {
+            Object nameVal = table.getValueAt(row, nameColumn);
+            if (nameVal != null) {
+                Team t = teamMap.get(nameVal.toString());
+                if (t != null) teamAccent = TeamColors.primary(t.getAbbr());
+            }
+        }
 
         int[] hovered = (int[]) table.getClientProperty("hoveredRow");
         int hoverRow = hovered != null ? hovered[0] : -1;
@@ -110,14 +115,11 @@ public class StripedRowRenderer extends DefaultTableCellRenderer {
         if (isSelected) {
             c.setBackground(DesktopTheme.selectionAccent());
             c.setForeground(Color.WHITE);
-            this.currentStripe = DesktopTheme.selectionAccent();
         } else if (isHovered) {
             c.setBackground(DesktopTheme.tableHoverTint());
             c.setForeground(DesktopTheme.textPrimary());
-            this.currentStripe = DesktopTheme.tableHoverTint();
         } else {
-            this.currentStripe = row % 2 == 0 ? DesktopTheme.tableBase() : DesktopTheme.tableStripe();
-            c.setBackground(currentStripe);
+            c.setBackground(row % 2 == 0 ? DesktopTheme.tableBase() : DesktopTheme.tableStripe());
             c.setForeground(DesktopTheme.textPrimary());
         }
 
@@ -126,19 +128,8 @@ public class StripedRowRenderer extends DefaultTableCellRenderer {
 
     @Override
     protected void paintComponent(Graphics g) {
-        if (teamMap != null && nameColumn >= 0 && currentTable != null && currentRow >= 0) {
-            Object nameVal = currentTable.getValueAt(currentRow, nameColumn);
-            Team team = null;
-            if (nameVal != null) {
-                team = teamMap.get(nameVal.toString());
-            }
-            if (team != null) {
-                Color accent = TeamColors.primary(team.getAbbr());
-                DesktopTheme.paintTableRowGradient(g, getWidth(), getHeight(), accent, currentSelected);
-            } else if (currentStripe != null) {
-                g.setColor(currentStripe);
-                g.fillRect(0, 0, getWidth(), getHeight());
-            }
+        if (teamAccent != null) {
+            DesktopTheme.paintTableRowGradient(g, getWidth(), getHeight(), teamAccent, currentSelected);
         }
         super.paintComponent(g);
     }

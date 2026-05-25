@@ -31,45 +31,30 @@ import java.util.Locale;
 
 public class DashboardPanel implements LeagueScreen {
 
-    private final Runnable playWeek;
-    private final Runnable advanceFullYear;
-    private final Runnable selectRecruitingTab;
-    private final Runnable openUserTeamDetail;
-    private final Runnable saveLeague;
-    private final Runnable showPlaybookDialog;
-    private final Runnable showBowlWatch;
-    private final Runnable selectScreenScoreboard;
-    private final Runnable selectScreenNews;
-    private final Runnable selectScreenPoll;
-    private final Runnable selectScreenPlayerStats;
-    private final Runnable selectScreenRecruiting;
-    private final Runnable selectScreenStandings;
+    public record Callbacks(
+        Runnable playWeek,
+        Runnable advanceFullYear,
+        Runnable selectRecruitingTab,
+        Runnable openUserTeamDetail,
+        Runnable saveLeague,
+        Runnable showPlaybookDialog,
+        Runnable showBowlWatch,
+        Runnable selectScreenScoreboard,
+        Runnable selectScreenNews,
+        Runnable selectScreenPoll,
+        Runnable selectScreenPlayerStats,
+        Runnable selectScreenRecruiting,
+        Runnable selectScreenStandings
+    ) {}
+
+    private final Callbacks cb;
     private final DesktopUiBridge bridge;
     private final League league;
 
-    public DashboardPanel(League league, DesktopUiBridge bridge,
-                          Runnable playWeek, Runnable advanceFullYear,
-                          Runnable selectRecruitingTab, Runnable openUserTeamDetail,
-                          Runnable saveLeague, Runnable showPlaybookDialog,
-                          Runnable showBowlWatch,
-                          Runnable selectScreenScoreboard, Runnable selectScreenNews,
-                          Runnable selectScreenPoll, Runnable selectScreenPlayerStats,
-                          Runnable selectScreenRecruiting, Runnable selectScreenStandings) {
+    public DashboardPanel(League league, DesktopUiBridge bridge, Callbacks cb) {
         this.league = league;
         this.bridge = bridge;
-        this.playWeek = playWeek;
-        this.advanceFullYear = advanceFullYear;
-        this.selectRecruitingTab = selectRecruitingTab;
-        this.openUserTeamDetail = openUserTeamDetail;
-        this.saveLeague = saveLeague;
-        this.showPlaybookDialog = showPlaybookDialog;
-        this.showBowlWatch = showBowlWatch;
-        this.selectScreenScoreboard = selectScreenScoreboard;
-        this.selectScreenNews = selectScreenNews;
-        this.selectScreenPoll = selectScreenPoll;
-        this.selectScreenPlayerStats = selectScreenPlayerStats;
-        this.selectScreenRecruiting = selectScreenRecruiting;
-        this.selectScreenStandings = selectScreenStandings;
+        this.cb = cb;
     }
 
     @Override
@@ -119,16 +104,16 @@ public class DashboardPanel implements LeagueScreen {
         bottom.setBackground(DesktopTheme.windowBackground());
         JPanel quick = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         quick.setBorder(DesktopTheme.titledBorder("Quick navigation"));
-        quick.add(mkNavButton("Standings", selectScreenStandings));
-        quick.add(mkNavButton("Scoreboard", selectScreenScoreboard));
-        quick.add(mkNavButton("Poll Rankings", selectScreenPoll));
-        quick.add(mkNavButton("Player Stats", selectScreenPlayerStats));
-        quick.add(mkNavButton("News", selectScreenNews));
-        quick.add(mkNavButton("Recruiting", selectScreenRecruiting));
+        quick.add(mkNavButton("Standings", cb.selectScreenStandings()));
+        quick.add(mkNavButton("Scoreboard", cb.selectScreenScoreboard()));
+        quick.add(mkNavButton("Poll Rankings", cb.selectScreenPoll()));
+        quick.add(mkNavButton("Player Stats", cb.selectScreenPlayerStats()));
+        quick.add(mkNavButton("News", cb.selectScreenNews()));
+        quick.add(mkNavButton("Recruiting", cb.selectScreenRecruiting()));
         if (league.userTeam != null) {
             JButton my = new JButton("\u2605 My Program");
             my.setToolTipText("Roster, depth chart, and team tools (Ctrl+U)");
-            my.addActionListener(e -> openUserTeamDetail.run());
+            my.addActionListener(e -> cb.openUserTeamDetail().run());
             quick.add(my);
         }
         DesktopTheme.styleToolbar(quick);
@@ -353,35 +338,35 @@ public class DashboardPanel implements LeagueScreen {
         int week = league.currentWeek;
         int reg = league.regSeasonWeeks;
         if (bridge != null && bridge.isAwaitingDockedRecruiting()) {
-            moves.add(new DashboardMove("Finish recruiting", "Open the signing board.", selectRecruitingTab));
-            moves.add(new DashboardMove("Review roster", "Open your program detail.", openUserTeamDetail));
-            moves.add(new DashboardMove("Save league", "Save before rolling into next year.", saveLeague));
+            moves.add(new DashboardMove("Finish recruiting", "Open the signing board.", cb.selectRecruitingTab()));
+            moves.add(new DashboardMove("Review roster", "Open your program detail.", cb.openUserTeamDetail()));
+            moves.add(new DashboardMove("Save league", "Save before rolling into next year.", cb.saveLeague()));
             return moves;
         }
         if (week >= reg + 13) {
-            moves.add(new DashboardMove("Open signing day", "Load final recruiting into the Recruiting tab.", playWeek));
-            moves.add(new DashboardMove("Review recruiting", "Open current recruiting board.", selectRecruitingTab));
-            moves.add(new DashboardMove("Save league", "Save before signing day.", saveLeague));
+            moves.add(new DashboardMove("Open signing day", "Load final recruiting into the Recruiting tab.", cb.playWeek()));
+            moves.add(new DashboardMove("Review recruiting", "Open current recruiting board.", cb.selectRecruitingTab()));
+            moves.add(new DashboardMove("Save league", "Save before signing day.", cb.saveLeague()));
         } else if (week >= reg + 4) {
-            moves.add(new DashboardMove("Advance offseason", "Continue contracts, jobs, transfers, and recruiting setup.", advanceFullYear));
+            moves.add(new DashboardMove("Advance offseason", "Continue contracts, jobs, transfers, and recruiting setup.", cb.advanceFullYear()));
             if (league.userTeam != null) {
-                moves.add(new DashboardMove("Review roster", "Open your program detail.", openUserTeamDetail));
+                moves.add(new DashboardMove("Review roster", "Open your program detail.", cb.openUserTeamDetail()));
             } else {
-                moves.add(new DashboardMove("Choose program", "Pick a user-controlled team for program tools.", openUserTeamDetail));
+                moves.add(new DashboardMove("Choose program", "Pick a user-controlled team for program tools.", cb.openUserTeamDetail()));
             }
-            moves.add(new DashboardMove("Save league", "Save current offseason state.", saveLeague));
+            moves.add(new DashboardMove("Save league", "Save current offseason state.", cb.saveLeague()));
         } else if (week >= reg) {
-            moves.add(new DashboardMove("Play postseason", "Advance the next postseason game window.", playWeek));
-            moves.add(new DashboardMove("Bowl watch", "Review playoff and bowl picture.", showBowlWatch));
-            moves.add(new DashboardMove("Scoreboard", "Review completed postseason games.", selectScreenScoreboard));
+            moves.add(new DashboardMove("Play postseason", "Advance the next postseason game window.", cb.playWeek()));
+            moves.add(new DashboardMove("Bowl watch", "Review playoff and bowl picture.", cb.showBowlWatch()));
+            moves.add(new DashboardMove("Scoreboard", "Review completed postseason games.", cb.selectScreenScoreboard()));
         } else if (week <= 0) {
-            moves.add(new DashboardMove("Begin season", "Simulate preseason setup and start the schedule.", playWeek));
-            moves.add(new DashboardMove("Set playbooks", "Tune offensive and defensive strategy.", showPlaybookDialog));
-            moves.add(new DashboardMove("Review roster", "Open your program detail.", openUserTeamDetail));
+            moves.add(new DashboardMove("Begin season", "Simulate preseason setup and start the schedule.", cb.playWeek()));
+            moves.add(new DashboardMove("Set playbooks", "Tune offensive and defensive strategy.", cb.showPlaybookDialog()));
+            moves.add(new DashboardMove("Review roster", "Open your program detail.", cb.openUserTeamDetail()));
         } else {
-            moves.add(new DashboardMove("Play next week", "Simulate the next week.", playWeek));
-            moves.add(new DashboardMove("Review scoreboard", "Check this week and prior results.", selectScreenScoreboard));
-            moves.add(new DashboardMove("Adjust playbooks", "Tune offensive and defensive strategy.", showPlaybookDialog));
+            moves.add(new DashboardMove("Play next week", "Simulate the next week.", cb.playWeek()));
+            moves.add(new DashboardMove("Review scoreboard", "Check this week and prior results.", cb.selectScreenScoreboard()));
+            moves.add(new DashboardMove("Adjust playbooks", "Tune offensive and defensive strategy.", cb.showPlaybookDialog()));
         }
         return moves;
     }

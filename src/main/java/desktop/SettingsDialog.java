@@ -80,6 +80,10 @@ public class SettingsDialog extends JDialog {
         @SuppressWarnings("unchecked")
         final JComboBox<PracticeFocus>[] practiceFocusComboRef = new JComboBox[1];
         final JLabel[] practiceFocusDescRef = new JLabel[1];
+        @SuppressWarnings("unchecked")
+        final JComboBox<PracticeFocus.PositionGroup>[] posGroupComboRef = new JComboBox[1];
+        @SuppressWarnings("unchecked")
+        final JComboBox<PracticeFocus.FocusIntensity>[] intensityComboRef = new JComboBox[1];
 
         JLabel displaySection = sectionLabel("Display");
         content.add(displaySection);
@@ -145,6 +149,64 @@ public class SettingsDialog extends JDialog {
             content.add(practiceFocusCombo);
             content.add(Box.createVerticalStrut(6));
             content.add(practiceFocusDesc);
+            content.add(Box.createVerticalStrut(12));
+
+            // Position group sub-focus
+            JLabel posCaption = new JLabel("Position group focus");
+            posCaption.setFont(new Font("SansSerif", Font.BOLD, 13));
+            posCaption.setForeground(DesktopTheme.textPrimary());
+            posCaption.setBorder(BorderFactory.createEmptyBorder(0, 0, 4, 0));
+            content.add(posCaption);
+            JComboBox<PracticeFocus.PositionGroup> posGroupCombo = new JComboBox<>(PracticeFocus.PositionGroup.values());
+            PracticeFocus.PositionGroup curPos = league.userTeam.practicePositionGroup != null
+                    ? league.userTeam.practicePositionGroup
+                    : PracticeFocus.PositionGroup.ALL;
+            posGroupCombo.setSelectedItem(curPos);
+            posGroupCombo.setFont(new Font("SansSerif", Font.PLAIN, 13));
+            posGroupCombo.setMaximumRowCount(PracticeFocus.PositionGroup.values().length);
+            DesktopTheme.styleFormControl(posGroupCombo);
+            posGroupCombo.setRenderer(new DefaultListCellRenderer() {
+                @Override
+                public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                              boolean isSelected, boolean cellHasFocus) {
+                    super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                    if (value instanceof PracticeFocus.PositionGroup pg) {
+                        setText(pg.displayName());
+                    }
+                    return this;
+                }
+            });
+            posGroupComboRef[0] = posGroupCombo;
+            content.add(posGroupCombo);
+            content.add(Box.createVerticalStrut(12));
+
+            // Practice intensity
+            JLabel intCaption = new JLabel("Practice intensity");
+            intCaption.setFont(new Font("SansSerif", Font.BOLD, 13));
+            intCaption.setForeground(DesktopTheme.textPrimary());
+            intCaption.setBorder(BorderFactory.createEmptyBorder(0, 0, 4, 0));
+            content.add(intCaption);
+            JComboBox<PracticeFocus.FocusIntensity> intensityCombo = new JComboBox<>(PracticeFocus.FocusIntensity.values());
+            PracticeFocus.FocusIntensity curInt = league.userTeam.focusIntensity != null
+                    ? league.userTeam.focusIntensity
+                    : PracticeFocus.FocusIntensity.NORMAL;
+            intensityCombo.setSelectedItem(curInt);
+            intensityCombo.setFont(new Font("SansSerif", Font.PLAIN, 13));
+            intensityCombo.setMaximumRowCount(PracticeFocus.FocusIntensity.values().length);
+            DesktopTheme.styleFormControl(intensityCombo);
+            intensityCombo.setRenderer(new DefaultListCellRenderer() {
+                @Override
+                public Component getListCellRendererComponent(JList<?> list, Object value, int index,
+                                                              boolean isSelected, boolean cellHasFocus) {
+                    super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                    if (value instanceof PracticeFocus.FocusIntensity fi) {
+                        setText(fi.displayName());
+                    }
+                    return this;
+                }
+            });
+            intensityComboRef[0] = intensityCombo;
+            content.add(intensityCombo);
             content.add(Box.createVerticalStrut(12));
         }
 
@@ -253,6 +315,14 @@ public class SettingsDialog extends JDialog {
                 if (sel instanceof PracticeFocus pf) {
                     league.userTeam.practiceFocus = pf;
                 }
+                Object posSel = posGroupComboRef[0] != null ? posGroupComboRef[0].getSelectedItem() : null;
+                if (posSel instanceof PracticeFocus.PositionGroup pg) {
+                    league.userTeam.practicePositionGroup = pg;
+                }
+                Object intSel = intensityComboRef[0] != null ? intensityComboRef[0].getSelectedItem() : null;
+                if (intSel instanceof PracticeFocus.FocusIntensity fi) {
+                    league.userTeam.focusIntensity = fi;
+                }
             }
             DesktopTheme.setDark(desktopDark.isSelected());
             if (getOwner() instanceof LeagueHomeView) {
@@ -270,7 +340,23 @@ public class SettingsDialog extends JDialog {
     private void wireMutuallyExclusiveLeagueModes(JCheckBox confRealign,
                                                    JCheckBox advRealign,
                                                    JCheckBox universalProRel) {
-        DesktopTheme.wireMutuallyExclusiveLeagueModes(confRealign, advRealign, universalProRel);
+        advRealign.addActionListener(e -> {
+            if (advRealign.isSelected()) {
+                confRealign.setSelected(true);
+                universalProRel.setSelected(false);
+            }
+        });
+        confRealign.addActionListener(e -> {
+            if (confRealign.isSelected()) {
+                universalProRel.setSelected(false);
+            }
+        });
+        universalProRel.addActionListener(e -> {
+            if (universalProRel.isSelected()) {
+                confRealign.setSelected(false);
+                advRealign.setSelected(false);
+            }
+        });
     }
 
     private boolean confirmPromotionRelegationConversion() {

@@ -66,7 +66,9 @@ public class SaveManager {
                         + t.prestige() + "\t" + t.wins() + "\t" + t.losses() + "\t"
                         + t.teamPollScore() + "\t" + t.rankTeamPollScore() + "\t"
                         + sanitizeInlineValue(t.practiceFocus()) + "\t"
-                        + t.nilCollectiveLevel() + "\n");
+                        + t.nilCollectiveLevel() + "\t"
+                        + sanitizeInlineValue(t.practicePositionGroup()) + "\t"
+                        + sanitizeInlineValue(t.focusIntensity()) + "\n");
                 
                 // Coaches
                 writer.write(COACH_PREFIX + "HC," + Persistence.toCsv(t.headCoach()) + "\n");
@@ -157,6 +159,8 @@ public class SaveManager {
         List<Integer> teamOocWeeksBuf = new ArrayList<>();
         List<String> teamOocNamesBuf = new ArrayList<>();
         String teamPracticeFocus = "";
+        String teamPracticePositionGroup = "";
+        String teamFocusIntensity = "";
         int teamNilCollectiveLevel = 0;
         List<LeagueRecord.GameRecord> gameRecords = new ArrayList<>();
 
@@ -210,6 +214,8 @@ public class SaveManager {
                 teamOocWeeksBuf.clear();
                 teamOocNamesBuf.clear();
                 teamPracticeFocus = "";
+                teamPracticePositionGroup = "";
+                teamFocusIntensity = "";
                 teamNilCollectiveLevel = 0;
                 String[] p = line.substring(2).split("\t", -1);
                 teamName = p[0];
@@ -232,6 +238,12 @@ public class SaveManager {
                     } catch (NumberFormatException e) {
                         teamNilCollectiveLevel = 0;
                     }
+                }
+                if (p.length >= 10) {
+                    teamPracticePositionGroup = p[9];
+                }
+                if (p.length >= 11) {
+                    teamFocusIntensity = p[10];
                 }
                 roster = new ArrayList<>();
                 history = new ArrayList<>();
@@ -272,7 +284,9 @@ public class SaveManager {
                 confTeams.add(new LeagueRecord.TeamRecord(teamName, teamAbbr, prestige, teamWins, teamLosses,
                         List.copyOf(teamOocWeeksBuf), List.copyOf(teamOocNamesBuf),
                         teamPollSnap, teamRankSnap,
-                        hc, oc, dc, roster, history, tRecords, teamPracticeFocus, teamNilCollectiveLevel, ""));
+                        hc, oc, dc, roster, history, tRecords, teamPracticeFocus,
+                        teamPracticePositionGroup, teamFocusIntensity,
+                        teamNilCollectiveLevel, ""));
             } else if (line.startsWith(GAME_PREFIX)) {
                 gameRecords.add(LeagueRecord.GameRecord.fromSaveLine(line.substring(GAME_PREFIX.length())));
             }

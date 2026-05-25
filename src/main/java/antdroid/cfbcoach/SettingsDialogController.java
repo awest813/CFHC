@@ -103,9 +103,14 @@ public final class SettingsDialogController {
         final View sectionPracticeFocus = dialog.findViewById(R.id.sectionPracticeFocus);
         final Spinner spinnerPracticeFocus = dialog.findViewById(R.id.spinnerPracticeFocus);
         final TextView textPracticeFocusDesc = dialog.findViewById(R.id.textPracticeFocusDesc);
+        final Spinner spinnerPositionGroup = dialog.findViewById(R.id.spinnerPositionGroup);
+        final Spinner spinnerFocusIntensity = dialog.findViewById(R.id.spinnerFocusIntensity);
+        final TextView textFocusIntensityDesc = dialog.findViewById(R.id.textFocusIntensityDesc);
         if (!isNewGameSetup && simLeague.userTeam != null && sectionPracticeFocus != null
                 && spinnerPracticeFocus != null && textPracticeFocusDesc != null) {
             sectionPracticeFocus.setVisibility(View.VISIBLE);
+
+            // Practice focus selector
             PracticeFocus[] values = PracticeFocus.values();
             String[] labels = new String[values.length];
             for (int i = 0; i < values.length; i++) {
@@ -130,6 +135,52 @@ public final class SettingsDialogController {
                 public void onNothingSelected(AdapterView<?> parent) {
                 }
             });
+
+            // Position group sub-focus selector
+            if (spinnerPositionGroup != null) {
+                PracticeFocus.PositionGroup[] pgValues = PracticeFocus.PositionGroup.values();
+                String[] pgLabels = new String[pgValues.length];
+                for (int i = 0; i < pgValues.length; i++) {
+                    pgLabels[i] = pgValues[i].displayName();
+                }
+                ArrayAdapter<String> pgAdapter = new ArrayAdapter<>(activity,
+                        android.R.layout.simple_spinner_item, pgLabels);
+                pgAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinnerPositionGroup.setAdapter(pgAdapter);
+                PracticeFocus.PositionGroup curPg = simLeague.userTeam.practicePositionGroup != null
+                        ? simLeague.userTeam.practicePositionGroup
+                        : PracticeFocus.PositionGroup.ALL;
+                spinnerPositionGroup.setSelection(curPg.ordinal());
+            }
+
+            // Focus intensity selector
+            if (spinnerFocusIntensity != null && textFocusIntensityDesc != null) {
+                PracticeFocus.FocusIntensity[] fiValues = PracticeFocus.FocusIntensity.values();
+                String[] fiLabels = new String[fiValues.length];
+                for (int i = 0; i < fiValues.length; i++) {
+                    fiLabels[i] = fiValues[i].displayName();
+                }
+                ArrayAdapter<String> fiAdapter = new ArrayAdapter<>(activity,
+                        android.R.layout.simple_spinner_item, fiLabels);
+                fiAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinnerFocusIntensity.setAdapter(fiAdapter);
+                PracticeFocus.FocusIntensity curFi = simLeague.userTeam.focusIntensity != null
+                        ? simLeague.userTeam.focusIntensity
+                        : PracticeFocus.FocusIntensity.NORMAL;
+                spinnerFocusIntensity.setSelection(curFi.ordinal());
+                textFocusIntensityDesc.setText(curFi.shortDescription());
+                spinnerFocusIntensity.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        textFocusIntensityDesc.setText(
+                                PracticeFocus.FocusIntensity.values()[position].shortDescription());
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {
+                    }
+                });
+            }
         } else if (sectionPracticeFocus != null) {
             sectionPracticeFocus.setVisibility(View.GONE);
         }
@@ -245,6 +296,20 @@ public final class SettingsDialogController {
                         PracticeFocus[] vals = PracticeFocus.values();
                         if (pos >= 0 && pos < vals.length) {
                             simLeague.userTeam.practiceFocus = vals[pos];
+                        }
+                        if (spinnerPositionGroup != null) {
+                            int pgPos = spinnerPositionGroup.getSelectedItemPosition();
+                            PracticeFocus.PositionGroup[] pgVals = PracticeFocus.PositionGroup.values();
+                            if (pgPos >= 0 && pgPos < pgVals.length) {
+                                simLeague.userTeam.practicePositionGroup = pgVals[pgPos];
+                            }
+                        }
+                        if (spinnerFocusIntensity != null) {
+                            int fiPos = spinnerFocusIntensity.getSelectedItemPosition();
+                            PracticeFocus.FocusIntensity[] fiVals = PracticeFocus.FocusIntensity.values();
+                            if (fiPos >= 0 && fiPos < fiVals.length) {
+                                simLeague.userTeam.focusIntensity = fiVals[fiPos];
+                            }
                         }
                     }
 

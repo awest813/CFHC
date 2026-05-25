@@ -54,14 +54,7 @@ public class LeagueScreenContext {
 
     /** Find a live player by name and team across the league. */
     public Player findPlayerInLeague(String name, String teamName) {
-        for (Team team : league.getTeamList()) {
-            if (team.getName().equals(teamName)) {
-                for (Player p : team.getAllPlayers()) {
-                    if (p.name.equals(name)) return p;
-                }
-            }
-        }
-        return null;
+        return PlayerSearch.findInLeague(league, name, teamName);
     }
 
     /** Format a DataRecord value as a display string. */

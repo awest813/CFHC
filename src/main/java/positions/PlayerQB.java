@@ -39,6 +39,7 @@ public class PlayerQB extends Player {
 
         createGenericAttributes(stars, attrDropper1, attDropper2, attDropper3, attDropper4, overallWt);
         ratAttr4 = (int)(Math.random()*45)+45;
+        assignArchetype();
         ratOvr = getOverall();
 
         recruitRating = getScoutingGrade();
@@ -66,6 +67,7 @@ public class PlayerQB extends Player {
 
         createImportedSkills(stars, attrDropper1, attDropper2, attDropper3, attDropper4, overallWt);
         ratAttr4 = (int)(Math.random()*45)+45;
+        assignArchetype();
 
         ratOvr = getOverall();
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
+import positions.Archetypes;
 import simulation.CoachSkills;
 import simulation.PlaybookDefense;
 import simulation.PlaybookOffense;
@@ -42,6 +43,7 @@ public class Staff {
         this.coachSkillXp = record.coachSkillXp();
         this.coachSkillRanksBits = record.coachSkillRanksBits();
         this.history = new ArrayList<>(record.history());
+        this.schemeArchetypes = record.schemeArchetypes() != null ? record.schemeArchetypes() : "";
     }
 
 
@@ -71,6 +73,7 @@ public class Staff {
     public int ratImprovement;
     public int offStrat;
     public int defStrat;
+    public String schemeArchetypes;
 
     private final Random rand = new Random();
     private final int max = 4;
@@ -155,6 +158,7 @@ public class Staff {
             coachSkillXp = 0;
             coachSkillRanksBits = 0;
         }
+        schemeArchetypes = a.length > 19 ? a[19] : "";
         ratOvr = getStaffOverall(wt);
     }
 
@@ -204,6 +208,8 @@ public class Staff {
 
         defStrat = (int) (Math.random()*5);
         if (defStrat > 4) defStrat = 4;
+
+        assignSchemeArchetypes();
     }
 
 
@@ -448,6 +454,53 @@ public class Staff {
 
 
 
+    public void assignSchemeArchetypes() {
+        String[] offensiveTags = {
+                Archetypes.QB_POCKET, Archetypes.QB_SCRAMBLER, Archetypes.QB_FIELD_GENERAL, Archetypes.QB_DUAL_THREAT,
+                Archetypes.RB_SPEED, Archetypes.RB_POWER, Archetypes.RB_RECEIVING,
+                Archetypes.WR_DEEP_THREAT, Archetypes.WR_ROUTE_RUNNER, Archetypes.WR_SLOT,
+                Archetypes.TE_BLOCKING, Archetypes.TE_RECEIVING, Archetypes.TE_HYBRID,
+                Archetypes.OL_RUN_BLOCKER, Archetypes.OL_PASS_PROTECTOR, Archetypes.OL_MAULER
+        };
+        String[] defensiveTags = {
+                Archetypes.DL_RUN_STOPPER, Archetypes.DL_PASS_RUSHER, Archetypes.DL_NOSE,
+                Archetypes.LB_RUN_STOPPER, Archetypes.LB_COVERAGE, Archetypes.LB_BLITZER,
+                Archetypes.CB_SHUTDOWN, Archetypes.CB_SPEED, Archetypes.CB_PHYSICAL,
+                Archetypes.S_BALL_HAWK, Archetypes.S_RUN_SUPPORT, Archetypes.S_HYBRID
+        };
+
+        String[] pool;
+        if (position.equals("OC") || position.equals("HC")) {
+            pool = offensiveTags;
+        } else if (position.equals("DC")) {
+            pool = defensiveTags;
+        } else {
+            schemeArchetypes = "";
+            return;
+        }
+
+        int count = 2 + (int)(Math.random() * 2);
+        java.util.ArrayList<String> picks = new java.util.ArrayList<>(java.util.Arrays.asList(pool));
+        java.util.Collections.shuffle(picks, rand);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < count && i < picks.size(); i++) {
+            if (i > 0) sb.append(",");
+            sb.append(picks.get(i));
+        }
+        schemeArchetypes = sb.toString();
+    }
+
+    public boolean hasSchemeFit(String archetypeTag) {
+        if (schemeArchetypes == null || schemeArchetypes.isEmpty() || archetypeTag == null || archetypeTag.isEmpty()) {
+            return false;
+        }
+        String[] tags = schemeArchetypes.split(",");
+        for (String tag : tags) {
+            if (tag.equals(archetypeTag)) return true;
+        }
+        return false;
+    }
+
     //STATS
 
     public int getWins() {
@@ -459,7 +512,8 @@ public class Staff {
                 position, name, age, year, ratOff, ratDef, ratTalent, ratDiscipline,
                 offStrat, defStrat, contractYear, contractLength, baselinePrestige,
                 retired, ratOvr, ratImprovement, user, coachSkillXp, coachSkillRanksBits,
-                stats, awards, history != null ? new ArrayList<>(history) : new ArrayList<>()
+                stats, awards, history != null ? new ArrayList<>(history) : new ArrayList<>(),
+                schemeArchetypes != null ? schemeArchetypes : ""
         );
     }
 

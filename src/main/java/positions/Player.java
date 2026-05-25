@@ -23,6 +23,8 @@ public class Player {
     public Team team;
     public String name;
     public String position;
+    public String archetypeTag = "";
+    public String mentorName = "";
     
     public Player() {}
 
@@ -60,6 +62,8 @@ public class Player {
         this.isMedicalRS = record.isMedicalRS();
         this.isGradTransfer = record.isGradTransfer();
         this.isWalkOn = record.isWalkOn();
+        this.archetypeTag = record.archetypeTag() != null ? record.archetypeTag() : "";
+        this.mentorName = record.mentorName() != null ? record.mentorName() : "";
 
         if (record.isInjured() && record.injuryDuration() > 0) {
             String d = record.injuryDescription();
@@ -112,7 +116,9 @@ public class Player {
                 new int[]{ratAttr1, ratAttr2, ratAttr3, ratAttr4}, height, weight,
                 isSuspended, weeksSuspended, troubledTimes, talentNFL, stats, careerStats, awards,
                 isRedshirt, isMedicalRS, isGradTransfer, isWalkOn,
-                inj, injDur, injDesc
+                inj, injDur, injDesc,
+                archetypeTag != null ? archetypeTag : "",
+                mentorName != null ? mentorName : ""
         );
     }
 
@@ -178,6 +184,12 @@ public class Player {
     final int endseason = 40;
     final int endseasonFactor = 15;
     final int endseasonBonus = 30;
+
+    final double breakthroughChance = 5.0;
+    final double bustChance = 3.0;
+    final double lateBloomerThreshold = 0.5;
+    final int lateBloomerMinPot = 80;
+    final int lateBloomerMinYear = 3;
 
     final double qbImportance = 1;
     final double rbImportance = 1.5;
@@ -369,6 +381,9 @@ public class Player {
         weight = Integer.parseInt(a[18]);
         ratOvr = Integer.parseInt(a[19]);
         ratImprovement = Integer.parseInt(a[20]);
+        archetypeTag = a.length > 21 ? a[21] : "";
+        mentorName = a.length > 22 ? a[22] : "";
+        assignArchetype();
     }
 
     public void loadRecruit(String data, int[] wt) {
@@ -391,6 +406,9 @@ public class Player {
         height = Integer.parseInt(a[17]);
         weight = Integer.parseInt(a[18]);
         ratOvr = getOverall();
+        archetypeTag = a.length > 19 ? a[19] : "";
+        mentorName = a.length > 20 ? a[20] : "";
+        assignArchetype();
     }
 
     public void loadSeasonStats(String s) {
@@ -467,6 +485,8 @@ public class Player {
 
         isTransfer = p.isTransfer;
         isGradTransfer = p.isGradTransfer;
+        archetypeTag = p.archetypeTag;
+        mentorName = "";
     }
 
 
@@ -489,11 +509,13 @@ public class Player {
         double games = getMidSeasonBonus();
         this.ratOvrStart = ratOvr;
 
-        ratIntelligence += (int) (Math.random() * games)/1.5;
-        ratAttr1 += (int) (Math.random() * games);
-        ratAttr2 += (int) (Math.random() * games);
-        ratAttr3 += (int) (Math.random() * games);
-        ratAttr4 += (int) (Math.random() * games)/1.5;
+        double[] mult = getArchetypeMultipliers();
+
+        ratIntelligence += (int) (Math.random() * games) / 1.5;
+        ratAttr1 += (int) ((Math.random() * games) * mult[0]);
+        ratAttr2 += (int) ((Math.random() * games) * mult[1]);
+        ratAttr3 += (int) ((Math.random() * games) * mult[2]);
+        ratAttr4 += (int) ((Math.random() * games) * mult[3]) / 1.5;
 
         applyPracticeFocusMidSeason(practiceFocus, games);
 
@@ -535,18 +557,43 @@ public class Player {
 
             if (year > 2 && games < minGamesPot) ratPot -= (int) (Math.random() * 15);
 
+            double[] mult = getArchetypeMultipliers();
+
             ratIntelligence += (int) ((Math.random() * (progression + games - endseason)) / (endseasonFactor * 1.5));
-            ratAttr1 += (int) ((Math.random() * (progression + games - endseason)) / endseasonFactor);
-            ratAttr2 += (int) ((Math.random() * (progression + games - endseason)) / endseasonFactor);
-            ratAttr3 += (int) ((Math.random() * (progression + games - endseason)) / endseasonFactor);
-            ratAttr4 += (int) ((Math.random() * (progression + games - endseason)) / (endseasonFactor * 1.5));
+            ratAttr1 += (int) (((Math.random() * (progression + games - endseason)) / endseasonFactor) * mult[0]);
+            ratAttr2 += (int) (((Math.random() * (progression + games - endseason)) / endseasonFactor) * mult[1]);
+            ratAttr3 += (int) (((Math.random() * (progression + games - endseason)) / endseasonFactor) * mult[2]);
+            ratAttr4 += (int) (((Math.random() * (progression + games - endseason)) / (endseasonFactor * 1.5)) * mult[3]);
 
             if (Math.random() * 100 < progression) {
-                //breakthrough
-                ratAttr1 += (int) ((Math.random() * (progression + games - endseasonBonus)) / (endseasonFactor * 1.5));
-                ratAttr2 += (int) ((Math.random() * (progression + games - endseasonBonus)) / (endseasonFactor * 1.5));
-                ratAttr3 += (int) ((Math.random() * (progression + games - endseasonBonus)) / (endseasonFactor * 1.5));
-                ratAttr4 += (int) ((Math.random() * (progression + games - endseasonBonus)) / (endseasonFactor * 1.5));
+                double btScale = (progression + games - endseasonBonus) / (endseasonFactor * 1.2);
+                int primaryBoost = (int) (8 + Math.random() * 8);
+                ratAttr1 += (int) (primaryBoost * mult[0] / 2);
+                ratAttr2 += (int) (primaryBoost * mult[1] / 2);
+                ratAttr3 += (int) (primaryBoost * mult[2] / 2);
+                ratAttr4 += (int) (primaryBoost * mult[3] / 2);
+            }
+
+            if (Math.random() * 100 < bustChance && character < 50 && games < 15) {
+                int bustPenalty = (int) (2 + Math.random() * 4);
+                ratAttr1 -= (int) (bustPenalty * (2.0 - mult[0]));
+                ratAttr2 -= (int) (bustPenalty * (2.0 - mult[1]));
+                ratAttr3 -= (int) (bustPenalty * (2.0 - mult[2]));
+                ratAttr4 -= (int) (bustPenalty * (2.0 - mult[3]));
+            }
+
+            if (year >= 3 && ratPot >= lateBloomerMinPot && ratOvr < (ratPot * lateBloomerThreshold)) {
+                if (Math.random() < 0.3) {
+                    int bloomBoost = (int) (8 + Math.random() * 5);
+                    ratAttr1 += (int) (bloomBoost * mult[0] / 1.5);
+                    ratAttr2 += (int) (bloomBoost * mult[1] / 1.5);
+                    ratAttr3 += (int) (bloomBoost * mult[2] / 1.5);
+                    ratAttr4 += (int) (bloomBoost * mult[3] / 1.5);
+                }
+            }
+
+            if (year >= 4) {
+                applyRegression(mult);
             }
 
             if(getChemistryProgression() > 0) character += getChemistryProgression()/2;
@@ -566,28 +613,55 @@ public class Player {
 
     /**
      * Extra mid-season growth from the team's practice focus (user team only in {@link Team#midSeasonProgression}).
+     * Respects position-group sub-focus and intensity.
      */
     private void applyPracticeFocusMidSeason(PracticeFocus focus, double games) {
         if (focus == null || focus == PracticeFocus.BALANCED || games <= 0) {
             return;
         }
-        double scale = games * 0.42;
+        Team t = team;
+        PracticeFocus.PositionGroup posGroup = (t != null && t.practicePositionGroup != null)
+                ? t.practicePositionGroup : PracticeFocus.PositionGroup.ALL;
+        PracticeFocus.FocusIntensity intensity = (t != null && t.focusIntensity != null)
+                ? t.focusIntensity : PracticeFocus.FocusIntensity.NORMAL;
+        double mult = intensity.growthMultiplier();
+        boolean matchesGroup = posGroup.matches(position);
+
+        double scale = games * 0.42 * mult;
         switch (focus) {
             case FOOTBALL_IQ:
-                ratIntelligence += (int) (Math.random() * scale / 1.2);
+                ratIntelligence += matchesGroup
+                        ? (int)(Math.random() * scale / 1.2 * 1.5)
+                        : (int)(Math.random() * scale / 1.2);
                 break;
             case FUNDAMENTALS:
-                ratAttr1 += (int) (Math.random() * scale);
-                ratAttr2 += (int) (Math.random() * scale);
+                if (matchesGroup) {
+                    ratAttr1 += (int)(Math.random() * scale * 1.5);
+                    ratAttr2 += (int)(Math.random() * scale * 1.5);
+                } else {
+                    ratAttr1 += (int)(Math.random() * scale);
+                    ratAttr2 += (int)(Math.random() * scale);
+                }
                 break;
             case ATHLETICISM:
-                ratAttr3 += (int) (Math.random() * scale);
-                ratAttr4 += (int) (Math.random() * scale / 1.2);
+                if (matchesGroup) {
+                    ratAttr3 += (int)(Math.random() * scale * 1.5);
+                    ratAttr4 += (int)(Math.random() * scale / 1.2 * 1.5);
+                } else {
+                    ratAttr3 += (int)(Math.random() * scale);
+                    ratAttr4 += (int)(Math.random() * scale / 1.2);
+                }
                 break;
             case PHYSICAL:
-                ratDurability += (int) (Math.random() * scale * 0.55);
-                ratAttr3 += (int) (Math.random() * scale * 0.35);
-                ratAttr4 += (int) (Math.random() * scale * 0.35);
+                if (matchesGroup) {
+                    ratDurability += (int)(Math.random() * scale * 0.55 * 1.5);
+                    ratAttr3 += (int)(Math.random() * scale * 0.35 * 1.5);
+                    ratAttr4 += (int)(Math.random() * scale * 0.35 * 1.5);
+                } else {
+                    ratDurability += (int)(Math.random() * scale * 0.55);
+                    ratAttr3 += (int)(Math.random() * scale * 0.35);
+                    ratAttr4 += (int)(Math.random() * scale * 0.35);
+                }
                 break;
             default:
                 break;
@@ -603,35 +677,193 @@ public class Player {
         if (bonusBase <= 0) {
             return;
         }
+        Team t = team;
+        PracticeFocus.PositionGroup posGroup = (t != null && t.practicePositionGroup != null)
+                ? t.practicePositionGroup : PracticeFocus.PositionGroup.ALL;
+        PracticeFocus.FocusIntensity intensity = (t != null && t.focusIntensity != null)
+                ? t.focusIntensity : PracticeFocus.FocusIntensity.NORMAL;
+        double mult = intensity.growthMultiplier();
+        boolean matchesGroup = posGroup.matches(position);
+
         switch (focus) {
             case FOOTBALL_IQ:
-                ratIntelligence += (int) (Math.random() * bonusBase * 1.1);
+                ratIntelligence += matchesGroup
+                        ? (int)(Math.random() * bonusBase * 1.1 * 1.5 * mult)
+                        : (int)(Math.random() * bonusBase * 1.1 * mult);
                 break;
             case FUNDAMENTALS:
-                ratAttr1 += (int) (Math.random() * bonusBase);
-                ratAttr2 += (int) (Math.random() * bonusBase);
+                if (matchesGroup) {
+                    ratAttr1 += (int)(Math.random() * bonusBase * 1.5 * mult);
+                    ratAttr2 += (int)(Math.random() * bonusBase * 1.5 * mult);
+                } else {
+                    ratAttr1 += (int)(Math.random() * bonusBase * mult);
+                    ratAttr2 += (int)(Math.random() * bonusBase * mult);
+                }
                 break;
             case ATHLETICISM:
-                ratAttr3 += (int) (Math.random() * bonusBase);
-                ratAttr4 += (int) (Math.random() * bonusBase / 1.1);
+                if (matchesGroup) {
+                    ratAttr3 += (int)(Math.random() * bonusBase * 1.5 * mult);
+                    ratAttr4 += (int)(Math.random() * bonusBase / 1.1 * 1.5 * mult);
+                } else {
+                    ratAttr3 += (int)(Math.random() * bonusBase * mult);
+                    ratAttr4 += (int)(Math.random() * bonusBase / 1.1 * mult);
+                }
                 break;
             case PHYSICAL:
-                ratDurability += (int) (Math.random() * bonusBase * 0.65);
-                ratAttr3 += (int) (Math.random() * bonusBase * 0.45);
-                ratAttr4 += (int) (Math.random() * bonusBase * 0.45);
+                if (matchesGroup) {
+                    ratDurability += (int)(Math.random() * bonusBase * 0.65 * 1.5 * mult);
+                    ratAttr3 += (int)(Math.random() * bonusBase * 0.45 * 1.5 * mult);
+                    ratAttr4 += (int)(Math.random() * bonusBase * 0.45 * 1.5 * mult);
+                } else {
+                    ratDurability += (int)(Math.random() * bonusBase * 0.65 * mult);
+                    ratAttr3 += (int)(Math.random() * bonusBase * 0.45 * mult);
+                    ratAttr4 += (int)(Math.random() * bonusBase * 0.45 * mult);
+                }
                 break;
             default:
                 break;
         }
     }
 
+    /**
+     * Small weekly practice outcome. Called each week of the regular season for user teams.
+     */
+    public void applyWeeklyPractice(PracticeFocus focus, PracticeFocus.PositionGroup posGroup,
+                                    PracticeFocus.FocusIntensity intensity) {
+        if (focus == null || focus == PracticeFocus.BALANCED) return;
+        double mult = intensity != null ? intensity.growthMultiplier() : 1.0;
+        boolean matchesGroup = posGroup != null && posGroup.matches(position);
+
+        double scale = mult * 0.15;
+        switch (focus) {
+            case FOOTBALL_IQ:
+                ratIntelligence += matchesGroup ? (int)(Math.random() * scale * 1.5) : (int)(Math.random() * scale);
+                break;
+            case FUNDAMENTALS:
+                if (matchesGroup) {
+                    ratAttr1 += (int)(Math.random() * scale * 1.5);
+                    ratAttr2 += (int)(Math.random() * scale * 1.5);
+                } else {
+                    ratAttr1 += (int)(Math.random() * scale);
+                    ratAttr2 += (int)(Math.random() * scale);
+                }
+                break;
+            case ATHLETICISM:
+                if (matchesGroup) {
+                    ratAttr3 += (int)(Math.random() * scale * 1.5);
+                    ratAttr4 += (int)(Math.random() * scale / 1.2 * 1.5);
+                } else {
+                    ratAttr3 += (int)(Math.random() * scale);
+                    ratAttr4 += (int)(Math.random() * scale / 1.2);
+                }
+                break;
+            case PHYSICAL:
+                if (matchesGroup) {
+                    ratDurability += (int)(Math.random() * scale * 0.55 * 1.5);
+                    ratAttr3 += (int)(Math.random() * scale * 0.35 * 1.5);
+                    ratAttr4 += (int)(Math.random() * scale * 0.35 * 1.5);
+                } else {
+                    ratDurability += (int)(Math.random() * scale * 0.55);
+                    ratAttr3 += (int)(Math.random() * scale * 0.35);
+                    ratAttr4 += (int)(Math.random() * scale * 0.35);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void applyRegression(double[] mult) {
+        double chance = year >= 5 ? 0.25 : 0.10;
+        int penalty = year >= 5 ? (int)(2 + Math.random() * 4) : (int)(1 + Math.random() * 3);
+
+        if (Math.random() < chance) {
+            int physAttr = getPhysicalAttributeIndex();
+            switch (physAttr) {
+                case 0: ratAttr1 -= penalty; break;
+                case 1: ratAttr2 -= penalty; break;
+                case 2: ratAttr3 -= penalty; break;
+                case 3: ratAttr4 -= penalty; break;
+            }
+        }
+        if (Math.random() < chance / 2) {
+            int physAttr2 = getPhysicalAttributeIndex();
+            while (physAttr2 == getPhysicalAttributeIndex()) {
+                physAttr2 = (int)(Math.random() * 4);
+            }
+            int p2 = Math.max(1, penalty - 1);
+            switch (physAttr2) {
+                case 0: ratAttr1 -= p2; break;
+                case 1: ratAttr2 -= p2; break;
+                case 2: ratAttr3 -= p2; break;
+                case 3: ratAttr4 -= p2; break;
+            }
+        }
+    }
+
+    private int getPhysicalAttributeIndex() {
+        return switch (position) {
+            case "QB" -> 3;
+            case "RB" -> 0;
+            case "WR" -> 0;
+            case "TE" -> 3;
+            case "OL" -> 2;
+            case "DL" -> 3;
+            case "LB" -> 3;
+            case "CB" -> 1;
+            case "S"  -> 2;
+            case "K"  -> 0;
+            default -> (int)(Math.random() * 4);
+        };
+    }
+
     private void clampCoreRatings() {
+        int[] caps = Archetypes.getCaps(position, archetypeTag);
         ratIntelligence = Math.min(100, Math.max(0, ratIntelligence));
         ratDurability = Math.min(100, Math.max(0, ratDurability));
-        ratAttr1 = Math.min(100, Math.max(0, ratAttr1));
-        ratAttr2 = Math.min(100, Math.max(0, ratAttr2));
-        ratAttr3 = Math.min(100, Math.max(0, ratAttr3));
-        ratAttr4 = Math.min(100, Math.max(0, ratAttr4));
+        ratAttr1 = Math.min(caps[0], Math.max(0, ratAttr1));
+        ratAttr2 = Math.min(caps[1], Math.max(0, ratAttr2));
+        ratAttr3 = Math.min(caps[2], Math.max(0, ratAttr3));
+        ratAttr4 = Math.min(caps[3], Math.max(0, ratAttr4));
+    }
+
+    public void assignArchetype() {
+        if (archetypeTag == null || archetypeTag.isEmpty()) {
+            archetypeTag = Archetypes.assignArchetype(position, ratAttr1, ratAttr2, ratAttr3, ratAttr4);
+        }
+        clampCoreRatings();
+    }
+
+    public String getArchetypeDisplayName() {
+        return Archetypes.displayName(archetypeTag);
+    }
+
+    public double[] getArchetypeMultipliers() {
+        return Archetypes.getMultipliers(position, archetypeTag);
+    }
+
+    public void applyTrainingCampBonus(boolean isFocus) {
+        if (isFocus) {
+            int[] primaries = Archetypes.getPrimaryAttributeIndices(position, archetypeTag);
+            for (int idx : primaries) {
+                int boost = 3 + (int)(Math.random() * 6);
+                addToAttribute(idx, boost);
+            }
+        } else {
+            int idx = (int)(Math.random() * 4);
+            int boost = (int)(Math.random() * 3);
+            addToAttribute(idx, boost);
+        }
+        clampCoreRatings();
+    }
+
+    private void addToAttribute(int idx, int value) {
+        switch (idx) {
+            case 0: ratAttr1 += value; break;
+            case 1: ratAttr2 += value; break;
+            case 2: ratAttr3 += value; break;
+            case 3: ratAttr4 += value; break;
+        }
     }
 
     public void addSeasonAwards() {
@@ -741,7 +973,8 @@ public class Player {
         if (team == null) return ratPot * 2 / 3;
         HeadCoach hc = team.getHeadCoach();
         int dev = hc != null ? hc.developmentBonusPoints() : 0;
-        int num = (ratPot * 2 + (hc != null ? hc.ratTalent : 0) + 3 * team.getTeamFacilities() + dev
+        int mentor = getMentorBonus();
+        int num = (ratPot * 2 + (hc != null ? hc.ratTalent : 0) + 3 * team.getTeamFacilities() + dev + mentor
                 + (int) (Math.random() * getChemistryProgression())) / 3;
         return num;
     }
@@ -750,7 +983,10 @@ public class Player {
         HeadCoach hc = team.getHeadCoach();
         int dev = hc != null ? hc.developmentBonusPoints() : 0;
         int ocRating = team.getOC() != null ? team.getOC().ratOff : 0;
+        int schemeBonus = getSchemeFitBonus(true);
+        int mentor = getMentorBonus();
         int num = (ratPot * 4 + (hc != null ? hc.ratTalent * 2 : 0) + ocRating + 7 * team.getTeamFacilities() + dev
+                + schemeBonus + mentor
                 + (int) (Math.random() * getChemistryProgression())) / 7;
         return num;
     }
@@ -759,7 +995,10 @@ public class Player {
         HeadCoach hc = team.getHeadCoach();
         int dev = hc != null ? hc.developmentBonusPoints() : 0;
         int dcRating = team.getDC() != null ? team.getDC().ratDef : 0;
+        int schemeBonus = getSchemeFitBonus(false);
+        int mentor = getMentorBonus();
         int num = (ratPot * 4 + (hc != null ? hc.ratTalent * 2 : 0) + dcRating + 7 * team.getTeamFacilities() + dev
+                + schemeBonus + mentor
                 + (int) (Math.random() * getChemistryProgression())) / 7;
         return num;
     }
@@ -778,6 +1017,43 @@ public class Player {
     public double getChemistryProgression() {
         if (team == null || team.league == null) return 0;
         return team.getTeamChemistry() - team.league.getAverageTeamChemistry();
+    }
+
+    public boolean getSchemeFit() {
+        if (team == null || archetypeTag == null || archetypeTag.isEmpty()) return false;
+        if (offensePos.contains(position)) {
+            return team.getOC() != null && team.getOC().hasSchemeFit(archetypeTag);
+        } else if (defensePos.contains(position)) {
+            return team.getDC() != null && team.getDC().hasSchemeFit(archetypeTag);
+        }
+        return false;
+    }
+
+    public int getSchemeFitBonus(boolean offensive) {
+        if (team == null || archetypeTag == null || archetypeTag.isEmpty()) return 0;
+        if (offensive) {
+            return (team.getOC() != null && team.getOC().hasSchemeFit(archetypeTag)) ? 5 : 0;
+        } else {
+            return (team.getDC() != null && team.getDC().hasSchemeFit(archetypeTag)) ? 5 : 0;
+        }
+    }
+
+    public boolean isEligibleMentor() {
+        return year >= 3 && ratOvr >= 85 && character > 70;
+    }
+
+    public boolean hasMentor() {
+        return mentorName != null && !mentorName.isEmpty();
+    }
+
+    public int getMentorBonus() {
+        if (!hasMentor() || team == null) return 0;
+        for (Player p : team.getAllPlayers()) {
+            if (p.name.equals(mentorName) && p.position.equals(position) && p.isEligibleMentor()) {
+                return 3;
+            }
+        }
+        return 0;
     }
 
     public void durabilityProgression() {

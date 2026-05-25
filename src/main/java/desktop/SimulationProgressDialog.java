@@ -18,7 +18,7 @@ public class SimulationProgressDialog extends JDialog {
 
     private final JProgressBar progressBar;
     private final JLabel statusLabel;
-    private boolean cancelled = false;
+    private volatile boolean cancelled = false;
 
     public SimulationProgressDialog(JFrame owner, String title) {
         super(owner, title, true);

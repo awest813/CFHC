@@ -181,7 +181,7 @@ public class TeamDetailView extends JDialog {
                         int row = table.rowAtPoint(e.getPoint());
                         if (row >= 0) {
                             String name = (String) table.getValueAt(row, 1);
-                            Player p = findPlayerByName(liveTeam, name);
+                            Player p = PlayerSearch.findByName(liveTeam, name);
                             if (p != null) {
                                 PlayerDetailView.show(ownerFrame, p);
                             }
@@ -289,7 +289,7 @@ public class TeamDetailView extends JDialog {
                         int row = table.rowAtPoint(e.getPoint());
                         if (row >= 0) {
                             String name = (String) table.getValueAt(row, 2);
-                            Player p = findPlayerByName(liveTeam, name);
+                            Player p = PlayerSearch.findByName(liveTeam, name);
                             if (p != null) PlayerDetailView.show(ownerFrame, p);
                         }
                     }
@@ -564,14 +564,6 @@ public class TeamDetailView extends JDialog {
     // -------------------------------------------------------------------------
     // Utilities
     // -------------------------------------------------------------------------
-
-    private static Player findPlayerByName(Team team, String name) {
-        if (team == null || name == null) return null;
-        for (Player p : team.getAllPlayers()) {
-            if (name.equals(p.name)) return p;
-        }
-        return null;
-    }
 
     public static void show(JFrame owner, LeagueRecord.TeamRecord team, Team live) {
         TeamDetailView view = new TeamDetailView(owner, team, live);

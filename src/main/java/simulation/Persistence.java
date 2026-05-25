@@ -28,7 +28,9 @@ public final class Persistence {
           .append(r.isRedshirt()).append(",").append(r.isMedicalRS()).append(",")
           .append(r.isGradTransfer()).append(",").append(r.isWalkOn()).append(",")
           .append(r.isInjured()).append(",").append(r.injuryDuration()).append(",")
-          .append(r.injuryDescription() == null ? "" : r.injuryDescription().replace(",", ";"));
+          .append(r.injuryDescription() == null ? "" : r.injuryDescription().replace(",", ";"))
+          .append(",").append(r.archetypeTag() == null ? "" : r.archetypeTag())
+          .append(",").append(r.mentorName() == null ? "" : r.mentorName());
         
         sb.append("&");
 
@@ -69,7 +71,8 @@ public final class Persistence {
           .append(r.contractLength()).append(",").append(r.baselinePrestige()).append(",")
           .append(r.retired()).append(",").append(r.ratOvr()).append(",").append(r.ratImprovement())
           .append(",").append(r.user()).append(",").append(r.coachSkillXp()).append(",")
-          .append(r.coachSkillRanksBits()).append(",&");
+          .append(r.coachSkillRanksBits()).append(",")
+          .append(r.schemeArchetypes() != null ? r.schemeArchetypes() : "").append(",&");
         
         // Stats
         for (int i = 0; i < r.stats().length; i++) {

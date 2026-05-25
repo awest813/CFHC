@@ -771,25 +771,4 @@ public final class DesktopTheme {
             Math.min(255, Math.max(0, (int)(alpha * 255f))));
     }
 
-    public static void wireMutuallyExclusiveLeagueModes(JCheckBox realignment,
-                                                         JCheckBox advanced,
-                                                         JCheckBox proRel) {
-        advanced.addActionListener(e -> {
-            if (advanced.isSelected()) {
-                realignment.setSelected(true);
-                proRel.setSelected(false);
-            }
-        });
-        realignment.addActionListener(e -> {
-            if (realignment.isSelected()) {
-                proRel.setSelected(false);
-            }
-        });
-        proRel.addActionListener(e -> {
-            if (proRel.isSelected()) {
-                realignment.setSelected(false);
-                advanced.setSelected(false);
-            }
-        });
-    }
 }

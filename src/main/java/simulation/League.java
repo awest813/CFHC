@@ -2029,6 +2029,7 @@ public class League {
             for (int i = 0; i < conferences.size(); ++i) {
                 conferences.get(i).playWeek();
             }
+            userTeam.applyWeeklyPractice();
         }
 
         if (currentWeek == regSeasonWeeks-1) {

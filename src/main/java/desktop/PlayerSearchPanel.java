@@ -93,7 +93,7 @@ public class PlayerSearchPanel implements LeagueScreen {
                         String teamName = (String) table.getValueAt(row, 2);
                         Team t = ctx.teamMap().get(teamName);
                         if (t != null) {
-                            Player p = findPlayerByName(t, name);
+                            Player p = PlayerSearch.findByName(t, name);
                             if (p != null) PlayerDetailView.show(ctx.parent(), p);
                         }
                     }
@@ -148,11 +148,4 @@ public class PlayerSearchPanel implements LeagueScreen {
         return searchTarget;
     }
 
-    private static Player findPlayerByName(Team team, String name) {
-        if (team == null || name == null) return null;
-        for (Player p : team.getAllPlayers()) {
-            if (name.equals(p.name)) return p;
-        }
-        return null;
-    }
 }

@@ -42,12 +42,20 @@ public record LeagueRecord(
         List<TeamHistoryRecord> history,
         List<DataRecord> records,
         String practiceFocus,
+        String practicePositionGroup,
+        String focusIntensity,
         int nilCollectiveLevel,
         String nickname
     ) {
         public TeamRecord {
             if (practiceFocus == null) {
                 practiceFocus = "";
+            }
+            if (practicePositionGroup == null) {
+                practicePositionGroup = "";
+            }
+            if (focusIntensity == null) {
+                focusIntensity = "";
             }
             if (nilCollectiveLevel < 0) {
                 nilCollectiveLevel = 0;

@@ -14,7 +14,12 @@
         \n+ Convert to Pro-Rel in Preseason
         \n\n v1.4.33
         \n+ Added Coaching Age Import Feature
-
+        \n\n v1.4.5
+        \n+ Expanded test coverage: box score invariants, standings, awards, depth chart, progression, transfers, recruiting, and career lifecycle
+        \n+ Desktop theme polish and dark mode improvements
+        \n+ Cross-platform cleanup: Android-only recruiting UI classes separated
+        \n+ Null-safety and dead code removal across desktop and shared engine
+        \n+ Save/load robustness improvements
 
     </string>
 </resources>

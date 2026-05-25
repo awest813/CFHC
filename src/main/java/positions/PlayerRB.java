@@ -45,6 +45,7 @@ public class PlayerRB extends Player {
         wasRedshirt = getWasRedshirtStatus();
 
         createGenericAttributes(stars, attrDropper1, attDropper2, attDropper3, attDropper4, overallWt);
+        assignArchetype();
 
         recruitRating = getScoutingGrade();
 
@@ -70,6 +71,7 @@ public class PlayerRB extends Player {
         createGenericAttributes(stars, attrDropper1, attDropper2, attDropper3, attDropper4, overallWt);
 
         createImportedSkills(stars, attrDropper1, attDropper2, attDropper3, attDropper4, overallWt);
+        assignArchetype();
 
         ratOvr = getOverall();
 

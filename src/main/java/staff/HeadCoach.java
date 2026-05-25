@@ -118,6 +118,7 @@ public class HeadCoach extends Staff {
         user = staff.user;
         coachSkillXp = staff.coachSkillXp;
         coachSkillRanksBits = staff.coachSkillRanksBits;
+        schemeArchetypes = staff.schemeArchetypes;
 
     }
 

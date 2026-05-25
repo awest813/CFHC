@@ -28,7 +28,8 @@ public record StaffRecord(
     int coachSkillRanksBits,
     int[] stats,
     int[] awards,
-    List<String> history
+    List<String> history,
+    String schemeArchetypes
 ) {
     public StaffRecord {
         if (coachSkillXp < 0) {
@@ -39,6 +40,9 @@ public record StaffRecord(
         }
         if (history == null) {
             history = new ArrayList<>();
+        }
+        if (schemeArchetypes == null) {
+            schemeArchetypes = "";
         }
     }
 
@@ -105,7 +109,8 @@ public record StaffRecord(
             bits,
             statsList,
             awardsList,
-            historyList
+            historyList,
+            basic.length > 19 ? basic[19] : ""
         );
     }
 }

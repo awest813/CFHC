@@ -39,6 +39,7 @@ public class PlayerCB extends Player {
         wasRedshirt = getWasRedshirtStatus();
 
         createGenericAttributes(stars, attrDropper1, attDropper2, attDropper3, attDropper4, overallWt);
+        assignArchetype();
         recruitRating = getScoutingGrade();
 
         recruitTolerance = (int) ((60 - team.getTeamPrestige()) / cbImportance);
@@ -62,6 +63,7 @@ public class PlayerCB extends Player {
 
         createGenericAttributes(stars, attrDropper1, attDropper2, attDropper3, attDropper4, overallWt);
         createImportedSkills(stars, attrDropper1, attDropper2, attDropper3, attDropper4, overallWt);
+        assignArchetype();
 
         ratOvr = getOverall();
 

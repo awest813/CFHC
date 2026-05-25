@@ -63,6 +63,12 @@ public class Team {
     /** User-team practice emphasis; CPU teams use {@link PracticeFocus#BALANCED}. */
     public PracticeFocus practiceFocus;
 
+    /** Position-group sub-focus; narrows weekly & seasonal bonuses to one group. */
+    public PracticeFocus.PositionGroup practicePositionGroup;
+
+    /** Practice intensity (Normal vs Intense). */
+    public PracticeFocus.FocusIntensity focusIntensity;
+
     //Future Implementation?
     public int teamBudget;
     public int teamRecruitBudget;
@@ -190,6 +196,7 @@ public class Team {
     public ArrayList<Player> playersLeaving;
     public ArrayList<Player> playersTransferring;
     public ArrayList<String> redshirtList;
+    public java.util.ArrayList<String> trainingCampFocusNames;
 
     public ArrayList<Player> playersInjured;
     public ArrayList<Player> playersDis;
@@ -524,6 +531,10 @@ public class Team {
         this.teamPollScore = record.teamPollScore();
         this.rankTeamPollScore = record.rankTeamPollScore();
         this.practiceFocus = PracticeFocus.fromSave(record.practiceFocus());
+        this.practicePositionGroup = PracticeFocus.PositionGroup.fromSave(
+                record.practicePositionGroup() != null ? record.practicePositionGroup() : "");
+        this.focusIntensity = PracticeFocus.FocusIntensity.fromSave(
+                record.focusIntensity() != null ? record.focusIntensity() : "");
         this.nilCollectiveLevel = Math.max(0, record.nilCollectiveLevel());
 
         if (record.oocWeeks() != null) {
@@ -579,6 +590,8 @@ public class Team {
         playbookOff = new PlaybookOffense(0);
         playbookDef = new PlaybookDefense(0);
         practiceFocus = PracticeFocus.BALANCED;
+        practicePositionGroup = PracticeFocus.PositionGroup.ALL;
+        focusIntensity = PracticeFocus.FocusIntensity.NORMAL;
         nilCollectiveLevel = 0;
         nilCollectiveUpgrade = false;
 
@@ -599,6 +612,7 @@ public class Team {
         playersLeaving = new ArrayList<>();
         playersTransferring = new ArrayList<>();
         redshirtList = new ArrayList<>();
+        trainingCampFocusNames = new java.util.ArrayList<>();
         rosterManager = new RosterManager(this);
         depthChartManager = new DepthChartManager(this);
         statsTracker = new StatsTracker(this);
@@ -630,6 +644,8 @@ public class Team {
                 new ArrayList<>(teamHistory),
                 teamRecords.toRecordList(),
                 practiceFocus != null ? practiceFocus.toSave() : PracticeFocus.BALANCED.toSave(),
+                practicePositionGroup != null ? practicePositionGroup.toSave() : PracticeFocus.PositionGroup.ALL.toSave(),
+                focusIntensity != null ? focusIntensity.toSave() : PracticeFocus.FocusIntensity.NORMAL.toSave(),
                 nilCollectiveLevel,
                 nickname != null ? nickname : ""
         );
@@ -1414,6 +1430,8 @@ public class Team {
      */
     public void advanceTeamPlayers() {
         advanceSeasonPlayers();
+        trainingCamp();
+        assignMentors();
         checkHallofFame();
         checkCareerRecords(league.leagueRecords);
         checkCareerTeamRecords(teamRecords);
@@ -1642,6 +1660,98 @@ public class Team {
         stabilizeDisciplineFromCoachSkills();
         sortPlayers();
         getPlayersTransferring();
+    }
+
+    public void assignMentors() {
+        for (Player p : getAllPlayers()) {
+            p.mentorName = "";
+        }
+        String[] posGroups = {"QB", "RB", "WR", "TE", "OL", "DL", "LB", "CB", "S", "K"};
+        for (String pos : posGroups) {
+            ArrayList<Player> candidates = new ArrayList<>();
+            ArrayList<Player> mentees = new ArrayList<>();
+            for (Player p : getAllPlayers()) {
+                if (!p.position.equals(pos)) continue;
+                if (p.isEligibleMentor()) {
+                    candidates.add(p);
+                } else if (p.year >= 1 && p.mentorName.isEmpty()) {
+                    mentees.add(p);
+                }
+            }
+            int mentorsUsed = 0;
+            for (Player mentor : candidates) {
+                if (mentorsUsed >= 2) break;
+                int assigned = 0;
+                for (Player mentee : mentees) {
+                    if (assigned >= 2) break;
+                    if (mentee.mentorName.isEmpty()) {
+                        mentee.mentorName = mentor.name;
+                        assigned++;
+                    }
+                }
+                if (assigned > 0) mentorsUsed++;
+            }
+        }
+    }
+
+    /**
+     * Apply weekly practice outcomes for the user team (CPU uses BALANCED with no weekly changes).
+     * Called each regular-season week from League.playWeek().
+     */
+    public void applyWeeklyPractice() {
+        if (!userControlled) return;
+        if (league.currentWeek > league.regSeasonWeeks) return;
+        PracticeFocus focus = practiceFocus != null ? practiceFocus : PracticeFocus.BALANCED;
+        if (focus == PracticeFocus.BALANCED) return;
+        PracticeFocus.PositionGroup posGroup = practicePositionGroup != null
+                ? practicePositionGroup : PracticeFocus.PositionGroup.ALL;
+        PracticeFocus.FocusIntensity intensity = focusIntensity != null
+                ? focusIntensity : PracticeFocus.FocusIntensity.NORMAL;
+
+        for (Player p : getAllPlayers()) {
+            p.applyWeeklyPractice(focus, posGroup, intensity);
+            if (intensity == PracticeFocus.FocusIntensity.INTENSE && Math.random() < 0.10 && p.injury == null) {
+                int dur = 1 + (int)(Math.random() * 3);
+                p.injury = new Injury(dur, "Practice (intense)", p);
+            }
+        }
+    }
+
+    public void selectTrainingCampFocusPlayers() {
+        trainingCampFocusNames.clear();
+        ArrayList<Player> candidates = new ArrayList<>();
+        for (Player p : getAllPlayers()) {
+            if (p.year <= 3 && p.year > 0) candidates.add(p);
+        }
+        if (candidates.isEmpty()) return;
+        Collections.shuffle(candidates);
+        candidates.sort((a, b) -> Integer.compare(b.ratPot, a.ratPot));
+        int count = Math.min(3, candidates.size());
+        for (int i = 0; i < count; i++) {
+            trainingCampFocusNames.add(candidates.get(i).name);
+        }
+    }
+
+    public String trainingCamp() {
+        if (!userControlled) {
+            selectTrainingCampFocusPlayers();
+        }
+        StringBuilder report = new StringBuilder();
+        for (Player p : getAllPlayers()) {
+            int oldOvr = p.ratOvr;
+            boolean isFocus = trainingCampFocusNames.contains(p.name);
+            p.applyTrainingCampBonus(isFocus);
+            p.ratOvr = p.getOverall();
+            int delta = p.ratOvr - oldOvr;
+            if (delta > 0) {
+                report.append(p.position).append(" ").append(p.name);
+                if (isFocus) report.append(" (FOCUS)");
+                report.append(": +").append(delta).append(" OVR\n");
+            }
+        }
+        trainingCampFocusNames.clear();
+        sortPlayers();
+        return report.toString();
     }
 
     public void cpuCutPlayers() {

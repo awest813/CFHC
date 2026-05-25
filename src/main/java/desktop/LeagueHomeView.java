@@ -1272,13 +1272,15 @@ public class LeagueHomeView extends JFrame {
     private void registerScreens() {
         screens.clear();
         screens.put("Home", new DashboardPanel(leagueCore, bridge,
-                this::playWeek, this::advanceFullYear,
-                this::selectRecruitingTab, this::openUserTeamDetail,
-                () -> saveLeague(false), this::showPlaybookDialog,
-                this::showBowlWatch,
-                () -> selectScreen("Scoreboard"), () -> selectScreen("News"),
-                () -> selectScreen("Poll Rankings"), () -> selectScreen("Player Stats"),
-                () -> selectScreen("Recruiting"), () -> selectScreen("Standings")));
+                new DashboardPanel.Callbacks(
+                    this::playWeek, this::advanceFullYear,
+                    this::selectRecruitingTab, this::openUserTeamDetail,
+                    () -> saveLeague(false), this::showPlaybookDialog,
+                    this::showBowlWatch,
+                    () -> selectScreen("Scoreboard"), () -> selectScreen("News"),
+                    () -> selectScreen("Poll Rankings"), () -> selectScreen("Player Stats"),
+                    () -> selectScreen("Recruiting"), () -> selectScreen("Standings")
+                )));
         screens.put("Scoreboard", new ScoreboardPanel());
         screens.put("News", new NewsPanel());
         screens.put("Player Search", new PlayerSearchPanel());
@@ -1571,21 +1573,7 @@ public class LeagueHomeView extends JFrame {
      * Returns {@code null} if the player has graduated or is no longer on any roster.
      */
     private Player findPlayerInLeague(String playerName, String teamName) {
-        if (playerName == null) return null;
-        // First try the specific team
-        Team t = liveTeamMap.get(teamName);
-        if (t != null) {
-            for (Player p : t.getAllPlayers()) {
-                if (playerName.equals(p.name)) return p;
-            }
-        }
-        // Fall back: search all teams (player may have transferred)
-        for (Team team : liveTeamMap.values()) {
-            for (Player p : team.getAllPlayers()) {
-                if (playerName.equals(p.name)) return p;
-            }
-        }
-        return null;
+        return PlayerSearch.findInLeague(liveTeamMap, playerName, teamName);
     }
 
     // =========================================================================

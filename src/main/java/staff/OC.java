@@ -97,6 +97,7 @@ public class OC extends Staff {
         history = staff.history;
         awards = staff.awards;
         retired = staff.retired;
+        schemeArchetypes = staff.schemeArchetypes;
 
     }
 
