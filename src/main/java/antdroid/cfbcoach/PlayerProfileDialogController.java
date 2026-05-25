@@ -92,49 +92,49 @@ public final class PlayerProfileDialogController {
 
         ppPlayerName.setText(playerName);
         String[] a = snapshot.basics;
-        ppPosition.setText(valueAt(a, 0));
-        ppClass.setText(valueAt(a, 1));
-        ppTeam.setText(valueAt(a, 2));
-        ppHome.setText(valueAt(a, 3));
-        ppStars.setText(valueAt(a, 4));
-        ppHeight.setText(valueAt(a, 5));
-        ppWeight.setText(valueAt(a, 6));
-        ppOverall.setText(valueAt(a, 7));
-        ppCharacter.setText(valueAt(a, 8));
-        ppAwareness.setText(valueAt(a, 9));
-        ppStatus.setText(valueAt(a, 10));
-        ppDurability.setText(valueAt(a, 11));
+        ppPosition.setText(PlatformUiHelper.valueAt(a, 0));
+        ppClass.setText(PlatformUiHelper.valueAt(a, 1));
+        ppTeam.setText(PlatformUiHelper.valueAt(a, 2));
+        ppHome.setText(PlatformUiHelper.valueAt(a, 3));
+        ppStars.setText(PlatformUiHelper.valueAt(a, 4));
+        ppHeight.setText(PlatformUiHelper.valueAt(a, 5));
+        ppWeight.setText(PlatformUiHelper.valueAt(a, 6));
+        ppOverall.setText(PlatformUiHelper.valueAt(a, 7));
+        ppCharacter.setText(PlatformUiHelper.valueAt(a, 8));
+        ppAwareness.setText(PlatformUiHelper.valueAt(a, 9));
+        ppStatus.setText(PlatformUiHelper.valueAt(a, 10));
+        ppDurability.setText(PlatformUiHelper.valueAt(a, 11));
 
         String[] b = snapshot.ratings;
-        ppAttr1Name.setText(valueAt(b, 0));
-        ppAttr1.setText(valueAt(b, 1));
-        ppAttr2Name.setText(valueAt(b, 2));
-        ppAttr2.setText(valueAt(b, 3));
-        ppAttr3Name.setText(valueAt(b, 4));
-        ppAttr3.setText(valueAt(b, 5));
-        ppAttr4Name.setText(valueAt(b, 6));
-        ppAttr4.setText(valueAt(b, 7));
+        ppAttr1Name.setText(PlatformUiHelper.valueAt(b, 0));
+        ppAttr1.setText(PlatformUiHelper.valueAt(b, 1));
+        ppAttr2Name.setText(PlatformUiHelper.valueAt(b, 2));
+        ppAttr2.setText(PlatformUiHelper.valueAt(b, 3));
+        ppAttr3Name.setText(PlatformUiHelper.valueAt(b, 4));
+        ppAttr3.setText(PlatformUiHelper.valueAt(b, 5));
+        ppAttr4Name.setText(PlatformUiHelper.valueAt(b, 6));
+        ppAttr4.setText(PlatformUiHelper.valueAt(b, 7));
 
         String[] teamStat = snapshot.statColumns;
-        ppYear.setText(valueAt(teamStat, 0));
-        ppStat0.setText(valueAt(teamStat, 1));
-        ppStat1.setText(valueAt(teamStat, 2));
-        ppStat2.setText(valueAt(teamStat, 3));
-        ppStat3.setText(valueAt(teamStat, 4));
-        ppStat4.setText(valueAt(teamStat, 5));
-        ppStat5.setText(valueAt(teamStat, 6));
-        ppStat6.setText(valueAt(teamStat, 7));
-        ppStat7.setText(valueAt(teamStat, 8));
+        ppYear.setText(PlatformUiHelper.valueAt(teamStat, 0));
+        ppStat0.setText(PlatformUiHelper.valueAt(teamStat, 1));
+        ppStat1.setText(PlatformUiHelper.valueAt(teamStat, 2));
+        ppStat2.setText(PlatformUiHelper.valueAt(teamStat, 3));
+        ppStat3.setText(PlatformUiHelper.valueAt(teamStat, 4));
+        ppStat4.setText(PlatformUiHelper.valueAt(teamStat, 5));
+        ppStat5.setText(PlatformUiHelper.valueAt(teamStat, 6));
+        ppStat6.setText(PlatformUiHelper.valueAt(teamStat, 7));
+        ppStat7.setText(PlatformUiHelper.valueAt(teamStat, 8));
 
         String[] c = snapshot.featuredStats;
-        ppFeatStat1Name.setText(valueAt(c, 0));
-        ppFeatStat1.setText(valueAt(c, 1));
-        ppFeatStat2Name.setText(valueAt(c, 2));
-        ppFeatStat2.setText(valueAt(c, 3));
-        ppFeatStat3Name.setText(valueAt(c, 4));
-        ppFeatStat3.setText(valueAt(c, 5));
-        ppFeatStat4Name.setText(valueAt(c, 6));
-        ppFeatStat4.setText(valueAt(c, 7));
+        ppFeatStat1Name.setText(PlatformUiHelper.valueAt(c, 0));
+        ppFeatStat1.setText(PlatformUiHelper.valueAt(c, 1));
+        ppFeatStat2Name.setText(PlatformUiHelper.valueAt(c, 2));
+        ppFeatStat2.setText(PlatformUiHelper.valueAt(c, 3));
+        ppFeatStat3Name.setText(PlatformUiHelper.valueAt(c, 4));
+        ppFeatStat3.setText(PlatformUiHelper.valueAt(c, 5));
+        ppFeatStat4Name.setText(PlatformUiHelper.valueAt(c, 6));
+        ppFeatStat4.setText(PlatformUiHelper.valueAt(c, 7));
     }
 
     public static int checkAward(Team currentTeam, String player) {
@@ -146,7 +146,4 @@ public final class PlayerProfileDialogController {
         return 0;
     }
 
-    static String valueAt(String[] values, int index) {
-        return index < values.length ? values[index] : "";
-    }
 }

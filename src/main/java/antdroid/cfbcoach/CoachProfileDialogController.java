@@ -53,37 +53,34 @@ public final class CoachProfileDialogController {
         final TextView cpFeatStat4 = dialog.findViewById(R.id.cpFeatStat4);
 
         String[] a = snapshot.basics;
-        cpPosition.setText(valueAt(a, 0));
-        cpClass.setText(valueAt(a, 1));
-        cpTeam.setText(valueAt(a, 2));
-        cpOverall.setText(valueAt(a, 3));
-        cpWins.setText(valueAt(a, 4));
-        cpLosses.setText(valueAt(a, 5));
-        cpStatus.setText(valueAt(a, 6));
-        cpContract.setText(valueAt(a, 7));
+        cpPosition.setText(PlatformUiHelper.valueAt(a, 0));
+        cpClass.setText(PlatformUiHelper.valueAt(a, 1));
+        cpTeam.setText(PlatformUiHelper.valueAt(a, 2));
+        cpOverall.setText(PlatformUiHelper.valueAt(a, 3));
+        cpWins.setText(PlatformUiHelper.valueAt(a, 4));
+        cpLosses.setText(PlatformUiHelper.valueAt(a, 5));
+        cpStatus.setText(PlatformUiHelper.valueAt(a, 6));
+        cpContract.setText(PlatformUiHelper.valueAt(a, 7));
 
         String[] b = snapshot.ratings;
-        cpAttr1Name.setText(valueAt(b, 0));
-        cpAttr1.setText(valueAt(b, 1));
-        cpAttr2Name.setText(valueAt(b, 2));
-        cpAttr2.setText(valueAt(b, 3));
-        cpAttr3Name.setText(valueAt(b, 4));
-        cpAttr3.setText(valueAt(b, 5));
-        cpAttr4Name.setText(valueAt(b, 6));
-        cpAttr4.setText(valueAt(b, 7));
+        cpAttr1Name.setText(PlatformUiHelper.valueAt(b, 0));
+        cpAttr1.setText(PlatformUiHelper.valueAt(b, 1));
+        cpAttr2Name.setText(PlatformUiHelper.valueAt(b, 2));
+        cpAttr2.setText(PlatformUiHelper.valueAt(b, 3));
+        cpAttr3Name.setText(PlatformUiHelper.valueAt(b, 4));
+        cpAttr3.setText(PlatformUiHelper.valueAt(b, 5));
+        cpAttr4Name.setText(PlatformUiHelper.valueAt(b, 6));
+        cpAttr4.setText(PlatformUiHelper.valueAt(b, 7));
 
         String[] c = snapshot.featuredStats;
-        cpFeatStat1Name.setText(valueAt(c, 0));
-        cpFeatStat1.setText(valueAt(c, 1));
-        cpFeatStat2Name.setText(valueAt(c, 2));
-        cpFeatStat2.setText(valueAt(c, 3));
-        cpFeatStat3Name.setText(valueAt(c, 4));
-        cpFeatStat3.setText(valueAt(c, 5));
-        cpFeatStat4Name.setText(valueAt(c, 6));
-        cpFeatStat4.setText(valueAt(c, 7));
+        cpFeatStat1Name.setText(PlatformUiHelper.valueAt(c, 0));
+        cpFeatStat1.setText(PlatformUiHelper.valueAt(c, 1));
+        cpFeatStat2Name.setText(PlatformUiHelper.valueAt(c, 2));
+        cpFeatStat2.setText(PlatformUiHelper.valueAt(c, 3));
+        cpFeatStat3Name.setText(PlatformUiHelper.valueAt(c, 4));
+        cpFeatStat3.setText(PlatformUiHelper.valueAt(c, 5));
+        cpFeatStat4Name.setText(PlatformUiHelper.valueAt(c, 6));
+        cpFeatStat4.setText(PlatformUiHelper.valueAt(c, 7));
     }
 
-    static String valueAt(String[] values, int index) {
-        return index < values.length ? values[index] : "";
-    }
 }

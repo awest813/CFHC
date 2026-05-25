@@ -94,11 +94,11 @@ final class GameDialogController {
         } else gameDialogScoreDashName.setText("@");
 
         final TextView gameL = dialog.findViewById(R.id.gameDialogLeft);
-        gameL.setText(valueAt(gameStr, 0));
+        gameL.setText(PlatformUiHelper.valueAt(gameStr, 0));
         final TextView gameC = dialog.findViewById(R.id.gameDialogCenter);
-        gameC.setText(valueAt(gameStr, 1));
+        gameC.setText(PlatformUiHelper.valueAt(gameStr, 1));
         final TextView gameR = dialog.findViewById(R.id.gameDialogRight);
-        gameR.setText(valueAt(gameStr, 2));
+        gameR.setText(PlatformUiHelper.valueAt(gameStr, 2));
 
         final View ql = dialog.findViewById(R.id.gameDialogQBLeft);
         final View qc = dialog.findViewById(R.id.gameDialogQBCenter);
@@ -117,22 +117,22 @@ final class GameDialogController {
         final View kr = dialog.findViewById(R.id.gameDialogKickRight);
         final View bottom = dialog.findViewById(R.id.gameDialogBottom);
 
-        ((TextView)ql).setText(valueAt(gameStr, 3));
-        ((TextView)qc).setText(valueAt(gameStr, 4));
-        ((TextView)qr).setText(valueAt(gameStr, 5));
-        ((TextView)rl).setText(valueAt(gameStr, 6));
-        ((TextView)rc).setText(valueAt(gameStr, 7));
-        ((TextView)rr).setText(valueAt(gameStr, 8));
-        ((TextView)wl).setText(valueAt(gameStr, 9));
-        ((TextView)wc).setText(valueAt(gameStr, 10));
-        ((TextView)wr).setText(valueAt(gameStr, 11));
-        ((TextView)dl).setText(valueAt(gameStr, 12));
-        ((TextView)dc).setText(valueAt(gameStr, 13));
-        ((TextView)dr).setText(valueAt(gameStr, 14));
-        ((TextView)kl).setText(valueAt(gameStr, 15));
-        ((TextView)kc).setText(valueAt(gameStr, 16));
-        ((TextView)kr).setText(valueAt(gameStr, 17));
-        ((TextView)bottom).setText(valueAt(gameStr, 18) + "\n\n");
+        ((TextView)ql).setText(PlatformUiHelper.valueAt(gameStr, 3));
+        ((TextView)qc).setText(PlatformUiHelper.valueAt(gameStr, 4));
+        ((TextView)qr).setText(PlatformUiHelper.valueAt(gameStr, 5));
+        ((TextView)rl).setText(PlatformUiHelper.valueAt(gameStr, 6));
+        ((TextView)rc).setText(PlatformUiHelper.valueAt(gameStr, 7));
+        ((TextView)rr).setText(PlatformUiHelper.valueAt(gameStr, 8));
+        ((TextView)wl).setText(PlatformUiHelper.valueAt(gameStr, 9));
+        ((TextView)wc).setText(PlatformUiHelper.valueAt(gameStr, 10));
+        ((TextView)wr).setText(PlatformUiHelper.valueAt(gameStr, 11));
+        ((TextView)dl).setText(PlatformUiHelper.valueAt(gameStr, 12));
+        ((TextView)dc).setText(PlatformUiHelper.valueAt(gameStr, 13));
+        ((TextView)dr).setText(PlatformUiHelper.valueAt(gameStr, 14));
+        ((TextView)kl).setText(PlatformUiHelper.valueAt(gameStr, 15));
+        ((TextView)kc).setText(PlatformUiHelper.valueAt(gameStr, 16));
+        ((TextView)kr).setText(PlatformUiHelper.valueAt(gameStr, 17));
+        ((TextView)bottom).setText(PlatformUiHelper.valueAt(gameStr, 18) + "\n\n");
 
         String[] selection = {"menu >> Game Summary", "menu >> Offense Stats", "menu >> Defense Stats", "menu >> Special Teams Stats", "menu >> Game Play Log"};
         Spinner potySpinner = dialog.findViewById(R.id.boxscoreMenu);
@@ -187,10 +187,10 @@ final class GameDialogController {
         dialog.setCancelable(false);
         PlatformUiHelper.showImmersive(dialog);
 
-        ((TextView)dialog.findViewById(R.id.gameScoutDialogLeft)).setText(valueAt(gameStr, 0));
-        ((TextView)dialog.findViewById(R.id.gameScoutDialogCenter)).setText(valueAt(gameStr, 1));
-        ((TextView)dialog.findViewById(R.id.gameScoutDialogRight)).setText(valueAt(gameStr, 2));
-        ((TextView)dialog.findViewById(R.id.gameScoutDialogBottom)).setText(valueAt(gameStr, 3));
+        ((TextView)dialog.findViewById(R.id.gameScoutDialogLeft)).setText(PlatformUiHelper.valueAt(gameStr, 0));
+        ((TextView)dialog.findViewById(R.id.gameScoutDialogCenter)).setText(PlatformUiHelper.valueAt(gameStr, 1));
+        ((TextView)dialog.findViewById(R.id.gameScoutDialogRight)).setText(PlatformUiHelper.valueAt(gameStr, 2));
+        ((TextView)dialog.findViewById(R.id.gameScoutDialogBottom)).setText(PlatformUiHelper.valueAt(gameStr, 3));
 
         if (g.awayTeam == userTeam || g.homeTeam == userTeam) {
             ((TextView)dialog.findViewById(R.id.textScoutOffenseStrategy)).setText(userTeam.getAbbr() + " Off Strategy:");
@@ -255,7 +255,4 @@ final class GameDialogController {
         return scores != null && index < scores.length ? scores[index] : 0;
     }
 
-    private static String valueAt(String[] values, int index) {
-        return index < values.length ? values[index] : "";
-    }
 }
