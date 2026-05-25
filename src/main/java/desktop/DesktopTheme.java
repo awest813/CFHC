@@ -23,6 +23,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.util.prefs.Preferences;
@@ -368,7 +369,7 @@ public final class DesktopTheme {
     public static JTable stylePickerTable(DefaultTableModel model, int rowHeight, int headerFontSize) {
         JTable table = new JTable(model);
         table.setRowHeight(rowHeight);
-        table.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setBackground(windowBackground());
         table.setForeground(textPrimary());
         table.setGridColor(borderSubtle());
@@ -377,10 +378,10 @@ public final class DesktopTheme {
 
         table.getTableHeader().setBackground(tableBase());
         table.getTableHeader().setForeground(textSecondary());
-        table.getTableHeader().setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, headerFontSize));
-        table.getTableHeader().setPreferredSize(new java.awt.Dimension(0, rowHeight + 5));
+        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, headerFontSize));
+        table.getTableHeader().setPreferredSize(new Dimension(0, rowHeight + 5));
         table.getTableHeader().setBorder(
-                javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, borderSubtle()));
+                BorderFactory.createMatteBorder(0, 0, 1, 0, borderSubtle()));
         return table;
     }
 
