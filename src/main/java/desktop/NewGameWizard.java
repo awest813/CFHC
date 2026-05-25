@@ -238,17 +238,7 @@ public class NewGameWizard extends JDialog {
                     equalize
             );
             resultLeague.setPlatformResourceProvider(resources);
-            LeagueSettingsOptions leagueOptions = LeagueSettingsOptions.fromLeague(resultLeague);
-            leagueOptions.showPotential = options.showPotential;
-            leagueOptions.fullGameLog = options.fullGameLog;
-            leagueOptions.careerMode = options.careerMode;
-            leagueOptions.neverRetire = options.neverRetire;
-            leagueOptions.enableTv = options.enableTv;
-            leagueOptions.expandedPlayoffs = options.expandedPlayoffs;
-            leagueOptions.conferenceRealignment = options.conferenceRealignment;
-            leagueOptions.advancedRealignment = options.advancedRealignment;
-            leagueOptions.universalProRel = options.universalProRel;
-            leagueOptions.applyTo(resultLeague, true, true, true);
+            options.applyTo(resultLeague, true, true, true);
             showTeamPickerPage();
         } catch (Exception ex) {
             PlatformLog.e(TAG, "Error creating league", ex);
@@ -288,17 +278,8 @@ public class NewGameWizard extends JDialog {
         });
     }
 
-    private static final class NewGameOptions {
+    private static final class NewGameOptions extends LeagueSettingsOptions {
         PrestigeMode mode = PrestigeMode.DEFAULT;
-        boolean expandedPlayoffs;
-        boolean showPotential;
-        boolean fullGameLog;
-        boolean careerMode = true;
-        boolean neverRetire;
-        boolean enableTv = true;
-        boolean conferenceRealignment = true;
-        boolean advancedRealignment;
-        boolean universalProRel;
     }
 
     private void showTeamPickerPage() {

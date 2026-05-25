@@ -175,12 +175,12 @@ public class ScoreboardPanel implements LeagueScreen {
     }
 
     private static void showBoxScoreFromMatchup(String matchup, LeagueScreenContext ctx) {
-        if (matchup == null || !matchup.contains(" at ")) return;
-        String[] parts = matchup.split(" at ");
-        if (parts.length < 2) return;
-        String teamA = parts[0].replaceFirst("\\s+\\d+$", "").trim();
-        String homePart = parts[1];
-        String teamH = homePart.replaceFirst("\\s+\\d+", "").split("\\s\\s+")[0].trim();
+        if (matchup == null) return;
+        int atIdx = matchup.lastIndexOf(" at ");
+        if (atIdx < 0) return;
+        String teamA = matchup.substring(0, atIdx).replaceFirst("\\s+\\d+$", "").trim();
+        String homePart = matchup.substring(atIdx + 4);
+        String teamH = homePart.replaceFirst("\\s+\\d+.*", "").trim();
 
         Team away = ctx.teamMap().get(teamA);
         Team home = ctx.teamMap().get(teamH);

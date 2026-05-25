@@ -158,22 +158,7 @@ public class RedshirtDialog extends JDialog {
     }
 
     private JTable createModernTable(DefaultTableModel model) {
-        JTable table = new JTable(model);
-        table.setRowHeight(35);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setBackground(DesktopTheme.windowBackground());
-        table.setForeground(DesktopTheme.textPrimary());
-        table.setGridColor(DesktopTheme.borderSubtle());
-        table.setShowVerticalLines(false);
-        table.setSelectionBackground(DesktopTheme.selectionAccent());
-        
-        table.getTableHeader().setBackground(DesktopTheme.tableBase());
-        table.getTableHeader().setForeground(DesktopTheme.textSecondary());
-        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 11));
-        table.getTableHeader().setPreferredSize(new java.awt.Dimension(0, 40));
-        table.getTableHeader().setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, DesktopTheme.borderSubtle()));
-        
-        return table;
+        return DesktopTheme.stylePickerTable(model, 35, 11);
     }
 
     private DefaultTableModel createModel() {

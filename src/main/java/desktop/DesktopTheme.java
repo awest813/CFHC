@@ -13,6 +13,8 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JButton;
+import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.JTree;
 import javax.swing.JViewport;
 import javax.swing.UIManager;
@@ -357,6 +359,29 @@ public final class DesktopTheme {
         scroll.getViewport().setBackground(tableBase());
         scroll.setOpaque(true);
         scroll.setBackground(windowBackground());
+    }
+
+    /**
+     * Styles a picker/selection table (coordinator hiring, redshirt management, etc.)
+     * with a consistent row height, single-selection mode, and styled header.
+     */
+    public static JTable stylePickerTable(DefaultTableModel model, int rowHeight, int headerFontSize) {
+        JTable table = new JTable(model);
+        table.setRowHeight(rowHeight);
+        table.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        table.setBackground(windowBackground());
+        table.setForeground(textPrimary());
+        table.setGridColor(borderSubtle());
+        table.setShowVerticalLines(false);
+        table.setSelectionBackground(accentBlue());
+
+        table.getTableHeader().setBackground(tableBase());
+        table.getTableHeader().setForeground(textSecondary());
+        table.getTableHeader().setFont(new java.awt.Font("SansSerif", java.awt.Font.BOLD, headerFontSize));
+        table.getTableHeader().setPreferredSize(new java.awt.Dimension(0, rowHeight + 5));
+        table.getTableHeader().setBorder(
+                javax.swing.BorderFactory.createMatteBorder(0, 0, 1, 0, borderSubtle()));
+        return table;
     }
 
     /** League tab / analytics page root so the content pane never shows default white in dark mode. */

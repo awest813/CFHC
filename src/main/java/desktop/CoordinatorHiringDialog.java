@@ -295,22 +295,7 @@ public class CoordinatorHiringDialog extends JDialog {
     }
 
     private JTable createModernTable(DefaultTableModel model) {
-        JTable table = new JTable(model);
-        table.setRowHeight(40);
-        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setBackground(DesktopTheme.windowBackground());
-        table.setForeground(DesktopTheme.textPrimary());
-        table.setGridColor(DesktopTheme.borderSubtle());
-        table.setShowVerticalLines(false);
-        table.setSelectionBackground(DesktopTheme.accentBlue());
-        
-        table.getTableHeader().setBackground(DesktopTheme.tableBase());
-        table.getTableHeader().setForeground(DesktopTheme.textSecondary());
-        table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 10));
-        table.getTableHeader().setPreferredSize(new Dimension(0, 45));
-        table.getTableHeader().setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, DesktopTheme.borderSubtle()));
-        
-        return table;
+        return DesktopTheme.stylePickerTable(model, 40, 10);
     }
 
     private void hireCoordinator(boolean offense, ArrayList<Staff> candidates, int selectedIdx) {

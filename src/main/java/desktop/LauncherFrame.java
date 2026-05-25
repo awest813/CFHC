@@ -97,7 +97,7 @@ public class LauncherFrame extends JFrame {
         JLabel subtitle = new JLabel("College Football Head Coach", SwingConstants.CENTER);
         subtitle.setForeground(DesktopTheme.textSecondary());
         subtitle.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        JLabel version = new JLabel("Desktop v1.4e", SwingConstants.CENTER);
+        JLabel version = new JLabel(version(), SwingConstants.CENTER);
         version.setForeground(DesktopTheme.textSecondary());
         version.setFont(new Font("SansSerif", Font.PLAIN, 11));
         branding.add(title);
@@ -328,16 +328,7 @@ public class LauncherFrame extends JFrame {
         JOptionPane.showMessageDialog(this, scroll, "How to Play", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    public static void main(String[] args) {
-        System.setProperty("sun.java2d.uiScale.enabled", "true");
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignored) {}
+    private static final String VERSION = "Desktop v1.4e";
 
-        DesktopTheme.load();
-
-        SwingUtilities.invokeLater(() -> {
-            new LauncherFrame().setVisible(true);
-        });
-    }
+    private static String version() { return VERSION; }
 }
