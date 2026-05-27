@@ -196,26 +196,10 @@ public final class RecruitingSessionData {
         );
     }
 
+    /** @deprecated Presentation labels belong in {@link RecruitingPresentation}. */
+    @Deprecated
     public ArrayList<String> buildPositionLabels(PositionNeeds needs) {
-        ArrayList<String> labels = new ArrayList<>();
-        labels.add("Top 50 Recruits");
-        labels.add("All Players");
-        labels.add("QB (Need: " + needs.qbs + ")");
-        labels.add("RB (Need: " + needs.rbs + ")");
-        labels.add("WR (Need: " + needs.wrs + ")");
-        labels.add("TE (Need: " + needs.tes + ")");
-        labels.add("OL (Need: " + needs.ols + ")");
-        labels.add("K (Need: " + needs.ks + ")");
-        labels.add("DL (Need: " + needs.dls + ")");
-        labels.add("LB (Need: " + needs.lbs + ")");
-        labels.add("CB (Need: " + needs.cbs + ")");
-        labels.add("S (Need: " + needs.ss + ")");
-        labels.add("West (" + west.size() + ")");
-        labels.add("Midwest (" + midwest.size() + ")");
-        labels.add("Central (" + central.size() + ")");
-        labels.add("East (" + east.size() + ")");
-        labels.add("South (" + south.size() + ")");
-        return labels;
+        return RecruitingPresentation.buildPositionLabels(this, needs);
     }
 
     public String getReadablePlayerInfo(RecruitingPlayerRecord player) {

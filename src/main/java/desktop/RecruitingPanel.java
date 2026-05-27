@@ -95,7 +95,7 @@ public class RecruitingPanel extends JPanel {
         RecruitingSessionData.PositionNeeds needs = sessionData.calculateNeeds(SimulationFacade.MIN_QBS, SimulationFacade.MIN_RBS,
                 SimulationFacade.MIN_WRS, SimulationFacade.MIN_TES, SimulationFacade.MIN_OLS, SimulationFacade.MIN_KS,
                 SimulationFacade.MIN_DLS, SimulationFacade.MIN_LBS, SimulationFacade.MIN_CBS, SimulationFacade.MIN_SS);
-        this.positionLabels = sessionData.buildPositionLabels(needs);
+        this.positionLabels = RecruitingPresentation.buildPositionLabels(sessionData, needs);
 
         setOpaque(true);
         setBackground(DesktopTheme.windowBackground());
@@ -301,7 +301,7 @@ public class RecruitingPanel extends JPanel {
                         SimulationFacade.MIN_KS, SimulationFacade.MIN_DLS, SimulationFacade.MIN_LBS,
                         SimulationFacade.MIN_CBS, SimulationFacade.MIN_SS);
         int sel = filterBox.getSelectedIndex();
-        ArrayList<String> newLabels = sessionData.buildPositionLabels(currentNeeds);
+        ArrayList<String> newLabels = RecruitingPresentation.buildPositionLabels(sessionData, currentNeeds);
         positionLabels.clear();
         positionLabels.addAll(newLabels);
         updatingFilterItems = true;

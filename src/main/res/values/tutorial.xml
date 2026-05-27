@@ -143,20 +143,24 @@
         -55 pct passing play calls\n
         -Weaker blocking, bigger play potential\n
         \n
-        [Defense] 4-3:\n
-        - Balanced base man defense\n
+        [Defense] Multiple 4-2-5:\n
+        - Balanced modern nickel defense\n
         - No bonuses or weaknesses\n
         \n
-        [Defense] 4-6 Bear:\n
-        - Defensive scheme with emphasis on limiting the run\n
-        - Gives up less rushing yards, however secondary is susceptible to giving up big plays\n
+        [Defense] Bear Front:\n
+        - Heavy-front scheme with emphasis on limiting the run\n
+        - Gives up fewer rushing yards, however secondary is susceptible to giving up big plays\n
         \n
-        [Defense] Cover 2:\n
-        - Zone coverage set up to stop passing games underneath\n
+        [Defense] Zero Pressure:\n
+        - Aggressive man pressure with no deep safety help\n
+        - Creates pass-rush pressure, but mistakes can become explosive plays\n
+        \n
+        [Defense] Tampa 2:\n
+        - Two-high zone coverage set up to stop passing games underneath\n
         - Improves pass coverage, however may allow for bigger rushes\n
         \n
-        [Defense] Cover 3:\n
-        - Zone coverage scheme set up to stop big passing plays\n
+        [Defense] Cover 3 Match:\n
+        - Match-zone coverage scheme set up to stop big passing plays\n
         - Significantly improves passing coverage and stops long balls\n
         - May allow big rushing gains\n
     </string>

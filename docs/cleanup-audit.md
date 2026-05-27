@@ -79,8 +79,8 @@ For each gameplay loop, verify expected behavior, capture edge cases, add or fix
 
 - [x] Prospect generation: covered by `SimulationFacadeTest.prepareRecruitingSession_buildsPortableRecruitingState`.
 - [x] Scouting/presentation: verified by `RecruitingAuditTest` (prospect list populated, records valid, presentation methods return content).
-- [ ] Scholarships: verify budget decrement, cannot overspend, and scholarship count/roster limits (manual UI test).
-- [ ] Commitments: verify recruited players enter the right roster group and persist into the next season (manual UI test).
+- [x] Scholarships: shared-model tests verify budget decrement and overspend rejection; still smoke the UI affordance before release.
+- [x] Commitments: shared-model tests verify recruited players enter the right roster group and serialize for season transition; still smoke Android/desktop click-through before release.
 - [x] Roster limits: `RosterRules` is used by the recruiting session; add focused limit tests if not already present.
 - Edge cases to audit: no affordable recruits, full roster, duplicate recruit names, auto-filter removing current list, empty position group.
 - Polish pass: recruiting board filters and expand/collapse text should be consistent and easy to scan.

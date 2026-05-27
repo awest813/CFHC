@@ -40,8 +40,8 @@ public class PlaybookDefense {
     }
 
     public void playBook1() {
-        stratName = "4-3 Man";
-        stratDescription = "Play a standard 4-3 man-to-man balanced defense.";
+        stratName = "Multiple 4-2-5";
+        stratDescription = "Play a balanced modern nickel defense that can fit the run without sacrificing coverage bodies.";
         runPref = 1;
         runStop = 0;
         runCoverage = 0;
@@ -53,8 +53,8 @@ public class PlaybookDefense {
     }
 
     public void playBook2() {
-        stratName = "4-6 Bear";
-        stratDescription = "Focus on stopping the run. Will give up more big passing plays but will allow less runing yards and far less big plays from running.";
+        stratName = "Bear Front";
+        stratDescription = "Load the box with a heavy front to squeeze the run game. Strong against rushing attacks, but vulnerable to explosive passes.";
         runPref = 2;
         runStop = 1;
         runCoverage = 2;
@@ -66,8 +66,8 @@ public class PlaybookDefense {
     }
 
     public void playBook3() {
-        stratName = "Cover 0";
-        stratDescription = "Play a pure man-to-man defense with no deep defenders";
+        stratName = "Zero Pressure";
+        stratDescription = "Bring aggressive man pressure with no deep safety help. Creates disruption, but one missed coverage can turn into a big play.";
         runPref = 1;
         runStop = 0;
         runCoverage = 1;
@@ -79,8 +79,8 @@ public class PlaybookDefense {
     }
 
     public void playBook4() {
-        stratName = "Cover 2";
-        stratDescription = "Play a zone defense with safety help in the back against the pass, while LBs cover the run game.";
+        stratName = "Tampa 2";
+        stratDescription = "Play a two-high zone shell with linebacker help underneath. Protects against quick passing, but can soften the run front.";
         runPref = 2;
         runStop = -1;
         runCoverage = 0;
@@ -92,8 +92,8 @@ public class PlaybookDefense {
     }
 
     public void playBook5() {
-        stratName = "Cover 3";
-        stratDescription = "Play a zone defense to stop the big plays, but allows soft zone coverage underneath.";
+        stratName = "Cover 3 Match";
+        stratDescription = "Play a match-zone structure built to limit deep shots while conceding some space underneath and on the ground.";
         runPref = 3;
         runStop = -1;
         runCoverage = -2;

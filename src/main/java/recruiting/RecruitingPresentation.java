@@ -1,5 +1,6 @@
 package recruiting;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public final class RecruitingPresentation {
@@ -37,6 +38,28 @@ public final class RecruitingPresentation {
         appendPositionSection(sessionData, sb, "CBs", needs.cbs, sessionData.teamCBs, 3);
         appendPositionSection(sessionData, sb, "Ss", needs.ss, sessionData.teamSs, 2);
         return sb.toString();
+    }
+
+    public static ArrayList<String> buildPositionLabels(RecruitingSessionData sessionData, RecruitingSessionData.PositionNeeds needs) {
+        ArrayList<String> labels = new ArrayList<>();
+        labels.add("Top 50 Recruits");
+        labels.add("All Players");
+        labels.add("QB (Need: " + needs.qbs + ")");
+        labels.add("RB (Need: " + needs.rbs + ")");
+        labels.add("WR (Need: " + needs.wrs + ")");
+        labels.add("TE (Need: " + needs.tes + ")");
+        labels.add("OL (Need: " + needs.ols + ")");
+        labels.add("K (Need: " + needs.ks + ")");
+        labels.add("DL (Need: " + needs.dls + ")");
+        labels.add("LB (Need: " + needs.lbs + ")");
+        labels.add("CB (Need: " + needs.cbs + ")");
+        labels.add("S (Need: " + needs.ss + ")");
+        labels.add("West (" + sessionData.west.size() + ")");
+        labels.add("Midwest (" + sessionData.midwest.size() + ")");
+        labels.add("Central (" + sessionData.central.size() + ")");
+        labels.add("East (" + sessionData.east.size() + ")");
+        labels.add("South (" + sessionData.south.size() + ")");
+        return labels;
     }
 
 

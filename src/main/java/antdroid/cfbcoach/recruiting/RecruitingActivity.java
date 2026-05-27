@@ -101,7 +101,7 @@ public class RecruitingActivity extends AppCompatActivity {
          */
         positionSpinner = findViewById(R.id.spinnerRec);
         PlatformUiHelper.avoidSpinnerDropdownFocus(positionSpinner);
-        positions = sessionData.buildPositionLabels(buildPositionNeeds());
+        positions = RecruitingPresentation.buildPositionLabels(sessionData, buildPositionNeeds());
 
         dataAdapterPosition = new ArrayAdapter<>(this,
                 android.R.layout.simple_spinner_item, positions);
@@ -218,7 +218,7 @@ public class RecruitingActivity extends AppCompatActivity {
         RecruitingSessionData.PositionNeeds needs = buildPositionNeeds();
 
         if (dataAdapterPosition != null) {
-            positions = sessionData.buildPositionLabels(needs);
+            positions = RecruitingPresentation.buildPositionLabels(sessionData, needs);
 
             dataAdapterPosition.clear();
             for (String p : positions) {

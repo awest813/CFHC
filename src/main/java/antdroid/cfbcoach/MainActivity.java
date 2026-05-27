@@ -471,36 +471,75 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     void selectTeam() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Choose Your Program");
-        builder.setMessage("Pick the school where your " + seasonStart + " head coaching run begins.");
         final String[] teams = simLeague.getTeamListStr();
         builder.setItems(teams, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
-                // Do something with the selection
-                if (simLeague.getTeamList().get(item).getHeadCoach() != null) {
-                    simLeague.getTeamList().get(item).getHeadCoach().team = null;
-                    simLeague.getCoachFreeAgents().add(simLeague.getTeamList().get(item).getHeadCoach());
-                }
-                userTeam.setUserControlled(false);
-                userTeam = simLeague.getTeamList().get(item);
-                simLeague.userTeam = userTeam;
-                userTeam.setUserControlled(true);
-                userTeamStr = userTeam.getName();
-                currentTeam = userTeam;
-                userNameDialog();
-                // set rankings so that not everyone is rank #0
-                simLeague.setTeamRanks();
-                simLeague.setTeamBenchMarks();
-                simLeague.updateTeamTalentRatings();
-                userHC = userTeam.getHeadCoach();
-                // Set toolbar text to '2017 Season' etc
-                updateHeaderBar();
-                examineTeam(currentTeam.getName());
+                dialog.dismiss();
+                prepareSelectedTeam(item);
             }
         });
         builder.setCancelable(false);
         AlertDialog alert = builder.create();
         alert.setCancelable(false);
         showImmersive(alert);
+    }
+
+    private void prepareSelectedTeam(final int item) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Preparing Program");
+        builder.setMessage("Setting up your staff, rankings, and season outlook...");
+        builder.setCancelable(false);
+        final AlertDialog preparingDialog = builder.create();
+        preparingDialog.setCancelable(false);
+        showImmersive(preparingDialog);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Team selectedTeam = simLeague.getTeamList().get(item);
+                    if (selectedTeam.getHeadCoach() != null) {
+                        selectedTeam.getHeadCoach().team = null;
+                        simLeague.getCoachFreeAgents().add(selectedTeam.getHeadCoach());
+                    }
+                    if (userTeam != null) {
+                        userTeam.setUserControlled(false);
+                    }
+                    userTeam = selectedTeam;
+                    simLeague.userTeam = userTeam;
+                    userTeam.setUserControlled(true);
+                    userTeamStr = userTeam.getName();
+                    currentTeam = userTeam;
+                    // Set rankings so that not everyone is rank #0 before the first screen draw.
+                    simLeague.setTeamRanks();
+                    simLeague.setTeamBenchMarks();
+                    simLeague.updateTeamTalentRatings();
+                    userHC = userTeam.getHeadCoach();
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            preparingDialog.dismiss();
+                            updateHeaderBar();
+                            examineTeam(currentTeam.getName());
+                            userNameDialog();
+                        }
+                    });
+                } catch (final Exception ex) {
+                    PlatformLog.e("MainActivity", "Error selecting team", ex);
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            preparingDialog.dismiss();
+                            PlatformUiHelper.showNotification(MainActivity.this,
+                                    "Team Setup Failed",
+                                    ex.getMessage() != null ? ex.getMessage() : "Unable to prepare the selected team.");
+                            selectTeam();
+                        }
+                    });
+                }
+            }
+        }, "CFHC-team-select").start();
     }
 
     private void userNameDialog() {

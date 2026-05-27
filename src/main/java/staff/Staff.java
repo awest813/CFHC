@@ -56,7 +56,7 @@ public class Staff {
 
     public int[] overallWt = {1, 1, 1, 1};
     public String[] offPlaybook = {"Pro-Style", "Smash Mouth", "West Coast", "Spread", "Read-Option", "Run-Pass Option"};
-    public String[] defPlaybook = {"4-3 Man", "4-6 Bear", "Cover-0", "Cover-2", "Cover-3"};
+    public String[] defPlaybook = {"Multiple 4-2-5", "Bear Front", "Zero Pressure", "Tampa 2", "Cover 3 Match"};
 
     public int age;
     public int year;

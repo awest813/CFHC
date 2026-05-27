@@ -986,9 +986,9 @@ public class Player {
         int schemeBonus = getSchemeFitBonus(true);
         int mentor = getMentorBonus();
         int num = (ratPot * 4 + (hc != null ? hc.ratTalent * 2 : 0) + ocRating + 7 * team.getTeamFacilities() + dev
-                + schemeBonus + mentor
+                + mentor
                 + (int) (Math.random() * getChemistryProgression())) / 7;
-        return num;
+        return num + schemeBonus;
     }
 
     public int getProgressionDef() {
@@ -998,9 +998,9 @@ public class Player {
         int schemeBonus = getSchemeFitBonus(false);
         int mentor = getMentorBonus();
         int num = (ratPot * 4 + (hc != null ? hc.ratTalent * 2 : 0) + dcRating + 7 * team.getTeamFacilities() + dev
-                + schemeBonus + mentor
+                + mentor
                 + (int) (Math.random() * getChemistryProgression())) / 7;
-        return num;
+        return num + schemeBonus;
     }
 
     public double getGamesBonus() {

@@ -5,6 +5,7 @@ import org.junit.Test;
 import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -70,6 +71,44 @@ public class RecruitingSessionDataTest {
         } catch (IllegalArgumentException expected) {
             assertTrue(expected.getMessage().contains("exceeds"));
         }
+    }
+
+    @Test
+    public void recruitPlayer_spendsBudgetAndAddsCommitmentToRosterGroup() {
+        String rawRecruit = "QB,Signed Target,1,45,70,75,3,false,false,70,70,70,120,A,B,C,D,72,200,70,F";
+        RecruitingSessionData session = RecruitingSessionData.fromUserTeamInfo(
+                "Big East,Test U,TST,5,70%\n"
+                        + "END_TEAM_INFO%\n"
+                        + rawRecruit + "%\n"
+                        + "END_RECRUITS%\n");
+        RecruitingPlayerRecord recruit = session.availAll.get(0);
+        session.recruitingBudget = 500;
+
+        session.recruitPlayer(recruit, false, 1.0, new Random(1));
+
+        assertEquals(380, session.recruitingBudget);
+        assertTrue(session.playersRecruited.contains(recruit));
+        assertTrue(session.teamQBs.contains(recruit));
+        assertFalse(session.availAll.contains(recruit));
+        assertFalse(session.availQBs.contains(recruit));
+    }
+
+    @Test
+    public void buildRecruitsSaveData_persistsSignedCommitments() {
+        String rawRecruit = "WR,Save Target,1,45,70,75,3,false,false,70,70,70,110,A,B,C,D,72,200,70,F";
+        RecruitingSessionData session = RecruitingSessionData.fromUserTeamInfo(
+                "Big East,Test U,TST,5,70%\n"
+                        + "END_TEAM_INFO%\n"
+                        + rawRecruit + "%\n"
+                        + "END_RECRUITS%\n");
+        RecruitingPlayerRecord recruit = session.availAll.get(0);
+        session.recruitingBudget = 500;
+
+        session.recruitPlayer(recruit, false, 1.0, new Random(1));
+
+        String saveData = session.buildRecruitsSaveData();
+        assertTrue(saveData.contains(rawRecruit));
+        assertTrue(saveData.endsWith("END_RECRUITS%\n"));
     }
 
     @Test

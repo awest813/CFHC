@@ -35,11 +35,11 @@ public class PlaybookDefenseTest {
 
     @Test
     public void playbook_hasExpectedName() {
-        assertEquals("4-3 Man", new PlaybookDefense(1).getStratName());
-        assertEquals("4-6 Bear", new PlaybookDefense(2).getStratName());
-        assertEquals("Cover 0", new PlaybookDefense(3).getStratName());
-        assertEquals("Cover 2", new PlaybookDefense(4).getStratName());
-        assertEquals("Cover 3", new PlaybookDefense(5).getStratName());
+        assertEquals("Multiple 4-2-5", new PlaybookDefense(1).getStratName());
+        assertEquals("Bear Front", new PlaybookDefense(2).getStratName());
+        assertEquals("Zero Pressure", new PlaybookDefense(3).getStratName());
+        assertEquals("Tampa 2", new PlaybookDefense(4).getStratName());
+        assertEquals("Cover 3 Match", new PlaybookDefense(5).getStratName());
     }
 
     @Test
