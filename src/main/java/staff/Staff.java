@@ -55,7 +55,7 @@ public class Staff {
     private int awardCount = 7;
 
     public int[] overallWt = {1, 1, 1, 1};
-    public String[] offPlaybook = {"Pro-Style", "Smash Mouth", "West Coast", "Spread", "Read-Option", "Run-Pass Option"};
+    public String[] offPlaybook = {"Multiple Pro", "Power Spread", "Quick Game", "Air Raid", "Zone Read", "Spread RPO"};
     public String[] defPlaybook = {"Multiple 4-2-5", "Bear Front", "Zero Pressure", "Tampa 2", "Cover 3 Match"};
 
     public int age;

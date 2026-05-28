@@ -34,7 +34,7 @@ public class PlaybookDialog extends JDialog {
     private final Team team;
 
     public PlaybookDialog(JFrame owner, Team team) {
-        super(owner, "TACTICAL SUITE — " + team.getName().toUpperCase(Locale.ROOT), true);
+        super(owner, "SCHEME ROOM - " + team.getName().toUpperCase(Locale.ROOT), true);
         this.team = team;
         setSize(850, 650);
         setLayout(new BorderLayout());
@@ -54,12 +54,12 @@ public class PlaybookDialog extends JDialog {
         header.setBackground(DesktopTheme.tableBase());
         header.setBorder(BorderFactory.createEmptyBorder(25, 30, 20, 30));
         
-        JLabel title = new JLabel("TEAM SCHEMATICS");
+        JLabel title = new JLabel("TEAM SCHEMES");
         title.setFont(new Font("SansSerif", Font.BOLD, 22));
         title.setForeground(DesktopTheme.textPrimary());
         header.add(title, BorderLayout.WEST);
         
-        JLabel subtitle = new JLabel(team.getAbbr() + " STRATEGY CONFIGURATION");
+        JLabel subtitle = new JLabel(team.getAbbr() + " GAMEPLAN CONFIGURATION");
         subtitle.setFont(new Font("SansSerif", Font.BOLD, 10));
         subtitle.setForeground(DesktopTheme.accentBlue());
         header.add(subtitle, BorderLayout.SOUTH);
@@ -69,8 +69,8 @@ public class PlaybookDialog extends JDialog {
         JPanel content = new JPanel(new GridLayout(1, 2, 30, 0));
         content.setOpaque(false);
         content.setBorder(BorderFactory.createEmptyBorder(30, 30, 30, 30));
-        content.add(buildTacticalPanel("OFFENSIVE DOCTRINE", team.getPlaybookOff(), true));
-        content.add(buildTacticalPanel("DEFENSIVE DOCTRINE", team.getPlaybookDef(), false));
+        content.add(buildTacticalPanel("OFFENSIVE SCHEME", team.getPlaybookOff(), true));
+        content.add(buildTacticalPanel("DEFENSIVE SCHEME", team.getPlaybookDef(), false));
         add(content, BorderLayout.CENTER);
 
         // Bottom Bar
@@ -78,7 +78,7 @@ public class PlaybookDialog extends JDialog {
         bottom.setBackground(DesktopTheme.tableBase());
         bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.borderSubtle()));
         
-        JButton closeBtn = new JButton("FINALIZE STRATEGY") {
+        JButton closeBtn = new JButton("FINALIZE GAMEPLAN") {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();

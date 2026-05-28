@@ -182,7 +182,7 @@ public class DashboardPanel implements LeagueScreen {
         if (week >= reg + 13) return "Signing day is live. Review recruits and finalize your class.";
         if (week >= reg + 4)  return "Offseason progression. Contracts, transfers, and recruiting setup.";
         if (week >= reg)      return "Postseason games. Each week advances the playoff or bowl bracket.";
-        if (week <= 0)        return "Pre-season setup. Review your roster and set playbooks before kickoff.";
+        if (week <= 0)        return "Pre-season setup. Review your roster and set schemes before kickoff.";
         return "Week " + week + " of " + reg + ". Simulate the next set of games.";
     }
 
@@ -361,12 +361,12 @@ public class DashboardPanel implements LeagueScreen {
             moves.add(new DashboardMove("Scoreboard", "Review completed postseason games.", cb.selectScreenScoreboard()));
         } else if (week <= 0) {
             moves.add(new DashboardMove("Begin season", "Simulate preseason setup and start the schedule.", cb.playWeek()));
-            moves.add(new DashboardMove("Set playbooks", "Tune offensive and defensive strategy.", cb.showPlaybookDialog()));
+            moves.add(new DashboardMove("Set schemes", "Tune offensive and defensive gameplans.", cb.showPlaybookDialog()));
             moves.add(new DashboardMove("Review roster", "Open your program detail.", cb.openUserTeamDetail()));
         } else {
             moves.add(new DashboardMove("Play next week", "Simulate the next week.", cb.playWeek()));
             moves.add(new DashboardMove("Review scoreboard", "Check this week and prior results.", cb.selectScreenScoreboard()));
-            moves.add(new DashboardMove("Adjust playbooks", "Tune offensive and defensive strategy.", cb.showPlaybookDialog()));
+            moves.add(new DashboardMove("Adjust schemes", "Tune offensive and defensive gameplans.", cb.showPlaybookDialog()));
         }
         return moves;
     }

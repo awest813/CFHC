@@ -290,7 +290,7 @@ public class LeagueHomeView extends JFrame {
         JMenu team = new JMenu("Team");
         team.setMnemonic(KeyEvent.VK_T);
 
-        JMenuItem playbookItem = new JMenuItem("Playbooks\u2026");
+        JMenuItem playbookItem = new JMenuItem("Schemes...");
         playbookItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_DOWN_MASK));
         playbookItem.addActionListener(e -> showPlaybookDialog());
         playbookItem.setEnabled(leagueCore.userTeam != null);
@@ -1138,7 +1138,7 @@ public class LeagueHomeView extends JFrame {
         if (leagueCore.userTeam == null) {
             JOptionPane.showMessageDialog(this,
                     DesktopTheme.messageForDialog(
-                    "No user team selected. Start a new game with a team to access playbooks."),
+                    "No user team selected. Start a new game with a team to access schemes."),
                     "No Team", JOptionPane.WARNING_MESSAGE);
             return;
         }
@@ -1167,7 +1167,7 @@ public class LeagueHomeView extends JFrame {
                   Ctrl+1..9      Jump to sidebar tab (1=Home, 2=Recruiting, ...)
                   Ctrl+F         Focus filter on current tab (or open Player Search)
                   Ctrl+U         My Program (roster, depth chart, facilities)
-                  Ctrl+P         Playbooks
+                  Ctrl+P         Schemes
                   Ctrl+,         Settings
 
                 Season

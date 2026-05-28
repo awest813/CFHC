@@ -2,7 +2,7 @@
 <resources>
     <string name="tutBasics">
         In College Football Head Coach (CFHC), you take the role of a newly hired coach at your college of choice.
-        As coach, it will be your responsibility to manage your team\'s strategy, simulate through seasons, recruit new players, and above all, win championships.\n\n
+        As coach, it will be your responsibility to manage your team\'s schemes, simulate through seasons, recruit new players, and above all, win championships.\n\n
 
         DYNASTY MODE: Dynasty mode allows you to start with any team and build it into the best football dynasty you can. You will not get fired, however, other colleges may see changes in their staff.
         Every other feature is unlocked except user contracts. You can also switch universities via the Editor menu. \n\n
@@ -110,35 +110,35 @@
         \n
     </string>
     <string name="tutTeamStrategy">
-        As a coach, you can pick what strategy your team employs on offense and defense as they play through their season. By default both strategies are set to balanced offenses and defenses,
-        meaning there are no bonuses or penalties either way. But you can change your strategy to any of the following:\n
+        As a coach, you can pick what schemes your team employs on offense and defense as they play through their season. By default both schemes are balanced,
+        meaning there are no bonuses or penalties either way. You can change your gameplan to any of the following:\n
         \n
-        [Offense] Pro-Style:\n
-        -Balanced offense\n
+        [Offense] Multiple Pro:\n
+        -Balanced multiple offense\n
         -50/50 play calling\n
         -No Strengths or weaknesses\n
         \n
-        [Offense] Smash Mouth:\n
-        -Run heavy offense\n
+        [Offense] Power Spread:\n
+        -Run-heavy spread offense\n
         -60/40 rushing play calls\n
         -Blocking bonuses, shorter gains, more time off the playclock\n
         \n
-        [Offense] West Coast:\n
-        -Favor passing over rushing\n
+        [Offense] Quick Game:\n
+        -Favor passing over rushing with short timing throws\n
         -60/40 passing play calls\n
         -Blocking bonuses, shorter gains, more time off the playclock\n
         \n
-        [Offense] Spread:\n
-        -Pass heavy offense\n
+        [Offense] Air Raid:\n
+        -Pass-heavy spread offense\n
         -72 pct passing play calls\n
         -Weaker blocking, bigger play potential\n
         \n
-        [Offense] Read Option:\n
+        [Offense] Zone Read:\n
         -Favors run over pass - requires mobile QB\n
         -55 pct rushing play calls\n
         -Weaker blocking, bigger play potential\n
          \n
-        [Offense] Read Option Pass:\n
+        [Offense] Spread RPO:\n
         -Favors pass over run - requires mobile QB\n
         -55 pct passing play calls\n
         -Weaker blocking, bigger play potential\n

@@ -193,8 +193,8 @@ final class GameDialogController {
         ((TextView)dialog.findViewById(R.id.gameScoutDialogBottom)).setText(PlatformUiHelper.valueAt(gameStr, 3));
 
         if (g.awayTeam == userTeam || g.homeTeam == userTeam) {
-            ((TextView)dialog.findViewById(R.id.textScoutOffenseStrategy)).setText(userTeam.getAbbr() + " Off Strategy:");
-            ((TextView)dialog.findViewById(R.id.textScoutDefenseStrategy)).setText(userTeam.getAbbr() + " Def Strategy:");
+            ((TextView)dialog.findViewById(R.id.textScoutOffenseStrategy)).setText(userTeam.getAbbr() + " Off Scheme:");
+            ((TextView)dialog.findViewById(R.id.textScoutDefenseStrategy)).setText(userTeam.getAbbr() + " Def Scheme:");
 
             final PlaybookOffense[] tsOff = userTeam.getPlaybookOff();
             final PlaybookDefense[] tsDef = userTeam.getPlaybookDef();

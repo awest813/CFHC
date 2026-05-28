@@ -31,7 +31,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:text="Set the foundation for how your team wants to play on both sides of the ball. These choices shape the feel of your program every week."
+                android:text="Set the foundation for how your team wants to attack and defend. These schemes shape your weekly gameplan."
                 android:textColor="@color/textSecondary"
                 android:textSize="13sp" />
         </LinearLayout>
@@ -64,7 +64,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="Choose the offensive style that best matches the kind of team you want to build."
+                android:text="Choose the offensive scheme that best matches the kind of team you want to build."
                 android:textColor="@color/textSecondary"
                 android:textSize="13sp" />
         </LinearLayout>
@@ -98,7 +98,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:text="Choose the defensive identity that will define your unit in big moments."
+                android:text="Choose the defensive scheme that will define your unit in big moments."
                 android:textColor="@color/textSecondary"
                 android:textSize="13sp" />
         </LinearLayout>

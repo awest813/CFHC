@@ -263,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        //Strategy/Playbook
+        // Schemes/gameplan
         final Button strategyButton = findViewById(R.id.buttonStrategy);
         strategyButton.setBackgroundResource(R.drawable.bg_action_secondary);
         strategyButton.setOnClickListener(new View.OnClickListener() {
@@ -698,7 +698,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder
-                .setTitle("Choose Your Base Offense")
+                .setTitle("Choose Your Offensive Scheme")
                 .setSingleChoiceItems(coachChoice, -1, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -729,7 +729,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder
-                .setTitle("Choose Your Base Defense")
+                .setTitle("Choose Your Defensive Scheme")
                 .setSingleChoiceItems(coachChoice, -1, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -1112,7 +1112,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
 
-    //Team Stategy/Playbook
+    // Team schemes/gameplan
     private void showTeamStrategyDialog() {
         audioManager.play(AudioEvent.PLAY_SELECT);
         TeamStrategyDialogController.show(this, userTeam);

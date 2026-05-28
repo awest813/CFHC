@@ -32,7 +32,7 @@ public final class TutorialController {
         addChapter("Playing a Season", resProvider.getString("tutPlayingSeason"));
         addChapter("Rankings", resProvider.getString("tutRankings"));
         addChapter("Roster", resProvider.getString("tutRoster"));
-        addChapter("Team Strategies", resProvider.getString("tutTeamStrategy"));
+        addChapter("Team Schemes", resProvider.getString("tutTeamStrategy"));
         addChapter("Settings Menu & Built-In Game Mods", resProvider.getString("tutSettings"));
         addChapter("User Customization", resProvider.getString("tutCustomizations"));
         addChapter("Customization Example", resProvider.getString("tutExampleCustom"));

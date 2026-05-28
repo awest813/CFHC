@@ -43,8 +43,8 @@ public class PlaybookOffense {
     }
 
     public void playBook1() {
-        stratName = "Pro-Style";
-        stratDescription = "Play a normal balanced offense.";
+        stratName = "Multiple Pro";
+        stratDescription = "Play a balanced, multiple offense that can shift between under-center looks, shotgun, run game, and play-action.";
         runPref = 1;
         runProtection = 0;
         runPotential = 0;
@@ -56,8 +56,8 @@ public class PlaybookOffense {
     }
 
     public void playBook2() {
-        stratName = "Smash Mouth";
-        stratDescription = "Play a conservative run-heavy offense, setting up the passes as necessary.";
+        stratName = "Power Spread";
+        stratDescription = "Play a run-first spread built around physical blocking, tempo control, and play-action shots.";
         runPref = 2;
         runProtection = 1;
         runPotential = -1;
@@ -69,8 +69,8 @@ public class PlaybookOffense {
     }
 
     public void playBook3() {
-        stratName = "West Coast";
-        stratDescription = "Passing game dictates the run game with short accurate passes.";
+        stratName = "Quick Game";
+        stratDescription = "Use high-percentage throws, spacing concepts, and timing routes to stay on schedule.";
         runPref = 2;
         runProtection = 0;
         runPotential = 1;
@@ -82,8 +82,8 @@ public class PlaybookOffense {
     }
 
     public void playBook4() {
-        stratName = "Spread";
-        stratDescription = "Pass-heavy offense using many receivers with big play potential with risk.";
+        stratName = "Air Raid";
+        stratDescription = "Play a pass-heavy spread with wide formations and explosive potential, accepting protection risk.";
         runPref = 1;
         runProtection = -2;
         runPotential = 1;
@@ -95,8 +95,8 @@ public class PlaybookOffense {
     }
 
     public void playBook5() {
-        stratName = "Read-Option";
-        stratDescription = "QB Option heavy offense, where QB options based on coverage and LB position.";
+        stratName = "Zone Read";
+        stratDescription = "Feature QB run reads and option looks that stress linebackers and create rushing lanes.";
         runPref = 3;
         runProtection = -1;
         runPotential = 1;
@@ -108,8 +108,8 @@ public class PlaybookOffense {
     }
 
     public void playBook6() {
-        stratName = "Run-Pass Option";
-        stratDescription = "Passing-Oriented version of the Read-Option";
+        stratName = "Spread RPO";
+        stratDescription = "Blend option runs with packaged throws, leaning pass-first while still punishing light boxes.";
         runPref = 2;
         runProtection = -1;
         runPotential = 1;

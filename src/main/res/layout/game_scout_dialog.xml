@@ -71,7 +71,7 @@
                 android:id="@+id/textScoutOffenseStrategy"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Offense Strategy:"
+                android:text="Offensive Scheme:"
                 android:textColor="@color/accentGold"
                 android:textStyle="bold" />
 
@@ -88,7 +88,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="14dp"
-                android:text="Defense Strategy:"
+                android:text="Defensive Scheme:"
                 android:textColor="@color/accentGold"
                 android:textStyle="bold" />
 

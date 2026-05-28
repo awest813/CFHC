@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">College Football Head Coach</string>
     <string name="title_activity_main">Dynasty Hub</string>
-    <string name="action_team_strategy">Manage Strategy</string>
+    <string name="action_team_strategy">Manage Schemes</string>
     <string name="action_team_lineup">Manage Lineup</string>
     <string name="action_league_history">League History and Records</string>
     <string name="action_league_records">League Records</string>
@@ -45,7 +45,7 @@
     <string name="nav_header_desc">College Football Head Coach (CFHC) logo</string>
     <string name="main_depth_chart">Depth Chart</string>
     <string name="main_play_week">Play Week</string>
-    <string name="main_playbook">Playbook</string>
+    <string name="main_playbook">Schemes</string>
     <string name="main_standings_list_description">Standings and team list for the selected conference</string>
 
     <string name="menu_home">Home</string>
