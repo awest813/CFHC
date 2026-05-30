@@ -838,6 +838,10 @@ public class Player {
         return Archetypes.displayName(archetypeTag);
     }
 
+    public boolean hasArchetype(String tag) {
+        return tag != null && tag.equals(archetypeTag);
+    }
+
     public double[] getArchetypeMultipliers() {
         return Archetypes.getMultipliers(position, archetypeTag);
     }

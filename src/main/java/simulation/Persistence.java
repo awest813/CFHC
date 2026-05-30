@@ -7,14 +7,22 @@ public final class Persistence {
     private Persistence() {
     }
 
+    static String escapeAmp(String s) {
+        return s == null ? null : s.replace("&", "_AMP_");
+    }
+
+    static String unescapeAmp(String s) {
+        return s == null ? null : s.replace("_AMP_", "&");
+    }
+
     public static String toCsv(PlayerRecord r) {
         StringBuilder sb = new StringBuilder();
         // Basic Part
         String pos = r.position();
         if (r.teamName() != null && !r.teamName().isEmpty()) {
-            pos = r.teamName() + ": " + pos;
+            pos = escapeAmp(r.teamName()) + ": " + pos;
         }
-        sb.append(pos).append(",").append(r.name()).append(",").append(r.year()).append(",")
+        sb.append(pos).append(",").append(escapeAmp(r.name())).append(",").append(r.year()).append(",")
 
           .append(r.homeState()).append(",").append(r.character()).append(",").append(r.ratIntelligence()).append(",")
           .append(r.recruitRating()).append(",").append(r.isTransfer()).append(",").append(r.wasRedshirt()).append(",")
@@ -28,9 +36,9 @@ public final class Persistence {
           .append(r.isRedshirt()).append(",").append(r.isMedicalRS()).append(",")
           .append(r.isGradTransfer()).append(",").append(r.isWalkOn()).append(",")
           .append(r.isInjured()).append(",").append(r.injuryDuration()).append(",")
-          .append(r.injuryDescription() == null ? "" : r.injuryDescription().replace(",", ";"))
-          .append(",").append(r.archetypeTag() == null ? "" : r.archetypeTag())
-          .append(",").append(r.mentorName() == null ? "" : r.mentorName());
+          .append(r.injuryDescription() == null ? "" : r.injuryDescription().replace(",", ";").replace("&", "_AMP_"))
+          .append(",").append(escapeAmp(r.archetypeTag() == null ? "" : r.archetypeTag()))
+          .append(",").append(escapeAmp(r.mentorName() == null ? "" : r.mentorName()));
         
         sb.append("&");
 

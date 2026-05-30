@@ -1425,7 +1425,7 @@ public class League {
 
                 ArrayList<Team> availTeams = new ArrayList<>();
                 for (int t = 0; t < teamList.size(); t++) {
-                    if (teamList.get(t).getOocWeeks().contains(week) && teamList.get(t).getGameSchedule().size() >= week) {
+                    if (teamList.get(t).getOocWeeks().contains(week)) {
                         availTeams.add(teamList.get(t));
                     }
                 }
@@ -1461,18 +1461,22 @@ public class League {
                                 + b.getGameSchedule().size());
                     }
 
+                    // Append OOC games (don't insert by week — insertion fails when
+                    // the schedule is too small for the week index, silently dropping
+                    // games for teams with fewer conf games).
+                    Game oocGame = gm;
                     if (!a.getConference().contains("Independent") && !a.getConference().contains("FCS")) {
-                        a.addGameToSchedule(week, gm);
+                        a.addGameToSchedule(oocGame);
                     }
                     if (!b.getConference().contains("Independent") && !b.getConference().contains("FCS"))  {
-                        b.addGameToSchedule(week, gm);
+                        b.addGameToSchedule(oocGame);
                     }
 
                     if (a.getConference().contains("Independent")) {
-                        a.addGameToSchedule(gm);
+                        a.addGameToSchedule(oocGame);
                     }
                     if (b.getConference().contains("Independent")) {
-                        b.addGameToSchedule(gm);
+                        b.addGameToSchedule(oocGame);
                     }
 
                     a.addOocTeam(b);
@@ -1485,16 +1489,13 @@ public class League {
             }
 
 
-            if(numOddConf > 0) {
-                for (int c = 0; c < conferences.size(); c++) {
-                    if (conferences.get(c).confTeams.size() < conferences.get(c).minConfTeams) {
-                        Team bye = new Team("BYE", "BYE", "BYE", 0, "BYE", 0, this);
-                        bye.setRankTeamPollScore(teamList.size());
-                        for (int g = 0; g < conferences.get(c).confTeams.size(); ++g) {
-                            Team a = conferences.get(c).confTeams.get(g);
-                            a.addGameToSchedule(new Game(a, bye, "BYE WEEK"));
-                        }
-                    }
+            // Ensure every team has at least regSeasonWeeks-1 games
+            Team bye = new Team("BYE", "BYE", "BYE", 0, "BYE", 0, this);
+            bye.setRankTeamPollScore(teamList.size());
+            int targetGames = regSeasonWeeks - 1;
+            for (Team t : teamList) {
+                while (t.getGameSchedule().size() < targetGames) {
+                    t.addGameToSchedule(new Game(t, bye, "BYE WEEK"));
                 }
             }
 

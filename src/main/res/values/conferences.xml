@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="conferences">Atlantic,Atlantic,Coastal%Great Lakes,East,West%Southwest,North,South%Pacific,North,South%Southern,East,West%Patriot,East,West%Central,East,West%Liberty,East,West%Mountain,Mountain,West%Sunshine,East,West%Independent,East,West%</string>
+    <string name="conferences">ACC%Big Ten,East,West%Big 12%SEC,East,West%American%MAC,East,West%Conference USA%Mountain West%Pac-12%Sun Belt,East,West%Independent%</string>
 </resources>

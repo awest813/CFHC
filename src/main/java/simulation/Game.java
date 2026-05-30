@@ -11,6 +11,7 @@ import comparator.CompPlayerPosDepth;
 import comparator.CompPlayerPosition;
 import comparator.CompPlayerReturners;
 import comparator.CompPlayerSTSpeed;
+import positions.Archetypes;
 import positions.Player;
 import positions.PlayerCB;
 import positions.PlayerDL;
@@ -1176,6 +1177,7 @@ public class Game implements Serializable {
             if (!pos.equals("RB")) {
                 double intChance = (pressureOnQB + defense.getS(0).ratOvr - (2 * selQB.getRatPassAcc() + selQB.ratIntelligence + 100) / 4.0) / 18.0
                         - offense.getPlaybookOffense().getPassProtection() + defense.getPlaybookDefense().getPassRush();
+                intChance += getArchetypeIntBonus(defense.getS(0), intChance);
                 if (intChance < 0.015) intChance = 0.015;
                 if (intValue * Math.random() < intChance) {
                     //Interception
@@ -1207,26 +1209,29 @@ public class Game implements Serializable {
 
             if (pos.equals("WR")) {
                 completion = getHFadv() + getCoachAdv() + 2 * offense.getPlaybookOffense().getPassProtection() + 4 * offense.getPlaybookOffense().getPassPref() +
-                        1.5 * (selQB.getRatPassAcc()) + (selWR.getRatCatch());
+                        1.5 * (selQB.getRatPassAcc()) + (selWR.getRatCatch()) + getArchetypeCompletionBonus(selQB, pressureOnQB);
 
-                coverage = 2 * defense.getPlaybookDefense().getPassRush() + 4 * defense.getPlaybookDefense().getPassCoverage() + (selCB.getRatCoverage()) + pressureOnQB;
+                coverage = 2 * defense.getPlaybookDefense().getPassRush() + 4 * defense.getPlaybookDefense().getPassCoverage() + (selCB.getRatCoverage()) + pressureOnQB
+                        + getArchetypeDeflectionBonus(selCB) + getArchetypePressBonus(selCB) + getArchetypeDeepRecoveryBonus(selCB);
 
             } else if (pos.equals("TE")) {
                 completion = getHFadv() + getCoachAdv() + 2 * offense.getPlaybookOffense().getPassProtection() + 4 * offense.getPlaybookOffense().getPassPref() +
-                        1.5 * (selQB.getRatPassAcc()) + (selTE.getRatCatch());
+                        1.5 * (selQB.getRatPassAcc()) + (selTE.getRatCatch()) + getArchetypeCompletionBonus(selQB, pressureOnQB);
 
-                coverage = 2 * defense.getPlaybookDefense().getPassRush() + 4 * defense.getPlaybookDefense().getPassCoverage() + (selLB.getRatCoverage()) + pressureOnQB;
+                coverage = 2 * defense.getPlaybookDefense().getPassRush() + 4 * defense.getPlaybookDefense().getPassCoverage() + (selLB.getRatCoverage()) + pressureOnQB
+                        + getArchetypeCoverageBonus(selLB);
 
             } else {
                 completion = getHFadv() + getCoachAdv() + 2 * offense.getPlaybookOffense().getPassProtection() + 4 * offense.getPlaybookOffense().getPassPref() +
-                        1.5 * (selQB.getRatPassAcc()) + (selRB.getRatCatch());
+                        1.5 * (selQB.getRatPassAcc()) + (selRB.getRatCatch()) + getArchetypeCompletionBonus(selQB, pressureOnQB);
 
-                coverage = 2 * defense.getPlaybookDefense().getPassRush() + 4 * defense.getPlaybookDefense().getPassCoverage() + (selLB2.getRatCoverage()) + pressureOnQB;
+                coverage = 2 * defense.getPlaybookDefense().getPassRush() + 4 * defense.getPlaybookDefense().getPassCoverage() + (selLB2.getRatCoverage()) + pressureOnQB
+                        + getArchetypeCoverageBonus(selLB2);
             }
 
             if (coverage * Math.random() > completion * Math.random()) {
                 if (pos.equals("WR")) {
-                    if (100 * Math.random() < (100 - selWR.getRatCatch()) / 3) {
+                    if (100 * Math.random() < (100 - selWR.getRatCatch() - getArchetypeDropReduction(selWR)) / 3) {
                         //drop
                         if (homeTeam.league.fullGameLog)
                             gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" WR ").append(selWR.name).append(" dropped the catch.");
@@ -1240,7 +1245,7 @@ public class Game implements Serializable {
                     }
                 }
                 if (pos.equals("TE")) {
-                    if (100 * Math.random() < (100 - selTE.getRatCatch()) / 3) {
+                    if (100 * Math.random() < (100 - selTE.getRatCatch() - getArchetypeDropReduction(selTE)) / 3) {
                         //drop
                         if (homeTeam.league.fullGameLog)
                             gameEventLog.append(getEventLog()).append(offense.getAbbr()).append("TE ").append(selTE.name).append(" dropped the catch.");
@@ -1254,7 +1259,7 @@ public class Game implements Serializable {
                     }
                 }
                 if (pos.equals("RB")) {
-                    if (100 * Math.random() < (100 - selRB.getRatCatch()) / 3) {
+                    if (100 * Math.random() < (100 - selRB.getRatCatch() - getArchetypeDropReduction(selRB)) / 3) {
                         //drop
                         if (homeTeam.league.fullGameLog)
                             gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" RB ").append(selRB.name).append(" dropped the catch.");
@@ -1297,22 +1302,26 @@ public class Game implements Serializable {
                     yardsGain = (int) (((selQB.getRatPassPow()) + (selWR.getRatSpeed()) - (selCB.getRatSpeed())) * Math.random() / 4.8 //STRATEGIES
                             + offense.getPlaybookOffense().getPassPotential() - defense.getPlaybookDefense().getPassCoverage());
                     //see if receiver can get yards after catch
+                    int wrYacBonus = getArchetypeYacBonus(selWR) + (selWR.hasArchetype(Archetypes.WR_DEEP_THREAT) ? 10 : 0);
                     escapeChance = ((selWR.getRatEvasion()) * 3 - selCB.getRatTackle() - selS.getRatTackle()) * Math.random()   //STRATEGIES
-                            + offense.getPlaybookOffense().getPassPotential() - defense.getPlaybookDefense().getPassCoverage();
+                            + offense.getPlaybookOffense().getPassPotential() - defense.getPlaybookDefense().getPassCoverage()
+                            + wrYacBonus - getArchetypeDeepRecoveryBonus(selCB);
                 } else if (pos.equals("TE")) {
 
                     yardsGain = (int) (((selQB.getRatPassPow()) + (selTE.getRatSpeed()) - (selLB.getRatSpeed())) * Math.random() / 4.8 //STRATEGIES
                             + offense.getPlaybookOffense().getPassPotential() - defense.getPlaybookDefense().getPassCoverage());
                     //see if receiver can get yards after catch
                     escapeChance = ((selTE.getRatEvasion()) * 3 - selLB.getRatTackle() - defense.getS(0).ratOvr) * Math.random()  //STRATEGIES
-                            + offense.getPlaybookOffense().getPassPotential() - defense.getPlaybookDefense().getPassCoverage();
+                            + offense.getPlaybookOffense().getPassPotential() - defense.getPlaybookDefense().getPassCoverage()
+                            + getArchetypeYacBonus(selTE);
                 } else {
 
                     yardsGain = (int) (((selQB.getRatPassPow()) + (selRB.getRatSpeed()) - (selLB.getRatSpeed())) * Math.random() / 4.8 //STRATEGIES
                             + offense.getPlaybookOffense().getPassPotential() - defense.getPlaybookDefense().getPassCoverage()) - 2;  //subtract 2 for screen pass behind line of scrimmage
                     //see if receiver can get yards after catch
                     escapeChance = ((selRB.getRatEvasion()) * 3 - selLB2.getRatTackle() - defense.getS(0).ratOvr) * Math.random()  //STRATEGIES
-                            + offense.getPlaybookOffense().getPassPotential() - defense.getPlaybookDefense().getPassCoverage();
+                            + offense.getPlaybookOffense().getPassPotential() - defense.getPlaybookDefense().getPassCoverage()
+                            + getArchetypeYacBonus(selRB);
                 }
 
                 //BIG GAIN
@@ -1453,9 +1462,11 @@ public class Game implements Serializable {
 
         //Start Rush Play
         if (selRB.gameSim >= selQB.gameSim) {
-            yardsGain = (int) ((selRB.getRatSpeed() + blockAdv + getHFadv() + (int) (Math.random() * getCoachAdv())) * Math.random() / 10 + (double) offense.getPlaybookOffense().getRunPotential() / 2 - (double) defense.getPlaybookDefense().getRunCoverage() / 2);
+            yardsGain = (int) ((selRB.getRatSpeed() + blockAdv + getHFadv() + (int) (Math.random() * getCoachAdv())) * Math.random() / 10 + (double) offense.getPlaybookOffense().getRunPotential() / 2 - (double) defense.getPlaybookDefense().getRunCoverage() / 2)
+                    + getArchetypeRushBonus(selRB);
         } else {
-            yardsGain = (int) ((selQB.getRatSpeed() + blockAdv + getHFadv() + (int) (Math.random() * getCoachAdv())) * Math.random() / 10 + (double) offense.getPlaybookOffense().getRunPotential() / 2 - (double) defense.getPlaybookDefense().getRunCoverage() / 2);
+            yardsGain = (int) ((selQB.getRatSpeed() + blockAdv + getHFadv() + (int) (Math.random() * getCoachAdv())) * Math.random() / 10 + (double) offense.getPlaybookOffense().getRunPotential() / 2 - (double) defense.getPlaybookDefense().getRunCoverage() / 2)
+                    + getArchetypeScrambleBonus(selQB);
         }
 
         //Break past neutral zone
@@ -1465,7 +1476,8 @@ public class Game implements Serializable {
             } else {
                 //break free from tackles
                 if (Math.random() < (0.28 + (offense.getPlaybookOffense().getRunPotential() - (double) defense.getPlaybookDefense().getRunCoverage() / 2) / 50)) {
-                    yardsGain += (selRB.getRatEvasion() - blockAdv) / 5 * Math.random();
+                    yardsGain += (selRB.getRatEvasion() - blockAdv) / 5 * Math.random()
+                            + getArchetypeBrokenTackleBonus(selRB);
                 }
             }
         } else {
@@ -1542,6 +1554,126 @@ public class Game implements Serializable {
     }
 
 
+    //ARCHETYPE GAMEPLAY BONUSES
+
+    private int getArchetypeCompletionBonus(PlayerQB qb, int pressureOnQB) {
+        if (qb == null) return 0;
+        if (qb.hasArchetype(Archetypes.QB_POCKET) && pressureOnQB < 20) return 10;
+        return 0;
+    }
+
+    private int getArchetypeScrambleBonus(PlayerQB qb) {
+        if (qb == null) return 0;
+        if (qb.hasArchetype(Archetypes.QB_SCRAMBLER)) return 1;
+        return 0;
+    }
+
+    private int getArchetypeRushBonus(PlayerRB rb) {
+        if (rb == null) return 0;
+        if (rb.hasArchetype(Archetypes.RB_SPEED)) return 1;
+        return 0;
+    }
+
+    private int getArchetypeDropReduction(Player p) {
+        if (p == null || p.archetypeTag == null) return 0;
+        if (p.hasArchetype(Archetypes.RB_RECEIVING)) return 10;
+        if (p.hasArchetype(Archetypes.TE_RECEIVING)) return 10;
+        if (p.hasArchetype(Archetypes.WR_ROUTE_RUNNER)) return 10;
+        return 0;
+    }
+
+    private int getArchetypeYacBonus(Player p) {
+        if (p == null || p.archetypeTag == null) return 0;
+        if (p.hasArchetype(Archetypes.WR_SLOT)) return 5;
+        return 0;
+    }
+
+    private int getArchetypeDeflectionBonus(PlayerCB cb) {
+        if (cb == null) return 0;
+        if (cb.hasArchetype(Archetypes.CB_SHUTDOWN)) return 10;
+        return 0;
+    }
+
+    private double getArchetypeIntBonus(PlayerS s, double intChance) {
+        if (s == null) return 0;
+        if (s.hasArchetype(Archetypes.S_BALL_HAWK)) return intChance * 0.20;
+        return 0;
+    }
+
+    private int getArchetypePassRushBonus(PlayerDL dl) {
+        if (dl == null) return 0;
+        if (dl.hasArchetype(Archetypes.DL_PASS_RUSHER)) return 3;
+        return 0;
+    }
+
+    private int getArchetypeRunStopBonus(PlayerDL dl) {
+        if (dl == null) return 0;
+        if (dl.hasArchetype(Archetypes.DL_RUN_STOPPER)) return 3;
+        return 0;
+    }
+
+    private int getArchetypeRunStopBonus(PlayerS s) {
+        if (s == null) return 0;
+        if (s.hasArchetype(Archetypes.S_RUN_SUPPORT)) return 3;
+        return 0;
+    }
+
+    private int getArchetypePassProtectBonus(PlayerOL ol) {
+        if (ol == null) return 0;
+        if (ol.hasArchetype(Archetypes.OL_PASS_PROTECTOR)) return 3;
+        return 0;
+    }
+
+    private int getArchetypeRunBlockBonus(PlayerOL ol) {
+        if (ol == null) return 0;
+        if (ol.hasArchetype(Archetypes.OL_RUN_BLOCKER)) return 3;
+        if (ol.hasArchetype(Archetypes.OL_MAULER)) return 2;
+        return 0;
+    }
+
+    private int getArchetypeCoverageBonus(PlayerLB lb) {
+        if (lb == null) return 0;
+        if (lb.hasArchetype(Archetypes.LB_COVERAGE)) return 3;
+        return 0;
+    }
+
+    private int getArchetypeBlitzBonus(PlayerLB lb) {
+        if (lb == null) return 0;
+        if (lb.hasArchetype(Archetypes.LB_BLITZER)) return 3;
+        return 0;
+    }
+
+    private int getArchetypeDeepRecoveryBonus(PlayerCB cb) {
+        if (cb == null) return 0;
+        if (cb.hasArchetype(Archetypes.CB_SPEED)) return 5;
+        return 0;
+    }
+
+    private int getArchetypeBrokenTackleBonus(PlayerRB rb) {
+        if (rb == null) return 0;
+        if (rb.hasArchetype(Archetypes.RB_POWER)) return 3;
+        return 0;
+    }
+
+    private int getArchetypePressBonus(PlayerCB cb) {
+        if (cb == null) return 0;
+        if (cb.hasArchetype(Archetypes.CB_PHYSICAL)) return 3;
+        return 0;
+    }
+
+    private int getArchetypeFgRangeBonus(PlayerK k) {
+        if (k == null) return 0;
+        if (k.hasArchetype(Archetypes.K_POWER)) return 5;
+        return 0;
+    }
+
+    private int getArchetypeFgAccBonus(PlayerK k, int yardLine) {
+        if (k == null) return 0;
+        int fgDist = 110 - yardLine;
+        if (k.hasArchetype(Archetypes.K_ACCURATE) && fgDist >= 40) return 10;
+        return 0;
+    }
+
     //PLAY CHARACTERISTICS
 
     //PASS PROTECTION
@@ -1557,6 +1689,7 @@ public class Game implements Serializable {
         int compositeOL = 0;
         for (int i = 0; i < Math.min(5, teamOLs.size()); ++i) {
             compositeOL += (teamOLs.get(i).getRatStrength() * 2 + teamOLs.get(i).getRatPassBlock() * 2 + teamOLs.get(i).getRatVision()) / 5;
+            compositeOL += getArchetypePassProtectBonus(teamOLs.get(i));
         }
         compositeOL = compositeOL / 5;
 
@@ -1567,6 +1700,7 @@ public class Game implements Serializable {
         int compositeOL = 0;
         for (int i = 0; i < Math.min(5, teamOLs.size()); ++i) {
             compositeOL += (teamOLs.get(i).getRatStrength() * 2 + teamOLs.get(i).getRatPassBlock() * 2 + teamOLs.get(i).getRatVision()) / 5;
+            compositeOL += getArchetypePassProtectBonus(teamOLs.get(i));
         }
         compositeOL += selTE.getRatRunBlock();
         compositeOL = (int) (compositeOL / 5.5);
@@ -1587,6 +1721,7 @@ public class Game implements Serializable {
         int compositeOL = 0;
         for (int i = 0; i < Math.min(5, teamOLs.size()); ++i) {
             compositeOL += (teamOLs.get(i).getRatStrength() * 2 + teamOLs.get(i).getRatRunBlock() * 2 + teamOLs.get(i).getRatVision()) / 5;
+            compositeOL += getArchetypeRunBlockBonus(teamOLs.get(i));
         }
         compositeOL = compositeOL / 5;
 
@@ -1597,6 +1732,7 @@ public class Game implements Serializable {
         int compositeOL = 0;
         for (int i = 0; i < Math.min(5, teamOLs.size()); ++i) {
             compositeOL += (teamOLs.get(i).getRatStrength() * 2 + teamOLs.get(i).getRatRunBlock() * 2 + teamOLs.get(i).getRatVision()) / 5;
+            compositeOL += getArchetypeRunBlockBonus(teamOLs.get(i));
         }
         compositeOL += selTE.getRatRunBlock();
         compositeOL = (int) (compositeOL / 5.5); //TE bonus
@@ -1617,6 +1753,7 @@ public class Game implements Serializable {
         int compositeDL = 0;
         for (int i = 0; i < 4; ++i) {
             compositeDL += (teamDLs.get(i).getRatStrength() + teamDLs.get(i).getRatPassRush()) / 2;
+            compositeDL += getArchetypePassRushBonus(teamDLs.get(i));
         }
         compositeDL = compositeDL / 4;
 
@@ -1627,8 +1764,10 @@ public class Game implements Serializable {
         int compositeDL = 0;
         for (int i = 0; i < 4; ++i) {
             compositeDL += (teamDLs.get(i).getRatStrength() + teamDLs.get(i).getRatPassRush()) / 2;
+            compositeDL += getArchetypePassRushBonus(teamDLs.get(i));
         }
         compositeDL += (selLB.getRatSpeed() + selLB.getRatTackle()) / 2;
+        compositeDL += getArchetypeBlitzBonus(selLB);
         compositeDL = (int) (compositeDL / 4.58);  // 4.58 is equal to 5.5 for OL + TE
 
         return compositeDL;
@@ -1647,6 +1786,7 @@ public class Game implements Serializable {
         int compositeDL = 0;
         for (int i = 0; i < 4; ++i) {
             compositeDL += (teamDLs.get(i).getRatStrength() + teamDLs.get(i).getRatRunStop()) / 2;
+            compositeDL += getArchetypeRunStopBonus(teamDLs.get(i));
         }
         compositeDL += selLB.getRatRunStop();
         compositeDL = compositeDL / 5;
@@ -1658,8 +1798,10 @@ public class Game implements Serializable {
         int compositeDL = 0;
         for (int i = 0; i < 4; ++i) {
             compositeDL += (teamDLs.get(i).getRatStrength() + teamDLs.get(i).getRatRunStop()) / 2;
+            compositeDL += getArchetypeRunStopBonus(teamDLs.get(i));
         }
         compositeDL += selLB.getRatRunStop() + selS.getRatRunStop();
+        compositeDL += getArchetypeRunStopBonus(selS);
         compositeDL = (int) (compositeDL / 5.5);
 
         return compositeDL;
@@ -1676,8 +1818,8 @@ public class Game implements Serializable {
 
         double fgDistRatio = Math.pow((110 - gameYardLine) / 50, 2);
         double fgAccRatio = Math.pow((110 - gameYardLine) / 50, 1.25);
-        double fgDistChance = (getHFadv() + selK.getRatKickPow() - fgDistRatio * 80);
-        double fgAccChance = (getHFadv() + selK.getRatKickAcc() - fgAccRatio * 80);
+        double fgDistChance = (getHFadv() + selK.getRatKickPow() - fgDistRatio * 80) + getArchetypeFgRangeBonus(selK);
+        double fgAccChance = (getHFadv() + selK.getRatKickAcc() - fgAccRatio * 80) + getArchetypeFgAccBonus(selK, gameYardLine);
 
         if (gameTime > 120 && !playingOT) {
             if (fgDistChance > 20 && fgAccChance * Math.random() > 15) {

@@ -32,10 +32,10 @@
   - [x] Season advance
   - [x] Scheduling/OOC mutators
   - [x] Recruiting session preparation
-  - [ ] Transfers
+  - [x] Transfers
   - [x] Player injury/suspension cleanup
-  - [ ] Player progression invariants
-  - [ ] Desktop launch/load flows beyond facade-level save import/load
+  - [x] Player progression invariants
+  - [x] Desktop launch/load flows beyond facade-level save import/load
   - [ ] Android-safe core smoke paths beyond build + shared facade tests
 
 ## Phase 3: Gameplay Audit
@@ -45,7 +45,7 @@ For each gameplay loop, verify expected behavior, capture edge cases, add or fix
 ### New Game Setup
 
 - [x] Team selection: covered by `SimulationFacadeTest.loadDefaultLeague_setsLeagueAndSeasonController` and `setLeague_assignsFacadeUserTeamToLeague`.
-- [ ] Coach creation: verify Android and desktop flows create a usable head coach profile with valid ratings, contract, name, and user-controlled team link.
+- [ ] Coach creation: verify Android and desktop flows create a usable head coach profile with valid ratings, contract, name, and user-controlled team link. (Covered at engine level by CoachCreationTest.)
 - [x] Default settings: covered at the shared-engine level by default `League` construction in full-season and facade tests.
 - [x] Custom universe import: covered by `LeagueCustomDataImporterTest` and `LeagueImportWorkflowTest`; still needs player-facing Android/desktop UI smoke.
 - Edge cases to audit: missing/duplicate team names, invalid custom CSV rows, no selected user team, blank coach name, unsupported prestige mode.
@@ -88,9 +88,9 @@ For each gameplay loop, verify expected behavior, capture edge cases, add or fix
 ### Career Loop
 
 - [x] Coach ratings: verified by `CareerAuditTest` (HC exists, ratings 0-99, coordinators exist, advances without crash).
-- [ ] Staff hiring: verify OC/DC replacement flows on Android and desktop (manual UI test).
+- [ ] Staff hiring: verify OC/DC replacement flows on Android and desktop (manual UI test). (Covered at engine level by StaffHiringFiringTest: coordinator carousel, HC hiring, mid-season firing, promotion.)
 - [ ] Jobs: verify job offers, promotions, and user team reassignment (manual UI test).
-- [ ] Firing: verify fired user gets a recoverable flow and league remains playable (manual UI test).
+- [ ] Firing: verify fired user gets a recoverable flow and league remains playable (manual UI test). (Covered at engine level by StaffHiringFiringTest: mid-season firing, coach pool management, multiple-season stability.)
 - [x] Prestige: full-season flow touches prestige updates; needs explicit program prestige bounds tests.
 - [x] History/records: save/load round trip and full-season history checks exist; needs targeted record update tests.
 - Edge cases to audit: no available staff, user fired after championship/offseason event, conference realignment plus job change, record ties.
@@ -146,4 +146,5 @@ For each gameplay loop, verify expected behavior, capture edge cases, add or fix
 - Gradle `runDesktop -PdesktopArgs="new"` launched `desktop.Main new` and stayed responsive; launched CFHC desktop processes were stopped afterward to avoid build file locks.
 - Phase 6 static polish reduced obvious placeholder/debug copy and added clipping guards, but visual device/emulator QA is still outstanding.
 - **New tests added (May 2026):** GameBoxScoreTest (22 tests), GameStandingsTest (6 tests), AwardsTest (5 tests), DepthChartTest (8 tests), ProgressionTest (7 tests), TransferTest (3 tests), RecruitingAuditTest (5 tests), CareerAuditTest (5 tests) — 61 new assertions in 8 new test files, covering box score invariants, standings consistency, awards lifecycle, depth chart integrity, player progression bounds, transfer stability, recruiting presentation, and career coach invariants.
-- Total test count: ~360 tests across all variants.
+- **Additional tests added (May 2026, pass 2):** TransferInvariantTest (7 tests), ProgressionInvariantTest (11 tests), DesktopLaunchLoadTest (10 tests), CoachCreationTest (12 tests), StaffHiringFiringTest (14 tests) — 54 new assertions in 5 new test files, covering transfer pool clearing, roster validity, no-duplicate-player invariant, transfer save/load round-trip, multi-season transfer stability, all-attribute bounding after progression, practice focus safety, position-specific attribute invariants, year advancement, character bounds, desktop facade new/load/save/import flows, slot independence, corrupted-slot handling, coach profile validation, user coach setup, OC/DC candidate lists, coordinator carousel, HC hiring/firing, promotion, staff aging, multi-season staffing stability.
+- Total test count: ~491 tests across all variants.

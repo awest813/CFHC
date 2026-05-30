@@ -542,7 +542,9 @@ public class Conference {
             }
         } else {
             for (int i = 0; i < confTeams.size(); ++i) {
-                confTeams.get(i).getGameSchedule().get(league.currentWeek).playGame();
+                // currentWeek starts at 1 after preseason, so game at index 0
+                // is played during currentWeek 1, index 1 during week 2, etc.
+                confTeams.get(i).getGameSchedule().get(league.currentWeek - 1).playGame();
             }
             if (league.currentWeek == league.regSeasonWeeks-2) schedConfChamp();
         }
@@ -555,7 +557,8 @@ public class Conference {
         } else {
             for (int i = 0; i < confTeams.size(); ++i) {
                 PlatformLog.d("conf","conf: " + confName + " team: " + confTeams.get(i).getName() + " gameSchedule size "+ confTeams.get(i).getGameSchedule().size());
-                confTeams.get(i).getGameSchedule().get(league.currentWeek+1).addUpcomingGames(confTeams.get(i));
+                // Next week's game is at currentWeek index (since this week's was currentWeek-1)
+                confTeams.get(i).getGameSchedule().get(league.currentWeek).addUpcomingGames(confTeams.get(i));
             }
         }
     }

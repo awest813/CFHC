@@ -48,10 +48,10 @@ public record PlayerRecord(
         String[] basic = parts[0].split(",");
         
         String pos = basic[0];
-        String name = basic[1];
+        String name = Persistence.unescapeAmp(basic[1]);
         String teamName = "";
         if (pos.contains(":")) {
-            teamName = pos.split(":")[0].trim();
+            teamName = Persistence.unescapeAmp(pos.split(":")[0].trim());
             pos = pos.split(":")[1].trim();
         }
 
@@ -128,9 +128,9 @@ public record PlayerRecord(
             basic.length > 26 && Boolean.parseBoolean(basic[26]), // isWalkOn
             basic.length > 27 && Boolean.parseBoolean(basic[27]), // isInjured
             basic.length > 28 ? Integer.parseInt(basic[28]) : 0,
-            basic.length > 29 ? basic[29].replace(';', ',') : "",
-            basic.length > 30 ? basic[30] : "",
-            basic.length > 31 ? basic[31] : ""
+            basic.length > 29 ? Persistence.unescapeAmp(basic[29].replace(';', ',')) : "",
+            basic.length > 30 ? Persistence.unescapeAmp(basic[30]) : "",
+            basic.length > 31 ? Persistence.unescapeAmp(basic[31]) : ""
         );
     }
 }
