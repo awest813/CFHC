@@ -141,7 +141,7 @@ public class OC extends Staff {
         if (ratDiscipline < 15) ratDiscipline = 15;
 
 
-        if (age > 60 && !team.isUserControlled()) {
+        if (age > 60 && team != null && !team.isUserControlled()) {
             ratOff -= (int) (Math.random() * (age / 10));
             ratDef -= (int) (Math.random() * (age / 10));
             ratTalent -= (int)(Math.random() * (age / 10));

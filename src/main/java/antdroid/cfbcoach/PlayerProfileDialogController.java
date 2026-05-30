@@ -18,6 +18,7 @@ public final class PlayerProfileDialogController {
                 .setPositiveButton("Close", (dialog, which) -> {});
 
         if (p.team == userTeam) {
+            builder.setNegativeButton("Dev Plan", (dialog, which) -> PlayerDevelopmentDialogController.show(activity, p, userTeam));
             builder.setNeutralButton("Cut", (dialog, which) -> showCutDialog(activity, p, userTeam));
         }
 
@@ -90,6 +91,8 @@ public final class PlayerProfileDialogController {
         final TextView ppFeatStat4Name = dialog.findViewById(R.id.ppFeatStat4Name);
         final TextView ppFeatStat4 = dialog.findViewById(R.id.ppFeatStat4);
 
+        final TextView ppDevPlan = dialog.findViewById(R.id.ppDevPlan);
+
         ppPlayerName.setText(playerName);
         String[] a = snapshot.basics;
         ppPosition.setText(PlatformUiHelper.valueAt(a, 0));
@@ -104,6 +107,7 @@ public final class PlayerProfileDialogController {
         ppAwareness.setText(PlatformUiHelper.valueAt(a, 9));
         ppStatus.setText(PlatformUiHelper.valueAt(a, 10));
         ppDurability.setText(PlatformUiHelper.valueAt(a, 11));
+        ppDevPlan.setText(PlatformUiHelper.valueAt(a, 12));
 
         String[] b = snapshot.ratings;
         ppAttr1Name.setText(PlatformUiHelper.valueAt(b, 0));
