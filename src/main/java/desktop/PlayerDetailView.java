@@ -73,6 +73,7 @@ public class PlayerDetailView extends JDialog {
         addField(info, "Durability", String.valueOf(player.ratDurability));
         addField(info, "Height", formatHeight(player.height));
         addField(info, "Weight", player.weight + " lbs");
+        addField(info, "Development Plan", player.getArchetypeDisplayName());
 
         String statusFlags = buildStatusFlags();
         if (!statusFlags.isEmpty()) {

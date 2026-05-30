@@ -18,8 +18,10 @@ public final class PlayerProfileSnapshot {
     }
 
     public static PlayerProfileSnapshot fromPlayer(Player player) {
-        String[] basics = player.getProfileBasics().split(",", -1);
-        String[] ratings = player.getPlayerRatings().split(",", -1);
+        String basicsRaw = player.getProfileBasics();
+        String[] basics = basicsRaw != null ? basicsRaw.split(",", -1) : new String[0];
+        String ratingsRaw = player.getPlayerRatings();
+        String[] ratings = ratingsRaw != null ? ratingsRaw.split(",", -1) : new String[0];
         ArrayList<String> stats = player.getPlayerStats();
         String[] statColumns = new String[9];
 

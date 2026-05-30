@@ -1344,7 +1344,7 @@ public class Player {
     public String getProfileBasics() {
         String rs ="";
         if(wasRedshirt) rs = "RS ";
-        return position + "," + rs + getFullYrStr() + "," + team.getName() + "," + getHomeState(homeState) + "," + getScoutingGradeString() + "," + getHeight() + "," + getWeight() + "," + ratOvr + "," + character + "," + ratIntelligence + "," + getStatus() + "," + ratDurability + "," + getArchetypeDisplayName();
+        return position + "," + rs + getFullYrStr() + "," + (team != null ? team.getName() : "Unassigned") + "," + getHomeState(homeState) + "," + getScoutingGradeString() + "," + getHeight() + "," + getWeight() + "," + ratOvr + "," + character + "," + ratIntelligence + "," + getStatus() + "," + ratDurability + "," + getArchetypeDisplayName();
     }
 
 
