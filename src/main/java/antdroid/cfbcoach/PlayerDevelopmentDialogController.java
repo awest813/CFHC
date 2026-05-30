@@ -94,9 +94,6 @@ public final class PlayerDevelopmentDialogController {
             if (!isActive) {
                 final String selectedTag = tag;
                 rowLayout.setOnClickListener(v -> confirmChange(activity, dialog, p, selectedTag));
-                rowLayout.setClickable(true);
-            } else {
-                rowLayout.setClickable(false);
             }
 
             dpArchetypeList.addView(rowLayout);
@@ -122,7 +119,7 @@ public final class PlayerDevelopmentDialogController {
 
     static String[] getAttrNames(String position) {
         switch (position) {
-            case "QB": return new String[]{"Pass Str", "Pass Acc", "Evasion", "Speed"};
+            case "QB": return new String[]{"Pass Pow", "Pass Acc", "Evasion", "Speed"};
             case "RB": return new String[]{"Speed", "Evasion", "Power", "Catch"};
             case "WR": return new String[]{"Speed", "Catch", "Evasion", "Jump"};
             case "TE": return new String[]{"Run Blk", "Catch", "Evasion", "Speed"};
@@ -132,7 +129,7 @@ public final class PlayerDevelopmentDialogController {
             case "CB": return new String[]{"Coverage", "Speed", "Tackle", "Jump"};
             case "S":  return new String[]{"Tackle", "Coverage", "Speed", "Run Stop"};
             case "K":  return new String[]{"Kick Pow", "Kick Acc", "Pressure", "Form"};
-            default:   return new String[]{"Attr1", "Attr2", "Attr3", "Attr4"};
+            default:   return new String[]{"Attr 1", "Attr 2", "Attr 3", "Attr 4"};
         }
     }
 }
