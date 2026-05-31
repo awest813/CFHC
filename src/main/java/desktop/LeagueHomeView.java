@@ -214,6 +214,7 @@ public class LeagueHomeView extends JFrame {
         file.setMnemonic(KeyEvent.VK_F);
 
         JMenuItem openItem = new JMenuItem("Open\u2026");
+        openItem.setMnemonic(KeyEvent.VK_O);
         openItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, KeyEvent.CTRL_DOWN_MASK));
         openItem.addActionListener(e -> openSaveFile());
         file.add(openItem);
@@ -221,11 +222,13 @@ public class LeagueHomeView extends JFrame {
         file.addSeparator();
 
         JMenuItem saveItem = new JMenuItem("Save");
+        saveItem.setMnemonic(KeyEvent.VK_S);
         saveItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, KeyEvent.CTRL_DOWN_MASK));
         saveItem.addActionListener(e -> saveLeague(false));
         file.add(saveItem);
 
         JMenuItem saveAsItem = new JMenuItem("Save As\u2026");
+        saveAsItem.setMnemonic(KeyEvent.VK_A);
         saveAsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S,
                 KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK));
         saveAsItem.addActionListener(e -> saveLeague(true));
@@ -234,10 +237,12 @@ public class LeagueHomeView extends JFrame {
         file.addSeparator();
 
         JMenuItem exportItem = new JMenuItem("Export Save\u2026");
+        exportItem.setMnemonic(KeyEvent.VK_E);
         exportItem.addActionListener(e -> exportLeague());
         file.add(exportItem);
 
         JMenuItem importItem = new JMenuItem("Import Custom Universe\u2026");
+        importItem.setMnemonic(KeyEvent.VK_I);
         importItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, KeyEvent.CTRL_DOWN_MASK));
         importItem.addActionListener(e -> importCustomUniverse());
         file.add(importItem);
@@ -245,6 +250,7 @@ public class LeagueHomeView extends JFrame {
         file.addSeparator();
 
         JMenuItem settingsItem = new JMenuItem("Settings\u2026");
+        settingsItem.setMnemonic(KeyEvent.VK_T);
         settingsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_COMMA, KeyEvent.CTRL_DOWN_MASK));
         settingsItem.addActionListener(e -> openSettingsDialog());
         file.add(settingsItem);
@@ -252,6 +258,7 @@ public class LeagueHomeView extends JFrame {
         file.addSeparator();
 
         JMenuItem exitItem = new JMenuItem("Exit");
+        exitItem.setMnemonic(KeyEvent.VK_X);
         exitItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, KeyEvent.CTRL_DOWN_MASK));
         exitItem.addActionListener(e -> dispatchEvent(new java.awt.event.WindowEvent(this,
                 java.awt.event.WindowEvent.WINDOW_CLOSING)));
@@ -262,27 +269,35 @@ public class LeagueHomeView extends JFrame {
         JMenu season = new JMenu("Season");
         season.setMnemonic(KeyEvent.VK_E);
 
-        JMenuItem playWeek = new JMenuItem("Play Next Week");
+        JMenuItem playWeek = new JMenuItem(playWeekLabel());
+        playWeek.setMnemonic(KeyEvent.VK_P);
         playWeek.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0));
         playWeek.addActionListener(e -> playWeek());
         season.add(playWeek);
 
-        JMenuItem advance = new JMenuItem("Advance Full Season");
+        JMenuItem advance = new JMenuItem("Sim Through Postseason");
+        advance.setMnemonic(KeyEvent.VK_S);
         advance.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, KeyEvent.CTRL_DOWN_MASK));
         advance.addActionListener(e -> advanceSeason());
-        advance.setEnabled(leagueCore.currentWeek < leagueCore.regSeasonWeeks + 4);
+        advance.setEnabled(!bridge.isAwaitingDockedRecruiting()
+                && leagueCore.currentWeek < leagueCore.regSeasonWeeks + 4);
         season.add(advance);
 
         JMenuItem advanceFull = new JMenuItem("Advance Through Offseason");
+        advanceFull.setMnemonic(KeyEvent.VK_O);
         advanceFull.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A,
                 KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK));
         advanceFull.addActionListener(e -> advanceFullYear());
+        advanceFull.setEnabled(!bridge.isAwaitingDockedRecruiting());
         season.add(advanceFull);
 
         season.addSeparator();
 
-        JMenuItem recruitingTabItem = new JMenuItem("Show Recruiting");
+        JMenuItem recruitingTabItem = new JMenuItem("Recruiting");
+        recruitingTabItem.setMnemonic(KeyEvent.VK_R);
+        recruitingTabItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_DOWN_MASK));
         recruitingTabItem.addActionListener(e -> selectRecruitingTab());
+        recruitingTabItem.setEnabled(leagueCore.userTeam != null);
         season.add(recruitingTabItem);
 
         bar.add(season);
@@ -291,17 +306,20 @@ public class LeagueHomeView extends JFrame {
         team.setMnemonic(KeyEvent.VK_T);
 
         JMenuItem playbookItem = new JMenuItem("Schemes...");
+        playbookItem.setMnemonic(KeyEvent.VK_S);
         playbookItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_DOWN_MASK));
         playbookItem.addActionListener(e -> showPlaybookDialog());
         playbookItem.setEnabled(leagueCore.userTeam != null);
         team.add(playbookItem);
 
         JMenuItem coachProgramItem = new JMenuItem("Coach Program & NIL\u2026");
+        coachProgramItem.setMnemonic(KeyEvent.VK_C);
         coachProgramItem.addActionListener(e -> CoachProgramDialog.show(this, leagueCore.userTeam));
         coachProgramItem.setEnabled(leagueCore.userTeam != null);
         team.add(coachProgramItem);
 
         JMenuItem myProgramItem = new JMenuItem("My Program\u2026");
+        myProgramItem.setMnemonic(KeyEvent.VK_M);
         myProgramItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, KeyEvent.CTRL_DOWN_MASK));
         myProgramItem.addActionListener(e -> openUserTeamDetail());
         myProgramItem.setEnabled(leagueCore.userTeam != null);
@@ -313,6 +331,7 @@ public class LeagueHomeView extends JFrame {
         view.setMnemonic(KeyEvent.VK_V);
 
         JCheckBoxMenuItem darkModeItem = new JCheckBoxMenuItem("Dark mode", DesktopTheme.isDark());
+        darkModeItem.setMnemonic(KeyEvent.VK_D);
         darkModeItem.addActionListener(e -> {
             DesktopTheme.setDark(darkModeItem.isSelected());
             refresh();
@@ -321,14 +340,17 @@ public class LeagueHomeView extends JFrame {
         view.addSeparator();
 
         JMenuItem bowlWatch = new JMenuItem("Bowl Watch");
+        bowlWatch.setMnemonic(KeyEvent.VK_B);
         bowlWatch.addActionListener(e -> showBowlWatch());
         view.add(bowlWatch);
 
         JMenuItem ccg = new JMenuItem("Conference Championships");
+        ccg.setMnemonic(KeyEvent.VK_C);
         ccg.addActionListener(e -> showConfChamps());
         view.add(ccg);
 
         JMenuItem mockDraft = new JMenuItem("Mock Draft");
+        mockDraft.setMnemonic(KeyEvent.VK_M);
         mockDraft.addActionListener(e -> showMockDraft());
         view.add(mockDraft);
 
@@ -338,22 +360,28 @@ public class LeagueHomeView extends JFrame {
         audio.setMnemonic(KeyEvent.VK_A);
 
         JCheckBoxMenuItem muteItem = new JCheckBoxMenuItem("Mute sounds", audioManager.isMuted());
+        muteItem.setMnemonic(KeyEvent.VK_M);
         muteItem.addActionListener(e -> {
             audioManager.setMuted(muteItem.isSelected());
         });
         audio.add(muteItem);
 
         JMenuItem volItem = new JMenuItem("Volume\u2026");
-        volItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK));
+        volItem.setMnemonic(KeyEvent.VK_V);
+        volItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,
+                KeyEvent.CTRL_DOWN_MASK | KeyEvent.ALT_DOWN_MASK));
         volItem.addActionListener(e -> {
             String input = JOptionPane.showInputDialog(this,
-                    "Enter volume (0-100):", "Sound Volume",
+                    DesktopTheme.messageForDialog("Enter volume (0-100):"), "Sound Volume",
                     JOptionPane.QUESTION_MESSAGE);
             if (input != null) {
                 try {
                     int pct = Integer.parseInt(input.trim());
                     audioManager.setVolume(Math.max(0, Math.min(100, pct)) / 100f);
                 } catch (NumberFormatException ignored) {
+                    JOptionPane.showMessageDialog(this,
+                            DesktopTheme.messageForDialog("Volume must be a number from 0 to 100."),
+                            "Invalid Volume", JOptionPane.WARNING_MESSAGE);
                 }
             }
         });
@@ -364,11 +392,13 @@ public class LeagueHomeView extends JFrame {
         JMenu help = new JMenu("Help");
         help.setMnemonic(KeyEvent.VK_H);
         JMenuItem shortcutsItem = new JMenuItem("Keyboard Shortcuts\u2026");
+        shortcutsItem.setMnemonic(KeyEvent.VK_K);
         shortcutsItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
         shortcutsItem.addActionListener(e -> showKeyboardShortcuts());
         help.add(shortcutsItem);
 
         JMenuItem aboutItem = new JMenuItem("About");
+        aboutItem.setMnemonic(KeyEvent.VK_A);
         aboutItem.addActionListener(e -> showAbout());
         help.add(aboutItem);
         bar.add(help);
@@ -387,6 +417,15 @@ public class LeagueHomeView extends JFrame {
         getRootPane().registerKeyboardAction(
                 e -> showKeyboardShortcuts(),
                 KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, KeyEvent.CTRL_DOWN_MASK),
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
+        getRootPane().registerKeyboardAction(
+                e -> selectAdjacentScreen(1),
+                KeyStroke.getKeyStroke(KeyEvent.VK_TAB, KeyEvent.CTRL_DOWN_MASK),
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
+        getRootPane().registerKeyboardAction(
+                e -> selectAdjacentScreen(-1),
+                KeyStroke.getKeyStroke(KeyEvent.VK_TAB,
+                        KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK),
                 JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         // Ctrl+1..Ctrl+9 jump to the first nine sidebar screens.
@@ -409,6 +448,32 @@ public class LeagueHomeView extends JFrame {
                 e -> focusActiveSearchField(),
                 KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK),
                 JComponent.WHEN_IN_FOCUSED_WINDOW);
+        getRootPane().registerKeyboardAction(
+                e -> selectRecruitingTab(),
+                KeyStroke.getKeyStroke(KeyEvent.VK_R, KeyEvent.CTRL_DOWN_MASK),
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
+        getRootPane().registerKeyboardAction(
+                e -> focusNavigationList(),
+                KeyStroke.getKeyStroke(KeyEvent.VK_L, KeyEvent.CTRL_DOWN_MASK),
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
+    }
+
+    private void selectAdjacentScreen(int direction) {
+        int currentIndex = 0;
+        for (int i = 0; i < NAV_TITLES.length; i++) {
+            if (NAV_TITLES[i].equals(selectedScreen)) {
+                currentIndex = i;
+                break;
+            }
+        }
+        int nextIndex = Math.floorMod(currentIndex + direction, NAV_TITLES.length);
+        selectScreen(NAV_TITLES[nextIndex]);
+    }
+
+    private void focusNavigationList() {
+        if (navigationList != null) {
+            navigationList.requestFocusInWindow();
+        }
     }
 
     /**
@@ -1165,18 +1230,23 @@ public class LeagueHomeView extends JFrame {
                 Navigation & windows
                   F1, Ctrl+/     This shortcut list
                   Ctrl+1..9      Jump to sidebar tab (1=Home, 2=Recruiting, ...)
+                  Ctrl+Tab       Next sidebar tab
+                  Ctrl+Shift+Tab Previous sidebar tab
+                  Ctrl+L         Focus sidebar navigation
                   Ctrl+F         Focus filter on current tab (or open Player Search)
+                  Ctrl+R         Recruiting
                   Ctrl+U         My Program (roster, depth chart, facilities)
                   Ctrl+P         Schemes
                   Ctrl+,         Settings
+                  Ctrl+Alt+V     Sound volume
 
                 Season
                   Space          Play next week / advance phase
-                  Ctrl+A         Simulate regular season through postseason
+                  Ctrl+A         Sim through postseason
                   Ctrl+Shift+A   Advance through offseason (stops at recruiting)
 
                 Recruiting
-                  Recruiting     Opens after NLI week; finish there to start the new season.
+                  Ctrl+R         Open Recruiting; finish after NLI week to start the new season.
 
                 Files
                   Ctrl+O         Open save
