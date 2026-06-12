@@ -443,6 +443,18 @@ public class LeagueHomeView extends JFrame {
                     JComponent.WHEN_IN_FOCUSED_WINDOW);
         }
 
+        // Alt+1..6 jump to sidebar tabs 10–15 (League History through Settings).
+        int altNavStart = digitKeys.length;
+        int altNavEnd = Math.min(altNavStart + digitKeys.length, NAV_TITLES.length);
+        for (int i = altNavStart; i < altNavEnd; i++) {
+            final int index = i;
+            int digit = digitKeys[i - altNavStart];
+            getRootPane().registerKeyboardAction(
+                    e -> selectScreen(NAV_TITLES[index]),
+                    KeyStroke.getKeyStroke(digit, KeyEvent.ALT_DOWN_MASK),
+                    JComponent.WHEN_IN_FOCUSED_WINDOW);
+        }
+
         // Ctrl+F focuses the current screen's search/filter field; falls back to Player Search.
         getRootPane().registerKeyboardAction(
                 e -> focusActiveSearchField(),
@@ -1230,6 +1242,7 @@ public class LeagueHomeView extends JFrame {
                 Navigation & windows
                   F1, Ctrl+/     This shortcut list
                   Ctrl+1..9      Jump to sidebar tab (1=Home, 2=Recruiting, ...)
+                  Alt+1..6       Jump to tabs 10–15 (History, News, Coaches, HoF, Records, Settings)
                   Ctrl+Tab       Next sidebar tab
                   Ctrl+Shift+Tab Previous sidebar tab
                   Ctrl+L         Focus sidebar navigation
@@ -1397,8 +1410,9 @@ public class LeagueHomeView extends JFrame {
     private void rebuildContentCards() {
         screenContext.updateRecord(currentRecord);
         mainContentCards.removeAll();
+        screenFocusTargets.clear();
         for (Map.Entry<String, LeagueScreen> e : screens.entrySet()) {
-            addScreenCard(e.getKey(), e.getValue().build(screenContext));
+            addScreenCard(e.getKey(), e.getValue());
         }
         mainContentCards.add(buildRecruitingTab(), "Recruiting");
     }
@@ -1460,8 +1474,9 @@ public class LeagueHomeView extends JFrame {
         mainContentCards = new JPanel(mainCardLayout);
         mainContentCards.setOpaque(true);
         mainContentCards.setBackground(DesktopTheme.windowBackground());
+        screenFocusTargets.clear();
         for (Map.Entry<String, LeagueScreen> e : screens.entrySet()) {
-            addScreenCard(e.getKey(), e.getValue().build(screenContext));
+            addScreenCard(e.getKey(), e.getValue());
         }
         mainContentCards.add(buildRecruitingTab(), "Recruiting");
         shell.add(mainContentCards, BorderLayout.CENTER);
@@ -1513,8 +1528,15 @@ public class LeagueHomeView extends JFrame {
         return list;
     }
 
-    private void addScreenCard(String title, Component component) {
-        mainContentCards.add(component, title);
+    private void addScreenCard(String title, LeagueScreen screen) {
+        JPanel panel = screen.build(screenContext);
+        mainContentCards.add(panel, title);
+        JComponent focusTarget = screen.searchTarget();
+        if (focusTarget != null) {
+            screenFocusTargets.put(title, focusTarget);
+        } else {
+            screenFocusTargets.remove(title);
+        }
     }
 
     private void selectScreen(String title) {
