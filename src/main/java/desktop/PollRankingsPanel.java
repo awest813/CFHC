@@ -25,6 +25,8 @@ public class PollRankingsPanel implements LeagueScreen {
         JPanel panel = new JPanel(new BorderLayout());
         DesktopTheme.styleTabRoot(panel);
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        panel.add(DesktopTheme.buildScreenHeader("Poll Rankings",
+                "Current AP-style poll order with team talent and prestige."), BorderLayout.NORTH);
 
         String[] columns = {"Rank", "Team", "Record", "Conf", "Poll Score", "Prestige", "Off Tal", "Def Tal"};
         DefaultTableModel model = new DefaultTableModel(columns, 0) {

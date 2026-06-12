@@ -48,6 +48,9 @@ public class StandingsPanel implements LeagueScreen {
 
         JPanel wrapper = new JPanel(new BorderLayout());
         DesktopTheme.styleTabRoot(wrapper);
+        wrapper.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        wrapper.add(DesktopTheme.buildScreenHeader("Standings",
+                "Conference grids and top-25 poll snapshot. Double-click a team for details."), BorderLayout.NORTH);
         wrapper.add(splitPane, BorderLayout.CENTER);
         return wrapper;
     }

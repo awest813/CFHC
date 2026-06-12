@@ -39,6 +39,8 @@ public class LeagueHistoryPanel implements LeagueScreen {
         JPanel panel = new JPanel(new BorderLayout());
         DesktopTheme.styleTabRoot(panel);
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        panel.add(DesktopTheme.buildScreenHeader("League History",
+                "Season champions and all-time team record leaderboards."), BorderLayout.NORTH);
 
         JTextArea historyArea = new JTextArea();
         historyArea.setEditable(false);

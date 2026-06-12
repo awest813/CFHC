@@ -41,6 +41,11 @@ public class PlayerStatsPanel implements LeagueScreen {
         DesktopTheme.styleTabRoot(panel);
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setOpaque(false);
+        topPanel.add(DesktopTheme.buildScreenHeader("Player Statistics",
+                "League-wide individual stat leaderboards by category."), BorderLayout.NORTH);
+
         JComboBox<String> categoryBox = new JComboBox<>(CATEGORIES);
         categoryBox.setFont(new Font("SansSerif", Font.PLAIN, 13));
 
@@ -82,7 +87,8 @@ public class PlayerStatsPanel implements LeagueScreen {
         topBar.add(new JLabel("Category: "));
         topBar.add(categoryBox);
         DesktopTheme.styleToolbar(topBar);
-        panel.add(topBar, BorderLayout.NORTH);
+        topPanel.add(topBar, BorderLayout.SOUTH);
+        panel.add(topPanel, BorderLayout.NORTH);
         JScrollPane playerRankScroll = new JScrollPane(table);
         DesktopTheme.styleDataTableInScroll(playerRankScroll, table);
         panel.add(playerRankScroll, BorderLayout.CENTER);

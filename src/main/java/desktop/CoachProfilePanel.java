@@ -49,6 +49,8 @@ public class CoachProfilePanel implements LeagueScreen {
         JPanel panel = new JPanel(new BorderLayout(16, 16));
         DesktopTheme.styleTabRoot(panel);
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        panel.add(DesktopTheme.buildScreenHeader("My Coach",
+                "Your head coach profile, ratings, and career history."), BorderLayout.NORTH);
 
         JPanel header = new JPanel(new GridLayout(0, 2, 10, 6));
         header.setOpaque(true);
@@ -72,8 +74,10 @@ public class CoachProfilePanel implements LeagueScreen {
         attrs.add(new JLabel("Discipline:")); attrs.add(new JLabel(String.valueOf(hc.ratDiscipline)));
         DesktopTheme.styleLabelsDeep(attrs, DesktopTheme.textPrimary());
 
-        panel.add(header, BorderLayout.NORTH);
-        panel.add(attrs, BorderLayout.CENTER);
+        JPanel body = new JPanel(new BorderLayout(16, 16));
+        body.setOpaque(false);
+        body.add(header, BorderLayout.NORTH);
+        body.add(attrs, BorderLayout.CENTER);
 
         if (!hc.history.isEmpty()) {
             JTextArea hist = new JTextArea("History:\n\n");
@@ -83,8 +87,10 @@ public class CoachProfilePanel implements LeagueScreen {
             JScrollPane histScroll = new JScrollPane(hist);
             histScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
             histScroll.setOpaque(true);
-            panel.add(histScroll, BorderLayout.SOUTH);
+            body.add(histScroll, BorderLayout.SOUTH);
         }
+
+        panel.add(body, BorderLayout.CENTER);
 
         return panel;
     }

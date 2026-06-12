@@ -30,6 +30,11 @@ public class CoachDatabasePanel implements LeagueScreen {
         DesktopTheme.styleTabRoot(panel);
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setOpaque(false);
+        topPanel.add(DesktopTheme.buildScreenHeader("Coaches Database",
+                "Browse all-time coaching leaderboards across the league."), BorderLayout.NORTH);
+
         JComboBox<String> categoryBox = new JComboBox<>(COACH_DATABASE_CATEGORIES);
         categoryBox.setFont(new Font("SansSerif", Font.PLAIN, 13));
 
@@ -68,7 +73,8 @@ public class CoachDatabasePanel implements LeagueScreen {
         topBar.add(new JLabel("Sort by: "));
         topBar.add(categoryBox);
         DesktopTheme.styleToolbar(topBar);
-        panel.add(topBar, BorderLayout.NORTH);
+        topPanel.add(topBar, BorderLayout.SOUTH);
+        panel.add(topPanel, BorderLayout.NORTH);
         JScrollPane coachDbScroll = new JScrollPane(table);
         DesktopTheme.styleDataTableInScroll(coachDbScroll, table);
         panel.add(coachDbScroll, BorderLayout.CENTER);

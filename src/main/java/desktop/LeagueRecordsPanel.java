@@ -21,6 +21,8 @@ public class LeagueRecordsPanel implements LeagueScreen {
         JPanel panel = new JPanel(new BorderLayout());
         DesktopTheme.styleTabRoot(panel);
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        panel.add(DesktopTheme.buildScreenHeader("League Records",
+                "All-time single-season and career records across the universe."), BorderLayout.NORTH);
 
         String[] columns = {"Record", "Value", "Holder", "Year"};
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
