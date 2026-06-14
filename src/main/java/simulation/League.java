@@ -1314,7 +1314,25 @@ public class League {
             t.setPlaybookDefNum(t.getCPUDefense());
         }
 
+        linkUserTeamFromLoadedCoaches();
+
         restoreScheduledGames(record.scheduledGames());
+    }
+
+    /**
+     * Restores {@link #userTeam} from the saved head coach {@code user} flag.
+     * New-format saves do not store {@link Team#userControlled} directly.
+     */
+    private void linkUserTeamFromLoadedCoaches() {
+        userTeam = null;
+        for (Team t : teamList) {
+            HeadCoach hc = t.getHeadCoach();
+            if (hc != null && hc.user) {
+                userTeam = t;
+                t.setUserControlled(true);
+                return;
+            }
+        }
     }
 
     /**
@@ -3022,9 +3040,16 @@ public class League {
 
     public void updateHCHistory() {
         for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).updateCoachHistory(teamList.get(t).getHeadCoach());
-            teamList.get(t).updateCoachHistory(teamList.get(t).getOC());
-            teamList.get(t).updateCoachHistory(teamList.get(t).getDC());
+            Team team = teamList.get(t);
+            if (team.getHeadCoach() != null) {
+                team.updateCoachHistory(team.getHeadCoach());
+            }
+            if (team.getOC() != null) {
+                team.updateCoachHistory(team.getOC());
+            }
+            if (team.getDC() != null) {
+                team.updateCoachHistory(team.getDC());
+            }
         }
 
     }

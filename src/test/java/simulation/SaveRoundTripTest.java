@@ -44,7 +44,9 @@ public class SaveRoundTripTest {
 
         assertFalse("League should have teams", original.teamList.isEmpty());
         original.userTeam = original.teamList.get(0);
-        original.userTeam.userControlled = true;
+        original.userTeam.setupUserCoach("Round Trip Coach");
+        original.userTeam.getHeadCoach().user = true;
+        original.userTeam.setUserControlled(true);
     }
 
     // -------------------------------------------------------------------------
@@ -128,18 +130,17 @@ public class SaveRoundTripTest {
 
     @Test
     public void roundTrip_userTeam_nameDataIsPreserved() throws Exception {
-        // The new save/load format (LeagueRecord) does not track which team is
-        // user-controlled — callers must re-assign userTeam after loading.
-        // This test verifies that the user team's *data* (roster, prestige, etc.)
-        // survives the round-trip so it can be re-assigned correctly.
         League loaded = saveAndLoad();
+        assertNotNull("User team should be restored from head coach user flag", loaded.userTeam);
         String originalName = original.userTeam.name;
+        assertEquals(originalName, loaded.userTeam.getName());
         Team reloaded = findTeam(loaded, originalName);
         assertNotNull("User team data must survive round-trip: " + originalName, reloaded);
         assertEquals("User team prestige must survive round-trip",
                 original.userTeam.teamPrestige, reloaded.teamPrestige);
         assertEquals("User team roster size must survive round-trip",
                 original.userTeam.getAllPlayers().size(), reloaded.getAllPlayers().size());
+        assertTrue(reloaded.isUserControlled());
     }
 
     @Test

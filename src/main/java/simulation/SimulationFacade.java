@@ -311,6 +311,55 @@ public final class SimulationFacade {
         league.finishRecruitingSeason(recruitsData);
     }
 
+    /**
+     * CPU recruiting pass at NLI week. Shared by desktop and Android before the
+     * user-recruiting gate.
+     */
+    public static void prepareCpuRecruiting(League league) {
+        if (league == null) {
+            throw new IllegalArgumentException("league is required");
+        }
+        league.recruitPlayers();
+    }
+
+    /** True when the user must run interactive recruiting (observer careers skip). */
+    public static boolean needsUserRecruiting(League league) {
+        return league != null
+                && league.userTeam != null
+                && league.userTeam.isUserControlled();
+    }
+
+    /**
+     * Persists the league at the current recruiting week and returns the payload
+     * for {@code RecruitingActivity}. Does not change {@link League#currentWeek}.
+     */
+    public static String saveForUserRecruitingUi(League league, Team userTeam, SaveLoadService saveLoadService)
+            throws IOException {
+        if (league == null || userTeam == null || saveLoadService == null) {
+            throw new IllegalArgumentException("league, userTeam, and saveLoadService are required");
+        }
+        if (!saveLoadService.saveForRecruiting(league)) {
+            throw new IOException("Failed to save league for recruiting");
+        }
+        return buildRecruitingPayload(userTeam);
+    }
+
+    /**
+     * Runs the shared NLI setup: CPU recruiting, then either a recruiting checkpoint
+     * (user team) or an immediate rollover (observer).
+     *
+     * @return recruiting UI payload when user recruiting is required; {@code null} when the league rolled over
+     */
+    public String beginUserRecruitingFlow() throws IOException {
+        requireLeague();
+        prepareCpuRecruiting(league);
+        if (!needsUserRecruiting(league)) {
+            completeRecruiting("");
+            return null;
+        }
+        return saveForUserRecruitingUi(league, userTeam, saveLoadService);
+    }
+
     public void importCoaches(InputStream inputStream) throws IOException {
         requireLeague();
         LeagueCustomDataImporter.importCoaches(inputStream, league);

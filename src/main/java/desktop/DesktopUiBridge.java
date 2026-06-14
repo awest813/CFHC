@@ -3,6 +3,7 @@ package desktop;
 import simulation.GameUiBridge;
 import simulation.League;
 import simulation.PlatformLog;
+import simulation.SimulationFacade;
 import simulation.Team;
 
 import javax.swing.JFrame;
@@ -274,9 +275,9 @@ public class DesktopUiBridge implements GameUiBridge {
         if (awaitingDockedRecruiting) {
             return;
         }
-        league.recruitPlayers();
+        SimulationFacade.prepareCpuRecruiting(league);
 
-        if (league.userTeam != null && league.userTeam.isUserControlled()) {
+        if (SimulationFacade.needsUserRecruiting(league)) {
             awaitingDockedRecruiting = true;
             return;
         }
