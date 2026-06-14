@@ -124,6 +124,10 @@ public class FullSeasonTest {
         int minGames = regWeeks - 2;
         for (Team t : league.getTeamList()) {
             int totalGames = t.wins + t.losses;
+            if (totalGames == 0) {
+                // Realignment can add teams after the season ends; they have no games yet.
+                continue;
+            }
             assertTrue("Team " + t.name + " should have played at least " + minGames
                             + " games but played " + totalGames,
                     totalGames >= minGames);

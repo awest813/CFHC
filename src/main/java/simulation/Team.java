@@ -1441,6 +1441,9 @@ public class Team {
     // OFF-SEASON HEAD COACH PROGRESSION
     // CAN BE FIRED OR EXTENDED CONTRACT HERE
     public void advanceHC(LeagueRecords records, TeamRecords teamRecords) {
+        if (HC == null) {
+            return;
+        }
         newContract = false;
         fired = false;
         retired = false;
@@ -3058,7 +3061,7 @@ public class Team {
         else
             histYear = league.getYear() + ": #" + rankTeamPollScore + " " + name + " (" + wins + "-" + losses + ") "
                     + confChampion + " " + semiFinalWL + natChampWL + " Prs: " + teamPrestige + " (" + (teamPrestige - teamPrestigeStart) + ")";
-        histYear += ">Head Coach: " + HC.name;
+        histYear += ">Head Coach: " + (HC != null ? HC.name : "Vacant");
         for (int i = league.regSeasonWeeks-1; i < gameSchedule.size(); ++i) {
             Game g = gameSchedule.get(i);
             histYear += ">" + g.gameName + ": ";
