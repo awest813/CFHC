@@ -1354,6 +1354,20 @@ public class League {
         coordinatorCarousel();
     }
 
+    /**
+     * Runs promotion/relegation or conference realignment during the offseason,
+     * populating {@link #newsRealignment} for UI summaries on both platforms.
+     */
+    public void runOffseasonRealignment(GameUiBridge main) {
+        newsRealignment = "";
+        countRealignment = 0;
+        if (enableUnivProRel) {
+            universalProRel();
+        } else if (confRealignment) {
+            conferenceRealignmentV2(main);
+        }
+    }
+
     //Set Up Season variables
     public void setupSeason() {
 

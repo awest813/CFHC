@@ -894,8 +894,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void showRealignmentSummary() {
-        // realignment summary usually shown via news headlines or specific dialogs
-        // placeholder for now
+        String news = simLeague.newsRealignment;
+        if (news == null || news.isEmpty()) {
+            news = "No conference realignment occurred this off-season.";
+        }
+        String title = simLeague.enableUnivProRel
+                ? simLeague.getYear() + " Promotion/Relegation Update"
+                : simLeague.getYear() + " Conference Realignment News";
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(news)
+                .setTitle(title)
+                .setPositiveButton("OK", null);
+        AlertDialog dialog = builder.create();
+        dialog.setCancelable(false);
+        showImmersive(dialog);
+        setDialogMessageTextSize(dialog);
     }
 
     @Override

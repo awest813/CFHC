@@ -210,7 +210,7 @@ public final class SeasonController {
     }
 
     private void handleRealignment(SeasonAdvanceResult.Builder result) {
-        // These methods should ideally move to League if they are pure logic
+        league.runOffseasonRealignment(bridge);
         league.hireMissingCoaches();
         league.currentWeek++;
         result.weekAdvanced();

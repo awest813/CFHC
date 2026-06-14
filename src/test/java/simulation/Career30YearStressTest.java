@@ -60,9 +60,11 @@ public class Career30YearStressTest {
             @Override public void showRealignmentSummary() {}
             @Override public void startRecruitingFlow() {
                 league.recruitPlayers();
-                // Match real game flow: reset currentWeek to 0 so next
-                // advanceWeek() starts the preseason of the new season.
-                league.currentWeek = 0;
+                if (league.userTeam != null) {
+                    league.userTeam.recruitPlayersFromStr("");
+                    league.updateTeamTalentRatings();
+                }
+                league.startNextSeason();
             }
         };
 

@@ -834,17 +834,22 @@ public class LeagueHomeView extends JFrame {
         javax.swing.SwingWorker<Integer, String> worker = new javax.swing.SwingWorker<>() {
             @Override
             protected Integer doInBackground() throws Exception {
-                int played = 0;
-                while (leagueCore.currentWeek < targetWeek && !bridge.isNewSeasonPending()
-                        && !bridge.isAwaitingDockedRecruiting()) {
-                    if (dialog.isCancelled()) break;
-                    controller.advanceWeek();
-                    played++;
-                    int progress = (int) ((float) played / maxWeeks * 100);
-                    setProgress(Math.min(100, progress));
-                    publish("Playing Week " + (leagueCore.currentWeek));
+                bridge.setSuppressBlockingUi(true);
+                try {
+                    int played = 0;
+                    while (leagueCore.currentWeek < targetWeek && !bridge.isNewSeasonPending()
+                            && !bridge.isAwaitingDockedRecruiting()) {
+                        if (dialog.isCancelled()) break;
+                        controller.advanceWeek();
+                        played++;
+                        int progress = (int) ((float) played / maxWeeks * 100);
+                        setProgress(Math.min(100, progress));
+                        publish("Playing Week " + (leagueCore.currentWeek));
+                    }
+                    return played;
+                } finally {
+                    bridge.setSuppressBlockingUi(false);
                 }
-                return played;
             }
 
             @Override
@@ -917,24 +922,29 @@ public class LeagueHomeView extends JFrame {
 
             @Override
             protected Integer doInBackground() {
-                int played = 0;
-                while (!bridge.isNewSeasonPending()) {
-                    if (dialog.isCancelled()) {
-                        cancelled = true;
-                        break;
+                bridge.setSuppressBlockingUi(true);
+                try {
+                    int played = 0;
+                    while (!bridge.isNewSeasonPending()) {
+                        if (dialog.isCancelled()) {
+                            cancelled = true;
+                            break;
+                        }
+                        if (bridge.isAwaitingDockedRecruiting()) {
+                            break;
+                        }
+                        controller.advanceWeek();
+                        played++;
+                        publish("Advancing " + decodeSeasonPeriod() + " (Week " + leagueCore.currentWeek + ")");
+                        if (played >= MAX_FULL_YEAR_STEPS) {
+                            limitReached = true;
+                            break;
+                        }
                     }
-                    if (bridge.isAwaitingDockedRecruiting()) {
-                        break;
-                    }
-                    controller.advanceWeek();
-                    played++;
-                    publish("Advancing " + decodeSeasonPeriod() + " (Week " + leagueCore.currentWeek + ")");
-                    if (played >= MAX_FULL_YEAR_STEPS) {
-                        limitReached = true;
-                        break;
-                    }
+                    return played;
+                } finally {
+                    bridge.setSuppressBlockingUi(false);
                 }
-                return played;
             }
 
             @Override

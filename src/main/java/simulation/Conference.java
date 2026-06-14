@@ -566,10 +566,13 @@ public class Conference {
     public void newsNSMatchups() {
         if (league.currentWeek >= league.regSeasonWeeks-1) {
             return;
-        } else {
-            for (int i = 0; i < confTeams.size(); ++i) {
-                confTeams.get(i).getGameSchedule().get(league.currentWeek).addNewSeasonGames(confTeams.get(i));
+        }
+        for (int i = 0; i < confTeams.size(); ++i) {
+            java.util.List<Game> schedule = confTeams.get(i).getGameSchedule();
+            if (schedule == null || league.currentWeek >= schedule.size()) {
+                continue;
             }
+            schedule.get(league.currentWeek).addNewSeasonGames(confTeams.get(i));
         }
     }
 
