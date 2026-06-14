@@ -61,10 +61,8 @@ public class Career30YearStressTest {
             @Override public void startRecruitingFlow() {
                 league.recruitPlayers();
                 if (league.userTeam != null) {
-                    league.userTeam.recruitPlayersFromStr("");
-                    league.updateTeamTalentRatings();
+                    league.finishRecruitingSeason("");
                 }
-                league.startNextSeason();
             }
         };
 

@@ -71,10 +71,7 @@ public class DesktopUiBridge implements GameUiBridge {
             return;
         }
         awaitingDockedRecruiting = false;
-        if (league.userTeam != null) {
-            league.userTeam.recruitPlayersFromStr(recruitsData == null ? "" : recruitsData);
-            league.updateTeamTalentRatings();
-        }
+        league.applyRecruitingSignings(recruitsData);
         newSeasonPending = true;
     }
 
@@ -203,7 +200,7 @@ public class DesktopUiBridge implements GameUiBridge {
         if (!canShowBlockingDialog()) {
             return;
         }
-        if (league.isCareerMode()) {
+        if (league.isCareerMode() && league.userTeam != null && league.userTeam.fired) {
             boolean accepted = JobOffersDialog.showJobOffers(owner, league);
             if (accepted) {
                 CoordinatorHiringDialog.show(owner, league);

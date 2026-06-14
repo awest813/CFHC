@@ -874,7 +874,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void showJobOffersDialog() {
-        if (simLeague.isCareerMode()) jobOffers(userHC);
+        if (simLeague.isCareerMode() && userTeam != null && userTeam.fired) {
+            jobOffers(userHC);
+        }
     }
 
     @Override
@@ -1708,13 +1710,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         resetUI();
     }
 
-    public void hireAssistantsFix() {
-
-        if(userTeam.OC == null) hireOC();
-        else if(userTeam.DC == null) hireDC();
-        else simLeague.coordinatorCarousel();
-        resetUI();
-    }
     private void showHireCoordinatorDialog(
             final boolean isOffense,
             final boolean isNewTeam) {
@@ -1739,49 +1734,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     public void hireDCNewTeam() {
         showHireCoordinatorDialog(false, true);
-    }
-
-
-
-
-    //Conference Realignment Update
-    private void conferenceRealignment() {
-        if (simLeague.confRealignment) {
-            simLeague.conferenceRealignmentV2(this);
-            if (simLeague.countRealignment > 0) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                builder.setMessage(simLeague.newsRealignment)
-                        .setTitle(simLeague.getYear() + " Conference Realignment News")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                            }
-                        });
-                AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-                showImmersive(dialog);
-                setDialogMessageTextSize(dialog);
-                resetUI();
-            }
-        }
-    }
-
-    //Promotions & Relegations Update
-    private void universalProRel() {
-        if (simLeague.enableUnivProRel) {
-            simLeague.universalProRel();
-            AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-            builder.setMessage(simLeague.newsRealignment)
-                    .setTitle(simLeague.getYear() + " Promotion/Relegation Update")
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                        }
-                    });
-            AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-            showImmersive(dialog);
-            setDialogMessageTextSize(dialog);
-            resetUI();
-        }
     }
 
     //Television Contract News

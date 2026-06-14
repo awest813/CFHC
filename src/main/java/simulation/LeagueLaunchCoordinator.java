@@ -176,11 +176,7 @@ public final class LeagueLaunchCoordinator {
                         throw new IOException("Loaded recruiting resume save without a user team");
                     }
                     userTeam.getHeadCoach().user = true;
-                    if (request.recruits != null && !request.recruits.isEmpty()) {
-                        userTeam.recruitPlayersFromStr(request.recruits);
-                    }
-                    league.rebuildScheduleIfNeeded();
-                    league.updateTeamTalentRatings();
+                    league.finishRecruitingSeason(request.recruits);
                     return new LaunchResult(league, userTeam, userTeam, league.getYear(), true, false, false);
                 }
             } else if (request.action == LaunchRequest.Action.IMPORT_SAVE) {

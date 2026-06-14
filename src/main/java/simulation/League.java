@@ -2996,10 +2996,14 @@ public class League {
         setTeamRanks();
         StringBuilder sb = new StringBuilder();
         sb.append(ncgSummaryStr());
-        sb.append("\n\n" + userTeam.seasonSummaryStr());
-        if (getYear() > seasonStart) {
-            sb.append("\n\nLEAGUE RECORDS BROKEN:\n" + leagueRecords.brokenRecordsStr(getYear(), userTeam.getAbbr()));
-            sb.append("\n\nTEAM RECORDS BROKEN:\n" + userTeam.getTeamRecords().brokenRecordsStr(getYear(), userTeam.getAbbr()));
+        if (userTeam != null) {
+            sb.append("\n\n").append(userTeam.seasonSummaryStr());
+            if (getYear() > seasonStart) {
+                sb.append("\n\nLEAGUE RECORDS BROKEN:\n")
+                        .append(leagueRecords.brokenRecordsStr(getYear(), userTeam.getAbbr()));
+                sb.append("\n\nTEAM RECORDS BROKEN:\n")
+                        .append(userTeam.getTeamRecords().brokenRecordsStr(getYear(), userTeam.getAbbr()));
+            }
         }
         return sb.toString();
     }
@@ -5992,6 +5996,22 @@ Then conferences can see if they want to add them to their list if the teams mee
      * {@link #recruitPlayers()} has been called and
      * {@code currentWeek >= regSeasonWeeks + 13}).
      */
+    public void applyRecruitingSignings(String recruitsData) {
+        if (userTeam != null) {
+            userTeam.recruitPlayersFromStr(recruitsData == null ? "" : recruitsData);
+        }
+        updateTeamTalentRatings();
+    }
+
+    /**
+     * Applies user recruiting signings and rolls the league into the next season.
+     * Shared by Android recruiting completion and headless hosts.
+     */
+    public void finishRecruitingSeason(String recruitsData) {
+        applyRecruitingSignings(recruitsData);
+        startNextSeason();
+    }
+
     public void startNextSeason() {
         // Reset league-level per-season state
         heismanDecided = false;

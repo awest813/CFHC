@@ -163,8 +163,10 @@ public final class SeasonController {
         league.currentWeek++;
         result.weekAdvanced();
         updateSimStatus(result, "Offseason", "Offseason: Coaching Changes", true);
-        bridge.showJobOffersDialog();
-        result.needsDialog(SeasonAdvanceResult.DialogType.JOB_OFFERS, null);
+        if (league.userTeam != null && league.userTeam.fired) {
+            bridge.showJobOffersDialog();
+            result.needsDialog(SeasonAdvanceResult.DialogType.JOB_OFFERS, null);
+        }
     }
 
     private void handleCoachCarousel(SeasonAdvanceResult.Builder result) {

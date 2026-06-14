@@ -246,8 +246,7 @@ public class DesktopNewCoachSystemsTest {
 
         @Override public void startRecruitingFlow() {
             league.recruitPlayers();
-            league.userTeam.recruitPlayersFromStr("");
-            league.updateTeamTalentRatings();
+            league.applyRecruitingSignings("");
             recruitingComplete = true;
         }
     }

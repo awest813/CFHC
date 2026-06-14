@@ -308,11 +308,7 @@ public final class SimulationFacade {
         if (userTeam == null) {
             throw new IllegalStateException("League has no user team for recruiting");
         }
-        if (recruitsData != null && !recruitsData.isEmpty()) {
-            userTeam.recruitPlayersFromStr(recruitsData);
-        }
-        league.rebuildScheduleIfNeeded();
-        league.updateTeamTalentRatings();
+        league.finishRecruitingSeason(recruitsData);
     }
 
     public void importCoaches(InputStream inputStream) throws IOException {

@@ -64,10 +64,8 @@ public class Career10YearTest {
                 recruitingFlowCount++;
                 league.recruitPlayers();
                 if (league.userTeam != null) {
-                    league.userTeam.recruitPlayersFromStr("");
-                    league.updateTeamTalentRatings();
+                    league.finishRecruitingSeason("");
                 }
-                league.startNextSeason();
                 seasonsCompleted++;
             }
         };

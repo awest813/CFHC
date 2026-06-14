@@ -359,7 +359,7 @@ public class Conference {
         }
     }
 
-    //NO DIVISION SCHEDULING WITH ODD/EVEN TEAMS (WIP)
+    //NO DIVISION SCHEDULING WITH ODD/EVEN TEAMS — uses BYE week placeholder, removed after scheduling
     private void setUpEvenOddSchedule() {
         //schedule in conf matchups
         int confSize = confTeams.size() - 1;
