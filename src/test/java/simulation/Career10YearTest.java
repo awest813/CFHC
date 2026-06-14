@@ -62,8 +62,12 @@ public class Career10YearTest {
             @Override public void showRealignmentSummary() {}
             @Override public void startRecruitingFlow() {
                 recruitingFlowCount++;
-                // Run recruiting headless so the next season can begin
                 league.recruitPlayers();
+                if (league.userTeam != null) {
+                    league.userTeam.recruitPlayersFromStr("");
+                    league.updateTeamTalentRatings();
+                }
+                league.startNextSeason();
                 seasonsCompleted++;
             }
         };
@@ -88,6 +92,8 @@ public class Career10YearTest {
         assertTrue("League should have teams after 10 seasons", league.getTeamList().size() > 0);
         assertTrue("Recruiting should have been triggered multiple times", recruitingFlowCount >= 10);
         assertTrue("League history should have entries", league.getLeagueHistory().size() >= 1);
+        assertTrue("Year should advance across ten seasons",
+                league.getYear() >= startYear + 10);
 
         // Check no team has negative stats (indicates corruption)
         for (Team t : league.getTeamList()) {

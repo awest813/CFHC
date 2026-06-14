@@ -141,6 +141,11 @@ public interface GameUiBridge {
     void showRealignmentSummary();
 
     /**
+     * Show coordinator hiring when OC/DC contracts expired or slots are empty.
+     */
+    default void showCoordinatorHiringDialog() {}
+
+    /**
      * Trigger the recruiting flow transition.
      */
     void startRecruitingFlow();

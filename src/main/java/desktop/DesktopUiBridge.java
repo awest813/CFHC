@@ -219,12 +219,32 @@ public class DesktopUiBridge implements GameUiBridge {
         if (league.isCareerMode()) {
             boolean accepted = JobOffersDialog.showPromotions(owner, league);
             if (accepted) {
-                league.coachCarousel();
                 CoordinatorHiringDialog.show(owner, league);
             } else {
                 CoordinatorHiringDialog.show(owner, league);
             }
         }
+    }
+
+    @Override
+    public void showCoordinatorHiringDialog() {
+        if (!canShowBlockingDialog()) {
+            return;
+        }
+        if (league.userTeam == null || !league.userTeam.isUserControlled()) {
+            return;
+        }
+        if (userTeamNeedsCoordinatorHire(league.userTeam)) {
+            CoordinatorHiringDialog.show(owner, league);
+        }
+    }
+
+    private static boolean userTeamNeedsCoordinatorHire(Team team) {
+        if (team.OC == null || team.DC == null) {
+            return true;
+        }
+        return team.OC.contractYear >= team.OC.contractLength
+                || team.DC.contractYear >= team.DC.contractLength;
     }
 
     @Override

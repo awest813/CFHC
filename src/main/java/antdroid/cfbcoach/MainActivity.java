@@ -883,6 +883,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
+    public void showCoordinatorHiringDialog() {
+        if (userTeam != null && userTeam.isUserControlled()) {
+            hireAssistants();
+        }
+    }
+
+    @Override
     public void showRedshirtList() {
                         TransferDialogController.showRedshirtList(this, simLeague, userTeam);
     }
