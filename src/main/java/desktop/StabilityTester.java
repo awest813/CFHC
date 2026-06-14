@@ -75,10 +75,7 @@ public class StabilityTester {
                     @Override public void disciplineAction(positions.Player player, String issue, int gamesA, int gamesB) {}
                     @Override public void startRecruitingFlow() {
                         league.recruitPlayers();
-                        if (league.userTeam != null) {
-                            league.userTeam.recruitPlayersFromStr("");
-                            league.updateTeamTalentRatings();
-                        }
+                        league.applyRecruitingSignings("");
                         recruitingComplete = true;
                     }
                 }

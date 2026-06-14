@@ -161,6 +161,7 @@ public class DesktopNewCoachSystemsTest {
             validateCompletedSeason(expectedTeamCount, seasonYear, historyBefore, championsBefore, steps);
 
             league.startNextSeason();
+            expectedTeamCount = league.getTeamList().size();
             validateNewSeasonState(expectedTeamCount, league.getYear());
         }
     }
@@ -183,7 +184,8 @@ public class DesktopNewCoachSystemsTest {
     private void validateCompletedSeason(int expectedTeamCount, int seasonYear,
                                          int historyBefore, int championsBefore, int steps) {
         assertTrue("Season " + seasonYear + " completed suspiciously quickly", steps > league.regSeasonWeeks);
-        assertEquals(expectedTeamCount, league.getTeamList().size());
+        assertTrue("Team count should not shrink during season " + seasonYear,
+                league.getTeamList().size() >= expectedTeamCount);
         assertTrue("League history should record season " + seasonYear,
                 league.getLeagueHistory().size() > historyBefore);
         assertTrue("A national champion should be crowned for " + seasonYear,
@@ -194,6 +196,9 @@ public class DesktopNewCoachSystemsTest {
 
         int minGames = league.regSeasonWeeks - 2;
         for (Team team : league.getTeamList()) {
+            if (team.getGameSchedule().isEmpty()) {
+                continue;
+            }
             int gamesPlayed = team.getWins() + team.getLosses();
             assertTrue(team.getName() + " played only " + gamesPlayed + " games",
                     gamesPlayed >= minGames);
@@ -241,8 +246,7 @@ public class DesktopNewCoachSystemsTest {
 
         @Override public void startRecruitingFlow() {
             league.recruitPlayers();
-            league.userTeam.recruitPlayersFromStr("");
-            league.updateTeamTalentRatings();
+            league.applyRecruitingSignings("");
             recruitingComplete = true;
         }
     }

@@ -2,13 +2,12 @@ package desktop;
 
 import simulation.GameUiBridge;
 import simulation.League;
+import simulation.PlatformLog;
 import simulation.Team;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import java.awt.Dimension;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -20,18 +19,33 @@ import java.io.IOException;
  * <p>After recruiting completes, {@link #isNewSeasonPending()} becomes
  * {@code true} so {@link LeagueHomeView} can call {@link League#startNextSeason()}.
  * Interactive recruiting runs in the docked Recruiting tab ({@link #isAwaitingDockedRecruiting()}).
+ *
+ * <p>Background bulk simulation sets {@link #setSuppressBlockingUi(boolean)} so
+ * modal dialogs do not deadlock worker threads.
  */
 public class DesktopUiBridge implements GameUiBridge {
+
+    private static final String TAG = "DesktopUiBridge";
 
     private final JFrame owner;
     private final League league;
     private boolean newSeasonPending = false;
     /** User must finish recruiting in {@link LeagueHomeView}'s Recruiting tab. */
     private boolean awaitingDockedRecruiting = false;
+    /** When true, offseason prompts are logged instead of shown modally. */
+    private boolean suppressBlockingUi = false;
 
     public DesktopUiBridge(JFrame owner, League league) {
         this.owner = owner;
         this.league = league;
+    }
+
+    /**
+     * Suppress modal dialogs during background simulation. League home enables
+     * this on {@link javax.swing.SwingWorker} threads and clears it afterward.
+     */
+    public void setSuppressBlockingUi(boolean suppressBlockingUi) {
+        this.suppressBlockingUi = suppressBlockingUi;
     }
 
     /** True after {@link #startRecruitingFlow()} has been called. */
@@ -57,10 +71,7 @@ public class DesktopUiBridge implements GameUiBridge {
             return;
         }
         awaitingDockedRecruiting = false;
-        if (league.userTeam != null) {
-            league.userTeam.recruitPlayersFromStr(recruitsData == null ? "" : recruitsData);
-            league.updateTeamTalentRatings();
-        }
+        league.applyRecruitingSignings(recruitsData);
         newSeasonPending = true;
     }
 
@@ -70,6 +81,10 @@ public class DesktopUiBridge implements GameUiBridge {
 
     @Override
     public void crash() {
+        if (!canShowBlockingDialog()) {
+            PlatformLog.e(TAG, "Simulation crash reported while UI suppressed");
+            return;
+        }
         JOptionPane.showMessageDialog(owner,
                 DesktopTheme.messageForDialog("A fatal simulation error occurred."),
                 "Simulation Error", JOptionPane.ERROR_MESSAGE);
@@ -84,18 +99,24 @@ public class DesktopUiBridge implements GameUiBridge {
     public void transferPlayer(positions.Player player) {
         if (player == null || league.userTeam == null) return;
 
-        // Show accept/decline dialog for user team transfer offer
-        int choice = javax.swing.JOptionPane.showOptionDialog(owner,
+        if (!canShowBlockingDialog()) {
+            player.isTransfer = false;
+            if (player.team != null) {
+                player.team.addPlayer(player);
+            }
+            return;
+        }
+
+        int choice = JOptionPane.showOptionDialog(owner,
                 DesktopTheme.messageForDialog(buildTransferOfferText(player)),
                 "Transfer Offer: " + player.position + " " + player.name,
-                javax.swing.JOptionPane.YES_NO_OPTION,
-                javax.swing.JOptionPane.QUESTION_MESSAGE,
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
                 null,
                 new String[]{"Accept", "Decline"},
                 "Accept");
 
         if (choice == 0) {
-            // Accept
             league.userTransfers = league.userTransfers
                     + player.position + " " + player.name + " " + player.getYrStr()
                     + " Ovr: " + player.ratOvr + " (" + player.team.getName() + ")\n";
@@ -110,7 +131,6 @@ public class DesktopUiBridge implements GameUiBridge {
             }
             league.userTeam.addPlayer(player);
         } else {
-            // Decline — return player to their original team
             player.isTransfer = false;
             player.team.addPlayer(player);
         }
@@ -148,23 +168,28 @@ public class DesktopUiBridge implements GameUiBridge {
 
     @Override
     public void showAwardsSummary(String summaryText) {
+        if (!canShowBlockingDialog()) {
+            logDialog("Awards", summaryText);
+            return;
+        }
         SeasonAwardsDialog.show(owner, league, summaryText);
     }
 
     @Override
     public void showMidseasonSummary() {
-        String summary = buildMidseasonSummary();
-        showScrollableText("Mid-Season Summary", summary);
+        showScrollableText("Mid-Season Summary", buildMidseasonSummary());
     }
 
     @Override
     public void showSeasonSummary() {
-        String summary = league.seasonSummaryStr();
-        showScrollableText("Season Summary", summary);
+        showScrollableText("Season Summary", league.seasonSummaryStr());
     }
 
     @Override
     public void showContractDialog() {
+        if (!canShowBlockingDialog()) {
+            return;
+        }
         if (league.isCareerMode() && league.userTeam != null) {
             ContractDialog.show(owner, league);
         }
@@ -172,10 +197,12 @@ public class DesktopUiBridge implements GameUiBridge {
 
     @Override
     public void showJobOffersDialog() {
-        if (league.isCareerMode()) {
+        if (!canShowBlockingDialog()) {
+            return;
+        }
+        if (league.isCareerMode() && league.userTeam != null && league.userTeam.fired) {
             boolean accepted = JobOffersDialog.showJobOffers(owner, league);
             if (accepted) {
-                // After accepting a new job, hire coordinators for the new team
                 CoordinatorHiringDialog.show(owner, league);
             }
         }
@@ -183,25 +210,53 @@ public class DesktopUiBridge implements GameUiBridge {
 
     @Override
     public void showPromotionsDialog() {
+        if (!canShowBlockingDialog()) {
+            return;
+        }
         if (league.isCareerMode()) {
             boolean accepted = JobOffersDialog.showPromotions(owner, league);
             if (accepted) {
-                league.coachCarousel();
                 CoordinatorHiringDialog.show(owner, league);
             } else {
-                // Still need to hire coordinators if contracts expired
                 CoordinatorHiringDialog.show(owner, league);
             }
         }
     }
 
     @Override
+    public void showCoordinatorHiringDialog() {
+        if (!canShowBlockingDialog()) {
+            return;
+        }
+        if (league.userTeam == null || !league.userTeam.isUserControlled()) {
+            return;
+        }
+        if (userTeamNeedsCoordinatorHire(league.userTeam)) {
+            CoordinatorHiringDialog.show(owner, league);
+        }
+    }
+
+    private static boolean userTeamNeedsCoordinatorHire(Team team) {
+        if (team.OC == null || team.DC == null) {
+            return true;
+        }
+        return team.OC.contractYear >= team.OC.contractLength
+                || team.DC.contractYear >= team.DC.contractLength;
+    }
+
+    @Override
     public void showRedshirtList() {
+        if (!canShowBlockingDialog()) {
+            return;
+        }
         RedshirtDialog.show(owner, league);
     }
 
     @Override
     public void showTransferList() {
+        if (!canShowBlockingDialog()) {
+            return;
+        }
         TransferPortalDialog.show(owner, league);
     }
 
@@ -233,9 +288,29 @@ public class DesktopUiBridge implements GameUiBridge {
     // Helpers
     // -------------------------------------------------------------------------
 
+    private boolean canShowBlockingDialog() {
+        return owner != null && !suppressBlockingUi;
+    }
+
     private void showInfo(String title, String message) {
+        if (!canShowBlockingDialog()) {
+            logDialog(title, message);
+            return;
+        }
         JOptionPane.showMessageDialog(owner, DesktopTheme.messageForDialog(message), title,
                 JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void showScrollableText(String title, String text) {
+        if (!canShowBlockingDialog()) {
+            logDialog(title, text);
+            return;
+        }
+        DesktopTheme.showScrollableText(owner, title, text);
+    }
+
+    private static void logDialog(String title, String text) {
+        PlatformLog.i(TAG, title + ": " + (text != null ? text.replace('\n', ' ') : ""));
     }
 
     private String buildTransferOfferText(positions.Player player) {
@@ -245,10 +320,6 @@ public class DesktopUiBridge implements GameUiBridge {
                 + "Overall: " + player.ratOvr + "\n"
                 + "From: " + (player.team != null ? player.team.getName() : "Unknown") + "\n\n"
                 + "Accept this transfer to your roster?";
-    }
-
-    private void showScrollableText(String title, String text) {
-        DesktopTheme.showScrollableText(owner, title, text);
     }
 
     private String buildMidseasonSummary() {

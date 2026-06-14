@@ -128,9 +128,12 @@ public final class SeasonController {
         } else if (league.currentWeek == regSeasonWeeks + 12) {
             handleRealignment(result);
         } else if (league.currentWeek >= regSeasonWeeks + 13) {
-            showNotification(result, "Recruiting", "National Letter of Intent Day Begins!");
-            bridge.startRecruitingFlow();
-            result.recruitingStarted();
+            if (!league.recruitingPhaseActive) {
+                league.recruitingPhaseActive = true;
+                showNotification(result, "Recruiting", "National Letter of Intent Day Begins!");
+                bridge.startRecruitingFlow();
+                result.recruitingStarted();
+            }
         }
     }
 
@@ -160,8 +163,10 @@ public final class SeasonController {
         league.currentWeek++;
         result.weekAdvanced();
         updateSimStatus(result, "Offseason", "Offseason: Coaching Changes", true);
-        bridge.showJobOffersDialog();
-        result.needsDialog(SeasonAdvanceResult.DialogType.JOB_OFFERS, null);
+        if (league.userTeam != null && league.userTeam.fired) {
+            bridge.showJobOffersDialog();
+            result.needsDialog(SeasonAdvanceResult.DialogType.JOB_OFFERS, null);
+        }
     }
 
     private void handleCoachCarousel(SeasonAdvanceResult.Builder result) {
@@ -175,8 +180,8 @@ public final class SeasonController {
 
     private void handleHireAssistants(SeasonAdvanceResult.Builder result) {
         if (league.userTeam != null && league.userTeam.isUserControlled()) {
-            // Coordinator hiring runs in league simulation (see League.coordinatorCarousel).
-            // Dedicated assistant-hire UI can be wired via GameUiBridge when added.
+            bridge.showCoordinatorHiringDialog();
+            result.needsDialog(SeasonAdvanceResult.DialogType.COORDINATOR_HIRING, null);
         }
         league.currentWeek++;
         result.weekAdvanced();
@@ -210,7 +215,7 @@ public final class SeasonController {
     }
 
     private void handleRealignment(SeasonAdvanceResult.Builder result) {
-        // These methods should ideally move to League if they are pure logic
+        league.runOffseasonRealignment(bridge);
         league.hireMissingCoaches();
         league.currentWeek++;
         result.weekAdvanced();

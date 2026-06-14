@@ -26,6 +26,7 @@ public final class SeasonAdvanceResult {
         CONTRACT,
         JOB_OFFERS,
         PROMOTIONS,
+        COORDINATOR_HIRING,
         REDSHIRT_LIST,
         TRANSFER_LIST,
         REALIGNMENT_SUMMARY

@@ -113,9 +113,9 @@ public class FullSeasonTest {
                 1, recruitingFlowCount);
 
         // --- Basic invariant checks ---
-        // Team count should be unchanged (no teams lost during season).
-        assertEquals("Team count should remain the same",
-                initialTeamCount, league.getTeamList().size());
+        // Realignment may add teams; none should be removed.
+        assertTrue("Team count should not shrink after a full season",
+                league.getTeamList().size() >= initialTeamCount);
 
         // Every team should have played almost all of the regular season.
         // Nominal length is regWeeks - 1 (12 games when regWeeks == 13). The

@@ -155,6 +155,9 @@ public class League {
     //Current week, 1-14
     public int currentWeek;
 
+    /** Set when NLI recruiting begins; cleared by {@link #startNextSeason()}. */
+    public boolean recruitingPhaseActive;
+
     //Bowl Games
     public boolean hasScheduledBowls;
     public Game semiG14;
@@ -1285,6 +1288,7 @@ public class League {
         this.seasonStart = record.year() - (leagueHistory != null ? leagueHistory.size() : 0);
 
         this.currentWeek = record.currentWeek();
+        this.recruitingPhaseActive = this.currentWeek >= regSeasonWeeks + 13;
         this.heismanWinnerStrFull = record.heismanWinnerName();
         this.nationalChampionName = record.nationalChampName() != null ? record.nationalChampName() : "";
 
@@ -1352,6 +1356,20 @@ public class League {
             if(t.getHeadCoach() == null) coachHiringSingleTeam(t);
         }
         coordinatorCarousel();
+    }
+
+    /**
+     * Runs promotion/relegation or conference realignment during the offseason,
+     * populating {@link #newsRealignment} for UI summaries on both platforms.
+     */
+    public void runOffseasonRealignment(GameUiBridge main) {
+        newsRealignment = "";
+        countRealignment = 0;
+        if (enableUnivProRel) {
+            universalProRel();
+        } else if (confRealignment) {
+            conferenceRealignmentV2(main);
+        }
     }
 
     //Set Up Season variables
@@ -2030,7 +2048,9 @@ public class League {
             for (int i = 0; i < conferences.size(); ++i) {
                 conferences.get(i).playWeek();
             }
-            userTeam.applyWeeklyPractice();
+            if (userTeam != null) {
+                userTeam.applyWeeklyPractice();
+            }
         }
 
         if (currentWeek == regSeasonWeeks-1) {
@@ -2976,10 +2996,14 @@ public class League {
         setTeamRanks();
         StringBuilder sb = new StringBuilder();
         sb.append(ncgSummaryStr());
-        sb.append("\n\n" + userTeam.seasonSummaryStr());
-        if (getYear() > seasonStart) {
-            sb.append("\n\nLEAGUE RECORDS BROKEN:\n" + leagueRecords.brokenRecordsStr(getYear(), userTeam.getAbbr()));
-            sb.append("\n\nTEAM RECORDS BROKEN:\n" + userTeam.getTeamRecords().brokenRecordsStr(getYear(), userTeam.getAbbr()));
+        if (userTeam != null) {
+            sb.append("\n\n").append(userTeam.seasonSummaryStr());
+            if (getYear() > seasonStart) {
+                sb.append("\n\nLEAGUE RECORDS BROKEN:\n")
+                        .append(leagueRecords.brokenRecordsStr(getYear(), userTeam.getAbbr()));
+                sb.append("\n\nTEAM RECORDS BROKEN:\n")
+                        .append(userTeam.getTeamRecords().brokenRecordsStr(getYear(), userTeam.getAbbr()));
+            }
         }
         return sb.toString();
     }
@@ -3425,6 +3449,7 @@ public class League {
     //Transfer players from the available transfer lists
     public void transferPlayers(GameUiBridge mainAct) {
         GameUiBridge bridge = bridgeOrNoOp(mainAct);
+        final Team user = userTeam;
         Collections.sort(teamList, new CompTeamPoll());
         int rand;
         Random random = new Random();
@@ -3455,15 +3480,15 @@ public class League {
                                         transferQBs.get(i).team.getAbbr() + " .");
                                 newsHeadlines.add(transferQBs.get(i).getYrStr() + " QB " + transferQBs.get(i).name + " (" + transferQBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ".");
                                 
-                                if (transferQBs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                                if (transferQBs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
                                     tOut.append(transferQBs.get(i).position + " " + transferQBs.get(i).name + ", " + transferQBs.get(i).getYrStr() + "  Ovr: " + transferQBs.get(i).ratOvr + " (" + teamList.get(t).getName() + ")\n\n");
                                 }
                                 transfersList.add(transferQBs.get(i).ratOvr + " " + transferQBs.get(i).position + " " + transferQBs.get(i).name + " [" + transferQBs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferQBs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerQB(transferQBs.get(i));
                                 transferQBs.remove(i);
                                 break;
-                            } else if (userTeam.getQbTransferNum() == 0) {
-                                userTeam.incrementQbTransferNum();
+                            } else if (user != null && user.getQbTransferNum() == 0) {
+                                user.incrementQbTransferNum();
                                 bridge.transferPlayer(transferQBs.get(i));
                                 transferQBs.remove(i);
                                 break;
@@ -3483,14 +3508,14 @@ public class League {
                                         transferRBs.get(i).team.getAbbr() + " .");
                                 newsHeadlines.add(transferRBs.get(i).getYrStr() + " RB " + transferRBs.get(i).name + " (" + transferRBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ".");
 
-                                if (transferRBs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                                if (transferRBs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
                                     tOut.append(transferRBs.get(i).position + " " + transferRBs.get(i).name + ", " + transferRBs.get(i).getYrStr() + "  Ovr: " + transferRBs.get(i).ratOvr + " (" + teamList.get(t).getName() + ")\n\n");
                                 }
                                 transfersList.add(transferRBs.get(i).ratOvr + " " + transferRBs.get(i).position + " " + transferRBs.get(i).name + " [" + transferRBs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferRBs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerRB(transferRBs.get(i));
                                 transferRBs.remove(i);
                                 break;
-                            } else {
+                            } else if (user != null) {
                                 bridge.transferPlayer(transferRBs.get(i));
                                 transferRBs.remove(i);
                                 break;
@@ -3510,14 +3535,14 @@ public class League {
                                         transferWRs.get(i).team.getAbbr() + " .");
                                 newsHeadlines.add(transferWRs.get(i).getYrStr() + " WR " + transferWRs.get(i).name + " (" + transferWRs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ".");
 
-                                if (transferWRs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                                if (transferWRs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
                                     tOut.append(transferWRs.get(i).position + " " + transferWRs.get(i).name + ", " + transferWRs.get(i).getYrStr() + "  Ovr: " + transferWRs.get(i).ratOvr + " (" + teamList.get(t).getName() + ")\n\n");
                                 }
                                 transfersList.add(transferWRs.get(i).ratOvr + " " + transferWRs.get(i).position + " " + transferWRs.get(i).name + " [" + transferWRs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferWRs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerWR(transferWRs.get(i));
                                 transferWRs.remove(i);
                                 break;
-                            } else {
+                            } else if (user != null) {
                                 bridge.transferPlayer(transferWRs.get(i));
                                 transferWRs.remove(i);
                                 break;
@@ -3537,14 +3562,14 @@ public class League {
                                         transferTEs.get(i).team.getAbbr() + " .");
                                 newsHeadlines.add(transferTEs.get(i).getYrStr() + " TE " + transferTEs.get(i).name + " (" + transferTEs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ".");
 
-                                if (transferTEs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                                if (transferTEs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
                                     tOut.append(transferTEs.get(i).position + " " + transferTEs.get(i).name + ", " + transferTEs.get(i).getYrStr() + "  Ovr: " + transferTEs.get(i).ratOvr + " (" + teamList.get(t).getName() + ")\n\n");
                                 }
                                 transfersList.add(transferTEs.get(i).ratOvr + " " + transferTEs.get(i).position + " " + transferTEs.get(i).name + " [" + transferTEs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferTEs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerTE(transferTEs.get(i));
                                 transferTEs.remove(i);
                                 break;
-                            } else {
+                            } else if (user != null) {
                                 bridge.transferPlayer(transferTEs.get(i));
                                 transferTEs.remove(i);
                                 break;
@@ -3563,14 +3588,14 @@ public class League {
                                     transferOLs.get(i).team.getAbbr() + " .");
                             newsHeadlines.add(transferOLs.get(i).getYrStr() + " OL " + transferOLs.get(i).name + " (" + transferOLs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ".");
 
-                            if (transferOLs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                            if (transferOLs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
                                 tOut.append(transferOLs.get(i).position + " " + transferOLs.get(i).name + ", " + transferOLs.get(i).getYrStr() + "  Ovr: " + transferOLs.get(i).ratOvr + " (" + teamList.get(t).getName() + ")\n\n");
                             }
                             transfersList.add(transferOLs.get(i).ratOvr + " " + transferOLs.get(i).position + " " + transferOLs.get(i).name + " [" + transferOLs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferOLs.get(i).team.getAbbr() + ")");
                             teamList.get(t).addPlayerOL(transferOLs.get(i));
                             transferOLs.remove(i);
                             break;
-                        } else {
+                        } else if (user != null) {
                             bridge.transferPlayer(transferOLs.get(i));
                             transferOLs.remove(i);
                             break;
@@ -3589,14 +3614,14 @@ public class League {
                                         transferKs.get(i).team.getAbbr() + " .");
                                 newsHeadlines.add(transferKs.get(i).getYrStr() + " K " + transferKs.get(i).name + " (" + transferKs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ".");
 
-                                if (transferKs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                                if (transferKs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
                                     tOut.append(transferKs.get(i).position + " " + transferKs.get(i).name + ", " + transferKs.get(i).getYrStr() + "  Ovr: " + transferKs.get(i).ratOvr + " (" + teamList.get(t).getName() + ")\n\n");
                                 }
                                 transfersList.add(transferKs.get(i).ratOvr + " " + transferKs.get(i).position + " " + transferKs.get(i).name + " [" + transferKs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferKs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerK(transferKs.get(i));
                                 transferKs.remove(i);
                                 break;
-                            } else {
+                            } else if (user != null) {
                                 bridge.transferPlayer(transferKs.get(i));
                                 transferKs.remove(i);
                                 break;
@@ -3616,14 +3641,14 @@ public class League {
                                         transferDLs.get(i).team.getAbbr() + " .");
                                 newsHeadlines.add(transferDLs.get(i).getYrStr() + " DL " + transferDLs.get(i).name + " (" + transferDLs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ".");
 
-                                if (transferDLs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                                if (transferDLs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
                                     tOut.append(transferDLs.get(i).position + " " + transferDLs.get(i).name + ", " + transferDLs.get(i).getYrStr() + "  Ovr: " + transferDLs.get(i).ratOvr + " (" + teamList.get(t).getName() + ")\n\n");
                                 }
                                 transfersList.add(transferDLs.get(i).ratOvr + " " + transferDLs.get(i).position + " " + transferDLs.get(i).name + " [" + transferDLs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferDLs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerDL(transferDLs.get(i));
                                 transferDLs.remove(i);
                                 break;
-                            } else {
+                            } else if (user != null) {
                                 bridge.transferPlayer(transferDLs.get(i));
                                 transferDLs.remove(i);
                                 break;
@@ -3643,14 +3668,14 @@ public class League {
                                         transferLBs.get(i).team.getAbbr() + " .");
                                 newsHeadlines.add(transferLBs.get(i).getYrStr() + " LB " + transferLBs.get(i).name + " (" + transferLBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ".");
 
-                                if (transferLBs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                                if (transferLBs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
                                     tOut.append(transferLBs.get(i).position + " " + transferLBs.get(i).name + ", " + transferLBs.get(i).getYrStr() + "  Ovr: " + transferLBs.get(i).ratOvr + " (" + teamList.get(t).getName() + ")\n\n");
                                 }
                                 transfersList.add(transferLBs.get(i).ratOvr + " " + transferLBs.get(i).position + " " + transferLBs.get(i).name + " [" + transferLBs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferLBs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerLB(transferLBs.get(i));
                                 transferLBs.remove(i);
                                 break;
-                            } else {
+                            } else if (user != null) {
                                 bridge.transferPlayer(transferLBs.get(i));
                                 transferLBs.remove(i);
                                 break;
@@ -3670,14 +3695,14 @@ public class League {
                                         transferCBs.get(i).team.getAbbr() + " .");
                                 newsHeadlines.add(transferCBs.get(i).getYrStr() + " CB " + transferCBs.get(i).name + " (" + transferCBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ".");
 
-                                if (transferCBs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                                if (transferCBs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
                                     tOut.append(transferCBs.get(i).position + " " + transferCBs.get(i).name + ", " + transferCBs.get(i).getYrStr() + "  Ovr: " + transferCBs.get(i).ratOvr + " (" + teamList.get(t).getName() + ")\n\n");
                                 }
                                 transfersList.add(transferCBs.get(i).ratOvr + " " + transferCBs.get(i).position + " " + transferCBs.get(i).name + " [" + transferCBs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferCBs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerCB(transferCBs.get(i));
                                 transferCBs.remove(i);
                                 break;
-                            } else {
+                            } else if (user != null) {
                                 bridge.transferPlayer(transferCBs.get(i));
                                 transferCBs.remove(i);
                                 break;
@@ -3697,14 +3722,14 @@ public class League {
                                         transferSs.get(i).team.getAbbr() + " .");
                                 newsHeadlines.add(transferSs.get(i).getYrStr() + " S " + transferSs.get(i).name + " (" + transferSs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ".");
 
-                                if (transferSs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                                if (transferSs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
                                     tOut.append(transferSs.get(i).position + " " + transferSs.get(i).name + ", " + transferSs.get(i).getYrStr() + "  Ovr: " + transferSs.get(i).ratOvr + " (" + teamList.get(t).getName() + ")\n\n");
                                 }
                                 transfersList.add(transferSs.get(i).ratOvr + " " + transferSs.get(i).position + " " + transferSs.get(i).name + " [" + transferSs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferSs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerS(transferSs.get(i));
                                 transferSs.remove(i);
                                 break;
-                            } else {
+                            } else if (user != null) {
                                 bridge.transferPlayer(transferSs.get(i));
                                 transferSs.remove(i);
                                 break;
@@ -3719,7 +3744,7 @@ public class League {
 
         for (int i = 0; i < transferQBs.size(); ++i) {
             if(Math.random() > .50) {
-                if (transferQBs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                if (transferQBs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
                 }
             } else {
                 transferQBs.get(i).isTransfer = false;
@@ -3728,7 +3753,7 @@ public class League {
         }
         for (int i = 0; i < transferRBs.size(); ++i) {
             if (Math.random() > .50) {
-                if (transferRBs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                if (transferRBs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
                     tOut.append(transferRBs.get(i).position + " " + transferRBs.get(i).name + ", " + transferRBs.get(i).getYrStr() + "  Ovr: " + transferRBs.get(i).ratOvr + " (FCS)\n\n");
                 }
             } else {
@@ -3738,7 +3763,7 @@ public class League {
         }
         for (int i = 0; i < transferWRs.size(); ++i) {
             if (Math.random() > .50) {
-                if (transferWRs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                if (transferWRs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
                     tOut.append(transferWRs.get(i).position + " " + transferWRs.get(i).name + ", " + transferWRs.get(i).getYrStr() + "  Ovr: " + transferWRs.get(i).ratOvr + " (FCS)\n\n");
                 }
             } else {
@@ -3748,7 +3773,7 @@ public class League {
         }
         for (int i = 0; i < transferTEs.size(); ++i) {
             if (Math.random() > .50) {
-                if (transferTEs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                if (transferTEs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
                     tOut.append(transferTEs.get(i).position + " " + transferTEs.get(i).name + ", " + transferTEs.get(i).getYrStr() + "  Ovr: " + transferTEs.get(i).ratOvr + " (FCS)\n\n");
                 }
             } else {
@@ -3758,7 +3783,7 @@ public class League {
         }
         for (int i = 0; i < transferOLs.size(); ++i) {
             if (Math.random() > .50) {
-                if (transferOLs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+                if (transferOLs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
                     tOut.append(transferOLs.get(i).position + " " + transferOLs.get(i).name + ", " + transferOLs.get(i).getYrStr() + "  Ovr: " + transferOLs.get(i).ratOvr + " (FCS)\n\n");
                 }
             } else {
@@ -5971,6 +5996,22 @@ Then conferences can see if they want to add them to their list if the teams mee
      * {@link #recruitPlayers()} has been called and
      * {@code currentWeek >= regSeasonWeeks + 13}).
      */
+    public void applyRecruitingSignings(String recruitsData) {
+        if (userTeam != null) {
+            userTeam.recruitPlayersFromStr(recruitsData == null ? "" : recruitsData);
+        }
+        updateTeamTalentRatings();
+    }
+
+    /**
+     * Applies user recruiting signings and rolls the league into the next season.
+     * Shared by Android recruiting completion and headless hosts.
+     */
+    public void finishRecruitingSeason(String recruitsData) {
+        applyRecruitingSignings(recruitsData);
+        startNextSeason();
+    }
+
     public void startNextSeason() {
         // Reset league-level per-season state
         heismanDecided = false;
@@ -6015,6 +6056,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         }
 
         currentWeek = 0;
+        recruitingPhaseActive = false;
         newsHeadlines.clear();
 
         // Rebuild the schedule for the new season

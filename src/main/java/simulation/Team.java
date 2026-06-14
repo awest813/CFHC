@@ -362,7 +362,7 @@ public class Team {
         newRoster(minQBs, minRBs, minWRs, minTEs, minOLs, minKs, minDLs, minLBs, minCBs, minSs, true);
 
         if(FCS) {
-            List<Team> teams = league.getTeamList();
+            List<Team> teams = league.teamList;
             Collections.sort(teams, new CompTeamPrestige());
             int avg = 0;
             for(int x = teams.size()-3; x < teams.size(); x++) {
