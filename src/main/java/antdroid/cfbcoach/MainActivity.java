@@ -288,6 +288,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             // Set rankings so that not everyone is rank #0
             simLeague.setTeamRanks();
             examineTeam(userTeam.getName());
+            resumeDeferredRecruitingIfNeeded();
         }
 
         if (simLeague.getYear() != seasonStart) {
@@ -922,7 +923,56 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void startRecruitingFlow() {
+        SimulationFacade.prepareCpuRecruiting(simLeague);
+        if (!SimulationFacade.needsUserRecruiting(simLeague)) {
+            completeRecruitingWithoutUserUi();
+            return;
+        }
         beginRecruiting();
+    }
+
+    //Recruiting Begins
+    public void beginRecruiting() {
+        RecruitingDialogController.showBeginRecruiting(this, userTeam, simLeague, null,
+                () -> {
+                    try {
+                        String payload = SimulationFacade.saveForUserRecruitingUi(
+                                simLeague, userTeam, saveLoadService);
+                        flowManager.startRecruiting(payload);
+                        finish();
+                    } catch (IOException ex) {
+                        PlatformLog.e("MainActivity", "Failed to save for recruiting", ex);
+                        Toast.makeText(MainActivity.this,
+                                "Could not start recruiting. Try saving and reloading.",
+                                Toast.LENGTH_LONG).show();
+                    }
+                },
+                () -> {
+                    saveLeague();
+                    Toast.makeText(MainActivity.this,
+                            "Saved. Resume recruiting from this save when you return.",
+                            Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    private void completeRecruitingWithoutUserUi() {
+        simLeague.finishRecruitingSeason("");
+        season = simLeague.getYear();
+        resetUI();
+        if (simLeague.getYear() != seasonStart) {
+            showRecruitingClassDialog();
+        }
+    }
+
+    private void resumeDeferredRecruitingIfNeeded() {
+        LeagueLaunchCoordinator.LaunchRequest request = getLaunchRequest();
+        if (!loadedLeague || request == null
+                || request.action == LeagueLaunchCoordinator.LaunchRequest.Action.DONE_RECRUITING) {
+            return;
+        }
+        if (simLeague.recruitingPhaseActive && userTeam != null && userTeam.isUserControlled()) {
+            beginRecruiting();
+        }
     }
 
 
@@ -1195,7 +1245,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.action_save_league) {
 
               //Clicked Save League in drop down menu
-            if (simLeague.currentWeek < 1 || simLeague.currentWeek == 99) {
+            if (simLeague.currentWeek < 1 || simLeague.currentWeek == 99 || simLeague.recruitingPhaseActive) {
                 saveLeague();
             } else if (simLeague.currentWeek > 1) {
                 Toast.makeText(MainActivity.this, "Save Function Disabled. Save only available in pre-season or before recruiting.",
@@ -1789,32 +1839,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void transfers() {
         TransferDialogController.showTransfers(this, simLeague, userTeam);
-    }
-
-    //Recruiting Begins
-    public void beginRecruiting() {
-        simLeague.recruitPlayers();
-        RecruitingDialogController.showBeginRecruiting(this, userTeam, simLeague, null,
-                () -> {
-                    simLeague.currentWeek = 0;
-                    saveLoadService.saveForRecruiting(simLeague);
-
-                    StringBuilder sb = new StringBuilder();
-                    userTeam.sortPlayers();
-                    HeadCoach coach = ensureUserHeadCoach();
-                    int recruitingRating = coach != null ? coach.ratTalent : simLeague.getAvgCoachTal();
-                    sb.append(userTeam.getConference() + "," + userTeam.getName() + "," + userTeam.getAbbr() + "," + userTeam.getUserRecruitBudget() + "," + recruitingRating + "," + userTeam.nilCollectiveLevel + "," + userTeam.teamFacilities + "%\n");
-                    sb.append(userTeam.getPlayerInfoSaveFile());
-                    sb.append("END_TEAM_INFO%\n");
-                    sb.append(userTeam.getRecruitsInfoSaveFile());
-
-                    flowManager.startRecruiting(sb.toString());
-                    finish();
-                },
-                () -> {
-                    simLeague.currentWeek = 99;
-                    saveLeague();
-                });
     }
 
     @Override
