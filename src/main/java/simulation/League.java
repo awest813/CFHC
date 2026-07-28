@@ -3216,12 +3216,17 @@ public class League {
         Collections.sort(coachList, new CompCoachOvr());
         for (int i = 0; i < coachList.size(); ++i) {
             final Staff c = coachList.get(i);
+            if (c == null) {
+                continue;
+            }
+            String prevTeam = c.team != null && c.team.getName() != null ? c.team.getName() : "N/A";
             for (int t = 0; t < teamList.size(); ++t) {
-                if (teamList.get(t).getHeadCoach() == null && coachList.get(i).getStaffOverall(ovr) >= teamList.get(t).getMinCoachHireReq() && !teamList.get(t).getName().equals(coachList.get(i).team.getName()) && Math.random() > 0.60) {
+                if (teamList.get(t).getHeadCoach() == null && c.getStaffOverall(ovr) >= teamList.get(t).getMinCoachHireReq()
+                        && !teamList.get(t).getName().equals(prevTeam) && Math.random() > 0.60) {
 
-                    newsStories.get(currentWeek + 1).add("Coaching Switch: " + teamList.get(t).getName() + ">After an extensive search for a new head coach, " + teamList.get(t).strRankTeamRecord() + " has hired " + coachList.get(i).name +
-                            " to lead the team. Head Coach " + coachList.get(i).name + " previously coached at " + coachList.get(i).team.getName() + ", before being let go this past season.");
-                    newsHeadlines.add(teamList.get(t).strRankTeamRecord() + " has hired recently fired " + coachList.get(i).name + ".");
+                    newsStories.get(currentWeek + 1).add("Coaching Switch: " + teamList.get(t).getName() + ">After an extensive search for a new head coach, " + teamList.get(t).strRankTeamRecord() + " has hired " + c.name +
+                            " to lead the team. Head Coach " + c.name + " previously coached at " + prevTeam + ", before being let go this past season.");
+                    newsHeadlines.add(teamList.get(t).strRankTeamRecord() + " has hired recently fired " + c.name + ".");
                     teamList.get(t).setHeadCoach(new HeadCoach(c, teamList.get(t)));
                     teamList.get(t).getHeadCoach().contractLength = 6;
                     teamList.get(t).getHeadCoach().contractYear = 0;
