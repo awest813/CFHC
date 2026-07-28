@@ -13,7 +13,7 @@ public final class SeasonalDialogController {
     public static void showPreseasonOptions(MainActivity activity, League simLeague, Runnable onSave) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setMessage("This will let you redshirt and set budgets in the future")
-                .setTitle(simLeague.getYear() + " Pre-Season")
+                .setTitle(simLeague.getYear() + " Preseason")
                 .setPositiveButton("OK", (dialog, which) -> {})
                 .setNegativeButton("SAVE PROGRESS", (dialog, which) -> {
                     if (onSave != null) onSave.run();

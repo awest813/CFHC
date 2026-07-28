@@ -174,23 +174,17 @@ public class DashboardPanel implements LeagueScreen {
     }
 
     private String buildNextActionContext() {
-        int week = league.currentWeek;
-        int reg = league.regSeasonWeeks;
         if (bridge != null && bridge.isAwaitingDockedRecruiting()) {
             return "Finish recruiting before rolling into the next year.";
         }
-        if (week >= reg + 13) return "Signing day is live. Review recruits and finalize your class.";
-        if (week >= reg + 4)  return "Offseason progression. Contracts, transfers, and recruiting setup.";
-        if (week >= reg)      return "Postseason games. Each week advances the playoff or bowl bracket.";
-        if (week <= 0)        return "Pre-season setup. Review your roster and set schemes before kickoff.";
-        return "Week " + week + " of " + reg + ". Simulate the next set of games.";
+        return SeasonPresentation.getNextActionHint(league);
     }
 
     private JPanel buildSeasonTimelinePanel() {
         JPanel timeline = new JPanel(new GridLayout(1, 6, 4, 0));
         timeline.setOpaque(false);
         String active = decodeSeasonPeriod();
-        String[] phases = {"Pre-Season", "Regular Season", "Postseason", "Offseason", "Recruiting", "Next Year"};
+        String[] phases = {"Preseason", "Regular Season", "Postseason", "Offseason", "Recruiting", "Next Year"};
         for (String phase : phases) {
             JLabel label = new JLabel(phase, JLabel.CENTER);
             label.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 10));

@@ -668,7 +668,7 @@ public class LeagueHomeView extends JFrame {
         else if (week == reg + 1) weekLabel = "Quarterfinals / Bowl Week 2";
         else if (week == reg) weekLabel = "First Round / Bowl Week 1";
         else if (week == reg - 1) weekLabel = "Conf. Championships";
-        else if (week == 0) weekLabel = "Pre-Season";
+        else if (week == 0) weekLabel = SeasonPresentation.getSeasonCycleLabel(leagueCore);
         else weekLabel = "Week " + week;
 
         int teams = currentRecord.conferences().stream().mapToInt(c -> c.teams().size()).sum();

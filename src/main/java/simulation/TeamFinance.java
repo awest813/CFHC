@@ -207,15 +207,17 @@ public class TeamFinance {
         }
         if (team.userControlled) {
             if (team.newContract && proveIt)
-                team.contractString = "You have been given an additional " + team.HC.contractLength + "-year prove-it contract based on your team's recent momentum despite the uneven start to your tenure.";
+                team.contractString = CareerContractCopy.proveItExtension(team.HC.contractLength);
             else if (team.newContract) {
-                team.contractString = "Congratulations. You have been awarded a new " + team.HC.contractLength + "-year contract extension after this season's progress.";
+                team.contractString = CareerContractCopy.contractExtension(team.HC.contractLength);
             } else if (team.fired) {
-                team.contractString = "Due to your performance as head coach, the Athletic Director has terminated your contract and you are no longer the head coach of this school.";
+                team.contractString = CareerContractCopy.terminated();
             } else {
-                team.contractString = "You have " + (team.HC.contractLength - team.HC.contractYear)
-                        + " years left on your contract. Current prestige: " + team.teamPrestige + ". Baseline prestige: " + team.HC.baselinePrestige +
-                        ". Current status: " + team.HC.coachStatus() + ".";
+                team.contractString = CareerContractCopy.yearsRemaining(
+                        team.HC.contractLength - team.HC.contractYear,
+                        team.teamPrestige,
+                        team.HC.baselinePrestige,
+                        team.HC.coachStatus());
             }
         }
     }

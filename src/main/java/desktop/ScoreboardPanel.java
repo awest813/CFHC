@@ -2,6 +2,7 @@ package desktop;
 
 import simulation.Game;
 import simulation.League;
+import simulation.SeasonPresentation;
 import simulation.Team;
 
 import javax.swing.BorderFactory;
@@ -88,7 +89,7 @@ public class ScoreboardPanel implements LeagueScreen {
         weekTypeLabel.setForeground(DesktopTheme.textSecondary());
 
         Runnable updateScoreboard = () -> {
-            weekLabel.setText(currentWeek <= 0 ? "Pre-Season" : "Week " + currentWeek);
+            weekLabel.setText(currentWeek <= 0 ? SeasonPresentation.getSeasonCycleLabel(ctx.league()) : "Week " + currentWeek);
             weekTypeLabel.setText(getWeekType(currentWeek, ctx.league()));
             model.setRowCount(0);
             List<List<String>> scores = ctx.league().getWeeklyScores();
@@ -164,14 +165,7 @@ public class ScoreboardPanel implements LeagueScreen {
     }
 
     private static String getWeekType(int week, League league) {
-        int regWeeks = league.regSeasonWeeks;
-        if (week <= 0) return "Preseason";
-        if (week < regWeeks) return "Regular Season";
-        if (week == regWeeks) return "Conference Championship";
-        if (week == regWeeks + 1) return "Bowl Season";
-        if (week == regWeeks + 2) return "National Championship";
-        if (week >= regWeeks + 3 && week <= regWeeks + 5) return "Postseason";
-        return "Offseason";
+        return SeasonPresentation.getScoreboardWeekType(week, league.regSeasonWeeks);
     }
 
     private static void showBoxScoreFromMatchup(String matchup, LeagueScreenContext ctx) {

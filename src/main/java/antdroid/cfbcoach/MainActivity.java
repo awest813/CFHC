@@ -1453,7 +1453,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //WORK IN PROGRESS
         if(simLeague.currentWeek < 1) exportSave();
         else {
-            Toast.makeText(MainActivity.this, "Export Function Disabled. Export is only allowed during Pre-Season.",
+            Toast.makeText(MainActivity.this, "Export Function Disabled. Export is only allowed during Preseason.",
                     Toast.LENGTH_SHORT).show();
         }
     }

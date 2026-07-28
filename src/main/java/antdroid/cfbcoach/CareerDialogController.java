@@ -147,7 +147,7 @@ public final class CareerDialogController {
 
     public static void showSeasonGoalsDialog(MainActivity activity, String goals, Runnable onSave) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setMessage(goals + "\nNote: You can always review your season goals in the Pre-Season News.")
+        builder.setMessage(goals + "\nNote: You can always review your season goals in the Preseason News.")
                 .setTitle(activity.simLeague.getYear() + " Season Goals")
                 .setPositiveButton("OK", (dialog, which) -> {})
                 .setNegativeButton("SAVE PROGRESS", (dialog, which) -> {

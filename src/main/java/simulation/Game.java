@@ -395,62 +395,65 @@ public class Game implements Serializable {
         ArrayList<PlayerReturner> teamReturner = new ArrayList<>();
 
         double starterPenalty = 0.85;
-        //Choose Kickoff Returners
-        for (int i = 0; i < t.startersWR; i++) {
+        //Choose Kickoff Returners — bound by actual roster size so depleted teams don't NPE
+        int wrN = t.getTeamWRs().size();
+        int rbN = t.getTeamRBs().size();
+        int cbN = t.getTeamCBs().size();
+        for (int i = 0; i < Math.min(t.startersWR, wrN); i++) {
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamWRs().get(i).name, "WR", t.getTeamWRs().get(i).getRatSpeed(), (float) (starterPenalty * t.getTeamWRs().get(i).getRatSpeed() * Math.random())));
         }
-        for (int i = 0; i < t.startersRB; i++) {
+        for (int i = 0; i < Math.min(t.startersRB, rbN); i++) {
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamRBs().get(i).name, "RB", t.getTeamRBs().get(i).getRatSpeed(), (float) (starterPenalty * t.getTeamRBs().get(i).getRatSpeed() * Math.random())));
         }
-        for (int i = 0; i < t.startersCB; i++) {
+        for (int i = 0; i < Math.min(t.startersCB, cbN); i++) {
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamCBs().get(i).name, "CB", t.getTeamCBs().get(i).getRatSpeed(), (float) (starterPenalty * t.getTeamCBs().get(i).getRatSpeed() * Math.random())));
         }
-        
-        for (int i = t.startersWR; i < t.startersWR + t.subWR; i++) {
+
+        for (int i = t.startersWR; i < Math.min(t.startersWR + t.subWR, wrN); i++) {
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamWRs().get(i).name, "WR", t.getTeamWRs().get(i).getRatSpeed(), (float) (t.getTeamWRs().get(i).getRatSpeed() * Math.random())));
         }
-        for (int i = t.startersRB; i < t.startersRB + t.subRB; i++) {
+        for (int i = t.startersRB; i < Math.min(t.startersRB + t.subRB, rbN); i++) {
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamRBs().get(i).name, "RB", t.getTeamRBs().get(i).getRatSpeed(), (float) (t.getTeamRBs().get(i).getRatSpeed() * Math.random())));
         }
-        for (int i = t.startersCB; i < t.startersCB + t.subCB; i++) {
+        for (int i = t.startersCB; i < Math.min(t.startersCB + t.subCB, cbN); i++) {
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamCBs().get(i).name, "CB", t.getTeamCBs().get(i).getRatSpeed(), (float) (t.getTeamCBs().get(i).getRatSpeed() * Math.random())));
+        }
+
+        if (teamReturner.isEmpty()) {
+            // Extremely depleted roster — synthesize a returner so kickoffs never NPE.
+            List<? extends Player> roster = t.getAllPlayers();
+            if (!roster.isEmpty()) {
+                Player p = roster.get(0);
+                int speed = Math.max(40, p.ratOvr);
+                teamReturner.add(new PlayerReturner(t.getAbbr(), p.name, p.position, speed, (float) speed));
+            } else {
+                teamReturner.add(new PlayerReturner(t.getAbbr(), "Emergency Returner", "WR", 50, 50f));
+            }
         }
 
         Collections.sort(teamReturner, new CompPlayerReturners());
 
+        PlayerReturner chosen = teamReturner.get(0);
         if (teamReturner.size() >= 2) {
             teamReturner.get(0).gameSpeed = (float) (teamReturner.get(0).ratSpeed * Math.random());
             teamReturner.get(1).gameSpeed = (float) (teamReturner.get(1).ratSpeed * Math.random());
+            if (teamReturner.get(1).gameSpeed > teamReturner.get(0).gameSpeed) {
+                chosen = teamReturner.get(1);
+            }
         }
 
-       if (teamReturner.size() >= 2) {
-           if(awayTeam == t) {
-                if (teamReturner.get(0).gameSpeed > teamReturner.get(1).gameSpeed)
-                    awayKickReturner = teamReturner.get(0);
-                else awayKickReturner = teamReturner.get(1);
+        chosen.kYards = 0;
+        chosen.kReturns = 0;
+        chosen.pYards = 0;
+        chosen.pReturns = 0;
+        chosen.kTD = 0;
+        chosen.pTD = 0;
+        chosen.startPos = 0;
 
-                awayKickReturner.kYards = 0;
-                awayKickReturner.kReturns = 0;
-                awayKickReturner.pYards = 0;
-                awayKickReturner.pReturns = 0;
-                awayKickReturner.kTD = 0;
-                awayKickReturner.pTD = 0;
-
-                awayKickReturner.startPos = 0;
-            } else {
-                if (teamReturner.get(0).gameSpeed > teamReturner.get(1).gameSpeed)
-                    homeKickReturner = teamReturner.get(0);
-                else homeKickReturner = teamReturner.get(1);
-
-                homeKickReturner.kYards = 0;
-                homeKickReturner.kReturns = 0;
-                homeKickReturner.pYards = 0;
-                homeKickReturner.pReturns = 0;
-                homeKickReturner.kTD = 0;
-                homeKickReturner.pTD = 0;
-
-                homeKickReturner.startPos = 0;
-            }
+        if (awayTeam == t) {
+            awayKickReturner = chosen;
+        } else {
+            homeKickReturner = chosen;
         }
     }
     
@@ -458,24 +461,51 @@ public class Game implements Serializable {
         int ST = 0;
         teamST = new ArrayList<>();
 
-        for (int i = specialTeams.startersLB; i < specialTeams.startersLB + specialTeams.subLB; i++) {
-            ST += specialTeams.getLB(i).getRatSpeed();
-            teamST.add(new PlayerST(specialTeams.getAbbr(), specialTeams.getTeamLBs().get(i).name, "LB", specialTeams.getTeamLBs().get(i).getRatSpeed(), specialTeams.getTeamLBs().get(i).getRatTackle()));
+        int lbN = specialTeams.getTeamLBs().size();
+        int cbN = specialTeams.getTeamCBs().size();
+        int sN = specialTeams.getTeamSs().size();
+
+        for (int i = specialTeams.startersLB; i < Math.min(specialTeams.startersLB + specialTeams.subLB, lbN); i++) {
+            PlayerLB lb = specialTeams.getLB(i);
+            if (lb == null) continue;
+            ST += lb.getRatSpeed();
+            teamST.add(new PlayerST(specialTeams.getAbbr(), lb.name, "LB", lb.getRatSpeed(), lb.getRatTackle()));
         }
-        for (int i = specialTeams.startersCB; i < specialTeams.startersCB + specialTeams.subCB; i++) {
-            ST += specialTeams.getCB(i).getRatSpeed();
-            teamST.add(new PlayerST(specialTeams.getAbbr(), specialTeams.getTeamCBs().get(i).name, "CB", specialTeams.getTeamCBs().get(i).getRatSpeed(), specialTeams.getTeamCBs().get(i).getRatTackle()));
+        for (int i = specialTeams.startersCB; i < Math.min(specialTeams.startersCB + specialTeams.subCB, cbN); i++) {
+            PlayerCB cb = specialTeams.getCB(i);
+            if (cb == null) continue;
+            ST += cb.getRatSpeed();
+            teamST.add(new PlayerST(specialTeams.getAbbr(), cb.name, "CB", cb.getRatSpeed(), cb.getRatTackle()));
         }
-        for (int i = specialTeams.startersS; i < specialTeams.startersS + specialTeams.subS; i++) {
-            ST += specialTeams.getS(i).getRatSpeed();
-            teamST.add(new PlayerST(specialTeams.getAbbr(), specialTeams.getTeamSs().get(i).name, "S", specialTeams.getTeamSs().get(i).getRatSpeed(), specialTeams.getTeamSs().get(i).getRatTackle()));
+        for (int i = specialTeams.startersS; i < Math.min(specialTeams.startersS + specialTeams.subS, sN); i++) {
+            PlayerS s = specialTeams.getS(i);
+            if (s == null) continue;
+            ST += s.getRatSpeed();
+            teamST.add(new PlayerST(specialTeams.getAbbr(), s.name, "S", s.getRatSpeed(), s.getRatTackle()));
+        }
+
+        if (teamST.isEmpty()) {
+            // Fall back to any available defender so ST coverage never crashes.
+            List<? extends Player> roster = specialTeams.getAllPlayers();
+            for (Player p : roster) {
+                if (p instanceof PlayerLB || p instanceof PlayerCB || p instanceof PlayerS) {
+                    int speed = Math.max(40, p.ratOvr);
+                    teamST.add(new PlayerST(specialTeams.getAbbr(), p.name, p.position, speed, speed));
+                    ST += speed;
+                    break;
+                }
+            }
+            if (teamST.isEmpty()) {
+                teamST.add(new PlayerST(specialTeams.getAbbr(), "Emergency Cover", "LB", 50, 50));
+                ST = 50;
+            }
         }
 
         Collections.sort(teamST, new CompPlayerSTSpeed());
         playerST = teamST.get(0);
 
-        int stDenom = specialTeams.subLB + specialTeams.subCB + specialTeams.subS;
-        ST = ST / Math.max(1, stDenom);
+        int stDenom = Math.max(1, teamST.size());
+        ST = ST / stDenom;
 
         return ST;
     }
@@ -1907,25 +1937,37 @@ public class Game implements Serializable {
             if ((numOT >= 3) || (((gamePoss && (awayScore - homeScore) == 2) || (!gamePoss && (homeScore - awayScore) == 2)) && gameTime < 300)) {
                 //go for 2
                 boolean successConversion = false;
+                PlayerRB rushBack = offense.getRB(0);
+                PlayerQB qb = offense.getQB(0);
+                PlayerWR wr = offense.getWR(0);
+                PlayerCB cb = defense.getCB(0);
                 if (Math.random() <= 0.50) {
                     //rushing
-                    int blockAdv = (int) offense.getCompositeOLRush() - (int) defense.getCompositeDLRush();
-                    int yardsGain = (int) ((offense.getRB(0).getRatSpeed() + blockAdv) * Math.random() / 6);
-                    if (yardsGain > 5) {
-                        successConversion = true;
-                        if (gamePoss) { // home possession
-                            homeScore += 2;
-                        } else {
-                            awayScore += 2;
-                        }
-                        addPointsQuarter(2);
-                        gameEventLog.append(getEventLogScoring()).append("TOUCHDOWN!\n").append(tdInfo).append(" ").append(offense.getRB(0).name).append(" rushed for the 2pt conversion.");
+                    if (rushBack == null) {
+                        gameEventLog.append(getEventLogScoring()).append("TOUCHDOWN!\n").append(tdInfo)
+                                .append(" 2pt conversion failed — no available rusher.");
                     } else {
-                        gameEventLog.append(getEventLogScoring()).append("TOUCHDOWN!\n").append(tdInfo).append(" ").append(offense.getRB(0).name).append(" stopped at the line of scrimmage, failed the 2pt conversion.");
+                        int blockAdv = (int) offense.getCompositeOLRush() - (int) defense.getCompositeDLRush();
+                        int yardsGain = (int) ((rushBack.getRatSpeed() + blockAdv) * Math.random() / 6);
+                        if (yardsGain > 5) {
+                            successConversion = true;
+                            if (gamePoss) { // home possession
+                                homeScore += 2;
+                            } else {
+                                awayScore += 2;
+                            }
+                            addPointsQuarter(2);
+                            gameEventLog.append(getEventLogScoring()).append("TOUCHDOWN!\n").append(tdInfo).append(" ").append(rushBack.name).append(" rushed for the 2pt conversion.");
+                        } else {
+                            gameEventLog.append(getEventLogScoring()).append("TOUCHDOWN!\n").append(tdInfo).append(" ").append(rushBack.name).append(" stopped at the line of scrimmage, failed the 2pt conversion.");
+                        }
                     }
+                } else if (qb == null || wr == null || cb == null) {
+                    gameEventLog.append(getEventLogScoring()).append("TOUCHDOWN!\n").append(tdInfo)
+                            .append(" 2pt conversion failed — depleted skill-position depth.");
                 } else {
                     int pressureOnQB = (int) defense.getCompositeDLPass() * 2 - (int) offense.getCompositeOLPass();
-                    double completion = ((offense.getQB(0).getRatPassAcc()) + offense.getWR(0).getRatCatch() - defense.getCB(0).getRatCoverage()) / 2 + 25 - pressureOnQB / 20;
+                    double completion = ((qb.getRatPassAcc()) + wr.getRatCatch() - cb.getRatCoverage()) / 2 + 25 - pressureOnQB / 20;
                     if (100 * Math.random() < completion) {
                         successConversion = true;
                         if (gamePoss) { // home possession
@@ -1934,15 +1976,18 @@ public class Game implements Serializable {
                             awayScore += 2;
                         }
                         addPointsQuarter(2);
-                        gameEventLog.append(getEventLogScoring()).append("TOUCHDOWN!\n").append(tdInfo).append(" ").append(offense.getQB(0).name).append(" completed the pass to ").append(offense.getWR(0).name).append(" for the 2pt conversion.");
+                        gameEventLog.append(getEventLogScoring()).append("TOUCHDOWN!\n").append(tdInfo).append(" ").append(qb.name).append(" completed the pass to ").append(wr.name).append(" for the 2pt conversion.");
                     } else {
-                        gameEventLog.append(getEventLogScoring()).append("TOUCHDOWN!\n").append(tdInfo).append(" ").append(offense.getQB(0).name).append("'s pass incomplete to ").append(offense.getWR(0).name).append(" for the failed 2pt conversion.");
+                        gameEventLog.append(getEventLogScoring()).append("TOUCHDOWN!\n").append(tdInfo).append(" ").append(qb.name).append("'s pass incomplete to ").append(wr.name).append(" for the failed 2pt conversion.");
                     }
                 }
 
             } else {
                 //kick XP
-                if (Math.random() * 100 < 23 + selK.getRatKickAcc() && Math.random() > 0.01) {
+                if (selK == null) {
+                    gameEventLog.append(getEventLogScoring()).append("TOUCHDOWN!\n").append(tdInfo)
+                            .append(" Extra point skipped — no kicker available.");
+                } else if (Math.random() * 100 < 23 + selK.getRatKickAcc() && Math.random() > 0.01) {
                     //made XP
                     if (gamePoss) { // home possession
                         homeScore += 1;
@@ -1953,12 +1998,13 @@ public class Game implements Serializable {
                     addPointsQuarter(1);
                     selK.recordXPMade(1);
                     selK.gameXPMade++;
+                    selK.recordXPAtt(1);
+                    selK.gameXPAttempts++;
                 } else {
                     gameEventLog.append(getEventLogScoring()).append("TOUCHDOWN!\n").append(tdInfo).append(" ").append(selK.name).append(" missed the XP.");
-                    // missed XP
+                    selK.recordXPAtt(1);
+                    selK.gameXPAttempts++;
                 }
-                selK.recordXPAtt(1);
-                selK.gameXPAttempts++;
             }
         }
     }
@@ -2141,6 +2187,9 @@ public class Game implements Serializable {
         if (yards < -3) {
             //touchback
             return yards;
+        } else if (returner == null) {
+            // Depleted roster without a returner — treat as a touchback rather than crashing.
+            return -4;
         } else {
             //Returner receives ball and runs at defense
 
@@ -2478,9 +2527,9 @@ public class Game implements Serializable {
                         Collections.sort(players, new CompPlayerPosDepth());
                         gameEventLog.append(getEventLog()).append("MAJOR INJURY!\n").append(t.getAbbr()).append(" ").append(p.position).append(" ").append(p.name).append(" is out of the game with an injury.");
 
-                        if(awayKickReturner.name.equals(p.name)) {
+                        if(awayKickReturner != null && awayKickReturner.name.equals(p.name)) {
                             getReturner(awayTeam);
-                        } else if(homeKickReturner.name.equals(p.name)) {
+                        } else if(homeKickReturner != null && homeKickReturner.name.equals(p.name)) {
                             getReturner(homeTeam);
                         }
                     }

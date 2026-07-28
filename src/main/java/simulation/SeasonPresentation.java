@@ -100,16 +100,53 @@ public final class SeasonPresentation {
 
     /**
      * Coarse season cycle label for timeline/status UI:
-     * Pre-Season -> Regular Season -> Postseason -> Offseason -> Recruiting.
+     * Preseason -> Regular Season -> Postseason -> Offseason -> Recruiting.
      */
     public static String getSeasonCycleLabel(League simLeague) {
         int week = simLeague.currentWeek;
         int regWeeks = simLeague.regSeasonWeeks;
         if (week < 0) week = 0;
         if (week >= regWeeks + 13) return "Recruiting";
-        if (week == 0) return "Pre-Season";
+        if (week == 0) return "Preseason";
         if (week < regWeeks) return "Regular Season"; // Includes CCG week at regWeeks-1.
         if (week <= regWeeks + 3) return "Postseason";
+        return "Offseason";
+    }
+
+    /** Short next-action hint for dashboards (one vocabulary with cycle labels). */
+    public static String getNextActionHint(League simLeague) {
+        int week = simLeague.currentWeek;
+        int regWeeks = simLeague.regSeasonWeeks;
+        if (week < 0) week = 0;
+        if (week <= 0) {
+            return "Preseason setup. Review your roster and set schemes before kickoff.";
+        }
+        if (week < regWeeks - 1) {
+            return "Play the next regular-season game and manage injuries, depth, and practice focus.";
+        }
+        if (week == regWeeks - 1) {
+            return "Conference championship week — prepare your lineup for a title shot.";
+        }
+        if (week <= regWeeks + 3) {
+            return "Postseason in progress — chase bowl and playoff wins.";
+        }
+        if (week >= regWeeks + 13) {
+            return "Recruiting — fill roster needs and finish your class.";
+        }
+        return "Offseason — handle contracts, staff, and roster decisions.";
+    }
+
+    /**
+     * Scoreboard week-type badge aligned with CCG / bowls / NCG boundaries
+     * used by {@link #getSeasonWeekChipText}.
+     */
+    public static String getScoreboardWeekType(int week, int regWeeks) {
+        if (week < 0) week = 0;
+        if (week <= 0) return "Preseason";
+        if (week < regWeeks - 1) return "Regular Season";
+        if (week == regWeeks - 1) return "Conference Championship";
+        if (week <= regWeeks + 2) return "Bowl Season";
+        if (week == regWeeks + 3) return "National Championship";
         return "Offseason";
     }
 }

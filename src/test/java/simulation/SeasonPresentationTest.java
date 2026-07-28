@@ -110,7 +110,7 @@ public class SeasonPresentationTest {
     @Test
     public void cycleLabel_transitionsAtExpectedBoundaries() {
         league.currentWeek = 0;
-        assertEquals("Pre-Season", SeasonPresentation.getSeasonCycleLabel(league));
+        assertEquals("Preseason", SeasonPresentation.getSeasonCycleLabel(league));
 
         league.currentWeek = league.regSeasonWeeks - 1;
         assertEquals("Regular Season", SeasonPresentation.getSeasonCycleLabel(league));
@@ -128,9 +128,9 @@ public class SeasonPresentationTest {
     @Test
     public void cycleLabel_clampsNegativeWeekToPreseason() {
         league.currentWeek = -1;
-        assertEquals("Pre-Season", SeasonPresentation.getSeasonCycleLabel(league));
+        assertEquals("Preseason", SeasonPresentation.getSeasonCycleLabel(league));
         league.currentWeek = -99;
-        assertEquals("Pre-Season", SeasonPresentation.getSeasonCycleLabel(league));
+        assertEquals("Preseason", SeasonPresentation.getSeasonCycleLabel(league));
     }
 
     @Test
@@ -159,5 +159,23 @@ public class SeasonPresentationTest {
     public void weekChip_negativeWeek() {
         league.currentWeek = -1;
         assertEquals("Week 0  Preseason", SeasonPresentation.getSeasonWeekChipText(league));
+    }
+
+    @Test
+    public void scoreboardWeekType_matchesSeasonBoundaries() {
+        int reg = league.regSeasonWeeks;
+        assertEquals("Preseason", SeasonPresentation.getScoreboardWeekType(0, reg));
+        assertEquals("Regular Season", SeasonPresentation.getScoreboardWeekType(1, reg));
+        assertEquals("Conference Championship", SeasonPresentation.getScoreboardWeekType(reg - 1, reg));
+        assertEquals("Bowl Season", SeasonPresentation.getScoreboardWeekType(reg, reg));
+        assertEquals("Bowl Season", SeasonPresentation.getScoreboardWeekType(reg + 2, reg));
+        assertEquals("National Championship", SeasonPresentation.getScoreboardWeekType(reg + 3, reg));
+        assertEquals("Offseason", SeasonPresentation.getScoreboardWeekType(reg + 5, reg));
+    }
+
+    @Test
+    public void nextActionHint_preseasonUsesCanonicalVocabulary() {
+        league.currentWeek = 0;
+        assertTrue(SeasonPresentation.getNextActionHint(league).startsWith("Preseason"));
     }
 }

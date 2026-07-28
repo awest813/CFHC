@@ -1599,7 +1599,7 @@ public class League {
 
         if (sb.length() > 0) {
             newsStories.get(0).add("Upgraded Facilities!>The following teams upgraded their team training facilities this off-season:\n\n" + sb);
-            newsHeadlines.add("Off-Season Facilities Upgrades Boost Prestige!");
+            newsHeadlines.add("Offseason Facilities Upgrades Boost Prestige!");
         }
 
         sb = new StringBuilder();

@@ -1418,9 +1418,9 @@ public class Team {
         summary += "\n\nNEW PRESTIGE:  " + teamPrestige + " pts [" + getRankStr(rankTeamPrestige) + "]\n";
 
         if (newContract && league.isCareerMode()) {
-            summary += "\n\nCongratulations! You've been awarded with a contract extension of " + HC.contractLength + " years.";
+            summary += CareerContractCopy.seasonSummaryExtension(HC.contractLength);
         } else if (fired) {
-            summary += "\n\nDue to failing to raise the team prestige during your contract length, you've been terminated from this position. Your team may take an additional prestige hit due to the firing.";
+            summary += CareerContractCopy.seasonSummaryFired();
         }
         return summary;
     }
