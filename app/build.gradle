@@ -80,7 +80,11 @@ android {
             manifest.srcFile "${repoRoot}/src/main/AndroidManifest.xml"
         }
         test {
-            java.srcDirs = ["${repoRoot}/src/test/java"]
+            java {
+                srcDirs = ["${repoRoot}/src/test/java"]
+                // Desktop Swing tests belong to desktop-standalone / root desktopJar — not Android.
+                exclude 'desktop/**'
+            }
         }
     }
     applicationVariants.all { variant ->

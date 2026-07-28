@@ -116,7 +116,7 @@ public class SaveSchemaVersionTest {
         String withoutV = baos.toString(StandardCharsets.UTF_8);
         withoutV = withoutV.substring(withoutV.indexOf('\n') + 1);
         File save = tmp.newFile("legacy-new.cfb");
-        Files.writeString(save.toPath(), withoutV);
+        Files.write(save.toPath(), withoutV.getBytes(StandardCharsets.UTF_8));
 
         String summary = SaveFileSummary.summarize(save, League.CURRENT_SAVE_VERSION);
         assertTrue(summary, summary.contains("Version: " + League.CURRENT_SAVE_VERSION));
