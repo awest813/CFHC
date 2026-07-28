@@ -61,7 +61,7 @@ For each gameplay loop, verify expected behavior, capture edge cases, add or fix
 - [x] Standings: verified by `GameStandingsTest` (win/loss consistency, conference/division bounds, no negative records).
 - [x] Awards: verified by `AwardsTest` (ceremony string non-empty, summary fires, persists through save/load).
 - [x] Postseason: full-season smoke verifies a champion is crowned.
-- Edge cases to audit: BYE weeks *(covered by `ByeWeekInvariantTest` — bye play, prestige, SOS/RPI)*, teams with short schedules, overtime, postseason games after save/load, rankings before any games are played *(rankings covered by `RankingInvariantTest`)*.
+- Edge cases to audit: BYE weeks *(covered by `ByeWeekInvariantTest` — bye play, prestige, SOS/RPI)*, teams with short schedules *(padded/odd-conference covered by `SeasonEdgeInvariantTest`)*, overtime *(`SeasonEdgeInvariantTest`)*, postseason games after save/load, rankings before any games are played *(rankings covered by `RankingInvariantTest`)*.
 - Polish pass: make week/status text consistent between Android home, desktop home, and notification dialogs.
 
 ### Roster Loop

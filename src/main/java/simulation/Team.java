@@ -199,8 +199,10 @@ public class Team {
     public ArrayList<PlayerCB> teamCBs;
     public ArrayList<PlayerS> teamSs;
 
-    public ArrayList<Player> playersLeaving;
-    public ArrayList<Player> playersTransferring;
+    /** Graduating / departing players — mutate via {@link #addPlayerLeaving}/{@link #clearPlayersLeaving}. */
+    private ArrayList<Player> playersLeaving;
+    /** Portal transfer candidates — mutate via {@link #addPlayerTransferring}/{@link #clearPlayersTransferring}. */
+    private ArrayList<Player> playersTransferring;
     /** Redshirt display rows — mutate via {@link #addRedshirt}. */
     private ArrayList<String> redshirtList;
     public java.util.ArrayList<String> trainingCampFocusNames;
@@ -1291,7 +1293,7 @@ public class Team {
         natChampWL = "";
 
         playersLeaving.clear();
-        if (playersTransferring != null) playersTransferring.clear();
+        if (playersTransferring != null) clearPlayersTransferring();
     }
 
     //Calculates Prestige Change at end of season
@@ -1670,7 +1672,7 @@ public class Team {
 
         stabilizeDisciplineFromCoachSkills();
         sortPlayers();
-        getPlayersTransferring();
+        identifyTransferCandidates();
     }
 
     public void assignMentors() {
@@ -1873,7 +1875,11 @@ public class Team {
         if(p.position.equals("S")) teamSs.remove(p);
     }
 
-    public void getPlayersTransferring() {
+    /**
+     * Scans the roster and marks players who will enter the transfer portal,
+     * appending them to the transferring list.
+     */
+    public void identifyTransferCandidates() {
 
         // PLAYER TRANSFERS
         // Juniors/Seniors - rated 75+ who have not played more than 4 games total and are not starters on teams > 60
@@ -5127,6 +5133,29 @@ public class Team {
      */
     public void clearPlayersLeaving() {
         playersLeaving.clear();
+    }
+
+    /**
+     * Unmodifiable view of players currently marked for the transfer portal.
+     */
+    public java.util.List<Player> getTransferringPlayers() {
+        return java.util.Collections.unmodifiableList(playersTransferring);
+    }
+
+    /**
+     * Add a player to the transferring list.
+     */
+    public void addPlayerTransferring(Player player) {
+        if (player != null) {
+            playersTransferring.add(player);
+        }
+    }
+
+    /**
+     * Clear the transferring players list.
+     */
+    public void clearPlayersTransferring() {
+        playersTransferring.clear();
     }
 
     /**

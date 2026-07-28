@@ -97,11 +97,11 @@ public class RosterManager {
     }
 
     public java.util.List<Player> getPlayersLeaving() {
-        return java.util.Collections.unmodifiableList(team.playersLeaving);
+        return team.getPlayersLeaving();
     }
 
-    public ArrayList<Player> getPlayersTransferring() {
-        return team.playersTransferring;
+    public java.util.List<Player> getPlayersTransferring() {
+        return team.getTransferringPlayers();
     }
 
     public java.util.List<String> getRedshirtList() {
