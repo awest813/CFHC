@@ -43,10 +43,10 @@ Status key: 🔲 open · 🔄 in progress · ✅ done
 7. ✅ Theme leftovers (file chooser restyle for light+dark; optional FlatLaf still open)
 8. ✅ Transfer portal read-only vs Android summary parity (`My Transfers` / `All Transfers` + summary pane)
 9. ✅ Redshirt UX copy/expectations vs Android (season list + auto-redshirt note)
-10. 🔲 Further split `LeagueHomeView` (~1.7k LOC)
-11. 🔲 Bulk sim threading vs single-thread engine contract
+10. ✅ Further split `LeagueHomeView` — extracted `DesktopBulkSimulator` for bulk advance
+11. ✅ Bulk sim threading vs single-thread engine contract — advances hop to EDT via `invokeAndWait`
 12. ✅ Desktop tests for discipline/bulk gates, theme, recruiting checkpoint, transfer summary
-13. 🔲 Keep shells on `SimulationFacade` for import/season APIs
+13. ✅ Keep shells on `SimulationFacade` for import APIs — coach/roster CSV via facade
 
 ---
 
@@ -77,5 +77,5 @@ Status key: 🔲 open · 🔄 in progress · ✅ done
 5. ✅ Packaging metadata (#5)
 6. ✅ Drop prototype/alpha labeling (#6)
 
-Next: further LeagueHomeView split, bulk game-thread hardening, facade alignment for import APIs.
-Signed MSI/DMG remains cert-blocked.
+Next: optional FlatLaf, accessibility, macOS packaging. Signed MSI/DMG remains cert-blocked.
+`LeagueHomeView` can still shrink further (menus/recruiting tab), but bulk/save-critical paths are extracted.

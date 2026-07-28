@@ -6,7 +6,6 @@ import simulation.AudioEvent;
 import simulation.AudioManager;
 import simulation.Conference;
 import simulation.League;
-import simulation.LeagueCustomDataImporter;
 import simulation.LeagueExportController;
 import simulation.LeagueLaunchCoordinator;
 import simulation.LeagueRecord;
@@ -84,6 +83,9 @@ public class LeagueHomeView extends JFrame {
 
     private DesktopUiBridge bridge;
     private SeasonController controller;
+    private SimulationFacade facade;
+    private DesktopBulkSimulator bulkSimulator;
+    private boolean bulkRunning;
 
     /** Currently viewed scoreboard week (0-based). */
     private int scoreboardWeek;
@@ -152,6 +154,13 @@ public class LeagueHomeView extends JFrame {
 
         bridge = new DesktopUiBridge(this, leagueCore);
         controller = new SeasonController(leagueCore, bridge);
+        PlatformResourceProvider resources = leagueCore.resProvider != null
+                ? leagueCore.resProvider
+                : new DesktopResourceProvider(System.getProperty("user.dir"));
+        facade = new SimulationFacade(DesktopAppPaths.chooserStartDir(), resources, bridge,
+                SimulationFacade.NO_OP_FLOW_MANAGER);
+        facade.setLeague(leagueCore, leagueCore.userTeam, leagueCore.userTeam);
+        bulkSimulator = new DesktopBulkSimulator(bulkHost());
         audioManager = new DesktopAudioManager();
         scoreboardWeek = Math.max(0, leagueCore.currentWeek);
 
@@ -173,6 +182,40 @@ public class LeagueHomeView extends JFrame {
         statusBar = buildStatusBar();
         add(statusBar, BorderLayout.SOUTH);
         applyWindowTheme();
+    }
+
+    private DesktopBulkSimulator.Host bulkHost() {
+        return new DesktopBulkSimulator.Host() {
+            @Override public JFrame window() { return LeagueHomeView.this; }
+            @Override public League league() { return leagueCore; }
+            @Override public DesktopUiBridge bridge() { return bridge; }
+            @Override public SeasonController controller() { return controller; }
+            @Override public void resolvePendingUserDiscipline() {
+                LeagueHomeView.this.resolvePendingUserDiscipline();
+            }
+            @Override public void markDirty() { LeagueHomeView.this.markDirty(); }
+            @Override public void afterBulkRefresh() {
+                bulkRunning = false;
+                scoreboardWeek = leagueCore.currentWeek;
+                refresh();
+            }
+            @Override public void onRecruitingGateFromBulk() {
+                bulkRunning = false;
+                selectRecruitingTab();
+                JOptionPane.showMessageDialog(LeagueHomeView.this,
+                        DesktopTheme.messageForDialog(
+                                "Bulk advance stopped at recruiting.\n"
+                                        + "Open Recruiting, click Finish Recruiting, then use Play Week or Save."),
+                        "Recruiting",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+            @Override public void onNewSeasonFromBulk() {
+                bulkRunning = false;
+                startNewSeason();
+            }
+            @Override public String seasonPeriodLabel() { return decodeSeasonPeriod(); }
+            @Override public int maxFullYearSteps() { return MAX_FULL_YEAR_STEPS; }
+        };
     }
 
     private void applyWindowTheme() {
@@ -747,6 +790,9 @@ public class LeagueHomeView extends JFrame {
     // =========================================================================
 
     private void playWeek() {
+        if (bulkRunning) {
+            return;
+        }
         if (bridge.isAwaitingDockedRecruiting()) {
             audioManager.play(AudioEvent.CONFIRM);
             JOptionPane.showMessageDialog(this,
@@ -831,6 +877,8 @@ public class LeagueHomeView extends JFrame {
         clearRecruitingSessionState();
         bridge = new DesktopUiBridge(this, leagueCore);
         controller = new SeasonController(leagueCore, bridge);
+        facade.setLeague(leagueCore, leagueCore.userTeam, leagueCore.userTeam);
+        bulkSimulator = new DesktopBulkSimulator(bulkHost());
         scoreboardWeek = 0;
         refresh();
         JOptionPane.showMessageDialog(this,
@@ -840,95 +888,21 @@ public class LeagueHomeView extends JFrame {
                 "New Season", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    /**
-     * Async simulation that stops at a specific target week or major event.
-     * Keeps the UI responsive and provides feedback.
-     */
     private void simulateToPostSeason(int targetWeek) {
+        if (bulkRunning) {
+            return;
+        }
         if (targetWeek <= leagueCore.currentWeek) {
             JOptionPane.showMessageDialog(this,
                     DesktopTheme.messageForDialog(
-                    "This league is already at or beyond that point in the season.\nUse Play Next Week or Advance Through Offseason instead."),
+                            "This league is already at or beyond that point in the season.\n"
+                                    + "Use Play Next Week or Advance Through Offseason instead."),
                     "Nothing to Simulate",
                     JOptionPane.INFORMATION_MESSAGE);
             return;
         }
-        SimulationProgressDialog dialog = new SimulationProgressDialog(this, "Season Simulation");
-        int startWeek = leagueCore.currentWeek;
-        int maxWeeks = Math.max(1, targetWeek - startWeek);
-
-        javax.swing.SwingWorker<Integer, String> worker = new javax.swing.SwingWorker<>() {
-            @Override
-            protected Integer doInBackground() throws Exception {
-                bridge.setSuppressBlockingUi(true);
-                try {
-                    int played = 0;
-                    while (leagueCore.currentWeek < targetWeek && !bridge.isNewSeasonPending()
-                            && !bridge.isAwaitingDockedRecruiting()) {
-                        if (dialog.isCancelled()) break;
-                        controller.advanceWeek();
-                        resolvePendingUserDiscipline();
-                        played++;
-                        int progress = (int) ((float) played / maxWeeks * 100);
-                        setProgress(Math.min(100, progress));
-                        publish("Playing Week " + (leagueCore.currentWeek));
-                    }
-                    return played;
-                } finally {
-                    bridge.setSuppressBlockingUi(false);
-                }
-            }
-
-            @Override
-            protected void process(java.util.List<String> chunks) {
-                dialog.setStatus(chunks.get(chunks.size() - 1));
-                dialog.setProgress(getProgress());
-            }
-
-            @Override
-            protected void done() {
-                dialog.dispose();
-                markDirty();
-                int played = 0;
-                try {
-                    played = get();
-                    PlatformLog.i(TAG, "Simulated " + played + " weeks.");
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    PlatformLog.w(TAG, "Season simulation interrupted.");
-                } catch (java.util.concurrent.ExecutionException e) {
-                    PlatformLog.e(TAG, "Season simulation failed.", e.getCause() != null ? e.getCause() : e);
-                    JOptionPane.showMessageDialog(LeagueHomeView.this,
-                            DesktopTheme.messageForDialog("Season simulation encountered an error:\n" + (e.getCause() != null ? e.getCause().getMessage() : e.getMessage())),
-                            "Simulation Error", JOptionPane.ERROR_MESSAGE);
-                }
-
-                if (bridge.isAwaitingDockedRecruiting()) {
-                    scoreboardWeek = leagueCore.currentWeek;
-                    refresh();
-                    selectRecruitingTab();
-                    JOptionPane.showMessageDialog(LeagueHomeView.this,
-                            DesktopTheme.messageForDialog(
-                            "Simulation paused at recruiting. Use Recruiting, then continue with Play Week."),
-                            "Recruiting",
-                            JOptionPane.INFORMATION_MESSAGE);
-                } else if (bridge.isNewSeasonPending()) {
-                    startNewSeason();
-                } else {
-                    scoreboardWeek = leagueCore.currentWeek;
-                    refresh();
-                }
-            }
-        };
-
-        worker.addPropertyChangeListener(evt -> {
-            if ("progress".equals(evt.getPropertyName())) {
-                dialog.setProgress((Integer) evt.getNewValue());
-            }
-        });
-
-        worker.execute();
-        dialog.setVisible(true);
+        bulkRunning = true;
+        bulkSimulator.simulateToTargetWeek(targetWeek);
     }
 
     private void advanceSeason() {
@@ -937,105 +911,11 @@ public class LeagueHomeView extends JFrame {
 
     /** Advances through the entire season including offseason and recruiting. */
     private void advanceFullYear() {
-        SimulationProgressDialog dialog = new SimulationProgressDialog(this, "Full-Year Simulation");
-        dialog.setIndeterminate(true);
-        dialog.setStatus("Advancing " + decodeSeasonPeriod() + "...");
-        bridge.clearNewSeasonPending();
-
-        javax.swing.SwingWorker<Integer, String> worker = new javax.swing.SwingWorker<>() {
-            private final long start = System.currentTimeMillis();
-            private boolean limitReached = false;
-            private boolean cancelled = false;
-
-            @Override
-            protected Integer doInBackground() {
-                bridge.setSuppressBlockingUi(true);
-                try {
-                    int played = 0;
-                    while (!bridge.isNewSeasonPending()) {
-                        if (dialog.isCancelled()) {
-                            cancelled = true;
-                            break;
-                        }
-                        if (bridge.isAwaitingDockedRecruiting()) {
-                            break;
-                        }
-                        controller.advanceWeek();
-                        resolvePendingUserDiscipline();
-                        played++;
-                        publish("Advancing " + decodeSeasonPeriod() + " (Week " + leagueCore.currentWeek + ")");
-                        if (played >= MAX_FULL_YEAR_STEPS) {
-                            limitReached = true;
-                            break;
-                        }
-                    }
-                    return played;
-                } finally {
-                    bridge.setSuppressBlockingUi(false);
-                }
-            }
-
-            @Override
-            protected void process(java.util.List<String> chunks) {
-                dialog.setStatus(chunks.get(chunks.size() - 1));
-            }
-
-            @Override
-            protected void done() {
-                dialog.dispose();
-                int played = 0;
-                try {
-                    played = get();
-                } catch (InterruptedException ie) {
-                    PlatformLog.w(TAG, "Full-year simulation interrupted while collecting result.", ie);
-                    return;
-                } catch (java.util.concurrent.ExecutionException ee) {
-                    Throwable cause = ee.getCause() != null ? ee.getCause() : ee;
-                    PlatformLog.e(TAG, "Full-year simulation failed.", cause);
-                    return;
-                }
-
-                if (played > 0) {
-                    markDirty();
-                }
-
-                PlatformLog.i(TAG, "Advanced full year (" + played + " steps) in "
-                        + (System.currentTimeMillis() - start) + "ms");
-
-                if (limitReached) {
-                    JOptionPane.showMessageDialog(LeagueHomeView.this,
-                            DesktopTheme.messageForDialog(
-                                    "Simulation stopped after " + MAX_FULL_YEAR_STEPS + " steps without completing the season.\n"
-                                            + "This may indicate a simulation bug. Save your league and report the issue."),
-                            "Simulation Limit Reached", JOptionPane.WARNING_MESSAGE);
-                } else if (cancelled) {
-                    JOptionPane.showMessageDialog(LeagueHomeView.this,
-                            DesktopTheme.messageForDialog("Full-year simulation was interrupted."),
-                            "Simulation Interrupted",
-                            JOptionPane.INFORMATION_MESSAGE);
-                }
-
-                if (bridge.isNewSeasonPending()) {
-                    startNewSeason();
-                    return;
-                }
-
-                scoreboardWeek = leagueCore.currentWeek;
-                refresh();
-                if (bridge.isAwaitingDockedRecruiting()) {
-                    selectRecruitingTab();
-                    JOptionPane.showMessageDialog(LeagueHomeView.this,
-                            DesktopTheme.messageForDialog(
-                                    "Bulk advance stopped at recruiting.\n"
-                                            + "Open Recruiting, click Finish Recruiting, then use Play Week or Save."),
-                            "Recruiting",
-                            JOptionPane.INFORMATION_MESSAGE);
-                }
-            }
-        };
-
-        worker.execute();
-        dialog.setVisible(true);
+        if (bulkRunning) {
+            return;
+        }
+        bulkRunning = true;
+        bulkSimulator.advanceFullYear();
     }
 
     private void selectRecruitingTab() {
@@ -1173,11 +1053,13 @@ public class LeagueHomeView extends JFrame {
         }
         File importFile = chooser.getSelectedFile();
         try (java.io.FileInputStream fis = new java.io.FileInputStream(importFile)) {
+            facade.setLeague(leagueCore, leagueCore.userTeam, leagueCore.userTeam);
             if (coaches) {
-                LeagueCustomDataImporter.importCoaches(fis, leagueCore);
+                facade.importCoaches(fis);
             } else {
-                LeagueCustomDataImporter.importRoster(fis, leagueCore);
+                facade.importRoster(fis);
             }
+            markDirty();
             refresh();
             JOptionPane.showMessageDialog(this,
                     DesktopTheme.messageForDialog(

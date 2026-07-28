@@ -21,7 +21,7 @@ Annotated types use `simulation.NotThreadSafe`.
 | Shell | Pattern today |
 |:---|:---|
 | Android | Main-thread UI; season advances from activity callbacks |
-| Desktop Swing | EDT for UI; bulk-sim / progress dialogs must not mutate `League` from worker threads without publishing results back onto the EDT |
+| Desktop Swing | EDT owns league mutation. `DesktopBulkSimulator` runs progress on a worker and hops each `advanceWeek()` onto the EDT via `invokeAndWait`. |
 
 ## Safe future direction
 
