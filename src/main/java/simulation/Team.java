@@ -92,13 +92,14 @@ public class Team {
     public int teamStadium;
 
     // Game log — package-private for StatsTracker/schedule builders.
-    // Outside simulation/, use getGameSchedule()/addGameToSchedule()/clearGameSchedule().
+    // Outside simulation/, use getGameSchedule()/addGameToSchedule()/clearGameSchedule()
+    // and the matching OOC / W-L accessors below.
     ArrayList<Game> gameSchedule;
-    public ArrayList<Team> oocTeams;
-    public ArrayList<Integer> oocWeeks;
-    public ArrayList<String> gameWLSchedule;
-    public ArrayList<Team> gameWinsAgainst;
-    public ArrayList<Team> gameLossesAgainst;
+    ArrayList<Team> oocTeams;
+    ArrayList<Integer> oocWeeks;
+    ArrayList<String> gameWLSchedule;
+    ArrayList<Team> gameWinsAgainst;
+    ArrayList<Team> gameLossesAgainst;
     public String confChampion;
     public String sweet16;
     public String qtFinalWL;

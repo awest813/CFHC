@@ -67,4 +67,26 @@ public class TeamRosterEncapsulationTest {
         team.clearGameSchedule();
         assertTrue(team.getGameSchedule().isEmpty());
     }
+
+    @Test
+    public void oocAndResultLists_areUnmodifiableViews() {
+        try {
+            team.getOocTeams().clear();
+            fail("getOocTeams should be unmodifiable");
+        } catch (UnsupportedOperationException expected) {
+            // ok
+        }
+        try {
+            team.getGameWinsAgainst().clear();
+            fail("getGameWinsAgainst should be unmodifiable");
+        } catch (UnsupportedOperationException expected) {
+            // ok
+        }
+        try {
+            team.getGameWLSchedule().clear();
+            fail("getGameWLSchedule should be unmodifiable");
+        } catch (UnsupportedOperationException expected) {
+            // ok
+        }
+    }
 }

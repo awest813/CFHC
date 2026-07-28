@@ -63,8 +63,8 @@ Dozens of `public ArrayList<…>` fields on `League` and `Team` let callers bypa
 **Progress:**
 - `Team.playersInjured` / `playersLeaving` / `playersTransferring` / `redshirtList` are private with accessors.
 - Transfer scan renamed to `identifyTransferCandidates()`.
-- **Position rosters** (`teamQBs`…`teamSs`) and **`gameSchedule`** are package-private with unmodifiable getters + add/clear mutators; Android/desktop use getters only. Same-package managers (`RosterManager`, `DepthChartManager`, `StatsTracker`) retain direct access.
-- Remaining public: `oocTeams` / `oocWeeks` / `gameWLSchedule` / win-loss-against lists; League transfer/freshman pools; `conferences` / `teamList` / coach pools.
+- **Position rosters** (`teamQBs`…`teamSs`) and **game log lists** (`gameSchedule`, `oocTeams` / `oocWeeks`, `gameWLSchedule`, win/loss-against) are package-private with unmodifiable getters + add/clear mutators; Android/desktop use getters only. Same-package managers (`RosterManager`, `DepthChartManager`, `StatsTracker`) retain direct access.
+- Remaining public on Team: e.g. `playersDis`, `trainingCampFocusNames`. League transfer/freshman pools and `conferences` / `teamList` / coach pools still public.
 ---
 
 ## ⚠️ High — Near-Term Improvements
