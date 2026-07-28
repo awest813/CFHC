@@ -16,10 +16,27 @@ final class SaveFileSummary {
                 return "EMPTY";
             }
 
-            String primary = header.endsWith("%")
-                    ? header.substring(0, header.length() - 1)
-                    : header;
-            String title = primary.split(">")[0];
+            String schemaVersion = null;
+            String primary;
+            if (header.startsWith(SaveSchema.VERSION_PREFIX)) {
+                schemaVersion = SaveSchema.normalize(
+                        header.substring(SaveSchema.VERSION_PREFIX.length()));
+                String next = bufferedReader.readLine();
+                if (next == null || next.isEmpty()) {
+                    return "EMPTY";
+                }
+                primary = stripTrailingPercent(next);
+            } else {
+                primary = stripTrailingPercent(header);
+                if (primary.startsWith("L:")) {
+                    // Pre-V: SaveManager files are the current generation.
+                    schemaVersion = SaveSchema.unversionedNewFormatDefault();
+                }
+            }
+
+            String title = primary.startsWith("L:")
+                    ? primary.substring(2).split("\t", 2)[0].split(">", 2)[0]
+                    : primary.split(">")[0];
 
             boolean careerMode = false;
             boolean twelveTeamPlayoff = false;
@@ -41,11 +58,22 @@ final class SaveFileSummary {
 
             String mode = careerMode ? "Head Coach Career" : "Open Dynasty";
             String playoff = twelveTeamPlayoff ? "12-Team Playoff" : "4-Team Playoff";
-            String versionLine = primary.contains(currentSaveVer)
-                    ? "Version: " + currentSaveVer
-                    : SaveLoadMessages.LEGACY_INCOMPATIBLE;
+            String versionLine;
+            if (schemaVersion != null && SaveSchema.isSupported(schemaVersion)) {
+                versionLine = "Version: " + schemaVersion;
+            } else if (schemaVersion != null) {
+                versionLine = "Unsupported Version: " + schemaVersion;
+            } else if (primary.contains(currentSaveVer)) {
+                versionLine = "Version: " + currentSaveVer;
+            } else {
+                versionLine = SaveLoadMessages.LEGACY_INCOMPATIBLE;
+            }
 
             return title + "\n" + mode + "  |  " + playoff + "\n" + versionLine;
         }
+    }
+
+    private static String stripTrailingPercent(String header) {
+        return header.endsWith("%") ? header.substring(0, header.length() - 1) : header;
     }
 }

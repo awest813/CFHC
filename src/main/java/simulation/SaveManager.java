@@ -15,6 +15,10 @@ import java.util.List;
  * Manages saving and loading of the LeagueRecord hierarchy.
  * This replaces the legacy String-based save/load logic with a structured,
  * scalable format.
+ *
+ * <p>Files begin with a {@code V:<schema>} line (see {@link SaveSchema}), then the
+ * {@code L:} league header. Pre-version {@code L:}-only files still load as
+ * {@link League#CURRENT_SAVE_VERSION}.
  */
 public class SaveManager {
 
@@ -29,10 +33,14 @@ public class SaveManager {
     private static final String TEAM_OOC_PREFIX = "TO:";
     private static final String END_TOKEN = "END";
 
+    /** Result of loading a new-format save, including the resolved schema version. */
+    public record LoadResult(LeagueRecord record, String schemaVersion) {}
+
     public static void save(LeagueRecord league, OutputStream out) throws IOException {
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
         try {
-        
+        writer.write(SaveSchema.VERSION_PREFIX + SaveSchema.current() + "\n");
+
         // Save League Base (tab-separated so names may contain commas)
         writer.write(LEAGUE_PREFIX + sanitizeInlineValue(league.leagueName()) + "\t" + league.year() + "\t"
                 + league.currentWeek() + "\t" + sanitizeInlineValue(league.heismanWinnerName()) + "\t"
@@ -135,6 +143,10 @@ public class SaveManager {
     }
 
     public static LeagueRecord load(InputStream in) throws IOException {
+        return loadWithVersion(in).record();
+    }
+
+    public static LoadResult loadWithVersion(InputStream in) throws IOException {
         String leagueName = "";
         int year = 0, week = 0;
         String heisman = "", champ = "";
@@ -163,11 +175,17 @@ public class SaveManager {
         String teamFocusIntensity = "";
         int teamNilCollectiveLevel = 0;
         List<LeagueRecord.GameRecord> gameRecords = new ArrayList<>();
+        String schemaVersion = null;
+        boolean sawLeagueHeader = false;
 
         String line;
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
             while ((line = reader.readLine()) != null) {
-            if (line.startsWith(LEAGUE_PREFIX)) {
+            if (line.startsWith(SaveSchema.VERSION_PREFIX)) {
+                schemaVersion = SaveSchema.requireSupported(
+                        SaveSchema.parseVersionToken(line.substring(SaveSchema.VERSION_PREFIX.length())));
+            } else if (line.startsWith(LEAGUE_PREFIX)) {
+                sawLeagueHeader = true;
                 String body = line.substring(LEAGUE_PREFIX.length());
                 ParsedLeagueHeader h = body.indexOf('\t') >= 0
                         ? parseLeagueHeaderTabSeparated(body)
@@ -293,8 +311,16 @@ public class SaveManager {
         }
         }
 
-        return new LeagueRecord(leagueName, year, week, conferences, hof, lRecords, heisman, champ,
+        if (!sawLeagueHeader) {
+            throw new IOException("Save file is missing the L: league header");
+        }
+        if (schemaVersion == null) {
+            schemaVersion = SaveSchema.unversionedNewFormatDefault();
+        }
+        LeagueRecord raw = new LeagueRecord(leagueName, year, week, conferences, hof, lRecords, heisman, champ,
                 List.copyOf(gameRecords));
+        LeagueRecord migrated = SaveSchema.migrate(schemaVersion, raw);
+        return new LoadResult(migrated, schemaVersion);
     }
 
     /**

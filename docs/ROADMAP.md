@@ -4,6 +4,8 @@
 > Items are grouped by urgency; within each group they are ordered roughly by impact.
 >
 > **Status key:** 🔲 not started · 🔄 in progress · ✅ done
+>
+> **Premium Waves 1–5 (PR #36):** save/load UX, status/season copy, depleted-depth safety, BYE prestige/SOS, SaveSchema `V:` header, threading docs, desktop coach/roster CSV import, unsigned `desktopAppImage` packaging scaffold.
 
 ---
 
@@ -49,7 +51,7 @@ These two activities import each other. It is the single biggest blocker for run
 
 ---
 
-### 4. 🔲 Encapsulate public mutable collections
+### 4. 🔄 Encapsulate public mutable collections
 
 Dozens of `public ArrayList<…>` fields on `League` and `Team` let callers bypass all validation.
 
@@ -57,6 +59,11 @@ Dozens of `public ArrayList<…>` fields on `League` and `Team` let callers bypa
 - Change fields to `private`.
 - Add `getXxx()` returning `Collections.unmodifiableList(…)`.
 - Add explicit mutation methods (`addPlayer`, `removePlayer`, etc.) where the list must change.
+
+**Progress:**
+- `Team.playersInjured` / `playersLeaving` / `playersTransferring` / `redshirtList` are private with accessors.
+- Transfer scan renamed to `identifyTransferCandidates()`.
+- Position rosters and `gameSchedule` remain public (wider blast radius).
 
 ---
 
@@ -150,7 +157,7 @@ At ~3,656 LOC, `MainActivity` owns too many concerns. Target split:
 
 ---
 
-### 12. 🔲 Add save-file schema versioning
+### 12. ✅ Add save-file schema versioning
 
 Currently only `League.saveVer = "v1.4e"`. Format changes silently break old saves.
 
@@ -170,7 +177,7 @@ Currently only `League.saveVer = "v1.4e"`. Format changes silently break old sav
 
 ---
 
-### 14. 🔲 Remove legacy `PlayerProfile.java`
+### 14. ✅ Remove legacy `PlayerProfile.java`
 
 `PlayerProfile.java` exists alongside `PlayerProfileV2.java`. Once V2 is confirmed stable, delete the old version and update all references.
 
@@ -182,7 +189,7 @@ These items require the Critical and High items above to be largely complete fir
 
 ---
 
-### 15. 🔲 Introduce a headless simulation facade
+### 15. ✅ Introduce a headless simulation facade
 
 A single entry-point class (`SimulationFacade` or similar) exposing a clean API:
 
@@ -211,7 +218,7 @@ Initial JUnit coverage now exists (`ComparatorTest`, recruiting tests, full-seas
 
 ---
 
-### 17. 🔲 Document the threading model
+### 17. ✅ Document the threading model
 
 The engine assumes single-threaded access throughout. If a desktop or server shell introduces background threads, data corruption becomes likely.
 

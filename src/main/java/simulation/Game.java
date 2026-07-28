@@ -2442,66 +2442,45 @@ public class Game implements Serializable {
         int gain = fatigueGain;
         if (endQT && qt != 2) gain = (int)(Math.random() * 35) + 15;
         if (endQT && qt == 2) gain = 50;
-        //recoup v2.0
-        for (int i = 0; i < homeTeam.startersRB; ++i) {
-            homeTeam.getRB(i).gameFatigue += gain;
-            if (homeTeam.getRB(i).gameFatigue > 100) homeTeam.getRB(i).gameFatigue = 100;
-        }
-        for (int i = 0; i < homeTeam.startersWR; ++i) {
-            homeTeam.getWR(i).gameFatigue += gain;
-            if (homeTeam.getWR(i).gameFatigue > 100) homeTeam.getWR(i).gameFatigue = 100;
-        }
-        for (int i = 0; i < homeTeam.startersTE; ++i) {
-            homeTeam.getTE(i).gameFatigue += gain;
-            if (homeTeam.getTE(i).gameFatigue > 100) homeTeam.getTE(i).gameFatigue = 100;
-        }
-        for (int i = 0; i < homeTeam.startersOL; ++i) {
-            homeTeam.getOL(i).gameFatigue += gain;
-            if (homeTeam.getOL(i).gameFatigue > 100) homeTeam.getOL(i).gameFatigue = 100;
-        }
-        for (int i = 0; i < homeTeam.startersDL; ++i) {
-            homeTeam.getDL(i).gameFatigue += gain;
-            if (homeTeam.getDL(i).gameFatigue > 100) homeTeam.getDL(i).gameFatigue = 100;
-        }
-        for (int i = 0; i < homeTeam.startersLB; ++i) {
-            homeTeam.getLB(i).gameFatigue += gain;
-            if (homeTeam.getLB(i).gameFatigue > 100) homeTeam.getLB(i).gameFatigue = 100;
-        }
-        for (int i = 0; i < homeTeam.startersS; ++i) {
-            homeTeam.getS(i).gameFatigue += gain;
-            if (homeTeam.getS(i).gameFatigue > 100) homeTeam.getS(i).gameFatigue = 100;
-        }
+        recoupPlayers(homeTeam, gain);
+        recoupPlayers(awayTeam, gain);
+    }
 
-        //recoup v2.0
-        for (int i = 0; i < awayTeam.startersRB; ++i) {
-            awayTeam.getRB(i).gameFatigue += gain;
-            if (awayTeam.getRB(i).gameFatigue > 100) awayTeam.getRB(i).gameFatigue = 100;
+    private static void recoupPlayers(Team team, int gain) {
+        if (team == null) {
+            return;
         }
-        for (int i = 0; i < awayTeam.startersWR; ++i) {
-            awayTeam.getWR(i).gameFatigue += gain;
-            if (awayTeam.getWR(i).gameFatigue > 100) awayTeam.getWR(i).gameFatigue = 100;
+        for (int i = 0; i < team.startersRB; ++i) {
+            recoupOne(team.getRB(i), gain);
         }
-        for (int i = 0; i < awayTeam.startersTE; ++i) {
-            awayTeam.getTE(i).gameFatigue += gain;
-            if (awayTeam.getTE(i).gameFatigue > 100) awayTeam.getTE(i).gameFatigue = 100;
+        for (int i = 0; i < team.startersWR; ++i) {
+            recoupOne(team.getWR(i), gain);
         }
-        for (int i = 0; i < awayTeam.startersOL; ++i) {
-            awayTeam.getOL(i).gameFatigue += gain;
-            if (awayTeam.getOL(i).gameFatigue > 100) awayTeam.getOL(i).gameFatigue = 100;
+        for (int i = 0; i < team.startersTE; ++i) {
+            recoupOne(team.getTE(i), gain);
         }
-        for (int i = 0; i < awayTeam.startersDL; ++i) {
-            awayTeam.getDL(i).gameFatigue += gain;
-            if (awayTeam.getDL(i).gameFatigue > 100) awayTeam.getDL(i).gameFatigue = 100;
+        for (int i = 0; i < team.startersOL; ++i) {
+            recoupOne(team.getOL(i), gain);
         }
-        for (int i = 0; i < awayTeam.startersLB; ++i) {
-            awayTeam.getLB(i).gameFatigue += gain;
-            if (awayTeam.getLB(i).gameFatigue > 100) awayTeam.getLB(i).gameFatigue = 100;
+        for (int i = 0; i < team.startersDL; ++i) {
+            recoupOne(team.getDL(i), gain);
         }
-        for (int i = 0; i < awayTeam.startersS; ++i) {
-            awayTeam.getS(i).gameFatigue += gain;
-            if (awayTeam.getS(i).gameFatigue > 100) awayTeam.getS(i).gameFatigue = 100;
+        for (int i = 0; i < team.startersLB; ++i) {
+            recoupOne(team.getLB(i), gain);
         }
+        for (int i = 0; i < team.startersS; ++i) {
+            recoupOne(team.getS(i), gain);
+        }
+    }
 
+    private static void recoupOne(Player p, int gain) {
+        if (p == null) {
+            return;
+        }
+        p.gameFatigue += gain;
+        if (p.gameFatigue > 100) {
+            p.gameFatigue = 100;
+        }
     }
 
     private void checkInjury(Player p, Team t) {

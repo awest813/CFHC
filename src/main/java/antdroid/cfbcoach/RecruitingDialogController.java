@@ -8,7 +8,7 @@ import android.widget.Spinner;
 import simulation.League;
 import simulation.Team;
 import ui.MockDraft;
-import ui.PlayerProfile;
+import ui.StatsRowAdapter;
 
 public final class RecruitingDialogController {
     private RecruitingDialogController() {}
@@ -41,8 +41,8 @@ public final class RecruitingDialogController {
         spinner.setAdapter(spinnerAdapter);
 
         final ListView playerList = dialog.findViewById(R.id.listViewTeamRankings);
-        final PlayerProfile playerStatsAdapter =
-                new PlayerProfile(activity, userTeam.getGradPlayersList());
+        final StatsRowAdapter playerStatsAdapter =
+                new StatsRowAdapter(activity, userTeam.getGradPlayersList());
         final MockDraft mockDraftAdapter =
                 new MockDraft(activity, simLeague.getMockDraftPlayersList(), userTeam.getName());
         playerList.setAdapter(playerStatsAdapter);

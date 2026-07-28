@@ -1,7 +1,7 @@
 package ui;
 
 /*
-  Created by Achi Jones on 2/20/2016.
+  Two-column stats/list row adapter (formerly PlayerProfile).
  */
 
 import android.content.Context;
@@ -15,11 +15,11 @@ import android.widget.TextView;
 
 import antdroid.cfbcoach.R;
 
-public class PlayerProfile extends ArrayAdapter<String> {
+public class StatsRowAdapter extends ArrayAdapter<String> {
     private final Context context;
     private final String[] values;
 
-    public PlayerProfile(Context context, String[] values) {
+    public StatsRowAdapter(Context context, String[] values) {
         super(context, R.layout.save_list, values);
         this.context = context;
         this.values = values;

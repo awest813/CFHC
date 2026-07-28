@@ -6,6 +6,7 @@ import simulation.AudioEvent;
 import simulation.AudioManager;
 import simulation.Conference;
 import simulation.League;
+import simulation.LeagueCustomDataImporter;
 import simulation.LeagueExportController;
 import simulation.LeagueLaunchCoordinator;
 import simulation.LeagueRecord;
@@ -246,6 +247,14 @@ public class LeagueHomeView extends JFrame {
         importItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, KeyEvent.CTRL_DOWN_MASK));
         importItem.addActionListener(e -> importCustomUniverse());
         file.add(importItem);
+
+        JMenuItem importCoachesItem = new JMenuItem("Import Coaches CSV\u2026");
+        importCoachesItem.addActionListener(e -> importCsvData("coaches"));
+        file.add(importCoachesItem);
+
+        JMenuItem importRosterItem = new JMenuItem("Import Roster CSV\u2026");
+        importRosterItem.addActionListener(e -> importCsvData("roster"));
+        file.add(importRosterItem);
 
         file.addSeparator();
 
@@ -1129,6 +1138,39 @@ public class LeagueHomeView extends JFrame {
             JOptionPane.showMessageDialog(this,
                     DesktopTheme.messageForDialog("Failed to export league:\n" + ex.getMessage()),
                     "Export Failed", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void importCsvData(String kind) {
+        JFileChooser chooser = new JFileChooser();
+        DesktopTheme.styleFileChooser(chooser);
+        boolean coaches = "coaches".equals(kind);
+        chooser.setDialogTitle(coaches ? "Import Coaches CSV" : "Import Roster CSV");
+        chooser.setFileFilter(new FileNameExtensionFilter("CSV Files (*.csv, *.txt)", "csv", "txt"));
+        int result = chooser.showOpenDialog(this);
+        if (result != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        File importFile = chooser.getSelectedFile();
+        try (java.io.FileInputStream fis = new java.io.FileInputStream(importFile)) {
+            if (coaches) {
+                LeagueCustomDataImporter.importCoaches(fis, leagueCore);
+            } else {
+                LeagueCustomDataImporter.importRoster(fis, leagueCore);
+            }
+            refresh();
+            JOptionPane.showMessageDialog(this,
+                    DesktopTheme.messageForDialog(
+                            (coaches ? "Coaches" : "Roster") + " CSV imported from:\n"
+                                    + importFile.getAbsolutePath()),
+                    "Import Complete", JOptionPane.INFORMATION_MESSAGE);
+            PlatformLog.i(TAG, kind + " CSV imported from " + importFile.getAbsolutePath());
+        } catch (Exception ex) {
+            PlatformLog.e(TAG, "Error importing " + kind + " CSV", ex);
+            JOptionPane.showMessageDialog(this,
+                    DesktopTheme.messageForDialog(
+                            simulation.SaveLoadMessages.loadFailureMessage(ex)),
+                    "Import Failed", JOptionPane.ERROR_MESSAGE);
         }
     }
 

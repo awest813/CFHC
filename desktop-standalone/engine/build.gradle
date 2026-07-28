@@ -164,14 +164,13 @@ tasks.register('desktopStandaloneGate') {
 }
 
 /**
- * Packaging scaffold for a future signed installer. Requires a JDK with {@code jpackage}
- * (JDK 17+) and the {@code desktopJar} output. This task is opt-in and not part of
- * {@code desktopStandaloneGate} — it fails loudly with setup instructions when jpackage
- * is unavailable rather than silently skipping.
+ * Packaging scaffold / unsigned Linux app-image builder for the desktop jar.
+ * Requires a JDK with {@code jpackage} (JDK 17+). Not part of {@code desktopStandaloneGate}.
+ * Signed macOS/Windows installers remain blocked on certificates.
  */
 tasks.register('desktopJpackageDryRun') {
     group = 'desktop'
-    description = 'Print the intended jpackage command for CFHC-desktop (does not build an installer yet).'
+    description = 'Print the intended jpackage command for CFHC-desktop.'
     dependsOn desktopJar
     doLast {
         def jar = tasks.named('desktopJar', Jar).get().archiveFile.get().asFile
@@ -191,6 +190,38 @@ tasks.register('desktopJpackageDryRun') {
         } else {
             println 'jpackage available at: ' + jpackage.absolutePath
         }
+    }
+}
+
+tasks.register('desktopAppImage', Exec) {
+    group = 'desktop'
+    description = 'Build an unsigned Linux app-image via jpackage (requires JDK jpackage).'
+    dependsOn desktopJar
+    onlyIf {
+        def jp = new File(System.getProperty('java.home'), 'bin/jpackage')
+        jp.exists() || new File(System.getProperty('java.home'), 'bin/jpackage.exe').exists()
+    }
+    doFirst {
+        def jar = tasks.named('desktopJar', Jar).get().archiveFile.get().asFile
+        def outDir = layout.buildDirectory.dir('jpackage').get().asFile
+        outDir.mkdirs()
+        def existing = new File(outDir, 'CFHC')
+        if (existing.exists()) {
+            existing.deleteDir()
+        }
+        def jpackageBin = new File(System.getProperty('java.home'), 'bin/jpackage')
+        if (!jpackageBin.exists()) {
+            jpackageBin = new File(System.getProperty('java.home'), 'bin/jpackage.exe')
+        }
+        executable = jpackageBin.absolutePath
+        args = [
+                '--name', 'CFHC',
+                '--input', jar.parentFile.absolutePath,
+                '--main-jar', jar.name,
+                '--main-class', 'desktop.Main',
+                '--type', 'app-image',
+                '--dest', outDir.absolutePath
+        ]
     }
 }
 

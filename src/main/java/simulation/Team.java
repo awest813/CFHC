@@ -31,6 +31,12 @@ import staff.OC;
 import staff.Staff;
 
 
+/**
+ * Team simulation state.
+ *
+ * <p><b>Threading:</b> not safe for concurrent mutation. See {@code docs/THREADING.md}.
+ */
+@NotThreadSafe
 public class Team {
     public final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
     public final DecimalFormat df2 = new DecimalFormat("#.##", symbols);
@@ -1662,7 +1668,7 @@ public class Team {
 
         stabilizeDisciplineFromCoachSkills();
         sortPlayers();
-        getPlayersTransferring();
+        identifyTransferCandidates();
     }
 
     public void assignMentors() {
@@ -1865,7 +1871,11 @@ public class Team {
         if(p.position.equals("S")) teamSs.remove(p);
     }
 
-    public void getPlayersTransferring() {
+    /**
+     * Scan the roster and mark/transfer candidates into the transferring list.
+     * Named to avoid confusion with {@link #getTransferringPlayers()}.
+     */
+    public void identifyTransferCandidates() {
 
         // PLAYER TRANSFERS
         // Juniors/Seniors - rated 75+ who have not played more than 4 games total and are not starters on teams > 60
