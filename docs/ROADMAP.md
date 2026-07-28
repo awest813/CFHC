@@ -144,6 +144,8 @@ At ~3,656 LOC, `MainActivity` owns too many concerns. Target split:
 **Progress:**
 - Save/load orchestration extracted to `SaveLoadService` (was item 7).
 - Navigation routing extracted to `GameNavigation`.
+- Import/export largely delegated to `LeagueImportFlowController`, `LeagueImportWorkflow`, `LeagueExportController`, and `LeagueCustomDataImporter` (MainActivity retains document-picker / storage host wiring).
+- Remaining: season-state / week flags still live in `MainActivity` (`GameStateManager` extract).
 
 ---
 
