@@ -127,4 +127,54 @@ public class LeaguePoolEncapsulationTest {
         league.addNewsHeadline("Encapsulation headline");
         assertTrue(league.getNewsHeadlines().contains("Encapsulation headline"));
     }
+
+    @Test
+    public void historyAndHofGetters_areUnmodifiable() {
+        try {
+            league.getLeagueHistory().clear();
+            fail("getLeagueHistory should be unmodifiable");
+        } catch (UnsupportedOperationException expected) {
+            // ok
+        }
+        try {
+            league.getHeismanHistory().clear();
+            fail("getHeismanHistory should be unmodifiable");
+        } catch (UnsupportedOperationException expected) {
+            // ok
+        }
+        try {
+            league.getLeagueHoF().clear();
+            fail("getLeagueHoF should be unmodifiable");
+        } catch (UnsupportedOperationException expected) {
+            // ok
+        }
+        try {
+            league.getFreshmen().add(null);
+            fail("getFreshmen should be unmodifiable");
+        } catch (UnsupportedOperationException expected) {
+            // ok
+        }
+        try {
+            league.getRedshirts().add(null);
+            fail("getRedshirts should be unmodifiable");
+        } catch (UnsupportedOperationException expected) {
+            // ok
+        }
+        try {
+            league.getPlayoffTeams().clear();
+            fail("getPlayoffTeams should be unmodifiable");
+        } catch (UnsupportedOperationException expected) {
+            // ok
+        }
+        try {
+            league.getTeamsFCSList().clear();
+            fail("getTeamsFCSList should be unmodifiable");
+        } catch (UnsupportedOperationException expected) {
+            // ok
+        }
+
+        int histBefore = league.getLeagueHistory().size();
+        league.addLeagueHistory(new String[]{"encap-test"});
+        assertTrue(league.getLeagueHistory().size() == histBefore + 1);
+    }
 }

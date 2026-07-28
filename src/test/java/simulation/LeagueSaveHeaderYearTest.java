@@ -61,7 +61,7 @@ public class LeagueSaveHeaderYearTest {
 
     @Test
     public void standardHeader_subtractsHistoryDepth() {
-        league.leagueHistory.add(new String[]{"row"});
+        league.addLeagueHistory(new String[]{"row"});
         assertEquals(2039, league.getSeasonStartFromSaveHeader("2040:payload"));
     }
 }

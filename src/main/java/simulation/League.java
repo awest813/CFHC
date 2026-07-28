@@ -127,9 +127,10 @@ public class League {
         this.resProvider = resProvider;
     }
 
-    public ArrayList<String[]> leagueHistory;
-    public ArrayList<String> heismanHistory;
-    public ArrayList<PlayerRecord> leagueHoF;
+    // Package-private history / HoF — use getLeagueHistory(), getLeagueHoF()/addToHallOfFame().
+    ArrayList<String[]> leagueHistory;
+    ArrayList<String> heismanHistory;
+    ArrayList<PlayerRecord> leagueHoF;
     // Package-private — use getConferences()/addConference() and getTeamList()/addTeam().
     ArrayList<Conference> conferences;
     ArrayList<Team> teamList;
@@ -139,14 +140,16 @@ public class League {
     ArrayList<Staff> coachStarList;
     ArrayList<Staff> coachFreeAgents;
     ArrayList<Staff> coachDatabase;
-    public ArrayList<String> nameList;
-    public ArrayList<String> lastNameList;
+    // Package-private name pools (League-only).
+    ArrayList<String> nameList;
+    ArrayList<String> lastNameList;
     // Package-private news lists — use getNewsStories()/addNewsStory(), getNewsHeadlines(),
     // getWeeklyScores(), getNewsTV().
     ArrayList<ArrayList<String>> newsStories;
     ArrayList<String> newsHeadlines;
     ArrayList<ArrayList<String>> weeklyScores;
-    public ArrayList<String> teamDiscipline;
+    // Package-private scratch list for disciplineAction() news.
+    ArrayList<String> teamDiscipline;
     public double disciplineChance = 0.085;
     public double disciplineScrutiny = 0.035;
 
@@ -205,10 +208,12 @@ public class League {
     ArrayList<PlayerS> transferSs;  // package-private; use getters / addToTransferPool
     public String userTransfers;
     public String sumTransfers;
-    public ArrayList<String> transfersList;
-    public ArrayList<Player> userTransferList;
-    public ArrayList<Player> freshmen;
-    public ArrayList<Player> redshirts;
+    // Package-private transfer / class tracking — use getUserTransferList(), getFreshmen()/addFreshman(),
+    // getRedshirts()/addRedshirt().
+    ArrayList<String> transfersList;
+    ArrayList<Player> userTransferList;
+    ArrayList<Player> freshmen;
+    ArrayList<Player> redshirts;
     public String[] bowlNames;
     public BowlManager bowlManager;
 
@@ -229,7 +234,8 @@ public class League {
     public boolean updateTV;
     // Package-private — use getNewsTV().
     ArrayList<String> newsTV;
-    public ArrayList<Team> playoffTeams;
+    // Package-private — use getPlayoffTeams().
+    ArrayList<Team> playoffTeams;
     public String postseason;
 
     public static final int DEFAULT_NEW_SAVE_YEAR = 2026;
@@ -252,12 +258,13 @@ public class League {
     public Player defPOTY;
     public HeadCoach coachWinner;
     public Player freshman;
-    public ArrayList<Player> heismanCandidates;
-    public ArrayList<Player> defPOTYCandidates;
-    public ArrayList<Player> freshmanCandidates;
-    public ArrayList<Player> allAmericans;
-    public ArrayList<Player> allAmericans2;
-    public ArrayList<Player> allFreshman;
+    // Package-private award scratch lists (filled by ceremony string builders).
+    ArrayList<Player> heismanCandidates;
+    ArrayList<Player> defPOTYCandidates;
+    ArrayList<Player> freshmanCandidates;
+    ArrayList<Player> allAmericans;
+    ArrayList<Player> allAmericans2;
+    ArrayList<Player> allFreshman;
     public String heismanWinnerStrFull;
     /** Last national champion school name (persisted; also set when the NCG is simulated). */
     public String nationalChampionName = "";
@@ -268,7 +275,8 @@ public class League {
 
 
 
-    public ArrayList<String> teamsFCSList;
+    // Package-private — use getTeamsFCSList().
+    ArrayList<String> teamsFCSList;
 
     public final String[] proTeams = {"New England", "Buffalo", "New York Jets", "Miami", "Pittsburgh", "Baltimore", "Cincinnati", "Cleveland", "Jacksonville", "Indianapolis", "Houston", "Tennessee", "Kansas City", "Las Vegas", "Denver",
             "New York Giants", "Philadelphia", "Dallas", "Washington", "Minnesota", "Chicago", "Green Bay", "Detroit", "New Orleans", "Carolina", "Tampa Bay", "Atlanta", "Seattle", "Los Angeles", "San Francisco", "Arizona"};
@@ -2176,31 +2184,7 @@ public class League {
      * @return Heisman Winner
      */
     public ArrayList<Player> getHeisman() {
-        ArrayList<Player> heismanCandidates = new ArrayList<>();
-        for (int i = 0; i < teamList.size(); ++i) {
-            //qb
-            for (int qb = 0; qb < teamList.get(i).getTeamQBs().size(); ++qb) {
-                heismanCandidates.add(teamList.get(i).getTeamQBs().get(qb));
-            }
-
-            //rb
-            for (int rb = 0; rb < teamList.get(i).getTeamRBs().size(); ++rb) {
-                heismanCandidates.add(teamList.get(i).getTeamRBs().get(rb));
-            }
-
-            //wr
-            for (int wr = 0; wr < teamList.get(i).getTeamWRs().size(); ++wr) {
-                heismanCandidates.add(teamList.get(i).getTeamWRs().get(wr));
-            }
-
-            //te
-            for (int te = 0; te < teamList.get(i).getTeamTEs().size(); ++te) {
-                heismanCandidates.add(teamList.get(i).getTeamTEs().get(te));
-            }
-        }
-        Collections.sort(heismanCandidates, new CompPlayerHeisman());
-
-        return heismanCandidates;
+        return LeagueAwards.getHeismanCandidates(this);
     }
 
     /**
@@ -2242,35 +2226,12 @@ public class League {
     }
 
     /**
-     * Calculates who wins the Heisman.
+     * Calculates who wins Defensive Player of the Year.
      *
-     * @return Heisman Winner
+     * @return Defensive POTY candidates ranked
      */
     public ArrayList<Player> getDefPOTY() {
-        ArrayList<Player> heismanCandidates = new ArrayList<>();
-        for (int i = 0; i < teamList.size(); ++i) {
-            //dl
-            for (int dl = 0; dl < teamList.get(i).getTeamDLs().size(); ++dl) {
-                heismanCandidates.add(teamList.get(i).getTeamDLs().get(dl));
-            }
-            //lb
-            for (int lb = 0; lb < teamList.get(i).getTeamLBs().size(); ++lb) {
-                heismanCandidates.add(teamList.get(i).getTeamLBs().get(lb));
-            }
-
-            //cb
-            for (int cb = 0; cb < teamList.get(i).getTeamCBs().size(); ++cb) {
-                heismanCandidates.add(teamList.get(i).getTeamCBs().get(cb));
-            }
-
-            //s
-            for (int s = 0; s < teamList.get(i).getTeamSs().size(); ++s) {
-                heismanCandidates.add(teamList.get(i).getTeamSs().get(s));
-            }
-        }
-        Collections.sort(heismanCandidates, new CompPlayerHeisman());
-
-        return heismanCandidates;
+        return LeagueAwards.getDefensivePotyCandidates(this);
     }
 
     /**
@@ -6322,6 +6283,22 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     /**
+     * Append a year-row entry to league history.
+     */
+    public void addLeagueHistory(String[] yearRow) {
+        if (yearRow != null) {
+            leagueHistory.add(yearRow);
+        }
+    }
+
+    /**
+     * Get an unmodifiable view of Heisman winner history strings.
+     */
+    public java.util.List<String> getHeismanHistory() {
+        return java.util.Collections.unmodifiableList(heismanHistory);
+    }
+
+    /**
      * Get an unmodifiable view of the Hall of Fame players.
      * Use {@link #addToHallOfFame(PlayerRecord)} to add players.
      */
@@ -6545,7 +6522,7 @@ Then conferences can see if they want to add them to their list if the teams mee
      * Get an unmodifiable view of freshmen players.
      */
     public java.util.List<Player> getFreshmen() {
-        return freshmen;
+        return java.util.Collections.unmodifiableList(freshmen);
     }
 
     /**
@@ -6561,7 +6538,7 @@ Then conferences can see if they want to add them to their list if the teams mee
      * Get an unmodifiable view of redshirted players.
      */
     public java.util.List<Player> getRedshirts() {
-        return redshirts;
+        return java.util.Collections.unmodifiableList(redshirts);
     }
 
     /**

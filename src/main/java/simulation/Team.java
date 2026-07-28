@@ -48,8 +48,9 @@ public class Team {
     public String conference;
     public String division;
     public int location;
-    public ArrayList<TeamHistoryRecord> teamHistory;
-    public ArrayList<PlayerRecord> hallOfFame;
+    // Package-private — use getTeamHistory()/addTeamHistory(), getHallOfFame()/addToHallOfFame().
+    ArrayList<TeamHistoryRecord> teamHistory;
+    ArrayList<PlayerRecord> hallOfFame;
 
     public TeamRecords teamRecords;
     public boolean userControlled;
@@ -208,11 +209,13 @@ public class Team {
     private ArrayList<Player> playersTransferring;
     /** Redshirt display rows — mutate via {@link #addRedshirt}. */
     private ArrayList<String> redshirtList;
-    public java.util.ArrayList<String> trainingCampFocusNames;
+    // Package-private training-camp focus names (Team-only).
+    ArrayList<String> trainingCampFocusNames;
 
     /** Injured players — mutate only via {@link #addPlayerInjured}/{@link #removePlayerInjured}/{@link #clearPlayersInjured}. */
     private ArrayList<Player> playersInjured;
-    public ArrayList<Player> playersDis;
+    // Package-private discipline scratch list (Team-only).
+    ArrayList<Player> playersDis;
 
     public String suspensionNews;
     public boolean suspension;

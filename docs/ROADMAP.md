@@ -48,25 +48,20 @@ These two activities import each other. It is the single biggest blocker for run
 - Extract stat aggregation → `LeagueStats` / `TeamStats`.
 - Make internal collections `private`; expose via unmodifiable getters.
 - ~~Move scheduling logic → `ScheduleManager`.~~ ✅ Done — regular-season / OOC / BYE scheduling lives in `simulation.ScheduleManager`; `League.setupSeason()` delegates.
+- Extract awards candidate ranking → `LeagueAwards` *(started — Heisman / Defensive POTY candidate builders)*. Ceremony strings still on League.
 
 ---
 
-### 4. 🔄 Encapsulate public mutable collections
+### 4. ✅ Encapsulate public mutable collections
 
 Dozens of `public ArrayList<…>` fields on `League` and `Team` let callers bypass all validation.
 
 **Actions:**
-- Change fields to `private`.
+- Change fields to `private` / package-private.
 - Add `getXxx()` returning `Collections.unmodifiableList(…)`.
 - Add explicit mutation methods (`addPlayer`, `removePlayer`, etc.) where the list must change.
 
-**Progress:**
-- `Team.playersInjured` / `playersLeaving` / `playersTransferring` / `redshirtList` are private with accessors.
-- Transfer scan renamed to `identifyTransferCandidates()`.
-- **Position rosters** (`teamQBs`…`teamSs`) and **game log lists** (`gameSchedule`, `oocTeams` / `oocWeeks`, `gameWLSchedule`, win/loss-against) are package-private with unmodifiable getters + add/clear mutators; Android/desktop use getters only. Same-package managers (`RosterManager`, `DepthChartManager`, `StatsTracker`) retain direct access.
-- **League** `conferences` / `teamList`, freshman pools (`fQBs`…), and transfer pools (`transferQBs`…) are package-private with existing getters / `addToTransferPool` / `addConference` / `addTeam`.
-- **League** coach pools (`coachList` / `coachStarList` / `coachFreeAgents` / `coachDatabase`) and news lists (`newsStories` / `newsHeadlines` / `weeklyScores` / `newsTV`) are package-private; getters return unmodifiable views; UI uses `addNewsStory` / `addNewsHeadline` / `addCoachFreeAgent` / etc.
-- Remaining public on Team: e.g. `playersDis`, `trainingCampFocusNames`. League history / HoF / award candidate lists still public.
+**Progress:** Major collection fields on League and Team are package-private (or private) with unmodifiable getters + mutators. Outside packages use accessors only. Remaining public mutable state is mostly scalars, flags, and record/streak objects (`leagueRecords`, win streaks).
 ---
 
 ## ⚠️ High — Near-Term Improvements

@@ -2,14 +2,17 @@ package simulation;
 
 import org.junit.Before;
 import org.junit.Test;
+import positions.Player;
+
+import java.util.ArrayList;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Guards the ScheduleManager extraction from League.setupSeason().
+ * Guards LeagueAwards candidate-builder extraction from League.
  */
-public class ScheduleManagerTest {
+public class LeagueAwardsTest {
 
     private League league;
 
@@ -29,13 +32,13 @@ public class ScheduleManagerTest {
     }
 
     @Test
-    public void newLeague_hasRegularSeasonSchedulesFromScheduleManager() {
-        assertFalse(league.getTeamList().isEmpty());
-        assertTrue(league.getTeamsFCSList() != null);
-        int target = league.regSeasonWeeks - 1;
-        for (Team t : league.getTeamList()) {
-            assertTrue(t.getName() + " schedule too short: " + t.getGameSchedule().size(),
-                    t.getGameSchedule().size() >= target);
-        }
+    public void heismanAndDefPoty_candidatesNonEmptyAndDelegated() {
+        ArrayList<Player> heisman = LeagueAwards.getHeismanCandidates(league);
+        ArrayList<Player> def = LeagueAwards.getDefensivePotyCandidates(league);
+        assertFalse(heisman.isEmpty());
+        assertFalse(def.isEmpty());
+        assertTrue(league.getHeisman() == heisman
+                || league.getHeisman().size() == heisman.size());
+        assertTrue(league.getDefPOTY().size() == def.size());
     }
 }
