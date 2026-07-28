@@ -204,7 +204,8 @@ public class Team {
     public ArrayList<String> redshirtList;
     public java.util.ArrayList<String> trainingCampFocusNames;
 
-    public ArrayList<Player> playersInjured;
+    /** Injured players — mutate only via {@link #addPlayerInjured}/{@link #removePlayerInjured}/{@link #clearPlayersInjured}. */
+    private ArrayList<Player> playersInjured;
     public ArrayList<Player> playersDis;
 
     public String suspensionNews;

@@ -57,7 +57,7 @@ import simulation.SimulationFacade;
 import simulation.Team;
 import staff.HeadCoach;
 import staff.Staff;
-import ui.PlayerProfile;
+import ui.StatsRowAdapter;
 import ui.SaveFilesList;
 import ui.TeamRankingsList;
 
@@ -1311,7 +1311,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
             String[] pStatsArray = player.split("&");
-            PlayerProfile pStatsAdapter = new PlayerProfile(this, pStatsArray);
+            StatsRowAdapter pStatsAdapter = new StatsRowAdapter(this, pStatsArray);
             builder.setAdapter(pStatsAdapter, null)
                     .setTitle("Player Card")
                     .setPositiveButton("Close", new DialogInterface.OnClickListener() {

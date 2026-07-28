@@ -63,7 +63,7 @@ public class RosterManager {
             if (z.injury != null && !z.isSuspended && !z.isTransfer) {
                 z.injury.advanceGame(weeks);
                 if (z.injury == null || !z.isInjured) {
-                    team.playersInjured.remove(z);
+                    team.removePlayerInjured(z);
                     sortByPosition(z);
                 }
             }
@@ -81,7 +81,7 @@ public class RosterManager {
         curePlayersPosition(team.teamLBs);
         curePlayersPosition(team.teamCBs);
         curePlayersPosition(team.teamSs);
-        team.playersInjured.clear();
+        team.clearPlayersInjured();
         sortPlayers();
     }
 
@@ -93,7 +93,7 @@ public class RosterManager {
     }
 
     public java.util.List<Player> getPlayersInjured() {
-        return java.util.Collections.unmodifiableList(team.playersInjured);
+        return team.getPlayersInjured();
     }
 
     public java.util.List<Player> getPlayersLeaving() {

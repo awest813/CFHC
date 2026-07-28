@@ -49,7 +49,7 @@ These two activities import each other. It is the single biggest blocker for run
 
 ---
 
-### 4. 🔲 Encapsulate public mutable collections
+### 4. 🔄 Encapsulate public mutable collections
 
 Dozens of `public ArrayList<…>` fields on `League` and `Team` let callers bypass all validation.
 
@@ -57,6 +57,9 @@ Dozens of `public ArrayList<…>` fields on `League` and `Team` let callers bypa
 - Change fields to `private`.
 - Add `getXxx()` returning `Collections.unmodifiableList(…)`.
 - Add explicit mutation methods (`addPlayer`, `removePlayer`, etc.) where the list must change.
+
+**Progress:**
+- `Team.playersInjured` is now private with `getPlayersInjured` / `addPlayerInjured` / `removePlayerInjured` / `clearPlayersInjured`.
 
 ---
 
@@ -171,9 +174,9 @@ Previously only `League.saveVer = "v1.4e"` existed in memory; on-disk new-format
 
 ---
 
-### 14. 🔲 Remove legacy `PlayerProfile.java`
+### 14. ✅ Clarify legacy `PlayerProfile` adapter
 
-`PlayerProfile.java` exists alongside `PlayerProfileV2.java`. Once V2 is confirmed stable, delete the old version and update all references.
+`PlayerProfile.java` was not a duplicate of `PlayerProfileV2` — it was a generic two-column stats/list `ArrayAdapter`. Renamed to `StatsRowAdapter` and updated Android call sites. Player profile dialogs continue to use `PlayerProfileDialogController` / `PlayerProfileSnapshot` / `PlayerProfileV2`.
 
 ---
 
@@ -183,20 +186,16 @@ These items require the Critical and High items above to be largely complete fir
 
 ---
 
-### 15. 🔲 Introduce a headless simulation facade
+### 15. 🔄 Introduce a headless simulation facade
 
-A single entry-point class (`SimulationFacade` or similar) exposing a clean API:
+~~A single entry-point class (`SimulationFacade` or similar) exposing a clean API~~ — **`SimulationFacade` already exists** and covers load/save slots, `advanceWeek()`, recruiting prepare/complete, import, and team selection.
 
-```
-createDynasty(config) → Dynasty
-loadSave(path) → Dynasty
-advanceWeek(dynasty) → WeekResult
-resolveOffseason(dynasty) → OffseasonResult
-prepareRecruitingData(dynasty) → RecruitingSnapshot
-```
+Remaining polish toward the original sketch:
+- Thinner naming aliases / docs for createDynasty-style entry points
+- Keep shells on facade APIs instead of reaching into `League` for season flow
+- Optional `resolveOffseason`-style helpers where UI still drives multi-step offseason manually
 
-This facade becomes the API surface for iOS and desktop shells.
-*Requires items 2 and 7.*
+*Requires items 2 and 7 (done).*
 
 ---
 

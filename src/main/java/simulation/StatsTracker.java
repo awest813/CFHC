@@ -496,14 +496,14 @@ public class StatsTracker {
         for (Player p : team.getAllPlayers()) {
             if (p.injury == null) {
                 p.isInjured = false;
-                team.playersInjured.remove(p);
+                team.removePlayerInjured(p);
             }
         }
 
-        if (team.playersInjured.isEmpty()) {
+        if (team.getPlayersInjured().isEmpty()) {
             data.append("No Injuries\n");
         } else {
-            for (Player p : team.playersInjured) {
+            for (Player p : team.getPlayersInjured()) {
                 if (p.isInjured) data.append(p.position + " " + p.name + " [" + p.ratOvr + "] " + p.injury.duration + "wk\n");
             }
         }
