@@ -1,6 +1,5 @@
 package simulation;
 
-import desktop.DesktopResourceProvider;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -10,11 +9,11 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 public class CoachSkillsTest {
-    private DesktopResourceProvider resources;
+    private FileSystemResourceProvider resources;
 
     @Before
     public void setUp() {
-        resources = new DesktopResourceProvider(System.getProperty("user.dir"));
+        resources = new FileSystemResourceProvider(System.getProperty("user.dir"));
     }
 
     @Test

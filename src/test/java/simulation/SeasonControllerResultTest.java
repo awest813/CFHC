@@ -1,6 +1,5 @@
 package simulation;
 
-import desktop.DesktopResourceProvider;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,7 +15,7 @@ public class SeasonControllerResultTest {
 
     @Before
     public void setUp() {
-        DesktopResourceProvider resources = new DesktopResourceProvider(System.getProperty("user.dir"));
+        FileSystemResourceProvider resources = new FileSystemResourceProvider(System.getProperty("user.dir"));
         league = new League(
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES),
@@ -59,7 +58,7 @@ public class SeasonControllerResultTest {
 
     @Test
     public void facadeAdvanceWeek_exposesStructuredSeasonResult() {
-        SimulationFacade facade = new SimulationFacade(new File(System.getProperty("java.io.tmpdir")), new DesktopResourceProvider(System.getProperty("user.dir")));
+        SimulationFacade facade = new SimulationFacade(new File(System.getProperty("java.io.tmpdir")), new FileSystemResourceProvider(System.getProperty("user.dir")));
         facade.setLeague(league, league.userTeam, league.userTeam);
 
         SeasonAdvanceResult result = facade.advanceWeek();

@@ -1,6 +1,5 @@
 package simulation;
 
-import desktop.DesktopResourceProvider;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,7 +18,7 @@ public class CoachCreationTest {
 
     @Before
     public void setUp() {
-        DesktopResourceProvider resources = new DesktopResourceProvider(System.getProperty("user.dir"));
+        FileSystemResourceProvider resources = new FileSystemResourceProvider(System.getProperty("user.dir"));
         league = new League(
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES),
@@ -202,7 +201,7 @@ public class CoachCreationTest {
         tmpFile.getParentFile().mkdirs();
         assertTrue(league.saveLeague(tmpFile));
 
-        DesktopResourceProvider resources = new DesktopResourceProvider(System.getProperty("user.dir"));
+        FileSystemResourceProvider resources = new FileSystemResourceProvider(System.getProperty("user.dir"));
         League loaded = new League(tmpFile,
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES),

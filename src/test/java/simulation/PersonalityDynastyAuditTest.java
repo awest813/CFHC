@@ -1,6 +1,5 @@
 package simulation;
 
-import desktop.DesktopResourceProvider;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -129,8 +128,8 @@ public class PersonalityDynastyAuditTest {
     }
 
     private void runDynasty(Personality personality) throws Exception {
-        DesktopResourceProvider resources =
-                new DesktopResourceProvider(System.getProperty("user.dir"));
+        FileSystemResourceProvider resources =
+                new FileSystemResourceProvider(System.getProperty("user.dir"));
         File filesDir = tmp.newFolder(personality.name().toLowerCase());
 
         League league = newLeague(resources);
@@ -188,7 +187,7 @@ public class PersonalityDynastyAuditTest {
         assertFinalHealth(league, personality);
     }
 
-    private static League newLeague(DesktopResourceProvider resources) {
+    private static League newLeague(FileSystemResourceProvider resources) {
         League league = new League(
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES),
@@ -230,7 +229,7 @@ public class PersonalityDynastyAuditTest {
     }
 
     private League reloadThroughSaveSlot(League league, File filesDir,
-                                         DesktopResourceProvider resources,
+                                         FileSystemResourceProvider resources,
                                          Personality personality) throws Exception {
         SaveLoadService saveLoad = new SaveLoadService(filesDir);
         assertTrue(personality.coachName + " mid-save should succeed",
@@ -333,7 +332,7 @@ public class PersonalityDynastyAuditTest {
         int coordinatorHires;
         int recruitingCompletions;
 
-        DynastyBridge(League league, DesktopResourceProvider resources, Personality personality) {
+        DynastyBridge(League league, FileSystemResourceProvider resources, Personality personality) {
             this.league = league;
             this.personality = personality;
         }

@@ -1,6 +1,5 @@
 package simulation;
 
-import desktop.DesktopResourceProvider;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,12 +23,12 @@ public class SaveRoundTripTest {
     public TemporaryFolder tmp = new TemporaryFolder();
 
     private League original;
-    private DesktopResourceProvider resources;
+    private FileSystemResourceProvider resources;
 
     @Before
     public void setUp() {
         String projectRoot = System.getProperty("user.dir");
-        resources = new DesktopResourceProvider(projectRoot);
+        resources = new FileSystemResourceProvider(projectRoot);
 
         original = new League(
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),

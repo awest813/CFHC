@@ -1,6 +1,5 @@
 package simulation;
 
-import desktop.DesktopResourceProvider;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,14 +33,14 @@ public class GoldenSaveFixtureTest {
     @Rule
     public TemporaryFolder tmp = new TemporaryFolder();
 
-    private DesktopResourceProvider resources;
+    private FileSystemResourceProvider resources;
     private File fixtureGz;
     private File fixtureCfB;
 
     @Before
     public void setUp() throws Exception {
         String projectRoot = System.getProperty("user.dir");
-        resources = new DesktopResourceProvider(projectRoot);
+        resources = new FileSystemResourceProvider(projectRoot);
         fixtureGz = new File(projectRoot, FIXTURE_REL);
 
         if (Boolean.getBoolean("regenGoldenSaves") || !fixtureGz.isFile()) {
