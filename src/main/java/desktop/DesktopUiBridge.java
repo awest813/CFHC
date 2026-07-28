@@ -192,11 +192,18 @@ public class DesktopUiBridge implements GameUiBridge {
 
     @Override
     public void showSeasonSummary() {
+        String summary;
+        try {
+            summary = league.seasonSummaryStr();
+        } catch (RuntimeException ex) {
+            PlatformLog.w(TAG, "Season summary unavailable: " + ex.getMessage());
+            summary = "Season summary is unavailable (championship data not ready).";
+        }
         if (suppressInformationalUi()) {
-            logDialog("Season Summary", league.seasonSummaryStr());
+            logDialog("Season Summary", summary);
             return;
         }
-        showScrollableText("Season Summary", league.seasonSummaryStr());
+        showScrollableText("Season Summary", summary);
     }
 
     @Override
