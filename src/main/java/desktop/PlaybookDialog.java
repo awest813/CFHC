@@ -38,7 +38,7 @@ public class PlaybookDialog extends JDialog {
         this.team = team;
         setSize(850, 650);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(DesktopTheme.windowBackground());
+        DesktopTheme.styleDialogContentPane(getContentPane());
 
         // Header
         JPanel header = new JPanel(new BorderLayout()) {

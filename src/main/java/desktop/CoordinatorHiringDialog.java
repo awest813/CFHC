@@ -48,7 +48,7 @@ public class CoordinatorHiringDialog extends JDialog {
         this.userTeam = league.userTeam;
         setSize(900, 600);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(DesktopTheme.windowBackground());
+        DesktopTheme.styleDialogContentPane(getContentPane());
 
         if (userTeam == null || userTeam.getHeadCoach() == null) {
             buildErrorPanel("No active user team or head coach record found.");
@@ -214,7 +214,7 @@ public class CoordinatorHiringDialog extends JDialog {
     private void showDCContent(JDialog container) {
         container.getContentPane().removeAll();
         container.setLayout(new BorderLayout());
-        container.getContentPane().setBackground(DesktopTheme.windowBackground());
+        DesktopTheme.styleDialogContentPane(container.getContentPane());
 
         ArrayList<Staff> candidates = league.getDCList(userTeam.getHeadCoach());
         PlaybookDefense[] playbooks = userTeam.getPlaybookDef();

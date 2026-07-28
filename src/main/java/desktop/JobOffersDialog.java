@@ -61,7 +61,7 @@ public class JobOffersDialog extends JDialog {
         this.userHC = league.userTeam != null ? league.userTeam.getHeadCoach() : null;
         setSize(1000, 650);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(DesktopTheme.windowBackground());
+        DesktopTheme.styleDialogContentPane(getContentPane());
 
         if (!league.isCareerMode() || userHC == null) {
             buildNoCareerPanel();
@@ -197,15 +197,14 @@ public class JobOffersDialog extends JDialog {
 
         JTextArea detail = new JTextArea("SELECT A PROGRAM TO VIEW PERSONNEL EVALUATIONS AND ALUMNI EXPECTATIONS.");
         detail.setEditable(false);
-        detail.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        detail.setBackground(DesktopTheme.windowBackground());
-        detail.setForeground(DesktopTheme.textSecondary());
         detail.setLineWrap(true);
         detail.setWrapStyleWord(true);
         detail.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        DesktopTheme.styleTextContent(detail);
         
         JScrollPane detailScroll = new JScrollPane(detail);
         detailScroll.setBorder(BorderFactory.createLineBorder(DesktopTheme.borderSubtle()));
+        detailScroll.getViewport().setBackground(DesktopTheme.windowBackground());
         detailPanel.add(detailScroll, BorderLayout.CENTER);
 
         table.getSelectionModel().addListSelectionListener(e -> {

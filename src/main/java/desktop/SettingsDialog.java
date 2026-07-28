@@ -41,7 +41,7 @@ public class SettingsDialog extends JDialog {
         setSize(560, 680);
         setMinimumSize(new java.awt.Dimension(520, 560));
         setLayout(new BorderLayout());
-        getContentPane().setBackground(dialogBackground());
+        DesktopTheme.styleDialogContentPane(getContentPane());
 
         // Header
         JPanel header = new JPanel(new BorderLayout()) {

@@ -47,7 +47,7 @@ public class RedshirtDialog extends JDialog {
         this.league = league;
         setSize(1000, 650);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(DesktopTheme.windowBackground());
+        DesktopTheme.styleDialogContentPane(getContentPane());
 
         buildContent();
 

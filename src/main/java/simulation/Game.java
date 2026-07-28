@@ -2012,20 +2012,21 @@ public class Game implements Serializable {
     private void kickOff(Team offense, Team defense) {
         PlayerReturner returner = selectReturner();
         int specialTeams = getSpecialTeamsD(offense);
+        PlayerK kicker = offense.getK(0);
         gameYardLine = 65;
 
         if (gameTime <= 0) return;
         else {
             //Decide whether to onside kick. Only if losing but within 8 points with < 3 min to go
-            if (gameTime < 180 && ((gamePoss && (awayScore - homeScore) <= 8 && (awayScore - homeScore) > 0)
+            if (kicker != null && gameTime < 180 && ((gamePoss && (awayScore - homeScore) <= 8 && (awayScore - homeScore) > 0)
                     || (!gamePoss && (homeScore - awayScore) <= 8 && (homeScore - awayScore) > 0))) {
                 // Yes, do onside
-                if (offense.getK(0).getRatKickFum() * Math.random() > 60 || Math.random() < 0.1) {
+                if (kicker.getRatKickFum() * Math.random() > 60 || Math.random() < 0.1) {
                     //Success!
-                    gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" K ").append(offense.getK(0).name).append(" successfully executes onside kick! ").append(offense.getAbbr()).append(" has possession!");
+                    gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" K ").append(kicker.name).append(" successfully executes onside kick! ").append(offense.getAbbr()).append(" has possession!");
                 } else {
                     // Fail
-                    gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" K ").append(offense.getK(0).name).append(" failed the onside kick and lost possession.");
+                    gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" K ").append(kicker.name).append(" failed the onside kick and lost possession.");
                     gamePoss = !gamePoss;
                 }
                 gameYardLine = (gameYardLine - 10) - (int) (10 * Math.random());
@@ -2036,7 +2037,7 @@ public class Game implements Serializable {
             } else {
                 // Just regular kick off
 
-                gameYardLine = returnPlay(gameYardLine, offense.getK(0), returner, specialTeams, true);
+                gameYardLine = returnPlay(gameYardLine, kicker, returner, specialTeams, true);
 
                 gameDown = 1;
                 gameYardsNeed = 10;
@@ -2076,20 +2077,21 @@ public class Game implements Serializable {
         else {
             PlayerReturner returner = selectReturner();
             int specialTeams = getSpecialTeamsD(offense);
+            PlayerK kicker = offense.getK(0);
 
             //Decide whether to onside kick. Only if losing but within 8 points with < 3 min to go
-            if (gameTime < 180 && ((gamePoss && (awayScore - homeScore) <= 8 && (awayScore - homeScore) > 0)
+            if (kicker != null && gameTime < 180 && ((gamePoss && (awayScore - homeScore) <= 8 && (awayScore - homeScore) > 0)
                     || (!gamePoss && (homeScore - awayScore) <= 8 && (homeScore - awayScore) > 0))) {
                 // Yes, do onside
-                if (offense.getK(0).getRatKickFum() * Math.random() > 60 || Math.random() < 0.1) {
+                if (kicker.getRatKickFum() * Math.random() > 60 || Math.random() < 0.1) {
                     //Success!
-                    gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" K ").append(offense.getK(0).name).append(" successfully executes onside kick! ").append(offense.getAbbr()).append(" has possession!");
+                    gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" K ").append(kicker.name).append(" successfully executes onside kick! ").append(offense.getAbbr()).append(" has possession!");
                     gameYardLine = 35;
                     gameDown = 1;
                     gameYardsNeed = 10;
                 } else {
                     // Fail
-                    gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" K ").append(offense.getK(0).name).append(" failed the onside kick and lost possession.");
+                    gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" K ").append(kicker.name).append(" failed the onside kick and lost possession.");
                     gamePoss = !gamePoss;
                     gameYardLine = 65;
                     gameDown = 1;
@@ -2099,7 +2101,7 @@ public class Game implements Serializable {
                 gameTime -= 4 + 4 * Math.random(); //Onside kicks are very fast, unless there's a weird fight for the ball. Chance to burn a lot of time, odds are you'll burn a little time.
             } else {
                 gameYardLine = 80;
-                gameYardLine = returnPlay(gameYardLine, offense.getK(0), returner, specialTeams, true);
+                gameYardLine = returnPlay(gameYardLine, kicker, returner, specialTeams, true);
 
                 gameDown = 1;
                 gameYardsNeed = 10;
@@ -2179,6 +2181,11 @@ public class Game implements Serializable {
     private int returnPlay(int startYards, PlayerK kicker, PlayerReturner returner, int ST, boolean kickoff) {
         int yards;
         returnYards = 0;
+
+        // Missing kicker — treat as a touchback rather than crashing.
+        if (kicker == null) {
+            return -4;
+        }
 
         //Kicker kicks the ball
         if (kickoff) yards = startYards - (kicker.getRatKickPow() / 2) - (int) (25 * Math.random());

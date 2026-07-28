@@ -193,12 +193,12 @@ public class Team {
     public ArrayList<PlayerCB> teamCBs;
     public ArrayList<PlayerS> teamSs;
 
-    public ArrayList<Player> playersLeaving;
-    public ArrayList<Player> playersTransferring;
-    public ArrayList<String> redshirtList;
+    private ArrayList<Player> playersLeaving;
+    private ArrayList<Player> playersTransferring;
+    private ArrayList<String> redshirtList;
     public java.util.ArrayList<String> trainingCampFocusNames;
 
-    public ArrayList<Player> playersInjured;
+    private ArrayList<Player> playersInjured;
     public ArrayList<Player> playersDis;
 
     public String suspensionNews;
@@ -5117,6 +5117,23 @@ public class Team {
      */
     public void clearPlayersLeaving() {
         playersLeaving.clear();
+    }
+
+    /**
+     * Get an unmodifiable view of transfer candidates identified this cycle.
+     */
+    public java.util.List<Player> getTransferringPlayers() {
+        return java.util.Collections.unmodifiableList(playersTransferring);
+    }
+
+    public void addPlayerTransferring(Player player) {
+        if (player != null) {
+            playersTransferring.add(player);
+        }
+    }
+
+    public void clearPlayersTransferring() {
+        playersTransferring.clear();
     }
 
     /**

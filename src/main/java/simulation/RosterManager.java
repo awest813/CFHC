@@ -63,7 +63,7 @@ public class RosterManager {
             if (z.injury != null && !z.isSuspended && !z.isTransfer) {
                 z.injury.advanceGame(weeks);
                 if (z.injury == null || !z.isInjured) {
-                    team.playersInjured.remove(z);
+                    team.removePlayerInjured(z);
                     sortByPosition(z);
                 }
             }
@@ -81,7 +81,7 @@ public class RosterManager {
         curePlayersPosition(team.teamLBs);
         curePlayersPosition(team.teamCBs);
         curePlayersPosition(team.teamSs);
-        team.playersInjured.clear();
+        team.clearPlayersInjured();
         sortPlayers();
     }
 
@@ -93,19 +93,19 @@ public class RosterManager {
     }
 
     public java.util.List<Player> getPlayersInjured() {
-        return java.util.Collections.unmodifiableList(team.playersInjured);
+        return team.getPlayersInjured();
     }
 
     public java.util.List<Player> getPlayersLeaving() {
-        return java.util.Collections.unmodifiableList(team.playersLeaving);
+        return team.getPlayersLeaving();
     }
 
-    public ArrayList<Player> getPlayersTransferring() {
-        return team.playersTransferring;
+    public java.util.List<Player> getPlayersTransferring() {
+        return team.getTransferringPlayers();
     }
 
     public java.util.List<String> getRedshirtList() {
-        return java.util.Collections.unmodifiableList(team.redshirtList);
+        return team.getRedshirtList();
     }
 
     public int getTeamSize() {

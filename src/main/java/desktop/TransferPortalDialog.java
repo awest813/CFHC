@@ -48,7 +48,7 @@ public class TransferPortalDialog extends JDialog {
         this.league = league;
         setSize(850, 600);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(DesktopTheme.windowBackground());
+        DesktopTheme.styleDialogContentPane(getContentPane());
 
         collectPlayers();
         buildContent();

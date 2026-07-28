@@ -41,7 +41,7 @@ public class DesktopTeamSelectionDialog extends JDialog {
         this.league = league;
         setSize(700, 520);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(DesktopTheme.windowBackground());
+        DesktopTheme.styleDialogContentPane(getContentPane());
         buildUi();
     }
 
