@@ -41,12 +41,7 @@ public class RecruitingActivity extends AppCompatActivity {
     private RecruitingController controller;
     private GameFlowManager flowManager;
     private RecruitingSessionData sessionData;
-    // Variables use during recruiting
-    private boolean showPopUp;
-    private boolean autoFilter;
-
-    // Keep track of which position is selected in spinner
-    private String currentPosition;
+    private final RecruitingUiState uiState = new RecruitingUiState();
 
     // Android Components to keep track of
     private TextView budgetText;
@@ -83,8 +78,6 @@ public class RecruitingActivity extends AppCompatActivity {
             getSupportActionBar().setTitle(sessionData.teamName + " | Recruiting");
         }
 
-        showPopUp = true;
-        autoFilter = true;
         sessionData.applyBudgetBonuses(RosterRules.MIN_PLAYERS);
 
         // Get needs for each position
@@ -111,7 +104,7 @@ public class RecruitingActivity extends AppCompatActivity {
                 new AdapterView.OnItemSelectedListener() {
                     public void onItemSelected(
                             AdapterView<?> parent, View view, int position, long id) {
-                        currentPosition = parent.getItemAtPosition(position).toString();
+                        uiState.setCurrentPosition(parent.getItemAtPosition(position).toString());
                         updateForNewPosition(position);
                     }
 
@@ -131,10 +124,10 @@ public class RecruitingActivity extends AppCompatActivity {
 
         final SwitchCompat filterSwitch = findViewById(R.id.filterSwitch);
         filterSwitch.setText(getString(R.string.recruiting_filter_label));
-        filterSwitch.setChecked(autoFilter);
+        filterSwitch.setChecked(uiState.isAutoFilter());
         filterSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                autoFilter = isChecked;
+                uiState.setAutoFilter(isChecked);
             }
         });
 
@@ -148,7 +141,7 @@ public class RecruitingActivity extends AppCompatActivity {
                         RecruitingActivity.this,
                         sessionData.teamName,
                         RecruitingPresentation.buildRosterText(sessionData, buildPositionNeeds()),
-                        sessionData.teamPlayers.size() + sessionData.playersRecruited.size()
+                        sessionData.projectedRosterSize()
                 );
             }
         });
@@ -157,8 +150,8 @@ public class RecruitingActivity extends AppCompatActivity {
           Set up expandable list view
          */
         recruitList = findViewById(R.id.recruitExpandList);
-        currentPosition = positions.isEmpty() ? "Top 50 Recruits" : positions.get(0);
-        setPlayerList(0, currentPosition);
+        uiState.setCurrentPosition(positions.isEmpty() ? "Top 50 Recruits" : positions.get(0));
+        setPlayerList(0, uiState.getCurrentPosition());
         expListAdapter = new ExpandableListAdapterRecruiting(this);
         recruitList.setAdapter(expListAdapter);
 
@@ -168,7 +161,7 @@ public class RecruitingActivity extends AppCompatActivity {
         final Button buttonExpandAll = findViewById(R.id.buttonRecruitExpandCollapse);
         buttonExpandAll.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                RecruitingDialogController.showDisplayOptions(RecruitingActivity.this, autoFilter, players, recruitList, expListAdapter);
+                RecruitingDialogController.showDisplayOptions(RecruitingActivity.this, uiState.isAutoFilter(), players, recruitList, expListAdapter);
             }
         });
 
@@ -204,7 +197,7 @@ public class RecruitingActivity extends AppCompatActivity {
 
     //UPDATE DATA AFTER CHOOSING FILTER
     private void updateForNewPosition(int position) {
-        setPlayerList(position, currentPosition);
+        setPlayerList(position, uiState.getCurrentPosition());
         expListAdapter.notifyDataSetChanged();
     }
 
@@ -243,16 +236,16 @@ public class RecruitingActivity extends AppCompatActivity {
     }
 
     public void toggleAutoFilter() {
-        autoFilter = !autoFilter;
+        uiState.setAutoFilter(!uiState.isAutoFilter());
         final SwitchCompat filterSwitch = findViewById(R.id.filterSwitch);
-        if (filterSwitch != null) filterSwitch.setChecked(autoFilter);
+        if (filterSwitch != null) filterSwitch.setChecked(uiState.isAutoFilter());
     }
 
 
 
 
     public void recruitPlayer(RecruitingPlayerRecord recruit) {
-        controller.recruitPlayer(recruit, autoFilter);
+        controller.recruitPlayer(recruit, uiState.isAutoFilter());
 
         Toast.makeText(this, "Recruited " + recruit.position() + " " + recruit.name(),
                 Toast.LENGTH_SHORT).show();
@@ -289,7 +282,7 @@ public class RecruitingActivity extends AppCompatActivity {
         if (position < 0) {
             position = 0;
         }
-        String label = currentPosition;
+        String label = uiState.getCurrentPosition();
         if (positionSpinner != null && positionSpinner.getSelectedItem() != null) {
             label = positionSpinner.getSelectedItem().toString();
         } else if (positions != null && position < positions.size()) {
@@ -298,7 +291,7 @@ public class RecruitingActivity extends AppCompatActivity {
         if (label == null || label.isEmpty()) {
             label = "Top 50 Recruits";
         }
-        currentPosition = label;
+        uiState.setCurrentPosition(label);
         setPlayerList(position, label);
         if (expListAdapter != null) {
             expListAdapter.notifyDataSetChanged();
@@ -322,7 +315,7 @@ public class RecruitingActivity extends AppCompatActivity {
     }
 
     public void setShowPopUp(boolean tf) {
-        showPopUp = tf;
+        uiState.setShowPopUp(tf);
     }
 
 
@@ -376,7 +369,7 @@ public class RecruitingActivity extends AppCompatActivity {
 
             Button recruitPlayerButton = convertView.findViewById(R.id.buttonRecruitPlayer);
 
-            if (sessionData.teamPlayers.size() + sessionData.playersRecruited.size() < RosterRules.MAX_PLAYERS) {
+            if (sessionData.canRecruitMore()) {
                 recruitPlayerButton.setText(context.getString(R.string.recruiting_button_recruit_format, recruit.cost()));
             } else {
                 recruitPlayerButton.setText(context.getString(R.string.recruiting_button_roster_full));
@@ -387,7 +380,7 @@ public class RecruitingActivity extends AppCompatActivity {
             recruitPlayerButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     // Save who is currently expanded
-                    if (sessionData.teamPlayers.size() + sessionData.playersRecruited.size() < RosterRules.MAX_PLAYERS) {
+                    if (sessionData.canRecruitMore()) {
                         RecruitingDialogController.showRecruitConfirmDialog(
                                 RecruitingActivity.this,
                                 sessionData,
@@ -396,7 +389,7 @@ public class RecruitingActivity extends AppCompatActivity {
                                 players.size(),
                                 recruitList,
                                 expListAdapter,
-                                showPopUp
+                                uiState.isShowPopUp()
                         );
                     }
                 }

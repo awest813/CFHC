@@ -11,40 +11,44 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 /**
- * A rudimentary Java entry point for testing the simulation core outside of Android.
- * This demonstrates the portability achieved through the LeagueRecord hierarchy.
+ * Java entry point for the CFHC desktop shell (shared simulation core with Android).
  */
 public class Main {
 
     private static final String TAG = "desktop.Main";
 
     private static final String HEADER =
-            "College Football Head Coach (CFHC) - Desktop Prototype (Early Alpha)\n" +
+            "College Football Head Coach (CFHC) - Desktop\n" +
             "===========================================";
 
     public static void main(String[] args) {
-        // Enable HiDPI scaling and system look-and-feel for a native desktop appearance
+        // macOS screen menu bar must be set before the LAF is installed
+        MacDesktopIntegration.installEarly();
+        // HiDPI + FlatLaf (or system LAF fallback) via DesktopTheme.load()
         System.setProperty("sun.java2d.uiScale.enabled", "true");
-        try {
-            javax.swing.UIManager.setLookAndFeel(
-                    javax.swing.UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignored) {
-            // Fall back to default Metal LAF if system LAF is not available
-        }
-
         DesktopTheme.load();
 
         PlatformLog.i(TAG, HEADER.replace("\n", " | "));
         System.out.println(HEADER);
 
+        javax.swing.SwingUtilities.invokeLater(() ->
+                MacDesktopIntegration.installHandlers(Main::openSaveFromOs));
+
         if (args.length == 0) {
             javax.swing.SwingUtilities.invokeLater(() -> {
-                new LauncherFrame().setVisible(true);
+                LauncherFrame frame = new LauncherFrame();
+                MacDesktopIntegration.setActiveFrame(frame);
+                frame.setVisible(true);
             });
             return;
         }
 
         String command = args[0];
+        // Finder / jpackage file association may pass a bare save path
+        if (looksLikeSavePath(command)) {
+            launchPlayMode(command);
+            return;
+        }
         switch (command) {
             case "new":
                 launchNewLeague();
@@ -80,19 +84,42 @@ public class Main {
         }
     }
 
+    private static boolean looksLikeSavePath(String arg) {
+        if (arg == null || arg.isEmpty() || arg.startsWith("-")) {
+            return false;
+        }
+        String lower = arg.toLowerCase();
+        return lower.endsWith(".cfb") || lower.endsWith(".sav") || lower.endsWith(".txt");
+    }
+
+    /** Open a save from OS file association / OpenFileHandler (EDT). */
+    private static void openSaveFromOs(File saveFile) {
+        if (saveFile == null || !saveFile.isFile()) {
+            fail("save file not found: " + (saveFile != null ? saveFile.getAbsolutePath() : "null"));
+            return;
+        }
+        new Thread(() -> launchPlayMode(saveFile.getAbsolutePath()), "cfhc-open-save").start();
+    }
+
     private static void fail(String message) {
         PlatformLog.e(TAG, message);
         System.err.println("Error: " + message);
     }
 
     private static void printUsage() {
-        System.out.println("Usage: java desktop.Main <command> [file]");
+        System.out.println("Usage: java -jar CFHC-desktop-" + DesktopVersion.VERSION
+                + ".jar [command] [file]");
+        System.out.println("       (or: java desktop.Main [command] [file] from a classpath build)");
         System.out.println("Commands:");
+        System.out.println("  (no args)          - Open the Swing Career Hub launcher");
         System.out.println("  new                - Launch a new desktop league from bundled resources");
         System.out.println("  inspect <savefile> - Print save metadata to console");
         System.out.println("  play    <savefile> - Launch graphical league home from an existing save");
         System.out.println("  stability          - Run a headless 3-season desktop new-game stability test");
         System.out.println("  help               - Show this message");
+        System.out.println();
+        System.out.println("Saves default to ~/.cfhc/saves (macOS/Windows use the OS app-data folder).");
+        System.out.println("Requires a Java 17+ runtime.");
     }
 
     private static DesktopResourceProvider createResourceProvider() {
@@ -133,8 +160,18 @@ public class Main {
             );
             league.setPlatformResourceProvider(resources);
             league.rebuildScheduleIfNeeded();
-            PlatformLog.i(TAG, "Launching play UI for " + saveFile.getAbsolutePath());
-            LeagueHomeView.show(league, saveFile);
+            javax.swing.SwingUtilities.invokeAndWait(() -> {
+                if (!DesktopTeamSelectionDialog.ensureUserTeam(null, league)) {
+                    PlatformLog.i(TAG, "Play mode cancelled — no user team selected");
+                    System.out.println("Play mode cancelled (no user team selected).");
+                    return;
+                }
+                PlatformLog.i(TAG, "Launching play UI for " + saveFile.getAbsolutePath());
+                LeagueHomeView.show(league, saveFile);
+            });
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            fail("play mode interrupted");
         } catch (Exception e) {
             PlatformLog.e(TAG, "Error launching play mode", e);
             System.err.println("Error launching play mode: " + e.getMessage());
@@ -148,11 +185,13 @@ public class Main {
             return;
         }
         try (FileInputStream fis = new FileInputStream(saveFile)) {
-            LeagueRecord league = SaveManager.load(fis);
+            SaveManager.LoadResult loaded = SaveManager.loadWithVersion(fis);
+            LeagueRecord league = loaded.record();
 
             System.out.println("League: " + league.leagueName());
             System.out.println("Year: " + league.year());
             System.out.println("Current Week: " + league.currentWeek());
+            System.out.println("Schema: " + loaded.schemaVersion());
             System.out.println("Total Conferences: " + league.conferences().size());
 
             int teams = league.conferences().stream().mapToInt(c -> c.teams().size()).sum();

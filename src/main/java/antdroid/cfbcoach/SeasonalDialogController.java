@@ -13,7 +13,7 @@ public final class SeasonalDialogController {
     public static void showPreseasonOptions(MainActivity activity, League simLeague, Runnable onSave) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setMessage("This will let you redshirt and set budgets in the future")
-                .setTitle(simLeague.getYear() + " Pre-Season")
+                .setTitle(simLeague.getYear() + " Preseason")
                 .setPositiveButton("OK", (dialog, which) -> {})
                 .setNegativeButton("SAVE PROGRESS", (dialog, which) -> {
                     if (onSave != null) onSave.run();
@@ -25,8 +25,11 @@ public final class SeasonalDialogController {
     }
 
     public static void showMidseasonSummary(MainActivity activity, Team userTeam, League simLeague) {
-        simLeague.midSeasonProgression();
-        String string = userTeam.midseasonUserProgression();
+        // Progression is applied by SeasonController before this dialog opens.
+        String string = userTeam != null ? userTeam.midseasonUserProgression() : "";
+        if (string == null || string.trim().isEmpty()) {
+            string = "No player rating changes to report this midseason.";
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setMessage(string)
                 .setTitle("Mid-Season Progress Report")
@@ -52,8 +55,8 @@ public final class SeasonalDialogController {
         activity.showImmersive(dialog);
         PlatformUiHelper.setDialogMessageTextSize(dialog);
 
-        simLeague.getNewsStories().get(simLeague.currentWeek + 1).add("Season Summary>" + simLeague.seasonSummaryStr());
-        simLeague.getNewsHeadlines().add("That wraps up the " + simLeague.getYear() + " Season");
+        simLeague.addNewsStory(simLeague.currentWeek + 1, "Season Summary>" + simLeague.seasonSummaryStr());
+        simLeague.addNewsHeadline("That wraps up the " + simLeague.getYear() + " Season");
     }
 
     public static void showPrestigeChange(MainActivity activity, League simLeague, Team userTeam) {

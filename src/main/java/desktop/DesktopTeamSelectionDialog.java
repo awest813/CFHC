@@ -13,6 +13,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -41,7 +42,7 @@ public class DesktopTeamSelectionDialog extends JDialog {
         this.league = league;
         setSize(700, 520);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(DesktopTheme.windowBackground());
+        DesktopTheme.styleDialogContentPane(getContentPane());
         buildUi();
     }
 
@@ -169,6 +170,10 @@ public class DesktopTeamSelectionDialog extends JDialog {
         selectBtn.addActionListener(e -> {
             Team team = teamList.getSelectedValue();
             if (team == null) {
+                JOptionPane.showMessageDialog(this,
+                        DesktopTheme.messageForDialog("Please select a team."),
+                        "No Team Selected",
+                        JOptionPane.WARNING_MESSAGE);
                 return;
             }
             markUserTeam(league, team);

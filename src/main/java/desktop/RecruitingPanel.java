@@ -7,6 +7,7 @@ import recruiting.RecruitingSessionData;
 import simulation.GameFlowManager;
 import simulation.League;
 import simulation.PlatformLog;
+import simulation.RosterRules;
 import simulation.SimulationFacade;
 import simulation.Team;
 
@@ -43,8 +44,6 @@ public class RecruitingPanel extends JPanel {
     private static final String TAG = "RecruitingPanel";
     private static final String[] BOARD_COLUMNS = {"Pos", "Name", "Stars", "Cost", "Overall"};
     private static final Font MONO = new Font(Font.MONOSPACED, Font.PLAIN, 12);
-
-    private static final int MAX_ROSTER_SIZE = 70;
 
     private final RecruitingController controller;
     private final RecruitingSessionData sessionData;
@@ -119,6 +118,8 @@ public class RecruitingPanel extends JPanel {
         bar.add(filterLbl);
         filterBox = new JComboBox<>(positionLabels.toArray(new String[0]));
         filterBox.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
+        filterBox.getAccessibleContext().setAccessibleName("Recruiting position filter");
+        filterLbl.setLabelFor(filterBox);
         filterBox.addActionListener(e -> {
             if (!updatingFilterItems) {
                 loadBoard(filterBox.getSelectedIndex());
@@ -182,7 +183,7 @@ public class RecruitingPanel extends JPanel {
 
         JScrollPane tableScroll = new JScrollPane(boardTable);
         StripedRowRenderer.install(boardTable);
-        DesktopTheme.styleDataTableInScroll(tableScroll, boardTable);
+        DesktopTheme.styleDataTableInScroll(tableScroll, boardTable, "Recruiting board");
         tableScroll.setPreferredSize(new Dimension(550, 0));
 
         JPanel rightPanel = new JPanel(new BorderLayout(0, 6));
@@ -279,7 +280,7 @@ public class RecruitingPanel extends JPanel {
         }
 
         if (currentList.isEmpty()) {
-            detailArea.setText("No recruits match this position. Try another position group or finish recruiting if your board is set.");
+            detailArea.setText(RecruitingPresentation.buildEmptyBoardMessage());
         } else if (boardTable.getSelectedRow() < 0) {
             detailArea.setText("Select a recruit to see scouting, cost, and roster fit.");
         }
@@ -389,6 +390,15 @@ public class RecruitingPanel extends JPanel {
 
         RecruitingPlayerRecord recruit = currentList.get(modelRow);
 
+        if (!sessionData.canRecruitMore()) {
+            JOptionPane.showMessageDialog(this,
+                    DesktopTheme.messageForDialog(
+                            "Roster is full (" + sessionData.projectedRosterSize()
+                                    + "/" + RosterRules.MAX_PLAYERS + ")."),
+                    "Cannot Recruit", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         if (recruit.cost() > sessionData.recruitingBudget) {
             JOptionPane.showMessageDialog(this,
                     DesktopTheme.messageForDialog(
@@ -398,14 +408,22 @@ public class RecruitingPanel extends JPanel {
             return;
         }
 
-        String msg = RecruitingPresentation.buildRecruitConfirmMessage(sessionData, MAX_ROSTER_SIZE, recruit);
+        String msg = RecruitingPresentation.buildRecruitConfirmMessage(
+                sessionData, RosterRules.MAX_PLAYERS, recruit);
         int choice = JOptionPane.showConfirmDialog(this,
                 DesktopTheme.messageForDialog(msg), "Confirm Recruit", JOptionPane.YES_NO_OPTION);
         if (choice != JOptionPane.YES_OPTION) {
             return;
         }
 
-        controller.recruitPlayer(recruit, false);
+        try {
+            controller.recruitPlayer(recruit, false);
+        } catch (IllegalStateException | IllegalArgumentException ex) {
+            JOptionPane.showMessageDialog(this,
+                    DesktopTheme.messageForDialog(ex.getMessage()),
+                    "Cannot Recruit", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         PlatformLog.i(TAG, "Recruited " + recruit.position() + " " + recruit.name()
                 + " for $" + recruit.cost());
 

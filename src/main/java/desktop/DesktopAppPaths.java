@@ -42,4 +42,14 @@ final class DesktopAppPaths {
         }
         return dir;
     }
+
+    /** Preferred starting directory for save/load file choosers. */
+    static File chooserStartDir() {
+        try {
+            return ensureSavesDir();
+        } catch (IOException e) {
+            File fallback = new File(System.getProperty("user.dir", "."));
+            return fallback.isDirectory() ? fallback : new File(".");
+        }
+    }
 }

@@ -16,7 +16,7 @@ This document tracks planned work for the **Swing desktop prototype** (`desktop.
 
 ## Near term (UX & parity)
 
-1. **Theme polish (remaining)** — Chase any remaining default-white panels. Choosers already use `DesktopTheme.styleFileChooser` and extra `UIManager` keys (see **File chooser + dialog shells (dark)** above); **native shell views can still differ by OS**. If that is unacceptable, escalate to **FlatLaf** or a custom chooser / accessory panel.
+1. **Theme polish (remaining)** — FlatLaf light/dark is bundled (`libs/flatlaf-*.jar`) via `DesktopTheme.installLookAndFeel`. Chase any remaining default-white panels; native OS file-chooser chrome can still differ by platform.
 2. **Tab surfaces** — `LeagueHomeView` analytics tabs now use `DesktopTheme.styleTabRoot`, `styleToolbar` / `styleFormControl`, `styleDataTableInScroll` (fixes viewport styling after tables mount), `styleListShell`, and `titledBorder` on dashboard + history + coach profile. Sweep any remaining secondary views (e.g. small dialogs) the same way.
 3. **Android parity gaps** — Track features still missing or simplified on desktop (full recruiting edge cases, save slot UX, Android import parity, and broader shared-service reuse).
 4. **Keyboard** — Document and implement more accelerators (e.g. jump to tab by number, focus table filter).
@@ -33,8 +33,13 @@ This document tracks planned work for the **Swing desktop prototype** (`desktop.
 
 ## Longer term
 
-1. **Packaging** — Signed installers (e.g. jpackage), auto-update channel, optional portable zip + JRE.
-2. **Accessibility** — High-contrast theme variant, focus traversal audit, screen-reader labels on tables.
+1. **Packaging** — Signed installers remain cert-blocked. Unsigned scaffolds exist:
+   - `desktopJpackageImage` / `desktopAppImage` — jpackage app **directory**
+   - `desktopPortableZip` — zip of that directory (bundled runtime)
+   - `desktopDmg` / `desktopMsi` — unsigned platform installers (macOS / Windows hosts only)
+   - True Linux `.AppImage` (appimagetool) still open
+2. **Updates** — Help → Check for Updates (GitHub Releases, manual download). Full auto-replace channel still open.
+3. **Accessibility** — High-contrast theme variant shipped; continue focus traversal audit and screen-reader labels.
 3. **Optional UI stack** — Evaluate JavaFX or embedded WebView only if the team commits to a second UI layer; default remains lightweight Swing + shared core.
 
 ---

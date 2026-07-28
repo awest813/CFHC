@@ -18,6 +18,7 @@ import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.UnsupportedAudioFileException;
 
 import simulation.AudioEvent;
 import simulation.AudioManager;
@@ -57,6 +58,11 @@ public class DesktopAudioManager implements AudioManager {
         if (!available) {
             PlatformLog.w(TAG, "No sound files loaded — audio is disabled");
         }
+    }
+
+    /** Whether any sound assets were loaded and playback has not been permanently disabled. */
+    boolean isAvailable() {
+        return available;
     }
 
     static String fileNameFor(AudioEvent event) {
@@ -113,9 +119,20 @@ public class DesktopAudioManager implements AudioManager {
                 }
             } catch (LineUnavailableException clipEx) {
                 if (clip != null) clip.close();
-                playViaSourceDataLine(data, format);
+                // Never block the EDT on the synchronous SourceDataLine drain path.
+                final AudioFormat fallbackFormat = format;
+                Thread fallback = new Thread(
+                        () -> playViaSourceDataLine(data, fallbackFormat),
+                        "cfhc-audio-fallback");
+                fallback.setDaemon(true);
+                fallback.start();
             }
+        } catch (UnsupportedAudioFileException e) {
+            PlatformLog.e(TAG, "Unsupported audio format for: " + event.name()
+                    + " (is vorbisspi/jorbis/tritonus on the classpath?)", e);
+            available = false;
         } catch (Exception e) {
+            // Transient mixer/line issues must not permanently mute the session.
             PlatformLog.e(TAG, "Failed to play sound: " + event.name(), e);
         } finally {
             if (ais != null) {
@@ -129,7 +146,6 @@ public class DesktopAudioManager implements AudioManager {
 
     private void playViaSourceDataLine(byte[] data, AudioFormat format) {
         try (AudioInputStream ais = AudioSystem.getAudioInputStream(new ByteArrayInputStream(data))) {
-            AudioFormat fmt = ais.getFormat();
             DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
             if (!AudioSystem.isLineSupported(info)) {
                 PlatformLog.w(TAG, "SourceDataLine not supported for format: " + format);

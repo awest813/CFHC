@@ -1,6 +1,5 @@
 package simulation;
 
-import desktop.DesktopResourceProvider;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,7 +27,7 @@ public class FullSeasonTest {
     public void setUp() {
         // Use the same resource-loading path as the desktop prototype.
         String projectRoot = System.getProperty("user.dir");
-        DesktopResourceProvider resources = new DesktopResourceProvider(projectRoot);
+        FileSystemResourceProvider resources = new FileSystemResourceProvider(projectRoot);
 
         league = new League(
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),

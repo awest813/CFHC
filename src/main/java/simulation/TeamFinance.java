@@ -125,7 +125,7 @@ public class TeamFinance {
                         " many of the schools looking for a replacement at that position. He has a career record of " + wins + "-" + losses + ". ");
                 team.league.addNewsHeadline(team.name + " " + team.HC.position + " " + team.HC.name + " rumored for a bigger program?");
                 if (Math.random() > 0.50) {
-                    team.league.getCoachStarList().add(team.HC);
+                    team.league.coachStarList.add(team.HC);
                 }
             }
             //New Contracts or Firing
@@ -207,15 +207,17 @@ public class TeamFinance {
         }
         if (team.userControlled) {
             if (team.newContract && proveIt)
-                team.contractString = "You have been given an additional " + team.HC.contractLength + "-year prove-it contract based on your team's recent momentum despite the uneven start to your tenure.";
+                team.contractString = CareerContractCopy.proveItExtension(team.HC.contractLength);
             else if (team.newContract) {
-                team.contractString = "Congratulations. You have been awarded a new " + team.HC.contractLength + "-year contract extension after this season's progress.";
+                team.contractString = CareerContractCopy.contractExtension(team.HC.contractLength);
             } else if (team.fired) {
-                team.contractString = "Due to your performance as head coach, the Athletic Director has terminated your contract and you are no longer the head coach of this school.";
+                team.contractString = CareerContractCopy.terminated();
             } else {
-                team.contractString = "You have " + (team.HC.contractLength - team.HC.contractYear)
-                        + " years left on your contract. Current prestige: " + team.teamPrestige + ". Baseline prestige: " + team.HC.baselinePrestige +
-                        ". Current status: " + team.HC.coachStatus() + ".";
+                team.contractString = CareerContractCopy.yearsRemaining(
+                        team.HC.contractLength - team.HC.contractYear,
+                        team.teamPrestige,
+                        team.HC.baselinePrestige,
+                        team.HC.coachStatus());
             }
         }
     }
@@ -244,7 +246,7 @@ public class TeamFinance {
 
             if (coord.getStaffOverall(ovr) >= 75 || coord.baselinePrestige >= 5 || coord.baselinePrestige >= 2 && coord.getCumulativeCoord() >= 10) {
                 if (Math.random() > 0.50) {
-                    team.league.getCoachStarList().add(coord);
+                    team.league.coachStarList.add(coord);
                     if(coord.getStaffOverall(ovr) >= 80) {
                         team.league.addNewsStory(team.league.currentWeek + 1,"Coordinator Advancement Rumor>After another successful season at " + team.name + ", " + age + " year " + coord.position + " " + coord.name + " has sparked interest at many of the schools looking for a replacement at Head Coach. He has a career record of " + team.wins + "-" + team.losses + ". ");
                         team.league.addNewsHeadline(team.name + " " + coord.position + " " + coord.name + " heading for a possible HC job?");

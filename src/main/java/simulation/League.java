@@ -105,6 +105,12 @@ import staff.HeadCoach;
 import staff.OC;
 import staff.Staff;
 
+/**
+ * Core league simulation state.
+ *
+ * <p><b>Threading:</b> not safe for concurrent mutation. See {@code docs/THREADING.md}.
+ */
+@NotThreadSafe
 public class League {
     public static final String CURRENT_SAVE_VERSION = "v1.4e";
 
@@ -121,21 +127,29 @@ public class League {
         this.resProvider = resProvider;
     }
 
-    public ArrayList<String[]> leagueHistory;
-    public ArrayList<String> heismanHistory;
-    public ArrayList<PlayerRecord> leagueHoF;
-    public ArrayList<Conference> conferences;
-    public ArrayList<Team> teamList;
-    public ArrayList<Staff> coachList;
-    public ArrayList<Staff> coachStarList;
-    public ArrayList<Staff> coachFreeAgents;
-    public ArrayList<Staff> coachDatabase;
-    public ArrayList<String> nameList;
-    public ArrayList<String> lastNameList;
-    public ArrayList<ArrayList<String>> newsStories;
-    public ArrayList<String> newsHeadlines;
-    public ArrayList<ArrayList<String>> weeklyScores;
-    public ArrayList<String> teamDiscipline;
+    // Package-private history / HoF — use getLeagueHistory(), getLeagueHoF()/addToHallOfFame().
+    ArrayList<String[]> leagueHistory;
+    ArrayList<String> heismanHistory;
+    ArrayList<PlayerRecord> leagueHoF;
+    // Package-private — use getConferences()/addConference() and getTeamList()/addTeam().
+    ArrayList<Conference> conferences;
+    ArrayList<Team> teamList;
+    // Package-private coach pools — use getCoachList()/addCoach(), getCoachStarList(),
+    // getCoachFreeAgents()/addCoachFreeAgent()/removeCoachFreeAgent(), getCoachDatabase().
+    ArrayList<Staff> coachList;
+    ArrayList<Staff> coachStarList;
+    ArrayList<Staff> coachFreeAgents;
+    ArrayList<Staff> coachDatabase;
+    // Package-private name pools (League-only).
+    ArrayList<String> nameList;
+    ArrayList<String> lastNameList;
+    // Package-private news lists — use getNewsStories()/addNewsStory(), getNewsHeadlines(),
+    // getWeeklyScores(), getNewsTV().
+    ArrayList<ArrayList<String>> newsStories;
+    ArrayList<String> newsHeadlines;
+    ArrayList<ArrayList<String>> weeklyScores;
+    // Package-private scratch list for disciplineAction() news.
+    ArrayList<String> teamDiscipline;
     public double disciplineChance = 0.085;
     public double disciplineScrutiny = 0.035;
 
@@ -171,33 +185,35 @@ public class League {
     public Team userTeam;
 
     //Freshman Team
-    public ArrayList<PlayerQB> fQBs;
-    public ArrayList<PlayerRB> fRBs;
-    public ArrayList<PlayerWR> fWRs;
-    public ArrayList<PlayerTE> fTEs;
-    public ArrayList<PlayerK> fKs;
-    public ArrayList<PlayerOL> fOLs;
-    public ArrayList<PlayerDL> fDLs;
-    public ArrayList<PlayerLB> fLBs;
-    public ArrayList<PlayerCB> fCBs;
-    public ArrayList<PlayerS> fSs;
+    ArrayList<PlayerQB> fQBs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerRB> fRBs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerWR> fWRs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerTE> fTEs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerK> fKs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerOL> fOLs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerDL> fDLs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerLB> fLBs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerCB> fCBs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerS> fSs;  // package-private; use getters / addToTransferPool
     //Transfer List
-    public ArrayList<PlayerQB> transferQBs;
-    public ArrayList<PlayerRB> transferRBs;
-    public ArrayList<PlayerWR> transferWRs;
-    public ArrayList<PlayerTE> transferTEs;
-    public ArrayList<PlayerK> transferKs;
-    public ArrayList<PlayerOL> transferOLs;
-    public ArrayList<PlayerDL> transferDLs;
-    public ArrayList<PlayerLB> transferLBs;
-    public ArrayList<PlayerCB> transferCBs;
-    public ArrayList<PlayerS> transferSs;
+    ArrayList<PlayerQB> transferQBs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerRB> transferRBs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerWR> transferWRs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerTE> transferTEs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerK> transferKs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerOL> transferOLs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerDL> transferDLs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerLB> transferLBs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerCB> transferCBs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerS> transferSs;  // package-private; use getters / addToTransferPool
     public String userTransfers;
     public String sumTransfers;
-    public ArrayList<String> transfersList;
-    public ArrayList<Player> userTransferList;
-    public ArrayList<Player> freshmen;
-    public ArrayList<Player> redshirts;
+    // Package-private transfer / class tracking — use getUserTransferList(), getFreshmen()/addFreshman(),
+    // getRedshirts()/addRedshirt().
+    ArrayList<String> transfersList;
+    ArrayList<Player> userTransferList;
+    ArrayList<Player> freshmen;
+    ArrayList<Player> redshirts;
     public String[] bowlNames;
     public BowlManager bowlManager;
 
@@ -216,8 +232,10 @@ public class League {
     public int countRealignment;
     public String newsRealignment;
     public boolean updateTV;
-    public ArrayList<String> newsTV;
-    public ArrayList<Team> playoffTeams;
+    // Package-private — use getNewsTV().
+    ArrayList<String> newsTV;
+    // Package-private — use getPlayoffTeams().
+    ArrayList<Team> playoffTeams;
     public String postseason;
 
     public static final int DEFAULT_NEW_SAVE_YEAR = 2026;
@@ -240,12 +258,13 @@ public class League {
     public Player defPOTY;
     public HeadCoach coachWinner;
     public Player freshman;
-    public ArrayList<Player> heismanCandidates;
-    public ArrayList<Player> defPOTYCandidates;
-    public ArrayList<Player> freshmanCandidates;
-    public ArrayList<Player> allAmericans;
-    public ArrayList<Player> allAmericans2;
-    public ArrayList<Player> allFreshman;
+    // Package-private award scratch lists (filled by ceremony string builders).
+    ArrayList<Player> heismanCandidates;
+    ArrayList<Player> defPOTYCandidates;
+    ArrayList<Player> freshmanCandidates;
+    ArrayList<Player> allAmericans;
+    ArrayList<Player> allAmericans2;
+    ArrayList<Player> allFreshman;
     public String heismanWinnerStrFull;
     /** Last national champion school name (persisted; also set when the NCG is simulated). */
     public String nationalChampionName = "";
@@ -256,7 +275,8 @@ public class League {
 
 
 
-    public ArrayList<String> teamsFCSList;
+    // Package-private — use getTeamsFCSList().
+    ArrayList<String> teamsFCSList;
 
     public final String[] proTeams = {"New England", "Buffalo", "New York Jets", "Miami", "Pittsburgh", "Baltimore", "Cincinnati", "Cleveland", "Jacksonville", "Indianapolis", "Houston", "Tennessee", "Kansas City", "Las Vegas", "Denver",
             "New York Giants", "Philadelphia", "Dallas", "Washington", "Minnesota", "Chicago", "Green Bay", "Detroit", "New Orleans", "Carolina", "Tampa Bay", "Atlanta", "Seattle", "Los Angeles", "San Francisco", "Arizona"};
@@ -601,10 +621,12 @@ public class League {
 
             //First ignore the save file info
             line = bufferedReader.readLine();
-            if (line != null && line.startsWith("L:")) {
-                // NEW FORMAT DETECTION
+            if (line != null && (line.startsWith("L:") || line.startsWith(SaveSchema.VERSION_PREFIX))) {
+                // NEW FORMAT DETECTION (V: schema header and/or L: league header)
                 try (FileInputStream fis = new FileInputStream(saveFile)) {
-                    applyLeagueRecord(SaveManager.load(fis));
+                    SaveManager.LoadResult loaded = SaveManager.loadWithVersion(fis);
+                    applyLeagueRecord(loaded.record());
+                    this.saveVer = loaded.schemaVersion();
                 } catch (Exception ex) {
                     throw new IllegalStateException(
                             "Failed to load new-format save: " + saveFile.getAbsolutePath(), ex);
@@ -1317,6 +1339,10 @@ public class League {
         linkUserTeamFromLoadedCoaches();
 
         restoreScheduledGames(record.scheduledGames());
+
+        // New-format loads skip setupSeason(), which normally allocates weekly news/score
+        // buckets. Without this, preseasonNews/topRecruits NPEs on newsStories.
+        ensureSeasonWeekListsCapacity(Math.max(seasonWeeks, currentWeek + 4));
     }
 
     /**
@@ -1407,135 +1433,7 @@ public class League {
             }
         }
 
-        //set up schedule
-        for (int i = 0; i < conferences.size(); ++i) {
-            conferences.get(i).setUpSchedule();
-        }
-
-        //decide OOC schedule
-        for (int r = 0; r < regSeasonWeeks; r++) {
-            int j = 0;
-            int k = 0;
-
-            for (int c = 0; c < conferences.size(); c++) {
-                if (r < conferences.get(c).oocGames && conferences.get(c).confTeams.size() >= conferences.get(c).minConfTeams) {
-                    boolean scheduled = false;
-                    k = k + (int) (Math.random() * 4);
-                    while (!scheduled) {
-                        int week = (j + r + k) % (regSeasonWeeks - 1);
-                        if (!conferences.get(c).oocWeeks.contains(week)) {
-                            conferences.get(c).oocWeeks.add(week);
-                            for (int t = 0; t < conferences.get(c).confTeams.size(); t++) {
-                                conferences.get(c).confTeams.get(t).addOocWeek(week);
-                            }
-                            scheduled = true;
-                        } else {
-                            k = k + 2;
-                        }
-                    }
-                    j++;
-                } else if (conferences.get(c).confTeams.size() < conferences.get(c).minConfTeams && r < conferences.get(c).oocGames) {
-                    for (int t = 0; t < conferences.get(c).confTeams.size(); t++) {
-                        conferences.get(c).confTeams.get(t).addOocWeek(r);
-                    }
-                }
-            }
-        }
-
-        //setup FCS Team Database
-
-        //get list of team names
-        ArrayList<String> leagueTeams = new ArrayList<>();
-        for(int i = 0; i < teamList.size(); i++) {
-            leagueTeams.add(teamList.get(i).getName());
-        }
-
-        teamsFCSList = new ArrayList<>();
-        for(int i = 0; i < teamsFCS.length; i++) {
-            if(!leagueTeams.contains(teamsFCS[i])) teamsFCSList.add(teamsFCS[i]);
-        }
-
-        //Setup OOC v3 Scheduling
-        if (!enableUnivProRel) {
-            for (int week = 0; week < (regSeasonWeeks-1); week++) {
-
-                ArrayList<Team> availTeams = new ArrayList<>();
-                for (int t = 0; t < teamList.size(); t++) {
-                    if (teamList.get(t).getOocWeeks().contains(week)) {
-                        availTeams.add(teamList.get(t));
-                    }
-                }
-
-                while (availTeams.size() > 0) {
-                    int selTeamA = (int) (availTeams.size() * Math.random());
-                    Team a = availTeams.get(selTeamA);
-
-                    ArrayList<Team> availTeamsB = new ArrayList<>();
-                    for (int k = 0; k < availTeams.size(); k++) {
-                        if (!availTeams.get(k).getConference().equals(a.getConference()) && !a.getOocTeams().contains(availTeams.get(k))) {
-                            availTeamsB.add(availTeams.get(k));
-                        }
-                    }
-                    Team b;
-
-                    if (availTeamsB.isEmpty()) {
-                        if(teamsFCSList.isEmpty())
-                            b = new Team("Antdroid Tech", "FCS", "FCS Division", (int) (Math.random() * 40), "FCS1", 0, this, false);
-                        else
-                            b = new Team(teamsFCSList.get((int) (teamsFCSList.size() * Math.random())), "FCS", "FCS Division", (int) (Math.random() * 40), "FCS1", 0, this, false);
-                    } else {
-                        int selTeamB = (int) (availTeamsB.size() * Math.random());
-                        b = availTeamsB.get(selTeamB);
-                    }
-
-                    Game gm;
-                    gm = new Game(a, b, "OOC");
-
-                    if (a.getGameSchedule().size() != b.getGameSchedule().size()) {
-                        PlatformLog.d("league", "setupSeason: week " + week + " " + a.getName() + " size"
-                                + a.getGameSchedule().size() + " vs " + b.getName() + " size"
-                                + b.getGameSchedule().size());
-                    }
-
-                    // Append OOC games (don't insert by week — insertion fails when
-                    // the schedule is too small for the week index, silently dropping
-                    // games for teams with fewer conf games).
-                    Game oocGame = gm;
-                    if (!a.getConference().contains("Independent") && !a.getConference().contains("FCS")) {
-                        a.addGameToSchedule(oocGame);
-                    }
-                    if (!b.getConference().contains("Independent") && !b.getConference().contains("FCS"))  {
-                        b.addGameToSchedule(oocGame);
-                    }
-
-                    if (a.getConference().contains("Independent")) {
-                        a.addGameToSchedule(oocGame);
-                    }
-                    if (b.getConference().contains("Independent")) {
-                        b.addGameToSchedule(oocGame);
-                    }
-
-                    a.addOocTeam(b);
-                    b.addOocTeam(a);
-
-                    availTeams.remove(a);
-                    availTeams.remove(b);
-                }
-
-            }
-
-
-            // Ensure every team has at least regSeasonWeeks-1 games
-            Team bye = new Team("BYE", "BYE", "BYE", 0, "BYE", 0, this);
-            bye.setRankTeamPollScore(teamList.size());
-            int targetGames = regSeasonWeeks - 1;
-            for (Team t : teamList) {
-                while (t.getGameSchedule().size() < targetGames) {
-                    t.addGameToSchedule(new Game(t, bye, "BYE WEEK"));
-                }
-            }
-
-        }
+        ScheduleManager.scheduleRegularSeason(this);
 
         confAvg = getAverageConfPrestige();
 
@@ -1599,7 +1497,7 @@ public class League {
 
         if (sb.length() > 0) {
             newsStories.get(0).add("Upgraded Facilities!>The following teams upgraded their team training facilities this off-season:\n\n" + sb);
-            newsHeadlines.add("Off-Season Facilities Upgrades Boost Prestige!");
+            newsHeadlines.add("Offseason Facilities Upgrades Boost Prestige!");
         }
 
         sb = new StringBuilder();
@@ -2286,31 +2184,7 @@ public class League {
      * @return Heisman Winner
      */
     public ArrayList<Player> getHeisman() {
-        ArrayList<Player> heismanCandidates = new ArrayList<>();
-        for (int i = 0; i < teamList.size(); ++i) {
-            //qb
-            for (int qb = 0; qb < teamList.get(i).getTeamQBs().size(); ++qb) {
-                heismanCandidates.add(teamList.get(i).getTeamQBs().get(qb));
-            }
-
-            //rb
-            for (int rb = 0; rb < teamList.get(i).getTeamRBs().size(); ++rb) {
-                heismanCandidates.add(teamList.get(i).getTeamRBs().get(rb));
-            }
-
-            //wr
-            for (int wr = 0; wr < teamList.get(i).getTeamWRs().size(); ++wr) {
-                heismanCandidates.add(teamList.get(i).getTeamWRs().get(wr));
-            }
-
-            //te
-            for (int te = 0; te < teamList.get(i).getTeamTEs().size(); ++te) {
-                heismanCandidates.add(teamList.get(i).getTeamTEs().get(te));
-            }
-        }
-        Collections.sort(heismanCandidates, new CompPlayerHeisman());
-
-        return heismanCandidates;
+        return LeagueAwards.getHeismanCandidates(this);
     }
 
     /**
@@ -2352,35 +2226,12 @@ public class League {
     }
 
     /**
-     * Calculates who wins the Heisman.
+     * Calculates who wins Defensive Player of the Year.
      *
-     * @return Heisman Winner
+     * @return Defensive POTY candidates ranked
      */
     public ArrayList<Player> getDefPOTY() {
-        ArrayList<Player> heismanCandidates = new ArrayList<>();
-        for (int i = 0; i < teamList.size(); ++i) {
-            //dl
-            for (int dl = 0; dl < teamList.get(i).getTeamDLs().size(); ++dl) {
-                heismanCandidates.add(teamList.get(i).getTeamDLs().get(dl));
-            }
-            //lb
-            for (int lb = 0; lb < teamList.get(i).getTeamLBs().size(); ++lb) {
-                heismanCandidates.add(teamList.get(i).getTeamLBs().get(lb));
-            }
-
-            //cb
-            for (int cb = 0; cb < teamList.get(i).getTeamCBs().size(); ++cb) {
-                heismanCandidates.add(teamList.get(i).getTeamCBs().get(cb));
-            }
-
-            //s
-            for (int s = 0; s < teamList.get(i).getTeamSs().size(); ++s) {
-                heismanCandidates.add(teamList.get(i).getTeamSs().get(s));
-            }
-        }
-        Collections.sort(heismanCandidates, new CompPlayerHeisman());
-
-        return heismanCandidates;
+        return LeagueAwards.getDefensivePotyCandidates(this);
     }
 
     /**
@@ -3204,12 +3055,17 @@ public class League {
         Collections.sort(coachList, new CompCoachOvr());
         for (int i = 0; i < coachList.size(); ++i) {
             final Staff c = coachList.get(i);
+            if (c == null) {
+                continue;
+            }
+            String prevTeam = c.team != null && c.team.getName() != null ? c.team.getName() : "N/A";
             for (int t = 0; t < teamList.size(); ++t) {
-                if (teamList.get(t).getHeadCoach() == null && coachList.get(i).getStaffOverall(ovr) >= teamList.get(t).getMinCoachHireReq() && !teamList.get(t).getName().equals(coachList.get(i).team.getName()) && Math.random() > 0.60) {
+                if (teamList.get(t).getHeadCoach() == null && c.getStaffOverall(ovr) >= teamList.get(t).getMinCoachHireReq()
+                        && !teamList.get(t).getName().equals(prevTeam) && Math.random() > 0.60) {
 
-                    newsStories.get(currentWeek + 1).add("Coaching Switch: " + teamList.get(t).getName() + ">After an extensive search for a new head coach, " + teamList.get(t).strRankTeamRecord() + " has hired " + coachList.get(i).name +
-                            " to lead the team. Head Coach " + coachList.get(i).name + " previously coached at " + coachList.get(i).team.getName() + ", before being let go this past season.");
-                    newsHeadlines.add(teamList.get(t).strRankTeamRecord() + " has hired recently fired " + coachList.get(i).name + ".");
+                    newsStories.get(currentWeek + 1).add("Coaching Switch: " + teamList.get(t).getName() + ">After an extensive search for a new head coach, " + teamList.get(t).strRankTeamRecord() + " has hired " + c.name +
+                            " to lead the team. Head Coach " + c.name + " previously coached at " + prevTeam + ", before being let go this past season.");
+                    newsHeadlines.add(teamList.get(t).strRankTeamRecord() + " has hired recently fired " + c.name + ".");
                     teamList.get(t).setHeadCoach(new HeadCoach(c, teamList.get(t)));
                     teamList.get(t).getHeadCoach().contractLength = 6;
                     teamList.get(t).getHeadCoach().contractYear = 0;
@@ -3239,18 +3095,31 @@ public class League {
 
     //Hiring method for teams that get poached
     public void coachHiringSingleTeam(Team school) {
+        if (school == null) {
+            return;
+        }
         int[] ovr = {1,1,1,1};
         //Rising Star Coaches
         for (int i = 0; i < coachStarList.size(); ++i) {
             final Staff c = coachStarList.get(i);
+            if (c == null) {
+                continue;
+            }
 
+            // Free-agent / unattached rising stars may have a null team reference.
             String tmName = "N/A";
-            if(coachStarList.get(i).team.getName() != null) tmName = coachStarList.get(i).team.getName();
-            final String pos = coachStarList.get(i).position;
-            int tmPres = coachStarList.get(i).team.getTeamPrestige();
-            int cPres = coachStarList.get(i).team.getConfPrestige();
+            int tmPres = 0;
+            int cPres = 0;
+            if (c.team != null) {
+                if (c.team.getName() != null) {
+                    tmName = c.team.getName();
+                }
+                tmPres = c.team.getTeamPrestige();
+                cPres = c.team.getConfPrestige();
+            }
+            final String pos = c.position == null ? "" : c.position;
 
-            if (coachStarList.get(i).getStaffOverall(ovr) >= school.getMinCoachHireReq() && !school.getName().equals(tmName) && Math.random() > 0.60) {
+            if (c.getStaffOverall(ovr) >= school.getMinCoachHireReq() && !school.getName().equals(tmName) && Math.random() > 0.60) {
                 if (school.getTeamPrestige() > tmPres && school.getConfPrestige() > cPres || school.getTeamPrestige() > tmPres + 5 || school.getConfPrestige() + 10 > cPres) {
                     school.setHeadCoach(new HeadCoach(c, school));
                     school.getHeadCoach().contractLength = 6;
@@ -3325,7 +3194,12 @@ public class League {
             Collections.sort(coachList, new CompCoachOvr());
             for (int i = 0; i < coachList.size(); ++i) {
                 final Staff c = coachList.get(i);
-                if (school.getHeadCoach() == null && coachList.get(i).getStaffOverall(ovr) + 5 >= school.getMinCoachHireReq() && !school.getName().equals(coachList.get(i).team.getName()) && Math.random() > 0.45) {
+                if (c == null) {
+                    continue;
+                }
+                String prevTeam = c.team != null && c.team.getName() != null ? c.team.getName() : "N/A";
+                if (school.getHeadCoach() == null && c.getStaffOverall(ovr) + 5 >= school.getMinCoachHireReq()
+                        && !school.getName().equals(prevTeam) && Math.random() > 0.45) {
                     school.setHeadCoach(new HeadCoach(c, school));
                     school.getHeadCoach().contractLength = 6;
                     school.getHeadCoach().contractYear = 0;
@@ -3333,7 +3207,7 @@ public class League {
                     school.getHeadCoach().team = school;
                     coachList.remove(c);
                     newsStories.get(currentWeek + 1).add("Coaching Change: " + school.getName() + ">After an extensive search for a new head coach, " + school.getName() + " has hired " + school.getHeadCoach().name +
-                            " to lead the team. Head Coach " + school.getHeadCoach().name + " previously coached at " + coachList.get(i).team.getName() + ", before being let go this past season.");
+                            " to lead the team. Head Coach " + school.getHeadCoach().name + " previously coached at " + prevTeam + ", before being let go this past season.");
                     newsHeadlines.add(school.getName() + " has hired recently unemployed " + school.getHeadCoach().name + ".");
 
                     school.newCoachDecisions();
@@ -6409,6 +6283,22 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     /**
+     * Append a year-row entry to league history.
+     */
+    public void addLeagueHistory(String[] yearRow) {
+        if (yearRow != null) {
+            leagueHistory.add(yearRow);
+        }
+    }
+
+    /**
+     * Get an unmodifiable view of Heisman winner history strings.
+     */
+    public java.util.List<String> getHeismanHistory() {
+        return java.util.Collections.unmodifiableList(heismanHistory);
+    }
+
+    /**
      * Get an unmodifiable view of the Hall of Fame players.
      * Use {@link #addToHallOfFame(PlayerRecord)} to add players.
      */
@@ -6466,9 +6356,10 @@ Then conferences can see if they want to add them to their list if the teams mee
 
     /**
      * Get an unmodifiable view of star coaches.
+     * Use {@link #addCoachStar(Staff)} and {@link #removeCoachStar(Staff)} to modify.
      */
     public java.util.List<Staff> getCoachStarList() {
-        return coachStarList;
+        return java.util.Collections.unmodifiableList(coachStarList);
     }
 
     /**
@@ -6476,7 +6367,7 @@ Then conferences can see if they want to add them to their list if the teams mee
      * Use {@link #addCoachFreeAgent(Staff)} and {@link #removeCoachFreeAgent(Staff)} to modify.
      */
     public java.util.List<Staff> getCoachFreeAgents() {
-        return coachFreeAgents;
+        return java.util.Collections.unmodifiableList(coachFreeAgents);
     }
 
     /**
@@ -6486,6 +6377,22 @@ Then conferences can see if they want to add them to their list if the teams mee
         if (coach != null) {
             coachList.add(coach);
         }
+    }
+
+    /**
+     * Add a coach to the star / carousel pool.
+     */
+    public void addCoachStar(Staff coach) {
+        if (coach != null && !coachStarList.contains(coach)) {
+            coachStarList.add(coach);
+        }
+    }
+
+    /**
+     * Remove a coach from the star / carousel pool.
+     */
+    public void removeCoachStar(Staff coach) {
+        coachStarList.remove(coach);
     }
 
     /**
@@ -6537,7 +6444,11 @@ Then conferences can see if they want to add them to their list if the teams mee
      * Add a news story for a specific week.
      */
     public void addNewsStory(int week, String story) {
-        if (week >= 0 && week < newsStories.size() && story != null) {
+        if (week < 0 || story == null) {
+            return;
+        }
+        ensureSeasonWeekListsCapacity(week);
+        if (week < newsStories.size()) {
             newsStories.get(week).add(story);
         }
     }
@@ -6611,7 +6522,7 @@ Then conferences can see if they want to add them to their list if the teams mee
      * Get an unmodifiable view of freshmen players.
      */
     public java.util.List<Player> getFreshmen() {
-        return freshmen;
+        return java.util.Collections.unmodifiableList(freshmen);
     }
 
     /**
@@ -6627,7 +6538,7 @@ Then conferences can see if they want to add them to their list if the teams mee
      * Get an unmodifiable view of redshirted players.
      */
     public java.util.List<Player> getRedshirts() {
-        return redshirts;
+        return java.util.Collections.unmodifiableList(redshirts);
     }
 
     /**
@@ -6643,7 +6554,10 @@ Then conferences can see if they want to add them to their list if the teams mee
      * Get an unmodifiable view of TV news entries.
      */
     public java.util.List<String> getNewsTV() {
-        return newsTV;
+        if (newsTV == null) {
+            return java.util.Collections.emptyList();
+        }
+        return java.util.Collections.unmodifiableList(newsTV);
     }
 
     /**

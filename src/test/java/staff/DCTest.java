@@ -1,6 +1,6 @@
 package staff;
 
-import desktop.DesktopResourceProvider;
+import simulation.FileSystemResourceProvider;
 import org.junit.Before;
 import org.junit.Test;
 import simulation.League;
@@ -16,7 +16,7 @@ public class DCTest {
 
     @Before
     public void setUp() {
-        DesktopResourceProvider resources = new DesktopResourceProvider(System.getProperty("user.dir"));
+        FileSystemResourceProvider resources = new FileSystemResourceProvider(System.getProperty("user.dir"));
         League league = new League(
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES),

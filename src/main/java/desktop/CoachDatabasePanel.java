@@ -37,6 +37,7 @@ public class CoachDatabasePanel implements LeagueScreen {
 
         JComboBox<String> categoryBox = new JComboBox<>(COACH_DATABASE_CATEGORIES);
         categoryBox.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        categoryBox.getAccessibleContext().setAccessibleName("Coach database category");
 
         String[] columns = {"Rank", "Coach", "Value"};
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
@@ -76,7 +77,7 @@ public class CoachDatabasePanel implements LeagueScreen {
         topPanel.add(topBar, BorderLayout.SOUTH);
         panel.add(topPanel, BorderLayout.NORTH);
         JScrollPane coachDbScroll = new JScrollPane(table);
-        DesktopTheme.styleDataTableInScroll(coachDbScroll, table);
+        DesktopTheme.styleDataTableInScroll(coachDbScroll, table, "Coach database");
         panel.add(coachDbScroll, BorderLayout.CENTER);
         return panel;
     }

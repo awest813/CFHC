@@ -1,6 +1,5 @@
 package simulation;
 
-import desktop.DesktopResourceProvider;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,7 +16,7 @@ public class OddConferenceScheduleTest {
 
     @Before
     public void setUp() {
-        DesktopResourceProvider resources = new DesktopResourceProvider(System.getProperty("user.dir"));
+        FileSystemResourceProvider resources = new FileSystemResourceProvider(System.getProperty("user.dir"));
         league = new League(
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES),
@@ -34,7 +33,7 @@ public class OddConferenceScheduleTest {
     @Test
     public void oddConference_buildsScheduleWithoutByeTeamOnRoster() {
         Conference target = null;
-        for (Conference c : league.conferences) {
+        for (Conference c : league.getConferences()) {
             if (c.confTeams.size() % 2 != 0 && c.confTeams.size() >= c.minConfTeams) {
                 target = c;
                 break;
@@ -44,8 +43,8 @@ public class OddConferenceScheduleTest {
             return;
         }
 
-        for (Team t : league.teamList) {
-            t.gameSchedule.clear();
+        for (Team t : league.getTeamList()) {
+            t.clearGameSchedule();
         }
 
         target.setUpSchedule();

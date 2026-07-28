@@ -1,6 +1,5 @@
 package simulation;
 
-import desktop.DesktopResourceProvider;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,7 +16,7 @@ public class LeagueSaveHeaderYearTest {
     @Before
     public void setUp() {
         String projectRoot = System.getProperty("user.dir");
-        DesktopResourceProvider resources = new DesktopResourceProvider(projectRoot);
+        FileSystemResourceProvider resources = new FileSystemResourceProvider(projectRoot);
         league = new League(
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES),
@@ -62,7 +61,7 @@ public class LeagueSaveHeaderYearTest {
 
     @Test
     public void standardHeader_subtractsHistoryDepth() {
-        league.leagueHistory.add(new String[]{"row"});
+        league.addLeagueHistory(new String[]{"row"});
         assertEquals(2039, league.getSeasonStartFromSaveHeader("2040:payload"));
     }
 }

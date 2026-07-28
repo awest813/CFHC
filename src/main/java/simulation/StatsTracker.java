@@ -69,7 +69,7 @@ public class StatsTracker {
                     count++;
                 }
             }
-            return (float) rat / count;
+            return count == 0 ? 0f : (float) rat / count;
         } else {
             return (this.getRushDef() + this.getPassDef()) / 2;
         }
@@ -77,24 +77,28 @@ public class StatsTracker {
 
     public float getCompositeFootIQ() {
         float comp = 0;
-        comp += team.getQB(0).ratIntelligence * 5;
-        comp += team.getRB(0).ratIntelligence + team.getRB(1).ratIntelligence;
-        comp += team.getWR(0).ratIntelligence + team.getWR(1).ratIntelligence + team.getWR(2).ratIntelligence;
-        comp += team.getTE(0).ratIntelligence;
+        comp += iq(team.getQB(0)) * 5;
+        comp += iq(team.getRB(0)) + iq(team.getRB(1));
+        comp += iq(team.getWR(0)) + iq(team.getWR(1)) + iq(team.getWR(2));
+        comp += iq(team.getTE(0));
         for (int i = 0; i < 5; ++i) {
-            comp += team.getOL(i).ratIntelligence;
+            comp += iq(team.getOL(i));
         }
-        comp += team.getS(0).ratIntelligence * 4 + team.getS(1).ratIntelligence * 4;
-        comp += team.getCB(0).ratIntelligence + team.getCB(1).ratIntelligence + team.getCB(2).ratIntelligence;
+        comp += iq(team.getS(0)) * 4 + iq(team.getS(1)) * 4;
+        comp += iq(team.getCB(0)) + iq(team.getCB(1)) + iq(team.getCB(2));
         for (int i = 0; i < 4; ++i) {
-            comp += team.getDL(i).ratIntelligence;
+            comp += iq(team.getDL(i));
         }
         for (int i = 0; i < 3; ++i) {
-            comp += team.getLB(i).ratIntelligence;
+            comp += iq(team.getLB(i));
         }
-        comp += team.HC.ratDef * 4 + team.HC.ratOff * 4;
-        comp += (team.getRB(2).ratIntelligence + team.getWR(3).ratIntelligence + team.getWR(4).ratIntelligence + team.getTE(1).ratIntelligence + team.getOL(5).ratIntelligence + team.getOL(6).ratIntelligence +
-                team.getDL(4).ratIntelligence + team.getDL(5).ratIntelligence + team.getLB(3).ratIntelligence + team.getCB(4).ratIntelligence + 2 * team.getS(2).ratIntelligence) / 12;
+        if (team.HC != null) {
+            comp += team.HC.ratDef * 4 + team.HC.ratOff * 4;
+        }
+        comp += (iq(team.getRB(2)) + iq(team.getWR(3)) + iq(team.getWR(4)) + iq(team.getTE(1))
+                + iq(team.getOL(5)) + iq(team.getOL(6))
+                + iq(team.getDL(4)) + iq(team.getDL(5)) + iq(team.getLB(3))
+                + iq(team.getCB(4)) + 2 * iq(team.getS(2))) / 12f;
         return comp / 43;
     }
 
@@ -125,8 +129,11 @@ public class StatsTracker {
         float wr2 = team.teamWRs.size() > 2 ? team.teamWRs.get(2).ratOvr : 0;
         float te0c = team.teamTEs.size() > 0 ? team.teamTEs.get(0).getRatCatch() : 0;
         float avgWRs = (wr0 + wr1 + wr2 + te0c) / 4;
-        float avgSubs = (2 * team.getWR(3).getRatCatch() + team.getTE(1).getRatCatch() + team.getRB(0).getRatCatch() + team.getRB(1).getRatCatch() + team.getRB(2).getRatCatch()) / 6;
-        return (2 * this.getCompositeOLPass() + team.getQB(0).ratOvr * 5 + avgWRs * 4 + team.HC.ratOff * 2 + avgSubs) / 14;
+        float avgSubs = (2 * catchRating(team.getWR(3)) + catchRating(team.getTE(1))
+                + catchRating(team.getRB(0)) + catchRating(team.getRB(1)) + catchRating(team.getRB(2))) / 6;
+        float qb = ovr(team.getQB(0));
+        float hcOff = team.HC != null ? team.HC.ratOff : 0;
+        return (2 * this.getCompositeOLPass() + qb * 5 + avgWRs * 4 + hcOff * 2 + avgSubs) / 14;
     }
 
     public float getRushProf() {
@@ -134,8 +141,9 @@ public class StatsTracker {
         float rb1 = team.teamRBs.size() > 1 ? team.teamRBs.get(1).ratOvr : 0;
         float avgRBs = (rb0 + rb1) / 2;
         float QB = team.teamQBs.size() > 0 ? team.teamQBs.get(0).getRatSpeed() : 0;
-        float avgSub = team.getRB(2).ratOvr;
-        return (3 * this.getCompositeOLRush() + 4 * avgRBs + QB + 2 * team.HC.ratOff + avgSub) / 11;
+        float avgSub = ovr(team.getRB(2));
+        float hcOff = team.HC != null ? team.HC.ratOff : 0;
+        return (3 * this.getCompositeOLRush() + 4 * avgRBs + QB + 2 * hcOff + avgSub) / 11;
     }
 
     public float getPassDef() {
@@ -151,9 +159,10 @@ public class StatsTracker {
         float s1c = team.teamSs.size() > 1 ? team.teamSs.get(1).getRatCoverage() : 0;
         float S = (s0c + s1c) / 2;
         float def = (3 * avgCBs + avgLBs + S) / 5;
-        float avgSub = (team.getLB(3).getRatCoverage() + team.getCB(3).ratOvr * 2 + team.getS(2).getRatCoverage()) / 4;
+        float avgSub = (coverage(team.getLB(3)) + ovr(team.getCB(3)) * 2 + coverage(team.getS(2))) / 4;
         float ss0r = team.teamSs.size() > 0 ? team.teamSs.get(0).ratOvr : 0;
-        return (def * 4 + ss0r + this.getCompositeDLPass() * 2 + 2 * team.HC.ratDef + avgSub) / 10;
+        float hcDef = team.HC != null ? team.HC.ratDef : 0;
+        return (def * 4 + ss0r + this.getCompositeDLPass() * 2 + 2 * hcDef + avgSub) / 10;
     }
 
     public float getRushDef() {
@@ -162,53 +171,72 @@ public class StatsTracker {
 
     public float getCompositeOLPass() {
         float compositeOL = 0;
-        for (int i = 0; i < 5; ++i) {
-            compositeOL += (team.teamOLs.get(i).getRatStrength() * 2 + team.teamOLs.get(i).getRatPassBlock() * 2 + team.teamOLs.get(i).getRatVision()) / 5;
+        int n = Math.min(5, team.teamOLs.size());
+        for (int i = 0; i < n; ++i) {
+            compositeOL += (team.teamOLs.get(i).getRatStrength() * 2 + team.teamOLs.get(i).getRatPassBlock() * 2 + team.teamOLs.get(i).getRatVision()) / 5f;
         }
-        compositeOL = compositeOL / 5;
-        float avgSub = (team.getOL(5).ratOvr + team.getOL(6).ratOvr) / 2;
-        return (9 * compositeOL + avgSub + 3 * team.HC.ratOff) / 13;
+        if (n > 0) {
+            compositeOL = compositeOL / n;
+        }
+        float avgSub = (ovr(team.getOL(5)) + ovr(team.getOL(6))) / 2;
+        float hcOff = team.HC != null ? team.HC.ratOff : 0;
+        return (9 * compositeOL + avgSub + 3 * hcOff) / 13;
     }
 
     public float getCompositeOLRush() {
         float compositeOL = 0;
-        for (int i = 0; i < 5; ++i) {
-            compositeOL += (team.teamOLs.get(i).getRatStrength() * 2 + team.teamOLs.get(i).getRatRunBlock() * 2 + team.teamOLs.get(i).getRatVision()) / 5;
+        int n = Math.min(5, team.teamOLs.size());
+        for (int i = 0; i < n; ++i) {
+            compositeOL += (team.teamOLs.get(i).getRatStrength() * 2 + team.teamOLs.get(i).getRatRunBlock() * 2 + team.teamOLs.get(i).getRatVision()) / 5f;
         }
-        compositeOL = compositeOL / 5;
+        if (n > 0) {
+            compositeOL = compositeOL / n;
+        }
         float compositeTE = team.teamTEs.size() > 0 ? team.teamTEs.get(0).getRatRunBlock() : 0;
-        float avgSub = (2 * team.getOL(5).ratOvr + 2 * team.getOL(6).ratOvr + team.getTE(1).getRatRunBlock()) / 5;
-        return (9 * compositeOL + 2 * compositeTE + 3 * team.HC.ratOff + avgSub) / 15;
+        float avgSub = (2 * ovr(team.getOL(5)) + 2 * ovr(team.getOL(6)) + runBlock(team.getTE(1))) / 5;
+        float hcOff = team.HC != null ? team.HC.ratOff : 0;
+        return (9 * compositeOL + 2 * compositeTE + 3 * hcOff + avgSub) / 15;
     }
 
     public float getCompositeDLPass() {
         float compositeDL = 0;
-        for (int i = 0; i < 4; ++i) {
-            compositeDL += (team.teamDLs.get(i).getRatStrength() + team.teamDLs.get(i).getRatPassRush()) / 2;
+        int n = Math.min(4, team.teamDLs.size());
+        for (int i = 0; i < n; ++i) {
+            compositeDL += (team.teamDLs.get(i).getRatStrength() + team.teamDLs.get(i).getRatPassRush()) / 2f;
         }
-        compositeDL = compositeDL / 4;
-        float avgSub = team.getDL(4).ratOvr + team.getDL(5).ratOvr;
-        return (5 * compositeDL + 2 * team.HC.ratDef + avgSub) / 8;
+        if (n > 0) {
+            compositeDL = compositeDL / n;
+        }
+        float avgSub = ovr(team.getDL(4)) + ovr(team.getDL(5));
+        float hcDef = team.HC != null ? team.HC.ratDef : 0;
+        return (5 * compositeDL + 2 * hcDef + avgSub) / 8;
     }
 
     public float getCompositeDLRush() {
         float compositeDL = 0;
         float compositeLB = 0;
         float compositeS = 0;
-        for (int i = 0; i < 4; ++i) {
-            compositeDL += (team.teamDLs.get(i).getRatStrength() + team.teamDLs.get(i).getRatRunStop()) / 2;
+        int dlN = Math.min(4, team.teamDLs.size());
+        for (int i = 0; i < dlN; ++i) {
+            compositeDL += (team.teamDLs.get(i).getRatStrength() + team.teamDLs.get(i).getRatRunStop()) / 2f;
         }
-        compositeDL = compositeDL / 4;
-        for (int i = 0; i < 3; ++i) {
+        if (dlN > 0) {
+            compositeDL = compositeDL / dlN;
+        }
+        int lbN = Math.min(3, team.teamLBs.size());
+        for (int i = 0; i < lbN; ++i) {
             compositeLB += team.teamLBs.get(i).getRatRunStop();
         }
-        compositeLB = compositeLB / 3;
+        if (lbN > 0) {
+            compositeLB = compositeLB / lbN;
+        }
         float ss0rs = team.teamSs.size() > 0 ? team.teamSs.get(0).getRatRunStop() : 0;
         float ss1rs = team.teamSs.size() > 1 ? team.teamSs.get(1).getRatRunStop() : 0;
         compositeS += ss0rs + ss1rs;
         compositeS = compositeS / 2;
-        float avgSub = (2 * team.getDL(4).ratOvr + 2 * team.getDL(5).ratOvr + team.getLB(3).getRatRunStop() + team.getS(2).getRatRunStop()) / 6;
-        return (4 * compositeDL + 2 * compositeLB + 2 * compositeS + 2 * team.HC.ratDef + avgSub) / 11;
+        float avgSub = (2 * ovr(team.getDL(4)) + 2 * ovr(team.getDL(5)) + runStop(team.getLB(3)) + runStop(team.getS(2))) / 6;
+        float hcDef = team.HC != null ? team.HC.ratDef : 0;
+        return (4 * compositeDL + 2 * compositeLB + 2 * compositeS + 2 * hcDef + avgSub) / 11;
     }
 
     // Section 3: SOS / RPI / Poll
@@ -216,6 +244,9 @@ public class StatsTracker {
     public void updateSOS() {
         for (int i = 0; i < team.gameSchedule.size(); ++i) {
             Game g = team.gameSchedule.get(i);
+            if (g.isByeWeek()) {
+                continue;
+            }
             if (g.homeTeam == team) {
                 team.teamSOS += team.league.getTeamList().size() - g.awayTeam.rankTeamPollScore;
             } else {
@@ -280,7 +311,7 @@ public class StatsTracker {
     public float getSOSPollScore() {
         float teamWP = 0;
         for (Game g : team.gameSchedule) {
-            if (g.gameName.equals("BYE")) continue;
+            if (g.isByeWeek()) continue;
             if (!g.gameName.equals("Conference") && !g.gameName.equals("OOC")) {
                 if (g.homeTeam == team && g.homeScore > g.awayScore) teamWP += 0.6 * (team.league.countTeam - g.awayTeam.rankTeamPollScore);
                 else if (g.homeTeam == team && g.homeScore < g.awayScore) teamWP -= 1.4 * (team.league.countTeam - g.awayTeam.rankTeamPollScore);
@@ -306,7 +337,7 @@ public class StatsTracker {
         float rpi = 0;
         float teamWP = 0;
         for (Game g : team.gameSchedule) {
-            if (g.gameName.equals("BYE")) continue;
+            if (g.isByeWeek()) continue;
             if (!g.gameName.equals("Conference") && !g.gameName.equals("OOC")) {
                 if (g.homeTeam == team && g.homeScore > g.awayScore) teamWP += 0.6;
                 else if (g.homeTeam == team && g.homeScore < g.awayScore) teamWP -= 1.4;
@@ -496,14 +527,14 @@ public class StatsTracker {
         for (Player p : team.getAllPlayers()) {
             if (p.injury == null) {
                 p.isInjured = false;
-                team.playersInjured.remove(p);
+                team.removePlayerInjured(p);
             }
         }
 
-        if (team.playersInjured.isEmpty()) {
+        if (team.getPlayersInjured().isEmpty()) {
             data.append("No Injuries\n");
         } else {
-            for (Player p : team.playersInjured) {
+            for (Player p : team.getPlayersInjured()) {
                 if (p.isInjured) data.append(p.position + " " + p.name + " [" + p.ratOvr + "] " + p.injury.duration + "wk\n");
             }
         }
@@ -579,4 +610,45 @@ public class StatsTracker {
 
         return data.toString();
     }
+
+    private static int iq(Player p) {
+        return p == null ? 0 : p.ratIntelligence;
+    }
+
+    private static float ovr(Player p) {
+        return p == null ? 0 : p.ratOvr;
+    }
+
+    private static float catchRating(positions.PlayerWR p) {
+        return p == null ? 0 : p.getRatCatch();
+    }
+
+    private static float catchRating(positions.PlayerTE p) {
+        return p == null ? 0 : p.getRatCatch();
+    }
+
+    private static float catchRating(positions.PlayerRB p) {
+        return p == null ? 0 : p.getRatCatch();
+    }
+
+    private static float coverage(positions.PlayerLB p) {
+        return p == null ? 0 : p.getRatCoverage();
+    }
+
+    private static float coverage(positions.PlayerS p) {
+        return p == null ? 0 : p.getRatCoverage();
+    }
+
+    private static float runBlock(positions.PlayerTE p) {
+        return p == null ? 0 : p.getRatRunBlock();
+    }
+
+    private static float runStop(positions.PlayerLB p) {
+        return p == null ? 0 : p.getRatRunStop();
+    }
+
+    private static float runStop(positions.PlayerS p) {
+        return p == null ? 0 : p.getRatRunStop();
+    }
 }
+

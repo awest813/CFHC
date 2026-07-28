@@ -31,13 +31,19 @@ import java.util.prefs.Preferences;
 /**
  * Light / dark appearance for the Swing desktop shell. Preference is stored in
  * {@link Preferences} so it survives restarts.
+ *
+ * <p>When FlatLaf is on the classpath (bundled in the desktop jar), light/dark
+ * toggles install {@code FlatLightLaf} / {@code FlatDarkLaf}; otherwise the
+ * system look-and-feel is kept and color hints still apply.
  */
 public final class DesktopTheme {
 
     private static final String PREF_NODE = "cfhc/desktop";
     private static final String KEY_DARK = "dark_mode";
+    private static final String KEY_HIGH_CONTRAST = "high_contrast";
 
     private static boolean dark;
+    private static boolean highContrast;
     private static boolean loaded;
 
     private static Color _windowBg, _textPrimary, _textSecondary, _warningText;
@@ -52,28 +58,76 @@ public final class DesktopTheme {
 
     private static void recache() {
         if (dark) {
-            _windowBg = new Color(34, 36, 40);
-            _textPrimary = new Color(232, 232, 238);
-            _textSecondary = new Color(160, 165, 175);
-            _warningText = new Color(255, 205, 110);
-            _headerBg = new Color(20, 22, 26);
-            _confHeaderBg = new Color(38, 42, 50);
-            _statusBg = new Color(46, 48, 54);
-            _sidebarBg = new Color(28, 31, 36);
-            _sidebarText = new Color(210, 216, 224);
-            _sidebarSelBg = new Color(58, 96, 150);
-            _borderSubtle = new Color(72, 76, 84);
-            _userTeamRow = new Color(32, 52, 82);
-            _nliBannerBg = new Color(62, 52, 28);
-            _pollLeader = new Color(48, 52, 60);
-            _tableBase = new Color(34, 36, 40);
-            _tableStripe = new Color(42, 45, 52);
-            _tableHdrBg = new Color(48, 52, 60);
-            _tableHover = new Color(52, 56, 68);
-            _launcherMain = new Color(28, 30, 34);
-            _launcherFooter = new Color(120, 125, 135);
-            _textAreaBg = new Color(42, 44, 50);
-            _menuBarBg = new Color(40, 42, 48);
+            if (highContrast) {
+                _windowBg = Color.BLACK;
+                _textPrimary = Color.WHITE;
+                _textSecondary = new Color(230, 230, 230);
+                _warningText = new Color(255, 220, 80);
+                _headerBg = Color.BLACK;
+                _confHeaderBg = new Color(20, 20, 20);
+                _statusBg = new Color(18, 18, 18);
+                _sidebarBg = Color.BLACK;
+                _sidebarText = Color.WHITE;
+                _sidebarSelBg = new Color(0, 90, 200);
+                _borderSubtle = new Color(200, 200, 200);
+                _userTeamRow = new Color(0, 40, 90);
+                _nliBannerBg = new Color(70, 50, 0);
+                _pollLeader = new Color(28, 28, 28);
+                _tableBase = Color.BLACK;
+                _tableStripe = new Color(24, 24, 24);
+                _tableHdrBg = new Color(36, 36, 36);
+                _tableHover = new Color(40, 40, 40);
+                _launcherMain = Color.BLACK;
+                _launcherFooter = new Color(210, 210, 210);
+                _textAreaBg = new Color(12, 12, 12);
+                _menuBarBg = Color.BLACK;
+            } else {
+                _windowBg = new Color(34, 36, 40);
+                _textPrimary = new Color(232, 232, 238);
+                _textSecondary = new Color(160, 165, 175);
+                _warningText = new Color(255, 205, 110);
+                _headerBg = new Color(20, 22, 26);
+                _confHeaderBg = new Color(38, 42, 50);
+                _statusBg = new Color(46, 48, 54);
+                _sidebarBg = new Color(28, 31, 36);
+                _sidebarText = new Color(210, 216, 224);
+                _sidebarSelBg = new Color(58, 96, 150);
+                _borderSubtle = new Color(72, 76, 84);
+                _userTeamRow = new Color(32, 52, 82);
+                _nliBannerBg = new Color(62, 52, 28);
+                _pollLeader = new Color(48, 52, 60);
+                _tableBase = new Color(34, 36, 40);
+                _tableStripe = new Color(42, 45, 52);
+                _tableHdrBg = new Color(48, 52, 60);
+                _tableHover = new Color(52, 56, 68);
+                _launcherMain = new Color(28, 30, 34);
+                _launcherFooter = new Color(120, 125, 135);
+                _textAreaBg = new Color(42, 44, 50);
+                _menuBarBg = new Color(40, 42, 48);
+            }
+        } else if (highContrast) {
+            _windowBg = Color.WHITE;
+            _textPrimary = Color.BLACK;
+            _textSecondary = new Color(20, 20, 20);
+            _warningText = new Color(120, 60, 0);
+            _headerBg = Color.BLACK;
+            _confHeaderBg = new Color(20, 20, 20);
+            _statusBg = Color.WHITE;
+            _sidebarBg = Color.WHITE;
+            _sidebarText = Color.BLACK;
+            _sidebarSelBg = new Color(0, 70, 160);
+            _borderSubtle = Color.BLACK;
+            _userTeamRow = new Color(200, 220, 255);
+            _nliBannerBg = new Color(255, 240, 180);
+            _pollLeader = new Color(235, 235, 235);
+            _tableBase = Color.WHITE;
+            _tableStripe = new Color(235, 235, 235);
+            _tableHdrBg = new Color(220, 220, 220);
+            _tableHover = new Color(210, 210, 210);
+            _launcherMain = Color.WHITE;
+            _launcherFooter = Color.BLACK;
+            _textAreaBg = Color.WHITE;
+            _menuBarBg = Color.WHITE;
         } else {
             _windowBg = Color.WHITE;
             _textPrimary = Color.BLACK;
@@ -99,31 +153,65 @@ public final class DesktopTheme {
             Color def = UIManager.getColor("MenuBar.background");
             _menuBarBg = def != null ? def : new Color(240, 240, 240);
         }
-        _selectionAccent = new Color(50, 100, 180);
-        _accentBlue = new Color(52, 152, 219);
-        _successGreen = new Color(46, 204, 113);
-        _dangerRed = new Color(231, 76, 60);
-        _dialogSurface = dark ? new Color(25, 32, 45) : new Color(246, 248, 251);
-        _inputFieldBg = dark ? new Color(48, 50, 56) : Color.WHITE;
-        _inputListBg = dark ? new Color(42, 44, 50) : Color.WHITE;
+        _selectionAccent = highContrast ? new Color(0, 70, 160) : new Color(50, 100, 180);
+        _accentBlue = highContrast ? new Color(0, 90, 200) : new Color(52, 152, 219);
+        _successGreen = highContrast ? new Color(0, 140, 60) : new Color(46, 204, 113);
+        _dangerRed = highContrast ? new Color(180, 0, 0) : new Color(231, 76, 60);
+        _dialogSurface = dark
+                ? (highContrast ? Color.BLACK : new Color(25, 32, 45))
+                : (highContrast ? Color.WHITE : new Color(246, 248, 251));
+        _inputFieldBg = dark
+                ? (highContrast ? new Color(20, 20, 20) : new Color(48, 50, 56))
+                : Color.WHITE;
+        _inputListBg = dark
+                ? (highContrast ? new Color(16, 16, 16) : new Color(42, 44, 50))
+                : Color.WHITE;
     }
 
     /**
-     * Reads stored preference and applies {@link UIManager} hints. Call once after
-     * the look-and-feel is installed (see {@link Main#main}).
+     * Reads stored preference, installs FlatLaf when available, and applies
+     * {@link UIManager} hints. Call once at startup (see {@link Main#main}).
      */
     public static void load() {
         if (!loaded) {
             loaded = true;
             Preferences p = Preferences.userRoot().node(PREF_NODE);
             dark = p.getBoolean(KEY_DARK, false);
+            highContrast = p.getBoolean(KEY_HIGH_CONTRAST, false);
         }
         recache();
+        installLookAndFeel();
         applyGlobalHints();
     }
 
     public static boolean isDark() {
         return dark;
+    }
+
+    public static boolean isHighContrast() {
+        return highContrast;
+    }
+
+    /**
+     * @return {@code true} when FlatLaf was installed; {@code false} when falling
+     *         back to the system (or default) look-and-feel.
+     */
+    public static boolean installLookAndFeel() {
+        try {
+            if (dark) {
+                com.formdev.flatlaf.FlatDarkLaf.setup();
+            } else {
+                com.formdev.flatlaf.FlatLightLaf.setup();
+            }
+            return true;
+        } catch (Throwable t) {
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (Exception ignored) {
+                // Keep whatever LAF is already installed.
+            }
+            return false;
+        }
     }
 
     public static void setDark(boolean value) {
@@ -133,6 +221,18 @@ public final class DesktopTheme {
         dark = value;
         Preferences.userRoot().node(PREF_NODE).putBoolean(KEY_DARK, value);
         recache();
+        installLookAndFeel();
+        applyGlobalHints();
+    }
+
+    public static void setHighContrast(boolean value) {
+        if (highContrast == value) {
+            return;
+        }
+        highContrast = value;
+        Preferences.userRoot().node(PREF_NODE).putBoolean(KEY_HIGH_CONTRAST, value);
+        recache();
+        installLookAndFeel();
         applyGlobalHints();
     }
 
@@ -335,6 +435,14 @@ public final class DesktopTheme {
 
     /** Apply table + viewport colors after the table is inside a {@link javax.swing.JScrollPane}. */
     public static void styleDataTable(JTable table) {
+        styleDataTable(table, null);
+    }
+
+    /** Like {@link #styleDataTable(JTable)} with an accessible name for screen readers. */
+    public static void styleDataTable(JTable table, String accessibleName) {
+        if (table == null) {
+            return;
+        }
         table.setOpaque(true);
         table.setBackground(tableBase());
         table.setForeground(textPrimary());
@@ -342,6 +450,9 @@ public final class DesktopTheme {
         table.getTableHeader().setOpaque(true);
         table.getTableHeader().setBackground(tableHeaderBackground());
         table.getTableHeader().setForeground(textPrimary());
+        if (accessibleName != null && !accessibleName.isBlank()) {
+            table.getAccessibleContext().setAccessibleName(accessibleName);
+        }
         Container p = table.getParent();
         if (p instanceof JViewport vp) {
             vp.setBackground(tableBase());
@@ -353,10 +464,14 @@ public final class DesktopTheme {
      * calling {@link #styleDataTable(JTable)} before the table is mounted in a scroll pane.
      */
     public static void styleDataTableInScroll(JScrollPane scroll, JTable table) {
+        styleDataTableInScroll(scroll, table, null);
+    }
+
+    public static void styleDataTableInScroll(JScrollPane scroll, JTable table, String accessibleName) {
         if (scroll == null || table == null) {
             return;
         }
-        styleDataTable(table);
+        styleDataTable(table, accessibleName);
         scroll.getViewport().setBackground(tableBase());
         scroll.setOpaque(true);
         scroll.setBackground(windowBackground());
@@ -367,6 +482,11 @@ public final class DesktopTheme {
      * with a consistent row height, single-selection mode, and styled header.
      */
     public static JTable stylePickerTable(DefaultTableModel model, int rowHeight, int headerFontSize) {
+        return stylePickerTable(model, rowHeight, headerFontSize, null);
+    }
+
+    public static JTable stylePickerTable(DefaultTableModel model, int rowHeight, int headerFontSize,
+                                         String accessibleName) {
         JTable table = new JTable(model);
         table.setRowHeight(rowHeight);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -375,6 +495,9 @@ public final class DesktopTheme {
         table.setGridColor(borderSubtle());
         table.setShowVerticalLines(false);
         table.setSelectionBackground(accentBlue());
+        if (accessibleName != null && !accessibleName.isBlank()) {
+            table.getAccessibleContext().setAccessibleName(accessibleName);
+        }
 
         table.getTableHeader().setBackground(tableBase());
         table.getTableHeader().setForeground(textSecondary());
@@ -564,22 +687,31 @@ public final class DesktopTheme {
     }
 
     /**
-     * Walks a {@link JFileChooser} hierarchy so dark mode does not flash white panels
-     * on Windows / system LAF (many {@code FileChooser.*} UI defaults are ignored).
-     * Safe to call in light mode (no-op).
+     * Walks a {@link JFileChooser} hierarchy so dark (and light) mode does not leave
+     * unstyled white panels on system LAF. Safe in either theme.
      */
     public static void styleFileChooser(JFileChooser fc) {
-        if (fc == null || !dark) {
+        if (fc == null) {
             return;
         }
         Color shell = windowBackground();
         Color fg = textPrimary();
-        Color fieldBg = new Color(48, 50, 56);
-        Color listBg = new Color(42, 44, 50);
+        Color fieldBg = dark ? _inputFieldBg : new Color(250, 250, 252);
+        Color listBg = dark ? _inputListBg : Color.WHITE;
+        if (fieldBg == null) fieldBg = dark ? new Color(48, 50, 56) : new Color(250, 250, 252);
+        if (listBg == null) listBg = dark ? new Color(42, 44, 50) : Color.WHITE;
         fc.setOpaque(true);
         fc.setBackground(shell);
         fc.setForeground(fg);
         applyFileChooserSubtreeColors(fc, shell, fg, fieldBg, listBg);
+        // Re-apply after the native accessory finishes building its UI.
+        fc.addPropertyChangeListener(evt -> {
+            if ("ancestor".equals(evt.getPropertyName()) || "UI".equals(evt.getPropertyName())) {
+                applyFileChooserSubtreeColors(fc, windowBackground(), textPrimary(),
+                        dark ? new Color(48, 50, 56) : new Color(250, 250, 252),
+                        dark ? new Color(42, 44, 50) : Color.WHITE);
+            }
+        });
     }
 
     private static void applyFileChooserSubtreeColors(Component c, Color shell, Color fg,
@@ -624,7 +756,10 @@ public final class DesktopTheme {
                 tbl.setBackground(listBg);
                 tbl.setForeground(fg);
                 tbl.setGridColor(borderSubtle());
-            } else if (c instanceof JPanel || c instanceof javax.swing.JLayeredPane) {
+            } else if (c instanceof JButton || c instanceof javax.swing.JToggleButton) {
+                jc.setForeground(fg);
+            } else if (c instanceof JPanel || c instanceof javax.swing.JLayeredPane
+                    || c instanceof javax.swing.JToolBar) {
                 jc.setOpaque(true);
                 jc.setBackground(shell);
             }

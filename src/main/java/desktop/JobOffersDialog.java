@@ -61,7 +61,7 @@ public class JobOffersDialog extends JDialog {
         this.userHC = league.userTeam != null ? league.userTeam.getHeadCoach() : null;
         setSize(1000, 650);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(DesktopTheme.windowBackground());
+        DesktopTheme.styleDialogContentPane(getContentPane());
 
         if (!league.isCareerMode() || userHC == null) {
             buildNoCareerPanel();
@@ -178,6 +178,7 @@ public class JobOffersDialog extends JDialog {
         table.setGridColor(DesktopTheme.borderSubtle());
         table.setShowVerticalLines(false);
         table.setSelectionBackground(DesktopTheme.accentBlue());
+        table.getAccessibleContext().setAccessibleName("Job offers");
         
         table.getTableHeader().setBackground(DesktopTheme.tableBase());
         table.getTableHeader().setForeground(DesktopTheme.textSecondary());
@@ -197,15 +198,14 @@ public class JobOffersDialog extends JDialog {
 
         JTextArea detail = new JTextArea("SELECT A PROGRAM TO VIEW PERSONNEL EVALUATIONS AND ALUMNI EXPECTATIONS.");
         detail.setEditable(false);
-        detail.setFont(new Font("Monospaced", Font.PLAIN, 12));
-        detail.setBackground(DesktopTheme.windowBackground());
-        detail.setForeground(DesktopTheme.textSecondary());
         detail.setLineWrap(true);
         detail.setWrapStyleWord(true);
         detail.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        DesktopTheme.styleTextContent(detail);
         
         JScrollPane detailScroll = new JScrollPane(detail);
         detailScroll.setBorder(BorderFactory.createLineBorder(DesktopTheme.borderSubtle()));
+        detailScroll.getViewport().setBackground(DesktopTheme.windowBackground());
         detailPanel.add(detailScroll, BorderLayout.CENTER);
 
         table.getSelectionModel().addListSelectionListener(e -> {
@@ -357,10 +357,7 @@ public class JobOffersDialog extends JDialog {
         userHC.baselinePrestige = freshTeam.getTeamPrestige();
         userHC.promotionCandidate = false;
 
-        while (league.getNewsStories().size() <= league.currentWeek + 1) {
-            league.getNewsStories().add(new java.util.ArrayList<>());
-        }
-        league.getNewsStories().get(league.currentWeek + 1).add(
+        league.addNewsStory(league.currentWeek + 1,
                 "Coaching Hire: " + freshTeam.getName()
                         + ">After an extensive search for a new head coach, "
                         + freshTeam.getName() + " has hired " + userHC.name

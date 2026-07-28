@@ -40,7 +40,7 @@ public class LeagueRecordsPanel implements LeagueScreen {
         table.setRowHeight(22);
         StripedRowRenderer.install(table);
         JScrollPane recordsScroll = new JScrollPane(table);
-        DesktopTheme.styleDataTableInScroll(recordsScroll, table);
+        DesktopTheme.styleDataTableInScroll(recordsScroll, table, "League records");
         panel.add(recordsScroll, BorderLayout.CENTER);
         return panel;
     }

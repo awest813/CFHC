@@ -1,6 +1,5 @@
 package simulation;
 
-import desktop.DesktopResourceProvider;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,7 +20,7 @@ public class TransferInvariantTest {
 
     @Before
     public void setUp() {
-        DesktopResourceProvider resources = new DesktopResourceProvider(System.getProperty("user.dir"));
+        FileSystemResourceProvider resources = new FileSystemResourceProvider(System.getProperty("user.dir"));
         league = new League(
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES),
@@ -138,7 +137,7 @@ public class TransferInvariantTest {
         tmpFile.getParentFile().mkdirs();
         assertTrue("Save should succeed", league.saveLeague(tmpFile));
 
-        DesktopResourceProvider resources = new DesktopResourceProvider(System.getProperty("user.dir"));
+        FileSystemResourceProvider resources = new FileSystemResourceProvider(System.getProperty("user.dir"));
         League loaded = new League(tmpFile,
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES),
@@ -161,15 +160,15 @@ public class TransferInvariantTest {
     public void transfer_transferPoolPartiallyOrFullyCleared() {
         league.advanceSeason();
 
-        int qbPoolBefore = league.transferQBs.size();
-        int rbPoolBefore = league.transferRBs.size();
+        int qbPoolBefore = league.getTransferQBs().size();
+        int rbPoolBefore = league.getTransferRBs().size();
 
         league.transferPlayers(noOpBridge);
 
         assertTrue("Transfer QB pool should not grow after processing",
-                league.transferQBs.size() <= qbPoolBefore);
+                league.getTransferQBs().size() <= qbPoolBefore);
         assertTrue("Transfer RB pool should not grow after processing",
-                league.transferRBs.size() <= rbPoolBefore);
+                league.getTransferRBs().size() <= rbPoolBefore);
     }
 
     private void assertValidPlayer(Player p, String teamName) {

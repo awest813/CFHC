@@ -4,6 +4,20 @@ plugins {
 
 def repoRoot = rootProject.projectDir.parentFile
 
+def desktopVersion = '1.4e'
+def desktopVersionProps = new File(repoRoot, 'gradle.properties')
+if (desktopVersionProps.file) {
+    def loaded = new Properties()
+    desktopVersionProps.withInputStream { loaded.load(it) }
+    def fromFile = loaded.getProperty('desktopVersion')
+    if (fromFile != null && !fromFile.trim().isEmpty()) {
+        desktopVersion = fromFile.trim()
+    }
+}
+if (findProperty('desktopVersion')) {
+    desktopVersion = findProperty('desktopVersion').toString()
+}
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
@@ -35,7 +49,16 @@ sourceSets {
 }
 
 dependencies {
+    implementation fileTree("${repoRoot}/libs").matching {
+        include 'flatlaf*.jar'
+    }
     testImplementation 'junit:junit:4.13.2'
+    // OGG decode for DesktopAudioManager tests / headless smoke parity with desktopJar
+    testRuntimeOnly fileTree("${repoRoot}/libs").matching {
+        include 'vorbisspi*.jar'
+        include 'jorbis*.jar'
+        include 'tritonus-share*.jar'
+    }
 }
 
 /** Must match {@code desktop.DesktopResourceContract.VALUE_XML_FILES} / root build.gradle. */
@@ -102,8 +125,23 @@ tasks.register('checkEngineImports') {
     }
 }
 
+def desktopVersionPropsDir = layout.buildDirectory.dir('generated/desktop-version')
+
+tasks.register('writeDesktopVersionProperties') {
+    group = 'desktop'
+    description = 'Writes desktop-version.properties for DesktopVersion / packaging.'
+    def outFile = desktopVersionPropsDir.map { it.file('desktop-version.properties') }
+    outputs.file(outFile)
+    inputs.property('desktopVersion', desktopVersion)
+    doLast {
+        def f = outFile.get().asFile
+        f.parentFile.mkdirs()
+        f.text = "version=${desktopVersion}\n"
+    }
+}
+
 tasks.named('compileJava') {
-    dependsOn verifyDesktopResources, checkEngineImports
+    dependsOn verifyDesktopResources, checkEngineImports, writeDesktopVersionProperties
     options.encoding = 'UTF-8'
     options.compilerArgs.add('-Xlint:deprecation')
 }
@@ -123,25 +161,50 @@ tasks.register('prepareDesktopResources', Copy) {
     into desktopResourcesDir
 }
 
-/** Runnable fat-style jar (classes + copied resources). */
+/** Runnable fat-style jar (classes + copied resources + OGG SPI + FlatLaf). */
 tasks.register('desktopJar', Jar) {
     group = 'desktop'
-    dependsOn compileJava, prepareDesktopResources
+    dependsOn compileJava, prepareDesktopResources, writeDesktopVersionProperties
     archiveBaseName = 'CFHC-desktop'
-    archiveClassifier = 'prototype'
+    archiveVersion = desktopVersion
     destinationDirectory = layout.buildDirectory.dir('libs')
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from sourceSets.main.output
     from desktopResourcesDir
+    from(desktopVersionPropsDir)
+    def bundledJars = fileTree("${repoRoot}/libs").matching {
+        include 'vorbisspi*.jar'
+        include 'jorbis*.jar'
+        include 'tritonus-share*.jar'
+        include 'flatlaf*.jar'
+    }
+    bundledJars.each { from(zipTree(it)) }
+    from("${repoRoot}") {
+        include 'LICENSE'
+        include 'SOUND_LICENSES.md'
+    }
     manifest {
-        attributes('Main-Class': 'desktop.Main')
+        attributes(
+                'Main-Class': 'desktop.Main',
+                'Implementation-Title': 'CFHC Desktop',
+                'Implementation-Version': desktopVersion,
+                'Implementation-Vendor': 'CFHC'
+        )
     }
 }
 
 tasks.register('runDesktop', JavaExec) {
     group = 'desktop'
     dependsOn compileJava, prepareDesktopResources
-    classpath = sourceSets.main.runtimeClasspath + files(desktopResourcesDir.get().asFile)
+    def oggSpiJars = files(fileTree("${repoRoot}/libs").matching {
+        include 'vorbisspi*.jar'
+        include 'jorbis*.jar'
+        include 'tritonus-share*.jar'
+    })
+    def flatlafJars = files(fileTree("${repoRoot}/libs").matching {
+        include 'flatlaf*.jar'
+    })
+    classpath = sourceSets.main.runtimeClasspath + files(desktopResourcesDir.get().asFile) + oggSpiJars + flatlafJars
     mainClass = 'desktop.Main'
     if (project.hasProperty('desktopArgs')) {
         args project.property('desktopArgs').toString().split(/\s+/).findAll { !it.isEmpty() }
@@ -155,10 +218,206 @@ tasks.named('jar') {
 tasks.named('test', Test) {
     // Tests use System.getProperty("user.dir") / DesktopResourceProvider(projectRoot) — must be repo root.
     workingDir = repoRoot
+    // Forward -DregenGoldenSaves=true from the Gradle JVM into test workers.
+    systemProperty 'regenGoldenSaves', System.getProperty('regenGoldenSaves', 'false')
+    // DesktopAudioManager loads assets/sounds/* from the classpath (same layout as desktopJar).
+    dependsOn prepareDesktopResources
+    classpath += files(desktopResourcesDir)
 }
 
 tasks.register('desktopStandaloneGate') {
     group = 'verification'
     description = 'Compile shared engine, run JVM unit tests, build desktop jar — no Android SDK.'
     dependsOn test, desktopJar
+    doLast {
+        def jar = tasks.named('desktopJar', Jar).get().archiveFile.get().asFile
+        def entries = new java.util.zip.ZipFile(jar).withCloseable { zf ->
+            zf.entries().collect { it.name } as Set
+        }
+        def required = [
+                'META-INF/services/javax.sound.sampled.spi.AudioFileReader',
+                'javazoom/spi/vorbis/sampled/file/VorbisAudioFileReader.class',
+                'com/jcraft/jorbis/VorbisFile.class',
+                'org/tritonus/share/sampled/file/TAudioFileReader.class',
+                'com/formdev/flatlaf/FlatLightLaf.class',
+                'com/formdev/flatlaf/FlatDarkLaf.class',
+                'LICENSE',
+                'SOUND_LICENSES.md',
+                'desktop/Main.class',
+                'desktop/DesktopVersion.class',
+                'desktop-version.properties',
+                'assets/sounds/click.ogg',
+        ]
+        def missing = required.findAll { !entries.contains(it) }
+        if (!missing.isEmpty()) {
+            throw new GradleException('desktopJar missing required entries: ' + missing)
+        }
+        def mf = new java.util.jar.JarFile(jar).withCloseable { it.manifest }
+        def impl = mf?.mainAttributes?.getValue('Implementation-Version')
+        if (impl != desktopVersion) {
+            throw new GradleException("desktopJar Implementation-Version '${impl}' != desktopVersion '${desktopVersion}'")
+        }
+    }
 }
+
+def jpackageBinary = {
+    def jp = new File(System.getProperty('java.home'), 'bin/jpackage')
+    if (jp.exists()) {
+        return jp
+    }
+    def jpExe = new File(System.getProperty('java.home'), 'bin/jpackage.exe')
+    return jpExe.exists() ? jpExe : null
+}
+
+/**
+ * Packaging scaffold for the desktop jar. Requires a JDK with {@code jpackage} (JDK 17+).
+ * Not part of {@code desktopStandaloneGate}.
+ * Signed macOS/Windows installers remain blocked on certificates.
+ *
+ * Note: {@code --type app-image} produces a jpackage application *directory*,
+ * not a Linux {@code .AppImage} file.
+ */
+tasks.register('desktopJpackageDryRun') {
+    group = 'desktop'
+    description = 'Print the intended jpackage command for CFHC-desktop.'
+    dependsOn desktopJar
+    doLast {
+        def jar = tasks.named('desktopJar', Jar).get().archiveFile.get().asFile
+        def jpackage = jpackageBinary()
+        println 'CFHC desktop packaging:'
+        println '  input jar : ' + jar.absolutePath
+        println '  main class: desktop.Main'
+        println '  version   : ' + desktopVersion
+        println '  suggested :'
+        println '    jpackage --name CFHC --app-version ' + desktopVersion + ' --vendor CFHC' +
+                ' --description "College Football Head Coach"' +
+                ' --input ' + jar.parentFile.absolutePath +
+                ' --main-jar ' + jar.name +
+                ' --main-class desktop.Main --type app-image'
+        if (jpackage == null) {
+            println 'NOTE: jpackage binary not found in JAVA_HOME; install a full JDK 17+ to build installers.'
+        } else {
+            println 'jpackage available at: ' + jpackage.absolutePath
+        }
+    }
+}
+
+def fileAssociationsProps = file("${projectDir}/src/jpackage/cfhc-file-associations.properties")
+
+tasks.register('desktopJpackageImage', Exec) {
+    group = 'desktop'
+    description = 'Build an unsigned jpackage app-image directory (not a .AppImage file).'
+    dependsOn desktopJar
+    onlyIf { jpackageBinary() != null }
+    doFirst {
+        def jar = tasks.named('desktopJar', Jar).get().archiveFile.get().asFile
+        def outDir = layout.buildDirectory.dir('jpackage').get().asFile
+        outDir.mkdirs()
+        def existing = new File(outDir, 'CFHC')
+        if (existing.exists()) {
+            existing.deleteDir()
+        }
+        executable = jpackageBinary().absolutePath
+        args = [
+                '--name', 'CFHC',
+                '--app-version', desktopVersion,
+                '--vendor', 'CFHC',
+                '--description', 'College Football Head Coach',
+                '--input', jar.parentFile.absolutePath,
+                '--main-jar', jar.name,
+                '--main-class', 'desktop.Main',
+                '--type', 'app-image',
+                '--dest', outDir.absolutePath,
+                '--file-associations', fileAssociationsProps.absolutePath
+        ]
+    }
+}
+
+/** Back-compat alias — same as {@link #desktopJpackageImage}. */
+tasks.register('desktopAppImage') {
+    group = 'desktop'
+    description = 'Alias for desktopJpackageImage (jpackage app directory, not a .AppImage file).'
+    dependsOn desktopJpackageImage
+}
+
+tasks.register('desktopPortableZip', Zip) {
+    group = 'desktop'
+    description = 'Zip the unsigned jpackage app-image directory into a portable archive (bundled runtime).'
+    dependsOn desktopJpackageImage
+    onlyIf { jpackageBinary() != null }
+    archiveBaseName = 'CFHC-desktop-portable'
+    archiveVersion = desktopVersion
+    destinationDirectory = layout.buildDirectory.dir('dist')
+    from(layout.buildDirectory.dir('jpackage/CFHC')) {
+        into 'CFHC'
+    }
+    doFirst {
+        def appDir = layout.buildDirectory.dir('jpackage/CFHC').get().asFile
+        if (!appDir.directory) {
+            throw new GradleException(
+                    'Missing jpackage app-image at ' + appDir +
+                            '. Run :engine:desktopJpackageImage first (requires JDK jpackage).')
+        }
+    }
+}
+
+tasks.register('desktopDmg', Exec) {
+    group = 'desktop'
+    description = 'Build an unsigned macOS .dmg via jpackage (macOS + jpackage only; unsigned).'
+    dependsOn desktopJar
+    onlyIf {
+        def os = System.getProperty('os.name', '').toLowerCase()
+        os.contains('mac') && jpackageBinary() != null
+    }
+    doFirst {
+        def jar = tasks.named('desktopJar', Jar).get().archiveFile.get().asFile
+        def outDir = layout.buildDirectory.dir('jpackage').get().asFile
+        outDir.mkdirs()
+        fileTree(outDir).matching { include 'CFHC*.dmg' }.files.each { it.delete() }
+        executable = jpackageBinary().absolutePath
+        args = [
+                '--name', 'CFHC',
+                '--app-version', desktopVersion,
+                '--vendor', 'CFHC',
+                '--description', 'College Football Head Coach',
+                '--input', jar.parentFile.absolutePath,
+                '--main-jar', jar.name,
+                '--main-class', 'desktop.Main',
+                '--type', 'dmg',
+                '--dest', outDir.absolutePath,
+                '--file-associations', fileAssociationsProps.absolutePath
+        ]
+    }
+}
+
+tasks.register('desktopMsi', Exec) {
+    group = 'desktop'
+    description = 'Build an unsigned Windows .msi via jpackage (Windows + jpackage only; unsigned).'
+    dependsOn desktopJar
+    onlyIf {
+        def os = System.getProperty('os.name', '').toLowerCase()
+        os.contains('win') && jpackageBinary() != null
+    }
+    doFirst {
+        def jar = tasks.named('desktopJar', Jar).get().archiveFile.get().asFile
+        def outDir = layout.buildDirectory.dir('jpackage').get().asFile
+        outDir.mkdirs()
+        fileTree(outDir).matching { include 'CFHC*.msi' }.files.each { it.delete() }
+        executable = jpackageBinary().absolutePath
+        args = [
+                '--name', 'CFHC',
+                '--app-version', desktopVersion,
+                '--vendor', 'CFHC',
+                '--description', 'College Football Head Coach',
+                '--input', jar.parentFile.absolutePath,
+                '--main-jar', jar.name,
+                '--main-class', 'desktop.Main',
+                '--type', 'msi',
+                '--dest', outDir.absolutePath,
+                '--file-associations', fileAssociationsProps.absolutePath
+        ]
+    }
+}
+
+
+

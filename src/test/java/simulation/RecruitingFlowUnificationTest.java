@@ -1,6 +1,5 @@
 package simulation;
 
-import desktop.DesktopResourceProvider;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -25,7 +24,7 @@ public class RecruitingFlowUnificationTest {
 
     @Before
     public void setUp() throws IOException {
-        DesktopResourceProvider resources = new DesktopResourceProvider(System.getProperty("user.dir"));
+        FileSystemResourceProvider resources = new FileSystemResourceProvider(System.getProperty("user.dir"));
         league = new League(
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES),
@@ -63,7 +62,7 @@ public class RecruitingFlowUnificationTest {
         File recruitingSave = LeagueSaveStorage.getRecruitingSaveFile(filesDir);
         assertTrue(recruitingSave.exists());
 
-        DesktopResourceProvider resources = new DesktopResourceProvider(System.getProperty("user.dir"));
+        FileSystemResourceProvider resources = new FileSystemResourceProvider(System.getProperty("user.dir"));
         League loaded = new League(
                 recruitingSave,
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),

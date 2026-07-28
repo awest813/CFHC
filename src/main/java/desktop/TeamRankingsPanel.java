@@ -47,6 +47,7 @@ public class TeamRankingsPanel implements LeagueScreen {
 
         JComboBox<String> categoryBox = new JComboBox<>(CATEGORIES);
         categoryBox.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        categoryBox.getAccessibleContext().setAccessibleName("Team rankings category");
 
         String[] columns = {"Rank", "Team", "Value"};
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
@@ -100,7 +101,7 @@ public class TeamRankingsPanel implements LeagueScreen {
         topPanel.add(topBar, BorderLayout.SOUTH);
         panel.add(topPanel, BorderLayout.NORTH);
         JScrollPane teamRankScroll = new JScrollPane(table);
-        DesktopTheme.styleDataTableInScroll(teamRankScroll, table);
+        DesktopTheme.styleDataTableInScroll(teamRankScroll, table, "Team rankings");
         panel.add(teamRankScroll, BorderLayout.CENTER);
         return panel;
     }

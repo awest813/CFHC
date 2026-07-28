@@ -4,6 +4,8 @@
 > Items are grouped by urgency; within each group they are ordered roughly by impact.
 >
 > **Status key:** 🔲 not started · 🔄 in progress · ✅ done
+>
+> **Premium Waves 1–5 (PR #36):** save/load UX, status/season copy, depleted-depth safety, BYE prestige/SOS, SaveSchema `V:` header, threading docs, desktop coach/roster CSV import, unsigned `desktopJpackageImage` packaging scaffold.
 
 ---
 
@@ -36,7 +38,7 @@ These two activities import each other. It is the single biggest blocker for run
 
 ---
 
-### 3. 🔲 Decompose `League` and `Team` God Objects
+### 3. 🔄 Decompose `League` and `Team` God Objects
 
 `League.java` — 6,485 LOC · 109 public methods · 46 public mutable fields.
 `Team.java` — 5,487 LOC · 31 public mutable fields.
@@ -45,19 +47,21 @@ These two activities import each other. It is the single biggest blocker for run
 - Extract record-keeping → `LeagueRecordKeeper` / `TeamRecords` *(partially done — `TeamRecords.java` and `LeagueRecords.java` exist)*.
 - Extract stat aggregation → `LeagueStats` / `TeamStats`.
 - Make internal collections `private`; expose via unmodifiable getters.
-- Move scheduling logic → `ScheduleManager`.
+- ~~Move scheduling logic → `ScheduleManager`.~~ ✅ Done — regular-season / OOC / BYE scheduling lives in `simulation.ScheduleManager`; `League.setupSeason()` delegates.
+- Extract awards candidate ranking → `LeagueAwards` *(started — Heisman / Defensive POTY candidate builders)*. Ceremony strings still on League.
 
 ---
 
-### 4. 🔲 Encapsulate public mutable collections
+### 4. ✅ Encapsulate public mutable collections
 
 Dozens of `public ArrayList<…>` fields on `League` and `Team` let callers bypass all validation.
 
 **Actions:**
-- Change fields to `private`.
+- Change fields to `private` / package-private.
 - Add `getXxx()` returning `Collections.unmodifiableList(…)`.
 - Add explicit mutation methods (`addPlayer`, `removePlayer`, etc.) where the list must change.
 
+**Progress:** Major collection fields on League and Team are package-private (or private) with unmodifiable getters + mutators. Outside packages use accessors only. Remaining public mutable state is mostly scalars, flags, and record/streak objects (`leagueRecords`, win streaks).
 ---
 
 ## ⚠️ High — Near-Term Improvements
@@ -137,10 +141,12 @@ At ~3,656 LOC, `MainActivity` owns too many concerns. Target split:
 **Progress:**
 - Save/load orchestration extracted to `SaveLoadService` (was item 7).
 - Navigation routing extracted to `GameNavigation`.
+- Import/export largely delegated to `LeagueImportFlowController`, `LeagueImportWorkflow`, `LeagueExportController`, and `LeagueCustomDataImporter` (MainActivity retains document-picker / storage host wiring).
+- Season/career UI flags moved to `GameStateManager` (MainActivity delegates; `TeamHome` / depth-chart use accessors).
 
 ---
 
-### 11. 🔲 Separate `RecruitingSessionData` concerns
+### 11. 🔄 Separate `RecruitingSessionData` concerns
 
 471 LOC mixes simulation state with UI state.
 
@@ -148,15 +154,21 @@ At ~3,656 LOC, `MainActivity` owns too many concerns. Target split:
 - Split into `RecruitingSimulation` (portable — goes in `simulation/` or `recruiting/`).
 - Split into `RecruitingUIState` (Android-only — stays in `recruiting/` or `antdroid/`).
 
+**Progress:**
+- Portable board/roster state remains in `recruiting.RecruitingSessionData`.
+- Android UI flags (`autoFilter`, `showPopUp`, `currentPosition`) extracted to `antdroid.cfbcoach.recruiting.RecruitingUiState`.
+- Optional follow-up: rename SessionData → Simulation naming and move remaining presentation helpers.
+
 ---
 
-### 12. 🔲 Add save-file schema versioning
+### 12. ✅ Add save-file schema versioning
 
-Currently only `League.saveVer = "v1.4e"`. Format changes silently break old saves.
+Previously only `League.saveVer = "v1.4e"`. Format changes silently broke old saves.
 
 **Actions:**
-- Add a structured version header at the top of each save file.
-- Write a migration layer that upgrades older formats on load.
+- ~~Add a structured version header at the top of each save file.~~ ✅ Done — `SaveSchema` + `V:` load path in `SaveManager`.
+- ~~Write a migration layer that upgrades older formats on load.~~ ✅ Done — `SaveSchema.migrate` identity for `v1.4e`; golden fixture / `SaveSchemaVersionTest` coverage. Unknown versions fail with a clear `IOException`.
+- Remaining: real migrators when the next breaking format ships.
 
 ---
 
@@ -170,9 +182,12 @@ Currently only `League.saveVer = "v1.4e"`. Format changes silently break old sav
 
 ---
 
-### 14. 🔲 Remove legacy `PlayerProfile.java`
+### 14. ✅ Remove legacy `PlayerProfile.java`
 
-`PlayerProfile.java` exists alongside `PlayerProfileV2.java`. Once V2 is confirmed stable, delete the old version and update all references.
+`PlayerProfile.java` was a thin two-column stats-row helper (not a duplicate of `PlayerProfileV2`).
+
+**Actions:**
+- ~~Rename/replace with a clearer adapter and update call sites.~~ ✅ Done — `StatsRowAdapter` replaces `PlayerProfile`; Android references updated. Profile dialogs continue to use `PlayerProfileDialogController` / `PlayerProfileSnapshot` / `PlayerProfileV2`.
 
 ---
 
@@ -182,20 +197,16 @@ These items require the Critical and High items above to be largely complete fir
 
 ---
 
-### 15. 🔲 Introduce a headless simulation facade
+### 15. ✅ Introduce a headless simulation facade
 
-A single entry-point class (`SimulationFacade` or similar) exposing a clean API:
+~~A single entry-point class (`SimulationFacade` or similar) exposing a clean API~~ — **`SimulationFacade` already exists** and covers load/save slots, `advanceWeek()`, recruiting prepare/complete, import, and team selection.
 
-```
-createDynasty(config) → Dynasty
-loadSave(path) → Dynasty
-advanceWeek(dynasty) → WeekResult
-resolveOffseason(dynasty) → OffseasonResult
-prepareRecruitingData(dynasty) → RecruitingSnapshot
-```
+Remaining polish toward the original sketch:
+- Thinner naming aliases / docs for createDynasty-style entry points
+- Keep shells on facade APIs instead of reaching into `League` for season flow
+- Optional `resolveOffseason`-style helpers where UI still drives multi-step offseason manually
 
-This facade becomes the API surface for iOS and desktop shells.
-*Requires items 2 and 7.*
+*Requires items 2 and 7 (done).*
 
 ---
 
@@ -211,14 +222,14 @@ Initial JUnit coverage now exists (`ComparatorTest`, recruiting tests, full-seas
 
 ---
 
-### 17. 🔲 Document the threading model
+### 17. ✅ Document the threading model
 
 The engine assumes single-threaded access throughout. If a desktop or server shell introduces background threads, data corruption becomes likely.
 
 **Actions:**
-- Add a `THREADING.md` doc describing the single-thread contract.
-- Annotate key classes with `@NotThreadSafe`.
-- Identify the safest future path (e.g., single game-thread with message-passing).
+- ~~Add a `THREADING.md` doc describing the single-thread contract.~~ ✅ Done — see [THREADING.md](THREADING.md).
+- ~~Annotate key classes with `@NotThreadSafe`.~~ ✅ Done — `League` / `Team` (+ annotation type).
+- Identify the safest future path (e.g., single game-thread with message-passing). *(Documented in THREADING.md; implementation deferred.)*
 
 ---
 
@@ -229,11 +240,12 @@ Target a native SwiftUI app that talks to the shared core through the platform b
 
 ---
 
-### 19. 🔲 Graduate the desktop shell from prototype to supported app
+### 19. 🔄 Graduate the desktop shell from prototype to supported app
 
 The Swing shell already exists. The remaining work is to harden it, close parity gaps, and make packaging/distribution practical.
 *Requires items 2, 7, and 15. See [Platform Expansion](platform-expansion.md) and [Desktop improvement roadmap](desktop-improvement-roadmap.md) for design goals.*
 
+**Progress:** FlatLaf theming, portable zip / jpackage image, manual update check, `LeagueScreen` panel split, user-ready jar docs, macOS Aqua About/Preferences/Quit + `.cfb` file-association scaffolding. Still open: signed installers, true `.AppImage`, deeper Android parity.
 ---
 
 ### 20. 🔲 Adopt a structured logging framework
@@ -247,5 +259,6 @@ Replace the lightweight `PlatformLog` shim with SLF4J (portable) + Timber (Andro
 | Doc | Purpose |
 |:---|:---|
 | [Platform Expansion](platform-expansion.md) | Design goals for iOS and desktop shells |
+| [Threading](THREADING.md) | Single-thread mutation contract for `League` / `Team` |
 | [README — Engine Audit Summary](../README.md#engine-audit-summary) | High-level audit findings |
 | [Privacy Policy](../Privacy-Policy.md) | App privacy disclosures |

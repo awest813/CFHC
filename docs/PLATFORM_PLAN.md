@@ -30,11 +30,14 @@ non-Android implementations of all 4 work.
 
 Goal: Production-quality desktop app ready for macOS distribution.
 
-### 1.1 Split God Object — LeagueHomeView (155KB)
-**Priority: Critical | Effort: 5-7 days**
-
-Currently LeagueHomeView is a monolithic JFrame that builds all 15+ screens.
-Decompose into:
+### 1.1 Split God Object — LeagueHomeView
+**Priority: Critical | Effort: 5-7 days**  
+**Status (Jul 2026):** Screen panels extracted via `LeagueScreen` + `LeagueScreenContext`
+(`DashboardPanel`, `StandingsPanel`, `ScoreboardPanel`, `NewsPanel`, `PlayerSearchPanel`,
+poll/rankings/stats/history/coaches/HoF/records/`CoachProfilePanel`/`SettingsPanel`,
+plus `RecruitingPanel` / `DesktopBulkSimulator`). Remaining work: shrink shell further
+(header/status/menu), keep `teamMap` in sync on refresh (mutate-in-place), and avoid
+stale scoreboard week state in the shell.
 
 | New Class | Screens | ~Size |
 |-----------|---------|-------|
@@ -54,14 +57,14 @@ Decompose into:
 | `RecruitingPanel` | Recruiting board (already separate) | 18KB |
 | `LeagueHomeView` | Shell: nav, menu, frame, wiring | ~30KB |
 
-Each panel implements `LeagueScreen` interface:
+Each panel implements `LeagueScreen` (actual API uses `LeagueScreenContext`):
 
 ```java
 interface LeagueScreen {
     String title();
-    JComponent build(League league, LeagueRecord record);
-    void refresh(LeagueRecord record);
-    JComponent searchTarget();
+    JPanel build(LeagueScreenContext ctx);
+    default void refresh(LeagueScreenContext ctx) {}
+    default JComponent searchTarget() { return null; }
 }
 ```
 

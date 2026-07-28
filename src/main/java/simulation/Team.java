@@ -31,6 +31,12 @@ import staff.OC;
 import staff.Staff;
 
 
+/**
+ * Mutable team state owned by a {@link League}.
+ *
+ * <p><b>Threading:</b> not safe for concurrent mutation. See {@code docs/THREADING.md}.
+ */
+@NotThreadSafe
 public class Team {
     public final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
     public final DecimalFormat df2 = new DecimalFormat("#.##", symbols);
@@ -42,8 +48,9 @@ public class Team {
     public String conference;
     public String division;
     public int location;
-    public ArrayList<TeamHistoryRecord> teamHistory;
-    public ArrayList<PlayerRecord> hallOfFame;
+    // Package-private — use getTeamHistory()/addTeamHistory(), getHallOfFame()/addToHallOfFame().
+    ArrayList<TeamHistoryRecord> teamHistory;
+    ArrayList<PlayerRecord> hallOfFame;
 
     public TeamRecords teamRecords;
     public boolean userControlled;
@@ -85,13 +92,15 @@ public class Team {
     public boolean nilCollectiveUpgrade;
     public int teamStadium;
 
-    //Game Log variables
-    public ArrayList<Game> gameSchedule;
-    public ArrayList<Team> oocTeams;
-    public ArrayList<Integer> oocWeeks;
-    public ArrayList<String> gameWLSchedule;
-    public ArrayList<Team> gameWinsAgainst;
-    public ArrayList<Team> gameLossesAgainst;
+    // Game log — package-private for StatsTracker/schedule builders.
+    // Outside simulation/, use getGameSchedule()/addGameToSchedule()/clearGameSchedule()
+    // and the matching OOC / W-L accessors below.
+    ArrayList<Game> gameSchedule;
+    ArrayList<Team> oocTeams;
+    ArrayList<Integer> oocWeeks;
+    ArrayList<String> gameWLSchedule;
+    ArrayList<Team> gameWinsAgainst;
+    ArrayList<Team> gameLossesAgainst;
     public String confChampion;
     public String sweet16;
     public String qtFinalWL;
@@ -179,27 +188,34 @@ public class Team {
     public boolean retired;
     public String contractString;
 
-    //players on team
+    // Players on team — package-private for RosterManager/DepthChartManager.
+    // Outside simulation/, use getTeam*()/addPlayer*()/clearAllRosters() (unmodifiable getters).
     //offense
-    public ArrayList<PlayerQB> teamQBs;
-    public ArrayList<PlayerRB> teamRBs;
-    public ArrayList<PlayerWR> teamWRs;
-    public ArrayList<PlayerTE> teamTEs;
-    public ArrayList<PlayerK> teamKs;
-    public ArrayList<PlayerOL> teamOLs;
+    ArrayList<PlayerQB> teamQBs;
+    ArrayList<PlayerRB> teamRBs;
+    ArrayList<PlayerWR> teamWRs;
+    ArrayList<PlayerTE> teamTEs;
+    ArrayList<PlayerK> teamKs;
+    ArrayList<PlayerOL> teamOLs;
     //defense
-    public ArrayList<PlayerDL> teamDLs;
-    public ArrayList<PlayerLB> teamLBs;
-    public ArrayList<PlayerCB> teamCBs;
-    public ArrayList<PlayerS> teamSs;
+    ArrayList<PlayerDL> teamDLs;
+    ArrayList<PlayerLB> teamLBs;
+    ArrayList<PlayerCB> teamCBs;
+    ArrayList<PlayerS> teamSs;
 
-    public ArrayList<Player> playersLeaving;
-    public ArrayList<Player> playersTransferring;
-    public ArrayList<String> redshirtList;
-    public java.util.ArrayList<String> trainingCampFocusNames;
+    /** Graduating / departing players — mutate via {@link #addPlayerLeaving}/{@link #clearPlayersLeaving}. */
+    private ArrayList<Player> playersLeaving;
+    /** Portal transfer candidates — mutate via {@link #addPlayerTransferring}/{@link #clearPlayersTransferring}. */
+    private ArrayList<Player> playersTransferring;
+    /** Redshirt display rows — mutate via {@link #addRedshirt}. */
+    private ArrayList<String> redshirtList;
+    // Package-private training-camp focus names (Team-only).
+    ArrayList<String> trainingCampFocusNames;
 
-    public ArrayList<Player> playersInjured;
-    public ArrayList<Player> playersDis;
+    /** Injured players — mutate only via {@link #addPlayerInjured}/{@link #removePlayerInjured}/{@link #clearPlayersInjured}. */
+    private ArrayList<Player> playersInjured;
+    // Package-private discipline scratch list (Team-only).
+    ArrayList<Player> playersDis;
 
     public String suspensionNews;
     public boolean suspension;
@@ -1283,7 +1299,7 @@ public class Team {
         natChampWL = "";
 
         playersLeaving.clear();
-        if (playersTransferring != null) playersTransferring.clear();
+        if (playersTransferring != null) clearPlayersTransferring();
     }
 
     //Calculates Prestige Change at end of season
@@ -1308,7 +1324,7 @@ public class Team {
             prestigeChange = Math.round((float) (diffExpected / 7.5));
             int postSeasonGames = 0;
             for(Game g: gameSchedule) {
-                if(!g.gameName.equals("Conference") && !g.gameName.equals("Division") && !g.gameName.equals("OOC") && !g.gameName.equals("BYE")) {
+                if(!g.isRegularSeasonSlot()) {
                     postSeasonGames++;
                 }
             }
@@ -1418,9 +1434,9 @@ public class Team {
         summary += "\n\nNEW PRESTIGE:  " + teamPrestige + " pts [" + getRankStr(rankTeamPrestige) + "]\n";
 
         if (newContract && league.isCareerMode()) {
-            summary += "\n\nCongratulations! You've been awarded with a contract extension of " + HC.contractLength + " years.";
+            summary += CareerContractCopy.seasonSummaryExtension(HC.contractLength);
         } else if (fired) {
-            summary += "\n\nDue to failing to raise the team prestige during your contract length, you've been terminated from this position. Your team may take an additional prestige hit due to the firing.";
+            summary += CareerContractCopy.seasonSummaryFired();
         }
         return summary;
     }
@@ -1564,23 +1580,23 @@ public class Team {
         if(OC != null && DC != null) {
             if(OC.getStaffOverall(ovr) > DC.getStaffOverall(ovr)) {
                 HC = new HeadCoach (OC, this);
-                if(league.getCoachStarList().contains(OC)) league.getCoachStarList().remove(OC);
+                if(league.coachStarList.contains(OC)) league.coachStarList.remove(OC);
                 OC = null;
                 if(league.currentWeek < league.regSeasonWeeks) league.OCCarousel();
             } else {
                 HC = new HeadCoach (DC, this);
-                if(league.getCoachStarList().contains(DC)) league.getCoachStarList().remove(DC);
+                if(league.coachStarList.contains(DC)) league.coachStarList.remove(DC);
                 DC = null;
                 if(league.currentWeek < league.regSeasonWeeks) league.DCCarousel();
             }
         } else if(Math.random() > 0.50 && OC != null) {
             HC = new HeadCoach (OC, this);
-            if(league.getCoachStarList().contains(OC)) league.getCoachStarList().remove(OC);
+            if(league.coachStarList.contains(OC)) league.coachStarList.remove(OC);
             OC = null;
             if(league.currentWeek < league.regSeasonWeeks) league.OCCarousel();
         } else if (DC != null) {
             HC = new HeadCoach (DC, this);
-            if(league.getCoachStarList().contains(DC)) league.getCoachStarList().remove(DC);
+            if(league.coachStarList.contains(DC)) league.coachStarList.remove(DC);
             DC = null;
             if(league.currentWeek < league.regSeasonWeeks) league.DCCarousel();
         } else {
@@ -1662,7 +1678,7 @@ public class Team {
 
         stabilizeDisciplineFromCoachSkills();
         sortPlayers();
-        getPlayersTransferring();
+        identifyTransferCandidates();
     }
 
     public void assignMentors() {
@@ -1865,7 +1881,11 @@ public class Team {
         if(p.position.equals("S")) teamSs.remove(p);
     }
 
-    public void getPlayersTransferring() {
+    /**
+     * Scan the roster and mark transfer candidates into the transferring list.
+     * Named to avoid confusion with {@link #getTransferringPlayers()}.
+     */
+    public void identifyTransferCandidates() {
 
         // PLAYER TRANSFERS
         // Juniors/Seniors - rated 75+ who have not played more than 4 games total and are not starters on teams > 60
@@ -3175,7 +3195,13 @@ public class Team {
     //Apply Suspensions to Player
     public void suspendPlayerSetup(GameUiBridge main) {
         GameUiBridge bridge = main == null ? GameUiBridge.NO_OP : main;
-        if(playersDis.size() <= 0) getLowDisciplinePlayers(75);
+        if (playersDis == null || playersDis.isEmpty()) {
+            getLowDisciplinePlayers(75);
+        }
+        if (playersDis == null || playersDis.isEmpty()) {
+            disciplineAction = false;
+            return;
+        }
         int random = (int) (Math.random() * playersDis.size());
         if (random > playersDis.size() - 1) random = playersDis.size() - 1;
         Player player = playersDis.get(random);
@@ -3262,7 +3288,9 @@ public class Team {
         checkSuspensionPosition(teamLBs, startersLB + subLB, minRating);
         checkSuspensionPosition(teamCBs, startersCB + subCB, minRating);
         checkSuspensionPosition(teamSs, startersS + subS, minRating);
-        if(playersDis.size() < 1) getLowDisciplinePlayers(85);
+        if (playersDis.isEmpty() && minRating < 85) {
+            getLowDisciplinePlayers(85);
+        }
     }
 
     public void checkSuspensionPosition(ArrayList<? extends Player> players, int numStarters, int minRating) {
@@ -3275,8 +3303,9 @@ public class Team {
         }
 
         // Only suspend if there are people left
-        if (numInjured < numStarters) {
-            for (int i = 0; i < numStarters; ++i) {
+        if (numInjured < numStarters && players != null && !players.isEmpty()) {
+            int limit = Math.min(numStarters, players.size());
+            for (int i = 0; i < limit; ++i) {
                 Player p = players.get(i);
                 if (p.character < minRating) {
                     playersDis.add(p);
@@ -3786,12 +3815,10 @@ public class Team {
                 status = "*";
             }
         }
-        if(p.isInjured) status = " [INJ - " + p.injury.duration + " wks]";
-        if(p.isRedshirt) status = " [RS]";
-        if(p.isTransfer) status = " [T]";
-        if(p.isMedicalRS) status = " [Med RS]";
-        if(p.isSuspended) status = " [Suspended - " + p.weeksSuspended + " wks]";
-
+        String tag = PlayerStatusCopy.rosterTag(p);
+        if (!tag.isEmpty()) {
+            return tag;
+        }
         return status;
     }
 
@@ -4061,13 +4088,27 @@ public class Team {
      */
     public String weekSummaryStr(int week) {
         int i = week - 1;
-        if(week > league.regSeasonWeeks)  i = wins + losses + (league.regSeasonWeeks-13)-1;
+        if (week > league.regSeasonWeeks) {
+            i = wins + losses + (league.regSeasonWeeks - 13) - 1;
+        }
+        if (gameSchedule == null || gameSchedule.isEmpty()) {
+            return name + " — no games scheduled\nNew poll rank: #" + rankTeamPollScore
+                    + " " + name + " (" + wins + "-" + losses + ")";
+        }
+        if (i < 0) {
+            i = 0;
+        }
+        if (i >= gameSchedule.size()) {
+            i = gameSchedule.size() - 1;
+        }
         Game g = gameSchedule.get(i);
         String gameSummary;
-        if(g.gameName.equals("BYE WEEK")) {
-            gameSummary = "BYE WEEK";
+        if (g.isByeWeek()) {
+            gameSummary = Game.BYE_WEEK_NAME;
+        } else if (i < gameWLSchedule.size()) {
+            gameSummary = gameWLSchedule.get(i) + " " + gameSummaryStr(g);
         } else {
-           gameSummary = gameWLSchedule.get(i) + " " + gameSummaryStr(g);
+            gameSummary = gameSummaryStr(g);
         }
 
         return name + " " + gameSummary + "\nNew poll rank: #" + rankTeamPollScore + " " + name + " (" + wins + "-" + losses + ")";
@@ -5119,6 +5160,29 @@ public class Team {
      */
     public void clearPlayersLeaving() {
         playersLeaving.clear();
+    }
+
+    /**
+     * Unmodifiable view of players currently marked for the transfer portal.
+     */
+    public java.util.List<Player> getTransferringPlayers() {
+        return java.util.Collections.unmodifiableList(playersTransferring);
+    }
+
+    /**
+     * Add a player to the transferring list.
+     */
+    public void addPlayerTransferring(Player player) {
+        if (player != null) {
+            playersTransferring.add(player);
+        }
+    }
+
+    /**
+     * Clear the transferring players list.
+     */
+    public void clearPlayersTransferring() {
+        playersTransferring.clear();
     }
 
     /**

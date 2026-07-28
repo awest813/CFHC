@@ -85,7 +85,7 @@ public class HallOfFamePanel implements LeagueScreen {
         });
 
         JScrollPane hofScroll = new JScrollPane(table);
-        DesktopTheme.styleDataTableInScroll(hofScroll, table);
+        DesktopTheme.styleDataTableInScroll(hofScroll, table, "Hall of Fame");
         panel.add(hofScroll, BorderLayout.CENTER);
         return panel;
     }

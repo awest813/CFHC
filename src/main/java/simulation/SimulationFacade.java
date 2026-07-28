@@ -371,7 +371,15 @@ public final class SimulationFacade {
     }
 
     public static RecruitingSessionData prepareRecruitingSession(Team userTeam) {
-        RecruitingSessionData session = RecruitingSessionData.fromUserTeamInfo(buildRecruitingPayload(userTeam));
+        return prepareRecruitingSessionFromPayload(buildRecruitingPayload(userTeam));
+    }
+
+    /** Builds a session from a frozen board payload (used for desktop recruiting checkpoints). */
+    public static RecruitingSessionData prepareRecruitingSessionFromPayload(String payload) {
+        if (payload == null || payload.isEmpty()) {
+            throw new IllegalArgumentException("payload is required");
+        }
+        RecruitingSessionData session = RecruitingSessionData.fromUserTeamInfo(payload);
         session.applyBudgetBonuses(MIN_ROSTER_SIZE);
         return session;
     }

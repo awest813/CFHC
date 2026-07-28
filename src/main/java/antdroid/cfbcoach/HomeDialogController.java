@@ -60,19 +60,17 @@ public final class HomeDialogController {
         SaveFilesList saveFilesAdapter = new SaveFilesList(activity, fileInfos);
         builder.setAdapter(saveFilesAdapter, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
-                if (!fileInfos[item].equals("EMPTY")) {
-                    if (!fileInfos[item].contains("Old Save")) {
-                        activity.finish();
-                        activity.startActivity(GameNavigation.createMainIntent(
-                                activity,
-                                LeagueLaunchCoordinator.LaunchRequest.loadInternal("saveFile" + item + ".cfb"),
-                                theme
-                        ));
-                    } else {
-                        Toast.makeText(activity, "Incompatible Save!", Toast.LENGTH_SHORT).show();
-                    }
+                String info = fileInfos[item];
+                if (simulation.SaveLoadMessages.isLoadable(info)) {
+                    activity.finish();
+                    activity.startActivity(GameNavigation.createMainIntent(
+                            activity,
+                            LeagueLaunchCoordinator.LaunchRequest.loadInternal("saveFile" + item + ".cfb"),
+                            theme
+                    ));
                 } else {
-                    Toast.makeText(activity, "Cannot load empty file!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, simulation.SaveLoadMessages.toastForSlot(info),
+                            Toast.LENGTH_SHORT).show();
                 }
             }
         });

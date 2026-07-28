@@ -66,6 +66,7 @@ public class LauncherFrame extends JFrame {
         setMinimumSize(new Dimension(820, 500));
         setLocationRelativeTo(null);
         loadWindowIcon();
+        MacDesktopIntegration.setActiveFrame(this);
 
         audioManager = new DesktopAudioManager();
 
@@ -161,7 +162,12 @@ public class LauncherFrame extends JFrame {
 
         JButton exitBtn = createStyledButton("Exit", "Close the application.");
         exitBtn.setMnemonic('E');
-        exitBtn.addActionListener(e -> System.exit(0));
+        exitBtn.addActionListener(e -> {
+            if (audioManager != null) {
+                audioManager.dispose();
+            }
+            System.exit(0);
+        });
         buttonGrid.add(exitBtn);
 
         JPanel centerWrap = new JPanel(new BorderLayout(0, 14));
@@ -254,6 +260,7 @@ public class LauncherFrame extends JFrame {
             DesktopResourceProvider resources = createResourceProvider();
             League league = NewGameWizard.showWizard(this, resources);
             if (league != null) {
+                disposeLauncherAudio();
                 LeagueHomeView.show(league);
                 this.dispose();
             }
@@ -265,10 +272,10 @@ public class LauncherFrame extends JFrame {
     }
 
     private void launchLoadGame() {
-        JFileChooser chooser = new JFileChooser(new File(System.getProperty("user.dir")));
+        JFileChooser chooser = new JFileChooser(DesktopAppPaths.chooserStartDir());
         DesktopTheme.styleFileChooser(chooser);
         chooser.setFileFilter(new FileNameExtensionFilter(
-                "CFHC saves (*.cfb, *.sav)", "cfb", "sav"));
+                "CFHC saves (*.cfb, *.sav, *.txt)", "cfb", "sav", "txt"));
         int res = chooser.showOpenDialog(this);
         if (res == JFileChooser.APPROVE_OPTION) {
             File file = chooser.getSelectedFile();
@@ -285,6 +292,7 @@ public class LauncherFrame extends JFrame {
                 if (!DesktopTeamSelectionDialog.ensureUserTeam(this, league)) {
                     return;
                 }
+                disposeLauncherAudio();
                 LeagueHomeView.show(league, file);
                 this.dispose();
             } catch (Exception e) {
@@ -295,26 +303,36 @@ public class LauncherFrame extends JFrame {
         }
     }
 
+    private void disposeLauncherAudio() {
+        if (audioManager != null) {
+            audioManager.dispose();
+            audioManager = null;
+        }
+    }
+
     private void showHelp() {
         String msg = """
                 Welcome to College Football Head Coach (CFHC) for desktop.
 
                 Getting started
                 1. New Career walks you through universe and team selection.
-                2. Load Save opens .cfb (desktop) or .sav exports from the Android build.
+                2. Load Save opens .cfb (desktop), .sav, or .txt exports.
 
                 In the league window
-                - The League Office navigation opens standings, scoreboard, stats, news, settings, and more.
+                - The left sidebar opens Home, Recruiting, Standings, Scoreboard, My Coach,
+                  polls, rankings, stats, search, history, news, coaches, HoF, records, and Settings.
                 - Space plays the next week or the next offseason step. Use the header buttons for longer sims.
                 - Double-click any team in Standings to open rosters, depth chart, coordinators, and facilities.
                 - F1 lists every keyboard shortcut.
 
                 Recruiting
                 After the final offseason step before signing day, press Space once. The signing board appears
-                in Recruiting. Finish recruiting there to roll into the next season.
+                in Recruiting. Finish recruiting there to roll into the next season. Progress is checkpointed
+                next to your save file when you save.
 
                 Saving
-                Use File > Save (Ctrl+S). Unsaved leagues prompt on exit.""";
+                Use File > Save (Ctrl+S). Saves default to your CFHC saves folder (~/.cfhc/saves on Linux).
+                Unsaved leagues prompt on exit, when opening another save, and when a new season begins.""";
         JTextArea area = new JTextArea(msg);
         area.setEditable(false);
         area.setWrapStyleWord(true);
@@ -328,7 +346,5 @@ public class LauncherFrame extends JFrame {
         JOptionPane.showMessageDialog(this, scroll, "How to Play", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private static final String VERSION = "Desktop v1.4e";
-
-    private static String version() { return VERSION; }
+    private static String version() { return DesktopVersion.DISPLAY; }
 }

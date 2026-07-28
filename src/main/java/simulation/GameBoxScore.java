@@ -78,9 +78,13 @@ class GameBoxScore {
         }
 
         player = game.homeTeam.getK(0);
-        game.homeKickingStats.add(player.getInitialName() + "," + player.team.getName() + "," + player.position + "," + player.gameFGMade + "," + player.gameFGAttempts + "," + player.gameXPMade + "," + player.gameXPAttempts);
+        if (player != null) {
+            game.homeKickingStats.add(player.getInitialName() + "," + player.team.getName() + "," + player.position + "," + player.gameFGMade + "," + player.gameFGAttempts + "," + player.gameXPMade + "," + player.gameXPAttempts);
+        }
         player = game.awayTeam.getK(0);
-        game.awayKickingStats.add(player.getInitialName() + "," + player.team.getName() + "," + player.position + "," + player.gameFGMade + "," + player.gameFGAttempts + "," + player.gameXPMade + "," + player.gameXPAttempts);
+        if (player != null) {
+            game.awayKickingStats.add(player.getInitialName() + "," + player.team.getName() + "," + player.position + "," + player.gameFGMade + "," + player.gameFGAttempts + "," + player.gameXPMade + "," + player.gameXPAttempts);
+        }
 
         for (int i = 0; i < allHomePlayers.size(); ++i) {
             if (allHomePlayers.get(i).gameTackles > 0) {
@@ -97,14 +101,14 @@ class GameBoxScore {
             }
         }
 
-        if (game.homeKickReturner.kReturns > 0)
+        if (game.homeKickReturner != null && game.homeKickReturner.kReturns > 0)
             game.hkReturnAvg = (double) game.homeKickReturner.kYards / game.homeKickReturner.kReturns;
-        if (game.awayKickReturner.kReturns > 0)
+        if (game.awayKickReturner != null && game.awayKickReturner.kReturns > 0)
             game.akReturnAvg = (double) game.awayKickReturner.kYards / game.awayKickReturner.kReturns;
 
-        if (game.homeKickReturner.pReturns > 0)
+        if (game.homeKickReturner != null && game.homeKickReturner.pReturns > 0)
             game.hpReturnAvg = (double) game.homeKickReturner.pYards / game.homeKickReturner.pReturns;
-        if (game.awayKickReturner.pReturns > 0)
+        if (game.awayKickReturner != null && game.awayKickReturner.pReturns > 0)
             game.apReturnAvg = (double) game.awayKickReturner.pYards / game.awayKickReturner.pReturns;
 
         game.recordReturnStats();

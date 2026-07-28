@@ -3,6 +3,7 @@ package desktop;
 import recruiting.RecruitingSessionData;
 import simulation.CoachSkills;
 import simulation.League;
+import simulation.SeasonFlowOrder;
 import simulation.SeasonPresentation;
 import simulation.SimulationFacade;
 import simulation.Team;
@@ -174,29 +175,25 @@ public class DashboardPanel implements LeagueScreen {
     }
 
     private String buildNextActionContext() {
-        int week = league.currentWeek;
-        int reg = league.regSeasonWeeks;
         if (bridge != null && bridge.isAwaitingDockedRecruiting()) {
             return "Finish recruiting before rolling into the next year.";
         }
-        if (week >= reg + 13) return "Signing day is live. Review recruits and finalize your class.";
-        if (week >= reg + 4)  return "Offseason progression. Contracts, transfers, and recruiting setup.";
-        if (week >= reg)      return "Postseason games. Each week advances the playoff or bowl bracket.";
-        if (week <= 0)        return "Pre-season setup. Review your roster and set schemes before kickoff.";
-        return "Week " + week + " of " + reg + ". Simulate the next set of games.";
+        return SeasonPresentation.getNextActionHint(league);
     }
 
     private JPanel buildSeasonTimelinePanel() {
-        JPanel timeline = new JPanel(new GridLayout(1, 6, 4, 0));
+        JPanel timeline = new JPanel(new GridLayout(1, SeasonFlowOrder.CYCLE_ORDER.length + 1, 4, 0));
         timeline.setOpaque(false);
         String active = decodeSeasonPeriod();
-        String[] phases = {"Pre-Season", "Regular Season", "Postseason", "Offseason", "Recruiting", "Next Year"};
+        String[] phases = new String[SeasonFlowOrder.CYCLE_ORDER.length + 1];
+        System.arraycopy(SeasonFlowOrder.CYCLE_ORDER, 0, phases, 0, SeasonFlowOrder.CYCLE_ORDER.length);
+        phases[phases.length - 1] = "Next Year";
         for (String phase : phases) {
             JLabel label = new JLabel(phase, JLabel.CENTER);
             label.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 10));
             label.setOpaque(true);
             boolean isActive = phase.equals(active)
-                    || ("Recruiting".equals(phase) && league.currentWeek >= league.regSeasonWeeks + 13);
+                    || ("Recruiting".equals(phase) && SeasonFlowOrder.isRecruitingGate(league.currentWeek, league.regSeasonWeeks));
             label.setBackground(isActive ? DesktopTheme.sidebarSelectionBackground() : DesktopTheme.windowBackground());
             label.setForeground(isActive ? Color.WHITE : DesktopTheme.textSecondary());
             label.setBorder(BorderFactory.createEmptyBorder(5, 8, 5, 8));
@@ -229,13 +226,11 @@ public class DashboardPanel implements LeagueScreen {
         if (user == null) return "No user team selected.";
         List<simulation.Game> schedule = user.getGameSchedule();
         if (schedule.isEmpty()) return "Season hasn't started yet.";
-        simulation.Game last = schedule.get(schedule.size() - 1);
-        if (!last.hasPlayed) return "Waiting for next game result.";
-        String opponentName = last.homeTeam == user
-                ? (last.awayTeam != null ? last.awayTeam.getName() : "Opponent")
-                : (last.homeTeam != null ? last.homeTeam.getName() : "Opponent");
-        int score = last.homeTeam == user ? last.homeScore : last.awayScore;
-        int oppScore = last.homeTeam == user ? last.awayScore : last.homeScore;
+        simulation.Game last = DesktopWeekResult.findMostRecentPlayed(user);
+        if (last == null) return "Waiting for next game result.";
+        String opponentName = DesktopWeekResult.opponentName(last, user);
+        int score = DesktopWeekResult.userScore(last, user);
+        int oppScore = DesktopWeekResult.opponentScore(last, user);
         String result = score > oppScore ? "Win" : (score < oppScore ? "Loss" : "Tie");
         return result + " " + score + "-" + oppScore + " vs " + opponentName;
     }

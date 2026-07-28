@@ -2,7 +2,7 @@
 
 # College Football Head Coach (CFHC)
 
-**Dynasty college football simulation — Android app plus a JVM desktop prototype on one shared engine.**
+**Dynasty college football simulation — Android app plus a JVM desktop shell on one shared engine.**
 
 [![Version](https://img.shields.io/badge/version-v1.4.5-blue?style=flat-square)](https://github.com/awest813/CFHC/releases)
 [![Android](https://img.shields.io/badge/Android-minSdk%2024%20%7C%20targetSdk%2035-green?style=flat-square&logo=android)](https://developer.android.com)
@@ -68,18 +68,32 @@ Debug APK: `app/build/outputs/apk/debug/`. Other variants (e.g. `beta`, `release
 
 ### Desktop (no Android SDK)
 
-The standalone JVM project compiles the shared engine, runs the same-style unit tests with the **repository root** as the working directory, and builds the runnable jar — **without** applying the Android plugin.
+The standalone JVM project compiles the shared engine, runs unit tests with the **repository root** as the working directory, and builds a runnable jar — **without** the Android SDK.
+
+**Play a release jar** (Java 17+):
+
+```bash
+java -jar CFHC-desktop-1.4e.jar          # Career Hub launcher
+java -jar CFHC-desktop-1.4e.jar help
+java -jar CFHC-desktop-1.4e.jar play ~/.cfhc/saves/my-league.cfb
+```
+
+Saves default to `~/.cfhc/saves` on Linux (`~/Library/Application Support/CFHC/saves` on macOS, `%APPDATA%\CFHC\saves` on Windows). Use **File → Save** (Ctrl+S); desktop prompts when a new season starts and on exit if unsaved.
+
+**Build from source:**
 
 ```bash
 ./gradlew -p desktop-standalone :engine:desktopStandaloneGate
 ```
+
+Jar output: `desktop-standalone/engine/build/libs/CFHC-desktop-1.4e.jar` (also `build/libs/` from the root `desktopJar` task).
 
 If you already use the **root** Gradle build (Android Studio), equivalent desktop tasks live there:
 
 | Task | Purpose |
 |:---|:---|
 | `desktopVerify` | Import scan for forbidden Android APIs in engine packages, required resource files, desktop Java compile |
-| `desktopJar` | Produces `CFHC-desktop-prototype.jar` (see `build/libs/`) |
+| `desktopJar` | Produces `CFHC-desktop-1.4e.jar` (see `build/libs/`) |
 | `runDesktop` | Runs `desktop.Main`; optional `-PdesktopArgs="..."` |
 
 ```bash
@@ -87,21 +101,34 @@ If you already use the **root** Gradle build (Android Studio), equivalent deskto
 ./gradlew desktopJar
 ./gradlew runDesktop
 ./gradlew runDesktop -PdesktopArgs="new"
-java -jar build/libs/CFHC-desktop-prototype.jar play path/to/save.cfb
-java -jar build/libs/CFHC-desktop-prototype.jar help
+java -jar build/libs/CFHC-desktop-1.4e.jar play path/to/save.cfb
+java -jar build/libs/CFHC-desktop-1.4e.jar help
 ```
 
 | CLI (jar or `runDesktop`) | |
 |:---|:---|
 | *(no args)* | Opens the Swing launcher |
 | `new` | New-game flow, then league UI |
-| `play <file.cfb>` / `view <file>` | Load a save |
+| `play <file.cfb>` / `view <file>` | Load a save (prompts for a user team if needed) |
 | `inspect <file>` | Print save metadata |
 | `help` | Usage |
+
+Unsigned jpackage packaging (JDK `jpackage` required):
+
+```bash
+./gradlew -p desktop-standalone :engine:desktopJpackageImage   # app directory (not a .AppImage file)
+./gradlew -p desktop-standalone :engine:desktopPortableZip     # zip of that directory (bundled runtime)
+./gradlew -p desktop-standalone :engine:desktopDmg             # unsigned .dmg on macOS only
+./gradlew -p desktop-standalone :engine:desktopMsi             # unsigned .msi on Windows only
+```
+
+`desktopAppImage` remains as an alias for `desktopJpackageImage`.
 
 **Resources:** `DesktopResourceContract` lists required `res/values` XML and asset paths. Gradle desktop tasks must run from the **repo root** so resources and tests resolve consistently.
 
 **Engine rule:** `checkEngineImports` / the standalone build fail if engine packages import `android.*`, `androidx.*`, or `antdroid.*`.
+
+**Licenses:** The jar embeds `LICENSE` (CC0) and `SOUND_LICENSES.md` (CC BY sounds + LGPL OGG SPI + Apache FlatLaf). In-app: **Help → Licenses & Attribution**. **Help → Check for Updates** compares against GitHub Releases (manual download; no auto-replace).
 
 ### Continuous integration
 
@@ -129,7 +156,7 @@ src/main/java/
 ├── recruiting/   Portable recruiting logic (extra UI under antdroid/…/recruiting/)
 ├── ui/           Android UI helpers
 ├── antdroid/     Android app shell (activities, navigation, dialogs)
-└── desktop/      Swing prototype (excluded from APK via Gradle source set)
+└── desktop/      Swing desktop shell (excluded from APK via Gradle source set)
 ```
 
 ### Platform bridge
@@ -154,7 +181,7 @@ More detail: [docs/platform-expansion.md](docs/platform-expansion.md).
 - **Simulation:** play-by-play, multiple schemes, stats, news, awards, progression
 - **League:** conferences, bowls, playoff options, polls, prestige, infractions, history
 - **Customization:** CSV import for universes/rosters/coaches; in-game renames; light/dark themes
-- **Desktop:** launcher, league shell, recruiting tab, exports — prototype parity with Android varies by screen
+- **Desktop:** Career Hub launcher, league shell, docked recruiting, dark/high-contrast themes, CSV import/export — Java 17 jar (`CFHC-desktop-1.4e.jar`)
 
 ---
 
@@ -163,7 +190,9 @@ More detail: [docs/platform-expansion.md](docs/platform-expansion.md).
 | Doc | Contents |
 |:---|:---|
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Priorities, technical debt, planned work |
+| [docs/THREADING.md](docs/THREADING.md) | Single-thread engine mutation contract |
 | [docs/platform-expansion.md](docs/platform-expansion.md) | Cross-platform bridge and migration notes |
+| [docs/desktop-release-notes-1.4e.md](docs/desktop-release-notes-1.4e.md) | Desktop 1.4e run / save / attribution notes |
 
 ---
 
@@ -172,7 +201,9 @@ More detail: [docs/platform-expansion.md](docs/platform-expansion.md).
 <details>
 <summary><strong>How do I save?</strong></summary>
 
-The game saves automatically at the start of each new season (you’ll see a prompt). You can also save manually just before recruiting. Restoring a save returns you to the **start of the season** in which that file was created.
+**Android:** The game can auto-save at season boundaries (you’ll see a prompt). Restoring a save returns you to the **start of the season** in which that file was created.
+
+**Desktop:** Use **File → Save** (Ctrl+S). Saves default to your CFHC saves folder (`~/.cfhc/saves` on Linux). Desktop prompts to save when a new season begins and when you exit with unsaved changes. There is no silent auto-save — save before quitting.
 </details>
 
 <details>
@@ -190,7 +221,7 @@ Use formats aligned with the bundled sample universes, then **Import** from the 
 <details>
 <summary><strong>What does the desktop build support?</strong></summary>
 
-New game flow, loading saves, seasons, recruiting in a docked tab, and league export — still a prototype; some Android flows are more complete.
+New career wizard, load/save (`.cfb` / `.sav` / `.txt`), week-by-week and bulk season advance, docked recruiting with disk checkpoints, transfer summaries, redshirts, depth chart/playbook, CSV coach/roster import, and league export. Requires **Java 17+**. Run `java -jar CFHC-desktop-1.4e.jar`. Some Android-only UI flows remain more complete on mobile.
 </details>
 
 ---

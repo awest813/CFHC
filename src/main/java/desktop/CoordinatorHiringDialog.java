@@ -48,7 +48,7 @@ public class CoordinatorHiringDialog extends JDialog {
         this.userTeam = league.userTeam;
         setSize(900, 600);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(DesktopTheme.windowBackground());
+        DesktopTheme.styleDialogContentPane(getContentPane());
 
         if (userTeam == null || userTeam.getHeadCoach() == null) {
             buildErrorPanel("No active user team or head coach record found.");
@@ -162,14 +162,16 @@ public class CoordinatorHiringDialog extends JDialog {
 
         if (userTeam.getOC() != null) {
             Staff current = userTeam.getOC();
-            model.addRow(new Object[]{"[CURRENT]", current.name.toUpperCase(Locale.ROOT), current.age, current.ratOff, current.ratTalent, playbooks[current.offStrat].getStratName().toUpperCase(Locale.ROOT)});
+            model.addRow(new Object[]{"[CURRENT]", current.name.toUpperCase(Locale.ROOT), current.age, current.ratOff, current.ratTalent,
+                    playbookName(playbooks, current.offStrat)});
         }
 
-        for (int i = (userTeam.getOC() != null ? 1 : 0); i < candidates.size(); i++) {
-            Staff c = candidates.get(i);
-            model.addRow(new Object[]{"", c.name.toUpperCase(Locale.ROOT), c.age, c.ratOff, c.ratTalent, playbooks[c.offStrat].getStratName().toUpperCase(Locale.ROOT)});
+        for (Staff c : candidates) {
+            model.addRow(new Object[]{"", c.name.toUpperCase(Locale.ROOT), c.age, c.ratOff, c.ratTalent,
+                    playbookName(playbooks, c.offStrat)});
         }
 
+        final boolean hasCurrentOc = userTeam.getOC() != null;
         JTable table = createModernTable(model);
         table.getColumnModel().getColumn(0).setPreferredWidth(100);
 
@@ -189,7 +191,8 @@ public class CoordinatorHiringDialog extends JDialog {
                         JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            hireCoordinator(true, candidates, row);
+            int candidateIdx = hasCurrentOc ? row - 1 : row;
+            hireCoordinator(true, candidates, candidateIdx);
             dispose();
             if (alsoNeedDC || userTeam.getDC() == null || userTeam.getDC().contractYear >= userTeam.getDC().contractLength) {
                 showDCOnly(ownerFrame(), league);
@@ -197,6 +200,9 @@ public class CoordinatorHiringDialog extends JDialog {
                 league.coordinatorCarousel();
             }
         });
+        JButton closeBtn = DesktopTheme.createGlassButton("CLOSE", DesktopTheme.textSecondary());
+        closeBtn.addActionListener(e -> dispose());
+        buttons.add(closeBtn);
         buttons.add(hireBtn);
 
         add(headerPanel, BorderLayout.NORTH);
@@ -214,7 +220,7 @@ public class CoordinatorHiringDialog extends JDialog {
     private void showDCContent(JDialog container) {
         container.getContentPane().removeAll();
         container.setLayout(new BorderLayout());
-        container.getContentPane().setBackground(DesktopTheme.windowBackground());
+        DesktopTheme.styleDialogContentPane(container.getContentPane());
 
         ArrayList<Staff> candidates = league.getDCList(userTeam.getHeadCoach());
         PlaybookDefense[] playbooks = userTeam.getPlaybookDef();
@@ -230,14 +236,16 @@ public class CoordinatorHiringDialog extends JDialog {
 
         if (userTeam.getDC() != null) {
             Staff current = userTeam.getDC();
-            model.addRow(new Object[]{"[CURRENT]", current.name.toUpperCase(Locale.ROOT), current.age, current.ratDef, current.ratTalent, playbooks[current.defStrat].getStratName().toUpperCase(Locale.ROOT)});
+            model.addRow(new Object[]{"[CURRENT]", current.name.toUpperCase(Locale.ROOT), current.age, current.ratDef, current.ratTalent,
+                    playbookName(playbooks, current.defStrat)});
         }
 
-        for (int i = (userTeam.getDC() != null ? 1 : 0); i < candidates.size(); i++) {
-            Staff c = candidates.get(i);
-            model.addRow(new Object[]{"", c.name.toUpperCase(Locale.ROOT), c.age, c.ratDef, c.ratTalent, playbooks[c.defStrat].getStratName().toUpperCase(Locale.ROOT)});
+        for (Staff c : candidates) {
+            model.addRow(new Object[]{"", c.name.toUpperCase(Locale.ROOT), c.age, c.ratDef, c.ratTalent,
+                    playbookName(playbooks, c.defStrat)});
         }
 
+        final boolean hasCurrentDc = userTeam.getDC() != null;
         JTable table = createModernTable(model);
         table.getColumnModel().getColumn(0).setPreferredWidth(100);
 
@@ -257,10 +265,14 @@ public class CoordinatorHiringDialog extends JDialog {
                         JOptionPane.WARNING_MESSAGE);
                 return;
             }
-            hireCoordinator(false, candidates, row);
+            int candidateIdx = hasCurrentDc ? row - 1 : row;
+            hireCoordinator(false, candidates, candidateIdx);
             league.coordinatorCarousel();
             container.dispose();
         });
+        JButton closeBtn = DesktopTheme.createGlassButton("CLOSE", DesktopTheme.textSecondary());
+        closeBtn.addActionListener(e -> container.dispose());
+        buttons.add(closeBtn);
         buttons.add(hireBtn);
 
         container.add(headerPanel, BorderLayout.NORTH);
@@ -294,16 +306,32 @@ public class CoordinatorHiringDialog extends JDialog {
     }
 
     private JTable createModernTable(DefaultTableModel model) {
-        return DesktopTheme.stylePickerTable(model, 40, 10);
+        return DesktopTheme.stylePickerTable(model, 40, 10, "Coordinator candidates");
+    }
+
+    private static String playbookName(Object[] playbooks, int stratIdx) {
+        if (playbooks == null || playbooks.length == 0) {
+            return "UNKNOWN";
+        }
+        int idx = Math.max(0, Math.min(stratIdx, playbooks.length - 1));
+        Object pb = playbooks[idx];
+        if (pb instanceof simulation.PlaybookOffense off) {
+            return off.getStratName().toUpperCase(Locale.ROOT);
+        }
+        if (pb instanceof simulation.PlaybookDefense def) {
+            return def.getStratName().toUpperCase(Locale.ROOT);
+        }
+        return "UNKNOWN";
     }
 
     private void hireCoordinator(boolean offense, ArrayList<Staff> candidates, int selectedIdx) {
         Staff existing = offense ? userTeam.getOC() : userTeam.getDC();
-        if (selectedIdx == 0 && existing != null) {
+        // selectedIdx < 0 means the [CURRENT] renew row.
+        if (selectedIdx < 0 && existing != null) {
             existing.contractLength = COORDINATOR_CONTRACT_LENGTH;
             existing.contractYear = 0;
             existing.baselinePrestige = 0;
-        } else {
+        } else if (selectedIdx >= 0 && selectedIdx < candidates.size()) {
             Staff hired = candidates.get(selectedIdx);
             String coordName;
             if (offense) {
@@ -315,13 +343,8 @@ public class CoordinatorHiringDialog extends JDialog {
             }
             String side = offense ? "Off" : "Def";
             String sideFull = offense ? "offense" : "defense";
-            if (league.getNewsHeadlines() != null) {
-                league.getNewsHeadlines().add(userTeam.getName() + " adds new " + side + " Coord " + coordName);
-            }
-            while (league.getNewsStories().size() <= league.currentWeek) {
-                league.getNewsStories().add(new java.util.ArrayList<>());
-            }
-            league.getNewsStories().get(league.currentWeek).add(
+            league.addNewsHeadline(userTeam.getName() + " adds new " + side + " Coord " + coordName);
+            league.addNewsStory(league.currentWeek,
                     side + " Coord Change: " + userTeam.getName()
                             + ">After an extensive search for a new coordinator, "
                             + userTeam.getName() + " has hired " + coordName
@@ -333,7 +356,7 @@ public class CoordinatorHiringDialog extends JDialog {
                 userTeam.getDC().contractLength = COORDINATOR_CONTRACT_LENGTH;
                 userTeam.getDC().contractYear = 0;
             }
-            league.getCoachFreeAgents().remove(hired);
+            league.removeCoachFreeAgent(hired);
         }
     }
 

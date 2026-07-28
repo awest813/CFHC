@@ -1,6 +1,6 @@
 package comparator;
 
-import desktop.DesktopResourceProvider;
+import simulation.FileSystemResourceProvider;
 import org.junit.Before;
 import org.junit.Test;
 import positions.Player;
@@ -36,7 +36,7 @@ public class ComparatorTest {
     @Before
     public void setUp() {
         String projectRoot = System.getProperty("user.dir");
-        DesktopResourceProvider res = new DesktopResourceProvider(projectRoot);
+        FileSystemResourceProvider res = new FileSystemResourceProvider(projectRoot);
 
         league = new League(
                 res.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),

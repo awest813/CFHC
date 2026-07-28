@@ -32,13 +32,19 @@ import java.util.Locale;
 public class PlaybookDialog extends JDialog {
 
     private final Team team;
+    private final Runnable onChanged;
 
     public PlaybookDialog(JFrame owner, Team team) {
+        this(owner, team, null);
+    }
+
+    public PlaybookDialog(JFrame owner, Team team, Runnable onChanged) {
         super(owner, "SCHEME ROOM - " + team.getName().toUpperCase(Locale.ROOT), true);
         this.team = team;
+        this.onChanged = onChanged != null ? onChanged : () -> {};
         setSize(850, 650);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(DesktopTheme.windowBackground());
+        DesktopTheme.styleDialogContentPane(getContentPane());
 
         // Header
         JPanel header = new JPanel(new BorderLayout()) {
@@ -170,6 +176,7 @@ public class PlaybookDialog extends JDialog {
                 team.setPlaybookDefNum(idx);
                 team.setPlaybookDefense((PlaybookDefense) options[idx]);
             }
+            onChanged.run();
             updateDesc.run();
         });
         updateDesc.run();
@@ -204,7 +211,11 @@ public class PlaybookDialog extends JDialog {
     }
 
     public static void show(JFrame owner, Team team) {
-        PlaybookDialog dlg = new PlaybookDialog(owner, team);
+        show(owner, team, null);
+    }
+
+    public static void show(JFrame owner, Team team, Runnable onChanged) {
+        PlaybookDialog dlg = new PlaybookDialog(owner, team, onChanged);
         dlg.setLocationRelativeTo(owner);
         dlg.setVisible(true);
     }

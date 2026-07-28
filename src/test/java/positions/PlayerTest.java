@@ -1,6 +1,6 @@
 package positions;
 
-import desktop.DesktopResourceProvider;
+import simulation.FileSystemResourceProvider;
 import org.junit.Before;
 import org.junit.Test;
 import simulation.League;
@@ -11,14 +11,14 @@ import static org.junit.Assert.*;
 
 public class PlayerTest {
 
-    private DesktopResourceProvider resources;
+    private FileSystemResourceProvider resources;
     private League league;
     private Team team;
     private PlayerQB player;
 
     @Before
     public void setUp() {
-        resources = new DesktopResourceProvider(System.getProperty("user.dir"));
+        resources = new FileSystemResourceProvider(System.getProperty("user.dir"));
         league = new League(
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES),

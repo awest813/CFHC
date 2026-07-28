@@ -1,5 +1,7 @@
 // Root aggregator + desktop packaging tasks. Android app lives in :app; portable engine in :engine.
 
+def desktopVersion = (findProperty('desktopVersion') ?: '1.4e').toString()
+
 allprojects {
     repositories {
         google()
@@ -24,7 +26,14 @@ def desktopSourceFiles = fileTree("${rootProject.projectDir}/src/main/java") {
 
 def desktopClassesDir = layout.buildDirectory.dir('desktop/classes')
 def desktopResourcesDir = layout.buildDirectory.dir('desktop/resources')
-def vorbisspiJar = fileTree("${rootProject.projectDir}/libs").matching { include 'vorbisspi*.jar' }
+def vorbisspiJar = fileTree("${rootProject.projectDir}/libs").matching {
+    include 'vorbisspi*.jar'
+    include 'jorbis*.jar'
+    include 'tritonus-share*.jar'
+}
+def flatlafJar = fileTree("${rootProject.projectDir}/libs").matching {
+    include 'flatlaf*.jar'
+}
 
 /** Must match {@code desktop.DesktopResourceContract.VALUE_XML_FILES}. */
 def desktopValueXmlFiles = [
@@ -156,7 +165,7 @@ tasks.register('compileDesktopJava', JavaCompile) {
 
     source = desktopSourceFiles
     destinationDirectory = desktopClassesDir
-    classpath = files(vorbisspiJar)
+    classpath = files(vorbisspiJar, flatlafJar)
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
     options.encoding = 'UTF-8'
@@ -240,10 +249,9 @@ gradle.projectsEvaluated {
 
 tasks.register('desktopJar', Jar) {
     group = 'desktop'
-    description = 'Builds a runnable jar for the desktop prototype.'
+    description = 'Builds a runnable jar for the CFHC desktop shell.'
     archiveBaseName = 'CFHC-desktop'
-    archiveClassifier = 'prototype'
-    archiveVersion = ''
+    archiveVersion = desktopVersion
     destinationDirectory = layout.buildDirectory.dir('libs')
 
     dependsOn tasks.named('compileDesktopJava'), tasks.named('prepareDesktopResources')
@@ -251,20 +259,37 @@ tasks.register('desktopJar', Jar) {
     from(desktopClassesDir)
     from(desktopResourcesDir)
     vorbisspiJar.each { from(zipTree(it)) }
+    flatlafJar.each { from(zipTree(it)) }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from(rootProject.projectDir) {
+        include 'LICENSE'
+        include 'SOUND_LICENSES.md'
+    }
+    doFirst {
+        def propsDir = layout.buildDirectory.dir('desktop-version').get().asFile
+        propsDir.mkdirs()
+        new File(propsDir, 'desktop-version.properties').text = "version=${desktopVersion}\n"
+    }
+    from(layout.buildDirectory.dir('desktop-version'))
 
     manifest {
-        attributes('Main-Class': 'desktop.Main')
+        attributes(
+                'Main-Class': 'desktop.Main',
+                'Implementation-Title': 'CFHC Desktop',
+                'Implementation-Version': desktopVersion,
+                'Implementation-Vendor': 'CFHC'
+        )
     }
 }
 
 tasks.register('runDesktop', JavaExec) {
     group = 'desktop'
-    description = 'Runs the desktop prototype. Pass -PdesktopArgs="new" or -PdesktopArgs="play path/to/save.cfb".'
+    description = 'Runs the CFHC desktop shell. Pass -PdesktopArgs="new" or -PdesktopArgs="play path/to/save.cfb".'
 
     dependsOn tasks.named('compileDesktopJava'), tasks.named('prepareDesktopResources')
 
     mainClass = 'desktop.Main'
-    classpath = files(desktopClassesDir, desktopResourcesDir, vorbisspiJar)
+    classpath = files(desktopClassesDir, desktopResourcesDir, vorbisspiJar, flatlafJar)
 
     if (project.hasProperty('desktopArgs') && project.property('desktopArgs')) {
         args project.property('desktopArgs').toString().split(/\s+/).findAll { !it.isEmpty() }

@@ -123,6 +123,35 @@ public class RecruitingSessionDataTest {
         assertEquals("Casey Arm", session.availAll.get(0).name());
     }
 
+    @Test
+    public void recruitPlayer_rejectsWhenRosterFull() {
+        RecruitingSessionData session = newSession(5000, 70);
+        // Fill projected roster to MAX_PLAYERS without going through recruiting.
+        while (session.projectedRosterSize() < simulation.RosterRules.MAX_PLAYERS) {
+            String raw = "RB,Pad" + session.teamPlayers.size()
+                    + ",1,45,70,75,3,false,false,70,70,70,10,A,B,C,D,72,200,70,F";
+            session.teamPlayers.add(RecruitingPlayerRecord.fromRecruitCsv(raw));
+        }
+        assertFalse(session.canRecruitMore());
+        RecruitingPlayerRecord recruit = RecruitingPlayerRecord.fromRecruitCsv(
+                "QB,Overflow,1,45,70,75,3,false,false,70,70,70,50,A,B,C,D,72,200,70,F");
+        try {
+            session.recruitPlayer(recruit, false, 1.0, new Random(1));
+            fail("Expected IllegalStateException when roster is full");
+        } catch (IllegalStateException expected) {
+            assertTrue(expected.getMessage().contains("full"));
+        }
+    }
+
+    @Test
+    public void emptyBoardStatus_isExplicit() {
+        RecruitingSessionData session = newSession(100, 70);
+        assertEquals(0, session.availAll.size());
+        assertEquals("Board: no prospects available",
+                RecruitingPresentation.buildBoardStatus(session));
+        assertTrue(RecruitingPresentation.buildEmptyBoardMessage().toLowerCase().contains("no recruits"));
+    }
+
     private static int expectedScoutCost(int recruitCost, int coachTalent) {
         int base = Math.max(10, recruitCost / 10);
         int talentDiscount = Math.min(8, coachTalent / 12);

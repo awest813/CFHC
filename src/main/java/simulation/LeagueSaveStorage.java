@@ -44,6 +44,7 @@ public final class LeagueSaveStorage {
                     infos[i] = SaveFileSummary.summarize(saveFile, saveVer);
                 } catch (IOException ex) {
                     PlatformLog.e("LeagueSaveStorage", "Error reading save file: slot " + i, ex);
+                    infos[i] = SaveLoadMessages.UNREADABLE;
                 }
             }
         }

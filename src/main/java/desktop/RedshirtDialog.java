@@ -9,10 +9,12 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.BorderLayout;
@@ -47,7 +49,8 @@ public class RedshirtDialog extends JDialog {
         this.league = league;
         setSize(1000, 650);
         setLayout(new BorderLayout());
-        getContentPane().setBackground(DesktopTheme.windowBackground());
+        DesktopTheme.styleDialogContentPane(getContentPane());
+        DesktopTheme.applyWindowIcon(this);
 
         buildContent();
 
@@ -62,6 +65,10 @@ public class RedshirtDialog extends JDialog {
     }
 
     private void buildContent() {
+        JPanel northStack = new JPanel(new BorderLayout());
+        northStack.setOpaque(true);
+        northStack.setBackground(DesktopTheme.tableBase());
+
         // Top Hint Bar
         JPanel hintBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 25, 12)) {
             @Override
@@ -74,15 +81,34 @@ public class RedshirtDialog extends JDialog {
             }
         };
         hintBar.setBackground(DesktopTheme.tableBase());
-        JLabel hint = new JLabel("TACTICAL NOTE: Redshirts preserve eligibility for players with minimal game participation.");
+        JLabel hint = new JLabel("<html>Season redshirts (including auto-redshirts for players with fewer than 4 games) "
+                + "are listed below when available. Use the pools to review or adjust eligibility.</html>");
         hint.setFont(new Font("SansSerif", Font.ITALIC, 11));
         hint.setForeground(DesktopTheme.textSecondary());
         hintBar.add(hint);
-        add(hintBar, BorderLayout.NORTH);
+        northStack.add(hintBar, BorderLayout.NORTH);
+
+        if (league.userTeam != null && !league.userTeam.getRedshirtList().isEmpty()) {
+            StringBuilder update = new StringBuilder();
+            update.append("Players redshirted this season:\n\n");
+            for (String row : league.userTeam.getRedshirtList()) {
+                update.append(row).append('\n');
+            }
+            JTextArea seasonList = new JTextArea(update.toString());
+            seasonList.setEditable(false);
+            DesktopTheme.styleTextContent(seasonList);
+            JScrollPane seasonScroll = new JScrollPane(seasonList);
+            seasonScroll.setPreferredSize(new java.awt.Dimension(0, 110));
+            seasonScroll.setBorder(BorderFactory.createTitledBorder(
+                    BorderFactory.createLineBorder(DesktopTheme.borderSubtle()),
+                    league.getYear() + " Redshirts"));
+            northStack.add(seasonScroll, BorderLayout.CENTER);
+        }
+        add(northStack, BorderLayout.NORTH);
 
         // Left — currently redshirted players
         currentModel = createModel();
-        JTable currentTable = createModernTable(currentModel);
+        JTable currentTable = createModernTable(currentModel, "Inactive redshirt pool");
         StripedRowRenderer.install(currentTable);
 
         JPanel leftPanel = new JPanel(new BorderLayout(0, 15));
@@ -103,7 +129,13 @@ public class RedshirtDialog extends JDialog {
         removeBtn.setForeground(DesktopTheme.dangerRed());
         removeBtn.addActionListener(e -> {
             int row = currentTable.getSelectedRow();
-            if (row < 0 || row >= currentList.size()) return;
+            if (row < 0 || row >= currentList.size()) {
+                JOptionPane.showMessageDialog(this,
+                        DesktopTheme.messageForDialog("Select a redshirted player first."),
+                        "Redshirts",
+                        JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
             Player p = currentList.get(row);
             p.isRedshirt = false;
             refresh();
@@ -115,7 +147,7 @@ public class RedshirtDialog extends JDialog {
 
         // Right — freshmen eligible for redshirt
         eligibleModel = createModel();
-        JTable eligibleTable = createModernTable(eligibleModel);
+        JTable eligibleTable = createModernTable(eligibleModel, "Redshirt-eligible players");
         StripedRowRenderer.install(eligibleTable);
 
         JPanel rightPanel = new JPanel(new BorderLayout(0, 15));
@@ -136,7 +168,13 @@ public class RedshirtDialog extends JDialog {
         JButton grantBtn = DesktopTheme.createGlassButton("\u25C0 GRANT REDSHIRT", DesktopTheme.successGreen());
         grantBtn.addActionListener(e -> {
             int row = eligibleTable.getSelectedRow();
-            if (row < 0 || row >= eligibleList.size()) return;
+            if (row < 0 || row >= eligibleList.size()) {
+                JOptionPane.showMessageDialog(this,
+                        DesktopTheme.messageForDialog("Select an eligible freshman first."),
+                        "Redshirts",
+                        JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
             Player p = eligibleList.get(row);
             p.isRedshirt = true;
             refresh();
@@ -156,8 +194,8 @@ public class RedshirtDialog extends JDialog {
         populateTables();
     }
 
-    private JTable createModernTable(DefaultTableModel model) {
-        return DesktopTheme.stylePickerTable(model, 35, 11);
+    private JTable createModernTable(DefaultTableModel model, String accessibleName) {
+        return DesktopTheme.stylePickerTable(model, 35, 11, accessibleName);
     }
 
     private DefaultTableModel createModel() {
