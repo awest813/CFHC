@@ -179,7 +179,11 @@ public class DesktopUiBridge implements GameUiBridge {
 
     @Override
     public void showMidseasonSummary() {
-        showScrollableText("Mid-Season Summary", buildMidseasonSummary());
+        if (!canShowBlockingDialog()) {
+            logDialog("Mid-Season Summary", "midseason progression applied");
+            return;
+        }
+        showScrollableText("Mid-Season Progress Report", buildMidseasonSummary());
     }
 
     @Override
@@ -325,21 +329,16 @@ public class DesktopUiBridge implements GameUiBridge {
     }
 
     private String buildMidseasonSummary() {
-        StringBuilder sb = new StringBuilder("Mid-Season Summary\n\n");
         if (league.userTeam != null) {
-            simulation.Team t = league.userTeam;
-            sb.append("Your team: ").append(t.getName())
-              .append("  (").append(t.getWins()).append("-").append(t.getLosses()).append(")\n\n");
+            String report = league.userTeam.midseasonUserProgression();
+            if (report != null && !report.trim().isEmpty()) {
+                simulation.Team t = league.userTeam;
+                return "Mid-Season Progress Report\n\n"
+                        + t.getName() + "  (" + t.getWins() + "-" + t.getLosses() + ")\n\n"
+                        + report;
+            }
+            return "No player rating changes to report this midseason.";
         }
-        sb.append("Top 5 by prestige:\n");
-        java.util.List<simulation.Team> teams = league.getTeamList();
-        if (teams != null) {
-            teams.stream()
-                    .sorted(java.util.Comparator.comparingInt((simulation.Team t) -> t.getTeamPrestige()).reversed())
-                    .limit(5)
-                    .forEach(t -> sb.append("  ").append(t.getName())
-                            .append("  ").append(t.getWins()).append("-").append(t.getLosses()).append("\n"));
-        }
-        return sb.toString();
+        return "Midseason progression complete.";
     }
 }

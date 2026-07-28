@@ -16,6 +16,7 @@ public final class SeasonAdvanceResult {
         NEEDS_DIALOG,
         NOTIFICATION,
         RECRUITING_STARTED,
+        AWAITING_RECRUITING,
         REFRESH_REQUESTED
     }
 
@@ -90,6 +91,11 @@ public final class SeasonAdvanceResult {
 
         public Builder recruitingStarted() {
             events.add(new Event(EventType.RECRUITING_STARTED, null, null, null, false, null, null));
+            return this;
+        }
+
+        public Builder awaitingRecruiting() {
+            events.add(new Event(EventType.AWAITING_RECRUITING, null, null, null, false, null, null));
             return this;
         }
 

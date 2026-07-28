@@ -2,6 +2,7 @@ package simulation;
 
 /**
  * Platform-agnostic presentation logic for season-level information.
+ * Week/phase boundaries come from {@link SeasonFlowOrder}.
  */
 public final class SeasonPresentation {
     private SeasonPresentation() {
@@ -53,42 +54,54 @@ public final class SeasonPresentation {
     }
 
     public static String getSeasonWeekChipText(League simLeague) {
-        int week = simLeague.currentWeek;
+        int week = SeasonFlowOrder.clampWeek(simLeague.currentWeek);
         int regWeeks = simLeague.regSeasonWeeks;
-        if (week <= 0) {
-            return "Week 0  Preseason";
-        } else if (week < regWeeks - 1) {
-            return "Week " + week;
-        } else if (week == regWeeks - 1) {
-            return "Week " + week + "  CCG";
-        } else if (week <= regWeeks + 2) {
-            return "Week " + week + "  Bowls";
-        } else if (week == regWeeks + 3) {
-            return "Week " + week + "  NCG";
+        SeasonFlowOrder.Phase phase = SeasonFlowOrder.phaseAt(week, regWeeks);
+        switch (phase) {
+            case PRESEASON:
+                return "Week 0  Preseason";
+            case REGULAR_SEASON:
+                return "Week " + week;
+            case CONFERENCE_CHAMPIONSHIP:
+                return "Week " + week + "  CCG";
+            case POSTSEASON:
+                return "Week " + week + "  Bowls";
+            case NATIONAL_CHAMPIONSHIP:
+                return "Week " + week + "  NCG";
+            case RECRUITING:
+                return "Week " + week + "  Recruiting";
+            case OFFSEASON:
+            default:
+                return "Week " + week + "  Offseason";
         }
-        return "Week " + week + "  Offseason";
     }
 
     public static String getSeasonPhaseChipText(League simLeague) {
-        int week = simLeague.currentWeek;
-        int regWeeks = simLeague.regSeasonWeeks;
-        if (week <= 0) {
-            return "Phase  Preseason";
-        } else if (week < regWeeks - 1) {
-            return "Phase  Regular Season";
-        } else if (week == regWeeks - 1) {
-            return "Phase  Championship Week";
-        } else if (week <= regWeeks + 2) {
-            return "Phase  Postseason";
-        } else if (week == regWeeks + 3) {
-            return "Phase  National Championship";
+        SeasonFlowOrder.Phase phase = SeasonFlowOrder.phaseAt(simLeague);
+        switch (phase) {
+            case PRESEASON:
+                return "Phase  Preseason";
+            case REGULAR_SEASON:
+                return "Phase  Regular Season";
+            case CONFERENCE_CHAMPIONSHIP:
+                return "Phase  Championship Week";
+            case POSTSEASON:
+                return "Phase  Postseason";
+            case NATIONAL_CHAMPIONSHIP:
+                return "Phase  National Championship";
+            case RECRUITING:
+                return "Phase  Recruiting";
+            case OFFSEASON:
+            default:
+                return "Phase  Offseason";
         }
-        return "Phase  Offseason";
     }
 
     public static String getPlayWeekLabel(int week, int regSeasonWeeks) {
-        if (week >= regSeasonWeeks + 13) return "Recruiting\u2026";
-        if (week >= regSeasonWeeks + 4)  return "Offseason: Step " + (week - regSeasonWeeks - 3);
+        if (SeasonFlowOrder.isRecruitingGate(week, regSeasonWeeks)) return "Recruiting\u2026";
+        if (week >= SeasonFlowOrder.firstOffseasonWeek(regSeasonWeeks)) {
+            return "Offseason: Step " + (SeasonFlowOrder.clampWeek(week) - regSeasonWeeks - 3);
+        }
         if (week == regSeasonWeeks + 3)  return "Play National Championship";
         if (week == regSeasonWeeks + 2)  return "Play Semifinals / Bowl Week 3";
         if (week == regSeasonWeeks + 1)  return "Play Quarterfinals / Bowl Week 2";
@@ -100,17 +113,10 @@ public final class SeasonPresentation {
 
     /**
      * Coarse season cycle label for timeline/status UI:
-     * Preseason -> Regular Season -> Postseason -> Offseason -> Recruiting.
+     * Preseason → Regular Season → Postseason → Offseason → Recruiting.
      */
     public static String getSeasonCycleLabel(League simLeague) {
-        int week = simLeague.currentWeek;
-        int regWeeks = simLeague.regSeasonWeeks;
-        if (week < 0) week = 0;
-        if (week >= regWeeks + 13) return "Recruiting";
-        if (week == 0) return "Preseason";
-        if (week < regWeeks) return "Regular Season"; // Includes CCG week at regWeeks-1.
-        if (week <= regWeeks + 3) return "Postseason";
-        return "Offseason";
+        return SeasonFlowOrder.cycleLabel(SeasonFlowOrder.phaseAt(simLeague));
     }
 
     /** Short next-action hint for dashboards (one vocabulary with cycle labels). */

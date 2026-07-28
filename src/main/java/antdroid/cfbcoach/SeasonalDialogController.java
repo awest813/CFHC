@@ -25,8 +25,11 @@ public final class SeasonalDialogController {
     }
 
     public static void showMidseasonSummary(MainActivity activity, Team userTeam, League simLeague) {
-        simLeague.midSeasonProgression();
-        String string = userTeam.midseasonUserProgression();
+        // Progression is applied by SeasonController before this dialog opens.
+        String string = userTeam != null ? userTeam.midseasonUserProgression() : "";
+        if (string == null || string.trim().isEmpty()) {
+            string = "No player rating changes to report this midseason.";
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setMessage(string)
                 .setTitle("Mid-Season Progress Report")
