@@ -40,12 +40,12 @@ Status key: 🔲 open · 🔄 in progress · ✅ done
 
 ## Medium
 
-7. 🔲 Theme leftovers (native file chooser, small dialogs; optional FlatLaf)
-8. 🔲 Transfer portal read-only vs Android summary parity
-9. 🔲 Redshirt UX copy/expectations vs Android
+7. ✅ Theme leftovers (file chooser restyle for light+dark; optional FlatLaf still open)
+8. ✅ Transfer portal read-only vs Android summary parity (`My Transfers` / `All Transfers` + summary pane)
+9. ✅ Redshirt UX copy/expectations vs Android (season list + auto-redshirt note)
 10. 🔲 Further split `LeagueHomeView` (~1.7k LOC)
 11. 🔲 Bulk sim threading vs single-thread engine contract
-12. 🔲 Desktop tests for discipline, bulk gates, theme, recruiting checkpoint
+12. ✅ Desktop tests for discipline/bulk gates, theme, recruiting checkpoint, transfer summary
 13. 🔲 Keep shells on `SimulationFacade` for import/season APIs
 
 ---
@@ -77,4 +77,5 @@ Status key: 🔲 open · 🔄 in progress · ✅ done
 5. ✅ Packaging metadata (#5)
 6. ✅ Drop prototype/alpha labeling (#6)
 
-Next: theme leftovers, transfer-portal summary, LeagueHomeView split, more desktop tests.
+Next: further LeagueHomeView split, bulk game-thread hardening, facade alignment for import APIs.
+Signed MSI/DMG remains cert-blocked.

@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.BorderLayout;
@@ -48,6 +49,7 @@ public class RedshirtDialog extends JDialog {
         setSize(1000, 650);
         setLayout(new BorderLayout());
         DesktopTheme.styleDialogContentPane(getContentPane());
+        DesktopTheme.applyWindowIcon(this);
 
         buildContent();
 
@@ -62,6 +64,10 @@ public class RedshirtDialog extends JDialog {
     }
 
     private void buildContent() {
+        JPanel northStack = new JPanel(new BorderLayout());
+        northStack.setOpaque(true);
+        northStack.setBackground(DesktopTheme.tableBase());
+
         // Top Hint Bar
         JPanel hintBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 25, 12)) {
             @Override
@@ -74,11 +80,30 @@ public class RedshirtDialog extends JDialog {
             }
         };
         hintBar.setBackground(DesktopTheme.tableBase());
-        JLabel hint = new JLabel("TACTICAL NOTE: Redshirts preserve eligibility for players with minimal game participation.");
+        JLabel hint = new JLabel("<html>Season redshirts (including auto-redshirts for players with fewer than 4 games) "
+                + "are listed below when available. Use the pools to review or adjust eligibility.</html>");
         hint.setFont(new Font("SansSerif", Font.ITALIC, 11));
         hint.setForeground(DesktopTheme.textSecondary());
         hintBar.add(hint);
-        add(hintBar, BorderLayout.NORTH);
+        northStack.add(hintBar, BorderLayout.NORTH);
+
+        if (league.userTeam != null && !league.userTeam.getRedshirtList().isEmpty()) {
+            StringBuilder update = new StringBuilder();
+            update.append("Players redshirted this season:\n\n");
+            for (String row : league.userTeam.getRedshirtList()) {
+                update.append(row).append('\n');
+            }
+            JTextArea seasonList = new JTextArea(update.toString());
+            seasonList.setEditable(false);
+            DesktopTheme.styleTextContent(seasonList);
+            JScrollPane seasonScroll = new JScrollPane(seasonList);
+            seasonScroll.setPreferredSize(new java.awt.Dimension(0, 110));
+            seasonScroll.setBorder(BorderFactory.createTitledBorder(
+                    BorderFactory.createLineBorder(DesktopTheme.borderSubtle()),
+                    league.getYear() + " Redshirts"));
+            northStack.add(seasonScroll, BorderLayout.CENTER);
+        }
+        add(northStack, BorderLayout.NORTH);
 
         // Left — currently redshirted players
         currentModel = createModel();

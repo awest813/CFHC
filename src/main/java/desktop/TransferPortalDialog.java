@@ -12,24 +12,22 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
 /**
- * Read-only table view of the transfer portal.
- * Polished with 'Industrial Glass' aesthetic.
+ * Transfer portal registry plus Android-parity transfer summaries
+ * ({@link League#userTransfers} / {@link League#sumTransfers}).
  */
 public class TransferPortalDialog extends JDialog {
 
@@ -44,18 +42,46 @@ public class TransferPortalDialog extends JDialog {
     private List<Player> allPlayers;
 
     public TransferPortalDialog(JFrame owner, League league) {
-        super(owner, "TRANSFER PORTAL REGISTRY", true);
+        super(owner, league != null ? league.getYear() + " Transfer Portal" : "Transfer Portal", true);
         this.league = league;
-        setSize(850, 600);
+        setSize(900, 680);
         setLayout(new BorderLayout());
         DesktopTheme.styleDialogContentPane(getContentPane());
+        DesktopTheme.applyWindowIcon(this);
 
         collectPlayers();
         buildContent();
     }
 
+    /** Android-parity "your program" transfer blurb. */
+    static String userTransferSummary(League league) {
+        if (league == null) {
+            return "No transfer data.";
+        }
+        String text = league.userTransfers;
+        if (text == null || text.trim().isEmpty()) {
+            return "No transfers involving your program this cycle.";
+        }
+        return text.trim();
+    }
+
+    /** Android-parity league-wide transfer dump. */
+    static String leagueTransferSummary(League league) {
+        if (league == null) {
+            return "No transfer data.";
+        }
+        String text = league.sumTransfers;
+        if (text == null || text.trim().isEmpty()) {
+            return "No league-wide transfer summary available yet.";
+        }
+        return text.trim();
+    }
+
     private void collectPlayers() {
         allPlayers = new ArrayList<>();
+        if (league == null) {
+            return;
+        }
         addAll(allPlayers, league.getTransferQBs());
         addAll(allPlayers, league.getTransferRBs());
         addAll(allPlayers, league.getTransferWRs());
@@ -73,8 +99,11 @@ public class TransferPortalDialog extends JDialog {
     }
 
     private void buildContent() {
-        // Top Filter Bar
-        JPanel topBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 15)) {
+        JPanel north = new JPanel(new BorderLayout());
+        north.setOpaque(true);
+        north.setBackground(DesktopTheme.tableBase());
+
+        JPanel topBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 12)) {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
@@ -102,10 +131,37 @@ public class TransferPortalDialog extends JDialog {
         countLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
         countLabel.setForeground(DesktopTheme.textSecondary());
         topBar.add(countLabel);
-        
-        add(topBar, BorderLayout.NORTH);
 
-        // Table
+        JButton myTransfersBtn = new JButton("My Transfers");
+        DesktopTheme.styleSecondaryButton(myTransfersBtn);
+        myTransfersBtn.addActionListener(e -> DesktopTheme.showScrollableText(
+                this, league.getYear() + " Your Transfers", userTransferSummary(league)));
+        topBar.add(myTransfersBtn);
+
+        JButton allTransfersBtn = new JButton("All Transfers");
+        DesktopTheme.styleSecondaryButton(allTransfersBtn);
+        allTransfersBtn.addActionListener(e -> DesktopTheme.showScrollableText(
+                this, league.getYear() + " All Transfers", leagueTransferSummary(league)));
+        topBar.add(allTransfersBtn);
+
+        north.add(topBar, BorderLayout.NORTH);
+
+        JTextArea summary = new JTextArea(userTransferSummary(league));
+        summary.setEditable(false);
+        summary.setLineWrap(true);
+        summary.setWrapStyleWord(true);
+        summary.setRows(4);
+        DesktopTheme.styleTextContent(summary);
+        JScrollPane summaryScroll = new JScrollPane(summary);
+        summaryScroll.setBorder(BorderFactory.createTitledBorder(
+                BorderFactory.createLineBorder(DesktopTheme.borderSubtle()),
+                "Your program this cycle"));
+        summaryScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
+        summaryScroll.setPreferredSize(new Dimension(0, 110));
+        north.add(summaryScroll, BorderLayout.CENTER);
+
+        add(north, BorderLayout.NORTH);
+
         tableModel = new DefaultTableModel(COLUMNS, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
             @Override public Class<?> getColumnClass(int col) {
@@ -123,7 +179,7 @@ public class TransferPortalDialog extends JDialog {
         table.setShowVerticalLines(false);
         table.setSelectionBackground(DesktopTheme.selectionAccent());
         StripedRowRenderer.install(table);
-        
+
         table.getTableHeader().setBackground(DesktopTheme.tableBase());
         table.getTableHeader().setForeground(DesktopTheme.textSecondary());
         table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 11));
@@ -135,13 +191,12 @@ public class TransferPortalDialog extends JDialog {
         scroll.getViewport().setBackground(DesktopTheme.windowBackground());
         add(scroll, BorderLayout.CENTER);
 
-        // Bottom bar
         JPanel bottom = new JPanel(new BorderLayout());
         bottom.setBackground(DesktopTheme.tableBase());
         bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.borderSubtle()));
         bottom.setPreferredSize(new Dimension(0, 80));
-        
-        JLabel hintLabel = new JLabel("NOTICE: Portal assignments are finalized during the next off-season cycle.");
+
+        JLabel hintLabel = new JLabel("Portal registry lists available prospects. Use My/All Transfers for signed deals this cycle.");
         hintLabel.setFont(new Font("SansSerif", Font.ITALIC, 11));
         hintLabel.setForeground(DesktopTheme.textSecondary());
         hintLabel.setBorder(BorderFactory.createEmptyBorder(0, 30, 0, 0));
@@ -149,14 +204,13 @@ public class TransferPortalDialog extends JDialog {
 
         JButton closeBtn = DesktopTheme.createGlassButton("CLOSE PORTAL", DesktopTheme.accentBlue());
         closeBtn.addActionListener(e -> dispose());
-        
+
         JPanel closePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 30, 20));
         closePanel.setOpaque(false);
         closePanel.add(closeBtn);
         bottom.add(closePanel, BorderLayout.EAST);
         add(bottom, BorderLayout.SOUTH);
 
-        // Filter Logic
         Runnable applyFilter = () -> {
             String posFilter = (String) filterBox.getSelectedItem();
             tableModel.setRowCount(0);

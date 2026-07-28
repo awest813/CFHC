@@ -1,6 +1,5 @@
 package desktop;
 
-import desktop.DesktopResourceProvider;
 import org.junit.Test;
 import recruiting.RecruitingSessionData;
 import simulation.League;
@@ -35,11 +34,8 @@ public class DesktopRecruitingCheckpointTest {
 
         String payload = SimulationFacade.buildRecruitingPayload(league.userTeam);
         RecruitingSessionData session = SimulationFacade.prepareRecruitingSessionFromPayload(payload);
-        int budgetAfterPrepare = session.recruitingBudget;
-        assertTrue(budgetAfterPrepare > 0);
-
-        // Spend some budget without recruiting a player (simulate scout/spend).
-        session.recruitingBudget = Math.max(1, budgetAfterPrepare - 50);
+        assertTrue(session.recruitingBudget > 0);
+        session.recruitingBudget = Math.max(1, session.recruitingBudget - 50);
 
         DesktopRecruitingCheckpoint checkpoint = DesktopRecruitingCheckpoint.capture(league, payload, session);
         assertNotNull(checkpoint);
@@ -59,12 +55,7 @@ public class DesktopRecruitingCheckpointTest {
     }
 
     @Test
-    public void applyCheckpoint_recommitsRecruitByRaw() {
-        String payload = "SEC,Test U,TST,5,80,0,0%\nEND_TEAM_INFO%\n"
-                + "QB,A Prospect,1,5,70,70,70,70,70,70,70,70,70,1,0,0,0%\n"
-                + "END_RECRUITS%\n";
-        // Use a minimal synthetic path only if fromUserTeamInfo tolerates thin CSV —
-        // otherwise rely on live league board from the round-trip test above.
+    public void applyCheckpoint_setsBudgetWhenNoRecruits() {
         RecruitingSessionData session = RecruitingSessionData.fromUserTeamInfo(
                 "SEC,Test U,TST,5,80,0,0%\nEND_TEAM_INFO%\nEND_RECRUITS%\n");
         session.applyCheckpoint(123, Collections.emptyList());

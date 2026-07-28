@@ -564,22 +564,31 @@ public final class DesktopTheme {
     }
 
     /**
-     * Walks a {@link JFileChooser} hierarchy so dark mode does not flash white panels
-     * on Windows / system LAF (many {@code FileChooser.*} UI defaults are ignored).
-     * Safe to call in light mode (no-op).
+     * Walks a {@link JFileChooser} hierarchy so dark (and light) mode does not leave
+     * unstyled white panels on system LAF. Safe in either theme.
      */
     public static void styleFileChooser(JFileChooser fc) {
-        if (fc == null || !dark) {
+        if (fc == null) {
             return;
         }
         Color shell = windowBackground();
         Color fg = textPrimary();
-        Color fieldBg = new Color(48, 50, 56);
-        Color listBg = new Color(42, 44, 50);
+        Color fieldBg = dark ? _inputFieldBg : new Color(250, 250, 252);
+        Color listBg = dark ? _inputListBg : Color.WHITE;
+        if (fieldBg == null) fieldBg = dark ? new Color(48, 50, 56) : new Color(250, 250, 252);
+        if (listBg == null) listBg = dark ? new Color(42, 44, 50) : Color.WHITE;
         fc.setOpaque(true);
         fc.setBackground(shell);
         fc.setForeground(fg);
         applyFileChooserSubtreeColors(fc, shell, fg, fieldBg, listBg);
+        // Re-apply after the native accessory finishes building its UI.
+        fc.addPropertyChangeListener(evt -> {
+            if ("ancestor".equals(evt.getPropertyName()) || "UI".equals(evt.getPropertyName())) {
+                applyFileChooserSubtreeColors(fc, windowBackground(), textPrimary(),
+                        dark ? new Color(48, 50, 56) : new Color(250, 250, 252),
+                        dark ? new Color(42, 44, 50) : Color.WHITE);
+            }
+        });
     }
 
     private static void applyFileChooserSubtreeColors(Component c, Color shell, Color fg,
@@ -624,7 +633,10 @@ public final class DesktopTheme {
                 tbl.setBackground(listBg);
                 tbl.setForeground(fg);
                 tbl.setGridColor(borderSubtle());
-            } else if (c instanceof JPanel || c instanceof javax.swing.JLayeredPane) {
+            } else if (c instanceof JButton || c instanceof javax.swing.JToggleButton) {
+                jc.setForeground(fg);
+            } else if (c instanceof JPanel || c instanceof javax.swing.JLayeredPane
+                    || c instanceof javax.swing.JToolBar) {
                 jc.setOpaque(true);
                 jc.setBackground(shell);
             }
