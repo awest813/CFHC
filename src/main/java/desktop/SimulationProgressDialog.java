@@ -10,6 +10,8 @@ import javax.swing.JProgressBar;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 /**
  * A modal dialog that provides visual feedback during long simulation runs.
@@ -26,6 +28,15 @@ public class SimulationProgressDialog extends JDialog {
         setResizable(false);
         setLocationRelativeTo(owner);
         setLayout(new BorderLayout());
+        // Closing via the title-bar X must cancel — default HIDE_ON_CLOSE would unblock
+        // the EDT while the worker kept mutating the league with bulkRunning stuck true.
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                requestCancel();
+            }
+        });
         DesktopTheme.styleDialogContentPane(getContentPane());
 
         JPanel panel = new JPanel(new BorderLayout(12, 12));
@@ -47,7 +58,7 @@ public class SimulationProgressDialog extends JDialog {
 
         JButton cancelBtn = new JButton("Interrupt");
         DesktopTheme.styleSecondaryButton(cancelBtn);
-        cancelBtn.addActionListener(e -> cancelled = true);
+        cancelBtn.addActionListener(e -> requestCancel());
         JPanel btnPanel = new JPanel();
         btnPanel.setOpaque(false);
         btnPanel.add(cancelBtn);
@@ -56,8 +67,15 @@ public class SimulationProgressDialog extends JDialog {
         add(panel);
     }
 
+    private void requestCancel() {
+        cancelled = true;
+        statusLabel.setText("Interrupting… finishing current week");
+    }
+
     public void setStatus(String status) {
-        statusLabel.setText(status);
+        if (!cancelled) {
+            statusLabel.setText(status);
+        }
     }
 
     public void setProgress(int value) {

@@ -3189,7 +3189,13 @@ public class Team {
     //Apply Suspensions to Player
     public void suspendPlayerSetup(GameUiBridge main) {
         GameUiBridge bridge = main == null ? GameUiBridge.NO_OP : main;
-        if(playersDis.size() <= 0) getLowDisciplinePlayers(75);
+        if (playersDis == null || playersDis.isEmpty()) {
+            getLowDisciplinePlayers(75);
+        }
+        if (playersDis == null || playersDis.isEmpty()) {
+            disciplineAction = false;
+            return;
+        }
         int random = (int) (Math.random() * playersDis.size());
         if (random > playersDis.size() - 1) random = playersDis.size() - 1;
         Player player = playersDis.get(random);
@@ -3276,7 +3282,9 @@ public class Team {
         checkSuspensionPosition(teamLBs, startersLB + subLB, minRating);
         checkSuspensionPosition(teamCBs, startersCB + subCB, minRating);
         checkSuspensionPosition(teamSs, startersS + subS, minRating);
-        if(playersDis.size() < 1) getLowDisciplinePlayers(85);
+        if (playersDis.isEmpty() && minRating < 85) {
+            getLowDisciplinePlayers(85);
+        }
     }
 
     public void checkSuspensionPosition(ArrayList<? extends Player> players, int numStarters, int minRating) {
@@ -3289,8 +3297,9 @@ public class Team {
         }
 
         // Only suspend if there are people left
-        if (numInjured < numStarters) {
-            for (int i = 0; i < numStarters; ++i) {
+        if (numInjured < numStarters && players != null && !players.isEmpty()) {
+            int limit = Math.min(numStarters, players.size());
+            for (int i = 0; i < limit; ++i) {
                 Player p = players.get(i);
                 if (p.character < minRating) {
                     playersDis.add(p);

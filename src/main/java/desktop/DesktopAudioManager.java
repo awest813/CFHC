@@ -119,7 +119,13 @@ public class DesktopAudioManager implements AudioManager {
                 }
             } catch (LineUnavailableException clipEx) {
                 if (clip != null) clip.close();
-                playViaSourceDataLine(data, format);
+                // Never block the EDT on the synchronous SourceDataLine drain path.
+                final AudioFormat fallbackFormat = format;
+                Thread fallback = new Thread(
+                        () -> playViaSourceDataLine(data, fallbackFormat),
+                        "cfhc-audio-fallback");
+                fallback.setDaemon(true);
+                fallback.start();
             }
         } catch (UnsupportedAudioFileException e) {
             PlatformLog.e(TAG, "Unsupported audio format for: " + event.name()
@@ -140,7 +146,6 @@ public class DesktopAudioManager implements AudioManager {
 
     private void playViaSourceDataLine(byte[] data, AudioFormat format) {
         try (AudioInputStream ais = AudioSystem.getAudioInputStream(new ByteArrayInputStream(data))) {
-            AudioFormat fmt = ais.getFormat();
             DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
             if (!AudioSystem.isLineSupported(info)) {
                 PlatformLog.w(TAG, "SourceDataLine not supported for format: " + format);

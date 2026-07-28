@@ -80,4 +80,6 @@ Status key: 🔲 open · 🔄 in progress · ✅ done
 6. ✅ Drop prototype/alpha labeling (#6)
 
 Next: optional FlatLaf, auto-update, macOS packaging. Signed MSI/DMG remains cert-blocked.
-Export/import choosers use `DesktopAppPaths`; Save As migrates recruiting sidecars; desktop jar embeds full OGG SPI stack.
+Also fixed latent errors: Save As checkpoint migrate-safe clear, progress-dialog X cancels bulk,
+exit-cancel no longer kills audio, Open/Import unsaved prompts, discipline empty-roster safety,
+and non-blocking audio SourceDataLine fallback.

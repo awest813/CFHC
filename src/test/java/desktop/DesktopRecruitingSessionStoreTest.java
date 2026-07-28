@@ -74,4 +74,23 @@ public class DesktopRecruitingSessionStoreTest {
         assertFalse(store.hasSession());
         assertNull(store.session());
     }
+
+    @Test
+    public void migrateAfterSaveAs_keepsOldCheckpointWhenNewPathUnwritable() throws Exception {
+        DesktopRecruitingSessionStore store = new DesktopRecruitingSessionStore();
+        File oldSave = Files.createTempFile("cfhc-mig-old", ".cfb").toFile();
+        oldSave.deleteOnExit();
+        store.ensureLoaded(league, oldSave);
+        assertNull(store.persist(league, oldSave));
+        File oldChk = DesktopRecruitingCheckpoint.pathFor(oldSave, league);
+        assertTrue(oldChk.isFile());
+
+        File blocker = Files.createTempFile("cfhc-mig-block", ".tmp").toFile();
+        blocker.deleteOnExit();
+        // Parent is a file, so mkdir for the sidecar must fail.
+        File badSave = new File(blocker, "league.cfb");
+        store.clearMemory();
+        store.migrateAfterSaveAs(league, oldSave, badSave);
+        assertTrue("Old checkpoint must survive failed migration", oldChk.isFile());
+    }
 }

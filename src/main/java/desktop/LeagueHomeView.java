@@ -142,9 +142,6 @@ public class LeagueHomeView extends JFrame {
             @Override
             public void windowClosing(java.awt.event.WindowEvent e) {
                 confirmExit();
-                if (audioManager != null) {
-                    audioManager.dispose();
-                }
             }
         });
         setLayout(new BorderLayout());
@@ -750,6 +747,7 @@ public class LeagueHomeView extends JFrame {
 
     /**
      * Prompts the user to save before exiting if there are unsaved changes.
+     * Disposes audio only when the app is actually exiting.
      */
     private void confirmExit() {
         if (dirty) {
@@ -761,18 +759,44 @@ public class LeagueHomeView extends JFrame {
             if (choice == JOptionPane.YES_OPTION) {
                 saveLeague(false);
                 if (!dirty) {
-                    dispose();
-                    System.exit(0);
+                    exitApplication();
                 }
             } else if (choice == JOptionPane.NO_OPTION) {
-                dispose();
-                System.exit(0);
+                exitApplication();
             }
-            // CANCEL; do nothing, stay open
+            // CANCEL; stay open with audio intact
         } else {
-            dispose();
-            System.exit(0);
+            exitApplication();
         }
+    }
+
+    private void exitApplication() {
+        if (audioManager != null) {
+            audioManager.dispose();
+            audioManager = null;
+        }
+        dispose();
+        System.exit(0);
+    }
+
+    /**
+     * @return false if the user cancelled or a required save failed
+     */
+    private boolean confirmDiscardUnsaved(String actionLabel) {
+        if (!dirty) {
+            return true;
+        }
+        int choice = JOptionPane.showConfirmDialog(this,
+                DesktopTheme.messageForDialog(
+                        "You have unsaved changes. Save before " + actionLabel + "?"),
+                "Unsaved Changes",
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.WARNING_MESSAGE);
+        if (choice == JOptionPane.YES_OPTION) {
+            saveLeague(false);
+            return !dirty;
+        }
+        return choice == JOptionPane.NO_OPTION;
     }
 
     /** Marks the league state as modified since the last save. */
@@ -797,6 +821,12 @@ public class LeagueHomeView extends JFrame {
 
     private void playWeek() {
         if (bulkRunning) {
+            JOptionPane.showMessageDialog(this,
+                    DesktopTheme.messageForDialog(
+                            "A bulk simulation is still running.\n"
+                                    + "Wait for it to finish or press Interrupt in the progress dialog."),
+                    "Simulation In Progress",
+                    JOptionPane.INFORMATION_MESSAGE);
             return;
         }
         if (bridge.isAwaitingDockedRecruiting()) {
@@ -896,6 +926,11 @@ public class LeagueHomeView extends JFrame {
 
     private void simulateToPostSeason(int targetWeek) {
         if (bulkRunning) {
+            JOptionPane.showMessageDialog(this,
+                    DesktopTheme.messageForDialog(
+                            "A bulk simulation is already running."),
+                    "Simulation In Progress",
+                    JOptionPane.INFORMATION_MESSAGE);
             return;
         }
         if (targetWeek <= leagueCore.currentWeek) {
@@ -918,6 +953,11 @@ public class LeagueHomeView extends JFrame {
     /** Advances through the entire season including offseason and recruiting. */
     private void advanceFullYear() {
         if (bulkRunning) {
+            JOptionPane.showMessageDialog(this,
+                    DesktopTheme.messageForDialog(
+                            "A bulk simulation is already running."),
+                    "Simulation In Progress",
+                    JOptionPane.INFORMATION_MESSAGE);
             return;
         }
         bulkRunning = true;
@@ -985,6 +1025,9 @@ public class LeagueHomeView extends JFrame {
     // =========================================================================
 
     private void openSaveFile() {
+        if (!confirmDiscardUnsaved("opening another save")) {
+            return;
+        }
         JFileChooser chooser = new JFileChooser(DesktopAppPaths.chooserStartDir());
         DesktopTheme.styleFileChooser(chooser);
         chooser.setDialogTitle("Open Save File");
@@ -1085,6 +1128,9 @@ public class LeagueHomeView extends JFrame {
     }
 
     private void importCustomUniverse() {
+        if (!confirmDiscardUnsaved("importing a custom universe")) {
+            return;
+        }
         JFileChooser chooser = new JFileChooser(DesktopAppPaths.chooserStartDir());
         DesktopTheme.styleFileChooser(chooser);
         chooser.setDialogTitle("Import Custom Universe File");

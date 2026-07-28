@@ -111,10 +111,16 @@ final class DesktopRecruitingSessionStore {
                     DesktopRecruitingCheckpoint.write(newChk, existing);
                 }
             }
+            // Only remove the old sidecar after the new one is present (or there was nothing to keep).
+            if (newChk.isFile() || !oldChk.isFile()) {
+                DesktopRecruitingCheckpoint.clear(oldChk);
+            } else {
+                PlatformLog.w(TAG, "Keeping recruiting checkpoint at " + oldChk.getAbsolutePath()
+                        + " because migration to " + newChk.getAbsolutePath() + " did not produce a file");
+            }
         } catch (Exception ex) {
             PlatformLog.w(TAG, "Could not migrate recruiting checkpoint: " + ex.getMessage());
         }
-        DesktopRecruitingCheckpoint.clear(oldChk);
     }
 
     void clearAll(League league, File leagueSave) {
