@@ -10,6 +10,7 @@ import positions.PlayerLB;
 import positions.PlayerOL;
 import positions.PlayerQB;
 import positions.PlayerRB;
+import positions.PlayerReturner;
 import positions.PlayerS;
 import positions.PlayerTE;
 import positions.PlayerWR;
@@ -511,75 +512,54 @@ class GameStatRecorder {
     }
 
     void recordReturnStats() {
-        if (game.homeKickReturner.position.equals("RB")) {
-            for (int i = 0; i < game.homeTeam.startersRB + game.homeTeam.subRB; i++) {
-                if (game.homeTeam.getRB(i).name.equals(game.homeKickReturner.name)) {
-                    game.homeTeam.getRB(i).recordKORets(game.homeKickReturner.kReturns);
-                    game.homeTeam.getRB(i).recordKOYards(game.homeKickReturner.kYards);
-                    game.homeTeam.getRB(i).recordKOTDs(game.homeKickReturner.kTD);
-                    game.homeTeam.getRB(i).recordPuntRets(game.homeKickReturner.pReturns);
-                    game.homeTeam.getRB(i).recordPuntYards(game.homeKickReturner.pYards);
-                    game.homeTeam.getRB(i).recordPuntTDs(game.homeKickReturner.pTD);
+        if (game.homeKickReturner != null) {
+            recordSideReturnStats(game.homeTeam, game.homeKickReturner);
+        }
+        if (game.awayKickReturner != null) {
+            recordSideReturnStats(game.awayTeam, game.awayKickReturner);
+        }
+    }
+
+    private void recordSideReturnStats(Team team, PlayerReturner ret) {
+        if (team == null || ret == null || ret.position == null) {
+            return;
+        }
+        if ("RB".equals(ret.position)) {
+            int limit = Math.min(team.startersRB + team.subRB, team.getTeamRBs().size());
+            for (int i = 0; i < limit; i++) {
+                if (team.getRB(i).name.equals(ret.name)) {
+                    team.getRB(i).recordKORets(ret.kReturns);
+                    team.getRB(i).recordKOYards(ret.kYards);
+                    team.getRB(i).recordKOTDs(ret.kTD);
+                    team.getRB(i).recordPuntRets(ret.pReturns);
+                    team.getRB(i).recordPuntYards(ret.pYards);
+                    team.getRB(i).recordPuntTDs(ret.pTD);
                 }
             }
-        } else if (game.homeKickReturner.position.equals("WR")) {
-            for (int i = 0; i < game.homeTeam.startersWR + game.homeTeam.subWR; i++) {
-                if (game.homeTeam.getWR(i).name.equals(game.homeKickReturner.name)) {
-                    game.homeTeam.getWR(i).recordKORets(game.homeKickReturner.kReturns);
-                    game.homeTeam.getWR(i).recordKOYards(game.homeKickReturner.kYards);
-                    game.homeTeam.getWR(i).recordKOTDs(game.homeKickReturner.kTD);
-                    game.homeTeam.getWR(i).recordPuntRets(game.homeKickReturner.pReturns);
-                    game.homeTeam.getWR(i).recordPuntYards(game.homeKickReturner.pYards);
-                    game.homeTeam.getWR(i).recordPuntTDs(game.homeKickReturner.pTD);
+        } else if ("WR".equals(ret.position)) {
+            int limit = Math.min(team.startersWR + team.subWR, team.getTeamWRs().size());
+            for (int i = 0; i < limit; i++) {
+                if (team.getWR(i).name.equals(ret.name)) {
+                    team.getWR(i).recordKORets(ret.kReturns);
+                    team.getWR(i).recordKOYards(ret.kYards);
+                    team.getWR(i).recordKOTDs(ret.kTD);
+                    team.getWR(i).recordPuntRets(ret.pReturns);
+                    team.getWR(i).recordPuntYards(ret.pYards);
+                    team.getWR(i).recordPuntTDs(ret.pTD);
                 }
             }
         } else {
-            for (int i = 0; i < game.homeTeam.startersCB + game.homeTeam.subCB; i++) {
-                if (game.homeTeam.getCB(i).name.equals(game.homeKickReturner.name)) {
-                    game.homeTeam.getCB(i).recordKORets(game.homeKickReturner.kReturns);
-                    game.homeTeam.getCB(i).recordKOYards(game.homeKickReturner.kYards);
-                    game.homeTeam.getCB(i).recordKOTDs(game.homeKickReturner.kTD);
-                    game.homeTeam.getCB(i).recordPuntRets(game.homeKickReturner.pReturns);
-                    game.homeTeam.getCB(i).recordPuntYards(game.homeKickReturner.pYards);
-                    game.homeTeam.getCB(i).recordPuntTDs(game.homeKickReturner.pTD);
+            int limit = Math.min(team.startersCB + team.subCB, team.getTeamCBs().size());
+            for (int i = 0; i < limit; i++) {
+                if (team.getCB(i).name.equals(ret.name)) {
+                    team.getCB(i).recordKORets(ret.kReturns);
+                    team.getCB(i).recordKOYards(ret.kYards);
+                    team.getCB(i).recordKOTDs(ret.kTD);
+                    team.getCB(i).recordPuntRets(ret.pReturns);
+                    team.getCB(i).recordPuntYards(ret.pYards);
+                    team.getCB(i).recordPuntTDs(ret.pTD);
                 }
             }
         }
-
-        if (game.awayKickReturner.position.equals("RB")) {
-            for (int i = 0; i < game.awayTeam.startersRB + game.awayTeam.subRB; i++) {
-                if (game.awayTeam.getRB(i).name.equals(game.awayKickReturner.name)) {
-                    game.awayTeam.getRB(i).recordKORets(game.awayKickReturner.kReturns);
-                    game.awayTeam.getRB(i).recordKOYards(game.awayKickReturner.kYards);
-                    game.awayTeam.getRB(i).recordKOTDs(game.awayKickReturner.kTD);
-                    game.awayTeam.getRB(i).recordPuntRets(game.awayKickReturner.pReturns);
-                    game.awayTeam.getRB(i).recordPuntYards(game.awayKickReturner.pYards);
-                    game.awayTeam.getRB(i).recordPuntTDs(game.awayKickReturner.pTD);
-                }
-            }
-        } else if (game.awayKickReturner.position.equals("WR")) {
-            for (int i = 0; i < game.awayTeam.startersWR + game.awayTeam.subWR; i++) {
-                if (game.awayTeam.getWR(i).name.equals(game.awayKickReturner.name)) {
-                    game.awayTeam.getWR(i).recordKORets(game.awayKickReturner.kReturns);
-                    game.awayTeam.getWR(i).recordKOYards(game.awayKickReturner.kYards);
-                    game.awayTeam.getWR(i).recordKOTDs(game.awayKickReturner.kTD);
-                    game.awayTeam.getWR(i).recordPuntRets(game.awayKickReturner.pReturns);
-                    game.awayTeam.getWR(i).recordPuntYards(game.awayKickReturner.pYards);
-                    game.awayTeam.getWR(i).recordPuntTDs(game.awayKickReturner.pTD);
-                }
-            }
-        } else {
-            for (int i = 0; i < game.awayTeam.startersCB + game.awayTeam.subCB; i++) {
-                if (game.awayTeam.getCB(i).name.equals(game.awayKickReturner.name)) {
-                    game.awayTeam.getCB(i).recordKORets(game.awayKickReturner.kReturns);
-                    game.awayTeam.getCB(i).recordKOYards(game.awayKickReturner.kYards);
-                    game.awayTeam.getCB(i).recordKOTDs(game.awayKickReturner.kTD);
-                    game.awayTeam.getCB(i).recordPuntRets(game.awayKickReturner.pReturns);
-                    game.awayTeam.getCB(i).recordPuntYards(game.awayKickReturner.pYards);
-                    game.awayTeam.getCB(i).recordPuntTDs(game.awayKickReturner.pTD);
-                }
-            }
-        }
-
     }
 }
