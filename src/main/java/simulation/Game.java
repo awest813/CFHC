@@ -414,62 +414,65 @@ public class Game implements Serializable {
         ArrayList<PlayerReturner> teamReturner = new ArrayList<>();
 
         double starterPenalty = 0.85;
-        //Choose Kickoff Returners
-        for (int i = 0; i < t.startersWR; i++) {
+        //Choose Kickoff Returners — bound by actual roster size so depleted teams don't NPE
+        int wrN = t.getTeamWRs().size();
+        int rbN = t.getTeamRBs().size();
+        int cbN = t.getTeamCBs().size();
+        for (int i = 0; i < Math.min(t.startersWR, wrN); i++) {
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamWRs().get(i).name, "WR", t.getTeamWRs().get(i).getRatSpeed(), (float) (starterPenalty * t.getTeamWRs().get(i).getRatSpeed() * Math.random())));
         }
-        for (int i = 0; i < t.startersRB; i++) {
+        for (int i = 0; i < Math.min(t.startersRB, rbN); i++) {
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamRBs().get(i).name, "RB", t.getTeamRBs().get(i).getRatSpeed(), (float) (starterPenalty * t.getTeamRBs().get(i).getRatSpeed() * Math.random())));
         }
-        for (int i = 0; i < t.startersCB; i++) {
+        for (int i = 0; i < Math.min(t.startersCB, cbN); i++) {
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamCBs().get(i).name, "CB", t.getTeamCBs().get(i).getRatSpeed(), (float) (starterPenalty * t.getTeamCBs().get(i).getRatSpeed() * Math.random())));
         }
-        
-        for (int i = t.startersWR; i < t.startersWR + t.subWR; i++) {
+
+        for (int i = t.startersWR; i < Math.min(t.startersWR + t.subWR, wrN); i++) {
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamWRs().get(i).name, "WR", t.getTeamWRs().get(i).getRatSpeed(), (float) (t.getTeamWRs().get(i).getRatSpeed() * Math.random())));
         }
-        for (int i = t.startersRB; i < t.startersRB + t.subRB; i++) {
+        for (int i = t.startersRB; i < Math.min(t.startersRB + t.subRB, rbN); i++) {
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamRBs().get(i).name, "RB", t.getTeamRBs().get(i).getRatSpeed(), (float) (t.getTeamRBs().get(i).getRatSpeed() * Math.random())));
         }
-        for (int i = t.startersCB; i < t.startersCB + t.subCB; i++) {
+        for (int i = t.startersCB; i < Math.min(t.startersCB + t.subCB, cbN); i++) {
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamCBs().get(i).name, "CB", t.getTeamCBs().get(i).getRatSpeed(), (float) (t.getTeamCBs().get(i).getRatSpeed() * Math.random())));
+        }
+
+        if (teamReturner.isEmpty()) {
+            // Extremely depleted roster — synthesize a returner so kickoffs never NPE.
+            List<? extends Player> roster = t.getAllPlayers();
+            if (!roster.isEmpty()) {
+                Player p = roster.get(0);
+                int speed = Math.max(40, p.ratOvr);
+                teamReturner.add(new PlayerReturner(t.getAbbr(), p.name, p.position, speed, (float) speed));
+            } else {
+                teamReturner.add(new PlayerReturner(t.getAbbr(), "Emergency Returner", "WR", 50, 50f));
+            }
         }
 
         Collections.sort(teamReturner, new CompPlayerReturners());
 
+        PlayerReturner chosen = teamReturner.get(0);
         if (teamReturner.size() >= 2) {
             teamReturner.get(0).gameSpeed = (float) (teamReturner.get(0).ratSpeed * Math.random());
             teamReturner.get(1).gameSpeed = (float) (teamReturner.get(1).ratSpeed * Math.random());
+            if (teamReturner.get(1).gameSpeed > teamReturner.get(0).gameSpeed) {
+                chosen = teamReturner.get(1);
+            }
         }
 
-       if (teamReturner.size() >= 2) {
-           if(awayTeam == t) {
-                if (teamReturner.get(0).gameSpeed > teamReturner.get(1).gameSpeed)
-                    awayKickReturner = teamReturner.get(0);
-                else awayKickReturner = teamReturner.get(1);
+        chosen.kYards = 0;
+        chosen.kReturns = 0;
+        chosen.pYards = 0;
+        chosen.pReturns = 0;
+        chosen.kTD = 0;
+        chosen.pTD = 0;
+        chosen.startPos = 0;
 
-                awayKickReturner.kYards = 0;
-                awayKickReturner.kReturns = 0;
-                awayKickReturner.pYards = 0;
-                awayKickReturner.pReturns = 0;
-                awayKickReturner.kTD = 0;
-                awayKickReturner.pTD = 0;
-
-                awayKickReturner.startPos = 0;
-            } else {
-                if (teamReturner.get(0).gameSpeed > teamReturner.get(1).gameSpeed)
-                    homeKickReturner = teamReturner.get(0);
-                else homeKickReturner = teamReturner.get(1);
-
-                homeKickReturner.kYards = 0;
-                homeKickReturner.kReturns = 0;
-                homeKickReturner.pYards = 0;
-                homeKickReturner.pReturns = 0;
-                homeKickReturner.kTD = 0;
-                homeKickReturner.pTD = 0;
-
-                homeKickReturner.startPos = 0;
-            }
+        if (awayTeam == t) {
+            awayKickReturner = chosen;
+        } else {
+            homeKickReturner = chosen;
         }
     }
     
@@ -2160,6 +2163,9 @@ public class Game implements Serializable {
         if (yards < -3) {
             //touchback
             return yards;
+        } else if (returner == null) {
+            // Depleted roster without a returner — treat as a touchback rather than crashing.
+            return -4;
         } else {
             //Returner receives ball and runs at defense
 
@@ -2497,9 +2503,9 @@ public class Game implements Serializable {
                         Collections.sort(players, new CompPlayerPosDepth());
                         gameEventLog.append(getEventLog()).append("MAJOR INJURY!\n").append(t.getAbbr()).append(" ").append(p.position).append(" ").append(p.name).append(" is out of the game with an injury.");
 
-                        if(awayKickReturner.name.equals(p.name)) {
+                        if(awayKickReturner != null && awayKickReturner.name.equals(p.name)) {
                             getReturner(awayTeam);
-                        } else if(homeKickReturner.name.equals(p.name)) {
+                        } else if(homeKickReturner != null && homeKickReturner.name.equals(p.name)) {
                             getReturner(homeTeam);
                         }
                     }
