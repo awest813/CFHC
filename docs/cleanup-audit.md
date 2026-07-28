@@ -91,19 +91,19 @@ For each gameplay loop, verify expected behavior, capture edge cases, add or fix
 - [x] Staff hiring: verify OC/DC replacement flows on Android and desktop (manual UI test). (Engine: `StaffHiringFiringTest`; headless coordinator week: `CareerUiPlayabilityTest.coordinatorHiringWeek_missingOc_promptsAndCanHire`. Device dialog click-through still open.)
 - [x] Jobs: verify job offers, promotions, and user team reassignment (manual UI test). (Headless: `CareerUiPlayabilityTest` fired/promotion paths + `SeasonControllerJobOffersGateTest`. Device dialog click-through still open.)
 - [x] Firing: verify fired user gets a recoverable flow and league remains playable (manual UI test). (Headless: `CareerUiPlayabilityTest.firedCoach_teamSwitch_remainsPlayableThroughNextSeason`. Device dialog click-through still open.)
-- [x] Prestige: full-season flow touches prestige updates; needs explicit program prestige bounds tests.
+- [x] Prestige: full-season flow touches prestige updates; needs explicit program prestige bounds tests. (`PrestigeBoundsTest`, `RankingInvariantTest`)
 - [x] History/records: save/load round trip and full-season history checks exist; needs targeted record update tests.
 - Edge cases to audit: no available staff, user fired after championship/offseason event, conference realignment plus job change, record ties.
 - Polish pass: career messages should be concise, clear, and not platform-specific in shared presentation text.
 
 ### Save/Load
 
-- [ ] Old saves: collect known legacy saves and add compatibility fixtures.
+- [x] Old saves: collect known legacy saves and add compatibility fixtures. (`fixtures/saves/v1.4e-fresh-league.cfb.gz`, `GoldenSaveFixtureTest`, `SaveSchemaVersionTest`)
 - [x] New saves: covered by `SaveRoundTripTest` and `SimulationFacadeTest.saveToSlot_usesSharedSaveLoadService`.
 - [x] Desktop portability: covered by `SimulationFacadeTest.importSave_selectsUserTeamForPortableSave`.
 - [x] Android storage behavior: build verified; needs emulator/device save slot smoke. (Headless: `CareerUiPlayabilityTest` save-slot + recruiting checkpoint via `LeagueLaunchCoordinator`; user team now restores from HC `user` flag on load.)
 - Edge cases to audit: names with commas, missing user team, saved postseason game, imported save with custom universe resources.
-- Polish pass: save/load errors should explain whether the file is invalid, unsupported, or missing resources.
+- Polish pass: save/load errors should explain whether the file is invalid, unsupported, or missing resources. (`SaveLoadMessages` + corrupt≠EMPTY).
 
 ## Phase 4: Cross-Platform Audit
 
