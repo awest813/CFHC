@@ -306,20 +306,23 @@ public class LauncherFrame extends JFrame {
 
                 Getting started
                 1. New Career walks you through universe and team selection.
-                2. Load Save opens .cfb (desktop) or .sav exports from the Android build.
+                2. Load Save opens .cfb (desktop), .sav, or .txt exports.
 
                 In the league window
-                - The League Office navigation opens standings, scoreboard, stats, news, settings, and more.
+                - The left sidebar opens Home, Recruiting, Standings, Scoreboard, My Coach,
+                  polls, rankings, stats, search, history, news, coaches, HoF, records, and Settings.
                 - Space plays the next week or the next offseason step. Use the header buttons for longer sims.
                 - Double-click any team in Standings to open rosters, depth chart, coordinators, and facilities.
                 - F1 lists every keyboard shortcut.
 
                 Recruiting
                 After the final offseason step before signing day, press Space once. The signing board appears
-                in Recruiting. Finish recruiting there to roll into the next season.
+                in Recruiting. Finish recruiting there to roll into the next season. Progress is checkpointed
+                next to your save file when you save.
 
                 Saving
-                Use File > Save (Ctrl+S). Unsaved leagues prompt on exit.""";
+                Use File > Save (Ctrl+S). Saves default to your CFHC saves folder (~/.cfhc/saves on Linux).
+                Unsaved leagues prompt on exit, when opening another save, and when a new season begins.""";
         JTextArea area = new JTextArea(msg);
         area.setEditable(false);
         area.setWrapStyleWord(true);

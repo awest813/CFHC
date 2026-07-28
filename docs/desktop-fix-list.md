@@ -80,6 +80,5 @@ Status key: 🔲 open · 🔄 in progress · ✅ done
 6. ✅ Drop prototype/alpha labeling (#6)
 
 Next: optional FlatLaf, auto-update, macOS packaging. Signed MSI/DMG remains cert-blocked.
-Also fixed latent errors: Save As checkpoint migrate-safe clear, progress-dialog X cancels bulk,
-exit-cancel no longer kills audio, Open/Import unsaved prompts, discipline empty-roster safety,
-and non-blocking audio SourceDataLine fallback.
+User-ready pass: jar install docs, new-season save prompt, play-mode user-team gate,
+Help/About/Licenses, LICENSE+SOUND_LICENSES embedded in jar, How-to-Play matches sidebar UI.

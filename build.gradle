@@ -254,6 +254,11 @@ tasks.register('desktopJar', Jar) {
     from(desktopClassesDir)
     from(desktopResourcesDir)
     vorbisspiJar.each { from(zipTree(it)) }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from(rootProject.projectDir) {
+        include 'LICENSE'
+        include 'SOUND_LICENSES.md'
+    }
 
     manifest {
         attributes(

@@ -145,6 +145,10 @@ tasks.register('desktopJar', Jar) {
         include 'tritonus-share*.jar'
     }
     oggSpiJars.each { from(zipTree(it)) }
+    from("${repoRoot}") {
+        include 'LICENSE'
+        include 'SOUND_LICENSES.md'
+    }
     manifest {
         attributes(
                 'Main-Class': 'desktop.Main',
@@ -198,6 +202,10 @@ tasks.register('desktopStandaloneGate') {
                 'javazoom/spi/vorbis/sampled/file/VorbisAudioFileReader.class',
                 'com/jcraft/jorbis/VorbisFile.class',
                 'org/tritonus/share/sampled/file/TAudioFileReader.class',
+                'LICENSE',
+                'SOUND_LICENSES.md',
+                'desktop/Main.class',
+                'assets/sounds/click.ogg',
         ]
         def missing = required.findAll { !entries.contains(it) }
         if (!missing.isEmpty()) {

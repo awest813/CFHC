@@ -459,6 +459,11 @@ public class LeagueHomeView extends JFrame {
         aboutItem.setMnemonic(KeyEvent.VK_A);
         aboutItem.addActionListener(e -> showAbout());
         help.add(aboutItem);
+
+        JMenuItem licensesItem = new JMenuItem("Licenses & Attribution\u2026");
+        licensesItem.setMnemonic(KeyEvent.VK_L);
+        licensesItem.addActionListener(e -> showLicenses());
+        help.add(licensesItem);
         bar.add(help);
 
         bar.setOpaque(true);
@@ -916,12 +921,23 @@ public class LeagueHomeView extends JFrame {
         facade.setLeague(leagueCore, leagueCore.userTeam, leagueCore.userTeam);
         bulkSimulator = new DesktopBulkSimulator(bulkHost());
         scoreboardWeek = 0;
+        markDirty();
         refresh();
         JOptionPane.showMessageDialog(this,
                 DesktopTheme.messageForDialog(
                 "Season " + leagueCore.getYear() + " is ready!\n"
                         + "Press Space or click the Play button to begin."),
                 "New Season", JOptionPane.INFORMATION_MESSAGE);
+        int saveChoice = JOptionPane.showConfirmDialog(this,
+                DesktopTheme.messageForDialog(
+                        "Save your league for Season " + leagueCore.getYear() + " now?\n"
+                                + "Desktop does not auto-save — File > Save (Ctrl+S) anytime."),
+                "Save New Season?",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+        if (saveChoice == JOptionPane.YES_OPTION) {
+            saveLeague(false);
+        }
     }
 
     private void simulateToPostSeason(int targetWeek) {
@@ -1236,12 +1252,52 @@ public class LeagueHomeView extends JFrame {
     // =========================================================================
 
     private void showAbout() {
+        String savesHint;
+        try {
+            savesHint = DesktopAppPaths.chooserStartDir().getAbsolutePath();
+        } catch (Exception e) {
+            savesHint = "~/.cfhc/saves";
+        }
         JOptionPane.showMessageDialog(this,
                 DesktopTheme.messageForDialog(
-                "College Football Head Coach (CFHC) \u2014 Desktop\n"
+                "College Football Head Coach (CFHC) — Desktop 1.4e\n"
                         + "Portable Java build of the College Football Head Coach simulation.\n\n"
-                        + "Press F1 or Ctrl+/ for the full shortcut list."),
+                        + "Saves folder:\n" + savesHint + "\n\n"
+                        + "Press F1 or Ctrl+/ for the full shortcut list.\n"
+                        + "Help → Licenses & attribution for sound and library notices."),
                 "About CFHC",
+                JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void showLicenses() {
+        String text = """
+                College Football Head Coach (CFHC) — Desktop 1.4e
+
+                Game code is released under CC0 1.0 (see LICENSE in the distribution).
+
+                UI / game sound effects
+                Source: blips by NotExplosive (https://github.com/notexplosive/blips)
+                License: Creative Commons Attribution 4.0 International (CC BY 4.0)
+                Attribution: Sound effects by NotExplosive, used under CC BY 4.0.
+
+                OGG playback on desktop
+                VorbisSPI, JOrbis, and Tritonus Share are bundled for javax.sound.sampled
+                OGG support and are licensed under the GNU LGPL 2.1 or later.
+                See SOUND_LICENSES.md in the distribution for details.
+
+                Full texts ship beside the jar when built from this repository
+                (LICENSE and SOUND_LICENSES.md), and are also embedded in the jar.""";
+        JTextArea area = new JTextArea(text);
+        area.setEditable(false);
+        area.setWrapStyleWord(true);
+        area.setLineWrap(true);
+        area.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
+        DesktopTheme.styleTextContent(area);
+        area.setCaretPosition(0);
+        JScrollPane scroll = new JScrollPane(area);
+        scroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
+        scroll.setPreferredSize(new java.awt.Dimension(520, 360));
+        JOptionPane.showMessageDialog(this, scroll, "Licenses & Attribution",
                 JOptionPane.INFORMATION_MESSAGE);
     }
 

@@ -105,6 +105,13 @@ final class DesktopBulkSimulator {
                         host.markDirty();
                     }
                     PlatformLog.i(TAG, "Simulated " + played + " weeks.");
+                    if (dialog.isCancelled()) {
+                        JOptionPane.showMessageDialog(host.window(),
+                                DesktopTheme.messageForDialog(
+                                        "Season simulation was interrupted after " + played + " week(s)."),
+                                "Simulation Interrupted",
+                                JOptionPane.INFORMATION_MESSAGE);
+                    }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
                     PlatformLog.w(TAG, "Season simulation interrupted.");
