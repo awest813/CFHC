@@ -47,11 +47,17 @@ public class TeamDetailView extends JDialog {
 
     private final JFrame ownerFrame;
     private final Team liveTeam;
+    private final Runnable onChanged;
 
     public TeamDetailView(JFrame owner, LeagueRecord.TeamRecord team, Team liveTeam) {
+        this(owner, team, liveTeam, null);
+    }
+
+    public TeamDetailView(JFrame owner, LeagueRecord.TeamRecord team, Team liveTeam, Runnable onChanged) {
         super(owner, dialogTitle(team, liveTeam), true);
         this.ownerFrame = owner;
         this.liveTeam = liveTeam;
+        this.onChanged = onChanged != null ? onChanged : () -> {};
         setSize(920, 640);
         setLayout(new BorderLayout());
 
@@ -357,6 +363,7 @@ public class TeamDetailView extends JDialog {
                 int target = i + direction;
                 if (target >= 0 && target < posList.size()) {
                     team.swapDepthChartOrder(pos, i, target);
+                    onChanged.run();
                 }
                 return;
             }
@@ -566,7 +573,11 @@ public class TeamDetailView extends JDialog {
     // -------------------------------------------------------------------------
 
     public static void show(JFrame owner, LeagueRecord.TeamRecord team, Team live) {
-        TeamDetailView view = new TeamDetailView(owner, team, live);
+        show(owner, team, live, null);
+    }
+
+    public static void show(JFrame owner, LeagueRecord.TeamRecord team, Team live, Runnable onChanged) {
+        TeamDetailView view = new TeamDetailView(owner, team, live, onChanged);
         view.setLocationRelativeTo(owner);
         view.setVisible(true);
     }

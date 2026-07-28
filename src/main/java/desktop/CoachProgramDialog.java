@@ -29,7 +29,17 @@ public final class CoachProgramDialog {
     }
 
     public static void show(JFrame owner, Team userTeam) {
+        show(owner, userTeam, null);
+    }
+
+    public static void show(JFrame owner, Team userTeam, Runnable onChanged) {
+        Runnable changed = onChanged != null ? onChanged : () -> {};
         if (userTeam == null || userTeam.getHeadCoach() == null) {
+            JOptionPane.showMessageDialog(owner,
+                    DesktopTheme.messageForDialog(
+                            "Coach Program requires a user team with a head coach."),
+                    "Coach Program",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
         final Staff hc = userTeam.getHeadCoach();
@@ -83,17 +93,26 @@ public final class CoachProgramDialog {
             int cur = CoachSkills.getRank(hc.coachSkillRanksBits, b);
             int cost = CoachSkills.costForNextRank(cur);
             if (cur >= 3) {
-                JOptionPane.showMessageDialog(d, "This branch is maxed.");
+                JOptionPane.showMessageDialog(d,
+                        DesktopTheme.messageForDialog("This branch is maxed."),
+                        "Coach Program",
+                        JOptionPane.INFORMATION_MESSAGE);
                 return;
             }
             if (hc.coachSkillXp < cost) {
-                JOptionPane.showMessageDialog(d, "Need " + cost + " XP (you have " + hc.coachSkillXp + ").\nXP builds each week you sim.");
+                JOptionPane.showMessageDialog(d,
+                        DesktopTheme.messageForDialog(
+                                "Need " + cost + " XP (you have " + hc.coachSkillXp + ").\n"
+                                        + "XP builds each week you sim."),
+                        "Coach Program",
+                        JOptionPane.WARNING_MESSAGE);
                 return;
             }
             if (hc.tryPurchaseCoachSkillRank(b)) {
                 area.setText(CoachSkills.buildProgramSummary(userTeam, hc));
                 branchBox.repaint();
                 refreshXp.run();
+                changed.run();
             }
         });
 

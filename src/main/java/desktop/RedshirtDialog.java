@@ -9,6 +9,7 @@ import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -128,7 +129,13 @@ public class RedshirtDialog extends JDialog {
         removeBtn.setForeground(DesktopTheme.dangerRed());
         removeBtn.addActionListener(e -> {
             int row = currentTable.getSelectedRow();
-            if (row < 0 || row >= currentList.size()) return;
+            if (row < 0 || row >= currentList.size()) {
+                JOptionPane.showMessageDialog(this,
+                        DesktopTheme.messageForDialog("Select a redshirted player first."),
+                        "Redshirts",
+                        JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
             Player p = currentList.get(row);
             p.isRedshirt = false;
             refresh();
@@ -161,7 +168,13 @@ public class RedshirtDialog extends JDialog {
         JButton grantBtn = DesktopTheme.createGlassButton("\u25C0 GRANT REDSHIRT", DesktopTheme.successGreen());
         grantBtn.addActionListener(e -> {
             int row = eligibleTable.getSelectedRow();
-            if (row < 0 || row >= eligibleList.size()) return;
+            if (row < 0 || row >= eligibleList.size()) {
+                JOptionPane.showMessageDialog(this,
+                        DesktopTheme.messageForDialog("Select an eligible freshman first."),
+                        "Redshirts",
+                        JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
             Player p = eligibleList.get(row);
             p.isRedshirt = true;
             refresh();

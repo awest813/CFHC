@@ -231,12 +231,8 @@ public class DesktopUiBridge implements GameUiBridge {
     public void showPromotionsDialog() {
         runDecisionUi(() -> {
             if (league.isCareerMode()) {
-                boolean accepted = JobOffersDialog.showPromotions(owner, league);
-                if (accepted) {
-                    CoordinatorHiringDialog.show(owner, league);
-                } else {
-                    CoordinatorHiringDialog.show(owner, league);
-                }
+                // Hiring is owned by showCoordinatorHiringDialog on the next offseason step.
+                JobOffersDialog.showPromotions(owner, league);
             }
         });
     }

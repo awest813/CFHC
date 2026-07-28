@@ -363,7 +363,8 @@ public class LeagueHomeView extends JFrame {
 
         JMenuItem coachProgramItem = new JMenuItem("Coach Program & NIL\u2026");
         coachProgramItem.setMnemonic(KeyEvent.VK_C);
-        coachProgramItem.addActionListener(e -> CoachProgramDialog.show(this, leagueCore.userTeam));
+        coachProgramItem.addActionListener(e ->
+                CoachProgramDialog.show(this, leagueCore.userTeam, this::markDirty));
         coachProgramItem.setEnabled(leagueCore.userTeam != null);
         team.add(coachProgramItem);
 
@@ -383,7 +384,7 @@ public class LeagueHomeView extends JFrame {
         darkModeItem.setMnemonic(KeyEvent.VK_D);
         darkModeItem.addActionListener(e -> {
             DesktopTheme.setDark(darkModeItem.isSelected());
-            refresh();
+            applyDesktopTheme();
         });
         view.add(darkModeItem);
 
@@ -392,7 +393,7 @@ public class LeagueHomeView extends JFrame {
         highContrastItem.setMnemonic(KeyEvent.VK_H);
         highContrastItem.addActionListener(e -> {
             DesktopTheme.setHighContrast(highContrastItem.isSelected());
-            refresh();
+            applyDesktopTheme();
         });
         view.add(highContrastItem);
         view.addSeparator();
@@ -714,14 +715,22 @@ public class LeagueHomeView extends JFrame {
         statusLabel.setForeground(DesktopTheme.textPrimary());
         status.add(statusLabel, BorderLayout.WEST);
 
-        playedIndicator = new JLabel(lastSavePath != null
-                ? "Save: " + lastSavePath.getName()
-                : "Unsaved league");
+        playedIndicator = new JLabel(saveStatusText());
         playedIndicator.setFont(new Font("SansSerif", Font.PLAIN, 12));
         playedIndicator.setForeground(dirty ? DesktopTheme.warningText() : DesktopTheme.textSecondary());
         status.add(playedIndicator, BorderLayout.EAST);
 
         return status;
+    }
+
+    private String saveStatusText() {
+        if (dirty) {
+            return "Unsaved changes";
+        }
+        if (lastSavePath != null) {
+            return "Saved: " + lastSavePath.getName();
+        }
+        return "Unsaved league";
     }
 
     private String buildStatusText() {
@@ -813,9 +822,7 @@ public class LeagueHomeView extends JFrame {
     private void updateDirtyChrome() {
         setTitle(buildWindowTitle());
         if (playedIndicator != null) {
-            playedIndicator.setText(dirty
-                    ? "Unsaved changes"
-                    : (lastSavePath != null ? "Saved: " + lastSavePath.getName() : "Unsaved league"));
+            playedIndicator.setText(saveStatusText());
             playedIndicator.setForeground(dirty ? DesktopTheme.warningText() : DesktopTheme.textSecondary());
         }
     }
@@ -1041,6 +1048,15 @@ public class LeagueHomeView extends JFrame {
     // =========================================================================
 
     private void openSaveFile() {
+        if (bulkRunning) {
+            JOptionPane.showMessageDialog(this,
+                    DesktopTheme.messageForDialog(
+                            "A bulk simulation is still running.\n"
+                                    + "Wait for it to finish or press Interrupt before opening another save."),
+                    "Simulation In Progress",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
         if (!confirmDiscardUnsaved("opening another save")) {
             return;
         }
@@ -1109,6 +1125,15 @@ public class LeagueHomeView extends JFrame {
     }
 
     private void importCsvData(String kind) {
+        if (bulkRunning) {
+            JOptionPane.showMessageDialog(this,
+                    DesktopTheme.messageForDialog(
+                            "A bulk simulation is still running.\n"
+                                    + "Wait for it to finish before importing."),
+                    "Simulation In Progress",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
         JFileChooser chooser = new JFileChooser(DesktopAppPaths.chooserStartDir());
         DesktopTheme.styleFileChooser(chooser);
         boolean coaches = "coaches".equals(kind);
@@ -1144,6 +1169,15 @@ public class LeagueHomeView extends JFrame {
     }
 
     private void importCustomUniverse() {
+        if (bulkRunning) {
+            JOptionPane.showMessageDialog(this,
+                    DesktopTheme.messageForDialog(
+                            "A bulk simulation is still running.\n"
+                                    + "Wait for it to finish before importing."),
+                    "Simulation In Progress",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
         if (!confirmDiscardUnsaved("importing a custom universe")) {
             return;
         }
@@ -1244,7 +1278,7 @@ public class LeagueHomeView extends JFrame {
             return;
         }
         audioManager.play(AudioEvent.PLAY_SELECT);
-        PlaybookDialog.show(this, leagueCore.userTeam);
+        PlaybookDialog.show(this, leagueCore.userTeam, this::markDirty);
     }
 
     // =========================================================================
@@ -1359,7 +1393,7 @@ public class LeagueHomeView extends JFrame {
         Team live = leagueCore.userTeam;
         LeagueRecord.TeamRecord rec = findTeamRecord(live.getName());
         if (rec != null) {
-            TeamDetailView.show(this, rec, live);
+            TeamDetailView.show(this, rec, live, this::markDirty);
         }
     }
 
@@ -1413,7 +1447,10 @@ public class LeagueHomeView extends JFrame {
 
     /** Called when desktop shell theme changes (e.g. from {@link SettingsDialog}). */
     public void applyDesktopTheme() {
+        applyWindowTheme();
+        SwingUtilities.updateComponentTreeUI(this);
         refresh();
+        updateDirtyChrome();
     }
 
     private void registerScreens() {
@@ -1736,13 +1773,13 @@ public class LeagueHomeView extends JFrame {
 
     private void openTeamDialog(LeagueRecord.TeamRecord team) {
         Team live = liveTeamMap.get(team.name());
-        TeamDetailView.show(this, team, live);
+        TeamDetailView.show(this, team, live, this::markDirty);
     }
 
     private void openTeamDialogFromLive(Team live) {
         LeagueRecord.TeamRecord teamRec = findTeamRecord(live.getName());
         if (teamRec != null) {
-            TeamDetailView.show(this, teamRec, live);
+            TeamDetailView.show(this, teamRec, live, this::markDirty);
         }
     }
 

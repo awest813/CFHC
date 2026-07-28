@@ -402,6 +402,14 @@ public class NewGameWizard extends JDialog {
             resultLeague = null;
             showPrestigeModePage();
         });
+        JButton cancelBtn = new JButton("Cancel");
+        DesktopTheme.styleSecondaryButton(cancelBtn);
+        cancelBtn.addActionListener(e -> {
+            confirmed = false;
+            resultLeague = null;
+            resultTeam = null;
+            dispose();
+        });
         JButton startBtn = new JButton("Start Dynasty \u25B6");
         DesktopTheme.stylePrimaryButton(startBtn);
         startBtn.addActionListener(e -> {
@@ -424,6 +432,7 @@ public class NewGameWizard extends JDialog {
         });
 
         buttons.add(backBtn);
+        buttons.add(cancelBtn);
         buttons.add(startBtn);
         bottom.add(buttons, BorderLayout.SOUTH);
         page.add(bottom, BorderLayout.SOUTH);
