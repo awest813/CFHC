@@ -86,9 +86,6 @@ public class LeagueHomeView extends JFrame {
     private DesktopBulkSimulator bulkSimulator;
     private boolean bulkRunning;
 
-    /** Currently viewed scoreboard week (0-based). */
-    private int scoreboardWeek;
-
     /** Tracks whether the league has been modified since the last save. */
     private boolean dirty = false;
 
@@ -156,7 +153,6 @@ public class LeagueHomeView extends JFrame {
         facade.setLeague(leagueCore, leagueCore.userTeam, leagueCore.userTeam);
         bulkSimulator = new DesktopBulkSimulator(bulkHost());
         audioManager = new DesktopAudioManager();
-        scoreboardWeek = Math.max(0, leagueCore.currentWeek);
 
         screenContext = new LeagueScreenContext(leagueCore, currentRecord, liveTeamMap,
                 audioManager, bridge, this, new LeagueScreenContext.Navigation() {
@@ -190,7 +186,6 @@ public class LeagueHomeView extends JFrame {
             @Override public void markDirty() { LeagueHomeView.this.markDirty(); }
             @Override public void afterBulkRefresh() {
                 bulkRunning = false;
-                scoreboardWeek = leagueCore.currentWeek;
                 refresh();
             }
             @Override public void onRecruitingGateFromBulk() {
@@ -222,7 +217,11 @@ public class LeagueHomeView extends JFrame {
     }
 
     private void rebuildLiveTeamMap() {
-        liveTeamMap = new HashMap<>();
+        if (liveTeamMap == null) {
+            liveTeamMap = new HashMap<>();
+        } else {
+            liveTeamMap.clear();
+        }
         for (Conference c : leagueCore.getConferences()) {
             for (Team t : c.getTeams()) {
                 liveTeamMap.put(t.getName(), t);
@@ -867,7 +866,6 @@ public class LeagueHomeView extends JFrame {
         resolvePendingUserDiscipline();
 
         if (bridge.isAwaitingDockedRecruiting()) {
-            scoreboardWeek = leagueCore.currentWeek;
             refresh();
             selectRecruitingTab();
             return;
@@ -876,7 +874,6 @@ public class LeagueHomeView extends JFrame {
         if (bridge.isNewSeasonPending()) {
             startNewSeason();
         } else {
-            scoreboardWeek = leagueCore.currentWeek;
             refresh();
             // Show result summary for user team
             showWeekResultSummary(weekBefore);
@@ -932,7 +929,6 @@ public class LeagueHomeView extends JFrame {
         controller = new SeasonController(leagueCore, bridge);
         facade.setLeague(leagueCore, leagueCore.userTeam, leagueCore.userTeam);
         bulkSimulator = new DesktopBulkSimulator(bulkHost());
-        scoreboardWeek = 0;
         markDirty();
         refresh();
         JOptionPane.showMessageDialog(this,

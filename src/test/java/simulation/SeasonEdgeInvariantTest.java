@@ -49,7 +49,7 @@ public class SeasonEdgeInvariantTest {
         // Force odd-conference scheduling path used when regSeasonWeeks != 13.
         league.regSeasonWeeks = 15;
         for (Team t : league.getTeamList()) {
-            t.gameSchedule.clear();
+            t.clearGameSchedule();
         }
 
         Conference odd = null;

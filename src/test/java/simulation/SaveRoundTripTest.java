@@ -87,7 +87,7 @@ public class SaveRoundTripTest {
             Team re = findTeam(loaded, orig.name);
             assertNotNull("Team " + orig.name + " must exist after reload", re);
             assertEquals("Schedule length for " + orig.name,
-                    orig.gameSchedule.size(), re.gameSchedule.size());
+                    orig.getGameSchedule().size(), re.getGameSchedule().size());
         }
     }
 

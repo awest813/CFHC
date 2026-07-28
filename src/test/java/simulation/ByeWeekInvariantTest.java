@@ -87,7 +87,7 @@ public class ByeWeekInvariantTest {
     @Test
     public void calcSeasonPrestige_byeWeekDoesNotCountAsPostseasonSoftener() {
         Team t = league.userTeam;
-        t.gameSchedule.clear();
+        t.clearGameSchedule();
         Team opp = league.getTeamList().get(1);
         Team bye = new Team("BYE", "BYE", "BYE", 0, "BYE", 0, league);
 
@@ -111,7 +111,7 @@ public class ByeWeekInvariantTest {
 
         int[] withBye = t.calcSeasonPrestige();
 
-        t.gameSchedule.clear();
+        t.clearGameSchedule();
         t.addGameToSchedule(new Game(t, opp, "Conference"));
         int[] withoutBye = t.calcSeasonPrestige();
 
@@ -123,7 +123,7 @@ public class ByeWeekInvariantTest {
     @Test
     public void getSosAndRpi_skipByeWeekSlots() {
         Team t = league.userTeam;
-        t.gameSchedule.clear();
+        t.clearGameSchedule();
         Team opp = league.getTeamList().get(1);
         Team bye = new Team("BYE", "BYE", "BYE", 0, "BYE", 0, league);
 

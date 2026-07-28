@@ -44,7 +44,7 @@ public class OddConferenceScheduleTest {
         }
 
         for (Team t : league.teamList) {
-            t.gameSchedule.clear();
+            t.clearGameSchedule();
         }
 
         target.setUpSchedule();

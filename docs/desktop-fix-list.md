@@ -80,11 +80,8 @@ Status key: 🔲 open · 🔄 in progress · ✅ done
 5. ✅ Packaging metadata (#5)
 6. ✅ Drop prototype/alpha labeling (#6)
 
-Next: Aqua menus / file associations; signed MSI/DMG remains cert-blocked; true Linux `.AppImage` (appimagetool) still open.
+Next: continue ROADMAP #4 (ooc / W-L lists, League pools) and #3 god-object slices;
+macOS Aqua menus / file associations; signed MSI/DMG remains cert-blocked; true Linux `.AppImage` still open.
+LeagueHomeView screens are extracted via `LeagueScreen` (shell polish remains).
 Done optional pass: FlatLaf LAF, Help → Check for Updates, `desktopJpackageImage` + `desktopPortableZip`,
 unsigned `desktopDmg`/`desktopMsi` scaffolds.
-User-ready pass: jar install docs, new-season save prompt, play-mode user-team gate,
-Help/About/Licenses, LICENSE+SOUND_LICENSES embedded in jar, How-to-Play matches sidebar UI.
-Edge UI: no double coordinator after promotions, dirty chrome sync, scheme/depth/skills mark dirty,
-theme updateComponentTreeUI, bulk blocks Open/Import, coordinator candidate list complete,
-wizard Cancel + team-picker warnings.

@@ -173,11 +173,11 @@ final class DepthChartDialogController {
                 break;
             case 1:
                 textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Speed, Evasion, Power, Catch)");
-                positionPlayers.addAll(userTeam.teamRBs);
+                positionPlayers.addAll(userTeam.getTeamRBs());
                 break;
             case 2:
                 textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Speed, Catch, Evasion, Jump)");
-                positionPlayers.addAll(userTeam.teamWRs);
+                positionPlayers.addAll(userTeam.getTeamWRs());
                 break;
             case 3:
                 textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Block, Catch, Evasion, Speed)");
@@ -197,15 +197,15 @@ final class DepthChartDialogController {
                 break;
             case 7:
                 textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Tackle, Run Stop, Cover, Speed)");
-                positionPlayers.addAll(userTeam.teamLBs);
+                positionPlayers.addAll(userTeam.getTeamLBs());
                 break;
             case 8:
                 textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Cover, Speed, Tackle, Jump)");
-                positionPlayers.addAll(userTeam.teamCBs);
+                positionPlayers.addAll(userTeam.getTeamCBs());
                 break;
             case 9:
                 textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Tackle, Cover, Speed, Run Stop)");
-                positionPlayers.addAll(userTeam.teamSs);
+                positionPlayers.addAll(userTeam.getTeamSs());
                 break;
         }
 
@@ -228,11 +228,11 @@ final class DepthChartDialogController {
                 break;
             case 1:
                 textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Power, Speed, Evasion, Catch)");
-                positionPlayers.addAll(userTeam.teamRBs);
+                positionPlayers.addAll(userTeam.getTeamRBs());
                 break;
             case 2:
                 textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Catch, Speed, Evasion, Jump)");
-                positionPlayers.addAll(userTeam.teamWRs);
+                positionPlayers.addAll(userTeam.getTeamWRs());
                 break;
             case 3:
                 textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Catch, Run Block, Evasion, Speed)");
@@ -252,15 +252,15 @@ final class DepthChartDialogController {
                 break;
             case 7:
                 textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Cover, Run Def, Tackle, Run Stop)");
-                positionPlayers.addAll(userTeam.teamLBs);
+                positionPlayers.addAll(userTeam.getTeamLBs());
                 break;
             case 8:
                 textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Cover, Speed, Tackle, Jump)");
-                positionPlayers.addAll(userTeam.teamCBs);
+                positionPlayers.addAll(userTeam.getTeamCBs());
                 break;
             case 9:
                 textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Cover, Speed, Tackle, Run Stop)");
-                positionPlayers.addAll(userTeam.teamSs);
+                positionPlayers.addAll(userTeam.getTeamSs());
                 break;
         }
         redshirtSelector.notifyDataSetChanged();

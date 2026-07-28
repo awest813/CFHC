@@ -63,8 +63,8 @@ Dozens of `public ArrayList<…>` fields on `League` and `Team` let callers bypa
 **Progress:**
 - `Team.playersInjured` / `playersLeaving` / `playersTransferring` / `redshirtList` are private with accessors.
 - Transfer scan renamed to `identifyTransferCandidates()`.
-- Position rosters and `gameSchedule` remain public (wider blast radius).
-
+- **Position rosters** (`teamQBs`…`teamSs`) and **`gameSchedule`** are package-private with unmodifiable getters + add/clear mutators; Android/desktop use getters only. Same-package managers (`RosterManager`, `DepthChartManager`, `StatsTracker`) retain direct access.
+- Remaining public: `oocTeams` / `oocWeeks` / `gameWLSchedule` / win-loss-against lists; League transfer/freshman pools; `conferences` / `teamList` / coach pools.
 ---
 
 ## ⚠️ High — Near-Term Improvements
@@ -236,11 +236,12 @@ Target a native SwiftUI app that talks to the shared core through the platform b
 
 ---
 
-### 19. 🔲 Graduate the desktop shell from prototype to supported app
+### 19. 🔄 Graduate the desktop shell from prototype to supported app
 
 The Swing shell already exists. The remaining work is to harden it, close parity gaps, and make packaging/distribution practical.
 *Requires items 2, 7, and 15. See [Platform Expansion](platform-expansion.md) and [Desktop improvement roadmap](desktop-improvement-roadmap.md) for design goals.*
 
+**Progress:** FlatLaf theming, portable zip / jpackage image, manual update check, `LeagueScreen` panel split, user-ready jar docs. Still open: Aqua menus / file association, signed installers, true `.AppImage`, deeper Android parity.
 ---
 
 ### 20. 🔲 Adopt a structured logging framework

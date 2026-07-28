@@ -91,8 +91,9 @@ public class Team {
     public boolean nilCollectiveUpgrade;
     public int teamStadium;
 
-    //Game Log variables
-    public ArrayList<Game> gameSchedule;
+    // Game log — package-private for StatsTracker/schedule builders.
+    // Outside simulation/, use getGameSchedule()/addGameToSchedule()/clearGameSchedule().
+    ArrayList<Game> gameSchedule;
     public ArrayList<Team> oocTeams;
     public ArrayList<Integer> oocWeeks;
     public ArrayList<String> gameWLSchedule;
@@ -185,19 +186,20 @@ public class Team {
     public boolean retired;
     public String contractString;
 
-    //players on team
+    // Players on team — package-private for RosterManager/DepthChartManager.
+    // Outside simulation/, use getTeam*()/addPlayer*()/clearAllRosters() (unmodifiable getters).
     //offense
-    public ArrayList<PlayerQB> teamQBs;
-    public ArrayList<PlayerRB> teamRBs;
-    public ArrayList<PlayerWR> teamWRs;
-    public ArrayList<PlayerTE> teamTEs;
-    public ArrayList<PlayerK> teamKs;
-    public ArrayList<PlayerOL> teamOLs;
+    ArrayList<PlayerQB> teamQBs;
+    ArrayList<PlayerRB> teamRBs;
+    ArrayList<PlayerWR> teamWRs;
+    ArrayList<PlayerTE> teamTEs;
+    ArrayList<PlayerK> teamKs;
+    ArrayList<PlayerOL> teamOLs;
     //defense
-    public ArrayList<PlayerDL> teamDLs;
-    public ArrayList<PlayerLB> teamLBs;
-    public ArrayList<PlayerCB> teamCBs;
-    public ArrayList<PlayerS> teamSs;
+    ArrayList<PlayerDL> teamDLs;
+    ArrayList<PlayerLB> teamLBs;
+    ArrayList<PlayerCB> teamCBs;
+    ArrayList<PlayerS> teamSs;
 
     /** Graduating / departing players — mutate via {@link #addPlayerLeaving}/{@link #clearPlayersLeaving}. */
     private ArrayList<Player> playersLeaving;

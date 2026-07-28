@@ -29,7 +29,7 @@ public class DisciplineDialogTest {
         league.setPlatformResourceProvider(resources);
         league.userTeam = league.getTeamList().get(0);
         league.userTeam.setUserControlled(true);
-        player = league.userTeam.teamQBs.get(0);
+        player = league.userTeam.getTeamQBs().get(0);
     }
 
     @Test

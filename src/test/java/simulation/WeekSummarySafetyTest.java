@@ -33,7 +33,7 @@ public class WeekSummarySafetyTest {
 
     @Test
     public void weekSummary_emptySchedule_doesNotThrow() {
-        team.gameSchedule.clear();
+        team.clearGameSchedule();
         String summary = team.weekSummaryStr(1);
         assertTrue(summary.contains(team.name));
         assertTrue(summary.toLowerCase().contains("no games") || summary.contains("poll"));
@@ -41,7 +41,7 @@ public class WeekSummarySafetyTest {
 
     @Test
     public void weekSummary_outOfRangeWeek_clampsSafely() {
-        assertFalse(team.gameSchedule.isEmpty());
+        assertFalse(team.getGameSchedule().isEmpty());
         String summary = team.weekSummaryStr(999);
         assertTrue(summary.contains(team.name));
         assertFalse(summary.trim().isEmpty());
@@ -50,7 +50,7 @@ public class WeekSummarySafetyTest {
     @Test
     public void weekSummary_byeWeek_usesCanonicalLabel() {
         Team bye = new Team("BYE", "BYE", "BYE", 0, "BYE", 0, league);
-        team.gameSchedule.clear();
+        team.clearGameSchedule();
         team.addGameToSchedule(new Game(team, bye, Game.BYE_WEEK_NAME));
         String summary = team.weekSummaryStr(1);
         assertTrue(summary.contains(Game.BYE_WEEK_NAME));
