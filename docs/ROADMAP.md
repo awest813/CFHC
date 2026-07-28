@@ -150,13 +150,14 @@ At ~3,656 LOC, `MainActivity` owns too many concerns. Target split:
 
 ---
 
-### 12. 🔲 Add save-file schema versioning
+### 12. 🔄 Add save-file schema versioning
 
-Currently only `League.saveVer = "v1.4e"`. Format changes silently break old saves.
+Previously only `League.saveVer = "v1.4e"` existed in memory; on-disk new-format saves had no schema marker and slot summaries falsely reported "Legacy Save Incompatible".
 
 **Actions:**
-- Add a structured version header at the top of each save file.
-- Write a migration layer that upgrades older formats on load.
+- ~~Add a structured version header at the top of each save file.~~ ✅ Done — `V:<version>` line via `SaveSchema` / `SaveManager`.
+- ~~Write a migration layer that upgrades older formats on load.~~ ✅ Hook added (`SaveSchema.migrate`); identity for `v1.4e`. Pre-`V:` `L:` files load as current. Unknown versions fail with a clear `IOException`.
+- Remaining: real migrators when the next breaking format ships; optional legacy string-format fixtures.
 
 ---
 

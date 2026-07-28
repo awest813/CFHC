@@ -64,8 +64,10 @@ public class GoldenSaveFixtureTest {
         assertFalse("Fixture league must have teams", loaded.getTeamList().isEmpty());
         assertEquals(League.CURRENT_SAVE_VERSION, loaded.saveVer);
         assertTrue("Season year should be positive", loaded.getYear() > 0);
-        assertTrue("Header should use SaveManager L: format",
-                Files.readString(fixtureCfB.toPath()).startsWith("L:"));
+        String body = Files.readString(fixtureCfB.toPath());
+        assertTrue("Header should use SaveManager L: format", body.contains("L:"));
+        assertTrue("Fixture should start with V: schema or legacy L: line",
+                body.startsWith(SaveSchema.VERSION_PREFIX) || body.startsWith("L:"));
     }
 
     @Test

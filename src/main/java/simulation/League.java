@@ -607,10 +607,12 @@ public class League {
 
             //First ignore the save file info
             line = bufferedReader.readLine();
-            if (line != null && line.startsWith("L:")) {
-                // NEW FORMAT DETECTION
+            if (line != null && (line.startsWith("L:") || line.startsWith(SaveSchema.VERSION_PREFIX))) {
+                // NEW FORMAT DETECTION (V: schema header and/or L: league header)
                 try (FileInputStream fis = new FileInputStream(saveFile)) {
-                    applyLeagueRecord(SaveManager.load(fis));
+                    SaveManager.LoadResult loaded = SaveManager.loadWithVersion(fis);
+                    applyLeagueRecord(loaded.record());
+                    this.saveVer = loaded.schemaVersion();
                 } catch (Exception ex) {
                     throw new IllegalStateException(
                             "Failed to load new-format save: " + saveFile.getAbsolutePath(), ex);

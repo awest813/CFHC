@@ -4,7 +4,7 @@ Committed golden saves for compatibility smoke tests.
 
 | File | Format | Notes |
 |:---|:---|:---|
-| `v1.4e-fresh-league.cfb.gz` | gzip of `SaveManager` `L:` format (`League.CURRENT_SAVE_VERSION`) | Fresh dynasty with a user coach; used by `GoldenSaveFixtureTest` |
+| `v1.4e-fresh-league.cfb.gz` | gzip of `SaveManager` format (`V:v1.4e` + `L:` header) | Fresh dynasty with a user coach; used by `GoldenSaveFixtureTest` |
 
 ## Regenerate
 
