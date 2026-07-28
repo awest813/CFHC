@@ -13,6 +13,7 @@ import simulation.PlatformLog;
 import simulation.PlatformResourceProvider;
 import simulation.SeasonPresentation;
 import simulation.SeasonController;
+import simulation.SeasonFlowOrder;
 import simulation.SimulationFacade;
 import simulation.Team;
 import simulation.TeamColors;
@@ -590,16 +591,20 @@ public class LeagueHomeView extends JFrame {
     private String bulkAdvanceLabel() {
         int week = leagueCore.currentWeek;
         int reg = leagueCore.regSeasonWeeks;
-        if (week < reg) return "Sim to Postseason";
-        if (week < reg + 13) return "Advance Offseason";
+        if (week < SeasonFlowOrder.firstOffseasonWeek(reg)) return "Sim Through Postseason";
+        if (week < SeasonFlowOrder.recruitingWeek(reg)) return "Advance Offseason";
         return "Open Recruiting";
     }
 
     private String bulkAdvanceTooltip() {
         int week = leagueCore.currentWeek;
         int reg = leagueCore.regSeasonWeeks;
-        if (week < reg) return "Advance through remaining regular-season weeks.";
-        if (week < reg + 13) return "Advance offseason stages until recruiting begins.";
+        if (week < SeasonFlowOrder.firstOffseasonWeek(reg)) {
+            return "Advance through remaining games until the national title is decided.";
+        }
+        if (week < SeasonFlowOrder.recruitingWeek(reg)) {
+            return "Advance offseason stages until recruiting begins.";
+        }
         return "Open the recruiting board.";
     }
 
@@ -610,9 +615,10 @@ public class LeagueHomeView extends JFrame {
     private void runBulkAdvanceFromHeader() {
         int week = leagueCore.currentWeek;
         int reg = leagueCore.regSeasonWeeks;
-        if (week < reg) {
-            simulateToPostSeason(reg);
-        } else if (week < reg + 13) {
+        if (week < SeasonFlowOrder.firstOffseasonWeek(reg)) {
+            // Align with Game → Sim Through Postseason (reg+4), not stop at CCG.
+            simulateToPostSeason(SeasonFlowOrder.firstOffseasonWeek(reg));
+        } else if (week < SeasonFlowOrder.recruitingWeek(reg)) {
             advanceFullYear();
         } else {
             playWeek();
@@ -668,7 +674,7 @@ public class LeagueHomeView extends JFrame {
         else if (week == reg + 1) weekLabel = "Quarterfinals / Bowl Week 2";
         else if (week == reg) weekLabel = "First Round / Bowl Week 1";
         else if (week == reg - 1) weekLabel = "Conf. Championships";
-        else if (week == 0) weekLabel = "Pre-Season";
+        else if (week == 0) weekLabel = SeasonPresentation.getSeasonCycleLabel(leagueCore);
         else weekLabel = "Week " + week;
 
         int teams = currentRecord.conferences().stream().mapToInt(c -> c.teams().size()).sum();
@@ -905,7 +911,7 @@ public class LeagueHomeView extends JFrame {
     }
 
     private void advanceSeason() {
-        simulateToPostSeason(leagueCore.regSeasonWeeks + 4);
+        simulateToPostSeason(SeasonFlowOrder.firstOffseasonWeek(leagueCore.regSeasonWeeks));
     }
 
     /** Advances through the entire season including offseason and recruiting. */

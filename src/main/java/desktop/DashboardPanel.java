@@ -3,6 +3,7 @@ package desktop;
 import recruiting.RecruitingSessionData;
 import simulation.CoachSkills;
 import simulation.League;
+import simulation.SeasonFlowOrder;
 import simulation.SeasonPresentation;
 import simulation.SimulationFacade;
 import simulation.Team;
@@ -187,16 +188,18 @@ public class DashboardPanel implements LeagueScreen {
     }
 
     private JPanel buildSeasonTimelinePanel() {
-        JPanel timeline = new JPanel(new GridLayout(1, 6, 4, 0));
+        JPanel timeline = new JPanel(new GridLayout(1, SeasonFlowOrder.CYCLE_ORDER.length + 1, 4, 0));
         timeline.setOpaque(false);
         String active = decodeSeasonPeriod();
-        String[] phases = {"Pre-Season", "Regular Season", "Postseason", "Offseason", "Recruiting", "Next Year"};
+        String[] phases = new String[SeasonFlowOrder.CYCLE_ORDER.length + 1];
+        System.arraycopy(SeasonFlowOrder.CYCLE_ORDER, 0, phases, 0, SeasonFlowOrder.CYCLE_ORDER.length);
+        phases[phases.length - 1] = "Next Year";
         for (String phase : phases) {
             JLabel label = new JLabel(phase, JLabel.CENTER);
             label.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 10));
             label.setOpaque(true);
             boolean isActive = phase.equals(active)
-                    || ("Recruiting".equals(phase) && league.currentWeek >= league.regSeasonWeeks + 13);
+                    || ("Recruiting".equals(phase) && SeasonFlowOrder.isRecruitingGate(league.currentWeek, league.regSeasonWeeks));
             label.setBackground(isActive ? DesktopTheme.sidebarSelectionBackground() : DesktopTheme.windowBackground());
             label.setForeground(isActive ? Color.WHITE : DesktopTheme.textSecondary());
             label.setBorder(BorderFactory.createEmptyBorder(5, 8, 5, 8));

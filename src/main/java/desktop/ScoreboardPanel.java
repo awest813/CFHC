@@ -2,6 +2,7 @@ package desktop;
 
 import simulation.Game;
 import simulation.League;
+import simulation.SeasonPresentation;
 import simulation.Team;
 
 import javax.swing.BorderFactory;
@@ -88,7 +89,9 @@ public class ScoreboardPanel implements LeagueScreen {
         weekTypeLabel.setForeground(DesktopTheme.textSecondary());
 
         Runnable updateScoreboard = () -> {
-            weekLabel.setText(currentWeek <= 0 ? "Pre-Season" : "Week " + currentWeek);
+            weekLabel.setText(currentWeek <= 0
+                    ? SeasonPresentation.getSeasonCycleLabel(ctx.league())
+                    : "Week " + currentWeek);
             weekTypeLabel.setText(getWeekType(currentWeek, ctx.league()));
             model.setRowCount(0);
             List<List<String>> scores = ctx.league().getWeeklyScores();

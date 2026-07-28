@@ -68,11 +68,13 @@ public final class SeasonController {
         league.playWeek();
         result.weekAdvanced();
 
-        if (weekBefore == regSeasonWeeks / 2) {
+        if (weekBefore == SeasonFlowOrder.midseasonWeek(regSeasonWeeks)) {
+            // Apply progression in the controller so desktop, Android, and bulk sim
+            // all advance player ratings in the same order — UI only presents the report.
+            league.midSeasonProgression();
             bridge.showMidseasonSummary();
             result.needsDialog(SeasonAdvanceResult.DialogType.MIDSEASON_SUMMARY, null);
         }
-
 
         updateInSeasonStatus(result);
     }
@@ -127,12 +129,16 @@ public final class SeasonController {
             handleTransferList(result);
         } else if (league.currentWeek == regSeasonWeeks + 12) {
             handleRealignment(result);
-        } else if (league.currentWeek >= regSeasonWeeks + 13) {
+        } else if (SeasonFlowOrder.isRecruitingGate(league.currentWeek, regSeasonWeeks)) {
             if (!league.recruitingPhaseActive) {
                 league.recruitingPhaseActive = true;
                 showNotification(result, "Recruiting", "National Letter of Intent Day Begins!");
                 bridge.startRecruitingFlow();
                 result.recruitingStarted();
+            } else {
+                // Hard gate: do not advance past recruiting until finishRecruiting / startNextSeason.
+                updateSimStatus(result, "Recruiting", "Complete Recruiting", true);
+                result.awaitingRecruiting();
             }
         }
     }

@@ -1193,6 +1193,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Simulate Week
     private void simulateWeek() {
         audioManager.play(AudioEvent.ADVANCE);
+        if (simLeague != null && simLeague.recruitingPhaseActive) {
+            // Recruiting is a hard gate — do not re-run offseason/recruiting handlers.
+            if (SimulationFacade.needsUserRecruiting(simLeague)) {
+                beginRecruiting();
+            }
+            resetUI();
+            return;
+        }
         if (seasonController != null) {
             seasonController.advanceWeek();
         }

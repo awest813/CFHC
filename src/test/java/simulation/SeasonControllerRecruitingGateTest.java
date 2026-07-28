@@ -70,6 +70,7 @@ public class SeasonControllerRecruitingGateTest {
 
         SeasonAdvanceResult second = controller.advanceWeek();
         assertFalse(second.hasEvent(SeasonAdvanceResult.EventType.RECRUITING_STARTED));
+        assertTrue(second.hasEvent(SeasonAdvanceResult.EventType.AWAITING_RECRUITING));
         assertEquals(1, recruitingStarts.get());
         assertEquals(league.regSeasonWeeks + 13, league.currentWeek);
 

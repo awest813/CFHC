@@ -110,7 +110,7 @@ public class SeasonPresentationTest {
     @Test
     public void cycleLabel_transitionsAtExpectedBoundaries() {
         league.currentWeek = 0;
-        assertEquals("Pre-Season", SeasonPresentation.getSeasonCycleLabel(league));
+        assertEquals("Preseason", SeasonPresentation.getSeasonCycleLabel(league));
 
         league.currentWeek = league.regSeasonWeeks - 1;
         assertEquals("Regular Season", SeasonPresentation.getSeasonCycleLabel(league));
@@ -128,9 +128,9 @@ public class SeasonPresentationTest {
     @Test
     public void cycleLabel_clampsNegativeWeekToPreseason() {
         league.currentWeek = -1;
-        assertEquals("Pre-Season", SeasonPresentation.getSeasonCycleLabel(league));
+        assertEquals("Preseason", SeasonPresentation.getSeasonCycleLabel(league));
         league.currentWeek = -99;
-        assertEquals("Pre-Season", SeasonPresentation.getSeasonCycleLabel(league));
+        assertEquals("Preseason", SeasonPresentation.getSeasonCycleLabel(league));
     }
 
     @Test
