@@ -265,7 +265,7 @@ public class LauncherFrame extends JFrame {
     }
 
     private void launchLoadGame() {
-        JFileChooser chooser = new JFileChooser(new File(System.getProperty("user.dir")));
+        JFileChooser chooser = new JFileChooser(DesktopAppPaths.chooserStartDir());
         DesktopTheme.styleFileChooser(chooser);
         chooser.setFileFilter(new FileNameExtensionFilter(
                 "CFHC saves (*.cfb, *.sav)", "cfb", "sav"));

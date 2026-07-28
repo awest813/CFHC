@@ -762,6 +762,9 @@ public class LeagueHomeView extends JFrame {
         controller.advanceWeek();
         markDirty();
 
+        // Android polls disciplineAction after each week; desktop must do the same.
+        resolvePendingUserDiscipline();
+
         if (bridge.isAwaitingDockedRecruiting()) {
             scoreboardWeek = leagueCore.currentWeek;
             refresh();
@@ -776,6 +779,12 @@ public class LeagueHomeView extends JFrame {
             refresh();
             // Show result summary for user team
             showWeekResultSummary(weekBefore);
+        }
+    }
+
+    private void resolvePendingUserDiscipline() {
+        if (leagueCore.userTeam != null && leagueCore.userTeam.disciplineAction) {
+            leagueCore.userTeam.suspendPlayerSetup(bridge);
         }
     }
 
@@ -856,6 +865,7 @@ public class LeagueHomeView extends JFrame {
                             && !bridge.isAwaitingDockedRecruiting()) {
                         if (dialog.isCancelled()) break;
                         controller.advanceWeek();
+                        resolvePendingUserDiscipline();
                         played++;
                         int progress = (int) ((float) played / maxWeeks * 100);
                         setProgress(Math.min(100, progress));
@@ -949,6 +959,7 @@ public class LeagueHomeView extends JFrame {
                             break;
                         }
                         controller.advanceWeek();
+                        resolvePendingUserDiscipline();
                         played++;
                         publish("Advancing " + decodeSeasonPeriod() + " (Week " + leagueCore.currentWeek + ")");
                         if (played >= MAX_FULL_YEAR_STEPS) {
@@ -1036,11 +1047,11 @@ public class LeagueHomeView extends JFrame {
     private void saveLeague(boolean forceChooser) {
         File target = lastSavePath;
         if (forceChooser || target == null) {
-            JFileChooser chooser = new JFileChooser();
+            JFileChooser chooser = new JFileChooser(DesktopAppPaths.chooserStartDir());
             DesktopTheme.styleFileChooser(chooser);
             chooser.setDialogTitle("Save League");
             chooser.setFileFilter(new FileNameExtensionFilter("CFHC save (*." + SAVE_EXTENSION + ")", SAVE_EXTENSION));
-            chooser.setSelectedFile(new File(suggestedFilename()));
+            chooser.setSelectedFile(new File(DesktopAppPaths.chooserStartDir(), suggestedFilename()));
             int result = chooser.showSaveDialog(this);
             if (result != JFileChooser.APPROVE_OPTION) {
                 return;
@@ -1083,7 +1094,7 @@ public class LeagueHomeView extends JFrame {
     // =========================================================================
 
     private void openSaveFile() {
-        JFileChooser chooser = new JFileChooser();
+        JFileChooser chooser = new JFileChooser(DesktopAppPaths.chooserStartDir());
         DesktopTheme.styleFileChooser(chooser);
         chooser.setDialogTitle("Open Save File");
         chooser.setFileFilter(new FileNameExtensionFilter(
