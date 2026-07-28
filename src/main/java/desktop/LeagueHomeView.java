@@ -89,6 +89,9 @@ public class LeagueHomeView extends JFrame {
     /** Tracks whether the league has been modified since the last save. */
     private boolean dirty = false;
 
+    /** Avoid re-showing the same game result dialog after CCG/bowl advances. */
+    private simulation.Game lastSummarizedGame;
+
     private static final String[] NAV_TITLES = {
             "Home", "Recruiting", "Standings", "Scoreboard", "My Coach",
             "Poll Rankings", "Team Rankings", "Player Stats", "Player Search",
@@ -130,6 +133,8 @@ public class LeagueHomeView extends JFrame {
         this.leagueCore = league;
         this.currentRecord = league.toRecord();
         this.lastSavePath = loadedFrom;
+        // New careers have never been written to disk — treat as dirty so quit prompts.
+        this.dirty = loadedFrom == null;
         rebuildLiveTeamMap();
 
         setTitle(buildWindowTitle());
@@ -192,6 +197,7 @@ public class LeagueHomeView extends JFrame {
             }
             @Override public void onRecruitingGateFromBulk() {
                 bulkRunning = false;
+                clearRecruitingSessionState();
                 selectRecruitingTab();
                 JOptionPane.showMessageDialog(LeagueHomeView.this,
                         DesktopTheme.messageForDialog(
@@ -782,15 +788,18 @@ public class LeagueHomeView extends JFrame {
      * @return {@code true} if the window was closed and the app should quit
      */
     public boolean requestQuitFromOs() {
-        if (dirty) {
+        if (needsSavePrompt()) {
             int choice = JOptionPane.showConfirmDialog(this,
-                    DesktopTheme.messageForDialog("You have unsaved changes. Save before exiting?"),
+                    DesktopTheme.messageForDialog(
+                            lastSavePath == null
+                                    ? "This league has not been saved yet. Save before exiting?"
+                                    : "You have unsaved changes. Save before exiting?"),
                     "Unsaved Changes",
                     JOptionPane.YES_NO_CANCEL_OPTION,
                     JOptionPane.WARNING_MESSAGE);
             if (choice == JOptionPane.YES_OPTION) {
                 saveLeague(false);
-                if (dirty) {
+                if (needsSavePrompt()) {
                     return false;
                 }
                 disposeForQuit();
@@ -828,20 +837,27 @@ public class LeagueHomeView extends JFrame {
      * @return false if the user cancelled or a required save failed
      */
     private boolean confirmDiscardUnsaved(String actionLabel) {
-        if (!dirty) {
+        if (!needsSavePrompt()) {
             return true;
         }
         int choice = JOptionPane.showConfirmDialog(this,
                 DesktopTheme.messageForDialog(
-                        "You have unsaved changes. Save before " + actionLabel + "?"),
+                        lastSavePath == null
+                                ? "This league has not been saved yet. Save before " + actionLabel + "?"
+                                : "You have unsaved changes. Save before " + actionLabel + "?"),
                 "Unsaved Changes",
                 JOptionPane.YES_NO_CANCEL_OPTION,
                 JOptionPane.WARNING_MESSAGE);
         if (choice == JOptionPane.YES_OPTION) {
             saveLeague(false);
-            return !dirty;
+            return !needsSavePrompt();
         }
         return choice == JOptionPane.NO_OPTION;
+    }
+
+    /** True when quitting/opening another file should warn the user. */
+    private boolean needsSavePrompt() {
+        return dirty || lastSavePath == null;
     }
 
     /** Marks the league state as modified since the last save. */
@@ -893,6 +909,9 @@ public class LeagueHomeView extends JFrame {
         resolvePendingUserDiscipline();
 
         if (bridge.isAwaitingDockedRecruiting()) {
+            // NLI just began — drop any mid-season recruiting board so the docked
+            // tab rebuilds against post-CPU recruiting pools.
+            clearRecruitingSessionState();
             refresh();
             selectRecruitingTab();
             return;
@@ -913,35 +932,34 @@ public class LeagueHomeView extends JFrame {
         }
     }
 
-    private void showWeekResultSummary(int week) {
+    private void showWeekResultSummary(int weekBefore) {
         if (leagueCore.userTeam == null) return;
-        simulation.Game g = null;
-        java.util.List<simulation.Game> schedule = leagueCore.userTeam.getGameSchedule();
-        if (week >= 0 && week < schedule.size()) {
-            g = schedule.get(week);
+        simulation.Game g = DesktopWeekResult.findPlayedGame(
+                leagueCore.userTeam, weekBefore, leagueCore.regSeasonWeeks);
+        if (g == null || g == lastSummarizedGame) {
+            return;
+        }
+        lastSummarizedGame = g;
+
+        String opp = DesktopWeekResult.opponentAbbr(g, leagueCore.userTeam);
+        String site = DesktopWeekResult.userIsHome(g, leagueCore.userTeam) ? "vs " : "at ";
+        int score = DesktopWeekResult.userScore(g, leagueCore.userTeam);
+        int oppScore = DesktopWeekResult.opponentScore(g, leagueCore.userTeam);
+
+        if (score > oppScore) {
+            audioManager.play(AudioEvent.WIN);
+        } else {
+            audioManager.play(AudioEvent.LOSS);
         }
 
-        if (g != null && g.hasPlayed && !"BYE WEEK".equals(g.gameName)) {
-            String opp = g.homeTeam == leagueCore.userTeam ? g.awayTeam.getAbbr() : g.homeTeam.getAbbr();
-            String site = g.homeTeam == leagueCore.userTeam ? "vs " : "at ";
-            int score = g.homeTeam == leagueCore.userTeam ? g.homeScore : g.awayScore;
-            int oppScore = g.homeTeam == leagueCore.userTeam ? g.awayScore : g.homeScore;
+        String result = score > oppScore ? "WIN" : (score < oppScore ? "LOSS" : "TIE");
 
-            if (score > oppScore) {
-                audioManager.play(AudioEvent.WIN);
-            } else {
-                audioManager.play(AudioEvent.LOSS);
-            }
+        String msg = String.format(Locale.ROOT, "Week %d Result:\n\n%s %s %s\nFinal Score: %d - %d\n\nRecord: %d-%d",
+                weekBefore, result, site, opp, score, oppScore,
+                leagueCore.userTeam.getWins(), leagueCore.userTeam.getLosses());
 
-            String result = score > oppScore ? "WIN" : (score < oppScore ? "LOSS" : "TIE");
-            
-            String msg = String.format(Locale.ROOT, "Week %d Result:\n\n%s %s %s\nFinal Score: %d - %d\n\nRecord: %d-%d",
-                    week + 1, result, site, opp, score, oppScore, 
-                    leagueCore.userTeam.getWins(), leagueCore.userTeam.getLosses());
-            
-            JOptionPane.showMessageDialog(this, DesktopTheme.messageForDialog(msg), "Game Result",
-                    score >= oppScore ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE);
-        }
+        JOptionPane.showMessageDialog(this, DesktopTheme.messageForDialog(msg), "Game Result",
+                score >= oppScore ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE);
     }
 
     /**
@@ -952,10 +970,13 @@ public class LeagueHomeView extends JFrame {
         bridge.clearNewSeasonPending();
         leagueCore.startNextSeason();
         clearRecruitingSessionState();
-        bridge = new DesktopUiBridge(this, leagueCore);
+        // Reuse the same DesktopUiBridge instance so DashboardPanel / screenContext
+        // keep seeing recruiting and season flags. SeasonController is rebuilt so
+        // preseason redshirt state resets cleanly.
         controller = new SeasonController(leagueCore, bridge);
         facade.setLeague(leagueCore, leagueCore.userTeam, leagueCore.userTeam);
         bulkSimulator = new DesktopBulkSimulator(bulkHost());
+        lastSummarizedGame = null;
         markDirty();
         refresh();
         JOptionPane.showMessageDialog(this,

@@ -226,13 +226,11 @@ public class DashboardPanel implements LeagueScreen {
         if (user == null) return "No user team selected.";
         List<simulation.Game> schedule = user.getGameSchedule();
         if (schedule.isEmpty()) return "Season hasn't started yet.";
-        simulation.Game last = schedule.get(schedule.size() - 1);
-        if (!last.hasPlayed) return "Waiting for next game result.";
-        String opponentName = last.homeTeam == user
-                ? (last.awayTeam != null ? last.awayTeam.getName() : "Opponent")
-                : (last.homeTeam != null ? last.homeTeam.getName() : "Opponent");
-        int score = last.homeTeam == user ? last.homeScore : last.awayScore;
-        int oppScore = last.homeTeam == user ? last.awayScore : last.homeScore;
+        simulation.Game last = DesktopWeekResult.findMostRecentPlayed(user);
+        if (last == null) return "Waiting for next game result.";
+        String opponentName = DesktopWeekResult.opponentName(last, user);
+        int score = DesktopWeekResult.userScore(last, user);
+        int oppScore = DesktopWeekResult.opponentScore(last, user);
         String result = score > oppScore ? "Win" : (score < oppScore ? "Loss" : "Tie");
         return result + " " + score + "-" + oppScore + " vs " + opponentName;
     }

@@ -200,6 +200,9 @@ public class CoordinatorHiringDialog extends JDialog {
                 league.coordinatorCarousel();
             }
         });
+        JButton closeBtn = DesktopTheme.createGlassButton("CLOSE", DesktopTheme.textSecondary());
+        closeBtn.addActionListener(e -> dispose());
+        buttons.add(closeBtn);
         buttons.add(hireBtn);
 
         add(headerPanel, BorderLayout.NORTH);
@@ -267,6 +270,9 @@ public class CoordinatorHiringDialog extends JDialog {
             league.coordinatorCarousel();
             container.dispose();
         });
+        JButton closeBtn = DesktopTheme.createGlassButton("CLOSE", DesktopTheme.textSecondary());
+        closeBtn.addActionListener(e -> container.dispose());
+        buttons.add(closeBtn);
         buttons.add(hireBtn);
 
         container.add(headerPanel, BorderLayout.NORTH);

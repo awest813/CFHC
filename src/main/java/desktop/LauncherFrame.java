@@ -260,6 +260,7 @@ public class LauncherFrame extends JFrame {
             DesktopResourceProvider resources = createResourceProvider();
             League league = NewGameWizard.showWizard(this, resources);
             if (league != null) {
+                disposeLauncherAudio();
                 LeagueHomeView.show(league);
                 this.dispose();
             }
@@ -291,6 +292,7 @@ public class LauncherFrame extends JFrame {
                 if (!DesktopTeamSelectionDialog.ensureUserTeam(this, league)) {
                     return;
                 }
+                disposeLauncherAudio();
                 LeagueHomeView.show(league, file);
                 this.dispose();
             } catch (Exception e) {
@@ -298,6 +300,13 @@ public class LauncherFrame extends JFrame {
                 JOptionPane.showMessageDialog(this,
                         DesktopTheme.messageForDialog("Failed to load save: " + e.getMessage()));
             }
+        }
+    }
+
+    private void disposeLauncherAudio() {
+        if (audioManager != null) {
+            audioManager.dispose();
+            audioManager = null;
         }
     }
 
