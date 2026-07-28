@@ -5,7 +5,7 @@
 >
 > **Status key:** 🔲 not started · 🔄 in progress · ✅ done
 >
-> **Premium Waves 1–5 (PR #36):** save/load UX, status/season copy, depleted-depth safety, BYE prestige/SOS, SaveSchema `V:` header, threading docs, desktop coach/roster CSV import, unsigned `desktopAppImage` packaging scaffold.
+> **Premium Waves 1–5 (PR #36):** save/load UX, status/season copy, depleted-depth safety, BYE prestige/SOS, SaveSchema `V:` header, threading docs, desktop coach/roster CSV import, unsigned `desktopJpackageImage` packaging scaffold.
 
 ---
 

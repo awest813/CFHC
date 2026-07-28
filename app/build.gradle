@@ -94,7 +94,13 @@ android {
 
 dependencies {
     implementation project(':engine')
-    implementation fileTree(include: ['*.jar'], dir: "${repoRoot}/libs")
+    // Desktop-only jars live in libs/ (FlatLaf, OGG SPI) — never ship them in the APK.
+    implementation fileTree(dir: "${repoRoot}/libs", include: ['*.jar'], exclude: [
+            'flatlaf*.jar',
+            'vorbisspi*.jar',
+            'jorbis*.jar',
+            'tritonus-share*.jar',
+    ])
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'com.google.android.material:material:1.13.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'

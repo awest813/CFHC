@@ -1,5 +1,7 @@
 // Root aggregator + desktop packaging tasks. Android app lives in :app; portable engine in :engine.
 
+def desktopVersion = (findProperty('desktopVersion') ?: '1.4e').toString()
+
 allprojects {
     repositories {
         google()
@@ -249,7 +251,7 @@ tasks.register('desktopJar', Jar) {
     group = 'desktop'
     description = 'Builds a runnable jar for the CFHC desktop shell.'
     archiveBaseName = 'CFHC-desktop'
-    archiveVersion = '1.4e'
+    archiveVersion = desktopVersion
     destinationDirectory = layout.buildDirectory.dir('libs')
 
     dependsOn tasks.named('compileDesktopJava'), tasks.named('prepareDesktopResources')
@@ -263,12 +265,18 @@ tasks.register('desktopJar', Jar) {
         include 'LICENSE'
         include 'SOUND_LICENSES.md'
     }
+    doFirst {
+        def propsDir = layout.buildDirectory.dir('desktop-version').get().asFile
+        propsDir.mkdirs()
+        new File(propsDir, 'desktop-version.properties').text = "version=${desktopVersion}\n"
+    }
+    from(layout.buildDirectory.dir('desktop-version'))
 
     manifest {
         attributes(
                 'Main-Class': 'desktop.Main',
                 'Implementation-Title': 'CFHC Desktop',
-                'Implementation-Version': '1.4e',
+                'Implementation-Version': desktopVersion,
                 'Implementation-Vendor': 'CFHC'
         )
     }

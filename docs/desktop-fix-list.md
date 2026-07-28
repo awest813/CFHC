@@ -28,8 +28,8 @@ Status key: 🔲 open · 🔄 in progress · ✅ done
    Docked board warns progress won’t survive close; no checkpoint into save.  
    Files: `LeagueHomeView.java`, `RecruitingPanel.java`, `DesktopRecruitingCheckpoint.java`
 
-5. ✅ **Packaging metadata** (unsigned AppImage still unsigned; signed MSI/DMG blocked)  
-   AppImage now carries `--app-version` / `--vendor` / `--description`; jar is `CFHC-desktop-1.4e.jar`.  
+5. ✅ **Packaging metadata** (unsigned jpackage image / portable zip; signed MSI/DMG blocked)  
+   `desktopJpackageImage` carries `--app-version` / `--vendor` / `--description`; jar is `CFHC-desktop-<desktopVersion>.jar`.  
    File: `desktop-standalone/engine/build.gradle`
 
 6. ✅ **Drop prototype/alpha labeling**  
@@ -81,7 +81,7 @@ Status key: 🔲 open · 🔄 in progress · ✅ done
 6. ✅ Drop prototype/alpha labeling (#6)
 
 Next: Aqua menus / file associations; signed MSI/DMG remains cert-blocked; true Linux `.AppImage` (appimagetool) still open.
-Optional pass: FlatLaf LAF, Help → Check for Updates, `desktopJpackageImage` + `desktopPortableZip`,
+Done optional pass: FlatLaf LAF, Help → Check for Updates, `desktopJpackageImage` + `desktopPortableZip`,
 unsigned `desktopDmg`/`desktopMsi` scaffolds.
 User-ready pass: jar install docs, new-season save prompt, play-mode user-team gate,
 Help/About/Licenses, LICENSE+SOUND_LICENSES embedded in jar, How-to-Play matches sidebar UI.

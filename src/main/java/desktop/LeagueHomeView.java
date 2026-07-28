@@ -1302,24 +1302,66 @@ public class LeagueHomeView extends JFrame {
                 "College Football Head Coach (CFHC) — " + DesktopVersion.DISPLAY + "\n"
                         + "Portable Java build of the College Football Head Coach simulation.\n\n"
                         + "Saves folder:\n" + savesHint + "\n\n"
+                        + "Releases:\n" + DesktopVersion.RELEASES_URL + "\n\n"
                         + "Press F1 or Ctrl+/ for the full shortcut list.\n"
-                        + "Help → Check for Updates opens the GitHub releases page when needed.\n"
+                        + "Help → Check for Updates compares against GitHub (manual download only).\n"
                         + "Help → Licenses & attribution for sound and library notices."),
                 "About CFHC",
                 JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void checkForUpdates() {
-        DesktopUpdateChecker.Result result = DesktopUpdateChecker.check();
+        final JDialog progress = new JDialog(this, "Check for Updates", true);
+        progress.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
+        JLabel label = new JLabel("Checking GitHub Releases…");
+        label.setBorder(javax.swing.BorderFactory.createEmptyBorder(16, 20, 16, 20));
+        progress.getContentPane().add(label);
+        progress.pack();
+        progress.setLocationRelativeTo(this);
+
+        javax.swing.SwingWorker<DesktopUpdateChecker.Result, Void> worker =
+                new javax.swing.SwingWorker<>() {
+                    @Override
+                    protected DesktopUpdateChecker.Result doInBackground() {
+                        return DesktopUpdateChecker.check();
+                    }
+
+                    @Override
+                    protected void done() {
+                        progress.setVisible(false);
+                        progress.dispose();
+                        DesktopUpdateChecker.Result result;
+                        try {
+                            result = get();
+                        } catch (Exception e) {
+                            result = new DesktopUpdateChecker.Result(
+                                    DesktopUpdateChecker.Status.UNKNOWN,
+                                    null,
+                                    "Update check failed. Open the releases page to check manually.\n"
+                                            + DesktopVersion.RELEASES_URL);
+                        }
+                        showUpdateCheckResult(result);
+                    }
+                };
+        worker.execute();
+        progress.setVisible(true);
+    }
+
+    private void showUpdateCheckResult(DesktopUpdateChecker.Result result) {
         String message = result.message();
         int type = switch (result.status()) {
-            case UPDATE_AVAILABLE -> JOptionPane.INFORMATION_MESSAGE;
-            case UP_TO_DATE -> JOptionPane.INFORMATION_MESSAGE;
+            case UPDATE_AVAILABLE, UP_TO_DATE -> JOptionPane.INFORMATION_MESSAGE;
             case OFFLINE, UNKNOWN -> JOptionPane.WARNING_MESSAGE;
         };
-        Object[] options = result.status() == DesktopUpdateChecker.Status.UP_TO_DATE
-                ? new Object[]{"OK", "Open Releases"}
-                : new Object[]{"Open Releases", "Cancel"};
+        Object[] options;
+        Object initial;
+        if (result.status() == DesktopUpdateChecker.Status.UP_TO_DATE) {
+            options = new Object[]{"OK", "Open Releases"};
+            initial = options[0];
+        } else {
+            options = new Object[]{"Open Releases", "Cancel"};
+            initial = options[0];
+        }
         int choice = JOptionPane.showOptionDialog(
                 this,
                 DesktopTheme.messageForDialog(message),
@@ -1328,7 +1370,7 @@ public class LeagueHomeView extends JFrame {
                 type,
                 null,
                 options,
-                options[0]);
+                initial);
         boolean open = result.status() == DesktopUpdateChecker.Status.UP_TO_DATE
                 ? choice == 1
                 : choice == 0;
@@ -1361,10 +1403,10 @@ public class LeagueHomeView extends JFrame {
                 OGG playback on desktop
                 VorbisSPI, JOrbis, and Tritonus Share are bundled for javax.sound.sampled
                 OGG support and are licensed under the GNU LGPL 2.1 or later.
-                See SOUND_LICENSES.md in the distribution for details.
 
-                Full texts ship beside the jar when built from this repository
-                (LICENSE and SOUND_LICENSES.md), and are also embedded in the jar."""
+                License notices ship as LICENSE and SOUND_LICENSES.md inside the jar
+                (and beside the jar when you build from this repository). Full third-party
+                license texts are linked from those notices."""
                 .formatted(DesktopVersion.DISPLAY);
         JTextArea area = new JTextArea(text);
         area.setEditable(false);

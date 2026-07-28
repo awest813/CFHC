@@ -4,6 +4,20 @@ plugins {
 
 def repoRoot = rootProject.projectDir.parentFile
 
+def desktopVersion = '1.4e'
+def desktopVersionProps = new File(repoRoot, 'gradle.properties')
+if (desktopVersionProps.file) {
+    def loaded = new Properties()
+    desktopVersionProps.withInputStream { loaded.load(it) }
+    def fromFile = loaded.getProperty('desktopVersion')
+    if (fromFile != null && !fromFile.trim().isEmpty()) {
+        desktopVersion = fromFile.trim()
+    }
+}
+if (findProperty('desktopVersion')) {
+    desktopVersion = findProperty('desktopVersion').toString()
+}
+
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(17)
@@ -111,8 +125,23 @@ tasks.register('checkEngineImports') {
     }
 }
 
+def desktopVersionPropsDir = layout.buildDirectory.dir('generated/desktop-version')
+
+tasks.register('writeDesktopVersionProperties') {
+    group = 'desktop'
+    description = 'Writes desktop-version.properties for DesktopVersion / packaging.'
+    def outFile = desktopVersionPropsDir.map { it.file('desktop-version.properties') }
+    outputs.file(outFile)
+    inputs.property('desktopVersion', desktopVersion)
+    doLast {
+        def f = outFile.get().asFile
+        f.parentFile.mkdirs()
+        f.text = "version=${desktopVersion}\n"
+    }
+}
+
 tasks.named('compileJava') {
-    dependsOn verifyDesktopResources, checkEngineImports
+    dependsOn verifyDesktopResources, checkEngineImports, writeDesktopVersionProperties
     options.encoding = 'UTF-8'
     options.compilerArgs.add('-Xlint:deprecation')
 }
@@ -132,16 +161,17 @@ tasks.register('prepareDesktopResources', Copy) {
     into desktopResourcesDir
 }
 
-/** Runnable fat-style jar (classes + copied resources + OGG SPI). */
+/** Runnable fat-style jar (classes + copied resources + OGG SPI + FlatLaf). */
 tasks.register('desktopJar', Jar) {
     group = 'desktop'
-    dependsOn compileJava, prepareDesktopResources
+    dependsOn compileJava, prepareDesktopResources, writeDesktopVersionProperties
     archiveBaseName = 'CFHC-desktop'
-    archiveVersion = '1.4e'
+    archiveVersion = desktopVersion
     destinationDirectory = layout.buildDirectory.dir('libs')
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from sourceSets.main.output
     from desktopResourcesDir
+    from(desktopVersionPropsDir)
     def bundledJars = fileTree("${repoRoot}/libs").matching {
         include 'vorbisspi*.jar'
         include 'jorbis*.jar'
@@ -157,7 +187,7 @@ tasks.register('desktopJar', Jar) {
         attributes(
                 'Main-Class': 'desktop.Main',
                 'Implementation-Title': 'CFHC Desktop',
-                'Implementation-Version': '1.4e',
+                'Implementation-Version': desktopVersion,
                 'Implementation-Vendor': 'CFHC'
         )
     }
@@ -215,16 +245,20 @@ tasks.register('desktopStandaloneGate') {
                 'SOUND_LICENSES.md',
                 'desktop/Main.class',
                 'desktop/DesktopVersion.class',
+                'desktop-version.properties',
                 'assets/sounds/click.ogg',
         ]
         def missing = required.findAll { !entries.contains(it) }
         if (!missing.isEmpty()) {
             throw new GradleException('desktopJar missing required entries: ' + missing)
         }
+        def mf = new java.util.jar.JarFile(jar).withCloseable { it.manifest }
+        def impl = mf?.mainAttributes?.getValue('Implementation-Version')
+        if (impl != desktopVersion) {
+            throw new GradleException("desktopJar Implementation-Version '${impl}' != desktopVersion '${desktopVersion}'")
+        }
     }
 }
-
-def desktopPackagingVersion = '1.4e'
 
 def jpackageBinary = {
     def jp = new File(System.getProperty('java.home'), 'bin/jpackage')
@@ -253,9 +287,9 @@ tasks.register('desktopJpackageDryRun') {
         println 'CFHC desktop packaging:'
         println '  input jar : ' + jar.absolutePath
         println '  main class: desktop.Main'
-        println '  version   : ' + desktopPackagingVersion
+        println '  version   : ' + desktopVersion
         println '  suggested :'
-        println '    jpackage --name CFHC --app-version ' + desktopPackagingVersion + ' --vendor CFHC' +
+        println '    jpackage --name CFHC --app-version ' + desktopVersion + ' --vendor CFHC' +
                 ' --description "College Football Head Coach"' +
                 ' --input ' + jar.parentFile.absolutePath +
                 ' --main-jar ' + jar.name +
@@ -284,7 +318,7 @@ tasks.register('desktopJpackageImage', Exec) {
         executable = jpackageBinary().absolutePath
         args = [
                 '--name', 'CFHC',
-                '--app-version', desktopPackagingVersion,
+                '--app-version', desktopVersion,
                 '--vendor', 'CFHC',
                 '--description', 'College Football Head Coach',
                 '--input', jar.parentFile.absolutePath,
@@ -309,9 +343,11 @@ tasks.register('desktopPortableZip', Zip) {
     dependsOn desktopJpackageImage
     onlyIf { jpackageBinary() != null }
     archiveBaseName = 'CFHC-desktop-portable'
-    archiveVersion = desktopPackagingVersion
+    archiveVersion = desktopVersion
     destinationDirectory = layout.buildDirectory.dir('dist')
-    from(layout.buildDirectory.dir('jpackage/CFHC'))
+    from(layout.buildDirectory.dir('jpackage/CFHC')) {
+        into 'CFHC'
+    }
     doFirst {
         def appDir = layout.buildDirectory.dir('jpackage/CFHC').get().asFile
         if (!appDir.directory) {
@@ -334,10 +370,11 @@ tasks.register('desktopDmg', Exec) {
         def jar = tasks.named('desktopJar', Jar).get().archiveFile.get().asFile
         def outDir = layout.buildDirectory.dir('jpackage').get().asFile
         outDir.mkdirs()
+        fileTree(outDir).matching { include 'CFHC*.dmg' }.files.each { it.delete() }
         executable = jpackageBinary().absolutePath
         args = [
                 '--name', 'CFHC',
-                '--app-version', desktopPackagingVersion,
+                '--app-version', desktopVersion,
                 '--vendor', 'CFHC',
                 '--description', 'College Football Head Coach',
                 '--input', jar.parentFile.absolutePath,
@@ -361,10 +398,11 @@ tasks.register('desktopMsi', Exec) {
         def jar = tasks.named('desktopJar', Jar).get().archiveFile.get().asFile
         def outDir = layout.buildDirectory.dir('jpackage').get().asFile
         outDir.mkdirs()
+        fileTree(outDir).matching { include 'CFHC*.msi' }.files.each { it.delete() }
         executable = jpackageBinary().absolutePath
         args = [
                 '--name', 'CFHC',
-                '--app-version', desktopPackagingVersion,
+                '--app-version', desktopVersion,
                 '--vendor', 'CFHC',
                 '--description', 'College Football Head Coach',
                 '--input', jar.parentFile.absolutePath,
@@ -375,5 +413,6 @@ tasks.register('desktopMsi', Exec) {
         ]
     }
 }
+
 
 
