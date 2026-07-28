@@ -54,6 +54,25 @@ public class Game implements Serializable {
     public String gameName;
     public int week;
 
+    /** Canonical name for bye placeholders on a team's schedule. */
+    public static final String BYE_WEEK_NAME = "BYE WEEK";
+
+    /** True when this schedule slot is a bye (no real opponent). */
+    public boolean isByeWeek() {
+        return BYE_WEEK_NAME.equals(gameName);
+    }
+
+    /**
+     * Conference / division / OOC / bye slots — everything that is not a bowl or playoff game.
+     * Used when counting postseason appearances for prestige.
+     */
+    public boolean isRegularSeasonSlot() {
+        return "Conference".equals(gameName)
+                || "Division".equals(gameName)
+                || "OOC".equals(gameName)
+                || isByeWeek();
+    }
+
     public int homeScore;
     public final int[] homeQScore;
     public int awayScore;
@@ -483,7 +502,7 @@ public class Game implements Serializable {
     //GAME SIMULATION
 
     public void playGame() {
-        if (gameName.equals("BYE WEEK") && !hasPlayed) {
+        if (gameName.equals(BYE_WEEK_NAME) && !hasPlayed) {
             hasPlayed = true;
             homeTeam.addToGameWLSchedule("BYE");
             awayTeam.addToGameWLSchedule("BYE");

@@ -201,7 +201,8 @@ public class Team {
 
     public ArrayList<Player> playersLeaving;
     public ArrayList<Player> playersTransferring;
-    public ArrayList<String> redshirtList;
+    /** Redshirt display rows — mutate via {@link #addRedshirt}. */
+    private ArrayList<String> redshirtList;
     public java.util.ArrayList<String> trainingCampFocusNames;
 
     /** Injured players — mutate only via {@link #addPlayerInjured}/{@link #removePlayerInjured}/{@link #clearPlayersInjured}. */
@@ -1315,7 +1316,7 @@ public class Team {
             prestigeChange = Math.round((float) (diffExpected / 7.5));
             int postSeasonGames = 0;
             for(Game g: gameSchedule) {
-                if(!g.gameName.equals("Conference") && !g.gameName.equals("Division") && !g.gameName.equals("OOC") && !g.gameName.equals("BYE")) {
+                if(!g.isRegularSeasonSlot()) {
                     postSeasonGames++;
                 }
             }

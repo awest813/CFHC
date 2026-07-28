@@ -60,6 +60,7 @@ Dozens of `public ArrayList<…>` fields on `League` and `Team` let callers bypa
 
 **Progress:**
 - `Team.playersInjured` is now private with `getPlayersInjured` / `addPlayerInjured` / `removePlayerInjured` / `clearPlayersInjured`.
+- `Team.redshirtList` is now private with `getRedshirtList` / `addRedshirt`.
 
 ---
 

@@ -105,7 +105,7 @@ public class RosterManager {
     }
 
     public java.util.List<String> getRedshirtList() {
-        return java.util.Collections.unmodifiableList(team.redshirtList);
+        return team.getRedshirtList();
     }
 
     public int getTeamSize() {

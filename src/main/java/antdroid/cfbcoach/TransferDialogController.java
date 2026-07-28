@@ -35,8 +35,8 @@ public final class TransferDialogController {
     public static void showRedshirtList(MainActivity activity, League simLeague, Team userTeam) {
         StringBuilder update = new StringBuilder();
         update.append("The following is the list of players that were redshirted this season. Some players automatically received redshirts if they did not play in at least 4 games.\n\n");
-        for (int i = 0; i < userTeam.redshirtList.size(); ++i) {
-            update.append(userTeam.redshirtList.get(i)).append("\n");
+        for (int i = 0; i < userTeam.getRedshirtList().size(); ++i) {
+            update.append(userTeam.getRedshirtList().get(i)).append("\n");
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
