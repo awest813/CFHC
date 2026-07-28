@@ -106,4 +106,22 @@ public class DepthChartTest {
         List<Player> allPlayers = team.getAllPlayers();
         assertFalse("Team should have players", allPlayers.isEmpty());
     }
+
+    @Test
+    public void emptyPositionGroup_getQBReturnsNull() {
+        team.teamQBs.clear();
+        assertTrue(team.teamQBs.isEmpty());
+        assertNull("Empty QB list should return null starter", team.getQB(0));
+    }
+
+    @Test
+    public void rosterStatus_usesSharedInjuryWeeksLabel() {
+        PlayerQB qb = team.getTeamQBs().get(0);
+        qb.isInjured = true;
+        qb.injury = new Injury(1, "Wrist", qb);
+        String status = team.getRosterStatus(qb, 0, "QB");
+        assertTrue(status.contains("INJ"));
+        assertTrue("singular week label", status.contains("1 wk"));
+        assertFalse("should not use old '1 wks' plural", status.contains("1 wks"));
+    }
 }

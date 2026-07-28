@@ -87,7 +87,8 @@ public class DesktopUiBridge implements GameUiBridge {
             return;
         }
         JOptionPane.showMessageDialog(owner,
-                DesktopTheme.messageForDialog("A fatal simulation error occurred."),
+                DesktopTheme.messageForDialog(
+                        "A fatal simulation error occurred. The save may be invalid, unsupported, or missing required data."),
                 "Simulation Error", JOptionPane.ERROR_MESSAGE);
     }
 

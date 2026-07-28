@@ -148,7 +148,7 @@ public class RecruitingActivity extends AppCompatActivity {
                         RecruitingActivity.this,
                         sessionData.teamName,
                         RecruitingPresentation.buildRosterText(sessionData, buildPositionNeeds()),
-                        sessionData.teamPlayers.size() + sessionData.playersRecruited.size()
+                        sessionData.projectedRosterSize()
                 );
             }
         });
@@ -376,7 +376,7 @@ public class RecruitingActivity extends AppCompatActivity {
 
             Button recruitPlayerButton = convertView.findViewById(R.id.buttonRecruitPlayer);
 
-            if (sessionData.teamPlayers.size() + sessionData.playersRecruited.size() < RosterRules.MAX_PLAYERS) {
+            if (sessionData.canRecruitMore()) {
                 recruitPlayerButton.setText(context.getString(R.string.recruiting_button_recruit_format, recruit.cost()));
             } else {
                 recruitPlayerButton.setText(context.getString(R.string.recruiting_button_roster_full));
@@ -387,7 +387,7 @@ public class RecruitingActivity extends AppCompatActivity {
             recruitPlayerButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     // Save who is currently expanded
-                    if (sessionData.teamPlayers.size() + sessionData.playersRecruited.size() < RosterRules.MAX_PLAYERS) {
+                    if (sessionData.canRecruitMore()) {
                         RecruitingDialogController.showRecruitConfirmDialog(
                                 RecruitingActivity.this,
                                 sessionData,

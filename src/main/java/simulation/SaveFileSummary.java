@@ -43,7 +43,7 @@ final class SaveFileSummary {
             String playoff = twelveTeamPlayoff ? "12-Team Playoff" : "4-Team Playoff";
             String versionLine = primary.contains(currentSaveVer)
                     ? "Version: " + currentSaveVer
-                    : "Legacy Save  Incompatible";
+                    : SaveLoadMessages.LEGACY_INCOMPATIBLE;
 
             return title + "\n" + mode + "  |  " + playoff + "\n" + versionLine;
         }

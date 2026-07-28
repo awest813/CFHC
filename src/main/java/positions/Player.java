@@ -1151,19 +1151,7 @@ public class Player {
     }
 
     String getStatus() {
-        if (isTransfer) {
-            return "Transfer";
-        } else if (isRedshirt) {
-            return "Redshirt";
-        } else if (isMedicalRS) {
-            return "Medical";
-        } else if (isInjured) {
-            return "Injured";
-        } else if (isSuspended) {
-            return "Suspended";
-        } else {
-            return "Active";
-        }
+        return simulation.PlayerStatusCopy.profileStatus(this);
     }
 
     public String getTransferStatus() {

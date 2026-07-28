@@ -3786,12 +3786,10 @@ public class Team {
                 status = "*";
             }
         }
-        if(p.isInjured) status = " [INJ - " + p.injury.duration + " wks]";
-        if(p.isRedshirt) status = " [RS]";
-        if(p.isTransfer) status = " [T]";
-        if(p.isMedicalRS) status = " [Med RS]";
-        if(p.isSuspended) status = " [Suspended - " + p.weeksSuspended + " wks]";
-
+        String tag = PlayerStatusCopy.rosterTag(p);
+        if (!tag.isEmpty()) {
+            return tag;
+        }
         return status;
     }
 

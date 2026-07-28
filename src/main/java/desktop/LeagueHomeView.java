@@ -1104,7 +1104,7 @@ public class LeagueHomeView extends JFrame {
         } catch (Exception ex) {
             PlatformLog.e(TAG, "Error opening save file", ex);
             JOptionPane.showMessageDialog(this,
-                    DesktopTheme.messageForDialog("Failed to open save file:\n" + ex.getMessage()),
+                    DesktopTheme.messageForDialog(simulation.SaveLoadMessages.loadFailureMessage(ex)),
                     "Open Failed", JOptionPane.ERROR_MESSAGE);
         }
     }

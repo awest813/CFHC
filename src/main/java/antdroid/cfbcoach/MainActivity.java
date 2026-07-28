@@ -435,7 +435,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         } catch (Exception ex) {
             PlatformLog.e("MainActivity", "Error reading file", ex);
-            crash();
+            crash(simulation.SaveLoadMessages.loadFailureMessage(ex));
         }
     }
 
@@ -1398,7 +1398,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     boolean saved = saveLoadService.saveToSlot(simLeague, itemy);
                     if (saved) audioManager.play(AudioEvent.CONFIRM);
                     Toast.makeText(MainActivity.this,
-                            saved ? "Saved league!" : "Error: Failed to save league!",
+                            saved ? simulation.SaveLoadMessages.SAVE_OK : simulation.SaveLoadMessages.SAVE_FAILED,
                             saved ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG).show();
                     dialog.dismiss();
                 } else {
@@ -1411,7 +1411,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                                     boolean saved = saveLoadService.saveToSlot(simLeague, itemy);
                                     if (saved) audioManager.play(AudioEvent.CONFIRM);
                                     Toast.makeText(MainActivity.this,
-                                            saved ? "Saved league!" : "Error: Failed to save league!",
+                                            saved ? simulation.SaveLoadMessages.SAVE_OK : simulation.SaveLoadMessages.SAVE_FAILED,
                                             saved ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG).show();
                                     dialog.dismiss();
                                 }
@@ -2055,9 +2055,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void crash() {
+        crash(simulation.SaveLoadMessages.loadFailureMessage(null));
+    }
 
+    public void crash(String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage("The DATABASE is invalid or corrupt. Please check for formatting or spelling errors.")
+        builder.setMessage(message == null || message.trim().isEmpty()
+                        ? simulation.SaveLoadMessages.loadFailureMessage(null)
+                        : message)
                 .setPositiveButton("Exit to Main Screen", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

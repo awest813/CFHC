@@ -15,14 +15,23 @@ public final class RecruitingPresentation {
     }
 
     public static String buildOverviewSummary(RecruitingSessionData sessionData) {
-        int currentRoster = sessionData.teamPlayers.size() + sessionData.playersRecruited.size();
+        int currentRoster = sessionData.projectedRosterSize();
         int graduatingCount = sessionData.playersGraduating.size();
         return "You currently have " + currentRoster + " active players, " + graduatingCount + " outgoing seniors, and a class board shaped by your biggest roster needs."
                 + " Head coach recruiting (" + sessionData.coachTalent + ") adds to your signing budget and reduces scouting cost.";
     }
 
     public static String buildBoardStatus(RecruitingSessionData sessionData) {
-        return "Board: " + sessionData.availAll.size() + " prospects";
+        int n = sessionData.availAll.size();
+        if (n == 0) {
+            return "Board: no prospects available";
+        }
+        return "Board: " + n + " prospects";
+    }
+
+    /** Empty-filter / empty-board copy shared by Android and desktop recruiting UI. */
+    public static String buildEmptyBoardMessage() {
+        return "No recruits match this filter. Try All Positions or clear filters.";
     }
 
     public static String buildRosterText(RecruitingSessionData sessionData, RecruitingSessionData.PositionNeeds needs) {
@@ -138,7 +147,7 @@ public final class RecruitingPresentation {
     }
 
     public static String buildRecruitConfirmMessage(RecruitingSessionData sessionData, int maxPlayers, RecruitingPlayerRecord recruit) {
-        int currentRoster = sessionData.teamPlayers.size() + sessionData.playersRecruited.size();
+        int currentRoster = sessionData.projectedRosterSize();
         return "Your projected roster is at " + currentRoster + " (max: " + maxPlayers + ").\n\nRecruit "
                 + recruit.stars() + "-star " + recruit.position() + " " + recruit.name()
                 + " for $" + recruit.cost() + "?";

@@ -74,10 +74,6 @@ public class Injury {
     }
 
     public String toString() {
-        if (player.isMedicalRS) {
-            return description + " (" + duration + " wk) MedRS";
-        } else {
-            return description + " (" + duration + " wk)";
-        }
+        return PlayerStatusCopy.injuryDetail(this, player != null && player.isMedicalRS);
     }
 }

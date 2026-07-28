@@ -259,7 +259,19 @@ public final class RecruitingSessionData {
         Collections.sort(south, new CompRecruitCost());
     }
 
+    public int projectedRosterSize() {
+        return teamPlayers.size() + playersRecruited.size();
+    }
+
+    public boolean canRecruitMore() {
+        return projectedRosterSize() < simulation.RosterRules.MAX_PLAYERS;
+    }
+
     public void recruitPlayer(RecruitingPlayerRecord recruit, boolean autoFilter, double recruitOffBoardChance, Random random) {
+        if (!canRecruitMore()) {
+            throw new IllegalStateException(
+                    "Roster is full (" + projectedRosterSize() + "/" + simulation.RosterRules.MAX_PLAYERS + ")");
+        }
         int cost = recruit.cost();
         if (cost > recruitingBudget) {
             throw new IllegalArgumentException(
