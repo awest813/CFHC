@@ -2,7 +2,7 @@
 
 # College Football Head Coach (CFHC)
 
-**Dynasty college football simulation — Android app plus a JVM desktop prototype on one shared engine.**
+**Dynasty college football simulation — Android app plus a JVM desktop shell on one shared engine.**
 
 [![Version](https://img.shields.io/badge/version-v1.4.5-blue?style=flat-square)](https://github.com/awest813/CFHC/releases)
 [![Android](https://img.shields.io/badge/Android-minSdk%2024%20%7C%20targetSdk%2035-green?style=flat-square&logo=android)](https://developer.android.com)
@@ -79,7 +79,7 @@ If you already use the **root** Gradle build (Android Studio), equivalent deskto
 | Task | Purpose |
 |:---|:---|
 | `desktopVerify` | Import scan for forbidden Android APIs in engine packages, required resource files, desktop Java compile |
-| `desktopJar` | Produces `CFHC-desktop-prototype.jar` (see `build/libs/`) |
+| `desktopJar` | Produces `CFHC-desktop-1.4e.jar` (see `build/libs/`) |
 | `runDesktop` | Runs `desktop.Main`; optional `-PdesktopArgs="..."` |
 
 ```bash
@@ -87,8 +87,8 @@ If you already use the **root** Gradle build (Android Studio), equivalent deskto
 ./gradlew desktopJar
 ./gradlew runDesktop
 ./gradlew runDesktop -PdesktopArgs="new"
-java -jar build/libs/CFHC-desktop-prototype.jar play path/to/save.cfb
-java -jar build/libs/CFHC-desktop-prototype.jar help
+java -jar build/libs/CFHC-desktop-1.4e.jar play path/to/save.cfb
+java -jar build/libs/CFHC-desktop-1.4e.jar help
 ```
 
 | CLI (jar or `runDesktop`) | |

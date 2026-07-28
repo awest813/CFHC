@@ -220,6 +220,47 @@ public final class RecruitingSessionData {
         return sb.toString();
     }
 
+    /**
+     * Re-applies committed recruits onto a freshly loaded board and sets the remaining budget.
+     * Uses {@code recruitOffBoardChance = 0} so restore is deterministic.
+     */
+    public void applyCheckpoint(int remainingBudget, Iterable<String> recruitedRawLines) {
+        if (recruitedRawLines != null) {
+            for (String raw : recruitedRawLines) {
+                if (raw == null) continue;
+                String line = raw.trim();
+                if (line.isEmpty() || "END_RECRUITS".equals(line)) continue;
+                RecruitingPlayerRecord found = findAvailableByRaw(line);
+                if (found != null) {
+                    recruitPlayer(found, false, 0.0, new java.util.Random(0L));
+                } else {
+                    // Board no longer has the prospect; still count the commit.
+                    RecruitingPlayerRecord orphan = RecruitingPlayerRecord.fromRecruitCsv(line);
+                    playersRecruited.add(orphan);
+                    addToTeamPositionList(orphan.position(), orphan);
+                }
+            }
+            sortTeamByOverall();
+        }
+        recruitingBudget = Math.max(0, remainingBudget);
+    }
+
+    private RecruitingPlayerRecord findAvailableByRaw(String raw) {
+        for (RecruitingPlayerRecord recruit : availAll) {
+            if (recruit != null && raw.equals(recruit.raw())) {
+                return recruit;
+            }
+        }
+        // Scouted rows may append ",T"
+        for (RecruitingPlayerRecord recruit : availAll) {
+            if (recruit == null) continue;
+            String r = recruit.raw();
+            if (r != null && (r.startsWith(raw) || raw.startsWith(r.replace(",T", "")))) {
+                return recruit;
+            }
+        }
+        return null;
+    }
 
     public static String getYearLabel(String year) {
         if ("1".equals(year)) {

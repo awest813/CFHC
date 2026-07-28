@@ -128,13 +128,18 @@ tasks.register('desktopJar', Jar) {
     group = 'desktop'
     dependsOn compileJava, prepareDesktopResources
     archiveBaseName = 'CFHC-desktop'
-    archiveClassifier = 'prototype'
+    archiveVersion = '1.4e'
     destinationDirectory = layout.buildDirectory.dir('libs')
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from sourceSets.main.output
     from desktopResourcesDir
     manifest {
-        attributes('Main-Class': 'desktop.Main')
+        attributes(
+                'Main-Class': 'desktop.Main',
+                'Implementation-Title': 'CFHC Desktop',
+                'Implementation-Version': '1.4e',
+                'Implementation-Vendor': 'CFHC'
+        )
     }
 }
 
@@ -180,11 +185,14 @@ tasks.register('desktopJpackageDryRun') {
         if (!jpackage.exists()) {
             jpackage = new File(System.getProperty('java.home'), 'bin/jpackage.exe')
         }
-        println 'CFHC desktop packaging (planned):'
+        println 'CFHC desktop packaging:'
         println '  input jar : ' + jar.absolutePath
         println '  main class: desktop.Main'
+        println '  version   : 1.4e'
         println '  suggested :'
-        println '    jpackage --name CFHC --input ' + jar.parentFile.absolutePath +
+        println '    jpackage --name CFHC --app-version 1.4e --vendor CFHC' +
+                ' --description "College Football Head Coach"' +
+                ' --input ' + jar.parentFile.absolutePath +
                 ' --main-jar ' + jar.name +
                 ' --main-class desktop.Main --type app-image'
         if (!jpackage.exists()) {
@@ -218,6 +226,9 @@ tasks.register('desktopAppImage', Exec) {
         executable = jpackageBin.absolutePath
         args = [
                 '--name', 'CFHC',
+                '--app-version', '1.4e',
+                '--vendor', 'CFHC',
+                '--description', 'College Football Head Coach',
                 '--input', jar.parentFile.absolutePath,
                 '--main-jar', jar.name,
                 '--main-class', 'desktop.Main',

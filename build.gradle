@@ -240,10 +240,9 @@ gradle.projectsEvaluated {
 
 tasks.register('desktopJar', Jar) {
     group = 'desktop'
-    description = 'Builds a runnable jar for the desktop prototype.'
+    description = 'Builds a runnable jar for the CFHC desktop shell.'
     archiveBaseName = 'CFHC-desktop'
-    archiveClassifier = 'prototype'
-    archiveVersion = ''
+    archiveVersion = '1.4e'
     destinationDirectory = layout.buildDirectory.dir('libs')
 
     dependsOn tasks.named('compileDesktopJava'), tasks.named('prepareDesktopResources')
@@ -253,13 +252,18 @@ tasks.register('desktopJar', Jar) {
     vorbisspiJar.each { from(zipTree(it)) }
 
     manifest {
-        attributes('Main-Class': 'desktop.Main')
+        attributes(
+                'Main-Class': 'desktop.Main',
+                'Implementation-Title': 'CFHC Desktop',
+                'Implementation-Version': '1.4e',
+                'Implementation-Vendor': 'CFHC'
+        )
     }
 }
 
 tasks.register('runDesktop', JavaExec) {
     group = 'desktop'
-    description = 'Runs the desktop prototype. Pass -PdesktopArgs="new" or -PdesktopArgs="play path/to/save.cfb".'
+    description = 'Runs the CFHC desktop shell. Pass -PdesktopArgs="new" or -PdesktopArgs="play path/to/save.cfb".'
 
     dependsOn tasks.named('compileDesktopJava'), tasks.named('prepareDesktopResources')
 

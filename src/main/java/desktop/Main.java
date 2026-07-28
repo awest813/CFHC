@@ -11,15 +11,14 @@ import java.io.FileInputStream;
 import java.io.IOException;
 
 /**
- * A rudimentary Java entry point for testing the simulation core outside of Android.
- * This demonstrates the portability achieved through the LeagueRecord hierarchy.
+ * Java entry point for the CFHC desktop shell (shared simulation core with Android).
  */
 public class Main {
 
     private static final String TAG = "desktop.Main";
 
     private static final String HEADER =
-            "College Football Head Coach (CFHC) - Desktop Prototype (Early Alpha)\n" +
+            "College Football Head Coach (CFHC) - Desktop\n" +
             "===========================================";
 
     public static void main(String[] args) {

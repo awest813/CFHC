@@ -24,16 +24,16 @@ Status key: 🔲 open · 🔄 in progress · ✅ done
    `DesktopAppPaths` (`~/.cfhc/saves`) exists but save/load still start in arbitrary cwd.  
    Files: `DesktopAppPaths.java`, `LeagueHomeView.java`, `LauncherFrame.java`
 
-4. 🔲 **In-season recruiting progress ephemeral**  
+4. ✅ **In-season recruiting progress ephemeral**  
    Docked board warns progress won’t survive close; no checkpoint into save.  
-   Files: `LeagueHomeView.java`, `RecruitingPanel.java`
+   Files: `LeagueHomeView.java`, `RecruitingPanel.java`, `DesktopRecruitingCheckpoint.java`
 
-5. 🔲 **Packaging not shippable**  
-   AppImage unsigned / minimal metadata; jpackage dry-run only; no signed MSI/DMG.  
+5. ✅ **Packaging metadata** (unsigned AppImage still unsigned; signed MSI/DMG blocked)  
+   AppImage now carries `--app-version` / `--vendor` / `--description`; jar is `CFHC-desktop-1.4e.jar`.  
    File: `desktop-standalone/engine/build.gradle`
 
-6. 🔲 **Still labeled prototype/alpha**  
-   Main banner + jar classifier `prototype`; ROADMAP #19 open.  
+6. ✅ **Drop prototype/alpha labeling**  
+   Main banner + jar naming cleaned up. ROADMAP #19 (graduate desktop) remains open for full release polish.  
    Files: `Main.java`, Gradle jar tasks
 
 ---
@@ -73,5 +73,8 @@ Status key: 🔲 open · 🔄 in progress · ✅ done
 1. ✅ Discipline parity (Critical #1)
 2. ✅ Bulk advance stop-at-dialog policy (Critical #2)
 3. ✅ Wire `DesktopAppPaths` for save/load (High #3)
+4. ✅ Recruiting checkpoint (#4)
+5. ✅ Packaging metadata (#5)
+6. ✅ Drop prototype/alpha labeling (#6)
 
-Next: recruiting checkpoint (#4), packaging metadata (#5), prototype labeling (#6).
+Next: theme leftovers, transfer-portal summary, LeagueHomeView split, more desktop tests.

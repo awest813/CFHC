@@ -108,6 +108,8 @@ public class LeagueHomeView extends JFrame {
     private CardLayout mainCardLayout;
     private JList<String> navigationList;
     private RecruitingSessionData activeRecruitingSession;
+    /** Frozen board payload for {@link #activeRecruitingSession} (survives via sidecar checkpoint). */
+    private String recruitingBoardPayload;
 
     /** Retained UI shells to avoid full frame rebuilds on refresh. */
     private JPanel headerPanel;
@@ -826,7 +828,7 @@ public class LeagueHomeView extends JFrame {
     private void startNewSeason() {
         bridge.clearNewSeasonPending();
         leagueCore.startNextSeason();
-        activeRecruitingSession = null;
+        clearRecruitingSessionState();
         bridge = new DesktopUiBridge(this, leagueCore);
         controller = new SeasonController(leagueCore, bridge);
         scoreboardWeek = 0;
@@ -1076,6 +1078,7 @@ public class LeagueHomeView extends JFrame {
             lastSavePath = target;
             dirty = false;
             updateDirtyChrome();
+            persistRecruitingCheckpointQuietly();
             PlatformLog.i(TAG, "League saved to " + target.getAbsolutePath());
         } else {
             JOptionPane.showMessageDialog(this,
@@ -1653,31 +1656,33 @@ public class LeagueHomeView extends JFrame {
         outer.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         if (leagueCore.userTeam != null && leagueCore.userTeam.isUserControlled()) {
-            if (activeRecruitingSession == null) {
-                activeRecruitingSession = SimulationFacade.prepareRecruitingSession(leagueCore.userTeam);
-            }
+            ensureRecruitingSessionLoaded();
             boolean finalSigning = bridge.isAwaitingDockedRecruiting();
-            String buttonText = finalSigning ? "Finish Recruiting" : "Keep Recruiting Progress";
-            String title = finalSigning ? "Finish Recruiting?" : "Keep Recruiting Progress?";
+            String buttonText = finalSigning ? "Finish Recruiting" : "Save Recruiting Progress";
+            String title = finalSigning ? "Finish Recruiting?" : "Save Recruiting Progress?";
             String message = finalSigning ? null
-                    : "Keep working this recruiting board during the season?\n\n"
-                    + "Your commitments stay in this open desktop session and will sign when final recruiting begins. "
-                    + "They will not join the active roster during the regular season or persist after closing the app.";
+                    : "Save this recruiting board so it survives app restarts?\n\n"
+                    + "Commitments stay on the board until final Signing Day. "
+                    + "They will not join the active roster during the regular season.";
             RecruitingPanel panel = new RecruitingPanel(leagueCore, activeRecruitingSession,
                     buttonText, title, message, data -> SwingUtilities.invokeLater(() -> {
                 if (!bridge.isAwaitingDockedRecruiting()) {
+                    if (!persistRecruitingCheckpoint()) {
+                        return;
+                    }
                     markDirty();
                     JOptionPane.showMessageDialog(this,
                             DesktopTheme.messageForDialog(
-                                    "Recruiting progress is saved on this board.\n"
-                                            + "Keep this desktop window open and return before final recruiting to keep working the class."),
-                            "Recruiting Progress",
+                                    "Recruiting progress was checkpointed to disk.\n"
+                                            + "Save your league file too if you have not already — "
+                                            + "reload will restore this board."),
+                            "Recruiting Progress Saved",
                             JOptionPane.INFORMATION_MESSAGE);
                     selectScreen("Home");
                     return;
                 }
                 bridge.completeDockedRecruiting(data);
-                activeRecruitingSession = null;
+                clearRecruitingSessionState();
                 markDirty();
                 if (bridge.isNewSeasonPending()) {
                     startNewSeason();
@@ -1702,6 +1707,68 @@ public class LeagueHomeView extends JFrame {
         info.setForeground(DesktopTheme.textPrimary());
         outer.add(info, BorderLayout.NORTH);
         return outer;
+    }
+
+    private void ensureRecruitingSessionLoaded() {
+        if (activeRecruitingSession != null && recruitingBoardPayload != null) {
+            return;
+        }
+        File chkFile = DesktopRecruitingCheckpoint.pathFor(lastSavePath, leagueCore);
+        try {
+            DesktopRecruitingCheckpoint checkpoint = DesktopRecruitingCheckpoint.read(chkFile);
+            if (checkpoint != null && checkpoint.matches(leagueCore)) {
+                activeRecruitingSession = checkpoint.restoreSession();
+                recruitingBoardPayload = checkpoint.boardPayload;
+                PlatformLog.i(TAG, "Restored recruiting checkpoint from " + chkFile.getAbsolutePath());
+                return;
+            }
+        } catch (Exception ex) {
+            PlatformLog.w(TAG, "Recruiting checkpoint load failed: " + ex.getMessage());
+        }
+        recruitingBoardPayload = SimulationFacade.buildRecruitingPayload(leagueCore.userTeam);
+        activeRecruitingSession = SimulationFacade.prepareRecruitingSessionFromPayload(recruitingBoardPayload);
+    }
+
+    private boolean persistRecruitingCheckpoint() {
+        if (activeRecruitingSession == null || recruitingBoardPayload == null) {
+            return true;
+        }
+        DesktopRecruitingCheckpoint checkpoint = DesktopRecruitingCheckpoint.capture(
+                leagueCore, recruitingBoardPayload, activeRecruitingSession);
+        File chkFile = DesktopRecruitingCheckpoint.pathFor(lastSavePath, leagueCore);
+        try {
+            DesktopRecruitingCheckpoint.write(chkFile, checkpoint);
+            PlatformLog.i(TAG, "Wrote recruiting checkpoint " + chkFile.getAbsolutePath());
+            return true;
+        } catch (Exception ex) {
+            PlatformLog.e(TAG, "Failed to write recruiting checkpoint", ex);
+            JOptionPane.showMessageDialog(this,
+                    DesktopTheme.messageForDialog(
+                            "Could not write recruiting checkpoint:\n" + ex.getMessage()),
+                    "Checkpoint Failed",
+                    JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+    }
+
+    private void persistRecruitingCheckpointQuietly() {
+        if (activeRecruitingSession == null || recruitingBoardPayload == null) {
+            return;
+        }
+        try {
+            DesktopRecruitingCheckpoint checkpoint = DesktopRecruitingCheckpoint.capture(
+                    leagueCore, recruitingBoardPayload, activeRecruitingSession);
+            DesktopRecruitingCheckpoint.write(
+                    DesktopRecruitingCheckpoint.pathFor(lastSavePath, leagueCore), checkpoint);
+        } catch (Exception ex) {
+            PlatformLog.w(TAG, "Quiet recruiting checkpoint failed: " + ex.getMessage());
+        }
+    }
+
+    private void clearRecruitingSessionState() {
+        DesktopRecruitingCheckpoint.clear(DesktopRecruitingCheckpoint.pathFor(lastSavePath, leagueCore));
+        activeRecruitingSession = null;
+        recruitingBoardPayload = null;
     }
 
     private String decodeSeasonPeriod() {

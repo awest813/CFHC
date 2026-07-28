@@ -17,7 +17,7 @@
   - `src/main/java/simulation/TeamStats.java`
 - [x] Ran baseline build: `.\gradlew.bat test assembleDebug desktopJar`.
 - [x] Built Android debug APK: `build/outputs/apk/debug/CFHC-debug.apk`.
-- [x] Built desktop jar: `build/libs/CFHC-desktop-prototype.jar`.
+- [x] Built desktop jar: `build/libs/CFHC-desktop-1.4e.jar`.
 - [x] Launched desktop `new` flow from the jar and confirmed the Java process stayed responsive.
 - [ ] Decide ownership for each dirty file: intentional cleanup, stale experiment, or ready-to-commit change.
 

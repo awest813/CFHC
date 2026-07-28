@@ -328,7 +328,7 @@ public class LauncherFrame extends JFrame {
         JOptionPane.showMessageDialog(this, scroll, "How to Play", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private static final String VERSION = "Desktop v1.4e";
+    private static final String VERSION = "Desktop 1.4e";
 
     private static String version() { return VERSION; }
 }
