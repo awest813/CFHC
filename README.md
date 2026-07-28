@@ -113,13 +113,22 @@ java -jar build/libs/CFHC-desktop-1.4e.jar help
 | `inspect <file>` | Print save metadata |
 | `help` | Usage |
 
-Unsigned Linux jpackage app-image scaffold: `./gradlew -p desktop-standalone :engine:desktopAppImage` (requires JDK `jpackage`; produces an app directory, not a `.AppImage` file).
+Unsigned jpackage packaging (JDK `jpackage` required):
+
+```bash
+./gradlew -p desktop-standalone :engine:desktopJpackageImage   # app directory (not a .AppImage file)
+./gradlew -p desktop-standalone :engine:desktopPortableZip     # zip of that directory (bundled runtime)
+./gradlew -p desktop-standalone :engine:desktopDmg             # unsigned .dmg on macOS only
+./gradlew -p desktop-standalone :engine:desktopMsi             # unsigned .msi on Windows only
+```
+
+`desktopAppImage` remains as an alias for `desktopJpackageImage`.
 
 **Resources:** `DesktopResourceContract` lists required `res/values` XML and asset paths. Gradle desktop tasks must run from the **repo root** so resources and tests resolve consistently.
 
 **Engine rule:** `checkEngineImports` / the standalone build fail if engine packages import `android.*`, `androidx.*`, or `antdroid.*`.
 
-**Licenses:** The jar embeds `LICENSE` (CC0) and `SOUND_LICENSES.md` (CC BY sounds + LGPL OGG SPI). In-app: **Help → Licenses & Attribution**.
+**Licenses:** The jar embeds `LICENSE` (CC0) and `SOUND_LICENSES.md` (CC BY sounds + LGPL OGG SPI + Apache FlatLaf). In-app: **Help → Licenses & Attribution**. **Help → Check for Updates** compares against GitHub Releases (manual download; no auto-replace).
 
 ### Continuous integration
 

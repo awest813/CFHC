@@ -1,4 +1,4 @@
-# Sound Effect Licenses
+# Sound and Desktop Library Licenses
 
 ## UI and Game Sound Effects
 
@@ -32,3 +32,12 @@ Sound files in `src/main/res/raw/` and `src/main/assets/sounds/` are sourced fro
 - **License:** GNU Lesser General Public License v2.1 or later
 - **Purpose:** Shared sampled-audio helpers (`TAudioFileReader`) required by VorbisSPI.
 - **Usage:** Bundled in the desktop jar from `libs/tritonus-share-*.jar`.
+
+## Desktop UI libraries
+
+### FlatLaf (Apache 2.0)
+- **Artifact:** `com.formdev:flatlaf:3.5.4`
+- **Source:** https://www.formdev.com/flatlaf/ / https://github.com/JFormDesigner/FlatLaf
+- **License:** Apache License 2.0
+- **Purpose:** Cross-platform light/dark Swing look-and-feel used by the desktop shell.
+- **Usage:** Bundled in the desktop jar from `libs/flatlaf-*.jar`.

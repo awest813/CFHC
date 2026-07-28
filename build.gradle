@@ -29,6 +29,9 @@ def vorbisspiJar = fileTree("${rootProject.projectDir}/libs").matching {
     include 'jorbis*.jar'
     include 'tritonus-share*.jar'
 }
+def flatlafJar = fileTree("${rootProject.projectDir}/libs").matching {
+    include 'flatlaf*.jar'
+}
 
 /** Must match {@code desktop.DesktopResourceContract.VALUE_XML_FILES}. */
 def desktopValueXmlFiles = [
@@ -160,7 +163,7 @@ tasks.register('compileDesktopJava', JavaCompile) {
 
     source = desktopSourceFiles
     destinationDirectory = desktopClassesDir
-    classpath = files(vorbisspiJar)
+    classpath = files(vorbisspiJar, flatlafJar)
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
     options.encoding = 'UTF-8'
@@ -254,6 +257,7 @@ tasks.register('desktopJar', Jar) {
     from(desktopClassesDir)
     from(desktopResourcesDir)
     vorbisspiJar.each { from(zipTree(it)) }
+    flatlafJar.each { from(zipTree(it)) }
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from(rootProject.projectDir) {
         include 'LICENSE'
@@ -277,7 +281,7 @@ tasks.register('runDesktop', JavaExec) {
     dependsOn tasks.named('compileDesktopJava'), tasks.named('prepareDesktopResources')
 
     mainClass = 'desktop.Main'
-    classpath = files(desktopClassesDir, desktopResourcesDir, vorbisspiJar)
+    classpath = files(desktopClassesDir, desktopResourcesDir, vorbisspiJar, flatlafJar)
 
     if (project.hasProperty('desktopArgs') && project.property('desktopArgs')) {
         args project.property('desktopArgs').toString().split(/\s+/).findAll { !it.isEmpty() }

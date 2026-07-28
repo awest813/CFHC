@@ -31,6 +31,10 @@ import java.util.prefs.Preferences;
 /**
  * Light / dark appearance for the Swing desktop shell. Preference is stored in
  * {@link Preferences} so it survives restarts.
+ *
+ * <p>When FlatLaf is on the classpath (bundled in the desktop jar), light/dark
+ * toggles install {@code FlatLightLaf} / {@code FlatDarkLaf}; otherwise the
+ * system look-and-feel is kept and color hints still apply.
  */
 public final class DesktopTheme {
 
@@ -165,8 +169,8 @@ public final class DesktopTheme {
     }
 
     /**
-     * Reads stored preference and applies {@link UIManager} hints. Call once after
-     * the look-and-feel is installed (see {@link Main#main}).
+     * Reads stored preference, installs FlatLaf when available, and applies
+     * {@link UIManager} hints. Call once at startup (see {@link Main#main}).
      */
     public static void load() {
         if (!loaded) {
@@ -176,6 +180,7 @@ public final class DesktopTheme {
             highContrast = p.getBoolean(KEY_HIGH_CONTRAST, false);
         }
         recache();
+        installLookAndFeel();
         applyGlobalHints();
     }
 
@@ -187,6 +192,28 @@ public final class DesktopTheme {
         return highContrast;
     }
 
+    /**
+     * @return {@code true} when FlatLaf was installed; {@code false} when falling
+     *         back to the system (or default) look-and-feel.
+     */
+    public static boolean installLookAndFeel() {
+        try {
+            if (dark) {
+                com.formdev.flatlaf.FlatDarkLaf.setup();
+            } else {
+                com.formdev.flatlaf.FlatLightLaf.setup();
+            }
+            return true;
+        } catch (Throwable t) {
+            try {
+                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            } catch (Exception ignored) {
+                // Keep whatever LAF is already installed.
+            }
+            return false;
+        }
+    }
+
     public static void setDark(boolean value) {
         if (dark == value) {
             return;
@@ -194,6 +221,7 @@ public final class DesktopTheme {
         dark = value;
         Preferences.userRoot().node(PREF_NODE).putBoolean(KEY_DARK, value);
         recache();
+        installLookAndFeel();
         applyGlobalHints();
     }
 
@@ -204,6 +232,7 @@ public final class DesktopTheme {
         highContrast = value;
         Preferences.userRoot().node(PREF_NODE).putBoolean(KEY_HIGH_CONTRAST, value);
         recache();
+        installLookAndFeel();
         applyGlobalHints();
     }
 

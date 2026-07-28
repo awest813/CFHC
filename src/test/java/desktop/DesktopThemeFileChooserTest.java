@@ -47,4 +47,24 @@ public class DesktopThemeFileChooserTest {
             DesktopTheme.setDark(originalDark);
         }
     }
+
+    @Test
+    public void installLookAndFeel_prefersFlatLafWhenPresent() {
+        DesktopTheme.load();
+        boolean original = DesktopTheme.isDark();
+        try {
+            DesktopTheme.setDark(false);
+            assertTrue("FlatLaf should be on the desktop test classpath",
+                    DesktopTheme.installLookAndFeel());
+            String lightLaf = UIManager.getLookAndFeel().getClass().getName().toLowerCase();
+            assertTrue(lightLaf.contains("flat"));
+
+            DesktopTheme.setDark(true);
+            assertTrue(DesktopTheme.installLookAndFeel());
+            String darkLaf = UIManager.getLookAndFeel().getClass().getName().toLowerCase();
+            assertTrue(darkLaf.contains("flat"));
+        } finally {
+            DesktopTheme.setDark(original);
+        }
+    }
 }

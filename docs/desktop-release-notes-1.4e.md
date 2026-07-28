@@ -20,7 +20,16 @@ java -jar CFHC-desktop-1.4e.jar help
 - Career Hub launcher, new-career wizard, load/save
 - Week play + bulk sim (career decisions still prompt; progress dialog Interrupt/X cancels)
 - Docked recruiting, transfer summaries, redshirts, depth chart / playbook
-- Dark mode + high contrast, CSV import/export
+- FlatLaf light/dark + high contrast, CSV import/export
+- Help → Check for Updates (GitHub Releases; manual download)
+
+## Packaging (optional)
+```bash
+./gradlew -p desktop-standalone :engine:desktopJpackageImage
+./gradlew -p desktop-standalone :engine:desktopPortableZip
+```
+Produces an unsigned jpackage app directory (and a zip of it). Not a Linux `.AppImage` file. Unsigned `.dmg`/`.msi` tasks exist for macOS/Windows hosts (`desktopDmg` / `desktopMsi`).
 
 ## Attribution
-See **Help → Licenses & Attribution**, and `LICENSE` / `SOUND_LICENSES.md` inside the jar.
+See **Help → Licenses & Attribution**, and `LICENSE` / `SOUND_LICENSES.md` inside the jar
+(CC0 game code, CC BY sounds, LGPL OGG SPI, Apache FlatLaf).

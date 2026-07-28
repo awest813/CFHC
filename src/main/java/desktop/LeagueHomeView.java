@@ -461,6 +461,11 @@ public class LeagueHomeView extends JFrame {
         aboutItem.addActionListener(e -> showAbout());
         help.add(aboutItem);
 
+        JMenuItem updateItem = new JMenuItem("Check for Updates\u2026");
+        updateItem.setMnemonic(KeyEvent.VK_U);
+        updateItem.addActionListener(e -> checkForUpdates());
+        help.add(updateItem);
+
         JMenuItem licensesItem = new JMenuItem("Licenses & Attribution\u2026");
         licensesItem.setMnemonic(KeyEvent.VK_L);
         licensesItem.addActionListener(e -> showLicenses());
@@ -1294,20 +1299,59 @@ public class LeagueHomeView extends JFrame {
         }
         JOptionPane.showMessageDialog(this,
                 DesktopTheme.messageForDialog(
-                "College Football Head Coach (CFHC) — Desktop 1.4e\n"
+                "College Football Head Coach (CFHC) — " + DesktopVersion.DISPLAY + "\n"
                         + "Portable Java build of the College Football Head Coach simulation.\n\n"
                         + "Saves folder:\n" + savesHint + "\n\n"
                         + "Press F1 or Ctrl+/ for the full shortcut list.\n"
+                        + "Help → Check for Updates opens the GitHub releases page when needed.\n"
                         + "Help → Licenses & attribution for sound and library notices."),
                 "About CFHC",
                 JOptionPane.INFORMATION_MESSAGE);
     }
 
+    private void checkForUpdates() {
+        DesktopUpdateChecker.Result result = DesktopUpdateChecker.check();
+        String message = result.message();
+        int type = switch (result.status()) {
+            case UPDATE_AVAILABLE -> JOptionPane.INFORMATION_MESSAGE;
+            case UP_TO_DATE -> JOptionPane.INFORMATION_MESSAGE;
+            case OFFLINE, UNKNOWN -> JOptionPane.WARNING_MESSAGE;
+        };
+        Object[] options = result.status() == DesktopUpdateChecker.Status.UP_TO_DATE
+                ? new Object[]{"OK", "Open Releases"}
+                : new Object[]{"Open Releases", "Cancel"};
+        int choice = JOptionPane.showOptionDialog(
+                this,
+                DesktopTheme.messageForDialog(message),
+                "Check for Updates",
+                JOptionPane.DEFAULT_OPTION,
+                type,
+                null,
+                options,
+                options[0]);
+        boolean open = result.status() == DesktopUpdateChecker.Status.UP_TO_DATE
+                ? choice == 1
+                : choice == 0;
+        if (open) {
+            if (!DesktopUpdateChecker.openReleasesPage()) {
+                JOptionPane.showMessageDialog(this,
+                        DesktopTheme.messageForDialog(
+                                "Could not open a browser.\nVisit:\n" + DesktopVersion.RELEASES_URL),
+                        "Check for Updates",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+        }
+    }
+
     private void showLicenses() {
         String text = """
-                College Football Head Coach (CFHC) — Desktop 1.4e
+                College Football Head Coach (CFHC) — %s
 
                 Game code is released under CC0 1.0 (see LICENSE in the distribution).
+
+                UI look-and-feel
+                FlatLaf (https://www.formdev.com/flatlaf/) is bundled for cross-platform
+                light/dark Swing theming and is licensed under the Apache License 2.0.
 
                 UI / game sound effects
                 Source: blips by NotExplosive (https://github.com/notexplosive/blips)
@@ -1320,7 +1364,8 @@ public class LeagueHomeView extends JFrame {
                 See SOUND_LICENSES.md in the distribution for details.
 
                 Full texts ship beside the jar when built from this repository
-                (LICENSE and SOUND_LICENSES.md), and are also embedded in the jar.""";
+                (LICENSE and SOUND_LICENSES.md), and are also embedded in the jar."""
+                .formatted(DesktopVersion.DISPLAY);
         JTextArea area = new JTextArea(text);
         area.setEditable(false);
         area.setWrapStyleWord(true);

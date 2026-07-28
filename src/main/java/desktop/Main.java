@@ -22,15 +22,8 @@ public class Main {
             "===========================================";
 
     public static void main(String[] args) {
-        // Enable HiDPI scaling and system look-and-feel for a native desktop appearance
+        // HiDPI + FlatLaf (or system LAF fallback) via DesktopTheme.load()
         System.setProperty("sun.java2d.uiScale.enabled", "true");
-        try {
-            javax.swing.UIManager.setLookAndFeel(
-                    javax.swing.UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception ignored) {
-            // Fall back to default Metal LAF if system LAF is not available
-        }
-
         DesktopTheme.load();
 
         PlatformLog.i(TAG, HEADER.replace("\n", " | "));
@@ -85,7 +78,8 @@ public class Main {
     }
 
     private static void printUsage() {
-        System.out.println("Usage: java -jar CFHC-desktop-1.4e.jar [command] [file]");
+        System.out.println("Usage: java -jar CFHC-desktop-" + DesktopVersion.VERSION
+                + ".jar [command] [file]");
         System.out.println("       (or: java desktop.Main [command] [file] from a classpath build)");
         System.out.println("Commands:");
         System.out.println("  (no args)          - Open the Swing Career Hub launcher");

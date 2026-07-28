@@ -40,7 +40,7 @@ Status key: 🔲 open · 🔄 in progress · ✅ done
 
 ## Medium
 
-7. ✅ Theme leftovers (file chooser restyle for light+dark; optional FlatLaf still open)
+7. ✅ Theme leftovers (file chooser restyle for light+dark; FlatLaf light/dark bundled)
 8. ✅ Transfer portal read-only vs Android summary parity (`My Transfers` / `All Transfers` + summary pane)
 9. ✅ Redshirt UX copy/expectations vs Android (season list + auto-redshirt note)
 10. ✅ Further split `LeagueHomeView` — extracted `DesktopBulkSimulator` for bulk advance
@@ -53,9 +53,10 @@ Status key: 🔲 open · 🔄 in progress · ✅ done
 ## Low
 
 14. ✅ Accessibility (high-contrast + table/filter accessible names across main screens)
-15. Auto-update / portable zip+JRE
-16. macOS `.dmg` / Aqua menus / file association
+15. ✅ Auto-update (manual Help → Check for Updates via GitHub Releases) / portable zip+JRE (`desktopPortableZip`)
+16. ✅ macOS `.dmg` / Windows `.msi` unsigned jpackage tasks (`desktopDmg` / `desktopMsi`; signed builds remain cert-blocked). Aqua menus / file association still open.
 17. ✅ Audio OGG SPI packaging (vorbisspi + jorbis + tritonus-share in desktop jar; fail-soft on decode errors)
+18. ✅ FlatLaf light/dark LAF (bundled `libs/flatlaf-*.jar`; system LAF fallback)
 
 ---
 
@@ -79,7 +80,9 @@ Status key: 🔲 open · 🔄 in progress · ✅ done
 5. ✅ Packaging metadata (#5)
 6. ✅ Drop prototype/alpha labeling (#6)
 
-Next: optional FlatLaf, auto-update, macOS packaging. Signed MSI/DMG remains cert-blocked.
+Next: Aqua menus / file associations; signed MSI/DMG remains cert-blocked; true Linux `.AppImage` (appimagetool) still open.
+Optional pass: FlatLaf LAF, Help → Check for Updates, `desktopJpackageImage` + `desktopPortableZip`,
+unsigned `desktopDmg`/`desktopMsi` scaffolds.
 User-ready pass: jar install docs, new-season save prompt, play-mode user-team gate,
 Help/About/Licenses, LICENSE+SOUND_LICENSES embedded in jar, How-to-Play matches sidebar UI.
 Edge UI: no double coordinator after promotions, dirty chrome sync, scheme/depth/skills mark dirty,
