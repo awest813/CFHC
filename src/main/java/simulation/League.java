@@ -3251,18 +3251,31 @@ public class League {
 
     //Hiring method for teams that get poached
     public void coachHiringSingleTeam(Team school) {
+        if (school == null) {
+            return;
+        }
         int[] ovr = {1,1,1,1};
         //Rising Star Coaches
         for (int i = 0; i < coachStarList.size(); ++i) {
             final Staff c = coachStarList.get(i);
+            if (c == null) {
+                continue;
+            }
 
+            // Free-agent / unattached rising stars may have a null team reference.
             String tmName = "N/A";
-            if(coachStarList.get(i).team.getName() != null) tmName = coachStarList.get(i).team.getName();
-            final String pos = coachStarList.get(i).position;
-            int tmPres = coachStarList.get(i).team.getTeamPrestige();
-            int cPres = coachStarList.get(i).team.getConfPrestige();
+            int tmPres = 0;
+            int cPres = 0;
+            if (c.team != null) {
+                if (c.team.getName() != null) {
+                    tmName = c.team.getName();
+                }
+                tmPres = c.team.getTeamPrestige();
+                cPres = c.team.getConfPrestige();
+            }
+            final String pos = c.position == null ? "" : c.position;
 
-            if (coachStarList.get(i).getStaffOverall(ovr) >= school.getMinCoachHireReq() && !school.getName().equals(tmName) && Math.random() > 0.60) {
+            if (c.getStaffOverall(ovr) >= school.getMinCoachHireReq() && !school.getName().equals(tmName) && Math.random() > 0.60) {
                 if (school.getTeamPrestige() > tmPres && school.getConfPrestige() > cPres || school.getTeamPrestige() > tmPres + 5 || school.getConfPrestige() + 10 > cPres) {
                     school.setHeadCoach(new HeadCoach(c, school));
                     school.getHeadCoach().contractLength = 6;
@@ -3337,7 +3350,12 @@ public class League {
             Collections.sort(coachList, new CompCoachOvr());
             for (int i = 0; i < coachList.size(); ++i) {
                 final Staff c = coachList.get(i);
-                if (school.getHeadCoach() == null && coachList.get(i).getStaffOverall(ovr) + 5 >= school.getMinCoachHireReq() && !school.getName().equals(coachList.get(i).team.getName()) && Math.random() > 0.45) {
+                if (c == null) {
+                    continue;
+                }
+                String prevTeam = c.team != null && c.team.getName() != null ? c.team.getName() : "N/A";
+                if (school.getHeadCoach() == null && c.getStaffOverall(ovr) + 5 >= school.getMinCoachHireReq()
+                        && !school.getName().equals(prevTeam) && Math.random() > 0.45) {
                     school.setHeadCoach(new HeadCoach(c, school));
                     school.getHeadCoach().contractLength = 6;
                     school.getHeadCoach().contractYear = 0;
@@ -3345,7 +3363,7 @@ public class League {
                     school.getHeadCoach().team = school;
                     coachList.remove(c);
                     newsStories.get(currentWeek + 1).add("Coaching Change: " + school.getName() + ">After an extensive search for a new head coach, " + school.getName() + " has hired " + school.getHeadCoach().name +
-                            " to lead the team. Head Coach " + school.getHeadCoach().name + " previously coached at " + coachList.get(i).team.getName() + ", before being let go this past season.");
+                            " to lead the team. Head Coach " + school.getHeadCoach().name + " previously coached at " + prevTeam + ", before being let go this past season.");
                     newsHeadlines.add(school.getName() + " has hired recently unemployed " + school.getHeadCoach().name + ".");
 
                     school.newCoachDecisions();
