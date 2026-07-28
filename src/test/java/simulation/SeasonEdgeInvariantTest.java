@@ -53,7 +53,7 @@ public class SeasonEdgeInvariantTest {
         }
 
         Conference odd = null;
-        for (Conference c : league.conferences) {
+        for (Conference c : league.getConferences()) {
             if (c.confTeams.size() % 2 != 0 && c.confTeams.size() >= c.minConfTeams) {
                 odd = c;
                 break;

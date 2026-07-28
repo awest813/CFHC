@@ -64,7 +64,7 @@ import ui.TeamRankingsList;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, GameUiBridge, LeagueImportFlowController.Host {
     private HeadCoach userHC;
-    private int season;
+    private final GameStateManager gameState = new GameStateManager();
     public League simLeague;
     private simulation.SeasonController seasonController;
 
@@ -80,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private List<String> teamList;
     private List<String> confList;
 
-    public int currPage = 0;
     private String userTeamStr;
     private Spinner examineTeamSpinner;
     private ArrayAdapter<String> dataAdapterTeam;
@@ -89,14 +88,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ListView mainList;
 
     private ArrayList<Team> jobList;
-    private int jobType;
-    private boolean jobListSet;
-
-    private boolean wantUpdateConf;
-    boolean redshirtComplete;
-    private boolean newGame;
-    private boolean skipRetirementQ;
-    private boolean reincarnate;
 
     //Universe Settings
     private final int seasonStart = 2026;
@@ -105,13 +96,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private final DecimalFormat df2 = new DecimalFormat("#.##");
 
     public int theme;
-
-    private boolean loadedLeague = false;
     private final ActivityResultLauncher<String[]> importDocumentPicker =
             registerForActivityResult(new ActivityResultContracts.OpenDocument(), this::handleImportDocumentSelection);
 
     private simulation.GameFlowManager flowManager;
     private AndroidAudioManager audioManager;
+
+    /** Kept for legacy UI adapters (e.g. TeamHome) that set the home page index. */
+    public int getCurrPage() {
+        return gameState.getCurrPage();
+    }
+
+    public void setCurrPage(int page) {
+        gameState.setCurrPage(page);
+    }
+
+    public boolean isRedshirtComplete() {
+        return gameState.isRedshirtComplete();
+    }
+
+    public void setRedshirtComplete(boolean complete) {
+        gameState.setRedshirtComplete(complete);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,10 +168,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         loadGame();
 
 
-        wantUpdateConf = true; // 0 and 1, don't update, 2 update
+        gameState.setWantUpdateConf(true); // 0 and 1, don't update, 2 update
 
         try {
-            if (!loadedLeague) {
+            if (!gameState.isLoadedLeague()) {
                 if (simLeague.getTeamList().isEmpty()) {
                     crash();
                     return;
@@ -248,7 +254,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //Team Depth Chart Button
         Button depthchartButton = findViewById(R.id.buttonDepthChart);
-        if (!redshirtComplete) {
+        if (!gameState.isRedshirtComplete()) {
             depthchartButton.setText("REDSHIRT");
             depthchartButton.setBackgroundResource(R.drawable.bg_action_danger);
             depthchartButton.setTextColor(ContextCompat.getColor(this, R.color.textPrimary));
@@ -258,7 +264,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onClick(View v) {
                 // Perform action on click
                 currentTeam = userTeam;
-                if (!redshirtComplete) redshirtDialog();
+                if (!gameState.isRedshirtComplete()) redshirtDialog();
                 else depthChartDialog();
             }
         });
@@ -284,7 +290,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         });
 
 
-        if (loadedLeague) {
+        if (gameState.isLoadedLeague()) {
             // Set rankings so that not everyone is rank #0
             simLeague.setTeamRanks();
             examineTeam(userTeam.getName());
@@ -292,7 +298,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         if (simLeague.getYear() != seasonStart) {
-            // Only show recruiting classes if not season 1
+            // Only show recruiting classes if not gameState.getSeason() 1
             showRecruitingClassDialog();
         }
 
@@ -304,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     drawer.closeDrawer(GravityCompat.START);
                     return;
                 }
-                if (currPage == 0) {
+                if (gameState.getCurrPage() == 0) {
                     exitMainActivity();
                 } else {
                     showHome();
@@ -323,42 +329,42 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             currentTeam = userTeam;
             examineTeam(currentTeam.getName());
             showHome();
-            currPage = 0;
+            gameState.setCurrPage(0);
         } else if (id == R.id.nav_roster) {
-            currPage = 1;
+            gameState.setCurrPage(1);
             viewRoster();
         } else if (id == R.id.nav_teamplayerstats) {
-            currPage = 2;
+            gameState.setCurrPage(2);
                 showTeamPlayerStats();
         } else if (id == R.id.nav_teamstats) {
-            currPage = 3;
+            gameState.setCurrPage(3);
             updateTeamStats();
         } else if (id == R.id.nav_schedule) {
-            currPage = 4;
+            gameState.setCurrPage(4);
             updateSchedule();
         } else if (id == R.id.nav_news) {
-            currPage = 5;
+            gameState.setCurrPage(5);
             showNewsStoriesDialog();
         } else if (id == R.id.nav_scores) {
-            currPage = 6;
+            gameState.setCurrPage(6);
             showWeeklyScores();
         } else if (id == R.id.nav_standings) {
-            currPage = 7;
+            gameState.setCurrPage(7);
             updateStandings();
         } else if (id == R.id.nav_rankings) {
-            currPage = 8;
+            gameState.setCurrPage(8);
             updateRankings();
         } else if (id == R.id.nav_leagueteamstats) {
-            currPage = 9;
+            gameState.setCurrPage(9);
             showTeamRankingsDialog();
         } else if (id == R.id.nav_leagueplayerstats) {
-            currPage = 10;
+            gameState.setCurrPage(10);
             showPlayerRankingsDialog();
         } else if (id == R.id.nav_awards) {
-            currPage = 11;
+            gameState.setCurrPage(11);
             showLeagueAwards();
         } else if (id == R.id.nav_postseason) {
-            currPage = 12;
+            gameState.setCurrPage(12);
             showBowlCCGDialog();
         }
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -370,21 +376,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currentTeam = userTeam;
         examineTeam(currentTeam.getName());
         showHome();
-        currPage = 0;
+        gameState.setCurrPage(0);
     }
 
     public void openRosterView(View view) {
-        currPage = 1;
+        gameState.setCurrPage(1);
         viewRoster();
     }
 
     public void openTeamStatsView(View view) {
-        currPage = 3;
+        gameState.setCurrPage(3);
         updateTeamStats();
     }
 
     public void openScheduleView(View view) {
-        currPage = 4;
+        gameState.setCurrPage(4);
         updateSchedule();
     }
 
@@ -417,11 +423,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             simLeague = result.league;
             simLeague.setPlatformResourceProvider(resProvider);
-            season = result.season;
+            gameState.setSeason(result.season);
             seasonController = new simulation.SeasonController(simLeague, this);
 
-            loadedLeague = result.loadedLeague;
-            newGame = result.newGame;
+            gameState.setLoadedLeague(result.loadedLeague);
+            gameState.setNewGame(result.newGame);
 
             if (result.userTeam != null) {
                 userTeam = result.userTeam;
@@ -442,15 +448,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Update Header Bar
     void updateHeaderBar() {
         if (getSupportActionBar() != null) getSupportActionBar().setTitle(currentTeam.getName());
-        SeasonPresentationController.update(this, currentTeam, simLeague, season);
+        SeasonPresentationController.update(this, currentTeam, simLeague, gameState.getSeason());
     }
 
     public String getSeasonBadgeText() {
-        return SeasonPresentationController.getSeasonBadgeText(season);
+        return SeasonPresentationController.getSeasonBadgeText(gameState.getSeason());
     }
 
     public String getSeasonTitleText() {
-        return SeasonPresentationController.getSeasonTitleText(currentTeam, season);
+        return SeasonPresentationController.getSeasonTitleText(currentTeam, gameState.getSeason());
     }
 
     public String getSeasonSubtitleText() {
@@ -458,7 +464,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public String getSeasonYearChipText() {
-        return SeasonPresentationController.getSeasonYearChipText(season);
+        return SeasonPresentationController.getSeasonYearChipText(gameState.getSeason());
     }
 
     public String getSeasonWeekChipText() {
@@ -488,7 +494,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void prepareSelectedTeam(final int item) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Preparing Program");
-        builder.setMessage("Setting up your staff, rankings, and season outlook...");
+        builder.setMessage("Setting up your staff, rankings, and gameState.getSeason() outlook...");
         builder.setCancelable(false);
         final AlertDialog preparingDialog = builder.create();
         preparingDialog.setCancelable(false);
@@ -778,26 +784,26 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void resetUI() {
-        if (currPage == 4) {
-            currPage = 4;
+        if (gameState.getCurrPage() == 4) {
+            gameState.setCurrPage(4);
             updateSchedule();
-        } else if (currPage == 3) {
-            currPage = 3;
+        } else if (gameState.getCurrPage() == 3) {
+            gameState.setCurrPage(3);
             updateTeamStats();
-        } else if (currPage == 2) {
-            currPage = 2;
+        } else if (gameState.getCurrPage() == 2) {
+            gameState.setCurrPage(2);
             showTeamPlayerStats();
-        } else if (currPage == 1) {
-            currPage = 1;
+        } else if (gameState.getCurrPage() == 1) {
+            gameState.setCurrPage(1);
             viewRoster();
-        } else if (currPage == 7) {
-            currPage = 7;
+        } else if (gameState.getCurrPage() == 7) {
+            gameState.setCurrPage(7);
             updateStandings();
-        } else if (currPage == 8) {
-            currPage = 8;
+        } else if (gameState.getCurrPage() == 8) {
+            gameState.setCurrPage(8);
             updateRankings();
         } else {
-            currPage = 0;
+            gameState.setCurrPage(0);
             showHome();
         }
     }
@@ -906,7 +912,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void showRealignmentSummary() {
         String news = simLeague.newsRealignment;
         if (news == null || news.isEmpty()) {
-            news = "No conference realignment occurred this off-season.";
+            news = "No conference realignment occurred this off-gameState.getSeason().";
         }
         String title = simLeague.enableUnivProRel
                 ? simLeague.getYear() + " Promotion/Relegation Update"
@@ -957,7 +963,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void completeRecruitingWithoutUserUi() {
         simLeague.finishRecruitingSeason("");
-        season = simLeague.getYear();
+        gameState.setSeason(simLeague.getYear());
         resetUI();
         if (simLeague.getYear() != seasonStart) {
             showRecruitingClassDialog();
@@ -966,7 +972,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void resumeDeferredRecruitingIfNeeded() {
         LeagueLaunchCoordinator.LaunchRequest request = getLaunchRequest();
-        if (!loadedLeague || request == null
+        if (!gameState.isLoadedLeague() || request == null
                 || request.action == LeagueLaunchCoordinator.LaunchRequest.Action.DONE_RECRUITING) {
             return;
         }
@@ -979,7 +985,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
     public void examineTeam(String teamName) {
-        wantUpdateConf = false;
+        gameState.setWantUpdateConf(false);
         // Find team
         Team tempT = simLeague.getTeamList().get(0);
         for (Team t : simLeague.getTeamList()) {
@@ -993,7 +999,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         for (int i = 0; i < simLeague.getConferences().size(); ++i) {
             Conference c = simLeague.getConferences().get(i);
             if (c.confName.equals(currentTeam.getConference())) {
-                if (c == currentConference) wantUpdateConf = true;
+                if (c == currentConference) gameState.setWantUpdateConf(true);
                 currentConference = c;
                 examineConfSpinner.setSelection(i);
                 break;
@@ -1026,13 +1032,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     void updateCurrConference() {
         rebuildConfSpinner();
 
-        if (wantUpdateConf) {
+        if (gameState.isWantUpdateConf()) {
             rebuildTeamSpinner();
             examineTeamSpinner.setSelection(0);
             currentTeam = currentConference.confTeams.get(0);
             updateCurrTeam();
         } else {
-            wantUpdateConf = true;
+            gameState.setWantUpdateConf(true);
         }
     }
 
@@ -1047,7 +1053,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Team Stats
     private void showHome() {
-        currPage = 0;
+        gameState.setCurrPage(0);
         HomeScreenController.show(this, mainList, currentTeam, simLeague);
     }
 
@@ -1256,10 +1262,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (simLeague.currentWeek < 1 || simLeague.currentWeek == 99 || simLeague.recruitingPhaseActive) {
                 saveLeague();
             } else if (simLeague.currentWeek > 1) {
-                Toast.makeText(MainActivity.this, "Save Function Disabled. Save only available in pre-season or before recruiting.",
+                Toast.makeText(MainActivity.this, "Save Function Disabled. Save only available in pre-gameState.getSeason() or before recruiting.",
                         Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(MainActivity.this, "Save Function disabled during initial season.",
+                Toast.makeText(MainActivity.this, "Save Function disabled during initial gameState.getSeason().",
                         Toast.LENGTH_SHORT).show();
             }
         } else if (id == R.id.action_export_league) {
@@ -1355,7 +1361,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void importDataPrompt() {
-        LeagueImportFlowController.showImportPrompt(this, newGame);
+        LeagueImportFlowController.showImportPrompt(this, gameState.isNewGame());
     }
 
     @Override
@@ -1385,8 +1391,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void finishImportFlowForNewGame() {
-        if (newGame) {
-            newGame = false;
+        if (gameState.isNewGame()) {
+            gameState.setNewGame(false);
             careerModeOptions();
         }
     }
@@ -1470,7 +1476,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Exit Current Game
     public void exitMainActivity() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage("Are you sure you want to return to main menu? Any progress from the beginning of the season will be lost.")
+        builder.setMessage("Are you sure you want to return to main menu? Any progress from the beginning of the gameState.getSeason() will be lost.")
                 .setPositiveButton("Yes, Exit", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -1532,7 +1538,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         HeadCoach coach = ensureUserHeadCoach();
         String coachName = coach != null ? coach.name : "Coach";
-        goals = "Welcome to the " + simLeague.getYear() + " College Football season, Coach " + coachName + "!\n\n";
+        goals = "Welcome to the " + simLeague.getYear() + " College Football gameState.getSeason(), Coach " + coachName + "!\n\n";
         if (simLeague.isCareerMode()) {
             goals += "Your head coaching career begins at " + userTeam.getName() + ". Job security, performance swings, and future opportunities will all respond to the seasons you build here.\n\n";
         }
@@ -1541,7 +1547,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             goals += "This universe is using the classic four-team playoff, so every loss near the top of the rankings carries extra weight.\n\n";
         }
-        goals += "This season your team is projected to finish ranked #" + userTeam.projectedPollRank + "!\n\n";
+        goals += "This gameState.getSeason() your team is projected to finish ranked #" + userTeam.projectedPollRank + "!\n\n";
 
         int num = (int)(simLeague.getTeamList().size()*.875);
         if (userTeam.projectedPollRank > num) {
@@ -1567,16 +1573,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (simLeague.getYear() > seasonStart) {
             if (userTeam.isBowlBan()) {
-                goals += "Your team was penalized heavily for off-season issues by the College Athletic Administration and will lose Prestige and suffer a post-season bowl ban this year.\n\n";
+                goals += "Your team was penalized heavily for off-gameState.getSeason() issues by the College Athletic Administration and will lose Prestige and suffer a post-gameState.getSeason() bowl ban this year.\n\n";
             }
             if (userTeam.penalized) {
-                goals += "Your team had a minor infraction over the off-season and lost some Prestige.\n\n";
+                goals += "Your team had a minor infraction over the off-gameState.getSeason() and lost some Prestige.\n\n";
             }
         }
 
         if (simLeague.getYear() > seasonStart) {
             if (userTeam.facilityUpgrade) {
-                goals += "Your team upgraded the training facilities this off-season to Level " + userTeam.getTeamFacilities() + " which added an additional " + userTeam.getTeamFacilities() + " prestige points!\n\n";
+                goals += "Your team upgraded the training facilities this off-gameState.getSeason() to Level " + userTeam.getTeamFacilities() + " which added an additional " + userTeam.getTeamFacilities() + " prestige points!\n\n";
             }
         }
 
@@ -1620,9 +1626,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
 
-        if (userHC.retirement && !skipRetirementQ && !simLeague.neverRetire) {
+        if (userHC.retirement && !gameState.isSkipRetirementQ() && !simLeague.neverRetire) {
             retirementQuestion();
-            skipRetirementQ = true;
+            gameState.setSkipRetirementQ(true);
 
         } else {
             CareerDialogController.showContractDialog(this,
@@ -1635,8 +1641,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Job Offers Dialog when fired or resignation from previous team
     private void jobOffers(HeadCoach headCoach) {
-        jobType  = 1;
-        jobListSet = true;
+        gameState.setJobType(1);
+        gameState.setJobListSet(true);
         jobList.clear();
 
         userHC = headCoach;
@@ -1660,8 +1666,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Job offers from other teams
     private void promotions(HeadCoach headCoach) {
-        jobType  = 2;
-        jobListSet = true;
+        gameState.setJobType(2);
+        gameState.setJobListSet(true);
         jobList.clear();
 
         userHC = headCoach;
@@ -1680,7 +1686,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (jobList.isEmpty()) {
                 userHC.promotionCandidate = false;
                 CareerDialogController.showJobOffersEmpty(this, "Head Coach Opportunities",
-                        "No job offers came through this cycle. Build on this season and stronger offers should return if you keep climbing.");
+                        "No job offers came through this cycle. Build on this gameState.getSeason() and stronger offers should return if you keep climbing.");
             } else {
                 CareerDialogController.showPromotionsDialog(this,
                         "Career Advancement Opportunities",
@@ -1696,8 +1702,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Choose ANY team (manually change from Options Menu)
     private void selectNewTeam(HeadCoach headCoach) {
-        jobType  = 0;
-        jobListSet = true;
+        gameState.setJobType(0);
+        gameState.setJobListSet(true);
         jobList.clear();
 
         userHC = headCoach;
@@ -1714,14 +1720,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         CareerDialogController.showTeamReviewDialog(this, selectedTeam, summary,
                 () -> {
-                    if (jobType == 2) promotions(userHC);
-                    else if (jobType == 1) jobOffers(userHC);
+                    if (gameState.getJobType() == 2) promotions(userHC);
+                    else if (gameState.getJobType() == 1) jobOffers(userHC);
                     else selectNewTeam(userHC);
                 },
                 () -> {
                     userHC.promotionCandidate = false;
                     changeTeams(jobList, item);
-                    if (jobType == 2) simLeague.coachCarousel();
+                    if (gameState.getJobType() == 2) simLeague.coachCarousel();
                 });
     }
 
@@ -1738,10 +1744,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         currentTeam = userTeam;
         userTeam.setHeadCoach(null);
 
-        if(reincarnate) {
+        if(gameState.isReincarnate()) {
             userTeam.setupUserCoach(userHC.getName());
             userHC = userTeam.getHeadCoach();
-            reincarnate = false;
+            gameState.setReincarnate(false);
             userNameDialog();
         } else {
             userTeam.setHeadCoach(userHC);
@@ -1868,7 +1874,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Retirement vs Eternal
     private void retirementQuestion() {
         CareerDialogController.showRetirementQuestion(this,
-                () -> { if (skipRetirementQ) contractDialog(); },
+                () -> { if (gameState.isSkipRetirementQ()) contractDialog(); },
                 this::reincarnation,
                 this::retire);
     }
@@ -1886,17 +1892,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     userHC.team = null;
                     simLeague.getCoachFreeAgents().add(new HeadCoach(userHC, userTeam));
                     userTeam.setupUserCoach(userHC.getName());
-                    newGame = true;
+                    gameState.setNewGame(true);
                     userNameDialog();
                 },
                 () -> {
                     userTeam.newCoachTeamChanges();
-                    reincarnate = true;
+                    gameState.setReincarnate(true);
                     userHC.retired = true;
                     userHC.team = null;
                     simLeague.getCoachFreeAgents().add(new HeadCoach(userHC, userTeam));
                     jobOffers(userHC);
-                    newGame = true;
+                    gameState.setNewGame(true);
                 });
     }
 

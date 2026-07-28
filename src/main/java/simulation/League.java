@@ -130,8 +130,9 @@ public class League {
     public ArrayList<String[]> leagueHistory;
     public ArrayList<String> heismanHistory;
     public ArrayList<PlayerRecord> leagueHoF;
-    public ArrayList<Conference> conferences;
-    public ArrayList<Team> teamList;
+    // Package-private — use getConferences()/addConference() and getTeamList()/addTeam().
+    ArrayList<Conference> conferences;
+    ArrayList<Team> teamList;
     public ArrayList<Staff> coachList;
     public ArrayList<Staff> coachStarList;
     public ArrayList<Staff> coachFreeAgents;
@@ -177,27 +178,27 @@ public class League {
     public Team userTeam;
 
     //Freshman Team
-    public ArrayList<PlayerQB> fQBs;
-    public ArrayList<PlayerRB> fRBs;
-    public ArrayList<PlayerWR> fWRs;
-    public ArrayList<PlayerTE> fTEs;
-    public ArrayList<PlayerK> fKs;
-    public ArrayList<PlayerOL> fOLs;
-    public ArrayList<PlayerDL> fDLs;
-    public ArrayList<PlayerLB> fLBs;
-    public ArrayList<PlayerCB> fCBs;
-    public ArrayList<PlayerS> fSs;
+    ArrayList<PlayerQB> fQBs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerRB> fRBs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerWR> fWRs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerTE> fTEs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerK> fKs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerOL> fOLs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerDL> fDLs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerLB> fLBs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerCB> fCBs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerS> fSs;  // package-private; use getters / addToTransferPool
     //Transfer List
-    public ArrayList<PlayerQB> transferQBs;
-    public ArrayList<PlayerRB> transferRBs;
-    public ArrayList<PlayerWR> transferWRs;
-    public ArrayList<PlayerTE> transferTEs;
-    public ArrayList<PlayerK> transferKs;
-    public ArrayList<PlayerOL> transferOLs;
-    public ArrayList<PlayerDL> transferDLs;
-    public ArrayList<PlayerLB> transferLBs;
-    public ArrayList<PlayerCB> transferCBs;
-    public ArrayList<PlayerS> transferSs;
+    ArrayList<PlayerQB> transferQBs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerRB> transferRBs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerWR> transferWRs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerTE> transferTEs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerK> transferKs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerOL> transferOLs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerDL> transferDLs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerLB> transferLBs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerCB> transferCBs;  // package-private; use getters / addToTransferPool
+    ArrayList<PlayerS> transferSs;  // package-private; use getters / addToTransferPool
     public String userTransfers;
     public String sumTransfers;
     public ArrayList<String> transfersList;

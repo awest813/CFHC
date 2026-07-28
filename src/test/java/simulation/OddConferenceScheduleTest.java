@@ -33,7 +33,7 @@ public class OddConferenceScheduleTest {
     @Test
     public void oddConference_buildsScheduleWithoutByeTeamOnRoster() {
         Conference target = null;
-        for (Conference c : league.conferences) {
+        for (Conference c : league.getConferences()) {
             if (c.confTeams.size() % 2 != 0 && c.confTeams.size() >= c.minConfTeams) {
                 target = c;
                 break;
@@ -43,7 +43,7 @@ public class OddConferenceScheduleTest {
             return;
         }
 
-        for (Team t : league.teamList) {
+        for (Team t : league.getTeamList()) {
             t.clearGameSchedule();
         }
 

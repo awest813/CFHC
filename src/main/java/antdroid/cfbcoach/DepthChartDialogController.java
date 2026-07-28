@@ -134,7 +134,7 @@ final class DepthChartDialogController {
             @Override
             public void onClick(View v) {
                 Button depthchartButton = activity.findViewById(R.id.buttonDepthChart);
-                if (!activity.redshirtComplete) depthchartButton.setText("SET REDSHIRTS");
+                if (!activity.isRedshirtComplete()) depthchartButton.setText("SET REDSHIRTS");
                 dialog.dismiss();
                 activity.updateCurrTeam();
             }

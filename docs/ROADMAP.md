@@ -64,7 +64,8 @@ Dozens of `public ArrayList<…>` fields on `League` and `Team` let callers bypa
 - `Team.playersInjured` / `playersLeaving` / `playersTransferring` / `redshirtList` are private with accessors.
 - Transfer scan renamed to `identifyTransferCandidates()`.
 - **Position rosters** (`teamQBs`…`teamSs`) and **game log lists** (`gameSchedule`, `oocTeams` / `oocWeeks`, `gameWLSchedule`, win/loss-against) are package-private with unmodifiable getters + add/clear mutators; Android/desktop use getters only. Same-package managers (`RosterManager`, `DepthChartManager`, `StatsTracker`) retain direct access.
-- Remaining public on Team: e.g. `playersDis`, `trainingCampFocusNames`. League transfer/freshman pools and `conferences` / `teamList` / coach pools still public.
+- **League** `conferences` / `teamList`, freshman pools (`fQBs`…), and transfer pools (`transferQBs`…) are package-private with existing getters / `addToTransferPool` / `addConference` / `addTeam`.
+- Remaining public on Team: e.g. `playersDis`, `trainingCampFocusNames`. League coach pools / news lists still public.
 ---
 
 ## ⚠️ High — Near-Term Improvements
@@ -145,17 +146,22 @@ At ~3,656 LOC, `MainActivity` owns too many concerns. Target split:
 - Save/load orchestration extracted to `SaveLoadService` (was item 7).
 - Navigation routing extracted to `GameNavigation`.
 - Import/export largely delegated to `LeagueImportFlowController`, `LeagueImportWorkflow`, `LeagueExportController`, and `LeagueCustomDataImporter` (MainActivity retains document-picker / storage host wiring).
-- Remaining: season-state / week flags still live in `MainActivity` (`GameStateManager` extract).
+- Season/career UI flags moved to `GameStateManager` (MainActivity delegates; `TeamHome` / depth-chart use accessors).
 
 ---
 
-### 11. 🔲 Separate `RecruitingSessionData` concerns
+### 11. 🔄 Separate `RecruitingSessionData` concerns
 
 471 LOC mixes simulation state with UI state.
 
 **Actions:**
 - Split into `RecruitingSimulation` (portable — goes in `simulation/` or `recruiting/`).
 - Split into `RecruitingUIState` (Android-only — stays in `recruiting/` or `antdroid/`).
+
+**Progress:**
+- Portable board/roster state remains in `recruiting.RecruitingSessionData`.
+- Android UI flags (`autoFilter`, `showPopUp`, `currentPosition`) extracted to `antdroid.cfbcoach.recruiting.RecruitingUiState`.
+- Optional follow-up: rename SessionData → Simulation naming and move remaining presentation helpers.
 
 ---
 

@@ -160,15 +160,15 @@ public class TransferInvariantTest {
     public void transfer_transferPoolPartiallyOrFullyCleared() {
         league.advanceSeason();
 
-        int qbPoolBefore = league.transferQBs.size();
-        int rbPoolBefore = league.transferRBs.size();
+        int qbPoolBefore = league.getTransferQBs().size();
+        int rbPoolBefore = league.getTransferRBs().size();
 
         league.transferPlayers(noOpBridge);
 
         assertTrue("Transfer QB pool should not grow after processing",
-                league.transferQBs.size() <= qbPoolBefore);
+                league.getTransferQBs().size() <= qbPoolBefore);
         assertTrue("Transfer RB pool should not grow after processing",
-                league.transferRBs.size() <= rbPoolBefore);
+                league.getTransferRBs().size() <= rbPoolBefore);
     }
 
     private void assertValidPlayer(Player p, String teamName) {
