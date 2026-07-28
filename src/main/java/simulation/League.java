@@ -105,6 +105,12 @@ import staff.HeadCoach;
 import staff.OC;
 import staff.Staff;
 
+/**
+ * Core league simulation state.
+ *
+ * <p><b>Threading:</b> not safe for concurrent mutation. See {@code docs/THREADING.md}.
+ */
+@NotThreadSafe
 public class League {
     public static final String CURRENT_SAVE_VERSION = "v1.4e";
 
@@ -1317,6 +1323,10 @@ public class League {
         linkUserTeamFromLoadedCoaches();
 
         restoreScheduledGames(record.scheduledGames());
+
+        // New-format loads skip setupSeason(), which normally allocates weekly news/score
+        // buckets. Without this, preseasonNews/topRecruits NPEs on newsStories.
+        ensureSeasonWeekListsCapacity(Math.max(seasonWeeks, currentWeek + 4));
     }
 
     /**

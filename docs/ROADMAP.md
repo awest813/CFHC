@@ -211,14 +211,14 @@ Initial JUnit coverage now exists (`ComparatorTest`, recruiting tests, full-seas
 
 ---
 
-### 17. 🔲 Document the threading model
+### 17. ✅ Document the threading model
 
 The engine assumes single-threaded access throughout. If a desktop or server shell introduces background threads, data corruption becomes likely.
 
 **Actions:**
-- Add a `THREADING.md` doc describing the single-thread contract.
-- Annotate key classes with `@NotThreadSafe`.
-- Identify the safest future path (e.g., single game-thread with message-passing).
+- ~~Add a `THREADING.md` doc describing the single-thread contract.~~ ✅ Done — see [THREADING.md](THREADING.md).
+- ~~Annotate key classes with `@NotThreadSafe`.~~ ✅ Done — `League` and `Team` annotated; `simulation.NotThreadSafe` marker added.
+- Identify the safest future path (e.g., single game-thread with message-passing). *(Documented in THREADING.md; implementation deferred.)*
 
 ---
 
@@ -247,5 +247,6 @@ Replace the lightweight `PlatformLog` shim with SLF4J (portable) + Timber (Andro
 | Doc | Purpose |
 |:---|:---|
 | [Platform Expansion](platform-expansion.md) | Design goals for iOS and desktop shells |
+| [Threading](THREADING.md) | Single-thread mutation contract for `League` / `Team` |
 | [README — Engine Audit Summary](../README.md#engine-audit-summary) | High-level audit findings |
 | [Privacy Policy](../Privacy-Policy.md) | App privacy disclosures |

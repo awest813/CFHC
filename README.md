@@ -163,6 +163,7 @@ More detail: [docs/platform-expansion.md](docs/platform-expansion.md).
 | Doc | Contents |
 |:---|:---|
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Priorities, technical debt, planned work |
+| [docs/THREADING.md](docs/THREADING.md) | Single-thread engine mutation contract |
 | [docs/platform-expansion.md](docs/platform-expansion.md) | Cross-platform bridge and migration notes |
 
 ---

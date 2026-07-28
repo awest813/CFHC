@@ -31,6 +31,12 @@ import staff.OC;
 import staff.Staff;
 
 
+/**
+ * Mutable team state owned by a {@link League}.
+ *
+ * <p><b>Threading:</b> not safe for concurrent mutation. See {@code docs/THREADING.md}.
+ */
+@NotThreadSafe
 public class Team {
     public final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
     public final DecimalFormat df2 = new DecimalFormat("#.##", symbols);

@@ -155,6 +155,8 @@ tasks.named('jar') {
 tasks.named('test', Test) {
     // Tests use System.getProperty("user.dir") / DesktopResourceProvider(projectRoot) — must be repo root.
     workingDir = repoRoot
+    // Forward -DregenGoldenSaves=true from the Gradle JVM into test workers.
+    systemProperty 'regenGoldenSaves', System.getProperty('regenGoldenSaves', 'false')
 }
 
 tasks.register('desktopStandaloneGate') {
