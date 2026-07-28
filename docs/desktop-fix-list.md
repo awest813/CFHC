@@ -82,3 +82,6 @@ Status key: 🔲 open · 🔄 in progress · ✅ done
 Next: optional FlatLaf, auto-update, macOS packaging. Signed MSI/DMG remains cert-blocked.
 User-ready pass: jar install docs, new-season save prompt, play-mode user-team gate,
 Help/About/Licenses, LICENSE+SOUND_LICENSES embedded in jar, How-to-Play matches sidebar UI.
+Edge UI: no double coordinator after promotions, dirty chrome sync, scheme/depth/skills mark dirty,
+theme updateComponentTreeUI, bulk blocks Open/Import, coordinator candidate list complete,
+wizard Cancel + team-picker warnings.
