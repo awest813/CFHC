@@ -159,11 +159,11 @@ At ~3,656 LOC, `MainActivity` owns too many concerns. Target split:
 
 ### 12. ✅ Add save-file schema versioning
 
-Currently only `League.saveVer = "v1.4e"`. Format changes silently break old saves.
+Previously only `League.saveVer = "v1.4e"`. Format changes silently broke old saves.
 
 **Actions:**
-- Add a structured version header at the top of each save file.
-- Write a migration layer that upgrades older formats on load.
+- ~~Add a structured version header at the top of each save file.~~ ✅ Done — `SaveSchema` + `V:` load path in `SaveManager`.
+- ~~Write a migration layer that upgrades older formats on load.~~ ✅ Done — version parse + golden fixture / `SaveSchemaVersionTest` coverage.
 
 ---
 
@@ -179,7 +179,10 @@ Currently only `League.saveVer = "v1.4e"`. Format changes silently break old sav
 
 ### 14. ✅ Remove legacy `PlayerProfile.java`
 
-`PlayerProfile.java` exists alongside `PlayerProfileV2.java`. Once V2 is confirmed stable, delete the old version and update all references.
+`PlayerProfile.java` existed as a thin stats-row helper (separate from `PlayerProfileV2`).
+
+**Actions:**
+- ~~Rename/replace with a clearer adapter and update call sites.~~ ✅ Done — `StatsRowAdapter` replaces `PlayerProfile`; Android references updated.
 
 ---
 
@@ -223,8 +226,8 @@ Initial JUnit coverage now exists (`ComparatorTest`, recruiting tests, full-seas
 The engine assumes single-threaded access throughout. If a desktop or server shell introduces background threads, data corruption becomes likely.
 
 **Actions:**
-- Add a `THREADING.md` doc describing the single-thread contract.
-- Annotate key classes with `@NotThreadSafe`.
+- ~~Add a `THREADING.md` doc describing the single-thread contract.~~ ✅ Done — `docs/THREADING.md`.
+- ~~Annotate key classes with `@NotThreadSafe`.~~ ✅ Done — `League` / `Team` (+ annotation type).
 - Identify the safest future path (e.g., single game-thread with message-passing).
 
 ---
