@@ -54,6 +54,25 @@ public class Game implements Serializable {
     public String gameName;
     public int week;
 
+    /** Canonical name for bye placeholders on a team's schedule. */
+    public static final String BYE_WEEK_NAME = "BYE WEEK";
+
+    /** True when this schedule slot is a bye (no real opponent). */
+    public boolean isByeWeek() {
+        return BYE_WEEK_NAME.equals(gameName);
+    }
+
+    /**
+     * Conference / division / OOC / bye slots — everything that is not a bowl or playoff game.
+     * Used when counting postseason appearances for prestige.
+     */
+    public boolean isRegularSeasonSlot() {
+        return "Conference".equals(gameName)
+                || "Division".equals(gameName)
+                || "OOC".equals(gameName)
+                || isByeWeek();
+    }
+
     public int homeScore;
     public final int[] homeQScore;
     public int awayScore;
@@ -513,7 +532,7 @@ public class Game implements Serializable {
     //GAME SIMULATION
 
     public void playGame() {
-        if (gameName.equals("BYE WEEK") && !hasPlayed) {
+        if (gameName.equals(BYE_WEEK_NAME) && !hasPlayed) {
             hasPlayed = true;
             homeTeam.addToGameWLSchedule("BYE");
             awayTeam.addToGameWLSchedule("BYE");
@@ -1842,6 +1861,20 @@ public class Game implements Serializable {
 
     private void fieldGoalAtt(Team offense, Team defense) {
         PlayerK selK = offense.getK(0);
+        if (selK == null) {
+            // No kicker available — turn the ball over at the attempt spot.
+            gameEventLog.append(getEventLog()).append(offense.getAbbr())
+                    .append(" has no kicker available — field goal attempt aborted.");
+            if (!playingOT) {
+                gameYardLine = Math.max(100 - gameYardLine, 20);
+                gameDown = 1;
+                gameYardsNeed = 10;
+                gamePoss = !gamePoss;
+            } else {
+                resetForOT();
+            }
+            return;
+        }
         selK.gameSnaps++;
         gameYardLine -= 7;
 
@@ -1920,7 +1953,9 @@ public class Game implements Serializable {
 
     private void kickXP(Team offense, Team defense) {
         PlayerK selK = offense.getK(0);
-        selK.gameSnaps++;
+        if (selK != null) {
+            selK.gameSnaps++;
+        }
 
         // No XP/2pt try if the TD puts the bottom OT offense ahead (aka wins the game)
         if (playingOT && bottomOT && (((numOT % 2 == 0) && awayScore > homeScore) || ((numOT % 2 != 0) && homeScore > awayScore))) {

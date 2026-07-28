@@ -1308,7 +1308,7 @@ public class Team {
             prestigeChange = Math.round((float) (diffExpected / 7.5));
             int postSeasonGames = 0;
             for(Game g: gameSchedule) {
-                if(!g.gameName.equals("Conference") && !g.gameName.equals("Division") && !g.gameName.equals("OOC") && !g.gameName.equals("BYE")) {
+                if(!g.isRegularSeasonSlot()) {
                     postSeasonGames++;
                 }
             }
@@ -4059,13 +4059,27 @@ public class Team {
      */
     public String weekSummaryStr(int week) {
         int i = week - 1;
-        if(week > league.regSeasonWeeks)  i = wins + losses + (league.regSeasonWeeks-13)-1;
+        if (week > league.regSeasonWeeks) {
+            i = wins + losses + (league.regSeasonWeeks - 13) - 1;
+        }
+        if (gameSchedule == null || gameSchedule.isEmpty()) {
+            return name + " — no games scheduled\nNew poll rank: #" + rankTeamPollScore
+                    + " " + name + " (" + wins + "-" + losses + ")";
+        }
+        if (i < 0) {
+            i = 0;
+        }
+        if (i >= gameSchedule.size()) {
+            i = gameSchedule.size() - 1;
+        }
         Game g = gameSchedule.get(i);
         String gameSummary;
-        if(g.gameName.equals("BYE WEEK")) {
-            gameSummary = "BYE WEEK";
+        if (g.isByeWeek()) {
+            gameSummary = Game.BYE_WEEK_NAME;
+        } else if (i < gameWLSchedule.size()) {
+            gameSummary = gameWLSchedule.get(i) + " " + gameSummaryStr(g);
         } else {
-           gameSummary = gameWLSchedule.get(i) + " " + gameSummaryStr(g);
+            gameSummary = gameSummaryStr(g);
         }
 
         return name + " " + gameSummary + "\nNew poll rank: #" + rankTeamPollScore + " " + name + " (" + wins + "-" + losses + ")";

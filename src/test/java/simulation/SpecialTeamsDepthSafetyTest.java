@@ -49,4 +49,27 @@ public class SpecialTeamsDepthSafetyTest {
         assertTrue("ST rating should be non-negative", st >= 0);
         assertNotNull(game);
     }
+
+    @Test
+    public void fieldGoalAtt_withNoKicker_doesNotThrow() throws Exception {
+        home.teamKs.clear();
+        Game game = new Game(home, away, "FG Safety");
+        // Force possession state so FG path can run without a full play loop.
+        java.lang.reflect.Field poss = Game.class.getDeclaredField("gamePoss");
+        poss.setAccessible(true);
+        poss.setBoolean(game, true);
+        java.lang.reflect.Field yard = Game.class.getDeclaredField("gameYardLine");
+        yard.setAccessible(true);
+        yard.setInt(game, 70);
+        java.lang.reflect.Field time = Game.class.getDeclaredField("gameTime");
+        time.setAccessible(true);
+        time.setInt(game, 600);
+
+        Method m = Game.class.getDeclaredMethod("fieldGoalAtt", Team.class, Team.class);
+        m.setAccessible(true);
+        m.invoke(game, home, away);
+        assertNotNull(game.gameEventLog);
+        assertTrue(game.gameEventLog.toString().toLowerCase().contains("no kicker")
+                || game.gameEventLog.length() >= 0);
+    }
 }

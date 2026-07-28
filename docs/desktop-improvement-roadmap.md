@@ -34,6 +34,9 @@ This document tracks planned work for the **Swing desktop prototype** (`desktop.
 ## Longer term
 
 1. **Packaging** — Signed installers (e.g. jpackage), auto-update channel, optional portable zip + JRE.
+   - Scaffold: Gradle task `desktopJpackageDryRun` (under `desktop-standalone`) prints the intended
+     `jpackage` command after `desktopJar`. Next step: wire a real `app-image`/`dmg`/`msi` build
+     once signing certificates are available.
 2. **Accessibility** — High-contrast theme variant, focus traversal audit, screen-reader labels on tables.
 3. **Optional UI stack** — Evaluate JavaFX or embedded WebView only if the team commits to a second UI layer; default remains lightweight Swing + shared core.
 

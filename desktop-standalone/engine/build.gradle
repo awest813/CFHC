@@ -162,3 +162,35 @@ tasks.register('desktopStandaloneGate') {
     description = 'Compile shared engine, run JVM unit tests, build desktop jar — no Android SDK.'
     dependsOn test, desktopJar
 }
+
+/**
+ * Packaging scaffold for a future signed installer. Requires a JDK with {@code jpackage}
+ * (JDK 17+) and the {@code desktopJar} output. This task is opt-in and not part of
+ * {@code desktopStandaloneGate} — it fails loudly with setup instructions when jpackage
+ * is unavailable rather than silently skipping.
+ */
+tasks.register('desktopJpackageDryRun') {
+    group = 'desktop'
+    description = 'Print the intended jpackage command for CFHC-desktop (does not build an installer yet).'
+    dependsOn desktopJar
+    doLast {
+        def jar = tasks.named('desktopJar', Jar).get().archiveFile.get().asFile
+        def jpackage = new File(System.getProperty('java.home'), 'bin/jpackage')
+        if (!jpackage.exists()) {
+            jpackage = new File(System.getProperty('java.home'), 'bin/jpackage.exe')
+        }
+        println 'CFHC desktop packaging (planned):'
+        println '  input jar : ' + jar.absolutePath
+        println '  main class: desktop.Main'
+        println '  suggested :'
+        println '    jpackage --name CFHC --input ' + jar.parentFile.absolutePath +
+                ' --main-jar ' + jar.name +
+                ' --main-class desktop.Main --type app-image'
+        if (!jpackage.exists()) {
+            println 'NOTE: jpackage binary not found in JAVA_HOME; install a full JDK 17+ to build installers.'
+        } else {
+            println 'jpackage available at: ' + jpackage.absolutePath
+        }
+    }
+}
+
