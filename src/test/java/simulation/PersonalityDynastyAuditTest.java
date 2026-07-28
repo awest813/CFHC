@@ -370,12 +370,7 @@ public class PersonalityDynastyAuditTest {
             if (!offers.isEmpty()) {
                 acceptJob(old, hc, offers.get(0));
             } else {
-                old.fired = false;
-                hc.contractYear = 0;
-                hc.contractLength = 6;
-                if (old.teamPrestige < 40) {
-                    old.teamPrestige = 40;
-                }
+                stayPut(old, hc);
             }
             applyPersonality(league.userTeam, personality);
             jobRecoveries++;
