@@ -55,25 +55,36 @@ public class BreakthroughBustRegressionTest {
 
     @Test
     public void bust_canTriggerForLowCharLowPlaytime() {
-        PlayerRB rb = new PlayerRB("Bust RB", 1, 2, team);
-        rb.ratAttr1 = 50; rb.ratAttr2 = 50; rb.ratAttr3 = 50; rb.ratAttr4 = 50;
-        rb.ratOvr = rb.getOverall();
-        rb.ratPot = 70;
-        rb.character = 20;
-        rb.stats[1] = 2;
-        rb.stats[2] = 0;
-
-        boolean sawDecline = false;
-        for (int i = 0; i < 2000; i++) {
+        // Bust is only 3% and applies after random growth. Keep facilities / pot low so
+        // a bust penalty is visible as a net decline below the starting attributes.
+        int savedFacilities = team.getTeamFacilities();
+        team.setTeamFacilities(0);
+        try {
+            PlayerRB rb = new PlayerRB("Bust RB", 1, 2, team);
             rb.ratAttr1 = 50; rb.ratAttr2 = 50; rb.ratAttr3 = 50; rb.ratAttr4 = 50;
             rb.ratOvr = rb.getOverall();
-            rb.genericAdvanceSeason();
-            if (rb.ratAttr1 < 50 || rb.ratAttr2 < 50 || rb.ratAttr3 < 50 || rb.ratAttr4 < 50) {
-                sawDecline = true;
-                break;
+            rb.ratPot = 5;
+            rb.character = 15;
+            rb.year = 1;
+            rb.stats[1] = 2;
+            rb.stats[2] = 0;
+
+            boolean sawDecline = false;
+            for (int i = 0; i < 8000; i++) {
+                rb.ratAttr1 = 50; rb.ratAttr2 = 50; rb.ratAttr3 = 50; rb.ratAttr4 = 50;
+                rb.ratPot = 5;
+                rb.character = 15;
+                rb.ratOvr = rb.getOverall();
+                rb.genericAdvanceSeason();
+                if (rb.ratAttr1 < 50 || rb.ratAttr2 < 50 || rb.ratAttr3 < 50 || rb.ratAttr4 < 50) {
+                    sawDecline = true;
+                    break;
+                }
             }
+            assertTrue("Low-character low-playtime player should occasionally bust (decline)", sawDecline);
+        } finally {
+            team.setTeamFacilities(savedFacilities);
         }
-        assertTrue("Low-character low-playtime player should occasionally bust (decline)", sawDecline);
     }
 
     @Test

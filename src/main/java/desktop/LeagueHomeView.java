@@ -1434,8 +1434,8 @@ public class LeagueHomeView extends JFrame {
 
                 License notices ship as LICENSE and SOUND_LICENSES.md inside the jar
                 (and beside the jar when you build from this repository). Full third-party
-                license texts are linked from those notices."""
-                .formatted(DesktopVersion.DISPLAY);
+                license texts are linked from those notices.""";
+        text = String.format(Locale.ROOT, text, DesktopVersion.DISPLAY);
         JTextArea area = new JTextArea(text);
         area.setEditable(false);
         area.setWrapStyleWord(true);
