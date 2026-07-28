@@ -89,6 +89,9 @@ public class SettingsDialog extends JDialog {
         content.add(displaySection);
         content.add(Box.createVerticalStrut(8));
         JCheckBox desktopDark = createStyledCheckBox("Dark mode", DesktopTheme.isDark(), content);
+        content.add(Box.createVerticalStrut(8));
+        JCheckBox desktopHighContrast = createStyledCheckBox(
+                "High contrast", DesktopTheme.isHighContrast(), content);
         content.add(Box.createVerticalStrut(12));
 
         addSectionDivider(content);
@@ -325,6 +328,7 @@ public class SettingsDialog extends JDialog {
                 }
             }
             DesktopTheme.setDark(desktopDark.isSelected());
+            DesktopTheme.setHighContrast(desktopHighContrast.isSelected());
             if (getOwner() instanceof LeagueHomeView) {
                 ((LeagueHomeView) getOwner()).applyDesktopTheme();
             }

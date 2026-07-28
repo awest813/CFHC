@@ -11,6 +11,7 @@ import java.nio.file.Files;
 import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -60,5 +61,49 @@ public class DesktopRecruitingCheckpointTest {
                 "SEC,Test U,TST,5,80,0,0%\nEND_TEAM_INFO%\nEND_RECRUITS%\n");
         session.applyCheckpoint(123, Collections.emptyList());
         assertEquals(123, session.recruitingBudget);
+    }
+
+    @Test
+    public void pathFor_usesSaveAdjacentSidecarWhenSavePresent() throws Exception {
+        File save = Files.createTempFile("cfhc-league", ".cfb").toFile();
+        save.deleteOnExit();
+        File chk = DesktopRecruitingCheckpoint.pathFor(save, null);
+        assertEquals(save.getAbsolutePath() + ".recruiting", chk.getAbsolutePath());
+    }
+
+    @Test
+    public void pathFor_fallsBackToSavesDirWhenNoSave() {
+        File chk = DesktopRecruitingCheckpoint.pathFor(null, null);
+        assertTrue(chk.getName().startsWith("recruiting-"));
+        assertTrue(chk.getName().endsWith(".chk"));
+    }
+
+    @Test
+    public void matches_rejectsYearOrTeamMismatch() throws Exception {
+        DesktopResourceProvider resources = new DesktopResourceProvider(System.getProperty("user.dir"));
+        League league = new League(
+                resources.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
+                resources.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES),
+                resources.getString(PlatformResourceProvider.KEY_CONFERENCES),
+                resources.getString(PlatformResourceProvider.KEY_TEAMS),
+                resources.getString(PlatformResourceProvider.KEY_BOWLS),
+                false,
+                false
+        );
+        league.setPlatformResourceProvider(resources);
+        league.userTeam = league.getTeamList().get(0);
+        league.userTeam.setUserControlled(true);
+
+        DesktopRecruitingCheckpoint wrongYear = new DesktopRecruitingCheckpoint(
+                league.getYear() + 1, league.userTeam.getName(), 1, 100, "board", Collections.emptyList());
+        assertFalse(wrongYear.matches(league));
+
+        DesktopRecruitingCheckpoint wrongTeam = new DesktopRecruitingCheckpoint(
+                league.getYear(), "Other School", 1, 100, "board", Collections.emptyList());
+        assertFalse(wrongTeam.matches(league));
+
+        DesktopRecruitingCheckpoint ok = new DesktopRecruitingCheckpoint(
+                league.getYear(), league.userTeam.getName(), 1, 100, "board", Collections.emptyList());
+        assertTrue(ok.matches(league));
     }
 }

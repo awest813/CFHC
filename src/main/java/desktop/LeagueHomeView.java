@@ -392,6 +392,15 @@ public class LeagueHomeView extends JFrame {
             refresh();
         });
         view.add(darkModeItem);
+
+        JCheckBoxMenuItem highContrastItem = new JCheckBoxMenuItem(
+                "High contrast", DesktopTheme.isHighContrast());
+        highContrastItem.setMnemonic(KeyEvent.VK_H);
+        highContrastItem.addActionListener(e -> {
+            DesktopTheme.setHighContrast(highContrastItem.isSelected());
+            refresh();
+        });
+        view.add(highContrastItem);
         view.addSeparator();
 
         JMenuItem bowlWatch = new JMenuItem("Bowl Watch");
@@ -955,9 +964,11 @@ public class LeagueHomeView extends JFrame {
         boolean ok = leagueCore.saveLeague(target);
         if (ok) {
             audioManager.play(AudioEvent.CONFIRM);
+            File previousPath = lastSavePath;
             lastSavePath = target;
             dirty = false;
             updateDirtyChrome();
+            migrateRecruitingCheckpointAfterSaveAs(previousPath, target);
             persistRecruitingCheckpointQuietly();
             PlatformLog.i(TAG, "League saved to " + target.getAbsolutePath());
         } else {
@@ -1019,7 +1030,7 @@ public class LeagueHomeView extends JFrame {
     }
 
     private void exportLeague() {
-        JFileChooser chooser = new JFileChooser();
+        JFileChooser chooser = new JFileChooser(DesktopAppPaths.chooserStartDir());
         DesktopTheme.styleFileChooser(chooser);
         chooser.setDialogTitle("Export League Save");
         chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -1042,7 +1053,7 @@ public class LeagueHomeView extends JFrame {
     }
 
     private void importCsvData(String kind) {
-        JFileChooser chooser = new JFileChooser();
+        JFileChooser chooser = new JFileChooser(DesktopAppPaths.chooserStartDir());
         DesktopTheme.styleFileChooser(chooser);
         boolean coaches = "coaches".equals(kind);
         chooser.setDialogTitle(coaches ? "Import Coaches CSV" : "Import Roster CSV");
@@ -1077,7 +1088,7 @@ public class LeagueHomeView extends JFrame {
     }
 
     private void importCustomUniverse() {
-        JFileChooser chooser = new JFileChooser();
+        JFileChooser chooser = new JFileChooser(DesktopAppPaths.chooserStartDir());
         DesktopTheme.styleFileChooser(chooser);
         chooser.setDialogTitle("Import Custom Universe File");
         chooser.setFileFilter(new FileNameExtensionFilter("Custom Universe Files (*.txt, *.csv)", "txt", "csv"));
@@ -1631,6 +1642,31 @@ public class LeagueHomeView extends JFrame {
                     JOptionPane.ERROR_MESSAGE);
             return false;
         }
+    }
+
+    private void migrateRecruitingCheckpointAfterSaveAs(File previousPath, File newPath) {
+        if (previousPath == null || newPath == null) {
+            return;
+        }
+        if (previousPath.getAbsoluteFile().equals(newPath.getAbsoluteFile())) {
+            return;
+        }
+        File oldChk = DesktopRecruitingCheckpoint.pathFor(previousPath, leagueCore);
+        File newChk = DesktopRecruitingCheckpoint.pathFor(newPath, leagueCore);
+        if (oldChk.getAbsoluteFile().equals(newChk.getAbsoluteFile())) {
+            return;
+        }
+        try {
+            if (!newChk.isFile() && oldChk.isFile()) {
+                DesktopRecruitingCheckpoint existing = DesktopRecruitingCheckpoint.read(oldChk);
+                if (existing != null) {
+                    DesktopRecruitingCheckpoint.write(newChk, existing);
+                }
+            }
+        } catch (Exception ex) {
+            PlatformLog.w(TAG, "Could not migrate recruiting checkpoint: " + ex.getMessage());
+        }
+        DesktopRecruitingCheckpoint.clear(oldChk);
     }
 
     private void persistRecruitingCheckpointQuietly() {

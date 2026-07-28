@@ -125,6 +125,8 @@ public class TransferPortalDialog extends JDialog {
         filterBox.setBackground(DesktopTheme.windowBackground());
         filterBox.setForeground(DesktopTheme.textPrimary());
         filterBox.setPreferredSize(new Dimension(180, 30));
+        filterBox.getAccessibleContext().setAccessibleName("Transfer portal position filter");
+        posLabel.setLabelFor(filterBox);
         topBar.add(filterBox);
 
         JLabel countLabel = new JLabel();
@@ -135,13 +137,13 @@ public class TransferPortalDialog extends JDialog {
         JButton myTransfersBtn = new JButton("My Transfers");
         DesktopTheme.styleSecondaryButton(myTransfersBtn);
         myTransfersBtn.addActionListener(e -> DesktopTheme.showScrollableText(
-                this, league.getYear() + " Your Transfers", userTransferSummary(league)));
+                this, yearLabel() + " Your Transfers", userTransferSummary(league)));
         topBar.add(myTransfersBtn);
 
         JButton allTransfersBtn = new JButton("All Transfers");
         DesktopTheme.styleSecondaryButton(allTransfersBtn);
         allTransfersBtn.addActionListener(e -> DesktopTheme.showScrollableText(
-                this, league.getYear() + " All Transfers", leagueTransferSummary(league)));
+                this, yearLabel() + " All Transfers", leagueTransferSummary(league)));
         topBar.add(allTransfersBtn);
 
         north.add(topBar, BorderLayout.NORTH);
@@ -178,6 +180,7 @@ public class TransferPortalDialog extends JDialog {
         table.setGridColor(DesktopTheme.borderSubtle());
         table.setShowVerticalLines(false);
         table.setSelectionBackground(DesktopTheme.selectionAccent());
+        table.getAccessibleContext().setAccessibleName("Transfer portal prospects");
         StripedRowRenderer.install(table);
 
         table.getTableHeader().setBackground(DesktopTheme.tableBase());
@@ -232,6 +235,10 @@ public class TransferPortalDialog extends JDialog {
             tableModel.setRowCount(0);
             countLabel.setText("  PORTAL REGISTRY IS CURRENTLY EMPTY.");
         }
+    }
+
+    private String yearLabel() {
+        return league != null ? String.valueOf(league.getYear()) : "Transfer";
     }
 
     private static Object[] playerRow(Player p) {

@@ -40,6 +40,20 @@ final class DisciplineDialog {
                 options,
                 options[0]);
 
+        return applyChoice(userTeam, player, issue, gamesA, gamesB, choice);
+    }
+
+    /**
+     * Maps dialog choice indices to {@link Team#disciplineAction(Player, String, int, int)}.
+     * Choice {@code 0}/{@code 1} suspend; {@code 2} or any other value (cancel) ignores.
+     *
+     * @return true if a discipline outcome was applied
+     */
+    static boolean applyChoice(Team userTeam, Player player, String issue,
+                               int gamesA, int gamesB, int choice) {
+        if (userTeam == null || player == null) {
+            return false;
+        }
         userTeam.disciplineAction = false;
         if (choice == 0) {
             userTeam.disciplineAction(player, issue, gamesA, 2);
@@ -49,11 +63,7 @@ final class DisciplineDialog {
             userTeam.disciplineAction(player, issue, gamesB, 1);
             return true;
         }
-        if (choice == 2) {
-            userTeam.disciplineAction(player, issue, gamesA, 3);
-            return true;
-        }
-        // Dialog closed without a choice — treat as ignore so the flag does not stick.
+        // Explicit Ignore (2) or dialog closed without a choice — clear the sticky flag.
         userTeam.disciplineAction(player, issue, gamesA, 3);
         return true;
     }

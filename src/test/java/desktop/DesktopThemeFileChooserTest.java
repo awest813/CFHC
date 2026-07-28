@@ -6,6 +6,7 @@ import javax.swing.JFileChooser;
 import javax.swing.UIManager;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 public class DesktopThemeFileChooserTest {
 
@@ -26,6 +27,24 @@ public class DesktopThemeFileChooserTest {
             assertNotNull(UIManager.getColor("FileChooser.background"));
         } finally {
             DesktopTheme.setDark(original);
+        }
+    }
+
+    @Test
+    public void highContrast_togglesAndRestores() {
+        DesktopTheme.load();
+        boolean originalDark = DesktopTheme.isDark();
+        boolean originalHc = DesktopTheme.isHighContrast();
+        try {
+            DesktopTheme.setDark(false);
+            DesktopTheme.setHighContrast(true);
+            assertTrue(DesktopTheme.isHighContrast());
+            assertNotNull(DesktopTheme.textPrimary());
+            DesktopTheme.setHighContrast(false);
+            assertTrue(!DesktopTheme.isHighContrast());
+        } finally {
+            DesktopTheme.setHighContrast(originalHc);
+            DesktopTheme.setDark(originalDark);
         }
     }
 }

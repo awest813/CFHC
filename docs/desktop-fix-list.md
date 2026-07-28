@@ -52,7 +52,7 @@ Status key: 🔲 open · 🔄 in progress · ✅ done
 
 ## Low
 
-14. Accessibility (high-contrast, table labels)
+14. ✅ Accessibility (high-contrast preference + table/filter accessible names; more labels still open)
 15. Auto-update / portable zip+JRE
 16. macOS `.dmg` / Aqua menus / file association
 17. Audio Clip quirks on macOS
@@ -65,6 +65,7 @@ Status key: 🔲 open · 🔄 in progress · ✅ done
 - Career dialogs on Play-Week path (when not suppressed)  
 - Dark theme v1, keyboard shortcuts, depth chart, playbook  
 - Save/load/export + CSV import; `desktopStandaloneGate` CI  
+- `DesktopBulkSimulator` EDT hops for bulk advance  
 
 ---
 
@@ -77,5 +78,5 @@ Status key: 🔲 open · 🔄 in progress · ✅ done
 5. ✅ Packaging metadata (#5)
 6. ✅ Drop prototype/alpha labeling (#6)
 
-Next: optional FlatLaf, accessibility, macOS packaging. Signed MSI/DMG remains cert-blocked.
-`LeagueHomeView` can still shrink further (menus/recruiting tab), but bulk/save-critical paths are extracted.
+Next: optional FlatLaf, remaining a11y labels, macOS packaging. Signed MSI/DMG remains cert-blocked.
+Export/import choosers now start in `DesktopAppPaths`; Save As migrates recruiting sidecars.
