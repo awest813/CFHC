@@ -172,6 +172,8 @@ public class LeagueHomeView extends JFrame {
         statusBar = buildStatusBar();
         add(statusBar, BorderLayout.SOUTH);
         applyWindowTheme();
+        MacDesktopIntegration.setActiveLeagueHome(this);
+        MacDesktopIntegration.setActiveFrame(this);
     }
 
     private DesktopBulkSimulator.Host bulkHost() {
@@ -768,6 +770,18 @@ public class LeagueHomeView extends JFrame {
      * Disposes audio only when the app is actually exiting.
      */
     private void confirmExit() {
+        if (requestQuitFromOs()) {
+            System.exit(0);
+        }
+    }
+
+    /**
+     * OS / Aqua quit entry point. Disposes the window when quitting; does not call
+     * {@code System.exit} so macOS {@code QuitResponse.performQuit()} can finish cleanly.
+     *
+     * @return {@code true} if the window was closed and the app should quit
+     */
+    public boolean requestQuitFromOs() {
         if (dirty) {
             int choice = JOptionPane.showConfirmDialog(this,
                     DesktopTheme.messageForDialog("You have unsaved changes. Save before exiting?"),
@@ -776,24 +790,37 @@ public class LeagueHomeView extends JFrame {
                     JOptionPane.WARNING_MESSAGE);
             if (choice == JOptionPane.YES_OPTION) {
                 saveLeague(false);
-                if (!dirty) {
-                    exitApplication();
+                if (dirty) {
+                    return false;
                 }
+                disposeForQuit();
+                return true;
             } else if (choice == JOptionPane.NO_OPTION) {
-                exitApplication();
+                disposeForQuit();
+                return true;
             }
-            // CANCEL; stay open with audio intact
-        } else {
-            exitApplication();
+            return false;
         }
+        disposeForQuit();
+        return true;
     }
 
-    private void exitApplication() {
+    /** OS / Aqua Preferences menu — opens league settings. */
+    public void openSettingsFromOs() {
+        openSettingsDialog();
+    }
+
+    private void disposeForQuit() {
+        MacDesktopIntegration.setActiveLeagueHome(null);
         if (audioManager != null) {
             audioManager.dispose();
             audioManager = null;
         }
         dispose();
+    }
+
+    private void exitApplication() {
+        disposeForQuit();
         System.exit(0);
     }
 
@@ -1287,23 +1314,7 @@ public class LeagueHomeView extends JFrame {
     // =========================================================================
 
     private void showAbout() {
-        String savesHint;
-        try {
-            savesHint = DesktopAppPaths.chooserStartDir().getAbsolutePath();
-        } catch (Exception e) {
-            savesHint = "~/.cfhc/saves";
-        }
-        JOptionPane.showMessageDialog(this,
-                DesktopTheme.messageForDialog(
-                "College Football Head Coach (CFHC) — " + DesktopVersion.DISPLAY + "\n"
-                        + "Portable Java build of the College Football Head Coach simulation.\n\n"
-                        + "Saves folder:\n" + savesHint + "\n\n"
-                        + "Releases:\n" + DesktopVersion.RELEASES_URL + "\n\n"
-                        + "Press F1 or Ctrl+/ for the full shortcut list.\n"
-                        + "Help → Check for Updates compares against GitHub (manual download only).\n"
-                        + "Help → Licenses & attribution for sound and library notices."),
-                "About CFHC",
-                JOptionPane.INFORMATION_MESSAGE);
+        MacDesktopIntegration.showAbout(this);
     }
 
     private void checkForUpdates() {
@@ -1894,6 +1905,8 @@ public class LeagueHomeView extends JFrame {
     public static void show(League league, File loadedFrom) {
         SwingUtilities.invokeLater(() -> {
             LeagueHomeView view = new LeagueHomeView(league, loadedFrom);
+            MacDesktopIntegration.setActiveLeagueHome(view);
+            MacDesktopIntegration.setActiveFrame(view);
             view.setLocationRelativeTo(null);
             view.setVisible(true);
         });

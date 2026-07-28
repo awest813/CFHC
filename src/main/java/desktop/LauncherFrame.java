@@ -66,6 +66,7 @@ public class LauncherFrame extends JFrame {
         setMinimumSize(new Dimension(820, 500));
         setLocationRelativeTo(null);
         loadWindowIcon();
+        MacDesktopIntegration.setActiveFrame(this);
 
         audioManager = new DesktopAudioManager();
 

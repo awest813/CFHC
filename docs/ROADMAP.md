@@ -38,7 +38,7 @@ These two activities import each other. It is the single biggest blocker for run
 
 ---
 
-### 3. 🔲 Decompose `League` and `Team` God Objects
+### 3. 🔄 Decompose `League` and `Team` God Objects
 
 `League.java` — 6,485 LOC · 109 public methods · 46 public mutable fields.
 `Team.java` — 5,487 LOC · 31 public mutable fields.
@@ -47,7 +47,7 @@ These two activities import each other. It is the single biggest blocker for run
 - Extract record-keeping → `LeagueRecordKeeper` / `TeamRecords` *(partially done — `TeamRecords.java` and `LeagueRecords.java` exist)*.
 - Extract stat aggregation → `LeagueStats` / `TeamStats`.
 - Make internal collections `private`; expose via unmodifiable getters.
-- Move scheduling logic → `ScheduleManager`.
+- ~~Move scheduling logic → `ScheduleManager`.~~ ✅ Done — regular-season / OOC / BYE scheduling lives in `simulation.ScheduleManager`; `League.setupSeason()` delegates.
 
 ---
 
@@ -249,7 +249,7 @@ Target a native SwiftUI app that talks to the shared core through the platform b
 The Swing shell already exists. The remaining work is to harden it, close parity gaps, and make packaging/distribution practical.
 *Requires items 2, 7, and 15. See [Platform Expansion](platform-expansion.md) and [Desktop improvement roadmap](desktop-improvement-roadmap.md) for design goals.*
 
-**Progress:** FlatLaf theming, portable zip / jpackage image, manual update check, `LeagueScreen` panel split, user-ready jar docs. Still open: Aqua menus / file association, signed installers, true `.AppImage`, deeper Android parity.
+**Progress:** FlatLaf theming, portable zip / jpackage image, manual update check, `LeagueScreen` panel split, user-ready jar docs, macOS Aqua About/Preferences/Quit + `.cfb` file-association scaffolding. Still open: signed installers, true `.AppImage`, deeper Android parity.
 ---
 
 ### 20. 🔲 Adopt a structured logging framework

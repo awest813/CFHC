@@ -302,6 +302,8 @@ tasks.register('desktopJpackageDryRun') {
     }
 }
 
+def fileAssociationsProps = file("${projectDir}/src/jpackage/cfhc-file-associations.properties")
+
 tasks.register('desktopJpackageImage', Exec) {
     group = 'desktop'
     description = 'Build an unsigned jpackage app-image directory (not a .AppImage file).'
@@ -325,7 +327,8 @@ tasks.register('desktopJpackageImage', Exec) {
                 '--main-jar', jar.name,
                 '--main-class', 'desktop.Main',
                 '--type', 'app-image',
-                '--dest', outDir.absolutePath
+                '--dest', outDir.absolutePath,
+                '--file-associations', fileAssociationsProps.absolutePath
         ]
     }
 }
@@ -381,7 +384,8 @@ tasks.register('desktopDmg', Exec) {
                 '--main-jar', jar.name,
                 '--main-class', 'desktop.Main',
                 '--type', 'dmg',
-                '--dest', outDir.absolutePath
+                '--dest', outDir.absolutePath,
+                '--file-associations', fileAssociationsProps.absolutePath
         ]
     }
 }
@@ -409,7 +413,8 @@ tasks.register('desktopMsi', Exec) {
                 '--main-jar', jar.name,
                 '--main-class', 'desktop.Main',
                 '--type', 'msi',
-                '--dest', outDir.absolutePath
+                '--dest', outDir.absolutePath,
+                '--file-associations', fileAssociationsProps.absolutePath
         ]
     }
 }

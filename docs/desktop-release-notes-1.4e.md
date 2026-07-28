@@ -22,6 +22,7 @@ java -jar CFHC-desktop-1.4e.jar help
 - Docked recruiting, transfer summaries, redshirts, depth chart / playbook
 - FlatLaf light/dark + high contrast, CSV import/export
 - Help → Check for Updates (GitHub Releases; manual download)
+- macOS: Aqua screen menu bar + About / Preferences / Quit handlers; `.cfb` open via file association (jpackage)
 
 ## Packaging (optional)
 ```bash

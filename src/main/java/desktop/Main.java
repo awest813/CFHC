@@ -22,6 +22,8 @@ public class Main {
             "===========================================";
 
     public static void main(String[] args) {
+        // macOS screen menu bar must be set before the LAF is installed
+        MacDesktopIntegration.installEarly();
         // HiDPI + FlatLaf (or system LAF fallback) via DesktopTheme.load()
         System.setProperty("sun.java2d.uiScale.enabled", "true");
         DesktopTheme.load();
@@ -29,14 +31,24 @@ public class Main {
         PlatformLog.i(TAG, HEADER.replace("\n", " | "));
         System.out.println(HEADER);
 
+        javax.swing.SwingUtilities.invokeLater(() ->
+                MacDesktopIntegration.installHandlers(Main::openSaveFromOs));
+
         if (args.length == 0) {
             javax.swing.SwingUtilities.invokeLater(() -> {
-                new LauncherFrame().setVisible(true);
+                LauncherFrame frame = new LauncherFrame();
+                MacDesktopIntegration.setActiveFrame(frame);
+                frame.setVisible(true);
             });
             return;
         }
 
         String command = args[0];
+        // Finder / jpackage file association may pass a bare save path
+        if (looksLikeSavePath(command)) {
+            launchPlayMode(command);
+            return;
+        }
         switch (command) {
             case "new":
                 launchNewLeague();
@@ -70,6 +82,23 @@ public class Main {
                 printUsage();
                 break;
         }
+    }
+
+    private static boolean looksLikeSavePath(String arg) {
+        if (arg == null || arg.isEmpty() || arg.startsWith("-")) {
+            return false;
+        }
+        String lower = arg.toLowerCase();
+        return lower.endsWith(".cfb") || lower.endsWith(".sav") || lower.endsWith(".txt");
+    }
+
+    /** Open a save from OS file association / OpenFileHandler (EDT). */
+    private static void openSaveFromOs(File saveFile) {
+        if (saveFile == null || !saveFile.isFile()) {
+            fail("save file not found: " + (saveFile != null ? saveFile.getAbsolutePath() : "null"));
+            return;
+        }
+        new Thread(() -> launchPlayMode(saveFile.getAbsolutePath()), "cfhc-open-save").start();
     }
 
     private static void fail(String message) {

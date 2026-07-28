@@ -54,7 +54,7 @@ Status key: 🔲 open · 🔄 in progress · ✅ done
 
 14. ✅ Accessibility (high-contrast + table/filter accessible names across main screens)
 15. ✅ Auto-update (manual Help → Check for Updates via GitHub Releases) / portable zip+JRE (`desktopPortableZip`)
-16. ✅ macOS `.dmg` / Windows `.msi` unsigned jpackage tasks (`desktopDmg` / `desktopMsi`; signed builds remain cert-blocked). Aqua menus / file association still open.
+16. ✅ macOS `.dmg` / Windows `.msi` unsigned jpackage tasks (`desktopDmg` / `desktopMsi`; signed builds remain cert-blocked). Aqua About/Preferences/Quit handlers + `.cfb` jpackage `--file-associations` scaffolding shipped (`MacDesktopIntegration`).
 17. ✅ Audio OGG SPI packaging (vorbisspi + jorbis + tritonus-share in desktop jar; fail-soft on decode errors)
 18. ✅ FlatLaf light/dark LAF (bundled `libs/flatlaf-*.jar`; system LAF fallback)
 
@@ -81,7 +81,7 @@ Status key: 🔲 open · 🔄 in progress · ✅ done
 6. ✅ Drop prototype/alpha labeling (#6)
 
 Next: continue ROADMAP #4 (ooc / W-L lists, League pools) and #3 god-object slices;
-macOS Aqua menus / file associations; signed MSI/DMG remains cert-blocked; true Linux `.AppImage` still open.
+Signed MSI/DMG remains cert-blocked; true Linux `.AppImage` still open.
 LeagueHomeView screens are extracted via `LeagueScreen` (shell polish remains).
 Done optional pass: FlatLaf LAF, Help → Check for Updates, `desktopJpackageImage` + `desktopPortableZip`,
 unsigned `desktopDmg`/`desktopMsi` scaffolds.
