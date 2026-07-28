@@ -357,10 +357,7 @@ public class JobOffersDialog extends JDialog {
         userHC.baselinePrestige = freshTeam.getTeamPrestige();
         userHC.promotionCandidate = false;
 
-        while (league.getNewsStories().size() <= league.currentWeek + 1) {
-            league.getNewsStories().add(new java.util.ArrayList<>());
-        }
-        league.getNewsStories().get(league.currentWeek + 1).add(
+        league.addNewsStory(league.currentWeek + 1,
                 "Coaching Hire: " + freshTeam.getName()
                         + ">After an extensive search for a new head coach, "
                         + freshTeam.getName() + " has hired " + userHC.name

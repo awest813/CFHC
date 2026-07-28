@@ -55,8 +55,8 @@ public final class SeasonalDialogController {
         activity.showImmersive(dialog);
         PlatformUiHelper.setDialogMessageTextSize(dialog);
 
-        simLeague.getNewsStories().get(simLeague.currentWeek + 1).add("Season Summary>" + simLeague.seasonSummaryStr());
-        simLeague.getNewsHeadlines().add("That wraps up the " + simLeague.getYear() + " Season");
+        simLeague.addNewsStory(simLeague.currentWeek + 1, "Season Summary>" + simLeague.seasonSummaryStr());
+        simLeague.addNewsHeadline("That wraps up the " + simLeague.getYear() + " Season");
     }
 
     public static void showPrestigeChange(MainActivity activity, League simLeague, Team userTeam) {

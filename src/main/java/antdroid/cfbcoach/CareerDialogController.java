@@ -290,13 +290,13 @@ public final class CareerDialogController {
                     userTeam.OC.baselinePrestige = 0;
                 } else {
                     userTeam.OC = new staff.OC(list.get(item), userTeam);
-                    simLeague.getNewsHeadlines().add(userTeam.getName() + " adds new Off Coord " + userTeam.OC.getName());
-                    simLeague.getNewsStories().get(simLeague.currentWeek).add("Off Coord Change: " + userTeam.getName()
+                    simLeague.addNewsHeadline(userTeam.getName() + " adds new Off Coord " + userTeam.OC.getName());
+                    simLeague.addNewsStory(simLeague.currentWeek, "Off Coord Change: " + userTeam.getName()
                             + ">After an extensive search for a new coordinator, " + userTeam.getName()
                             + " has hired " + userTeam.OC.getName() + " to lead the offense.");
                     userTeam.OC.contractLength = 3;
                     userTeam.OC.contractYear = 0;
-                    simLeague.getCoachFreeAgents().remove(list.get(item));
+                    simLeague.removeCoachFreeAgent(list.get(item));
 
                     if (isNewTeam) {
                         dialog.dismiss();
@@ -318,13 +318,13 @@ public final class CareerDialogController {
                     userTeam.DC.baselinePrestige = 0;
                 } else {
                     userTeam.DC = new staff.DC(list.get(item), userTeam);
-                    simLeague.getNewsHeadlines().add(userTeam.getName() + " adds new Def Coord " + userTeam.DC.getName());
-                    simLeague.getNewsStories().get(simLeague.currentWeek).add("Def Coord Change: " + userTeam.getName()
+                    simLeague.addNewsHeadline(userTeam.getName() + " adds new Def Coord " + userTeam.DC.getName());
+                    simLeague.addNewsStory(simLeague.currentWeek, "Def Coord Change: " + userTeam.getName()
                             + ">After an extensive search for a new coordinator, " + userTeam.getName()
                             + " has hired " + userTeam.DC.getName() + " to lead the defense.");
                     userTeam.DC.contractLength = 3;
                     userTeam.DC.contractYear = 0;
-                    simLeague.getCoachFreeAgents().remove(list.get(item));
+                    simLeague.removeCoachFreeAgent(list.get(item));
                     simLeague.coordinatorCarousel();
                 }
             }

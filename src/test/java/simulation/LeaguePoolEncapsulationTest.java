@@ -58,4 +58,73 @@ public class LeaguePoolEncapsulationTest {
         assertTrue(league.getTransferQBs().size() >= 0);
         assertTrue(league.getTransferRBs().size() >= 0);
     }
+
+    @Test
+    public void coachPoolGetters_areUnmodifiable() {
+        try {
+            league.getCoachList().clear();
+            fail("getCoachList should be unmodifiable");
+        } catch (UnsupportedOperationException expected) {
+            // ok
+        }
+        try {
+            league.getCoachStarList().clear();
+            fail("getCoachStarList should be unmodifiable");
+        } catch (UnsupportedOperationException expected) {
+            // ok
+        }
+        try {
+            league.getCoachFreeAgents().clear();
+            fail("getCoachFreeAgents should be unmodifiable");
+        } catch (UnsupportedOperationException expected) {
+            // ok
+        }
+        try {
+            league.getCoachDatabase().clear();
+            fail("getCoachDatabase should be unmodifiable");
+        } catch (UnsupportedOperationException expected) {
+            // ok
+        }
+    }
+
+    @Test
+    public void newsListGetters_areUnmodifiable_andAddNewsStoryWorks() {
+        assertFalse(league.getNewsStories().isEmpty());
+        try {
+            league.getNewsStories().clear();
+            fail("getNewsStories should be unmodifiable");
+        } catch (UnsupportedOperationException expected) {
+            // ok
+        }
+        try {
+            league.getNewsStories().get(0).clear();
+            fail("news week list should be unmodifiable");
+        } catch (UnsupportedOperationException expected) {
+            // ok
+        }
+        try {
+            league.getNewsHeadlines().clear();
+            fail("getNewsHeadlines should be unmodifiable");
+        } catch (UnsupportedOperationException expected) {
+            // ok
+        }
+        try {
+            league.getWeeklyScores().clear();
+            fail("getWeeklyScores should be unmodifiable");
+        } catch (UnsupportedOperationException expected) {
+            // ok
+        }
+        try {
+            league.getNewsTV().add("should fail");
+            fail("getNewsTV should be unmodifiable");
+        } catch (UnsupportedOperationException expected) {
+            // ok
+        }
+
+        int before = league.getNewsStoriesForWeek(0).size();
+        league.addNewsStory(0, "Encapsulation Test>Story body");
+        assertTrue(league.getNewsStoriesForWeek(0).size() == before + 1);
+        league.addNewsHeadline("Encapsulation headline");
+        assertTrue(league.getNewsHeadlines().contains("Encapsulation headline"));
+    }
 }

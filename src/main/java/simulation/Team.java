@@ -1577,23 +1577,23 @@ public class Team {
         if(OC != null && DC != null) {
             if(OC.getStaffOverall(ovr) > DC.getStaffOverall(ovr)) {
                 HC = new HeadCoach (OC, this);
-                if(league.getCoachStarList().contains(OC)) league.getCoachStarList().remove(OC);
+                if(league.coachStarList.contains(OC)) league.coachStarList.remove(OC);
                 OC = null;
                 if(league.currentWeek < league.regSeasonWeeks) league.OCCarousel();
             } else {
                 HC = new HeadCoach (DC, this);
-                if(league.getCoachStarList().contains(DC)) league.getCoachStarList().remove(DC);
+                if(league.coachStarList.contains(DC)) league.coachStarList.remove(DC);
                 DC = null;
                 if(league.currentWeek < league.regSeasonWeeks) league.DCCarousel();
             }
         } else if(Math.random() > 0.50 && OC != null) {
             HC = new HeadCoach (OC, this);
-            if(league.getCoachStarList().contains(OC)) league.getCoachStarList().remove(OC);
+            if(league.coachStarList.contains(OC)) league.coachStarList.remove(OC);
             OC = null;
             if(league.currentWeek < league.regSeasonWeeks) league.OCCarousel();
         } else if (DC != null) {
             HC = new HeadCoach (DC, this);
-            if(league.getCoachStarList().contains(DC)) league.getCoachStarList().remove(DC);
+            if(league.coachStarList.contains(DC)) league.coachStarList.remove(DC);
             DC = null;
             if(league.currentWeek < league.regSeasonWeeks) league.DCCarousel();
         } else {

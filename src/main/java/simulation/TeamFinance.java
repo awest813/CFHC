@@ -125,7 +125,7 @@ public class TeamFinance {
                         " many of the schools looking for a replacement at that position. He has a career record of " + wins + "-" + losses + ". ");
                 team.league.addNewsHeadline(team.name + " " + team.HC.position + " " + team.HC.name + " rumored for a bigger program?");
                 if (Math.random() > 0.50) {
-                    team.league.getCoachStarList().add(team.HC);
+                    team.league.coachStarList.add(team.HC);
                 }
             }
             //New Contracts or Firing
@@ -246,7 +246,7 @@ public class TeamFinance {
 
             if (coord.getStaffOverall(ovr) >= 75 || coord.baselinePrestige >= 5 || coord.baselinePrestige >= 2 && coord.getCumulativeCoord() >= 10) {
                 if (Math.random() > 0.50) {
-                    team.league.getCoachStarList().add(coord);
+                    team.league.coachStarList.add(coord);
                     if(coord.getStaffOverall(ovr) >= 80) {
                         team.league.addNewsStory(team.league.currentWeek + 1,"Coordinator Advancement Rumor>After another successful season at " + team.name + ", " + age + " year " + coord.position + " " + coord.name + " has sparked interest at many of the schools looking for a replacement at Head Coach. He has a career record of " + team.wins + "-" + team.losses + ". ");
                         team.league.addNewsHeadline(team.name + " " + coord.position + " " + coord.name + " heading for a possible HC job?");

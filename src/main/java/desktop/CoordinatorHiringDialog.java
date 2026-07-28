@@ -337,13 +337,8 @@ public class CoordinatorHiringDialog extends JDialog {
             }
             String side = offense ? "Off" : "Def";
             String sideFull = offense ? "offense" : "defense";
-            if (league.getNewsHeadlines() != null) {
-                league.getNewsHeadlines().add(userTeam.getName() + " adds new " + side + " Coord " + coordName);
-            }
-            while (league.getNewsStories().size() <= league.currentWeek) {
-                league.getNewsStories().add(new java.util.ArrayList<>());
-            }
-            league.getNewsStories().get(league.currentWeek).add(
+            league.addNewsHeadline(userTeam.getName() + " adds new " + side + " Coord " + coordName);
+            league.addNewsStory(league.currentWeek,
                     side + " Coord Change: " + userTeam.getName()
                             + ">After an extensive search for a new coordinator, "
                             + userTeam.getName() + " has hired " + coordName
@@ -355,7 +350,7 @@ public class CoordinatorHiringDialog extends JDialog {
                 userTeam.getDC().contractLength = COORDINATOR_CONTRACT_LENGTH;
                 userTeam.getDC().contractYear = 0;
             }
-            league.getCoachFreeAgents().remove(hired);
+            league.removeCoachFreeAgent(hired);
         }
     }
 

@@ -133,15 +133,19 @@ public class League {
     // Package-private — use getConferences()/addConference() and getTeamList()/addTeam().
     ArrayList<Conference> conferences;
     ArrayList<Team> teamList;
-    public ArrayList<Staff> coachList;
-    public ArrayList<Staff> coachStarList;
-    public ArrayList<Staff> coachFreeAgents;
-    public ArrayList<Staff> coachDatabase;
+    // Package-private coach pools — use getCoachList()/addCoach(), getCoachStarList(),
+    // getCoachFreeAgents()/addCoachFreeAgent()/removeCoachFreeAgent(), getCoachDatabase().
+    ArrayList<Staff> coachList;
+    ArrayList<Staff> coachStarList;
+    ArrayList<Staff> coachFreeAgents;
+    ArrayList<Staff> coachDatabase;
     public ArrayList<String> nameList;
     public ArrayList<String> lastNameList;
-    public ArrayList<ArrayList<String>> newsStories;
-    public ArrayList<String> newsHeadlines;
-    public ArrayList<ArrayList<String>> weeklyScores;
+    // Package-private news lists — use getNewsStories()/addNewsStory(), getNewsHeadlines(),
+    // getWeeklyScores(), getNewsTV().
+    ArrayList<ArrayList<String>> newsStories;
+    ArrayList<String> newsHeadlines;
+    ArrayList<ArrayList<String>> weeklyScores;
     public ArrayList<String> teamDiscipline;
     public double disciplineChance = 0.085;
     public double disciplineScrutiny = 0.035;
@@ -223,7 +227,8 @@ public class League {
     public int countRealignment;
     public String newsRealignment;
     public boolean updateTV;
-    public ArrayList<String> newsTV;
+    // Package-private — use getNewsTV().
+    ArrayList<String> newsTV;
     public ArrayList<Team> playoffTeams;
     public String postseason;
 
@@ -6374,9 +6379,10 @@ Then conferences can see if they want to add them to their list if the teams mee
 
     /**
      * Get an unmodifiable view of star coaches.
+     * Use {@link #addCoachStar(Staff)} and {@link #removeCoachStar(Staff)} to modify.
      */
     public java.util.List<Staff> getCoachStarList() {
-        return coachStarList;
+        return java.util.Collections.unmodifiableList(coachStarList);
     }
 
     /**
@@ -6384,7 +6390,7 @@ Then conferences can see if they want to add them to their list if the teams mee
      * Use {@link #addCoachFreeAgent(Staff)} and {@link #removeCoachFreeAgent(Staff)} to modify.
      */
     public java.util.List<Staff> getCoachFreeAgents() {
-        return coachFreeAgents;
+        return java.util.Collections.unmodifiableList(coachFreeAgents);
     }
 
     /**
@@ -6394,6 +6400,22 @@ Then conferences can see if they want to add them to their list if the teams mee
         if (coach != null) {
             coachList.add(coach);
         }
+    }
+
+    /**
+     * Add a coach to the star / carousel pool.
+     */
+    public void addCoachStar(Staff coach) {
+        if (coach != null && !coachStarList.contains(coach)) {
+            coachStarList.add(coach);
+        }
+    }
+
+    /**
+     * Remove a coach from the star / carousel pool.
+     */
+    public void removeCoachStar(Staff coach) {
+        coachStarList.remove(coach);
     }
 
     /**
@@ -6445,7 +6467,11 @@ Then conferences can see if they want to add them to their list if the teams mee
      * Add a news story for a specific week.
      */
     public void addNewsStory(int week, String story) {
-        if (week >= 0 && week < newsStories.size() && story != null) {
+        if (week < 0 || story == null) {
+            return;
+        }
+        ensureSeasonWeekListsCapacity(week);
+        if (week < newsStories.size()) {
             newsStories.get(week).add(story);
         }
     }
@@ -6551,7 +6577,10 @@ Then conferences can see if they want to add them to their list if the teams mee
      * Get an unmodifiable view of TV news entries.
      */
     public java.util.List<String> getNewsTV() {
-        return newsTV;
+        if (newsTV == null) {
+            return java.util.Collections.emptyList();
+        }
+        return java.util.Collections.unmodifiableList(newsTV);
     }
 
     /**

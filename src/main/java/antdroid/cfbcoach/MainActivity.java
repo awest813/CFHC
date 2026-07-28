@@ -507,7 +507,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Team selectedTeam = simLeague.getTeamList().get(item);
                     if (selectedTeam.getHeadCoach() != null) {
                         selectedTeam.getHeadCoach().team = null;
-                        simLeague.getCoachFreeAgents().add(selectedTeam.getHeadCoach());
+                        simLeague.addCoachFreeAgent(selectedTeam.getHeadCoach());
                     }
                     if (userTeam != null) {
                         userTeam.setUserControlled(false);
@@ -1586,7 +1586,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         }
 
-        simLeague.getNewsStories().get(simLeague.currentWeek).add("Season Goals>" + goals);
+        simLeague.addNewsStory(simLeague.currentWeek, "Season Goals>" + goals);
         showSeasonGoalsDialog();
 
     }
@@ -1759,7 +1759,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         userHC.contractLength = 6;
         userHC.baselinePrestige = userTeam.getTeamPrestige();
         userHC.promotionCandidate = false;
-        simLeague.getNewsStories().get(simLeague.currentWeek + 1).add("Coaching Hire: " + currentTeam.getName() + ">After an extensive search for a new head coach, " + currentTeam.getName() + " has hired " + userHC.getName() +
+        simLeague.addNewsStory(simLeague.currentWeek + 1, "Coaching Hire: " + currentTeam.getName() + ">After an extensive search for a new head coach, " + currentTeam.getName() + " has hired " + userHC.getName() +
                 " to lead the team.");
         updateHeaderBar();
         examineTeam(currentTeam.getName());
@@ -1807,8 +1807,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Television Contract News
     private void newsTV() {
         StringBuilder update = new StringBuilder();
-        for (int i = 0; i < simLeague.newsTV.size(); ++i) {
-            update.append(simLeague.newsTV.get(i) + "\n\n");
+        for (int i = 0; i < simLeague.getNewsTV().size(); ++i) {
+            update.append(simLeague.getNewsTV().get(i) + "\n\n");
         }
 
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -1890,7 +1890,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     userTeam.newCoachTeamChanges();
                     userHC.retired = true;
                     userHC.team = null;
-                    simLeague.getCoachFreeAgents().add(new HeadCoach(userHC, userTeam));
+                    simLeague.addCoachFreeAgent(new HeadCoach(userHC, userTeam));
                     userTeam.setupUserCoach(userHC.getName());
                     gameState.setNewGame(true);
                     userNameDialog();
@@ -1900,7 +1900,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     gameState.setReincarnate(true);
                     userHC.retired = true;
                     userHC.team = null;
-                    simLeague.getCoachFreeAgents().add(new HeadCoach(userHC, userTeam));
+                    simLeague.addCoachFreeAgent(new HeadCoach(userHC, userTeam));
                     jobOffers(userHC);
                     gameState.setNewGame(true);
                 });
