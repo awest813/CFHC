@@ -183,6 +183,7 @@ More detail: [docs/platform-expansion.md](docs/platform-expansion.md).
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Priorities, technical debt, planned work |
 | [docs/THREADING.md](docs/THREADING.md) | Single-thread engine mutation contract |
 | [docs/platform-expansion.md](docs/platform-expansion.md) | Cross-platform bridge and migration notes |
+| [docs/desktop-release-notes-1.4e.md](docs/desktop-release-notes-1.4e.md) | Desktop 1.4e run / save / attribution notes |
 
 ---
 
