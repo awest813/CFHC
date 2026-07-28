@@ -67,6 +67,7 @@ public class LeagueHistoryPanel implements LeagueScreen {
 
         JComboBox<String> categoryBox = new JComboBox<>(CATEGORIES);
         categoryBox.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        categoryBox.getAccessibleContext().setAccessibleName("League history category");
 
         String[] columns = {"Rank", "Team", "Total"};
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
@@ -118,7 +119,7 @@ public class LeagueHistoryPanel implements LeagueScreen {
         DesktopTheme.styleToolbar(topBar);
         statsPanel.add(topBar, BorderLayout.NORTH);
         JScrollPane histStatsScroll = new JScrollPane(table);
-        DesktopTheme.styleDataTableInScroll(histStatsScroll, table);
+        DesktopTheme.styleDataTableInScroll(histStatsScroll, table, "League history");
         statsPanel.add(histStatsScroll, BorderLayout.CENTER);
 
         JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, historyScroll, statsPanel);

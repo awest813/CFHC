@@ -52,11 +52,13 @@ public class PlayerSearchPanel implements LeagueScreen {
         filterBar.add(new JLabel("Position:"));
         String[] positions = {"ALL", "QB", "RB", "WR", "TE", "OL", "DL", "LB", "CB", "S", "K"};
         JComboBox<String> posBox = new JComboBox<>(positions);
+        posBox.getAccessibleContext().setAccessibleName("Player search position filter");
         filterBar.add(posBox);
 
         filterBar.add(new JLabel("Year:"));
         String[] years = {"ALL", "FR", "SO", "JR", "SR"};
         JComboBox<String> yearBox = new JComboBox<>(years);
+        yearBox.getAccessibleContext().setAccessibleName("Player search year filter");
         filterBar.add(yearBox);
 
         JButton searchBtn = new JButton("Search");
@@ -102,7 +104,7 @@ public class PlayerSearchPanel implements LeagueScreen {
         });
 
         JScrollPane searchScroll = new JScrollPane(table);
-        DesktopTheme.styleDataTableInScroll(searchScroll, table);
+        DesktopTheme.styleDataTableInScroll(searchScroll, table, "Player search results");
         panel.add(searchScroll, BorderLayout.CENTER);
 
         Runnable runSearch = () -> {

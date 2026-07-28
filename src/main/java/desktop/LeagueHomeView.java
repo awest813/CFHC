@@ -1,7 +1,6 @@
 package desktop;
 
 import positions.Player;
-import recruiting.RecruitingSessionData;
 import simulation.AudioEvent;
 import simulation.AudioManager;
 import simulation.Conference;
@@ -109,9 +108,7 @@ public class LeagueHomeView extends JFrame {
     private JPanel mainContentCards;
     private CardLayout mainCardLayout;
     private JList<String> navigationList;
-    private RecruitingSessionData activeRecruitingSession;
-    /** Frozen board payload for {@link #activeRecruitingSession} (survives via sidecar checkpoint). */
-    private String recruitingBoardPayload;
+    private final DesktopRecruitingSessionStore recruitingStore = new DesktopRecruitingSessionStore();
 
     /** Retained UI shells to avoid full frame rebuilds on refresh. */
     private JPanel headerPanel;
@@ -992,8 +989,8 @@ public class LeagueHomeView extends JFrame {
         DesktopTheme.styleFileChooser(chooser);
         chooser.setDialogTitle("Open Save File");
         chooser.setFileFilter(new FileNameExtensionFilter(
-                "CFHC save (*." + SAVE_EXTENSION + ", *.txt)",
-                SAVE_EXTENSION, "txt"));
+                "CFHC save (*." + SAVE_EXTENSION + ", *.sav, *.txt)",
+                SAVE_EXTENSION, "sav", "txt"));
         int result = chooser.showOpenDialog(this);
         if (result != JFileChooser.APPROVE_OPTION) return;
 
@@ -1557,7 +1554,7 @@ public class LeagueHomeView extends JFrame {
                     : "Save this recruiting board so it survives app restarts?\n\n"
                     + "Commitments stay on the board until final Signing Day. "
                     + "They will not join the active roster during the regular season.";
-            RecruitingPanel panel = new RecruitingPanel(leagueCore, activeRecruitingSession,
+            RecruitingPanel panel = new RecruitingPanel(leagueCore, recruitingStore.session(),
                     buttonText, title, message, data -> SwingUtilities.invokeLater(() -> {
                 if (!bridge.isAwaitingDockedRecruiting()) {
                     if (!persistRecruitingCheckpoint()) {
@@ -1603,90 +1600,32 @@ public class LeagueHomeView extends JFrame {
     }
 
     private void ensureRecruitingSessionLoaded() {
-        if (activeRecruitingSession != null && recruitingBoardPayload != null) {
-            return;
-        }
-        File chkFile = DesktopRecruitingCheckpoint.pathFor(lastSavePath, leagueCore);
-        try {
-            DesktopRecruitingCheckpoint checkpoint = DesktopRecruitingCheckpoint.read(chkFile);
-            if (checkpoint != null && checkpoint.matches(leagueCore)) {
-                activeRecruitingSession = checkpoint.restoreSession();
-                recruitingBoardPayload = checkpoint.boardPayload;
-                PlatformLog.i(TAG, "Restored recruiting checkpoint from " + chkFile.getAbsolutePath());
-                return;
-            }
-        } catch (Exception ex) {
-            PlatformLog.w(TAG, "Recruiting checkpoint load failed: " + ex.getMessage());
-        }
-        recruitingBoardPayload = SimulationFacade.buildRecruitingPayload(leagueCore.userTeam);
-        activeRecruitingSession = SimulationFacade.prepareRecruitingSessionFromPayload(recruitingBoardPayload);
+        recruitingStore.ensureLoaded(leagueCore, lastSavePath);
     }
 
     private boolean persistRecruitingCheckpoint() {
-        if (activeRecruitingSession == null || recruitingBoardPayload == null) {
+        String error = recruitingStore.persist(leagueCore, lastSavePath);
+        if (error == null) {
             return true;
         }
-        DesktopRecruitingCheckpoint checkpoint = DesktopRecruitingCheckpoint.capture(
-                leagueCore, recruitingBoardPayload, activeRecruitingSession);
-        File chkFile = DesktopRecruitingCheckpoint.pathFor(lastSavePath, leagueCore);
-        try {
-            DesktopRecruitingCheckpoint.write(chkFile, checkpoint);
-            PlatformLog.i(TAG, "Wrote recruiting checkpoint " + chkFile.getAbsolutePath());
-            return true;
-        } catch (Exception ex) {
-            PlatformLog.e(TAG, "Failed to write recruiting checkpoint", ex);
-            JOptionPane.showMessageDialog(this,
-                    DesktopTheme.messageForDialog(
-                            "Could not write recruiting checkpoint:\n" + ex.getMessage()),
-                    "Checkpoint Failed",
-                    JOptionPane.ERROR_MESSAGE);
-            return false;
-        }
+        JOptionPane.showMessageDialog(this,
+                DesktopTheme.messageForDialog(
+                        "Could not write recruiting checkpoint:\n" + error),
+                "Checkpoint Failed",
+                JOptionPane.ERROR_MESSAGE);
+        return false;
     }
 
     private void migrateRecruitingCheckpointAfterSaveAs(File previousPath, File newPath) {
-        if (previousPath == null || newPath == null) {
-            return;
-        }
-        if (previousPath.getAbsoluteFile().equals(newPath.getAbsoluteFile())) {
-            return;
-        }
-        File oldChk = DesktopRecruitingCheckpoint.pathFor(previousPath, leagueCore);
-        File newChk = DesktopRecruitingCheckpoint.pathFor(newPath, leagueCore);
-        if (oldChk.getAbsoluteFile().equals(newChk.getAbsoluteFile())) {
-            return;
-        }
-        try {
-            if (!newChk.isFile() && oldChk.isFile()) {
-                DesktopRecruitingCheckpoint existing = DesktopRecruitingCheckpoint.read(oldChk);
-                if (existing != null) {
-                    DesktopRecruitingCheckpoint.write(newChk, existing);
-                }
-            }
-        } catch (Exception ex) {
-            PlatformLog.w(TAG, "Could not migrate recruiting checkpoint: " + ex.getMessage());
-        }
-        DesktopRecruitingCheckpoint.clear(oldChk);
+        recruitingStore.migrateAfterSaveAs(leagueCore, previousPath, newPath);
     }
 
     private void persistRecruitingCheckpointQuietly() {
-        if (activeRecruitingSession == null || recruitingBoardPayload == null) {
-            return;
-        }
-        try {
-            DesktopRecruitingCheckpoint checkpoint = DesktopRecruitingCheckpoint.capture(
-                    leagueCore, recruitingBoardPayload, activeRecruitingSession);
-            DesktopRecruitingCheckpoint.write(
-                    DesktopRecruitingCheckpoint.pathFor(lastSavePath, leagueCore), checkpoint);
-        } catch (Exception ex) {
-            PlatformLog.w(TAG, "Quiet recruiting checkpoint failed: " + ex.getMessage());
-        }
+        recruitingStore.persistQuietly(leagueCore, lastSavePath);
     }
 
     private void clearRecruitingSessionState() {
-        DesktopRecruitingCheckpoint.clear(DesktopRecruitingCheckpoint.pathFor(lastSavePath, leagueCore));
-        activeRecruitingSession = null;
-        recruitingBoardPayload = null;
+        recruitingStore.clearAll(leagueCore, lastSavePath);
     }
 
     private String decodeSeasonPeriod() {

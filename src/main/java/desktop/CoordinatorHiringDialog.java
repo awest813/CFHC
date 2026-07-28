@@ -294,7 +294,7 @@ public class CoordinatorHiringDialog extends JDialog {
     }
 
     private JTable createModernTable(DefaultTableModel model) {
-        return DesktopTheme.stylePickerTable(model, 40, 10);
+        return DesktopTheme.stylePickerTable(model, 40, 10, "Coordinator candidates");
     }
 
     private void hireCoordinator(boolean offense, ArrayList<Staff> candidates, int selectedIdx) {

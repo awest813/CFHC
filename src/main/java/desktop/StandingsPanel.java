@@ -231,7 +231,7 @@ public class StandingsPanel implements LeagueScreen {
             }
         });
         JScrollPane confScroll = new JScrollPane(confTable);
-        DesktopTheme.styleDataTableInScroll(confScroll, confTable);
+        DesktopTheme.styleDataTableInScroll(confScroll, confTable, "Conference standings");
         panel.add(confScroll, BorderLayout.CENTER);
         return panel;
     }

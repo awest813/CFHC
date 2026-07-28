@@ -52,10 +52,10 @@ Status key: 🔲 open · 🔄 in progress · ✅ done
 
 ## Low
 
-14. ✅ Accessibility (high-contrast preference + table/filter accessible names; more labels still open)
+14. ✅ Accessibility (high-contrast + table/filter accessible names across main screens)
 15. Auto-update / portable zip+JRE
 16. macOS `.dmg` / Aqua menus / file association
-17. Audio Clip quirks on macOS
+17. ✅ Audio OGG SPI packaging (vorbisspi + jorbis + tritonus-share in desktop jar; fail-soft on decode errors)
 
 ---
 
@@ -66,6 +66,7 @@ Status key: 🔲 open · 🔄 in progress · ✅ done
 - Dark theme v1, keyboard shortcuts, depth chart, playbook  
 - Save/load/export + CSV import; `desktopStandaloneGate` CI  
 - `DesktopBulkSimulator` EDT hops for bulk advance  
+- `DesktopRecruitingSessionStore` for checkpoint lifecycle  
 
 ---
 
@@ -78,5 +79,5 @@ Status key: 🔲 open · 🔄 in progress · ✅ done
 5. ✅ Packaging metadata (#5)
 6. ✅ Drop prototype/alpha labeling (#6)
 
-Next: optional FlatLaf, remaining a11y labels, macOS packaging. Signed MSI/DMG remains cert-blocked.
-Export/import choosers now start in `DesktopAppPaths`; Save As migrates recruiting sidecars.
+Next: optional FlatLaf, auto-update, macOS packaging. Signed MSI/DMG remains cert-blocked.
+Export/import choosers use `DesktopAppPaths`; Save As migrates recruiting sidecars; desktop jar embeds full OGG SPI stack.

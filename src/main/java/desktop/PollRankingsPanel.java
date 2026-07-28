@@ -73,7 +73,7 @@ public class PollRankingsPanel implements LeagueScreen {
         });
 
         JScrollPane pollScroll = new JScrollPane(table);
-        DesktopTheme.styleDataTableInScroll(pollScroll, table);
+        DesktopTheme.styleDataTableInScroll(pollScroll, table, "Poll rankings");
         panel.add(pollScroll, BorderLayout.CENTER);
         JLabel pollFoot = new JLabel("Double-click a team for details. Teams are sortable by column.");
         pollFoot.setForeground(DesktopTheme.textSecondary());

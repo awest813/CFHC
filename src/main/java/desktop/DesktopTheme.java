@@ -453,6 +453,11 @@ public final class DesktopTheme {
      * with a consistent row height, single-selection mode, and styled header.
      */
     public static JTable stylePickerTable(DefaultTableModel model, int rowHeight, int headerFontSize) {
+        return stylePickerTable(model, rowHeight, headerFontSize, null);
+    }
+
+    public static JTable stylePickerTable(DefaultTableModel model, int rowHeight, int headerFontSize,
+                                         String accessibleName) {
         JTable table = new JTable(model);
         table.setRowHeight(rowHeight);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -461,6 +466,9 @@ public final class DesktopTheme {
         table.setGridColor(borderSubtle());
         table.setShowVerticalLines(false);
         table.setSelectionBackground(accentBlue());
+        if (accessibleName != null && !accessibleName.isBlank()) {
+            table.getAccessibleContext().setAccessibleName(accessibleName);
+        }
 
         table.getTableHeader().setBackground(tableBase());
         table.getTableHeader().setForeground(textSecondary());

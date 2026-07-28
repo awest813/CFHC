@@ -107,7 +107,7 @@ public class RedshirtDialog extends JDialog {
 
         // Left — currently redshirted players
         currentModel = createModel();
-        JTable currentTable = createModernTable(currentModel);
+        JTable currentTable = createModernTable(currentModel, "Inactive redshirt pool");
         StripedRowRenderer.install(currentTable);
 
         JPanel leftPanel = new JPanel(new BorderLayout(0, 15));
@@ -140,7 +140,7 @@ public class RedshirtDialog extends JDialog {
 
         // Right — freshmen eligible for redshirt
         eligibleModel = createModel();
-        JTable eligibleTable = createModernTable(eligibleModel);
+        JTable eligibleTable = createModernTable(eligibleModel, "Redshirt-eligible players");
         StripedRowRenderer.install(eligibleTable);
 
         JPanel rightPanel = new JPanel(new BorderLayout(0, 15));
@@ -181,8 +181,8 @@ public class RedshirtDialog extends JDialog {
         populateTables();
     }
 
-    private JTable createModernTable(DefaultTableModel model) {
-        return DesktopTheme.stylePickerTable(model, 35, 11);
+    private JTable createModernTable(DefaultTableModel model, String accessibleName) {
+        return DesktopTheme.stylePickerTable(model, 35, 11, accessibleName);
     }
 
     private DefaultTableModel createModel() {

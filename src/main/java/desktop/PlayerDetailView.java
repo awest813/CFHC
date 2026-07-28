@@ -176,7 +176,7 @@ public class PlayerDetailView extends JDialog {
         wrapper.setOpaque(true);
         wrapper.setBackground(DesktopTheme.windowBackground());
         JScrollPane tableScroll = new JScrollPane(table);
-        DesktopTheme.styleDataTableInScroll(tableScroll, table);
+        DesktopTheme.styleDataTableInScroll(tableScroll, table, "Player season stats");
         wrapper.add(tableScroll, BorderLayout.CENTER);
         wrapper.setMaximumSize(new java.awt.Dimension(Integer.MAX_VALUE, 30 + lines.size() * 22));
         wrapper.setPreferredSize(new java.awt.Dimension(600, 30 + lines.size() * 22));

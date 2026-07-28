@@ -117,6 +117,8 @@ public class DesktopAudioManager implements AudioManager {
             }
         } catch (Exception e) {
             PlatformLog.e(TAG, "Failed to play sound: " + event.name(), e);
+            // Missing SPI (jorbis/tritonus) or line issues — fail soft instead of spamming.
+            available = false;
         } finally {
             if (ais != null) {
                 try { ais.close(); } catch (IOException ignored) {}

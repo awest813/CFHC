@@ -178,6 +178,7 @@ public class JobOffersDialog extends JDialog {
         table.setGridColor(DesktopTheme.borderSubtle());
         table.setShowVerticalLines(false);
         table.setSelectionBackground(DesktopTheme.accentBlue());
+        table.getAccessibleContext().setAccessibleName("Job offers");
         
         table.getTableHeader().setBackground(DesktopTheme.tableBase());
         table.getTableHeader().setForeground(DesktopTheme.textSecondary());

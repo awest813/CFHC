@@ -161,7 +161,12 @@ public class LauncherFrame extends JFrame {
 
         JButton exitBtn = createStyledButton("Exit", "Close the application.");
         exitBtn.setMnemonic('E');
-        exitBtn.addActionListener(e -> System.exit(0));
+        exitBtn.addActionListener(e -> {
+            if (audioManager != null) {
+                audioManager.dispose();
+            }
+            System.exit(0);
+        });
         buttonGrid.add(exitBtn);
 
         JPanel centerWrap = new JPanel(new BorderLayout(0, 14));
@@ -268,7 +273,7 @@ public class LauncherFrame extends JFrame {
         JFileChooser chooser = new JFileChooser(DesktopAppPaths.chooserStartDir());
         DesktopTheme.styleFileChooser(chooser);
         chooser.setFileFilter(new FileNameExtensionFilter(
-                "CFHC saves (*.cfb, *.sav)", "cfb", "sav"));
+                "CFHC saves (*.cfb, *.sav, *.txt)", "cfb", "sav", "txt"));
         int res = chooser.showOpenDialog(this);
         if (res == JFileChooser.APPROVE_OPTION) {
             File file = chooser.getSelectedFile();

@@ -24,7 +24,11 @@ def desktopSourceFiles = fileTree("${rootProject.projectDir}/src/main/java") {
 
 def desktopClassesDir = layout.buildDirectory.dir('desktop/classes')
 def desktopResourcesDir = layout.buildDirectory.dir('desktop/resources')
-def vorbisspiJar = fileTree("${rootProject.projectDir}/libs").matching { include 'vorbisspi*.jar' }
+def vorbisspiJar = fileTree("${rootProject.projectDir}/libs").matching {
+    include 'vorbisspi*.jar'
+    include 'jorbis*.jar'
+    include 'tritonus-share*.jar'
+}
 
 /** Must match {@code desktop.DesktopResourceContract.VALUE_XML_FILES}. */
 def desktopValueXmlFiles = [

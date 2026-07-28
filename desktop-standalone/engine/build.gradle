@@ -36,6 +36,12 @@ sourceSets {
 
 dependencies {
     testImplementation 'junit:junit:4.13.2'
+    // OGG decode for DesktopAudioManager tests / headless smoke parity with desktopJar
+    testRuntimeOnly fileTree("${repoRoot}/libs").matching {
+        include 'vorbisspi*.jar'
+        include 'jorbis*.jar'
+        include 'tritonus-share*.jar'
+    }
 }
 
 /** Must match {@code desktop.DesktopResourceContract.VALUE_XML_FILES} / root build.gradle. */
@@ -123,7 +129,7 @@ tasks.register('prepareDesktopResources', Copy) {
     into desktopResourcesDir
 }
 
-/** Runnable fat-style jar (classes + copied resources). */
+/** Runnable fat-style jar (classes + copied resources + OGG SPI). */
 tasks.register('desktopJar', Jar) {
     group = 'desktop'
     dependsOn compileJava, prepareDesktopResources
@@ -133,6 +139,12 @@ tasks.register('desktopJar', Jar) {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from sourceSets.main.output
     from desktopResourcesDir
+    def oggSpiJars = fileTree("${repoRoot}/libs").matching {
+        include 'vorbisspi*.jar'
+        include 'jorbis*.jar'
+        include 'tritonus-share*.jar'
+    }
+    oggSpiJars.each { from(zipTree(it)) }
     manifest {
         attributes(
                 'Main-Class': 'desktop.Main',
@@ -146,7 +158,12 @@ tasks.register('desktopJar', Jar) {
 tasks.register('runDesktop', JavaExec) {
     group = 'desktop'
     dependsOn compileJava, prepareDesktopResources
-    classpath = sourceSets.main.runtimeClasspath + files(desktopResourcesDir.get().asFile)
+    def oggSpiJars = files(fileTree("${repoRoot}/libs").matching {
+        include 'vorbisspi*.jar'
+        include 'jorbis*.jar'
+        include 'tritonus-share*.jar'
+    })
+    classpath = sourceSets.main.runtimeClasspath + files(desktopResourcesDir.get().asFile) + oggSpiJars
     mainClass = 'desktop.Main'
     if (project.hasProperty('desktopArgs')) {
         args project.property('desktopArgs').toString().split(/\s+/).findAll { !it.isEmpty() }
@@ -168,6 +185,22 @@ tasks.register('desktopStandaloneGate') {
     group = 'verification'
     description = 'Compile shared engine, run JVM unit tests, build desktop jar — no Android SDK.'
     dependsOn test, desktopJar
+    doLast {
+        def jar = tasks.named('desktopJar', Jar).get().archiveFile.get().asFile
+        def entries = new java.util.zip.ZipFile(jar).withCloseable { zf ->
+            zf.entries().collect { it.name } as Set
+        }
+        def required = [
+                'META-INF/services/javax.sound.sampled.spi.AudioFileReader',
+                'javazoom/spi/vorbis/sampled/file/VorbisAudioFileReader.class',
+                'com/jcraft/jorbis/VorbisFile.class',
+                'org/tritonus/share/sampled/file/TAudioFileReader.class',
+        ]
+        def missing = required.findAll { !entries.contains(it) }
+        if (!missing.isEmpty()) {
+            throw new GradleException('desktopJar missing OGG SPI classes: ' + missing)
+        }
+    }
 }
 
 /**

@@ -19,4 +19,16 @@ Sound files in `src/main/res/raw/` and `src/main/assets/sounds/` are sourced fro
 - **License:** GNU Lesser General Public License v2.1 or later
 - **Purpose:** Provides OGG Vorbis playback support on the desktop platform via
   Java's Service Provider Interface (SPI) for `javax.sound.sampled`.
-- **Usage:** The vorbisspi JAR is bundled in the desktop distribution (`libs/` directory).
+- **Usage:** Bundled in the desktop jar from `libs/vorbisspi-*.jar`.
+
+### JOrbis (LGPL 2.1+)
+- **Artifact:** `com.googlecode.soundlibs:jorbis:0.0.17.4`
+- **License:** GNU Lesser General Public License v2.1 or later
+- **Purpose:** Native Java OGG Vorbis decoder required by VorbisSPI at runtime.
+- **Usage:** Bundled in the desktop jar from `libs/jorbis-*.jar`.
+
+### Tritonus Share (LGPL 2.1+)
+- **Artifact:** `com.googlecode.soundlibs:tritonus-share:0.3.7.4`
+- **License:** GNU Lesser General Public License v2.1 or later
+- **Purpose:** Shared sampled-audio helpers (`TAudioFileReader`) required by VorbisSPI.
+- **Usage:** Bundled in the desktop jar from `libs/tritonus-share-*.jar`.

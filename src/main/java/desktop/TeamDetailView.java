@@ -105,7 +105,7 @@ public class TeamDetailView extends JDialog {
             sp.setBackground(shell);
             Component v = sp.getViewport().getView();
             if (v instanceof JTable t) {
-                DesktopTheme.styleDataTable(t);
+                DesktopTheme.styleDataTable(t, "Team detail table");
                 sp.getViewport().setBackground(DesktopTheme.tableBase());
             } else if (v instanceof JPanel) {
                 sp.getViewport().setBackground(shell);

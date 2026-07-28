@@ -157,7 +157,7 @@ public class ScoreboardPanel implements LeagueScreen {
         topPanel.add(navPanel, BorderLayout.SOUTH);
         panel.add(topPanel, BorderLayout.NORTH);
         JScrollPane scoreScroll = new JScrollPane(table);
-        DesktopTheme.styleDataTableInScroll(scoreScroll, table);
+        DesktopTheme.styleDataTableInScroll(scoreScroll, table, "Scoreboard");
         panel.add(scoreScroll, BorderLayout.CENTER);
         JLabel scoreHint = new JLabel("Double-click any game to view the box score.");
         scoreHint.setForeground(DesktopTheme.textSecondary());

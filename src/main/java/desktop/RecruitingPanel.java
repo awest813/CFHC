@@ -118,6 +118,8 @@ public class RecruitingPanel extends JPanel {
         bar.add(filterLbl);
         filterBox = new JComboBox<>(positionLabels.toArray(new String[0]));
         filterBox.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
+        filterBox.getAccessibleContext().setAccessibleName("Recruiting position filter");
+        filterLbl.setLabelFor(filterBox);
         filterBox.addActionListener(e -> {
             if (!updatingFilterItems) {
                 loadBoard(filterBox.getSelectedIndex());
@@ -181,7 +183,7 @@ public class RecruitingPanel extends JPanel {
 
         JScrollPane tableScroll = new JScrollPane(boardTable);
         StripedRowRenderer.install(boardTable);
-        DesktopTheme.styleDataTableInScroll(tableScroll, boardTable);
+        DesktopTheme.styleDataTableInScroll(tableScroll, boardTable, "Recruiting board");
         tableScroll.setPreferredSize(new Dimension(550, 0));
 
         JPanel rightPanel = new JPanel(new BorderLayout(0, 6));
