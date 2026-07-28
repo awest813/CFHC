@@ -41,6 +41,15 @@ public class DisciplineDialogTest {
     }
 
     @Test
+    public void applyChoice_longSuspensionClearsFlagAndSuspends() {
+        league.userTeam.disciplineAction = true;
+        player.isSuspended = false;
+        assertTrue(DisciplineDialog.applyChoice(league.userTeam, player, "conduct", 1, 3, 1));
+        assertFalse(league.userTeam.disciplineAction);
+        assertTrue(player.isSuspended);
+    }
+
+    @Test
     public void applyChoice_ignoreOrCancelClearsFlagWithoutSuspendPathChoice2() {
         league.userTeam.disciplineAction = true;
         player.isSuspended = false;

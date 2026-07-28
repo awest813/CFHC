@@ -37,6 +37,11 @@ final class DesktopRecruitingSessionStore {
         if (hasSession()) {
             return;
         }
+        if (league == null || league.userTeam == null) {
+            PlatformLog.w(TAG, "Cannot load recruiting session without a user team");
+            clearMemory();
+            return;
+        }
         File chkFile = DesktopRecruitingCheckpoint.pathFor(leagueSave, league);
         try {
             DesktopRecruitingCheckpoint checkpoint = DesktopRecruitingCheckpoint.read(chkFile);

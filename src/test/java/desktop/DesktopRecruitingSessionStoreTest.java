@@ -65,4 +65,13 @@ public class DesktopRecruitingSessionStoreTest {
         assertFalse(reloaded.hasSession());
         assertFalse(DesktopRecruitingCheckpoint.pathFor(saveAs, league).isFile());
     }
+
+    @Test
+    public void ensureLoaded_noUserTeamLeavesStoreEmpty() {
+        league.userTeam = null;
+        DesktopRecruitingSessionStore store = new DesktopRecruitingSessionStore();
+        store.ensureLoaded(league, null);
+        assertFalse(store.hasSession());
+        assertNull(store.session());
+    }
 }

@@ -43,4 +43,17 @@ public class DesktopAudioManagerTest {
             assertNotNull(AudioSystem.getAudioInputStream(is));
         }
     }
+
+    @Test
+    public void preload_marksAvailableWhenAssetsPresent() {
+        DesktopAudioManager manager = new DesktopAudioManager();
+        try {
+            assertTrue(manager.isAvailable());
+            // Play may fail on a headless mixer; that must not permanently disable decode-capable audio.
+            manager.play(AudioEvent.UI_CLICK);
+            assertTrue(manager.isAvailable());
+        } finally {
+            manager.dispose();
+        }
+    }
 }

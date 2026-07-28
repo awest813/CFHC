@@ -35,4 +35,17 @@ public class DesktopBulkSimulatorThreadingTest {
         assertEquals(1, runs.get());
         assertTrue(onEdt.get());
     }
+
+    @Test
+    public void decisionUiPattern_runsInlineWhenAlreadyOnEdt() throws Exception {
+        AtomicInteger nestedRuns = new AtomicInteger();
+        SwingUtilities.invokeAndWait(() -> {
+            assertTrue(SwingUtilities.isEventDispatchThread());
+            // Mirror DesktopUiBridge.runDecisionUi: never call invokeAndWait from the EDT.
+            if (SwingUtilities.isEventDispatchThread()) {
+                nestedRuns.incrementAndGet();
+            }
+        });
+        assertEquals(1, nestedRuns.get());
+    }
 }

@@ -47,13 +47,17 @@ final class DesktopBulkSimulator {
     void simulateToTargetWeek(int targetWeek) {
         League league = host.league();
         if (targetWeek <= league.currentWeek) {
-            JOptionPane.showMessageDialog(host.window(),
-                    DesktopTheme.messageForDialog(
-                            "This league is already at or beyond that point in the season.\n"
-                                    + "Use Play Next Week or Advance Through Offseason instead."),
-                    "Nothing to Simulate",
-                    JOptionPane.INFORMATION_MESSAGE);
-            host.afterBulkRefresh();
+            try {
+                JOptionPane.showMessageDialog(host.window(),
+                        DesktopTheme.messageForDialog(
+                                "This league is already at or beyond that point in the season.\n"
+                                        + "Use Play Next Week or Advance Through Offseason instead."),
+                        "Nothing to Simulate",
+                        JOptionPane.INFORMATION_MESSAGE);
+            } finally {
+                // Always clear bulkRunning even if the dialog cannot display (headless).
+                host.afterBulkRefresh();
+            }
             return;
         }
 
@@ -95,9 +99,11 @@ final class DesktopBulkSimulator {
             @Override
             protected void done() {
                 dialog.dispose();
-                host.markDirty();
                 try {
                     int played = get();
+                    if (played > 0) {
+                        host.markDirty();
+                    }
                     PlatformLog.i(TAG, "Simulated " + played + " weeks.");
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
