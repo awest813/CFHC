@@ -54,14 +54,14 @@ For each gameplay loop, verify expected behavior, capture edge cases, add or fix
 ### Season Loop
 
 - [x] Schedule generation: covered by `FullSeasonTest` and save/load schedule round-trip tests.
-- [x] Rankings: indirectly covered by full-season advance; needs explicit ranking invariant tests.
+- [x] Rankings: `RankingInvariantTest` covers unique 1..N poll/prestige/talent ranks before games and at midseason.
 - [x] Weekly advance: covered by `SeasonControllerResultTest`.
 - [x] Game simulation: covered by full-season smoke; needs focused box-score/stat invariants.
 - [x] Box scores: verified by `GameBoxScoreTest` (stat format, quarter scores, yardage consistency, play-by-play, scout, return averages).
 - [x] Standings: verified by `GameStandingsTest` (win/loss consistency, conference/division bounds, no negative records).
 - [x] Awards: verified by `AwardsTest` (ceremony string non-empty, summary fires, persists through save/load).
 - [x] Postseason: full-season smoke verifies a champion is crowned.
-- Edge cases to audit: BYE weeks, teams with short schedules, overtime, postseason games after save/load, rankings before any games are played.
+- Edge cases to audit: BYE weeks *(covered by `ByeWeekInvariantTest` — bye play, prestige, SOS/RPI)*, teams with short schedules *(padded/odd-conference covered by `SeasonEdgeInvariantTest`)*, overtime *(`SeasonEdgeInvariantTest`)*, postseason games after save/load, rankings before any games are played *(rankings covered by `RankingInvariantTest`)*.
 - Polish pass: make week/status text consistent between Android home, desktop home, and notification dialogs.
 
 ### Roster Loop
@@ -91,7 +91,7 @@ For each gameplay loop, verify expected behavior, capture edge cases, add or fix
 - [x] Staff hiring: verify OC/DC replacement flows on Android and desktop (manual UI test). (Engine: `StaffHiringFiringTest`; headless coordinator week: `CareerUiPlayabilityTest.coordinatorHiringWeek_missingOc_promptsAndCanHire`. Device dialog click-through still open.)
 - [x] Jobs: verify job offers, promotions, and user team reassignment (manual UI test). (Headless: `CareerUiPlayabilityTest` fired/promotion paths + `SeasonControllerJobOffersGateTest`. Device dialog click-through still open.)
 - [x] Firing: verify fired user gets a recoverable flow and league remains playable (manual UI test). (Headless: `CareerUiPlayabilityTest.firedCoach_teamSwitch_remainsPlayableThroughNextSeason`. Device dialog click-through still open.)
-- [x] Prestige: full-season flow touches prestige updates; needs explicit program prestige bounds tests. (`PrestigeBoundsTest`, `RankingInvariantTest`)
+- [x] Prestige: `PrestigeBoundsTest` / `RankingInvariantTest` cover construction bounds, zero clamp, fire knockdown, midseason bounds, and rank ordering.
 - [x] History/records: save/load round trip and full-season history checks exist; needs targeted record update tests.
 - Edge cases to audit: no available staff, user fired after championship/offseason event, conference realignment plus job change, record ties.
 - Polish pass: career messages should be concise, clear, and not platform-specific in shared presentation text.

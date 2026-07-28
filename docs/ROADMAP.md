@@ -163,7 +163,8 @@ Previously only `League.saveVer = "v1.4e"`. Format changes silently broke old sa
 
 **Actions:**
 - ~~Add a structured version header at the top of each save file.~~ ✅ Done — `SaveSchema` + `V:` load path in `SaveManager`.
-- ~~Write a migration layer that upgrades older formats on load.~~ ✅ Done — version parse + golden fixture / `SaveSchemaVersionTest` coverage.
+- ~~Write a migration layer that upgrades older formats on load.~~ ✅ Done — `SaveSchema.migrate` identity for `v1.4e`; golden fixture / `SaveSchemaVersionTest` coverage. Unknown versions fail with a clear `IOException`.
+- Remaining: real migrators when the next breaking format ships.
 
 ---
 
@@ -179,10 +180,10 @@ Previously only `League.saveVer = "v1.4e"`. Format changes silently broke old sa
 
 ### 14. ✅ Remove legacy `PlayerProfile.java`
 
-`PlayerProfile.java` existed as a thin stats-row helper (separate from `PlayerProfileV2`).
+`PlayerProfile.java` was a thin two-column stats-row helper (not a duplicate of `PlayerProfileV2`).
 
 **Actions:**
-- ~~Rename/replace with a clearer adapter and update call sites.~~ ✅ Done — `StatsRowAdapter` replaces `PlayerProfile`; Android references updated.
+- ~~Rename/replace with a clearer adapter and update call sites.~~ ✅ Done — `StatsRowAdapter` replaces `PlayerProfile`; Android references updated. Profile dialogs continue to use `PlayerProfileDialogController` / `PlayerProfileSnapshot` / `PlayerProfileV2`.
 
 ---
 
@@ -194,18 +195,14 @@ These items require the Critical and High items above to be largely complete fir
 
 ### 15. ✅ Introduce a headless simulation facade
 
-A single entry-point class (`SimulationFacade` or similar) exposing a clean API:
+~~A single entry-point class (`SimulationFacade` or similar) exposing a clean API~~ — **`SimulationFacade` already exists** and covers load/save slots, `advanceWeek()`, recruiting prepare/complete, import, and team selection.
 
-```
-createDynasty(config) → Dynasty
-loadSave(path) → Dynasty
-advanceWeek(dynasty) → WeekResult
-resolveOffseason(dynasty) → OffseasonResult
-prepareRecruitingData(dynasty) → RecruitingSnapshot
-```
+Remaining polish toward the original sketch:
+- Thinner naming aliases / docs for createDynasty-style entry points
+- Keep shells on facade APIs instead of reaching into `League` for season flow
+- Optional `resolveOffseason`-style helpers where UI still drives multi-step offseason manually
 
-This facade becomes the API surface for iOS and desktop shells.
-*Requires items 2 and 7.*
+*Requires items 2 and 7 (done).*
 
 ---
 
@@ -226,9 +223,9 @@ Initial JUnit coverage now exists (`ComparatorTest`, recruiting tests, full-seas
 The engine assumes single-threaded access throughout. If a desktop or server shell introduces background threads, data corruption becomes likely.
 
 **Actions:**
-- ~~Add a `THREADING.md` doc describing the single-thread contract.~~ ✅ Done — `docs/THREADING.md`.
+- ~~Add a `THREADING.md` doc describing the single-thread contract.~~ ✅ Done — see [THREADING.md](THREADING.md).
 - ~~Annotate key classes with `@NotThreadSafe`.~~ ✅ Done — `League` / `Team` (+ annotation type).
-- Identify the safest future path (e.g., single game-thread with message-passing).
+- Identify the safest future path (e.g., single game-thread with message-passing). *(Documented in THREADING.md; implementation deferred.)*
 
 ---
 
@@ -257,5 +254,6 @@ Replace the lightweight `PlatformLog` shim with SLF4J (portable) + Timber (Andro
 | Doc | Purpose |
 |:---|:---|
 | [Platform Expansion](platform-expansion.md) | Design goals for iOS and desktop shells |
+| [Threading](THREADING.md) | Single-thread mutation contract for `League` / `Team` |
 | [README — Engine Audit Summary](../README.md#engine-audit-summary) | High-level audit findings |
 | [Privacy Policy](../Privacy-Policy.md) | App privacy disclosures |

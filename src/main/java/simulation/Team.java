@@ -32,7 +32,7 @@ import staff.Staff;
 
 
 /**
- * Team simulation state.
+ * Mutable team state owned by a {@link League}.
  *
  * <p><b>Threading:</b> not safe for concurrent mutation. See {@code docs/THREADING.md}.
  */
@@ -199,11 +199,15 @@ public class Team {
     public ArrayList<PlayerCB> teamCBs;
     public ArrayList<PlayerS> teamSs;
 
+    /** Graduating / departing players — mutate via {@link #addPlayerLeaving}/{@link #clearPlayersLeaving}. */
     private ArrayList<Player> playersLeaving;
+    /** Portal transfer candidates — mutate via {@link #addPlayerTransferring}/{@link #clearPlayersTransferring}. */
     private ArrayList<Player> playersTransferring;
+    /** Redshirt display rows — mutate via {@link #addRedshirt}. */
     private ArrayList<String> redshirtList;
     public java.util.ArrayList<String> trainingCampFocusNames;
 
+    /** Injured players — mutate only via {@link #addPlayerInjured}/{@link #removePlayerInjured}/{@link #clearPlayersInjured}. */
     private ArrayList<Player> playersInjured;
     public ArrayList<Player> playersDis;
 
@@ -1289,7 +1293,7 @@ public class Team {
         natChampWL = "";
 
         playersLeaving.clear();
-        if (playersTransferring != null) playersTransferring.clear();
+        if (playersTransferring != null) clearPlayersTransferring();
     }
 
     //Calculates Prestige Change at end of season
@@ -1872,7 +1876,7 @@ public class Team {
     }
 
     /**
-     * Scan the roster and mark/transfer candidates into the transferring list.
+     * Scan the roster and mark transfer candidates into the transferring list.
      * Named to avoid confusion with {@link #getTransferringPlayers()}.
      */
     public void identifyTransferCandidates() {
@@ -5144,18 +5148,24 @@ public class Team {
     }
 
     /**
-     * Get an unmodifiable view of transfer candidates identified this cycle.
+     * Unmodifiable view of players currently marked for the transfer portal.
      */
     public java.util.List<Player> getTransferringPlayers() {
         return java.util.Collections.unmodifiableList(playersTransferring);
     }
 
+    /**
+     * Add a player to the transferring list.
+     */
     public void addPlayerTransferring(Player player) {
         if (player != null) {
             playersTransferring.add(player);
         }
     }
 
+    /**
+     * Clear the transferring players list.
+     */
     public void clearPlayersTransferring() {
         playersTransferring.clear();
     }

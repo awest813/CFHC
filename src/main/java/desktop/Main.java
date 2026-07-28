@@ -148,11 +148,13 @@ public class Main {
             return;
         }
         try (FileInputStream fis = new FileInputStream(saveFile)) {
-            LeagueRecord league = SaveManager.load(fis);
+            SaveManager.LoadResult loaded = SaveManager.loadWithVersion(fis);
+            LeagueRecord league = loaded.record();
 
             System.out.println("League: " + league.leagueName());
             System.out.println("Year: " + league.year());
             System.out.println("Current Week: " + league.currentWeek());
+            System.out.println("Schema: " + loaded.schemaVersion());
             System.out.println("Total Conferences: " + league.conferences().size());
 
             int teams = league.conferences().stream().mapToInt(c -> c.teams().size()).sum();
