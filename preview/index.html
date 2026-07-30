@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CFHC - Live Player Profile UI Preview</title>
+  <!-- Google Fonts for Sports Broadcast Aesthetics -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-default">
+  <!-- Top Navigation & Live Control Bar -->
+  <header class="live-control-header">
+    <div class="brand-badge">
+      <span class="live-dot"></span>
+      <span class="brand-title">CFHC LIVE PREVIEW</span>
+      <span class="brand-sub">UI REDESIGN SANDBOX</span>
+    </div>
+
+    <div class="control-actions">
+      <div class="control-group">
+        <label for="player-select">Player:</label>
+        <select id="player-select" class="ctrl-select">
+          <option value="qb_vance">#12 Marcus Vance (QB - Sr)</option>
+          <option value="rb_reed">#24 Jaxson Reed (RB - Jr)</option>
+          <option value="wr_smith">#6 Devonte Smith (WR - So)</option>
+          <option value="de_miller">#99 Caleb Miller (DE - Sr)</option>
+          <option value="cb_carter">#1 Tyree Carter (CB - Fr)</option>
+        </select>
+      </div>
+
+      <div class="control-group">
+        <label for="team-theme">Team Colors:</label>
+        <select id="team-theme" class="ctrl-select">
+          <option value="theme-navy">Michigan (Navy & Maize)</option>
+          <option value="theme-crimson">Alabama (Crimson & White)</option>
+          <option value="theme-burnt-orange">Texas (Burnt Orange)</option>
+          <option value="theme-green-yellow">Oregon (Green & Yellow)</option>
+          <option value="theme-red-black">Georgia (Red & Black)</option>
+          <option value="theme-purple-gold">LSU (Purple & Gold)</option>
+        </select>
+      </div>
+
+      <button id="btn-toggle-panel" class="ctrl-btn secondary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        Tweak Data
+      </button>
+      
+      <button id="btn-randomize" class="ctrl-btn primary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 11-.57-8.38l5.67-5.67"/></svg>
+        Randomize Player
+      </button>
+    </div>
+  </header>
+
+  <!-- Interactive Sandbox Drawer (Collapsible) -->
+  <aside id="sandbox-drawer" class="sandbox-drawer collapsed">
+    <div class="drawer-header">
+      <h3>Live Stat Customizer</h3>
+      <button id="btn-close-drawer" class="icon-btn">&times;</button>
+    </div>
+    <div class="drawer-body">
+      <div class="input-field">
+        <label>Overall (OVR): <span id="val-ovr">94</span></label>
+        <input type="range" id="input-ovr" min="50" max="99" value="94">
+      </div>
+      <div class="input-field">
+        <label>Star Rating: <span id="val-stars">5 Stars</span></label>
+        <input type="range" id="input-stars" min="1" max="5" value="5">
+      </div>
+      <div class="input-field">
+        <label>Throw Power / Primary Rating: <span id="val-stat1">96</span></label>
+        <input type="range" id="input-stat1" min="50" max="99" value="96">
+      </div>
+      <div class="input-field">
+        <label>Speed: <span id="val-stat2">84</span></label>
+        <input type="range" id="input-stat2" min="50" max="99" value="84">
+      </div>
+      <div class="input-field">
+        <label>XP Progress: <span id="val-xp">3450</span> / 5000</label>
+        <input type="range" id="input-xp" min="0" max="5000" value="3450">
+      </div>
+      <div class="input-field">
+        <label>Sprite Pose:</label>
+        <select id="input-pose" class="ctrl-select wide">
+          <option value="qb">QB Pass Stance</option>
+          <option value="rb">RB Sprint Stance</option>
+          <option value="retro">Pixel Canvas Generator</option>
+        </select>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Main Game Frame / Player Profile Screen Container -->
+  <div class="game-viewport">
+    <div class="profile-screen-container">
+      
+      <!-- Top Screen Header & Navigation -->
+      <nav class="screen-nav-header">
+        <div class="breadcrumb">
+          <span class="bc-root">ROSTERS</span>
+          <span class="bc-sep">/</span>
+          <span class="bc-active" id="bc-player-name">PLAYER PROFILE</span>
+        </div>
+
+        <div class="nav-tabs" role="tablist">
+          <button class="nav-tab active" data-tab="overview" role="tab">OVERVIEW</button>
+          <button class="nav-tab" data-tab="ratings" role="tab">RATINGS</button>
+          <button class="nav-tab" data-tab="stats" role="tab">STATS</button>
+          <button class="nav-tab" data-tab="history" role="tab">HISTORY</button>
+        </div>
+
+        <div class="team-badge-header">
+          <span class="team-rank">#3</span>
+          <span class="team-name-tag" id="team-tag-display">WOLVERINES</span>
+        </div>
+      </nav>
+
+      <!-- Profile Grid Layout -->
+      <main class="profile-grid">
+        
+        <!-- Left & Center Column: Player Identity & Data Cards -->
+        <div class="profile-main-col">
+          
+          <!-- Identity Header Box -->
+          <section class="identity-card panel-frame">
+            <div class="jersey-num-box">
+              <span id="player-num">#12</span>
+            </div>
+
+            <div class="identity-meta">
+              <div class="name-stars-row">
+                <h1 class="player-fullname" id="player-name">MARCUS VANCE</h1>
+                <div class="star-rating" id="star-rating-box">
+                  <span class="star fill">★</span>
+                  <span class="star fill">★</span>
+                  <span class="star fill">★</span>
+                  <span class="star fill">★</span>
+                  <span class="star fill">★</span>
+                </div>
+              </div>
+
+              <div class="archetype-tags">
+                <span class="archetype-badge" id="player-archetype">FIELD GENERAL</span>
+                <span class="dev-trait-badge" id="player-devtrait">★ STAR DEV</span>
+                <span class="captain-badge">C CAPTAIN</span>
+              </div>
+
+              <!-- Quick Bio Bar -->
+              <div class="quick-bio-bar">
+                <div class="bio-item">
+                  <span class="bio-label">POS</span>
+                  <span class="bio-val" id="bio-pos">QB</span>
+                </div>
+                <div class="bio-item">
+                  <span class="bio-label">CLASS</span>
+                  <span class="bio-val" id="bio-class">SR (RS)</span>
+                </div>
+                <div class="bio-item">
+                  <span class="bio-label">HT / WT</span>
+                  <span class="bio-val" id="bio-htwt">6'3" / 218 LBS</span>
+                </div>
+                <div class="bio-item">
+                  <span class="bio-label">HOMETOWN</span>
+                  <span class="bio-val" id="bio-town">DALLAS, TX</span>
+                </div>
+                <div class="bio-item">
+                  <span class="bio-label">ETHIC</span>
+                  <span class="bio-val highlight" id="bio-ethic">ELITE</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- OVR Gauge Box -->
+            <div class="ovr-gauge-box">
+              <div class="svg-gauge-wrap">
+                <svg class="gauge-svg" viewBox="0 0 120 120">
+                  <circle class="gauge-bg" cx="60" cy="60" r="52"></circle>
+                  <circle class="gauge-meter" id="ovr-circle-meter" cx="60" cy="60" r="52" stroke-dasharray="326.72" stroke-dashoffset="19.6"></circle>
+                </svg>
+                <div class="gauge-content">
+                  <span class="ovr-num" id="display-ovr">94</span>
+                  <span class="ovr-lbl">OVR</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Tab Content Container -->
+          <div class="tab-content-area">
+            
+            <!-- OVERVIEW TAB -->
+            <div class="tab-pane active" id="tab-overview">
+              <div class="panels-two-col">
+                
+                <!-- Attributes Card -->
+                <section class="data-panel panel-frame">
+                  <div class="panel-header">
+                    <span class="panel-icon">📊</span>
+                    <h2>KEY ATTRIBUTES</h2>
+                    <span class="panel-badge">CORE RATINGS</span>
+                  </div>
+                  <div class="attributes-grid" id="attributes-list">
+                    <!-- Populated dynamically via JS -->
+                  </div>
+                </section>
+
+                <!-- Season Performance & Gauges -->
+                <section class="data-panel panel-frame">
+                  <div class="panel-header">
+                    <span class="panel-icon">🏆</span>
+                    <h2>SEASON PERFORMANCE</h2>
+                    <span class="panel-badge">2026 STATS</span>
+                  </div>
+
+                  <div class="stats-hero-row">
+                    <div class="stat-box">
+                      <span class="stat-val" id="stat-yds">3,420</span>
+                      <span class="stat-lbl">PASS YDS</span>
+                    </div>
+                    <div class="stat-box">
+                      <span class="stat-val highlight-green" id="stat-tds">32</span>
+                      <span class="stat-lbl">TOUCHDOWNS</span>
+                    </div>
+                    <div class="stat-box">
+                      <span class="stat-val" id="stat-ints">6</span>
+                      <span class="stat-lbl">INTERCEPTIONS</span>
+                    </div>
+                  </div>
+
+                  <div class="gauge-row-flex">
+                    <!-- Secondary Gauge: Comp % -->
+                    <div class="mini-gauge-container">
+                      <svg class="mini-gauge-svg" viewBox="0 0 100 100">
+                        <circle class="gauge-bg" cx="50" cy="50" r="42"></circle>
+                        <circle class="gauge-meter mini" id="comp-circle-meter" cx="50" cy="50" r="42" stroke-dasharray="263.8" stroke-dashoffset="83.3"></circle>
+                      </svg>
+                      <div class="mini-gauge-text">
+                        <span class="mini-val" id="val-comp">68.4%</span>
+                        <span class="mini-lbl">COMP %</span>
+                      </div>
+                    </div>
+
+                    <div class="mini-stat-metrics">
+                      <div class="metric-row">
+                        <span class="m-lbl">Passer Rating:</span>
+                        <span class="m-val highlight-gold" id="val-rating">164.2</span>
+                      </div>
+                      <div class="metric-row">
+                        <span class="m-lbl">Yards / Att:</span>
+                        <span class="m-val" id="val-ypa">8.6</span>
+                      </div>
+                      <div class="metric-row">
+                        <span class="m-lbl">QBR:</span>
+                        <span class="m-val" id="val-qbr">88.5</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- XP & Skill Upgrade Progress -->
+                  <div class="dev-progress-box">
+                    <div class="dev-title-row">
+                      <span class="dev-lbl">DEVELOPMENT XP</span>
+                      <span class="dev-pts-badge" id="skill-pts-badge">3 SKILL POINTS AVAILABLE</span>
+                    </div>
+                    <div class="xp-bar-wrap">
+                      <div class="xp-bar-fill" id="xp-bar-fill" style="width: 69%;"></div>
+                    </div>
+                    <div class="xp-num-row">
+                      <span id="xp-current-display">3,450 / 5,000 XP</span>
+                      <span class="xp-next">+350 vs Ohio State</span>
+                    </div>
+                  </div>
+                </section>
+
+              </div>
+            </div>
+
+            <!-- RATINGS TAB -->
+            <div class="tab-pane" id="tab-ratings">
+              <section class="data-panel panel-frame">
+                <div class="panel-header">
+                  <span class="panel-icon">⚡</span>
+                  <h2>FULL RATINGS MATRIX</h2>
+                  <input type="text" id="ratings-filter" class="table-search-input" placeholder="Filter ratings...">
+                </div>
+                <div class="full-ratings-grid" id="full-ratings-container">
+                  <!-- Generated by JS -->
+                </div>
+              </section>
+            </div>
+
+            <!-- STATS TAB -->
+            <div class="tab-pane" id="tab-stats">
+              <section class="data-panel panel-frame">
+                <div class="panel-header">
+                  <span class="panel-icon">📈</span>
+                  <h2>CAREER & SEASON STAT LOG</h2>
+                </div>
+                <div class="table-responsive">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>YEAR</th>
+                        <th>TEAM</th>
+                        <th>GP</th>
+                        <th>COMP</th>
+                        <th>ATT</th>
+                        <th>PCT</th>
+                        <th>YDS</th>
+                        <th>TD</th>
+                        <th>INT</th>
+                        <th>RAT</th>
+                      </tr>
+                    </thead>
+                    <tbody id="career-stats-rows">
+                      <!-- Generated by JS -->
+                    </tbody>
+                  </table>
+                </div>
+              </section>
+            </div>
+
+            <!-- HISTORY TAB -->
+            <div class="tab-pane" id="tab-history">
+              <section class="data-panel panel-frame">
+                <div class="panel-header">
+                  <span class="panel-icon">📜</span>
+                  <h2>CAREER MILESTONES & HONORS</h2>
+                </div>
+                <div class="history-timeline" id="history-timeline-box">
+                  <!-- Generated by JS -->
+                </div>
+              </section>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Right Column: Sprite Anchor & Archetypes -->
+        <div class="profile-side-col">
+          
+          <!-- Character Sprite Display Container -->
+          <section class="sprite-panel panel-frame">
+            <div class="watermark-bg"></div>
+            
+            <div class="sprite-stage">
+              <img id="sprite-image" class="pixel-sprite-img" src="sprites/pixel_qb_sprite.jpg" alt="Player Sprite">
+              <canvas id="sprite-canvas" class="pixel-canvas-renderer hidden" width="160" height="240"></canvas>
+            </div>
+
+            <div class="sprite-caption">
+              <span class="sprite-pose-tag" id="pose-tag">PIXEL ART SPRITE • POS 01</span>
+              <span class="sprite-quality">16-BIT RETRO ENGINE</span>
+            </div>
+          </section>
+
+          <!-- Archetypes & Skill Badges Card -->
+          <section class="data-panel panel-frame">
+            <div class="panel-header">
+              <span class="panel-icon">🎯</span>
+              <h2>ARCHETYPES & TRAITS</h2>
+            </div>
+            <div class="archetypes-list" id="archetypes-container">
+              <!-- Dynamically populated -->
+            </div>
+          </section>
+
+        </div>
+      </main>
+
+      <!-- Footer Legend Bar -->
+      <footer class="screen-footer">
+        <div class="input-legend">
+          <span class="key-chip"><kbd>1-4</kbd> TABS</span>
+          <span class="key-chip"><kbd>↑/↓</kbd> SWITCH PLAYER</span>
+          <span class="key-chip"><kbd>R</kbd> RANDOMIZE</span>
+          <span class="key-chip"><kbd>T</kbd> SWAP TEAM</span>
+          <span class="key-chip"><kbd>ESC</kbd> BACK</span>
+        </div>
+        <div class="system-status">
+          <span class="status-indicator"></span>
+          <span>CFHC SIMULATION ENGINE • VER 1.4.5</span>
+        </div>
+      </footer>
+
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

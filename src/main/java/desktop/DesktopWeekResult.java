@@ -72,6 +72,25 @@ final class DesktopWeekResult {
         return last;
     }
 
+    /**
+     * Finds the next unplayed non-BYE game on the schedule (dashboard "Upcoming Matchup").
+     */
+    static Game findUpcomingGame(Team userTeam) {
+        if (userTeam == null) {
+            return null;
+        }
+        List<Game> schedule = userTeam.getGameSchedule();
+        if (schedule == null || schedule.isEmpty()) {
+            return null;
+        }
+        for (Game g : schedule) {
+            if (!g.hasPlayed && !g.gameName.equals("BYE WEEK")) {
+                return g;
+            }
+        }
+        return null;
+    }
+
     static String opponentAbbr(Game g, Team userTeam) {
         if (g == null || userTeam == null) {
             return "Opponent";

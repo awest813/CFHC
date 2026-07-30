@@ -198,22 +198,20 @@ public class RecruitingPanel extends JPanel {
         detailArea.setWrapStyleWord(true);
         JScrollPane detailScroll = new JScrollPane(detailArea);
         detailScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
-        TitledBorder detailTitle = BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(DesktopTheme.borderSubtle()), "Recruit Details");
-        detailTitle.setTitleColor(DesktopTheme.textPrimary());
-        detailScroll.setBorder(detailTitle);
-        detailScroll.setPreferredSize(new Dimension(400, 250));
+        detailArea.setBorder(BorderFactory.createCompoundBorder(
+                DesktopTheme.titledBorder("Player Scouting"),
+                BorderFactory.createEmptyBorder(4, 8, 4, 8)));
 
         rosterArea = new JTextArea();
         rosterArea.setEditable(false);
         rosterArea.setFont(MONO);
-        DesktopTheme.styleTextContent(rosterArea);
+        rosterArea.setBackground(DesktopTheme.textAreaEditorBackground());
+        rosterArea.setForeground(DesktopTheme.textPrimary());
+        rosterArea.setBorder(BorderFactory.createCompoundBorder(
+                DesktopTheme.titledBorder("Current Roster Overview"),
+                BorderFactory.createEmptyBorder(4, 8, 4, 8)));
         JScrollPane rosterScroll = new JScrollPane(rosterArea);
         rosterScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
-        TitledBorder rosterTitle = BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(DesktopTheme.borderSubtle()), "Current Roster");
-        rosterTitle.setTitleColor(DesktopTheme.textPrimary());
-        rosterScroll.setBorder(rosterTitle);
 
         rightPanel.add(detailScroll, BorderLayout.NORTH);
         rightPanel.add(rosterScroll, BorderLayout.CENTER);

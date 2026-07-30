@@ -83,18 +83,13 @@ public class DashboardPanel implements LeagueScreen {
         JPanel left = new JPanel(new BorderLayout(0, 12));
         left.setOpaque(true);
         left.setBackground(DesktopTheme.windowBackground());
-        JPanel leftTop = new JPanel(new BorderLayout(0, 12));
-        leftTop.setOpaque(false);
-        leftTop.add(buildProgramHealthPanel(), BorderLayout.NORTH);
-        leftTop.add(buildNextMovesPanel(), BorderLayout.CENTER);
-        left.add(leftTop, BorderLayout.NORTH);
+        left.add(buildNextMovesPanel(), BorderLayout.NORTH);
         left.add(buildLatestHeadlinesPanel(), BorderLayout.CENTER);
 
         JPanel right = new JPanel(new BorderLayout(0, 12));
         right.setOpaque(true);
         right.setBackground(DesktopTheme.windowBackground());
-        right.add(buildPollLeadersPanel(), BorderLayout.NORTH);
-        right.add(buildAwardsPanel(), BorderLayout.CENTER);
+        right.add(buildPollLeadersPanel(), BorderLayout.CENTER);
 
         grid.add(left);
         grid.add(right);
@@ -120,8 +115,8 @@ public class DashboardPanel implements LeagueScreen {
         DesktopTheme.styleToolbar(quick);
         bottom.add(quick, BorderLayout.NORTH);
 
-        JLabel hint = new JLabel("Main focus: advance the season, read what changed, then act on the next program need. F1 for shortcuts.");
-        hint.setFont(new Font("SansSerif", Font.ITALIC, 12));
+        JLabel hint = new JLabel("<html><body style='font-family:SansSerif; font-size:10px; color:" + DesktopTheme.cssRgb(DesktopTheme.textSecondary()) + ";'>Main focus: advance the season. Shortcuts: <kbd>1-4</kbd> TABS &nbsp;|&nbsp; <kbd>ESC</kbd> BACK &nbsp;|&nbsp; <kbd>ENTER</kbd> SELECT</body></html>");
+        hint.setFont(new Font("SansSerif", Font.ITALIC, 11));
         hint.setForeground(DesktopTheme.textSecondary());
         bottom.add(hint, BorderLayout.SOUTH);
         panel.add(bottom, BorderLayout.SOUTH);
@@ -153,10 +148,11 @@ public class DashboardPanel implements LeagueScreen {
         JLabel nextAction = new JLabel(playWeekLabel());
         nextAction.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 26));
         nextAction.setForeground(DesktopTheme.textPrimary());
-        JLabel context = new JLabel("<html><body style='width:420px;'>"
-                + DesktopTheme.escapeForHtml(buildNextActionContext()) + "</body></html>");
-        context.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
-        context.setForeground(DesktopTheme.textSecondary());
+        JLabel context = new JLabel("<html><body style='width:420px; margin-top: 4px;'>"
+                + "<span style='font-size:14px; font-weight:bold; color:" + DesktopTheme.cssRgb(Color.WHITE) + "'>"
+                + DesktopTheme.escapeForHtml(buildUpcomingMatchupText()) + "</span><br>"
+                + "<span style='font-size:12px; color:" + DesktopTheme.cssRgb(DesktopTheme.textSecondary()) + "'>"
+                + DesktopTheme.escapeForHtml(buildNextActionContext()) + "</span></body></html>");
         actionBlock.add(eyebrow, BorderLayout.NORTH);
         actionBlock.add(nextAction, BorderLayout.CENTER);
         actionBlock.add(context, BorderLayout.SOUTH);
@@ -233,6 +229,18 @@ public class DashboardPanel implements LeagueScreen {
         int oppScore = DesktopWeekResult.opponentScore(last, user);
         String result = score > oppScore ? "Win" : (score < oppScore ? "Loss" : "Tie");
         return result + " " + score + "-" + oppScore + " vs " + opponentName;
+    }
+
+    private String buildUpcomingMatchupText() {
+        Team user = league.userTeam;
+        if (user == null) return "No user team selected.";
+        simulation.Game upcoming = DesktopWeekResult.findUpcomingGame(user);
+        if (upcoming == null) return "No upcoming games scheduled.";
+        String opponentName = DesktopWeekResult.opponentName(upcoming, user);
+        String location = DesktopWeekResult.userIsHome(upcoming, user) ? "vs" : "@";
+        Team oppTeam = upcoming.homeTeam == user ? upcoming.awayTeam : upcoming.homeTeam;
+        String oppRecord = oppTeam != null ? " (" + oppTeam.getWins() + "-" + oppTeam.getLosses() + ")" : "";
+        return "Upcoming: " + location + " " + opponentName + oppRecord;
     }
 
     private JPanel buildProgramHealthPanel() {

@@ -81,29 +81,28 @@ public final class DesktopTheme {
                 _launcherFooter = new Color(210, 210, 210);
                 _textAreaBg = new Color(12, 12, 12);
                 _menuBarBg = Color.BLACK;
-            } else {
-                _windowBg = new Color(34, 36, 40);
-                _textPrimary = new Color(232, 232, 238);
-                _textSecondary = new Color(160, 165, 175);
-                _warningText = new Color(255, 205, 110);
-                _headerBg = new Color(20, 22, 26);
-                _confHeaderBg = new Color(38, 42, 50);
-                _statusBg = new Color(46, 48, 54);
-                _sidebarBg = new Color(28, 31, 36);
-                _sidebarText = new Color(210, 216, 224);
-                _sidebarSelBg = new Color(58, 96, 150);
-                _borderSubtle = new Color(72, 76, 84);
-                _userTeamRow = new Color(32, 52, 82);
-                _nliBannerBg = new Color(62, 52, 28);
-                _pollLeader = new Color(48, 52, 60);
-                _tableBase = new Color(34, 36, 40);
-                _tableStripe = new Color(42, 45, 52);
-                _tableHdrBg = new Color(48, 52, 60);
-                _tableHover = new Color(52, 56, 68);
-                _launcherMain = new Color(28, 30, 34);
-                _launcherFooter = new Color(120, 125, 135);
-                _textAreaBg = new Color(42, 44, 50);
-                _menuBarBg = new Color(40, 42, 48);
+                _windowBg = new Color(11, 15, 25);       // #0b0f19 deep navy/charcoal
+                _textPrimary = new Color(243, 244, 246);
+                _textSecondary = new Color(156, 163, 175);
+                _warningText = new Color(251, 191, 36);  // gold
+                _headerBg = new Color(7, 9, 14);
+                _confHeaderBg = new Color(18, 24, 38);
+                _statusBg = new Color(18, 24, 38);
+                _sidebarBg = new Color(11, 15, 25);
+                _sidebarText = new Color(209, 213, 219);
+                _sidebarSelBg = new Color(30, 58, 138);  // strong team color accent
+                _borderSubtle = new Color(255, 255, 255, 20); // rgba(255,255,255,0.08)
+                _userTeamRow = new Color(18, 24, 38);
+                _nliBannerBg = new Color(70, 50, 0);
+                _pollLeader = new Color(18, 24, 38);
+                _tableBase = new Color(11, 15, 25);
+                _tableStripe = new Color(18, 24, 38);
+                _tableHdrBg = new Color(7, 9, 14);
+                _tableHover = new Color(31, 41, 55);
+                _launcherMain = new Color(7, 9, 14);
+                _launcherFooter = new Color(107, 114, 128);
+                _textAreaBg = new Color(18, 24, 38);
+                _menuBarBg = new Color(7, 9, 14);
             }
         } else if (highContrast) {
             _windowBg = Color.WHITE;
@@ -552,7 +551,8 @@ public final class DesktopTheme {
         TitledBorder tb = BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(borderSubtle()), title);
         tb.setTitleColor(textPrimary());
-        return tb;
+        tb.setTitleFont(new Font(Font.SANS_SERIF, Font.BOLD, 12));
+        return BorderFactory.createCompoundBorder(tb, BorderFactory.createEmptyBorder(6, 6, 6, 6));
     }
 
     /** Non-table lists inside league tabs (poll sidebar, news headlines, etc.). */

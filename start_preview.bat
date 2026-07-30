@@ -1,0 +1,3 @@
+@echo off
+echo Starting CFHC Player Profile Live Preview Server...
+python preview/server.py

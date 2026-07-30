@@ -121,9 +121,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="14dp"
-            android:background="@drawable/bg_mobile_panel"
+            android:background="@drawable/bg_mobile_panel_strong"
             android:orientation="vertical"
-            android:padding="18dp">
+            android:padding="20dp">
 
             <TextView
                 android:layout_width="match_parent"
@@ -161,9 +161,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="14dp"
-            android:background="@drawable/bg_mobile_panel"
+            android:background="@drawable/bg_mobile_panel_strong"
             android:orientation="vertical"
-            android:padding="18dp">
+            android:padding="20dp">
 
             <TextView
                 android:layout_width="match_parent"
