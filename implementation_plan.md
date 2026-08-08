@@ -32,7 +32,7 @@ This implementation plan outlines the full technical audit, design system integr
 
 > [!IMPORTANT]
 > **Key Architecture & Design Decisions:**
-> 1. **Visual System Verification**: All UI components consume tokens from [style_guide.md](file:///c:/Users/allen/CFHC/style_guide.md) (Midnight Obsidian `#060C14`, Slate Cards `#0D1726`, Neon Emerald `#00E676`, Trophy Gold `#F59E0B`).
+> 1. **Visual System Verification**: All UI components consume tokens from [style_guide.md](style_guide.md) (Midnight Obsidian `#060C14`, Slate Cards `#0D1726`, Neon Emerald `#00E676`, Trophy Gold `#F59E0B`).
 > 2. **Console Controller & Power Keyboard Navigation**:
 >    - `[Space]` / `[Enter]` -> Trigger `playWeek()` / Advance (Console Action `(A) SELECT`).
 >    - `[Escape]` -> Return to Dashboard / Close Dialogs (Console Action `(B) BACK`).
@@ -54,40 +54,40 @@ This implementation plan outlines the full technical audit, design system integr
 ---
 
 ### Stage 1: Design Tokens & Base Card Infrastructure
-- **[DesktopTheme.java](file:///c:/Users/allen/CFHC/src/main/java/desktop/DesktopTheme.java)**: Implement color system tokens (`#060C14`, `#0D1726`, `#00E676`, `#F59E0B`, `#881337`, `#1E293B`).
-- **[CustomCardPanel.java](file:///c:/Users/allen/CFHC/src/main/java/desktop/CustomCardPanel.java)**: Rounded dark slate card container base (`#0D1726`, rounded 8px, 1px border `#1E293B`).
+- **[DesktopTheme.java](src/main/java/desktop/DesktopTheme.java)**: Implement color system tokens (`#060C14`, `#0D1726`, `#00E676`, `#F59E0B`, `#881337`, `#1E293B`).
+- **[CustomCardPanel.java](src/main/java/desktop/CustomCardPanel.java)**: Rounded dark slate card container base (`#0D1726`, rounded 8px, 1px border `#1E293B`).
 
 ---
 
 ### Stage 2: Top Broadcast Header & Sidebar Architecture
-- **[DesktopHeaderBar.java](file:///c:/Users/allen/CFHC/src/main/java/desktop/DesktopHeaderBar.java)**: Team logo shield, school title (**PINE VALLEY STATE**), script mascot accent (*Owls*), season/week tracker, and coach badge.
-- **[DesktopNavSidebar.java](file:///c:/Users/allen/CFHC/src/main/java/desktop/DesktopNavSidebar.java)**: 15-item sidebar menu, active green selection indicator (`#00E676`), yellow badge counter (`14`), and school seal logo footer.
-- **[LeagueHomeView.java](file:///c:/Users/allen/CFHC/src/main/java/desktop/LeagueHomeView.java)**: Wire header and sidebar panels.
+- **[DesktopHeaderBar.java](src/main/java/desktop/DesktopHeaderBar.java)**: Team logo shield, school title (**PINE VALLEY STATE**), script mascot accent (*Owls*), season/week tracker, and coach badge.
+- **[DesktopNavSidebar.java](src/main/java/desktop/DesktopNavSidebar.java)**: 15-item sidebar menu, active green selection indicator (`#00E676`), yellow badge counter (`14`), and school seal logo footer.
+- **[LeagueHomeView.java](src/main/java/desktop/LeagueHomeView.java)**: Wire header and sidebar panels.
 
 ---
 
 ### Stage 3: Modular Java Swing Dashboard Card Suite (11 Cards)
-- **[TeamOverallCard.java](file:///c:/Users/allen/CFHC/src/main/java/desktop/TeamOverallCard.java)**: 54px green rating digit (`82`), B+ grade pill, 4-star gauge, Off/Def/ST ratings, National Rank #24 & Conf Rank #3.
-- **[NextGameMatchupCard.java](file:///c:/Users/allen/CFHC/src/main/java/desktop/NextGameMatchupCard.java)**: Home vs away team banners (Pine Valley State Owls 5-2 vs Redwood University Maroons 4-3), AT badge, kickoff date/time, and stadium details.
-- **[RosterSpotlightCard.java](file:///c:/Users/allen/CFHC/src/main/java/desktop/RosterSpotlightCard.java)**: Dual player cards with pixel art portraits, OVR badges, stats grid, and last game line.
-- **[RecruitingPipelineCard.java](file:///c:/Users/allen/CFHC/src/main/java/desktop/RecruitingPipelineCard.java)**: USA map vector diagram, pin markers, 14 commits count, and action button.
-- **[TeamMoraleCard.java](file:///c:/Users/allen/CFHC/src/main/java/desktop/TeamMoraleCard.java)**: Morale smiley gauge, win streak checklist, and Chemistry/Leadership/Buy-In sliders.
-- **[ProgramPrestigeCard.java](file:///c:/Users/allen/CFHC/src/main/java/desktop/ProgramPrestigeCard.java)**: 3D metallic shield badge (#78 RISING) and green progress fill bar.
-- **[ProgramFinancesCard.java](file:///c:/Users/allen/CFHC/src/main/java/desktop/ProgramFinancesCard.java)**: Budget ($34.2M), Balance ($5.8M), and Weekly Spend ($642K) metrics.
-- **[TopNewsCarouselCard.java](file:///c:/Users/allen/CFHC/src/main/java/desktop/TopNewsCarouselCard.java)**: Hero banner, headline, snippet, and dot pagination.
-- **[WeeklyScheduleCard.java](file:///c:/Users/allen/CFHC/src/main/java/desktop/WeeklyScheduleCard.java)**: Timeline list for Week 8 activities.
-- **[UpcomingGamesCard.java](file:///c:/Users/allen/CFHC/src/main/java/desktop/UpcomingGamesCard.java)**: Schedule list preview for Weeks 9 to 13 with difficulty stars.
-- **[DashboardPanel.java](file:///c:/Users/allen/CFHC/src/main/java/desktop/DashboardPanel.java)**: Modular 4-column card grid layout.
+- **[TeamOverallCard.java](src/main/java/desktop/TeamOverallCard.java)**: 64px green rating digit (`82`), B+ grade pill, 4-star gauge, Off/Def/ST ratings, National Rank #24 & Conf Rank #3.
+- **[NextGameMatchupCard.java](src/main/java/desktop/NextGameMatchupCard.java)**: Home vs away team banners (Pine Valley State Owls 5-2 vs Redwood University Maroons 4-3), AT badge, kickoff date/time, and stadium details.
+- **[RosterSpotlightCard.java](src/main/java/desktop/RosterSpotlightCard.java)**: Dual player cards with pixel art portraits, OVR badges, stats grid, and last game line.
+- **[RecruitingPipelineCard.java](src/main/java/desktop/RecruitingPipelineCard.java)**: USA map vector diagram, pin markers, 14 commits count, and action button.
+- **[TeamMoraleCard.java](src/main/java/desktop/TeamMoraleCard.java)**: Morale smiley gauge, win streak checklist, and Chemistry/Leadership/Buy-In sliders.
+- **[ProgramPrestigeCard.java](src/main/java/desktop/ProgramPrestigeCard.java)**: 3D metallic shield badge (#78 RISING) and green progress fill bar.
+- **[ProgramFinancesCard.java](src/main/java/desktop/ProgramFinancesCard.java)**: Budget ($34.2M), Balance ($5.8M), and Weekly Spend ($642K) metrics.
+- **[TopNewsCarouselCard.java](src/main/java/desktop/TopNewsCarouselCard.java)**: Hero banner, headline, snippet, and dot pagination.
+- **[WeeklyScheduleCard.java](src/main/java/desktop/WeeklyScheduleCard.java)**: Timeline list for Week 8 activities.
+- **[UpcomingGamesCard.java](src/main/java/desktop/UpcomingGamesCard.java)**: Schedule list preview for Weeks 9 to 13 with difficulty stars.
+- **[DashboardPanel.java](src/main/java/desktop/DashboardPanel.java)**: Modular 4-column card grid layout.
 
 ---
 
 ### Stage 4: Controller Legend & Status Footer Bar
-- **[DesktopStatusFooter.java](file:///c:/Users/allen/CFHC/src/main/java/desktop/DesktopStatusFooter.java)**: Controller input chips (`(A) SELECT`, `(B) BACK`, `(Y) HELP`) and soundtrack ticker with animated equalizer visualizer.
+- **[DesktopStatusFooter.java](src/main/java/desktop/DesktopStatusFooter.java)**: Controller input chips (`(A) SELECT`, `(B) BACK`, `(Y) HELP`) and soundtrack ticker with animated equalizer visualizer.
 
 ---
 
 ### Stage 5: Web Live Sandbox Sync & Verification
-- **[index.html](file:///c:/Users/allen/CFHC/preview/index.html)**, **[styles.css](file:///c:/Users/allen/CFHC/preview/styles.css)**, **[app.js](file:///c:/Users/allen/CFHC/preview/app.js)**: Synchronized layout and interactive controls.
+- **[index.html](preview/index.html)**, **[styles.css](preview/styles.css)**, **[app.js](preview/app.js)**: Synchronized layout and interactive controls.
 - **Build Checks**: Verified with `./gradlew desktopVerify` (**BUILD SUCCESSFUL**).
 
 ---

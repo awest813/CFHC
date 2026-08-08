@@ -27,12 +27,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const valTeamDef = document.getElementById('val-team-def');
   const displayTeamDef = document.getElementById('display-team-def');
 
+  // Morale + Prestige customizer inputs (targets on the dashboard cards).
+  const inputMoralePct = document.getElementById('input-morale-pct');
+  const valMoralePct = document.getElementById('val-morale-pct');
+  const moraleStatusTxt = document.querySelector('.morale-status-txt');
+  const inputPrestige = document.getElementById('input-prestige');
+  const valPrestige = document.getElementById('val-prestige');
+  const displayPrestigeNum = document.getElementById('display-prestige-num');
+  const prestigeFill = document.querySelector('.prestige-fill');
+
   const displayWeekText = document.getElementById('display-week-text');
 
   // Team Theme Selector
   if (themeSelect) {
     themeSelect.addEventListener('change', (e) => {
-      document.body.className = `theme-default theme-${e.target.value}`;
+      // Swap only the theme-* classes instead of clobbering body.className,
+      // which would drop any unrelated body classes added later.
+      document.body.classList.remove(...Array.from(document.body.classList).filter(c => c.startsWith('theme-')));
+      document.body.classList.add('theme-default', `theme-${e.target.value}`);
     });
   }
 
@@ -80,6 +92,28 @@ document.addEventListener('DOMContentLoaded', () => {
       const val = e.target.value;
       if (valTeamDef) valTeamDef.textContent = val;
       if (displayTeamDef) displayTeamDef.textContent = val;
+    });
+  }
+
+  // Morale slider -> value label + on-card status gauge.
+  if (inputMoralePct) {
+    inputMoralePct.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      if (valMoralePct) valMoralePct.textContent = val + '%';
+      if (moraleStatusTxt) {
+        const status = val >= 80 ? 'High' : val >= 55 ? 'Stable' : 'Low';
+        moraleStatusTxt.textContent = status;
+      }
+    });
+  }
+
+  // Prestige slider -> value label, shield number, and fill-bar width.
+  if (inputPrestige) {
+    inputPrestige.addEventListener('input', (e) => {
+      const val = e.target.value;
+      if (valPrestige) valPrestige.textContent = val;
+      if (displayPrestigeNum) displayPrestigeNum.textContent = val;
+      if (prestigeFill) prestigeFill.style.width = val + '%';
     });
   }
 

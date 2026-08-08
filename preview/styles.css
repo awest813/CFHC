@@ -41,6 +41,30 @@
   --transition-smooth: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/*
+ * Team theme accent overrides. The "Team Theme" selector in the customizer
+ * drawer swaps these via body class (theme-pine-valley | -redwood | -north-ridge
+ * | -glacier). Only the team-accent variables change; the obsidian/slate chrome
+ * stays constant. pine-valley is the :root default, so it needs no override.
+ */
+.theme-redwood {
+  --neon-green: #b91c1c;
+  --emerald-green: #dc2626;
+  --green-glow: rgba(185, 28, 28, 0.25);
+}
+
+.theme-north-ridge {
+  --neon-green: #3b82f6;
+  --emerald-green: #2563eb;
+  --green-glow: rgba(59, 130, 246, 0.25);
+}
+
+.theme-glacier {
+  --neon-green: #14b8a6;
+  --emerald-green: #0d9488;
+  --green-glow: rgba(20, 184, 166, 0.25);
+}
+
 /* Reset */
 * {
   box-sizing: border-box;
