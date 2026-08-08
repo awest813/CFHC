@@ -183,11 +183,11 @@ class GameBoxScore {
 
         for (int i = 0; i < game.awayRushingStats.size(); ++i) {
             String[] stats = game.awayRushingStats.get(i).split(",");
-            gameRC.append(stats[0] + "\n" + stats[2] + "\n" + stats[3] + "\n" + stats[4] + "\n" + DF2_DOT.format((Double.parseDouble(stats[3]) / Double.parseDouble(stats[4]))) + "\n" + stats[5] + "\n" + stats[6] + "\n\n");
+            gameRC.append(stats[0] + "\n" + stats[2] + "\n" + stats[3] + "\n" + stats[4] + "\n" + DF2_DOT.format(getYardsPerCarry(Double.parseDouble(stats[3]), Double.parseDouble(stats[4]))) + "\n" + stats[5] + "\n" + stats[6] + "\n\n");
         }
         for (int i = 0; i < game.homeRushingStats.size(); ++i) {
             String[] stats = game.homeRushingStats.get(i).split(",");
-            gameRR.append(stats[0] + "\n" + stats[2] + "\n" + stats[3] + "\n" + stats[4] + "\n" + DF2_DOT.format((Double.parseDouble(stats[3]) / Double.parseDouble(stats[4]))) + "\n" + stats[5] + "\n" + stats[6] + "\n\n");
+            gameRR.append(stats[0] + "\n" + stats[2] + "\n" + stats[3] + "\n" + stats[4] + "\n" + DF2_DOT.format(getYardsPerCarry(Double.parseDouble(stats[3]), Double.parseDouble(stats[4]))) + "\n" + stats[5] + "\n" + stats[6] + "\n\n");
         }
 
 
@@ -392,11 +392,11 @@ class GameBoxScore {
 
         for (int i = 0; i < game.awayRushingStats.size(); ++i) {
             String[] stats = game.awayRushingStats.get(i).split(",");
-            gameRC.append(stats[0] + "\n" + stats[2] + "\n" + stats[3] + "\n" + stats[4] + "\n" + DF2_DOT.format((Double.parseDouble(stats[3]) / Double.parseDouble(stats[4]))) + "\n" + stats[5] + "\n" + stats[6] + "\n\n");
+            gameRC.append(stats[0] + "\n" + stats[2] + "\n" + stats[3] + "\n" + stats[4] + "\n" + DF2_DOT.format(getYardsPerCarry(Double.parseDouble(stats[3]), Double.parseDouble(stats[4]))) + "\n" + stats[5] + "\n" + stats[6] + "\n\n");
         }
         for (int i = 0; i < game.homeRushingStats.size(); ++i) {
             String[] stats = game.homeRushingStats.get(i).split(",");
-            gameRR.append(stats[0] + "\n" + stats[2] + "\n" + stats[3] + "\n" + stats[4] + "\n" + DF2_DOT.format((Double.parseDouble(stats[3]) / Double.parseDouble(stats[4]))) + "\n" + stats[5] + "\n" + stats[6] + "\n\n");
+            gameRR.append(stats[0] + "\n" + stats[2] + "\n" + stats[3] + "\n" + stats[4] + "\n" + DF2_DOT.format(getYardsPerCarry(Double.parseDouble(stats[3]), Double.parseDouble(stats[4]))) + "\n" + stats[5] + "\n" + stats[6] + "\n\n");
         }
 
 
@@ -640,5 +640,18 @@ class GameBoxScore {
             rating = yards / rec;
             return rating;
         }
+    }
+
+    /**
+     * Guards the yards-per-carry calculation against a divide-by-zero: a player
+     * listed in rushing stats with 0 carries (e.g. a special-teams appearance)
+     * otherwise yields {@code NaN}/{@code Infinity}, which DecimalFormat renders
+     * as the replacement character (garbled box score). Mirrors getRecYardsperCatch.
+     */
+    private double getYardsPerCarry(double yards, double carries) {
+        if (carries < 1) {
+            return 0;
+        }
+        return yards / carries;
     }
 }

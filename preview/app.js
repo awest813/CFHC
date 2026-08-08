@@ -91,13 +91,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Sim Week Button
+  // Sim Week Button — currentWeek is tracked independently of the <select>,
+  // which only offers weeks 8-10. Writing values > 10 to the select is invalid
+  // (no matching <option>), which makes the browser clear it and silently reset
+  // the counter. We update the select only when the new week is a real option.
+  let simWeek = parseInt(weekSelect.value) || 8;
   if (btnSimWeek) {
     btnSimWeek.addEventListener('click', () => {
-      let currentWeek = parseInt(weekSelect.value) || 8;
-      currentWeek = currentWeek >= 15 ? 1 : currentWeek + 1;
-      weekSelect.value = currentWeek.toString();
-      if (displayWeekText) displayWeekText.textContent = `WEEK ${currentWeek}`;
+      simWeek = simWeek >= 15 ? 1 : simWeek + 1;
+      const optExists = Array.from(weekSelect.options).some(o => o.value === String(simWeek));
+      if (optExists) weekSelect.value = String(simWeek);
+      if (displayWeekText) displayWeekText.textContent = `WEEK ${simWeek}`;
 
       // Toast notification
       const toast = document.createElement('div');
@@ -115,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         z-index: 999;
         font-family: var(--font-display);
       `;
-      toast.textContent = `Advanced to Week ${currentWeek}! Simulation Complete.`;
+      toast.textContent = `Advanced to Week ${simWeek}! Simulation Complete.`;
       document.body.appendChild(toast);
 
       setTimeout(() => {

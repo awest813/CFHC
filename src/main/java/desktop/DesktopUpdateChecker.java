@@ -2,6 +2,7 @@ package desktop;
 
 import java.awt.Desktop;
 import java.io.BufferedReader;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -177,8 +178,15 @@ public final class DesktopUpdateChecker {
         conn.setRequestProperty("Accept", "application/vnd.github+json");
         conn.setRequestProperty("User-Agent", "CFHC-Desktop/" + DesktopVersion.VERSION);
         int code = conn.getResponseCode();
+        // getErrorStream() returns null when the server sent no error body
+        // (e.g. certain 5xx/304 responses); new InputStreamReader(null) would NPE
+        // and mask the intended "HTTP <code>" failure below.
+        InputStream stream = code >= 200 && code < 300 ? conn.getInputStream() : conn.getErrorStream();
+        if (stream == null) {
+            throw new IllegalStateException("HTTP " + code);
+        }
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-                code >= 200 && code < 300 ? conn.getInputStream() : conn.getErrorStream(),
+                stream,
                 StandardCharsets.UTF_8))) {
             StringBuilder sb = new StringBuilder();
             String line;
