@@ -70,6 +70,10 @@ public class DesktopAudioManager implements AudioManager {
             case UI_CLICK -> "click.ogg";
             case PLAY_SELECT -> "play.ogg";
             case FIRST_DOWN -> "firstdown.ogg";
+            case FIGHT_SONG -> "fightsong.ogg";
+            case TOUCHDOWN_CHEER -> "touchdown.ogg";
+            case CROWD_ROAR -> "crowd_roar.ogg";
+            case STADIUM_ORGAN -> "organ.ogg";
             default -> event.name().toLowerCase() + ".ogg";
         };
     }

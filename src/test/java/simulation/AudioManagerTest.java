@@ -12,7 +12,7 @@ public class AudioManagerTest {
     @Test
     public void audioEvent_enumHasExpectedValues() {
         AudioEvent[] values = AudioEvent.values();
-        assertEquals(9, values.length);
+        assertEquals(13, values.length);
         assertEquals(AudioEvent.UI_CLICK, AudioEvent.valueOf("UI_CLICK"));
         assertEquals(AudioEvent.CONFIRM, AudioEvent.valueOf("CONFIRM"));
         assertEquals(AudioEvent.ERROR, AudioEvent.valueOf("ERROR"));
@@ -22,6 +22,10 @@ public class AudioManagerTest {
         assertEquals(AudioEvent.ADVANCE, AudioEvent.valueOf("ADVANCE"));
         assertEquals(AudioEvent.WIN, AudioEvent.valueOf("WIN"));
         assertEquals(AudioEvent.LOSS, AudioEvent.valueOf("LOSS"));
+        assertEquals(AudioEvent.FIGHT_SONG, AudioEvent.valueOf("FIGHT_SONG"));
+        assertEquals(AudioEvent.TOUCHDOWN_CHEER, AudioEvent.valueOf("TOUCHDOWN_CHEER"));
+        assertEquals(AudioEvent.CROWD_ROAR, AudioEvent.valueOf("CROWD_ROAR"));
+        assertEquals(AudioEvent.STADIUM_ORGAN, AudioEvent.valueOf("STADIUM_ORGAN"));
     }
 
     @Test

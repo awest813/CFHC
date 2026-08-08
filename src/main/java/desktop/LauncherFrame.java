@@ -38,7 +38,7 @@ import java.util.List;
 public class LauncherFrame extends JFrame {
 
     private static final String TAG = "LauncherFrame";
-    private static final Color BRAND_ACCENT = new Color(50, 100, 180);
+    private static final Color BRAND_ACCENT = new Color(0, 230, 118); // #00E676 Neon Emerald
 
     private final List<JButton> launcherHubButtons = new ArrayList<>();
     private AudioManager audioManager;

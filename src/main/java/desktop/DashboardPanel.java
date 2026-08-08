@@ -72,34 +72,35 @@ public class DashboardPanel implements LeagueScreen {
         JPanel panel = new JPanel(new BorderLayout(12, 12));
         panel.setOpaque(true);
         panel.setBackground(DesktopTheme.windowBackground());
-        panel.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
+        panel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
 
         panel.add(buildCommandCenterHero(), BorderLayout.NORTH);
 
-        JPanel grid = new JPanel(new GridLayout(1, 2, 16, 0));
-        grid.setOpaque(true);
-        grid.setBackground(DesktopTheme.windowBackground());
+        // 4-Column Grid for Modular Cards Suite
+        JPanel grid = new JPanel(new GridLayout(3, 4, 12, 12));
+        grid.setOpaque(false);
 
-        JPanel left = new JPanel(new BorderLayout(0, 12));
-        left.setOpaque(true);
-        left.setBackground(DesktopTheme.windowBackground());
-        left.add(buildNextMovesPanel(), BorderLayout.NORTH);
-        left.add(buildLatestHeadlinesPanel(), BorderLayout.CENTER);
+        grid.add(new TeamOverallCard(league.userTeam));
+        grid.add(new NextGameMatchupCard(league.userTeam));
+        grid.add(new TopNewsCarouselCard());
+        grid.add(new StandingsPanel().build(new LeagueScreenContext(league, null, null, null, bridge, null, null)));
 
-        JPanel right = new JPanel(new BorderLayout(0, 12));
-        right.setOpaque(true);
-        right.setBackground(DesktopTheme.windowBackground());
-        right.add(buildPollLeadersPanel(), BorderLayout.CENTER);
+        grid.add(new WeeklyScheduleCard());
+        grid.add(new RecruitingPipelineCard(() -> cb.selectScreenRecruiting().run()));
+        grid.add(new ProgramFinancesCard());
+        grid.add(new ProgramPrestigeCard());
 
-        grid.add(left);
-        grid.add(right);
+        grid.add(new TeamMoraleCard());
+        grid.add(new RosterSpotlightCard());
+        grid.add(new UpcomingGamesCard());
+
         panel.add(grid, BorderLayout.CENTER);
 
-        JPanel bottom = new JPanel(new BorderLayout(0, 8));
-        bottom.setOpaque(true);
-        bottom.setBackground(DesktopTheme.windowBackground());
+        JPanel bottom = new JPanel(new BorderLayout(0, 4));
+        bottom.setOpaque(false);
         JPanel quick = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        quick.setBorder(DesktopTheme.titledBorder("Quick navigation"));
+        quick.setOpaque(false);
+        quick.add(mkNavButton("Play Week", cb.playWeek()));
         quick.add(mkNavButton("Standings", cb.selectScreenStandings()));
         quick.add(mkNavButton("Scoreboard", cb.selectScreenScoreboard()));
         quick.add(mkNavButton("Poll Rankings", cb.selectScreenPoll()));
@@ -112,13 +113,7 @@ public class DashboardPanel implements LeagueScreen {
             my.addActionListener(e -> cb.openUserTeamDetail().run());
             quick.add(my);
         }
-        DesktopTheme.styleToolbar(quick);
         bottom.add(quick, BorderLayout.NORTH);
-
-        JLabel hint = new JLabel("<html><body style='font-family:SansSerif; font-size:10px; color:" + DesktopTheme.cssRgb(DesktopTheme.textSecondary()) + ";'>Main focus: advance the season. Shortcuts: <kbd>1-4</kbd> TABS &nbsp;|&nbsp; <kbd>ESC</kbd> BACK &nbsp;|&nbsp; <kbd>ENTER</kbd> SELECT</body></html>");
-        hint.setFont(new Font("SansSerif", Font.ITALIC, 11));
-        hint.setForeground(DesktopTheme.textSecondary());
-        bottom.add(hint, BorderLayout.SOUTH);
         panel.add(bottom, BorderLayout.SOUTH);
 
         return panel;

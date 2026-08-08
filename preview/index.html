@@ -3,54 +3,51 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CFHC - Live Player Profile UI Preview</title>
-  <!-- Google Fonts for Sports Broadcast Aesthetics -->
+  <title>College Football Head Coach — Dynasty Dashboard Overhaul</title>
+  <!-- Google Fonts for Sports Broadcast Console Aesthetics -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body class="theme-default">
-  <!-- Top Navigation & Live Control Bar -->
-  <header class="live-control-header">
+<body class="theme-default theme-pine-valley">
+
+  <!-- Top Sandbox Control & Tweaker Bar -->
+  <header class="sandbox-control-bar">
     <div class="brand-badge">
       <span class="live-dot"></span>
-      <span class="brand-title">CFHC LIVE PREVIEW</span>
-      <span class="brand-sub">UI REDESIGN SANDBOX</span>
+      <span class="brand-title">CFHC BROADCAST HUD</span>
+      <span class="brand-sub">LIVE DYNASTY DASHBOARD</span>
     </div>
 
     <div class="control-actions">
       <div class="control-group">
-        <label for="player-select">Player:</label>
-        <select id="player-select" class="ctrl-select">
-          <option value="qb_vance">#12 Marcus Vance (QB - Sr)</option>
-          <option value="rb_reed">#24 Jaxson Reed (RB - Jr)</option>
-          <option value="wr_smith">#6 Devonte Smith (WR - So)</option>
-          <option value="de_miller">#99 Caleb Miller (DE - Sr)</option>
-          <option value="cb_carter">#1 Tyree Carter (CB - Fr)</option>
+        <label for="select-team-theme">Team Theme:</label>
+        <select id="select-team-theme" class="ctrl-select">
+          <option value="pine-valley" selected>Pine Valley State (Green & Gold)</option>
+          <option value="redwood">Redwood University (Maroon & Silver)</option>
+          <option value="north-ridge">North Ridge (Navy & Blue)</option>
+          <option value="glacier">Glacier State (Teal & Ice)</option>
         </select>
       </div>
 
       <div class="control-group">
-        <label for="team-theme">Team Colors:</label>
-        <select id="team-theme" class="ctrl-select">
-          <option value="theme-navy">Michigan (Navy & Maize)</option>
-          <option value="theme-crimson">Alabama (Crimson & White)</option>
-          <option value="theme-burnt-orange">Texas (Burnt Orange)</option>
-          <option value="theme-green-yellow">Oregon (Green & Yellow)</option>
-          <option value="theme-red-black">Georgia (Red & Black)</option>
-          <option value="theme-purple-gold">LSU (Purple & Gold)</option>
+        <label for="select-week">Season Week:</label>
+        <select id="select-week" class="ctrl-select">
+          <option value="8" selected>Week 8 (vs Redwood)</option>
+          <option value="9">Week 9 (at Stonebridge)</option>
+          <option value="10">Week 10 (vs Lakeside)</option>
         </select>
       </div>
 
-      <button id="btn-toggle-panel" class="ctrl-btn secondary">
+      <button id="btn-toggle-tweaker" class="ctrl-btn secondary">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15a3 3 0 100-6 3 3 0 000 6z"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
-        Tweak Data
+        Tweak Dashboard
       </button>
-      
-      <button id="btn-randomize" class="ctrl-btn primary">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 11-.57-8.38l5.67-5.67"/></svg>
-        Randomize Player
+
+      <button id="btn-sim-week" class="ctrl-btn primary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3l14 9-14 9V3z"/></svg>
+        Advance Week
       </button>
     </div>
   </header>
@@ -58,331 +55,792 @@
   <!-- Interactive Sandbox Drawer (Collapsible) -->
   <aside id="sandbox-drawer" class="sandbox-drawer collapsed">
     <div class="drawer-header">
-      <h3>Live Stat Customizer</h3>
+      <h3>Live Dashboard Customizer</h3>
       <button id="btn-close-drawer" class="icon-btn">&times;</button>
     </div>
     <div class="drawer-body">
       <div class="input-field">
-        <label>Overall (OVR): <span id="val-ovr">94</span></label>
-        <input type="range" id="input-ovr" min="50" max="99" value="94">
+        <label>Team Overall: <span id="val-team-ovr">82</span></label>
+        <input type="range" id="input-team-ovr" min="50" max="99" value="82">
       </div>
       <div class="input-field">
-        <label>Star Rating: <span id="val-stars">5 Stars</span></label>
-        <input type="range" id="input-stars" min="1" max="5" value="5">
+        <label>Offense Rating: <span id="val-team-off">84</span></label>
+        <input type="range" id="input-team-off" min="50" max="99" value="84">
       </div>
       <div class="input-field">
-        <label>Throw Power / Primary Rating: <span id="val-stat1">96</span></label>
-        <input type="range" id="input-stat1" min="50" max="99" value="96">
+        <label>Defense Rating: <span id="val-team-def">81</span></label>
+        <input type="range" id="input-team-def" min="50" max="99" value="81">
       </div>
       <div class="input-field">
-        <label>Speed: <span id="val-stat2">84</span></label>
-        <input type="range" id="input-stat2" min="50" max="99" value="84">
+        <label>Team Morale: <span id="val-morale-pct">85%</span></label>
+        <input type="range" id="input-morale-pct" min="20" max="100" value="85">
       </div>
       <div class="input-field">
-        <label>XP Progress: <span id="val-xp">3450</span> / 5000</label>
-        <input type="range" id="input-xp" min="0" max="5000" value="3450">
-      </div>
-      <div class="input-field">
-        <label>Sprite Pose:</label>
-        <select id="input-pose" class="ctrl-select wide">
-          <option value="qb">QB Pass Stance</option>
-          <option value="rb">RB Sprint Stance</option>
-          <option value="retro">Pixel Canvas Generator</option>
-        </select>
+        <label>Program Prestige: <span id="val-prestige">78</span></label>
+        <input type="range" id="input-prestige" min="30" max="99" value="78">
       </div>
     </div>
   </aside>
 
-  <!-- Main Game Frame / Player Profile Screen Container -->
-  <div class="game-viewport">
-    <div class="profile-screen-container">
+  <!-- Main Game Frame Layout -->
+  <div class="dashboard-viewport">
+    <div class="dashboard-container">
       
-      <!-- Top Screen Header & Navigation -->
-      <nav class="screen-nav-header">
-        <div class="breadcrumb">
-          <span class="bc-root">ROSTERS</span>
-          <span class="bc-sep">/</span>
-          <span class="bc-active" id="bc-player-name">PLAYER PROFILE</span>
-        </div>
+      <!-- Top Broadcast Header -->
+      <header class="broadcast-header">
+        <div class="header-team-brand">
+          <div class="team-logo-shield">
+            <svg viewBox="0 0 100 100" class="logo-svg">
+              <polygon points="50,5 92,25 92,75 50,95 8,75 8,25" fill="#0f291e" stroke="#f59e0b" stroke-width="4"/>
+              <circle cx="50" cy="45" r="28" fill="#1b4d3e" stroke="#00e676" stroke-width="2"/>
+              <!-- Owl Face Art -->
+              <path d="M 32 36 Q 42 26 50 36 Q 58 26 68 36 Q 66 58 50 68 Q 34 58 32 36 Z" fill="#0b1712" stroke="#f59e0b" stroke-width="2.5"/>
+              <circle cx="42" cy="42" r="6" fill="#f59e0b"/>
+              <circle cx="42" cy="42" r="3" fill="#000"/>
+              <circle cx="58" cy="42" r="6" fill="#f59e0b"/>
+              <circle cx="58" cy="42" r="3" fill="#000"/>
+              <polygon points="50,46 46,54 54,54" fill="#f59e0b"/>
+            </svg>
+          </div>
 
-        <div class="nav-tabs" role="tablist">
-          <button class="nav-tab active" data-tab="overview" role="tab">OVERVIEW</button>
-          <button class="nav-tab" data-tab="ratings" role="tab">RATINGS</button>
-          <button class="nav-tab" data-tab="stats" role="tab">STATS</button>
-          <button class="nav-tab" data-tab="history" role="tab">HISTORY</button>
-        </div>
-
-        <div class="team-badge-header">
-          <span class="team-rank">#3</span>
-          <span class="team-name-tag" id="team-tag-display">WOLVERINES</span>
-        </div>
-      </nav>
-
-      <!-- Profile Grid Layout -->
-      <main class="profile-grid">
-        
-        <!-- Left & Center Column: Player Identity & Data Cards -->
-        <div class="profile-main-col">
-          
-          <!-- Identity Header Box -->
-          <section class="identity-card panel-frame">
-            <div class="jersey-num-box">
-              <span id="player-num">#12</span>
+          <div class="team-title-group">
+            <div class="team-name-row">
+              <h1 class="school-name">PINE VALLEY STATE</h1>
+              <span class="mascot-script">Owls</span>
             </div>
-
-            <div class="identity-meta">
-              <div class="name-stars-row">
-                <h1 class="player-fullname" id="player-name">MARCUS VANCE</h1>
-                <div class="star-rating" id="star-rating-box">
-                  <span class="star fill">★</span>
-                  <span class="star fill">★</span>
-                  <span class="star fill">★</span>
-                  <span class="star fill">★</span>
-                  <span class="star fill">★</span>
-                </div>
-              </div>
-
-              <div class="archetype-tags">
-                <span class="archetype-badge" id="player-archetype">FIELD GENERAL</span>
-                <span class="dev-trait-badge" id="player-devtrait">★ STAR DEV</span>
-                <span class="captain-badge">C CAPTAIN</span>
-              </div>
-
-              <!-- Quick Bio Bar -->
-              <div class="quick-bio-bar">
-                <div class="bio-item">
-                  <span class="bio-label">POS</span>
-                  <span class="bio-val" id="bio-pos">QB</span>
-                </div>
-                <div class="bio-item">
-                  <span class="bio-label">CLASS</span>
-                  <span class="bio-val" id="bio-class">SR (RS)</span>
-                </div>
-                <div class="bio-item">
-                  <span class="bio-label">HT / WT</span>
-                  <span class="bio-val" id="bio-htwt">6'3" / 218 LBS</span>
-                </div>
-                <div class="bio-item">
-                  <span class="bio-label">HOMETOWN</span>
-                  <span class="bio-val" id="bio-town">DALLAS, TX</span>
-                </div>
-                <div class="bio-item">
-                  <span class="bio-label">ETHIC</span>
-                  <span class="bio-val highlight" id="bio-ethic">ELITE</span>
-                </div>
-              </div>
+            <div class="season-status-row">
+              <span class="season-txt">2026 SEASON</span>
+              <span class="status-dot">•</span>
+              <span class="week-txt" id="display-week-text">WEEK 8</span>
             </div>
-
-            <!-- OVR Gauge Box -->
-            <div class="ovr-gauge-box">
-              <div class="svg-gauge-wrap">
-                <svg class="gauge-svg" viewBox="0 0 120 120">
-                  <circle class="gauge-bg" cx="60" cy="60" r="52"></circle>
-                  <circle class="gauge-meter" id="ovr-circle-meter" cx="60" cy="60" r="52" stroke-dasharray="326.72" stroke-dashoffset="19.6"></circle>
-                </svg>
-                <div class="gauge-content">
-                  <span class="ovr-num" id="display-ovr">94</span>
-                  <span class="ovr-lbl">OVR</span>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <!-- Tab Content Container -->
-          <div class="tab-content-area">
-            
-            <!-- OVERVIEW TAB -->
-            <div class="tab-pane active" id="tab-overview">
-              <div class="panels-two-col">
-                
-                <!-- Attributes Card -->
-                <section class="data-panel panel-frame">
-                  <div class="panel-header">
-                    <span class="panel-icon">📊</span>
-                    <h2>KEY ATTRIBUTES</h2>
-                    <span class="panel-badge">CORE RATINGS</span>
-                  </div>
-                  <div class="attributes-grid" id="attributes-list">
-                    <!-- Populated dynamically via JS -->
-                  </div>
-                </section>
-
-                <!-- Season Performance & Gauges -->
-                <section class="data-panel panel-frame">
-                  <div class="panel-header">
-                    <span class="panel-icon">🏆</span>
-                    <h2>SEASON PERFORMANCE</h2>
-                    <span class="panel-badge">2026 STATS</span>
-                  </div>
-
-                  <div class="stats-hero-row">
-                    <div class="stat-box">
-                      <span class="stat-val" id="stat-yds">3,420</span>
-                      <span class="stat-lbl">PASS YDS</span>
-                    </div>
-                    <div class="stat-box">
-                      <span class="stat-val highlight-green" id="stat-tds">32</span>
-                      <span class="stat-lbl">TOUCHDOWNS</span>
-                    </div>
-                    <div class="stat-box">
-                      <span class="stat-val" id="stat-ints">6</span>
-                      <span class="stat-lbl">INTERCEPTIONS</span>
-                    </div>
-                  </div>
-
-                  <div class="gauge-row-flex">
-                    <!-- Secondary Gauge: Comp % -->
-                    <div class="mini-gauge-container">
-                      <svg class="mini-gauge-svg" viewBox="0 0 100 100">
-                        <circle class="gauge-bg" cx="50" cy="50" r="42"></circle>
-                        <circle class="gauge-meter mini" id="comp-circle-meter" cx="50" cy="50" r="42" stroke-dasharray="263.8" stroke-dashoffset="83.3"></circle>
-                      </svg>
-                      <div class="mini-gauge-text">
-                        <span class="mini-val" id="val-comp">68.4%</span>
-                        <span class="mini-lbl">COMP %</span>
-                      </div>
-                    </div>
-
-                    <div class="mini-stat-metrics">
-                      <div class="metric-row">
-                        <span class="m-lbl">Passer Rating:</span>
-                        <span class="m-val highlight-gold" id="val-rating">164.2</span>
-                      </div>
-                      <div class="metric-row">
-                        <span class="m-lbl">Yards / Att:</span>
-                        <span class="m-val" id="val-ypa">8.6</span>
-                      </div>
-                      <div class="metric-row">
-                        <span class="m-lbl">QBR:</span>
-                        <span class="m-val" id="val-qbr">88.5</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- XP & Skill Upgrade Progress -->
-                  <div class="dev-progress-box">
-                    <div class="dev-title-row">
-                      <span class="dev-lbl">DEVELOPMENT XP</span>
-                      <span class="dev-pts-badge" id="skill-pts-badge">3 SKILL POINTS AVAILABLE</span>
-                    </div>
-                    <div class="xp-bar-wrap">
-                      <div class="xp-bar-fill" id="xp-bar-fill" style="width: 69%;"></div>
-                    </div>
-                    <div class="xp-num-row">
-                      <span id="xp-current-display">3,450 / 5,000 XP</span>
-                      <span class="xp-next">+350 vs Ohio State</span>
-                    </div>
-                  </div>
-                </section>
-
-              </div>
-            </div>
-
-            <!-- RATINGS TAB -->
-            <div class="tab-pane" id="tab-ratings">
-              <section class="data-panel panel-frame">
-                <div class="panel-header">
-                  <span class="panel-icon">⚡</span>
-                  <h2>FULL RATINGS MATRIX</h2>
-                  <input type="text" id="ratings-filter" class="table-search-input" placeholder="Filter ratings...">
-                </div>
-                <div class="full-ratings-grid" id="full-ratings-container">
-                  <!-- Generated by JS -->
-                </div>
-              </section>
-            </div>
-
-            <!-- STATS TAB -->
-            <div class="tab-pane" id="tab-stats">
-              <section class="data-panel panel-frame">
-                <div class="panel-header">
-                  <span class="panel-icon">📈</span>
-                  <h2>CAREER & SEASON STAT LOG</h2>
-                </div>
-                <div class="table-responsive">
-                  <table class="data-table">
-                    <thead>
-                      <tr>
-                        <th>YEAR</th>
-                        <th>TEAM</th>
-                        <th>GP</th>
-                        <th>COMP</th>
-                        <th>ATT</th>
-                        <th>PCT</th>
-                        <th>YDS</th>
-                        <th>TD</th>
-                        <th>INT</th>
-                        <th>RAT</th>
-                      </tr>
-                    </thead>
-                    <tbody id="career-stats-rows">
-                      <!-- Generated by JS -->
-                    </tbody>
-                  </table>
-                </div>
-              </section>
-            </div>
-
-            <!-- HISTORY TAB -->
-            <div class="tab-pane" id="tab-history">
-              <section class="data-panel panel-frame">
-                <div class="panel-header">
-                  <span class="panel-icon">📜</span>
-                  <h2>CAREER MILESTONES & HONORS</h2>
-                </div>
-                <div class="history-timeline" id="history-timeline-box">
-                  <!-- Generated by JS -->
-                </div>
-              </section>
-            </div>
-
           </div>
         </div>
 
-        <!-- Right Column: Sprite Anchor & Archetypes -->
-        <div class="profile-side-col">
-          
-          <!-- Character Sprite Display Container -->
-          <section class="sprite-panel panel-frame">
-            <div class="watermark-bg"></div>
-            
-            <div class="sprite-stage">
-              <img id="sprite-image" class="pixel-sprite-img" src="sprites/pixel_qb_sprite.jpg" alt="Player Sprite">
-              <canvas id="sprite-canvas" class="pixel-canvas-renderer hidden" width="160" height="240"></canvas>
+        <div class="header-coach-info">
+          <div class="coach-avatar-crest">
+            <svg viewBox="0 0 60 60" class="crest-svg">
+              <rect x="5" y="5" width="50" height="50" rx="8" fill="#00e676" opacity="0.15"/>
+              <text x="30" y="38" font-family="'Outfit', sans-serif" font-weight="900" font-size="26" fill="#00e676" text-anchor="middle">PV</text>
+            </svg>
+          </div>
+          <div class="coach-meta">
+            <span class="coach-name">HC ELIJAH CARTER</span>
+            <span class="coach-record">Career Record: 28-17 (4th Yr)</span>
+          </div>
+          <div class="notification-badge" title="Notifications">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            <span class="unread-count">3</span>
+          </div>
+        </div>
+      </header>
+
+      <!-- Main Layout Body: Sidebar + Grid -->
+      <div class="dashboard-body">
+
+        <!-- Left Vertical Navigation Sidebar -->
+        <nav class="nav-sidebar">
+          <ul class="nav-menu">
+            <li class="nav-item active" data-view="dashboard">
+              <span class="nav-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              </span>
+              <span class="nav-label">DASHBOARD</span>
+            </li>
+            <li class="nav-item" data-view="team-mgmt">
+              <span class="nav-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </span>
+              <span class="nav-label">TEAM MANAGEMENT</span>
+            </li>
+            <li class="nav-item" data-view="roster">
+              <span class="nav-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              </span>
+              <span class="nav-label">ROSTER</span>
+            </li>
+            <li class="nav-item" data-view="depth-chart">
+              <span class="nav-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              </span>
+              <span class="nav-label">DEPTH CHART</span>
+            </li>
+            <li class="nav-item" data-view="game-plan">
+              <span class="nav-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+              </span>
+              <span class="nav-label">GAME PLAN</span>
+            </li>
+            <li class="nav-item" data-view="recruiting">
+              <span class="nav-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+              </span>
+              <span class="nav-label">RECRUITING</span>
+              <span class="nav-badge yellow">14</span>
+            </li>
+            <li class="nav-item" data-view="scouting">
+              <span class="nav-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </span>
+              <span class="nav-label">SCOUTING</span>
+            </li>
+            <li class="nav-item" data-view="training">
+              <span class="nav-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h1a4 4 0 0 1 0 8H2"/><path d="M6 12h12"/></svg>
+              </span>
+              <span class="nav-label">TRAINING</span>
+            </li>
+            <li class="nav-item" data-view="schedule">
+              <span class="nav-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </span>
+              <span class="nav-label">SCHEDULE</span>
+            </li>
+            <li class="nav-item" data-view="stats">
+              <span class="nav-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              </span>
+              <span class="nav-label">STATS & HISTORY</span>
+            </li>
+            <li class="nav-item" data-view="conference">
+              <span class="nav-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+              </span>
+              <span class="nav-label">CONFERENCE</span>
+            </li>
+            <li class="nav-item" data-view="facilities">
+              <span class="nav-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              </span>
+              <span class="nav-label">FACILITIES</span>
+            </li>
+            <li class="nav-item" data-view="finances">
+              <span class="nav-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              </span>
+              <span class="nav-label">FINANCES</span>
+            </li>
+            <li class="nav-item" data-view="prestige">
+              <span class="nav-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 15l-2 5l9-11h-8l2-5l-9 11h8z"/></svg>
+              </span>
+              <span class="nav-label">PROGRAM PRESTIGE</span>
+            </li>
+            <li class="nav-item" data-view="settings">
+              <span class="nav-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              </span>
+              <span class="nav-label">SETTINGS</span>
+            </li>
+          </ul>
+
+          <div class="sidebar-footer-seal">
+            <div class="seal-badge">
+              <svg viewBox="0 0 100 100" class="seal-svg">
+                <circle cx="50" cy="50" r="44" fill="#091410" stroke="#f59e0b" stroke-width="3" stroke-dasharray="4 2"/>
+                <circle cx="50" cy="50" r="36" fill="none" stroke="#00e676" stroke-width="1.5"/>
+                <path d="M 50 20 L 62 40 L 85 40 L 66 54 L 74 76 L 50 62 L 26 76 L 34 54 L 15 40 L 38 40 Z" fill="#1b4d3e" stroke="#f59e0b" stroke-width="1"/>
+                <text x="50" y="86" font-family="'Outfit', sans-serif" font-size="8" fill="#f59e0b" text-anchor="middle" font-weight="700">EST. 1898</text>
+              </svg>
+            </div>
+            <div class="seal-title">PINE VALLEY STATE</div>
+          </div>
+        </nav>
+
+        <!-- Main Cards Grid Viewport -->
+        <main class="dashboard-grid">
+
+          <!-- CARD 1: TEAM OVERALL -->
+          <section class="dash-card card-team-overall">
+            <div class="card-header">
+              <h2 class="card-title">TEAM OVERALL</h2>
+            </div>
+            <div class="team-ovr-body">
+              <div class="ovr-big-rating">
+                <span class="ovr-digit" id="display-team-ovr">82</span>
+                <div class="ovr-badge-stars">
+                  <span class="grade-pill">B+</span>
+                  <div class="star-row">
+                    <span class="star fill">★</span>
+                    <span class="star fill">★</span>
+                    <span class="star fill">★</span>
+                    <span class="star fill">★</span>
+                    <span class="star empty">☆</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="ovr-breakdown-col">
+                <div class="sub-rating-item">
+                  <div class="sub-icon offense-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                  </div>
+                  <span class="sub-label">OFFENSE</span>
+                  <span class="sub-val" id="display-team-off">84</span>
+                </div>
+                <div class="sub-rating-item">
+                  <div class="sub-icon defense-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  </div>
+                  <span class="sub-label">DEFENSE</span>
+                  <span class="sub-val" id="display-team-def">81</span>
+                </div>
+                <div class="sub-rating-item">
+                  <div class="sub-icon st-icon">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+                  </div>
+                  <span class="sub-label">SPECIAL TEAMS</span>
+                  <span class="sub-val">76</span>
+                </div>
+              </div>
             </div>
 
-            <div class="sprite-caption">
-              <span class="sprite-pose-tag" id="pose-tag">PIXEL ART SPRITE • POS 01</span>
-              <span class="sprite-quality">16-BIT RETRO ENGINE</span>
+            <div class="card-footer-stats">
+              <div class="f-stat">
+                <span class="f-lbl">NATIONAL RANK</span>
+                <span class="f-val gold">24</span>
+              </div>
+              <div class="f-stat">
+                <span class="f-lbl">CONF. RANK</span>
+                <span class="f-val green">3</span>
+              </div>
             </div>
           </section>
 
-          <!-- Archetypes & Skill Badges Card -->
-          <section class="data-panel panel-frame">
-            <div class="panel-header">
-              <span class="panel-icon">🎯</span>
-              <h2>ARCHETYPES & TRAITS</h2>
+          <!-- CARD 2: NEXT GAME MATCHUP -->
+          <section class="dash-card card-next-game">
+            <div class="card-header">
+              <h2 class="card-title">NEXT GAME</h2>
             </div>
-            <div class="archetypes-list" id="archetypes-container">
-              <!-- Dynamically populated -->
+            <div class="matchup-banner">
+              <div class="team-side home-side">
+                <span class="m-team-name">PINE VALLEY STATE</span>
+                <span class="m-mascot">OWLS</span>
+                <span class="m-record">5-2 (3-1)</span>
+              </div>
+              <div class="matchup-at-pill">
+                <span>AT</span>
+              </div>
+              <div class="team-side away-side">
+                <span class="m-team-name">REDWOOD UNIVERSITY</span>
+                <span class="m-mascot">MAROONS</span>
+                <span class="m-record">4-3 (2-2)</span>
+              </div>
+            </div>
+            <div class="matchup-details-row">
+              <div class="m-detail-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span>SAT, OCT 25 • 3:30 PM</span>
+              </div>
+              <div class="m-detail-item">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                <span>REDWOOD STADIUM • ARCATA, CA</span>
+              </div>
             </div>
           </section>
 
-        </div>
-      </main>
+          <!-- CARD 3: TOP NEWS CAROUSEL -->
+          <section class="dash-card card-top-news">
+            <div class="card-header">
+              <h2 class="card-title">TOP NEWS</h2>
+            </div>
+            <div class="news-hero-container">
+              <div class="news-banner-img">
+                <div class="news-overlay"></div>
+                <div class="stadium-art-canvas"></div>
+              </div>
+              <div class="news-content-box">
+                <h3 class="news-headline" id="news-title">OWLS CLIMB TO #24 IN LATEST POLL</h3>
+                <p class="news-snippet" id="news-text">Back-to-back road wins have the Owls ranked #24 nationally. Coach Carter credits "buy-in and belief."</p>
+                <div class="news-dots-pagination">
+                  <span class="dot active"></span>
+                  <span class="dot"></span>
+                  <span class="dot"></span>
+                  <span class="dot"></span>
+                  <span class="dot"></span>
+                  <span class="dot"></span>
+                </div>
+              </div>
+            </div>
+          </section>
 
-      <!-- Footer Legend Bar -->
-      <footer class="screen-footer">
-        <div class="input-legend">
-          <span class="key-chip"><kbd>1-4</kbd> TABS</span>
-          <span class="key-chip"><kbd>↑/↓</kbd> SWITCH PLAYER</span>
-          <span class="key-chip"><kbd>R</kbd> RANDOMIZE</span>
-          <span class="key-chip"><kbd>T</kbd> SWAP TEAM</span>
-          <span class="key-chip"><kbd>ESC</kbd> BACK</span>
+          <!-- CARD 4: GREAT NORTH CONFERENCE STANDINGS -->
+          <section class="dash-card card-conference">
+            <div class="card-header">
+              <h2 class="card-title">GREAT NORTH CONFERENCE</h2>
+            </div>
+            <div class="table-compact-wrap">
+              <table class="standings-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>TEAM</th>
+                    <th>CONF.</th>
+                    <th>OVERALL</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>1</td>
+                    <td><span class="t-icon blue">★</span> North Ridge</td>
+                    <td>4-0</td>
+                    <td>6-1</td>
+                  </tr>
+                  <tr>
+                    <td>2</td>
+                    <td><span class="t-icon teal">▲</span> Glacier State</td>
+                    <td>3-1</td>
+                    <td>6-2</td>
+                  </tr>
+                  <tr class="highlight-user-row">
+                    <td>3</td>
+                    <td><span class="t-icon green">✦</span> PINE VALLEY STATE</td>
+                    <td>3-1</td>
+                    <td>5-2</td>
+                  </tr>
+                  <tr>
+                    <td>4</td>
+                    <td><span class="t-icon maroon">R</span> Redwood University</td>
+                    <td>2-2</td>
+                    <td>4-3</td>
+                  </tr>
+                  <tr>
+                    <td>5</td>
+                    <td><span class="t-icon gold">S</span> Stonebridge</td>
+                    <td>2-2</td>
+                    <td>4-4</td>
+                  </tr>
+                  <tr>
+                    <td>6</td>
+                    <td><span class="t-icon lightblue">L</span> Lakeside College</td>
+                    <td>1-3</td>
+                    <td>2-5</td>
+                  </tr>
+                  <tr>
+                    <td>7</td>
+                    <td><span class="t-icon purple">U</span> Summit U</td>
+                    <td>1-3</td>
+                    <td>2-5</td>
+                  </tr>
+                  <tr>
+                    <td>8</td>
+                    <td><span class="t-icon gray">B</span> Bayshore State</td>
+                    <td>0-4</td>
+                    <td>1-6</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- CARD 5: WEEKLY SCHEDULE TIMELINE -->
+          <section class="dash-card card-weekly-schedule">
+            <div class="card-header">
+              <h2 class="card-title">WEEKLY SCHEDULE</h2>
+            </div>
+            <ul class="schedule-timeline">
+              <li class="sched-item">
+                <span class="day-code">MON</span>
+                <span class="day-date">OCT 20</span>
+                <span class="sched-icon heart">💚</span>
+                <span class="sched-desc">Recovery Day</span>
+              </li>
+              <li class="sched-item">
+                <span class="day-code">TUE</span>
+                <span class="day-date">OCT 21</span>
+                <span class="sched-icon practice">🏈</span>
+                <span class="sched-desc">Practice</span>
+                <span class="sched-time">3:30 PM</span>
+              </li>
+              <li class="sched-item">
+                <span class="day-code">WED</span>
+                <span class="day-date">OCT 22</span>
+                <span class="sched-icon practice">🏈</span>
+                <span class="sched-desc">Practice</span>
+                <span class="sched-time">3:30 PM</span>
+              </li>
+              <li class="sched-item">
+                <span class="day-code">THU</span>
+                <span class="day-date">OCT 23</span>
+                <span class="sched-icon walkthrough">📋</span>
+                <span class="sched-desc">Walk-Through</span>
+                <span class="sched-time">11:00 AM</span>
+              </li>
+              <li class="sched-item">
+                <span class="day-code">FRI</span>
+                <span class="day-date">OCT 24</span>
+                <span class="sched-icon travel">🚌</span>
+                <span class="sched-desc">Travel Day</span>
+                <span class="sched-time">10:00 AM</span>
+              </li>
+              <li class="sched-item game-day highlight-gameday">
+                <span class="day-code">SAT</span>
+                <span class="day-date">OCT 25</span>
+                <span class="sched-icon opponent-logo">R</span>
+                <span class="sched-desc">AT Redwood University</span>
+                <span class="sched-time">3:30 PM</span>
+              </li>
+              <li class="sched-item">
+                <span class="day-code">SUN</span>
+                <span class="day-date">OCT 26</span>
+                <span class="sched-icon offday">⛅</span>
+                <span class="sched-desc">Off Day</span>
+              </li>
+            </ul>
+          </section>
+
+          <!-- CARD 6: RECRUITING PIPELINE -->
+          <section class="dash-card card-recruiting-pipeline">
+            <div class="card-header">
+              <h2 class="card-title">RECRUITING PIPELINE</h2>
+              <span class="commits-badge">14 Commits</span>
+            </div>
+            <div class="pipeline-body">
+              <!-- Interactive USA Vector Map -->
+              <div class="us-map-stage">
+                <svg viewBox="0 0 400 240" class="us-map-svg">
+                  <!-- USA Outline vector paths -->
+                  <path d="M 30,50 L 80,40 L 130,45 L 180,30 L 250,35 L 320,20 L 370,40 L 380,100 L 350,150 L 320,210 L 280,220 L 230,190 L 180,210 L 120,180 L 70,190 L 20,130 Z" fill="#111c2e" stroke="#1e293b" stroke-width="2"/>
+                  <!-- Pins -->
+                  <g class="map-pin" transform="translate(60, 110)">
+                    <circle cx="0" cy="0" r="14" fill="#f59e0b" opacity="0.3"/>
+                    <circle cx="0" cy="0" r="8" fill="#f59e0b"/>
+                    <text x="0" y="3" font-size="9" font-weight="900" fill="#000" text-anchor="middle">4</text>
+                  </g>
+                  <g class="map-pin" transform="translate(170, 95)">
+                    <circle cx="0" cy="0" r="12" fill="#00e676" opacity="0.3"/>
+                    <circle cx="0" cy="0" r="7" fill="#00e676"/>
+                    <text x="0" y="3" font-size="9" font-weight="900" fill="#000" text-anchor="middle">2</text>
+                  </g>
+                  <g class="map-pin" transform="translate(195, 175)">
+                    <circle cx="0" cy="0" r="13" fill="#00e676" opacity="0.3"/>
+                    <circle cx="0" cy="0" r="7.5" fill="#00e676"/>
+                    <text x="0" y="3" font-size="9" font-weight="900" fill="#000" text-anchor="middle">3</text>
+                  </g>
+                  <g class="map-pin" transform="translate(300, 160)">
+                    <circle cx="0" cy="0" r="13" fill="#00e676" opacity="0.3"/>
+                    <circle cx="0" cy="0" r="7.5" fill="#00e676"/>
+                    <text x="0" y="3" font-size="9" font-weight="900" fill="#000" text-anchor="middle">3</text>
+                  </g>
+                </svg>
+              </div>
+
+              <!-- Region Breakdown Legend -->
+              <div class="pipeline-legend">
+                <div class="legend-row">
+                  <span class="region-name"><span class="pin-dot yellow"></span> West</span>
+                  <span class="region-stars">★★★★☆</span>
+                  <span class="region-count">4</span>
+                </div>
+                <div class="legend-row">
+                  <span class="region-name"><span class="pin-dot green"></span> Midwest</span>
+                  <span class="region-stars">★★★☆☆</span>
+                  <span class="region-count">2</span>
+                </div>
+                <div class="legend-row">
+                  <span class="region-name"><span class="pin-dot green"></span> South</span>
+                  <span class="region-stars">★★★★☆</span>
+                  <span class="region-count">3</span>
+                </div>
+                <div class="legend-row">
+                  <span class="region-name"><span class="pin-dot green"></span> Southeast</span>
+                  <span class="region-stars">★★★★☆</span>
+                  <span class="region-count">3</span>
+                </div>
+                <div class="legend-row">
+                  <span class="region-name"><span class="pin-dot yellow"></span> Northeast</span>
+                  <span class="region-stars">★★★☆☆</span>
+                  <span class="region-count">2</span>
+                </div>
+              </div>
+            </div>
+            <button class="btn-action-green">VIEW RECRUITING BOARD</button>
+          </section>
+
+          <!-- CARD 7: PROGRAM FINANCES -->
+          <section class="dash-card card-finances">
+            <div class="card-header">
+              <h2 class="card-title">PROGRAM FINANCES</h2>
+            </div>
+            <div class="finances-list">
+              <div class="finance-item">
+                <span class="fin-label">Budget</span>
+                <span class="fin-val">$34.2M</span>
+              </div>
+              <div class="finance-item">
+                <span class="fin-label">Current Balance</span>
+                <span class="fin-val green">$5.8M</span>
+              </div>
+              <div class="finance-item">
+                <span class="fin-label">Weekly Spend</span>
+                <span class="fin-val">$642K</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- CARD 8: PROGRAM PRESTIGE -->
+          <section class="dash-card card-prestige">
+            <div class="card-header">
+              <h2 class="card-title">PROGRAM PRESTIGE</h2>
+            </div>
+            <div class="prestige-body">
+              <div class="prestige-shield-wrapper">
+                <div class="shield-3d">
+                  <span class="shield-num" id="display-prestige-num">78</span>
+                  <span class="shield-stars">★★★</span>
+                </div>
+              </div>
+              <div class="prestige-meta">
+                <div class="status-rising">
+                  <span class="up-arrow">▲</span>
+                  <span class="rising-txt">RISING</span>
+                </div>
+                <ul class="prestige-bullets">
+                  <li><span class="bullet-dot">•</span> Winning %: .667</li>
+                  <li><span class="bullet-dot">•</span> Recent Success</li>
+                  <li><span class="bullet-dot">•</span> Facilities Upgrade</li>
+                </ul>
+              </div>
+            </div>
+            <div class="prestige-progress-bar">
+              <div class="prestige-fill" style="width: 78%;"></div>
+            </div>
+          </section>
+
+          <!-- CARD 9: TEAM MORALE -->
+          <section class="dash-card card-morale">
+            <div class="card-header">
+              <h2 class="card-title">TEAM MORALE</h2>
+              <span class="key-factors-lbl">KEY FACTORS</span>
+            </div>
+            <div class="morale-body">
+              <div class="morale-gauge-col">
+                <div class="smiley-circle">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#00e676" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
+                </div>
+                <span class="morale-status-txt">High</span>
+              </div>
+
+              <div class="factors-checklist">
+                <div class="factor-item pos">
+                  <span class="check-icon">✓</span>
+                  <span>2 Game Win Streak</span>
+                </div>
+                <div class="factor-item pos">
+                  <span class="check-icon">✓</span>
+                  <span>Close Locker Room</span>
+                </div>
+                <div class="factor-item pos">
+                  <span class="check-icon">✓</span>
+                  <span>Players Confident</span>
+                </div>
+                <div class="factor-item neg">
+                  <span class="down-icon">↓</span>
+                  <span>Road Game</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="morale-sliders-grid">
+              <div class="m-slider-row">
+                <span class="ms-lbl">Chemistry</span>
+                <div class="ms-bar"><div class="ms-fill" style="width: 82%;"></div></div>
+                <span class="ms-val">82</span>
+              </div>
+              <div class="m-slider-row">
+                <span class="ms-lbl">Leadership</span>
+                <div class="ms-bar"><div class="ms-fill" style="width: 78%;"></div></div>
+                <span class="ms-val">78</span>
+              </div>
+              <div class="m-slider-row">
+                <span class="ms-lbl">Buy-In</span>
+                <div class="ms-bar"><div class="ms-fill" style="width: 85%;"></div></div>
+                <span class="ms-val">85</span>
+              </div>
+            </div>
+          </section>
+
+          <!-- CARD 10: ROSTER SPOTLIGHT (DUAL PLAYER CARDS) -->
+          <section class="dash-card card-roster-spotlight">
+            <div class="card-header">
+              <h2 class="card-title">ROSTER SPOTLIGHT</h2>
+            </div>
+            <div class="spotlight-dual-grid">
+              
+              <!-- Player 1: QB Mason Harrison -->
+              <div class="spotlight-player-card">
+                <div class="p-card-header">
+                  <div class="p-num-badge">7</div>
+                  <div class="p-avatar-box">
+                    <img src="sprites/pixel_qb_sprite.jpg" class="player-sprite-img" alt="Mason Harrison" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <svg viewBox="0 0 60 70" class="player-sprite-svg" style="display:none;">
+                      <rect x="0" y="0" width="60" height="70" fill="#0d1726"/>
+                      <rect x="18" y="10" width="24" height="20" rx="3" fill="#f3d0a8"/>
+                      <rect x="15" y="8" width="30" height="12" fill="#1b4d3e"/>
+                      <rect x="22" y="24" width="16" height="4" fill="#3a2312"/>
+                      <rect x="10" y="30" width="40" height="36" fill="#1b4d3e"/>
+                      <rect x="20" y="32" width="20" height="34" fill="#f59e0b"/>
+                      <text x="30" y="55" font-family="'Outfit', sans-serif" font-weight="900" font-size="16" fill="#fff" text-anchor="middle">7</text>
+                    </svg>
+                  </div>
+                  <div class="p-meta">
+                    <h3 class="p-fullname">MASON HARRISON</h3>
+                    <div class="p-sub-bio">Junior • 6'3" • 205 lbs</div>
+                    <div class="p-archetype">Field General</div>
+                    <div class="p-morale-line">MORALE <span class="m-tag green">😃 High</span></div>
+                  </div>
+                  <div class="p-ovr-badge">
+                    <span class="ovr-lbl">OVR</span>
+                    <span class="ovr-num green">88</span>
+                  </div>
+                </div>
+
+                <div class="p-stats-grid">
+                  <div class="p-stat-cell">
+                    <span class="p-s-lbl">CMP%</span>
+                    <span class="p-s-val">67.1</span>
+                  </div>
+                  <div class="p-stat-cell">
+                    <span class="p-s-lbl">YDS</span>
+                    <span class="p-s-val">1,912</span>
+                  </div>
+                  <div class="p-stat-cell">
+                    <span class="p-s-lbl">TD</span>
+                    <span class="p-s-val">17</span>
+                  </div>
+                  <div class="p-stat-cell">
+                    <span class="p-s-lbl">INT</span>
+                    <span class="p-s-val">4</span>
+                  </div>
+                  <div class="p-stat-cell">
+                    <span class="p-s-lbl">QBR</span>
+                    <span class="p-s-val">84.3</span>
+                  </div>
+                </div>
+                <div class="p-last-game">LAST GAME: 22/31, 287 YDS, 3 TD</div>
+              </div>
+
+              <!-- Player 2: LB Jalen Bryant -->
+              <div class="spotlight-player-card">
+                <div class="p-card-header">
+                  <div class="p-num-badge">32</div>
+                  <div class="p-avatar-box">
+                    <img src="sprites/pixel_rb_sprite.jpg" class="player-sprite-img" alt="Jalen Bryant" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                    <svg viewBox="0 0 60 70" class="player-sprite-svg" style="display:none;">
+                      <rect x="0" y="0" width="60" height="70" fill="#0d1726"/>
+                      <rect x="18" y="10" width="24" height="20" rx="3" fill="#8d5524"/>
+                      <rect x="15" y="8" width="30" height="12" fill="#1b4d3e"/>
+                      <rect x="22" y="24" width="16" height="4" fill="#000"/>
+                      <rect x="8" y="30" width="44" height="36" fill="#1b4d3e"/>
+                      <rect x="18" y="32" width="24" height="34" fill="#f59e0b"/>
+                      <text x="30" y="55" font-family="'Outfit', sans-serif" font-weight="900" font-size="16" fill="#fff" text-anchor="middle">32</text>
+                    </svg>
+                  </div>
+                  <div class="p-meta">
+                    <h3 class="p-fullname">JALEN BRYANT</h3>
+                    <div class="p-sub-bio">Senior • 6'1" • 228 lbs</div>
+                    <div class="p-archetype">Run Stopper</div>
+                    <div class="p-morale-line">MORALE <span class="m-tag green">😃 High</span></div>
+                  </div>
+                  <div class="p-ovr-badge">
+                    <span class="ovr-lbl">OVR</span>
+                    <span class="ovr-num green">84</span>
+                  </div>
+                </div>
+
+                <div class="p-stats-grid">
+                  <div class="p-stat-cell">
+                    <span class="p-s-lbl">TCK</span>
+                    <span class="p-s-val">58</span>
+                  </div>
+                  <div class="p-stat-cell">
+                    <span class="p-s-lbl">TFL</span>
+                    <span class="p-s-val">8.0</span>
+                  </div>
+                  <div class="p-stat-cell">
+                    <span class="p-s-lbl">SACK</span>
+                    <span class="p-s-val">3.5</span>
+                  </div>
+                  <div class="p-stat-cell">
+                    <span class="p-s-lbl">INT</span>
+                    <span class="p-s-val">1</span>
+                  </div>
+                  <div class="p-stat-cell">
+                    <span class="p-s-lbl">FF</span>
+                    <span class="p-s-val">2</span>
+                  </div>
+                </div>
+                <div class="p-last-game">LAST GAME: 9 TKL, 1.5 TFL, 1 FF</div>
+              </div>
+
+            </div>
+          </section>
+
+          <!-- CARD 11: UPCOMING GAMES -->
+          <section class="dash-card card-upcoming-games">
+            <div class="card-header">
+              <h2 class="card-title">UPCOMING GAMES</h2>
+              <span class="diff-lbl">DIFFICULTY</span>
+            </div>
+            <ul class="upcoming-list">
+              <li class="up-item">
+                <span class="up-wk">Wk 9</span>
+                <span class="up-opp maroon">R</span>
+                <span class="up-name">at Redwood University</span>
+                <span class="up-date">Oct 25</span>
+                <span class="up-stars">★★★★☆</span>
+              </li>
+              <li class="up-item">
+                <span class="up-wk">Wk 10</span>
+                <span class="up-opp gold">S</span>
+                <span class="up-name">vs Stonebridge</span>
+                <span class="up-date">Nov 1</span>
+                <span class="up-stars">★★★☆☆</span>
+              </li>
+              <li class="up-item">
+                <span class="up-wk">Wk 11</span>
+                <span class="up-opp blue">L</span>
+                <span class="up-name">vs Lakeside College</span>
+                <span class="up-date">Nov 8</span>
+                <span class="up-stars">★★☆☆☆</span>
+              </li>
+              <li class="up-item">
+                <span class="up-wk">Wk 12</span>
+                <span class="up-opp navy">NR</span>
+                <span class="up-name">at North Ridge</span>
+                <span class="up-date">Nov 15</span>
+                <span class="up-stars">★★★★★</span>
+              </li>
+              <li class="up-item">
+                <span class="up-wk">Wk 13</span>
+                <span class="up-opp purple">SU</span>
+                <span class="up-name">vs Summit U</span>
+                <span class="up-date">Nov 22</span>
+                <span class="up-stars">★★☆☆☆</span>
+              </li>
+            </ul>
+          </section>
+
+        </main>
+      </div>
+
+      <!-- Bottom Controller & Sound Bar Footer -->
+      <footer class="broadcast-footer">
+        <div class="controller-legend">
+          <span class="ctrl-chip"><span class="btn-circle green">A</span> SELECT</span>
+          <span class="ctrl-chip"><span class="btn-circle red">B</span> BACK</span>
+          <span class="ctrl-chip"><span class="btn-circle yellow">Y</span> HELP</span>
         </div>
-        <div class="system-status">
-          <span class="status-indicator"></span>
-          <span>CFHC SIMULATION ENGINE • VER 1.4.5</span>
+
+        <div class="soundtrack-ticker">
+          <span class="music-icon">🎵</span>
+          <span class="track-title">Campus Drive — Midnight Rally</span>
+          <div class="audio-spectrum">
+            <span class="bar b1"></span>
+            <span class="bar b2"></span>
+            <span class="bar b3"></span>
+            <span class="bar b4"></span>
+          </div>
+          <span class="volume-icon">🔊</span>
         </div>
       </footer>
 

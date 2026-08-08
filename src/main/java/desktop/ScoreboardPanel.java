@@ -91,7 +91,8 @@ public class ScoreboardPanel implements LeagueScreen {
         Runnable updateScoreboard = () -> {
             weekLabel.setText(currentWeek <= 0
                     ? SeasonPresentation.getSeasonCycleLabel(ctx.league())
-                    : "Week " + currentWeek);            weekTypeLabel.setText(getWeekType(currentWeek, ctx.league()));
+                    : "Week " + currentWeek);
+            weekTypeLabel.setText(getWeekType(currentWeek, ctx.league()));
             model.setRowCount(0);
             List<List<String>> scores = ctx.league().getWeeklyScores();
             if (scores != null && currentWeek >= 0 && currentWeek < scores.size()) {

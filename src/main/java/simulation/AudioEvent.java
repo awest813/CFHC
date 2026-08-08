@@ -9,5 +9,9 @@ public enum AudioEvent {
     FIRST_DOWN,
     ADVANCE,
     WIN,
-    LOSS
+    LOSS,
+    FIGHT_SONG,
+    TOUCHDOWN_CHEER,
+    CROWD_ROAR,
+    STADIUM_ORGAN
 }

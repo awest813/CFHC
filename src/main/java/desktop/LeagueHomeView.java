@@ -170,11 +170,13 @@ public class LeagueHomeView extends JFrame {
         loadApplicationIcon();
         registerGlobalShortcuts();
         setJMenuBar(buildMenuBar());
-        headerPanel = buildHeader();
+        headerPanel = new DesktopHeaderBar(leagueCore);
         add(headerPanel, BorderLayout.NORTH);
         mainContentShell = buildMainContent();
         add(mainContentShell, BorderLayout.CENTER);
-        statusBar = buildStatusBar();
+        DesktopNavSidebar navSidebar = new DesktopNavSidebar(this::selectScreen);
+        add(navSidebar, BorderLayout.WEST);
+        statusBar = new DesktopStatusFooter();
         add(statusBar, BorderLayout.SOUTH);
         applyWindowTheme();
         MacDesktopIntegration.setActiveLeagueHome(this);
@@ -486,6 +488,7 @@ public class LeagueHomeView extends JFrame {
     }
 
     private void registerGlobalShortcuts() {
+        // F1 / Ctrl+/ -> Keyboard shortcuts help dialog
         getRootPane().registerKeyboardAction(
                 e -> showKeyboardShortcuts(),
                 KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0),
@@ -494,6 +497,34 @@ public class LeagueHomeView extends JFrame {
                 e -> showKeyboardShortcuts(),
                 KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, KeyEvent.CTRL_DOWN_MASK),
                 JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+        // Space / Enter -> Play week / Advance season (Console [A] SELECT)
+        getRootPane().registerKeyboardAction(
+                e -> playWeek(),
+                KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0),
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
+        getRootPane().registerKeyboardAction(
+                e -> playWeek(),
+                KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0),
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+        // Escape -> Return to Dashboard (Console [B] BACK)
+        getRootPane().registerKeyboardAction(
+                e -> selectScreen("Dashboard"),
+                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+        // ArrowUp / ArrowDown -> Switch adjacent sidebar screens
+        getRootPane().registerKeyboardAction(
+                e -> selectAdjacentScreen(-1),
+                KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0),
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
+        getRootPane().registerKeyboardAction(
+                e -> selectAdjacentScreen(1),
+                KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0),
+                JComponent.WHEN_IN_FOCUSED_WINDOW);
+
+        // Ctrl+Tab / Ctrl+Shift+Tab -> Next / Previous sidebar screen
         getRootPane().registerKeyboardAction(
                 e -> selectAdjacentScreen(1),
                 KeyStroke.getKeyStroke(KeyEvent.VK_TAB, KeyEvent.CTRL_DOWN_MASK),
@@ -504,7 +535,7 @@ public class LeagueHomeView extends JFrame {
                         KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK),
                 JComponent.WHEN_IN_FOCUSED_WINDOW);
 
-        // Ctrl+1..Ctrl+9 jump to the first nine sidebar screens.
+        // Digit 1..9 -> Direct jump to sidebar screens
         int[] digitKeys = {
                 KeyEvent.VK_1, KeyEvent.VK_2, KeyEvent.VK_3, KeyEvent.VK_4,
                 KeyEvent.VK_5, KeyEvent.VK_6, KeyEvent.VK_7, KeyEvent.VK_8,
@@ -515,11 +546,15 @@ public class LeagueHomeView extends JFrame {
             final int index = i;
             getRootPane().registerKeyboardAction(
                     e -> selectScreen(NAV_TITLES[index]),
+                    KeyStroke.getKeyStroke(digitKeys[i], 0),
+                    JComponent.WHEN_IN_FOCUSED_WINDOW);
+            getRootPane().registerKeyboardAction(
+                    e -> selectScreen(NAV_TITLES[index]),
                     KeyStroke.getKeyStroke(digitKeys[i], KeyEvent.CTRL_DOWN_MASK),
                     JComponent.WHEN_IN_FOCUSED_WINDOW);
         }
 
-        // Alt+1..6 jump to sidebar tabs 10–15 (League History through Settings).
+        // Alt+1..6 jump to sidebar tabs 10–15
         int altNavStart = digitKeys.length;
         int altNavEnd = Math.min(altNavStart + digitKeys.length, NAV_TITLES.length);
         for (int i = altNavStart; i < altNavEnd; i++) {
@@ -531,7 +566,7 @@ public class LeagueHomeView extends JFrame {
                     JComponent.WHEN_IN_FOCUSED_WINDOW);
         }
 
-        // Ctrl+F focuses the current screen's search/filter field; falls back to Player Search.
+        // Ctrl+F focus search, Ctrl+R recruiting, Ctrl+L focus sidebar
         getRootPane().registerKeyboardAction(
                 e -> focusActiveSearchField(),
                 KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK),

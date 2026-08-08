@@ -1,74 +1,61 @@
-# Player Profile UI Redesign Plan
+# Franchise Dashboard & UI Redesign Plan
 
 ## Objective
-Create a "crisp," high-fidelity Player Profile interface that adopts the layout and information density of the reference design, while seamlessly integrating pixel-art/sprite player assets to maintain the game's core aesthetic.
+Create a "crisp," high-fidelity sports broadcast console HUD interface for **College Football Head Coach (CFHC)** that adopts the layout, visual identity, and information density of the reference design, featuring dark obsidian backdrops, slate card containers, neon emerald highlights, trophy gold accents, and custom pixel-art player spotlight components.
 
-## Visual Identity & Style
-- **Color Palette**: Dark, professional "sports broadcast" theme. Deep navy/charcoal backgrounds with high-contrast accents (e.g., gold for stars, sharp vibrant teal/green for progress, team-specific colors for highlights).
-- **Typography**: 
-    - **Names**: Bold, impactful sans-serif (e.g., Inter or Roboto) with optimized kerning for sharpness.
-    - **Labels/Stats**: Highly legible monospaced font for numeric data to ensure perfect vertical alignment across stats tables.
-- **Assets**:
-    - **Character Sprites**: High-quality pixel art sprites in various poses, rendered with a consistent pixel-perfect outline to ensure they pop against the background.
-    - **Icons**: Minimalist, modern vector-style icons with precise, clean lines.
-    - **UI Elements**: Ultra-thin, sharp-edged panel borders, crisp circular gauges for OVR/Stats, and refined progress bars with subtle, defined gradients.
+---
 
-## Principles for a "Crisper" UI
-To ensure the UI is even sharper than the reference, we will adhere to these design constraints:
-- **Strict Grid Alignment**: Every component, text label, and icon must adhere to a rigid, pixel-perfect grid for absolute consistency.
-- **Optimized Spacing (Whitespace)**: Ample, consistent padding between panels and text elements to eliminate visual clutter and increase readability.
-- **Panel Definition**: Distinct, high-contrast panel backgrounds and sharp borders, ensuring each data group is visually isolated.
-- **Text Clarity**: Using high-legibility fonts at scale, ensuring text is never fuzzy, even when resizing.
-- **Enhanced Contrast**: Ensuring all text and data points have maximum readability against the dark, deep navy backgrounds.
+## Visual Identity & Design System
+- **Color Tokens**:
+  - `Midnight Obsidian`: `#060c14` (Window & Viewport Background)
+  - `Deep Navy Slate`: `#0d1726` / `#111c2e` (Card Containers & Surface Panels)
+  - `Neon Emerald Green`: `#00e676` / `#10b981` (Overall Ratings, Active Selection, Positive Morale)
+  - `Trophy Gold`: `#f59e0b` / `#fbbf24` (Star Ratings, Rankings, Prestige Badges)
+  - `Crimson Maroon`: `#881337` / `#9f1239` (Matchup Opponent Highlights & Alerts)
+  - `Dark Slate Border`: `#1e293b` (1px Panel Dividers & Outer Borders)
+- **Typography**:
+  - **Headlines & School Titles**: `Outfit` / `Inter` Bold Display.
+  - **Script Mascot Accents**: `Caveat` Cursive ("*Owls*").
+  - **Numeric Data & Metrics**: `JetBrains Mono` Monospaced font for clean vertical alignment.
 
-## Interface Layout (Modular Design)
+---
 
+## Interface Layout (11-Card Dashboard Grid)
 
-### 1. Header & Navigation
-- **Breadcrumbs**: `ROSTERS > PLAYER PROFILE` (Top-left).
-- **Tabs**: Horizontal navigation (OVERVIEW, RATINGS, STATS, HISTORY) with clear active/inactive states.
+### 1. Top Broadcast Header
+- Team Primary Shield & Crest Logo
+- School Name (**PINE VALLEY STATE**) + Script Nickname (*Owls*)
+- Season / Week Indicator (`2026 SEASON • WEEK 8`)
+- Head Coach Info (`HC ELIJAH CARTER`, Career Record: `28-17`)
+- Notification badge envelope (`[3]`)
 
-### 2. Primary Identity Block (Top Left/Center)
-- **Player Identity**: Large Number, Full Name, Star Rating, and Archetype text.
-- **OVR Gauge**: A prominent circular progress bar showing the current Overall rating.
-- **XP Progress**: A sleek progress bar showing current XP vs. total XP required.
-- **Quick Bio**: A concise list of Position, Class, Height, Weight, and Hometown.
+### 2. Left Vertical Navigation Sidebar
+- 15 navigation options (`DASHBOARD`, `TEAM MANAGEMENT`, `ROSTER`, `DEPTH CHART`, `GAME PLAN`, `RECRUITING`, `SCOUTING`, `TRAINING`, `SCHEDULE`, `STATS & HISTORY`, `CONFERENCE`, `FACILITIES`, `FINANCES`, `PROGRAM PRESTIGE`, `SETTINGS`)
+- Active neon green indicator bar
+- Yellow pill badge for recruiting alerts (`14`)
+- School Seal Footer Emblem ("EST. 1898")
 
-### 3. Visual Anchor (Right Side)
-- **Sprite Display**: The player's pixel-art sprite, prominently displayed.
-- **Background**: A thematic, low-opacity team logo watermark or subtle gradient background to provide depth.
+### 3. Main Dashboard Grid (11 Cards)
+- **Team Overall**: Giant `82` green rating, `B+` grade, 4-star display, Offense/Defense/Special Teams sub-cards, National #24 & Conf #3 ranks.
+- **Next Game Matchup**: Split team cards (Pine Valley State Owls 5-2 vs Redwood University Maroons 4-3), kickoff time, stadium location.
+- **Top News Carousel**: Hero stadium image, headline, dot pagination.
+- **Conference Standings**: Great North 8-team table with rank highlights.
+- **Weekly Schedule**: Mon-Sun timeline with activity icon badges.
+- **Recruiting Pipeline**: US Map visual with regional target pins and "VIEW RECRUITING BOARD" action button.
+- **Program Finances**: Budget ($34.2M), Current Balance ($5.8M), Weekly Spend ($642K).
+- **Program Prestige**: Metallic 3D Shield (#78 RISING) with progress bar fill.
+- **Team Morale**: Smiley gauge, win streak checklist, Chemistry (82), Leadership (78), Buy-In (85) sliders.
+- **Roster Spotlight**: Dual pixel-art player cards (QB Mason Harrison 88 OVR & LB Jalen Bryant 84 OVR) with stats & last game line.
+- **Upcoming Games**: Schedule preview (Weeks 9-13) with difficulty stars.
 
-### 4. Data Panels (Main Body)
-- **Attributes Panel**: A two-column grid of attribute names and styled progress bars (e.g., Throw Power, Speed, Awareness).
-- **Archetypes Panel**: Icon-based list showing secondary archetypes and their relative ratings.
-- **Season Stats Panel**: 
-    - Key seasonal metrics (COMP/ATT, YARDS, etc.).
-    - A large circular "Completion %" gauge for visual impact.
-- **Career Stats Panel**: A horizontal summary bar displaying long-term career totals.
-- **Development Panel**: Dedicated section for XP progression and "Skill Points Available" indicator.
+### 4. Bottom Status & Audio Bar
+- Gamepad Controller Legend (`(A) SELECT`, `(B) BACK`, `(Y) HELP`)
+- Audio Soundtrack Ticker ("Campus Drive — Midnight Rally") + Equalizer Visualizer
 
-### 5. Footer (Navigation Controls)
-- **Input Legend**: Minimalist icons and text indicating controller mappings (e.g., `[ENTER] SELECT`, `[ESC] BACK`).
-- **Team Branding**: Team name/logo in the bottom-right corner.
+---
 
-## Implementation Roadmap
+## Execution Status
 
-### Phase 1: Asset Pipeline
-- [ ] Develop/Acquire set of high-quality player sprites in various poses.
-- [ ] Design the icon set for archetypes and attribute groups.
-- [ ] Create themed UI background textures and gradients.
-
-### Phase 2: Component Prototyping
-- [ ] Implement the new Progress Bar and Circular Gauge components.
-- [ ] Build the modular "Data Panel" containers.
-- [ ] Design the typography/text styling system.
-
-### Phase 3: Integration & Mapping
-- [ ] Map existing `Player` and `Team` data models to the new UI components.
-- [ ] Implement the tabbed navigation logic.
-- [ ] Integrate the sprite rendering system into the profile view.
-
-### Phase 4: Polish & Animation
-- [ ] Add smooth transitions (e.g., fade-ins for panels, growing progress bars).
-- [ ] Implement subtle hover/select animations for UI elements.
-- [ ] Final color grading and contrast adjustments.
+- [x] **Web Live Sandbox Overhaul (`preview/`)**: Rebuilt `index.html`, `styles.css`, and `app.js` into an interactive replication of the screenshot dashboard.
+- [x] **Desktop Theme Modernization (`src/main/java/desktop/DesktopTheme.java`)**: Updated default dark theme colors to obsidian, navy slate, neon emerald, and gold tokens.
+- [x] **Verification**: Verified via test suite and preview setup.
