@@ -63,11 +63,22 @@ jobs:
       - name: Assemble debug APK
         run: ./gradlew :app:assembleDebug --no-daemon
 
-      - name: Android lint (debug)
-        run: ./gradlew :app:lintDebug --no-daemon
+      - name: Assemble beta, release APKs + release AAB
+        # Exercises the release buildType (R8/minify + signing) so config,
+        # ProGuard, and signing-config breaks surface here, not at release.
+        run: ./gradlew :app:assembleBeta :app:assembleRelease :app:bundleRelease --no-daemon
+
+      - name: Android lint (debug, beta, release)
+        run: ./gradlew :app:lintDebug :app:lintBeta :app:lintRelease --no-daemon
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
           name: cfhc-debug-apk
           path: app/build/outputs/apk/debug/app-debug.apk
+
+      - name: Upload release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: cfhc-release-apk
+          path: app/build/outputs/apk/release/*.apk

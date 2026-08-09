@@ -7,7 +7,27 @@ def repoRoot = rootProject.projectDir
 android {
     namespace 'antdroid.cfbcoach'
     signingConfigs {
+        // Optional env-var driven release signing. When CFHC_KEYSTORE points
+        // at a real keystore, sign with it; otherwise fall back to the
+        // auto-generated debug key so release is always buildable (CI, fresh
+        // clones) without carrying release secrets in the repo.
+        //   CFHC_KEYSTORE       — absolute path to the .jks keystore
+        //   CFHC_STORE_PASSWORD — keystore password
+        //   CFHC_KEY_ALIAS      — key alias
+        //   CFHC_KEY_PASSWORD   — key password
         config {
+            def keystorePath = System.getenv('CFHC_KEYSTORE')
+            if (keystorePath != null && !keystorePath.isEmpty() && file(keystorePath).exists()) {
+                storeFile file(keystorePath)
+                storePassword System.getenv('CFHC_STORE_PASSWORD') ?: ''
+                keyAlias System.getenv('CFHC_KEY_ALIAS') ?: ''
+                keyPassword System.getenv('CFHC_KEY_PASSWORD') ?: ''
+            } else {
+                storeFile signingConfigs.debug.storeFile
+                storePassword signingConfigs.debug.storePassword
+                keyAlias signingConfigs.debug.keyAlias
+                keyPassword signingConfigs.debug.keyPassword
+            }
         }
     }
     compileSdk 35
@@ -50,8 +70,10 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'),
+            signingConfig signingConfigs.config
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
                     "${repoRoot}/proguard-rules.pro"
         }
         debug {

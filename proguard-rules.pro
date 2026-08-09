@@ -1,17 +1,22 @@
-# Add project specific ProGuard rules here.
-# By default, the flags in this file are appended to flags specified
-# in D:\Android\android-sdk/tools/proguard/proguard-android.txt
-# You can edit the include path and order by changing the proguardFiles
-# directive in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# CFHC release R8/ProGuard rules.
+# Applied on top of the AGP default (proguard-android-optimize.txt) when the
+# release buildType runs minifyEnabled true. Keep rules are intentionally
+# minimal — the engine uses plain-text saves (no reflection/serialization) and
+# AndroidResourceProvider.getIdentifier() is safe under R8.
 
-# Add any project specific keep options here:
+# --- GraphView 4.2.2 (com.jjoe64:graphview) — only third-party runtime dep ---
+# Library uses reflection to instantiate series classes; keep the whole package.
+-keep class com.jjoe64.graphview.** { *; }
+-dontwarn com.jjoe64.graphview.**
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# --- Enum safety: valueOf/values() are accessed reflectively by Java itself ---
+# Used widely by the engine (AudioEvent, Personality, Practicefocus, etc.).
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+
+# --- JNI safety (no native code today; guards future System.loadLibrary usage) ---
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
