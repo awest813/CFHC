@@ -2197,6 +2197,13 @@ public class League {
         if (!heismanDecided) {
             heismanDecided = true;
             heismanCandidates = getHeisman();
+            // Guard against a degenerate/minimal league (e.g. a corrupted save
+            // or custom universe with no offensive players): the original code
+            // assumed >=5 candidates and would throw IOBE mid-ceremony.
+            if (heismanCandidates.isEmpty()) {
+                heismanWinnerStrFull = "No Offensive Player of the Year candidates this season.";
+                return heismanWinnerStrFull;
+            }
             heisman = heismanCandidates.get(0);
             heisman.wonHeisman = true;
             heisman.recordHeismans(1);
@@ -2204,7 +2211,8 @@ public class League {
             putNewsStory = true;
             //full results string
             String heismanTop5 = "\n";
-            for (int i = 0; i < 5; ++i) {
+            int topN = Math.min(5, heismanCandidates.size());
+            for (int i = 0; i < topN; ++i) {
                 Player p = heismanCandidates.get(i);
                 heismanTop5 += (i + 1) + ". " + p.getAwardStats();
             }
@@ -2244,6 +2252,11 @@ public class League {
         if (!defPOTYDecided) {
             defPOTYDecided = true;
             defPOTYCandidates = getDefPOTY();
+            // Guard against a degenerate/minimal league with no defensive players.
+            if (defPOTYCandidates.isEmpty()) {
+                defPOTYWinnerStrFull = "No Defensive Player of the Year candidates this season.";
+                return defPOTYWinnerStrFull;
+            }
             defPOTY = defPOTYCandidates.get(0);
             defPOTY.wonHeisman = true;
             defPOTY.recordHeismans(1);
@@ -2251,7 +2264,8 @@ public class League {
             putNewsStory = true;
             //full results string
             String heismanTop5 = "\n";
-            for (int i = 0; i < 5; ++i) {
+            int topN = Math.min(5, defPOTYCandidates.size());
+            for (int i = 0; i < topN; ++i) {
                 Player p = defPOTYCandidates.get(i);
                 heismanTop5 += (i + 1) + ". " + p.getAwardStats();
             }
