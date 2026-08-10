@@ -36,6 +36,13 @@ public class DesktopHeaderBar extends JPanel {
         JPanel leftGroup = new JPanel(new FlowLayout(FlowLayout.LEFT, 14, 0));
         leftGroup.setOpaque(false);
 
+        Team userTeam = league != null ? league.userTeam : null;
+
+        // Precompute the crest monogram so the paint closure can capture it.
+        final String mono = userTeam != null && userTeam.getAbbr() != null
+                && userTeam.getAbbr().length() >= 2
+                ? userTeam.getAbbr().substring(0, 2).toUpperCase() : "--";
+
         // Logo Shield Icon Component
         JPanel logoCrest = new JPanel() {
             @Override
@@ -55,10 +62,12 @@ public class DesktopHeaderBar extends JPanel {
                 g2.setColor(new Color(27, 77, 62));
                 g2.fillOval(8, 8, w - 17, h - 17);
 
-                // Monogram Text
+                // Monogram Text (team abbreviation; was hardcoded "PV").
                 g2.setColor(Color.WHITE);
                 g2.setFont(new Font("SansSerif", Font.BOLD, 18));
-                g2.drawString("PV", 14, 32);
+                java.awt.FontMetrics fm = g2.getFontMetrics();
+                int textW = fm.stringWidth(mono);
+                g2.drawString(mono, (w - textW) / 2, (h + fm.getAscent() - fm.getDescent()) / 2);
 
                 g2.dispose();
             }
@@ -71,7 +80,6 @@ public class DesktopHeaderBar extends JPanel {
         JPanel titlePanel = new JPanel(new BorderLayout(0, 2));
         titlePanel.setOpaque(false);
 
-        Team userTeam = league != null ? league.userTeam : null;
         String schoolName = userTeam != null ? userTeam.getName().toUpperCase() : "PINE VALLEY STATE";
         String mascotName = userTeam != null && userTeam.nickname != null ? userTeam.nickname : "Owls";
 
@@ -98,12 +106,31 @@ public class DesktopHeaderBar extends JPanel {
         JPanel coachMeta = new JPanel(new BorderLayout(0, 2));
         coachMeta.setOpaque(false);
 
-        String coachName = "HC ELIJAH CARTER";
-        String coachRecord = "Career Record: 28-17 (4th Yr)";
-        if (userTeam != null && userTeam.getHeadCoach() != null) {
-            HeadCoach hc = userTeam.getHeadCoach();
+        // Bind real coach data; neutral fallback (was a fake "HC ELIJAH CARTER").
+        HeadCoach hc = userTeam != null ? userTeam.getHeadCoach() : null;
+        String coachName;
+        String coachRecord;
+        Color chipColor;
+        String chipLabel;
+        if (hc != null) {
             coachName = "HC " + hc.name.toUpperCase();
-            coachRecord = "Career Record: " + hc.getWins() + "-" + hc.getLosses() + " (" + hc.age + "yo)";
+            coachRecord = "Career: " + hc.getWins() + "-" + hc.getLosses() + "  \u2022  Yr " + hc.year;
+            // Job-security state from real contract/firing data.
+            if (userTeam.fired) {
+                chipColor = DesktopTheme.dangerRed();
+                chipLabel = "HOT SEAT";
+            } else if (hc.contractLength - hc.contractYear <= 2) {
+                chipColor = DesktopTheme.warningText();
+                chipLabel = "ON WATCH";
+            } else {
+                chipColor = DesktopTheme.successGreen();
+                chipLabel = "SECURE";
+            }
+        } else {
+            coachName = "HC \u2014";
+            coachRecord = "No coach hired";
+            chipColor = DesktopTheme.textSecondary();
+            chipLabel = "VACANT";
         }
 
         JLabel hcLabel = new JLabel(coachName, JLabel.RIGHT);
@@ -117,6 +144,28 @@ public class DesktopHeaderBar extends JPanel {
         coachMeta.add(hcLabel, BorderLayout.NORTH);
         coachMeta.add(recordLabel, BorderLayout.SOUTH);
         rightGroup.add(coachMeta);
+
+        // Job-security pill — reuses the notification-pill paint idiom.
+        final Color pillColor = chipColor;
+        JPanel securityChip = new JPanel(new FlowLayout(FlowLayout.CENTER, 4, 4)) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(new Color(17, 28, 46));
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 12, 12);
+                g2.setColor(pillColor);
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 12, 12);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        securityChip.setOpaque(false);
+        JLabel chipText = new JLabel(chipLabel);
+        chipText.setFont(new Font("SansSerif", Font.BOLD, 9));
+        chipText.setForeground(pillColor);
+        securityChip.add(chipText);
+        rightGroup.add(securityChip);
 
         // Notification Mail Icon Pill
         JPanel notifPill = new JPanel(new FlowLayout(FlowLayout.CENTER, 4, 4)) {
