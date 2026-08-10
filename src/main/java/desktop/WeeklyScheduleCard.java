@@ -27,7 +27,7 @@ public class WeeklyScheduleCard extends CustomCardPanel {
         list.add(buildScheduleItem("WED", "OCT 22", "\uD83C\uDFC8", "Practice", "3:30 PM", false));
         list.add(buildScheduleItem("THU", "OCT 23", "\uD83D\uDCCB", "Walk-Through", "11:00 AM", false));
         list.add(buildScheduleItem("FRI", "OCT 24", "\uD83D\uDE8C", "Travel Day", "10:00 AM", false));
-        list.add(buildScheduleItem("SAT", "OCT 25", "R", "AT Redwood University", "3:30 PM", true));
+        list.add(buildScheduleItem("SAT", "OCT 25", "\uD83C\uDFC8", "AT Redwood University", "3:30 PM", true));
         list.add(buildScheduleItem("SUN", "OCT 26", "\u26C5", "Off Day", "", false));
 
         wrapper.add(list, BorderLayout.CENTER);

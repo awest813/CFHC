@@ -223,6 +223,11 @@ tasks.named('test', Test) {
     // DesktopAudioManager loads assets/sounds/* from the classpath (same layout as desktopJar).
     dependsOn prepareDesktopResources
     classpath += files(desktopResourcesDir)
+    // Exclude long-running stress sims from the default gate; run on demand:
+    //   ./gradlew -p desktop-standalone :engine:test --tests "simulation.Stress100SeasonsTest"
+    filter {
+        excludeTestsMatching '**/Stress100SeasonsTest*'
+    }
 }
 
 tasks.register('desktopStandaloneGate') {

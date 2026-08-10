@@ -11,8 +11,8 @@ import static org.junit.Assert.*;
  */
 public class PrestigeBoundsTest {
 
-    /** Soft ceiling — prestige grows slowly; values above this signal corruption. */
-    private static final int PRESTIGE_SOFT_MAX = 200;
+    /** Soft ceiling — mirrors Team.PRESTIGE_SOFT_MAX, the clamp in calcSeasonPrestige. */
+    private static final int PRESTIGE_SOFT_MAX = Team.PRESTIGE_SOFT_MAX;
 
     private League league;
     private SeasonController controller;
@@ -57,6 +57,30 @@ public class PrestigeBoundsTest {
         assertTrue("calcSeasonPrestige must not return negative prestige", pts[0] >= 0);
         t.enterOffSeason();
         assertTrue("enterOffSeason prestige must be >= 0", t.teamPrestige >= 0);
+    }
+
+    @Test
+    public void prestige_afterCalcSeasonPrestige_clampsAtSoftMax() {
+        // A dominant team that already sits at the ceiling and then wins a
+        // national title must not climb past the soft max. Regression guard
+        // for the unbounded-prestige drift caught by Stress100SeasonsTest.
+        Team t = league.userTeam;
+        t.teamPrestige = Team.PRESTIGE_SOFT_MAX;
+        t.rankTeamPrestige = 1;
+        t.projectedPollRank = 1;
+        t.rankTeamPollScore = 1;
+        t.wins = 14;
+        t.projectedWins = 11;
+        t.natChampWL = "NCW";
+        t.confChampion = "CC";
+        t.bowlBan = false;
+        t.penalized = false;
+
+        int[] pts = t.calcSeasonPrestige();
+        assertTrue("calcSeasonPrestige must not exceed soft max", pts[0] <= Team.PRESTIGE_SOFT_MAX);
+        t.enterOffSeason();
+        assertTrue("enterOffSeason prestige must stay <= soft max",
+                t.teamPrestige <= Team.PRESTIGE_SOFT_MAX);
     }
 
     @Test

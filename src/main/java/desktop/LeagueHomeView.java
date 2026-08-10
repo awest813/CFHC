@@ -1648,13 +1648,17 @@ public class LeagueHomeView extends JFrame {
 
     private void rebuildHeader() {
         remove(headerPanel);
-        headerPanel = buildHeader();
+        // Preserve the broadcast-HUD shell across refreshes. Previously this
+        // rebuilt the legacy plain header, so the DesktopHeaderBar (crest,
+        // coach card, notification pill) vanished after the first refresh.
+        headerPanel = new DesktopHeaderBar(leagueCore);
         add(headerPanel, BorderLayout.NORTH);
     }
 
     private void rebuildStatusBar() {
         remove(statusBar);
-        statusBar = buildStatusBar();
+        // Preserve the controller-chip / soundtrack HUD footer across refreshes.
+        statusBar = new DesktopStatusFooter();
         add(statusBar, BorderLayout.SOUTH);
     }
 

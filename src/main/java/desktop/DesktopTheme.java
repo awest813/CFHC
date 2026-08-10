@@ -81,6 +81,10 @@ public final class DesktopTheme {
                 _launcherFooter = new Color(210, 210, 210);
                 _textAreaBg = new Color(12, 12, 12);
                 _menuBarBg = Color.BLACK;
+            } else {
+                // Dark obsidian broadcast theme. Previously this block ran
+                // unconditionally (no else), overwriting the high-contrast
+                // values above and making dark+HC a silent no-op.
                 _windowBg = new Color(6, 12, 20);       // #060c14 midnight obsidian
                 _textPrimary = new Color(248, 250, 252);
                 _textSecondary = new Color(148, 163, 184);
