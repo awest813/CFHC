@@ -184,9 +184,13 @@ public class DesktopHeaderBar extends JPanel {
         notifPill.setOpaque(false);
         notifPill.setPreferredSize(new Dimension(36, 32));
 
-        JLabel notifIcon = new JLabel("\u2709 3");
+        // Notification count from real news headlines (was hardcoded "3").
+        int newsCount = league != null && league.getNewsHeadlines() != null
+                ? league.getNewsHeadlines().size() : 0;
+        JLabel notifIcon = new JLabel("\u2709 " + newsCount);
         notifIcon.setFont(new Font("SansSerif", Font.BOLD, 11));
-        notifIcon.setForeground(DesktopTheme.warningText());
+        notifIcon.setForeground(newsCount > 0
+                ? DesktopTheme.warningText() : DesktopTheme.textSecondary());
         notifPill.add(notifIcon);
 
         rightGroup.add(notifPill);
