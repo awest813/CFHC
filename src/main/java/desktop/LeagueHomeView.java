@@ -870,6 +870,9 @@ public class LeagueHomeView extends JFrame {
             soundtrackEngine.dispose();
             soundtrackEngine = null;
         }
+        if (statusBar instanceof DesktopStatusFooter) {
+            ((DesktopStatusFooter) statusBar).dispose();
+        }
         dispose();
     }
 

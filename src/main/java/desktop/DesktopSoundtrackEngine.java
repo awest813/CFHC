@@ -284,9 +284,8 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
             G4 = 392.00, A4 = 440.00, B4 = 493.88;
     private static final double C5 = 523.25, D5 = 587.33, E5 = 659.25, F5 = 698.46,
             G5 = 783.99, A5 = 880.00;
-    private static final double Bb4 = 466.16, D5b = 554.37, E5b = 622.25, F5b = 698.46;
+    private static final double Bb4 = 466.16, E5b = 622.25;
     private static final double A2 = 110.00, A3 = 220.00, E3 = 164.81, G3 = 196.00, C3 = 130.81;
-    private static final double Bb3 = 233.08, F3 = 174.61;
 
     /**
      * Returns the melodic loop for a track. Each track is an original
