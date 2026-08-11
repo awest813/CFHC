@@ -41,3 +41,22 @@ Sound files in `src/main/res/raw/` and `src/main/assets/sounds/` are sourced fro
 - **License:** Apache License 2.0
 - **Purpose:** Cross-platform light/dark Swing look-and-feel used by the desktop shell.
 - **Usage:** Bundled in the desktop jar from `libs/flatlaf-*.jar`.
+
+## Soundtrack / Background Music
+
+### Procedural Synthesis Engine (Original Work — No License Required)
+The background music is generated entirely in-code by the CFHC project's
+`DesktopSoundtrackEngine`. No third-party audio files are used. The music
+is synthesized in real-time from mathematical waveforms (sine, sawtooth,
+square) and original melodic compositions written specifically for this
+project. All four soundtrack tracks are original works:
+
+- **Stadium Organ — Dashboard:** C major I–V–vi–IV arpeggio progression
+- **Fight Song — Game Day:** Brassy Bb march with snare accents
+- **Offseason Reflection:** Slow piano-like pad in whole notes
+- **Recruiting Groove:** Driving eighth-note bass line in A minor
+
+The engine is forward-compatible with recorded OGG tracks: if files are
+placed at `src/main/assets/sounds/soundtrack/<track>.ogg`, the engine will
+load and loop them via VorbisSPI instead of synthesizing. Any such files
+must be documented here with their source and license.

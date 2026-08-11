@@ -6,6 +6,7 @@ import simulation.AudioManager;
 import simulation.Conference;
 import simulation.League;
 import simulation.LeagueExportController;
+import simulation.SoundtrackEngine;
 import simulation.LeagueLaunchCoordinator;
 import simulation.LeagueRecord;
 import simulation.PlatformLog;
@@ -124,6 +125,7 @@ public class LeagueHomeView extends JFrame {
     private JLabel statusLabel;
     private JLabel playedIndicator;
     private AudioManager audioManager;
+    private SoundtrackEngine soundtrackEngine;
 
     public LeagueHomeView(League league) {
         this(league, null);
@@ -158,6 +160,7 @@ public class LeagueHomeView extends JFrame {
         facade.setLeague(leagueCore, leagueCore.userTeam, leagueCore.userTeam);
         bulkSimulator = new DesktopBulkSimulator(bulkHost());
         audioManager = new DesktopAudioManager();
+        soundtrackEngine = new DesktopSoundtrackEngine();
 
         screenContext = new LeagueScreenContext(leagueCore, currentRecord, liveTeamMap,
                 audioManager, bridge, this, new LeagueScreenContext.Navigation() {
@@ -174,11 +177,16 @@ public class LeagueHomeView extends JFrame {
         add(headerPanel, BorderLayout.NORTH);
         mainContentShell = buildMainContent();
         add(mainContentShell, BorderLayout.CENTER);
-        statusBar = new DesktopStatusFooter();
+        statusBar = new DesktopStatusFooter(soundtrackEngine);
         add(statusBar, BorderLayout.SOUTH);
         applyWindowTheme();
         MacDesktopIntegration.setActiveLeagueHome(this);
         MacDesktopIntegration.setActiveFrame(this);
+
+        // Start the procedural soundtrack on app launch.
+        if (soundtrackEngine != null) {
+            soundtrackEngine.play(SoundtrackEngine.Track.DASHBOARD_ORGAN);
+        }
     }
 
     private DesktopBulkSimulator.Host bulkHost() {
@@ -857,6 +865,10 @@ public class LeagueHomeView extends JFrame {
         if (audioManager != null) {
             audioManager.dispose();
             audioManager = null;
+        }
+        if (soundtrackEngine != null) {
+            soundtrackEngine.dispose();
+            soundtrackEngine = null;
         }
         dispose();
     }
@@ -1656,7 +1668,7 @@ public class LeagueHomeView extends JFrame {
     private void rebuildStatusBar() {
         remove(statusBar);
         // Preserve the controller-chip / soundtrack HUD footer across refreshes.
-        statusBar = new DesktopStatusFooter();
+        statusBar = new DesktopStatusFooter(soundtrackEngine);
         add(statusBar, BorderLayout.SOUTH);
     }
 
@@ -1797,6 +1809,7 @@ public class LeagueHomeView extends JFrame {
             title = "Home";
         }
         selectedScreen = title;
+        switchSoundtrackForScreen(title);
         if (mainCardLayout != null && mainContentCards != null) {
             mainCardLayout.show(mainContentCards, title);
         }
@@ -1824,6 +1837,34 @@ public class LeagueHomeView extends JFrame {
             }
         }
         return false;
+    }
+
+    /**
+     * Switch the procedural soundtrack to match the current screen context:
+     * Recruiting → groovy bass, offseason screens → calm pad, game week →
+     * fight song, everything else → dashboard organ. Only switches if the
+     * track actually changes (avoids restarting the same loop).
+     */
+    private void switchSoundtrackForScreen(String screenTitle) {
+        if (soundtrackEngine == null) return;
+        SoundtrackEngine.Track desired;
+        boolean inOffseason = leagueCore.currentWeek > leagueCore.regSeasonWeeks + 3
+                && leagueCore.currentWeek < leagueCore.regSeasonWeeks + 13;
+        if ("Recruiting".equals(screenTitle)) {
+            desired = SoundtrackEngine.Track.RECRUITING_GROOVE;
+        } else if (inOffseason) {
+            desired = SoundtrackEngine.Track.OFFSEASON_CALM;
+        } else if (leagueCore.currentWeek > 0 && leagueCore.currentWeek <= leagueCore.regSeasonWeeks) {
+            desired = SoundtrackEngine.Track.FIGHT_SONG;
+        } else {
+            desired = SoundtrackEngine.Track.DASHBOARD_ORGAN;
+        }
+        if (soundtrackEngine.getCurrentTrack() != desired) {
+            soundtrackEngine.play(desired);
+            if (statusBar instanceof DesktopStatusFooter) {
+                ((DesktopStatusFooter) statusBar).refreshTrackDisplay();
+            }
+        }
     }
 
     // =========================================================================
