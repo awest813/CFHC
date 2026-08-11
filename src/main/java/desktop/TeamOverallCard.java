@@ -25,12 +25,24 @@ public class TeamOverallCard extends CustomCardPanel {
         super("Team Overall");
         JPanel content = getContentArea();
 
-        int off = team != null ? (int) team.teamOffTalent : 84;
-        int def = team != null ? (int) team.teamDefTalent : 81;
-        int ovr = team != null ? (off + def) / 2 : 82;
-        int st = team != null ? 76 : 76;
-        int natRank = 24;
-        int confRank = 3;
+        int off = team != null ? (int) team.teamOffTalent : 0;
+        int def = team != null ? (int) team.teamDefTalent : 0;
+        int ovr = team != null ? (off + def) / 2 : 0;
+        // Special-teams rating derived from the starting kicker (was hardcoded 76).
+        int st = 0;
+        if (team != null) {
+            try {
+                positions.PlayerK k = team.getK(0);
+                if (k != null) st = k.ratOvr;
+            } catch (Exception ignored) {
+                // No kicker on roster — leave ST at 0 (shown as "—").
+            }
+        }
+        // Real national rank from the poll (was hardcoded 24). 0 means unranked/
+        // pre-season; show "—" in that case.
+        int natRank = team != null ? team.rankTeamPollScore : 0;
+        // Conference rank: count teams in the same conference with higher prestige.
+        int confRank = computeConfRank(team);
 
         JPanel body = new JPanel(new BorderLayout(0, 10));
         body.setOpaque(false);
@@ -46,14 +58,14 @@ public class TeamOverallCard extends CustomCardPanel {
         JPanel gradeBox = new JPanel(new GridLayout(2, 1, 0, 2));
         gradeBox.setOpaque(false);
 
-        JLabel gradePill = new JLabel(" B+ ", JLabel.CENTER);
+        JLabel gradePill = new JLabel(" " + letterGrade(ovr) + " ", JLabel.CENTER);
         gradePill.setOpaque(true);
         gradePill.setBackground(new Color(17, 28, 46));
         gradePill.setForeground(DesktopTheme.successGreen());
         gradePill.setFont(new Font("SansSerif", Font.BOLD, 12));
         gradePill.setBorder(BorderFactory.createLineBorder(DesktopTheme.borderSubtle(), 1));
 
-        JLabel stars = new JLabel("\u2605\u2605\u2605\u2605\u2606");
+        JLabel stars = new JLabel(starString(ovr));
         stars.setFont(new Font("SansSerif", Font.PLAIN, 12));
         stars.setForeground(DesktopTheme.warningText());
 
@@ -68,9 +80,9 @@ public class TeamOverallCard extends CustomCardPanel {
         JPanel subCol = new JPanel(new GridLayout(3, 1, 0, 4));
         subCol.setOpaque(false);
 
-        subCol.add(buildSubItem("\u2694", "OFFENSE", String.valueOf(off)));
-        subCol.add(buildSubItem("\u26E8", "DEFENSE", String.valueOf(def)));
-        subCol.add(buildSubItem("\u26BD", "SPECIAL TEAMS", String.valueOf(st)));
+        subCol.add(buildSubItem("\u2694", "OFFENSE", off > 0 ? String.valueOf(off) : "\u2014"));
+        subCol.add(buildSubItem("\u26E8", "DEFENSE", def > 0 ? String.valueOf(def) : "\u2014"));
+        subCol.add(buildSubItem("\u26BD", "SPECIAL TEAMS", st > 0 ? String.valueOf(st) : "\u2014"));
 
         body.add(subCol, BorderLayout.CENTER);
 
@@ -86,7 +98,7 @@ public class TeamOverallCard extends CustomCardPanel {
         JLabel natLbl = new JLabel("NATIONAL RANK");
         natLbl.setFont(new Font("SansSerif", Font.BOLD, 9));
         natLbl.setForeground(DesktopTheme.textSecondary());
-        JLabel natVal = new JLabel(String.valueOf(natRank), JLabel.RIGHT);
+        JLabel natVal = new JLabel(natRank > 0 ? String.valueOf(natRank) : "\u2014", JLabel.RIGHT);
         natVal.setFont(new Font("SansSerif", Font.BOLD, 16));
         natVal.setForeground(DesktopTheme.warningText());
         natBox.add(natLbl, BorderLayout.WEST);
@@ -97,7 +109,7 @@ public class TeamOverallCard extends CustomCardPanel {
         JLabel confLbl = new JLabel("CONF. RANK");
         confLbl.setFont(new Font("SansSerif", Font.BOLD, 9));
         confLbl.setForeground(DesktopTheme.textSecondary());
-        JLabel confVal = new JLabel(String.valueOf(confRank), JLabel.RIGHT);
+        JLabel confVal = new JLabel(confRank > 0 ? String.valueOf(confRank) : "\u2014", JLabel.RIGHT);
         confVal.setFont(new Font("SansSerif", Font.BOLD, 16));
         confVal.setForeground(DesktopTheme.successGreen());
         confBox.add(confLbl, BorderLayout.WEST);
@@ -129,5 +141,42 @@ public class TeamOverallCard extends CustomCardPanel {
         p.add(lbl, BorderLayout.WEST);
         p.add(v, BorderLayout.EAST);
         return p;
+    }
+
+    /** Derive a letter grade from the overall rating (was hardcoded "B+"). */
+    private static String letterGrade(int ovr) {
+        if (ovr >= 90) return "A+";
+        if (ovr >= 85) return "A";
+        if (ovr >= 80) return "A-";
+        if (ovr >= 75) return "B+";
+        if (ovr >= 70) return "B";
+        if (ovr >= 65) return "B-";
+        if (ovr >= 60) return "C+";
+        if (ovr > 0) return "C";
+        return "\u2014";
+    }
+
+    /** Derive a 5-star string from the overall rating (was hardcoded 4 stars). */
+    private static String starString(int ovr) {
+        int stars = ovr >= 92 ? 5 : ovr >= 82 ? 4 : ovr >= 70 ? 3 : ovr >= 60 ? 2 : ovr > 0 ? 1 : 0;
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 5; i++) {
+            sb.append(i < stars ? '\u2605' : '\u2606');
+        }
+        return sb.toString();
+    }
+
+    /** Conference rank: 1 + number of conference mates with higher prestige. */
+    private static int computeConfRank(Team team) {
+        if (team == null || team.conference == null) return 0;
+        int rank = 1;
+        for (Team other : team.league.getTeamList()) {
+            if (other != team && other.conference != null
+                    && other.conference.equals(team.conference)
+                    && other.getTeamPrestige() > team.getTeamPrestige()) {
+                rank++;
+            }
+        }
+        return rank;
     }
 }

@@ -91,7 +91,7 @@ public class DashboardPanel implements LeagueScreen {
         grid.add(new ProgramPrestigeCard());
 
         grid.add(new TeamMoraleCard());
-        grid.add(new RosterSpotlightCard());
+        grid.add(new RosterSpotlightCard(league.userTeam));
         grid.add(new UpcomingGamesCard());
         grid.add(new HeadCoachCard(league.userTeam));
 

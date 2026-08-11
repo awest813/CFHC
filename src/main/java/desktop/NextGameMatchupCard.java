@@ -26,13 +26,34 @@ public class NextGameMatchupCard extends CustomCardPanel {
         super("Next Game");
         JPanel content = getContentArea();
 
-        String homeName = team != null ? team.getName().toUpperCase() : "PINE VALLEY STATE";
-        String homeMascot = team != null && team.nickname != null ? team.nickname.toUpperCase() : "OWLS";
-        String homeRecord = team != null ? team.getWins() + "-" + team.getLosses() + " (3-1)" : "5-2 (3-1)";
+        // Resolve the real upcoming game + opponent (was entirely hardcoded
+        // "REDWOOD UNIVERSITY / 4-3 / SAT OCT 25 / REDWOOD STADIUM").
+        Game upcoming = DesktopWeekResult.findUpcomingGame(team);
+        Team opp = null;
+        boolean userIsHome = false;
+        if (upcoming != null && team != null) {
+            userIsHome = DesktopWeekResult.userIsHome(upcoming, team);
+            opp = upcoming.homeTeam == team ? upcoming.awayTeam : upcoming.homeTeam;
+        }
 
-        String awayName = "REDWOOD UNIVERSITY";
-        String awayMascot = "MAROONS";
-        String awayRecord = "4-3 (2-2)";
+        // Home side is the user team (the "AT/vs" badge communicates direction).
+        Team homeTeam = team;
+        Team awayTeam = opp;
+
+        String homeName = homeTeam != null ? homeTeam.getName().toUpperCase() : "\u2014";
+        String homeMascot = homeTeam != null && homeTeam.nickname != null ? homeTeam.nickname.toUpperCase() : "";
+        String homeRecord = homeTeam != null ? homeTeam.getWins() + "-" + homeTeam.getLosses() : "\u2014";
+
+        String awayName = awayTeam != null ? awayTeam.getName().toUpperCase() : "TBD";
+        String awayMascot = awayTeam != null && awayTeam.nickname != null ? awayTeam.nickname.toUpperCase() : "";
+        String awayRecord = awayTeam != null ? awayTeam.getWins() + "-" + awayTeam.getLosses() : "\u2014";
+        String atBadge = awayTeam == null ? "\u2014" : (userIsHome ? "VS" : "AT");
+
+        // Week + game name from the real schedule.
+        String weekInfo = upcoming != null
+                ? "Week " + upcoming.week + (upcoming.gameName != null && !upcoming.gameName.isEmpty()
+                    && !upcoming.gameName.equals("BYE WEEK") ? "  \u2022  " + upcoming.gameName : "")
+                : "No upcoming game";
 
         JPanel body = new JPanel(new BorderLayout(0, 10));
         body.setOpaque(false);
@@ -90,7 +111,7 @@ public class NextGameMatchupCard extends CustomCardPanel {
             }
         };
         atPill.setOpaque(false);
-        JLabel atText = new JLabel("AT", JLabel.CENTER);
+        JLabel atText = new JLabel(atBadge, JLabel.CENTER);
         atText.setFont(new Font("SansSerif", Font.BOLD, 10));
         atText.setForeground(DesktopTheme.warningText());
         atPill.add(atText);
@@ -125,11 +146,13 @@ public class NextGameMatchupCard extends CustomCardPanel {
         details.setOpaque(false);
         details.setBorder(BorderFactory.createEmptyBorder(6, 0, 0, 0));
 
-        JLabel dateTime = new JLabel("\uD83D\uDCC5  SAT, OCT 25  \u2022  3:30 PM");
+        JLabel dateTime = new JLabel("\uD83D\uDCC5  " + weekInfo);
         dateTime.setFont(new Font("SansSerif", Font.BOLD, 10));
         dateTime.setForeground(DesktopTheme.textSecondary());
 
-        JLabel stadium = new JLabel("\uD83D\uDCCD  REDWOOD STADIUM  \u2022  ARCATA, CA");
+        JLabel stadium = new JLabel(awayTeam != null
+                ? "\uD83D\uDCCD  " + (userIsHome ? "HOME" : "AT " + awayTeam.getName())
+                : "\uD83D\uDCCD  Schedule TBD");
         stadium.setFont(new Font("SansSerif", Font.PLAIN, 10));
         stadium.setForeground(DesktopTheme.textSecondary());
 
