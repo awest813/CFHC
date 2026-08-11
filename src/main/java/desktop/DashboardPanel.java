@@ -82,17 +82,17 @@ public class DashboardPanel implements LeagueScreen {
 
         grid.add(new TeamOverallCard(league.userTeam));
         grid.add(new NextGameMatchupCard(league.userTeam));
-        grid.add(new TopNewsCarouselCard());
+        grid.add(new TopNewsCarouselCard(league));
         grid.add(new StandingsPanel().build(new LeagueScreenContext(league, null, null, null, bridge, null, null)));
 
-        grid.add(new WeeklyScheduleCard());
-        grid.add(new RecruitingPipelineCard(() -> cb.selectScreenRecruiting().run()));
-        grid.add(new ProgramFinancesCard());
-        grid.add(new ProgramPrestigeCard());
+        grid.add(new WeeklyScheduleCard(league, league.userTeam));
+        grid.add(new RecruitingPipelineCard(league.userTeam, () -> cb.selectScreenRecruiting().run()));
+        grid.add(new ProgramFinancesCard(league.userTeam));
+        grid.add(new ProgramPrestigeCard(league.userTeam));
 
         grid.add(new TeamMoraleCard());
         grid.add(new RosterSpotlightCard(league.userTeam));
-        grid.add(new UpcomingGamesCard());
+        grid.add(new UpcomingGamesCard(league.userTeam));
         grid.add(new HeadCoachCard(league.userTeam));
 
         panel.add(grid, BorderLayout.CENTER);

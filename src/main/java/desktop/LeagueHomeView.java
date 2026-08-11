@@ -174,8 +174,11 @@ public class LeagueHomeView extends JFrame {
         add(headerPanel, BorderLayout.NORTH);
         mainContentShell = buildMainContent();
         add(mainContentShell, BorderLayout.CENTER);
-        DesktopNavSidebar navSidebar = new DesktopNavSidebar(this::selectScreen);
-        add(navSidebar, BorderLayout.WEST);
+        // The inner buildMainContent() sidebar (navigationList) is the real,
+        // working nav — its titles match the actual screens. The outer
+        // DesktopNavSidebar used different titles ("Team Management", "Roster",
+        // ...) that selectScreen() silently rejected, so 13 of its 15 items
+        // were no-ops. Removed to avoid the duplicate, broken sidebar.
         statusBar = new DesktopStatusFooter();
         add(statusBar, BorderLayout.SOUTH);
         applyWindowTheme();

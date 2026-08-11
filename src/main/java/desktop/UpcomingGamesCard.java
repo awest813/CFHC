@@ -1,5 +1,8 @@
 package desktop;
 
+import simulation.Game;
+import simulation.Team;
+
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -7,14 +10,18 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Swing dashboard card component for UPCOMING GAMES.
- * Displays upcoming games preview list for Weeks 9 to 13 with difficulty stars.
+ * Binds to the real remaining schedule (was hardcoded "Wk 9 at Redwood..." etc.).
+ * Shows up to 5 unplayed games with opponent, home/away, and difficulty stars
+ * derived from the opponent's prestige vs the user team.
  */
 public class UpcomingGamesCard extends CustomCardPanel {
 
-    public UpcomingGamesCard() {
+    public UpcomingGamesCard(Team team) {
         super("Upcoming Games");
         JPanel content = getContentArea();
 
@@ -27,16 +34,61 @@ public class UpcomingGamesCard extends CustomCardPanel {
         headerRight.add(diffLbl);
         getHeaderBar().add(headerRight, BorderLayout.EAST);
 
-        JPanel list = new JPanel(new GridLayout(5, 1, 0, 3));
+        // Collect up to 5 unplayed, non-bye games from the real schedule.
+        List<Game> upcoming = new ArrayList<>();
+        if (team != null && team.getGameSchedule() != null) {
+            for (Game g : team.getGameSchedule()) {
+                if (!g.hasPlayed && !g.isByeWeek()) {
+                    upcoming.add(g);
+                    if (upcoming.size() >= 5) break;
+                }
+            }
+        }
+
+        int rows = Math.max(1, upcoming.size());
+        JPanel list = new JPanel(new GridLayout(rows, 1, 0, 3));
         list.setOpaque(false);
 
-        list.add(buildGameRow("Wk 9", "R", "at Redwood University", "Oct 25", "\u2605\u2605\u2605\u2605\u2606", DesktopTheme.dangerRed()));
-        list.add(buildGameRow("Wk 10", "S", "vs Stonebridge", "Nov 1", "\u2605\u2605\u2605\u2606\u2606", DesktopTheme.warningText()));
-        list.add(buildGameRow("Wk 11", "L", "vs Lakeside College", "Nov 8", "\u2605\u2605\u2606\u2606\u2606", new Color(59, 130, 246)));
-        list.add(buildGameRow("Wk 12", "NR", "at North Ridge", "Nov 15", "\u2605\u2605\u2605\u2605\u2605", new Color(30, 58, 138)));
-        list.add(buildGameRow("Wk 13", "SU", "vs Summit U", "Nov 22", "\u2605\u2605\u2606\u2606\u2606", new Color(107, 33, 168)));
+        if (upcoming.isEmpty()) {
+            JLabel empty = new JLabel("No upcoming games scheduled", JLabel.CENTER);
+            empty.setFont(new Font("SansSerif", Font.PLAIN, 10));
+            empty.setForeground(DesktopTheme.textSecondary());
+            list.add(empty);
+        } else {
+            int userPrestige = team.getTeamPrestige();
+            for (Game g : upcoming) {
+                Team opp = g.homeTeam == team ? g.awayTeam : g.homeTeam;
+                boolean isHome = g.homeTeam == team;
+                String oppName = (isHome ? "vs " : "at ") + (opp != null ? opp.getName() : "TBD");
+                String oppAbbr = opp != null && opp.getAbbr() != null && opp.getAbbr().length() >= 1
+                        ? opp.getAbbr().substring(0, Math.min(2, opp.getAbbr().length())).toUpperCase() : "?";
+                int oppPrestige = opp != null ? opp.getTeamPrestige() : 50;
+                Color diffColor = difficultyColor(oppPrestige, userPrestige);
+                String stars = difficultyStars(oppPrestige, userPrestige);
+                list.add(buildGameRow("Wk " + g.week, oppAbbr, oppName,
+                        g.gameName != null && !g.gameName.equals("BYE WEEK") && !g.gameName.isEmpty()
+                                ? g.gameName : "", stars, diffColor));
+            }
+        }
 
         content.add(list, BorderLayout.CENTER);
+    }
+
+    /** Difficulty color: red if opponent clearly stronger, gold if even, blue/muted if weaker. */
+    private static Color difficultyColor(int oppPrestige, int userPrestige) {
+        int diff = oppPrestige - userPrestige;
+        if (diff > 15) return DesktopTheme.dangerRed();
+        if (diff > -5) return DesktopTheme.warningText();
+        return new Color(59, 130, 246);
+    }
+
+    /** 1-5 difficulty stars based on prestige gap (5 = hardest). */
+    private static String difficultyStars(int oppPrestige, int userPrestige) {
+        int diff = oppPrestige - userPrestige;
+        int filled = diff > 25 ? 5 : diff > 10 ? 4 : diff > -5 ? 3 : diff > -20 ? 2 : 1;
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < 5; i++) sb.append(i < filled ? '\u2605' : '\u2606');
+        return sb.toString();
     }
 
     private JPanel buildGameRow(String week, String oppLogo, String oppName, String date, String stars, Color logoBg) {
