@@ -174,8 +174,11 @@ public class LeagueHomeView extends JFrame {
         add(headerPanel, BorderLayout.NORTH);
         mainContentShell = buildMainContent();
         add(mainContentShell, BorderLayout.CENTER);
-        DesktopNavSidebar navSidebar = new DesktopNavSidebar(this::selectScreen);
-        add(navSidebar, BorderLayout.WEST);
+        // The inner buildMainContent() sidebar (navigationList) is the real,
+        // working nav — its titles match the actual screens. The outer
+        // DesktopNavSidebar used different titles ("Team Management", "Roster",
+        // ...) that selectScreen() silently rejected, so 13 of its 15 items
+        // were no-ops. Removed to avoid the duplicate, broken sidebar.
         statusBar = new DesktopStatusFooter();
         add(statusBar, BorderLayout.SOUTH);
         applyWindowTheme();
@@ -1648,13 +1651,17 @@ public class LeagueHomeView extends JFrame {
 
     private void rebuildHeader() {
         remove(headerPanel);
-        headerPanel = buildHeader();
+        // Preserve the broadcast-HUD shell across refreshes. Previously this
+        // rebuilt the legacy plain header, so the DesktopHeaderBar (crest,
+        // coach card, notification pill) vanished after the first refresh.
+        headerPanel = new DesktopHeaderBar(leagueCore);
         add(headerPanel, BorderLayout.NORTH);
     }
 
     private void rebuildStatusBar() {
         remove(statusBar);
-        statusBar = buildStatusBar();
+        // Preserve the controller-chip / soundtrack HUD footer across refreshes.
+        statusBar = new DesktopStatusFooter();
         add(statusBar, BorderLayout.SOUTH);
     }
 

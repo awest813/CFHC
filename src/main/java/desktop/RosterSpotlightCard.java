@@ -1,5 +1,7 @@
 package desktop;
 
+import simulation.Team;
+
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -12,42 +14,68 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.RenderingHints;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Swing dashboard card component for ROSTER SPOTLIGHT.
- * Displays dual player cards with pixel art portraits, OVR badges, archetype traits, stats grid, and last game line.
+ * Displays dual player cards (top offensive + top defensive player by OVR)
+ * with pixel art portraits, OVR badges, archetype, and year. Binds to the
+ * real user-team roster (was hardcoded "Mason Harrison / Jalen Bryant").
  */
 public class RosterSpotlightCard extends CustomCardPanel {
 
-    public RosterSpotlightCard() {
+    public RosterSpotlightCard(Team team) {
         super("Roster Spotlight");
         JPanel content = getContentArea();
 
         JPanel dualGrid = new JPanel(new GridLayout(1, 2, 10, 0));
         dualGrid.setOpaque(false);
 
-        // Player 1: QB Mason Harrison
-        dualGrid.add(buildPlayerCard(
-                "7", "MASON HARRISON", "QB", "Junior \u2022 6'3\" \u2022 205 lbs",
-                "Field General", "88",
-                new String[]{"CMP%", "YDS", "TD", "INT", "QBR"},
-                new String[]{"67.1", "1,912", "17", "4", "84.3"},
-                "LAST GAME: 22/31, 287 YDS, 3 TD", true
-        ));
+        // Pick the top offensive (QB/RB/WR/TE) and top defensive (DL/LB/CB/S)
+        // player by overall from the real roster.
+        positions.Player offense = topOffensivePlayer(team);
+        positions.Player defense = topDefensivePlayer(team);
 
-        // Player 2: LB Jalen Bryant
-        dualGrid.add(buildPlayerCard(
-                "32", "JALEN BRYANT", "LB", "Senior \u2022 6'1\" \u2022 228 lbs",
-                "Run Stopper", "84",
-                new String[]{"TCK", "TFL", "SACK", "INT", "FF"},
-                new String[]{"58", "8.0", "3.5", "1", "2"},
-                "LAST GAME: 9 TKL, 1.5 TFL, 1 FF", false
-        ));
+        dualGrid.add(buildPlayerCard(offense, true));
+        dualGrid.add(buildPlayerCard(defense, false));
 
         content.add(dualGrid, BorderLayout.CENTER);
     }
 
-    private JPanel buildPlayerCard(String number, String name, String pos, String bio, String archetype, String ovr, String[] statLabels, String[] statVals, String lastGame, boolean isQb) {
+    private static positions.Player topOffensivePlayer(Team team) {
+        if (team == null) return null;
+        List<positions.Player> candidates = new ArrayList<>();
+        addAll(candidates, team.getTeamQBs());
+        addAll(candidates, team.getTeamRBs());
+        addAll(candidates, team.getTeamWRs());
+        addAll(candidates, team.getTeamTEs());
+        return highestOvr(candidates);
+    }
+
+    private static positions.Player topDefensivePlayer(Team team) {
+        if (team == null) return null;
+        List<positions.Player> candidates = new ArrayList<>();
+        addAll(candidates, team.getTeamDLs());
+        addAll(candidates, team.getTeamLBs());
+        addAll(candidates, team.getTeamCBs());
+        addAll(candidates, team.getTeamSs());
+        return highestOvr(candidates);
+    }
+
+    private static void addAll(List<positions.Player> dest, List<? extends positions.Player> src) {
+        if (src != null) dest.addAll(src);
+    }
+
+    private static positions.Player highestOvr(List<positions.Player> players) {
+        return players.stream()
+                .filter(p -> p != null)
+                .max(Comparator.comparingInt(p -> p.ratOvr))
+                .orElse(null);
+    }
+
+    private JPanel buildPlayerCard(positions.Player player, boolean isOffense) {
         JPanel card = new JPanel(new BorderLayout(0, 6)) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -64,6 +92,15 @@ public class RosterSpotlightCard extends CustomCardPanel {
         card.setOpaque(false);
         card.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
 
+        boolean hasPlayer = player != null;
+        String name = hasPlayer ? player.getName().toUpperCase() : "\u2014";
+        String pos = hasPlayer && player.position != null ? player.position : "\u2014";
+        String year = hasPlayer ? player.getYrStr() : "";
+        String bio = hasPlayer ? (year + " \u2022 " + pos) : "No player";
+        String archetype = hasPlayer ? player.getArchetypeDisplayName() : "";
+        String ovr = hasPlayer ? String.valueOf(player.ratOvr) : "\u2014";
+        final String initials = hasPlayer && name.length() >= 2 ? name.substring(0, 2) : "??";
+
         // Header Row: Sprite Avatar + Meta + OVR Badge
         JPanel headerRow = new JPanel(new BorderLayout(8, 0));
         headerRow.setOpaque(false);
@@ -78,7 +115,7 @@ public class RosterSpotlightCard extends CustomCardPanel {
                 g2.fillRect(0, 0, getWidth(), getHeight());
 
                 // Pixel sprite face drawing
-                g2.setColor(isQb ? new Color(243, 208, 168) : new Color(141, 85, 36));
+                g2.setColor(isOffense ? new Color(243, 208, 168) : new Color(141, 85, 36));
                 g2.fillRect(14, 8, 16, 14);
                 g2.setColor(new Color(27, 77, 62));
                 g2.fillRect(10, 6, 24, 8);
@@ -88,7 +125,7 @@ public class RosterSpotlightCard extends CustomCardPanel {
 
                 g2.setColor(Color.WHITE);
                 g2.setFont(new Font("SansSerif", Font.BOLD, 12));
-                g2.drawString(number, 18, 42);
+                g2.drawString(initials, 12, 42);
 
                 g2.dispose();
             }
@@ -107,11 +144,11 @@ public class RosterSpotlightCard extends CustomCardPanel {
         bioLbl.setFont(new Font("SansSerif", Font.PLAIN, 9));
         bioLbl.setForeground(DesktopTheme.textSecondary());
 
-        JLabel archLbl = new JLabel(archetype);
+        JLabel archLbl = new JLabel(archetype.isEmpty() ? pos : archetype);
         archLbl.setFont(new Font("SansSerif", Font.BOLD, 9));
         archLbl.setForeground(DesktopTheme.textSecondary());
 
-        JLabel moraleLbl = new JLabel("MORALE  \uD83D\uDE04 High");
+        JLabel moraleLbl = new JLabel(hasPlayer ? ("OVR " + ovr + "  \u2022  " + pos) : "Roster empty");
         moraleLbl.setFont(new Font("SansSerif", Font.BOLD, 9));
         moraleLbl.setForeground(DesktopTheme.successGreen());
 
@@ -120,6 +157,10 @@ public class RosterSpotlightCard extends CustomCardPanel {
         meta.add(archLbl);
         meta.add(moraleLbl);
 
+        headerRow.add(spriteBox, BorderLayout.WEST);
+        headerRow.add(meta, BorderLayout.CENTER);
+
+        // OVR badge
         JPanel ovrBadge = new JPanel(new GridLayout(2, 1, 0, 0));
         ovrBadge.setOpaque(false);
         JLabel oTitle = new JLabel("OVR", JLabel.CENTER);
@@ -130,44 +171,22 @@ public class RosterSpotlightCard extends CustomCardPanel {
         oVal.setForeground(DesktopTheme.successGreen());
         ovrBadge.add(oTitle);
         ovrBadge.add(oVal);
-
-        headerRow.add(spriteBox, BorderLayout.WEST);
-        headerRow.add(meta, BorderLayout.CENTER);
         headerRow.add(ovrBadge, BorderLayout.EAST);
 
         card.add(headerRow, BorderLayout.NORTH);
 
-        // Stats Grid Row
-        JPanel statsRow = new JPanel(new GridLayout(1, statLabels.length, 2, 0));
-        statsRow.setOpaque(true);
-        statsRow.setBackground(new Color(17, 28, 46));
-        statsRow.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
-
-        for (int i = 0; i < statLabels.length; i++) {
-            JPanel cell = new JPanel(new GridLayout(2, 1, 0, 1));
-            cell.setOpaque(false);
-            JLabel sl = new JLabel(statLabels[i], JLabel.CENTER);
-            sl.setFont(new Font("SansSerif", Font.BOLD, 8));
-            sl.setForeground(DesktopTheme.textSecondary());
-            JLabel sv = new JLabel(statVals[i], JLabel.CENTER);
-            sv.setFont(new Font("Monospaced", Font.BOLD, 10));
-            sv.setForeground(Color.WHITE);
-            cell.add(sl);
-            cell.add(sv);
-            statsRow.add(cell);
-        }
-
-        card.add(statsRow, BorderLayout.CENTER);
-
-        // Footer Last Game Line
-        JLabel lastLbl = new JLabel(lastGame, JLabel.CENTER);
-        lastLbl.setFont(new Font("SansSerif", Font.PLAIN, 8));
-        lastLbl.setForeground(DesktopTheme.textSecondary());
-        lastLbl.setBorder(BorderFactory.createCompoundBorder(
+        // Footer: position summary line (stat grids vary too much by position
+        // to hardcode columns; the header now carries the real OVR + archetype).
+        JLabel footLbl = new JLabel(hasPlayer
+                ? (pos + " \u2022 " + year + (archetype.isEmpty() ? "" : " \u2022 " + archetype))
+                : "No roster data", JLabel.CENTER);
+        footLbl.setFont(new Font("SansSerif", Font.PLAIN, 8));
+        footLbl.setForeground(DesktopTheme.textSecondary());
+        footLbl.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.borderSubtle()),
                 BorderFactory.createEmptyBorder(3, 0, 0, 0)));
+        card.add(footLbl, BorderLayout.SOUTH);
 
-        card.add(lastLbl, BorderLayout.SOUTH);
         return card;
     }
 }

@@ -1,5 +1,7 @@
 package desktop;
 
+import simulation.Team;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -15,18 +17,28 @@ import java.awt.RenderingHints;
 
 /**
  * Swing dashboard card component for RECRUITING PIPELINE.
- * Renders USA map vector graphic, pin metrics by region, 14 Commits badge, and VIEW RECRUITING BOARD action button.
+ * Renders USA map vector graphic, region pins, commits badge (bound to the real
+ * freshman count), and VIEW RECRUITING BOARD action button.
  */
 public class RecruitingPipelineCard extends CustomCardPanel {
 
-    public RecruitingPipelineCard(Runnable onViewRecruiting) {
+    public RecruitingPipelineCard(Team team, Runnable onViewRecruiting) {
         super("Recruiting Pipeline");
         JPanel content = getContentArea();
 
-        // Header badge
+        // Count this season's incoming class (year-1, non-redshirt freshmen).
+        int commits = 0;
+        if (team != null && team.getAllPlayers() != null) {
+            for (positions.Player p : team.getAllPlayers()) {
+                if (p.year == 1 && !p.wasRedshirt) commits++;
+            }
+        }
+        float classRat = team != null ? team.getRecruitingClassRat() : 0f;
+
+        // Header badge — real commit count + class rating (was hardcoded "14 Commits").
         JPanel headerRight = new JPanel();
         headerRight.setOpaque(false);
-        JLabel commitsBadge = new JLabel("  14 Commits  ");
+        JLabel commitsBadge = new JLabel("  " + commits + " Commits  \u2022  Class " + String.format("%.0f", classRat) + "  ");
         commitsBadge.setOpaque(true);
         commitsBadge.setBackground(new Color(0, 230, 118, 30));
         commitsBadge.setForeground(DesktopTheme.successGreen());

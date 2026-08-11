@@ -291,6 +291,9 @@ public class Team {
     public static final double NFL_CHANCE = 0.66;
     public static final double NFL_CHANCE_SOPH = 0.330;
 
+    /** Soft ceiling on program prestige; see {@link #calcSeasonPrestige()}. */
+    public static final int PRESTIGE_SOFT_MAX = 200;
+
     public static double knockdownRet = 0.925;
     public static double knockdownFired = 0.975;
 
@@ -1362,7 +1365,13 @@ public class Team {
 
         newPrestige += prestigeChange + ccPts + ncwPts + nflPts + disPts;
 
-        if(newPrestige < 0) newPrestige = 0;
+        // Mirror the floor with a soft ceiling. Without this, a dominant team
+        // (repeated national titles + conference championships) accumulates
+        // prestige indefinitely — a 100-season career run reached 250+ for
+        // Clemson. PrestigeBoundsTest documents 200 as the soft max above which
+        // values signal corruption, so clamp here.
+        if (newPrestige < 0) newPrestige = 0;
+        if (newPrestige > PRESTIGE_SOFT_MAX) newPrestige = PRESTIGE_SOFT_MAX;
 
         int[] PrestigeScore = {newPrestige, prestigeChange, ccPts, ncwPts, nflPts, disPts};
         return PrestigeScore;
