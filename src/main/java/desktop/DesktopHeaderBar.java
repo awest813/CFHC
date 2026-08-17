@@ -24,10 +24,16 @@ import java.awt.RenderingHints;
 public class DesktopHeaderBar extends JPanel {
 
     private final League league;
+    private final Runnable onOpenNews;
 
     public DesktopHeaderBar(League league) {
+        this(league, null);
+    }
+
+    public DesktopHeaderBar(League league, Runnable onOpenNews) {
         super(new BorderLayout(16, 0));
         this.league = league;
+        this.onOpenNews = onOpenNews;
         setOpaque(false);
         setPreferredSize(new Dimension(1200, 80));
         setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
@@ -185,8 +191,21 @@ public class DesktopHeaderBar extends JPanel {
         notifPill.setPreferredSize(new Dimension(36, 32));
 
         // Notification count from real news headlines (was hardcoded "3").
-        int newsCount = league != null && league.getNewsHeadlines() != null
+        final int newsCount = league != null && league.getNewsHeadlines() != null
                 ? league.getNewsHeadlines().size() : 0;
+        // Clicking the mail pill opens the News screen.
+        if (onOpenNews != null) {
+            notifPill.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+            notifPill.setToolTipText(newsCount > 0
+                    ? newsCount + " news stories — click to read" : "No news — click to open News");
+            notifPill.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseClicked(java.awt.event.MouseEvent e) {
+                    onOpenNews.run();
+                }
+            });
+        }
+
         JLabel notifIcon = new JLabel("\u2709 " + newsCount);
         notifIcon.setFont(new Font("SansSerif", Font.BOLD, 11));
         notifIcon.setForeground(newsCount > 0

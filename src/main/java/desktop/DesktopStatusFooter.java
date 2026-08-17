@@ -42,12 +42,14 @@ public class DesktopStatusFooter extends JPanel {
         setPreferredSize(new Dimension(1200, 36));
         setBorder(BorderFactory.createEmptyBorder(6, 20, 6, 20));
 
-        // Left Controller Input Legend
+        // Left Controller Input Legend — shows the real keyboard shortcuts
+        // (SPACE/ENTER=select, ESC=back, F1=help) alongside the gamepad-style
+        // button metaphor.
         JPanel legendPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 0));
         legendPanel.setOpaque(false);
-        legendPanel.add(buildButtonChip("A", "SELECT", DesktopTheme.successGreen()));
-        legendPanel.add(buildButtonChip("B", "BACK", DesktopTheme.dangerRed()));
-        legendPanel.add(buildButtonChip("Y", "HELP", DesktopTheme.warningText()));
+        legendPanel.add(buildButtonChip("A", "SELECT (SPACE)", DesktopTheme.successGreen()));
+        legendPanel.add(buildButtonChip("B", "BACK (ESC)", DesktopTheme.dangerRed()));
+        legendPanel.add(buildButtonChip("Y", "HELP (F1)", DesktopTheme.warningText()));
         add(legendPanel, BorderLayout.WEST);
 
         // Right Soundtrack Audio Player Ticker

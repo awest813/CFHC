@@ -173,7 +173,7 @@ public class LeagueHomeView extends JFrame {
         loadApplicationIcon();
         registerGlobalShortcuts();
         setJMenuBar(buildMenuBar());
-        headerPanel = new DesktopHeaderBar(leagueCore);
+        headerPanel = new DesktopHeaderBar(leagueCore, () -> selectScreen("News"));
         add(headerPanel, BorderLayout.NORTH);
         mainContentShell = buildMainContent();
         add(mainContentShell, BorderLayout.CENTER);
@@ -1664,7 +1664,7 @@ public class LeagueHomeView extends JFrame {
         // Preserve the broadcast-HUD shell across refreshes. Previously this
         // rebuilt the legacy plain header, so the DesktopHeaderBar (crest,
         // coach card, notification pill) vanished after the first refresh.
-        headerPanel = new DesktopHeaderBar(leagueCore);
+        headerPanel = new DesktopHeaderBar(leagueCore, () -> selectScreen("News"));
         add(headerPanel, BorderLayout.NORTH);
     }
 
