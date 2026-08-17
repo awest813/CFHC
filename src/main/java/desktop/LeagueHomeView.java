@@ -335,7 +335,11 @@ public class LeagueHomeView extends JFrame {
 
         JMenuItem playWeek = new JMenuItem(playWeekLabel());
         playWeek.setMnemonic(KeyEvent.VK_P);
-        playWeek.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0));
+        // No SPACE accelerator here: unmodified printable-key accelerators
+        // fire on KeyPressed even while typing in text fields (e.g. the
+        // Player Search name box), which would advance the week mid-typing.
+        // The console-style SPACE hotkey lives in registerGlobalShortcuts()
+        // with a text-component guard instead.
         playWeek.addActionListener(e -> playWeek());
         season.add(playWeek);
 
@@ -440,6 +444,50 @@ public class LeagueHomeView extends JFrame {
         });
         audio.add(muteItem);
 
+        // Soundtrack (background music) controls — the procedural engine
+        // wired to the status footer.
+        audio.addSeparator();
+        JCheckBoxMenuItem muteMusicItem = new JCheckBoxMenuItem(
+                "Mute soundtrack", soundtrackEngine.isMuted());
+        muteMusicItem.setMnemonic(KeyEvent.VK_U);
+        muteMusicItem.addActionListener(e -> {
+            soundtrackEngine.setMuted(muteMusicItem.isSelected());
+            if (statusBar instanceof DesktopStatusFooter) {
+                ((DesktopStatusFooter) statusBar).refreshTrackDisplay();
+            }
+        });
+        audio.add(muteMusicItem);
+
+        JCheckBoxMenuItem pauseMusicItem = new JCheckBoxMenuItem(
+                "Pause soundtrack",
+                soundtrackEngine.getState() == SoundtrackEngine.State.PAUSED);
+        pauseMusicItem.addActionListener(e -> {
+            if (pauseMusicItem.isSelected()) {
+                soundtrackEngine.pause();
+            } else {
+                soundtrackEngine.resume();
+            }
+        });
+        audio.add(pauseMusicItem);
+
+        JMenuItem musicVolItem = new JMenuItem("Soundtrack Volume\u2026");
+        musicVolItem.addActionListener(e -> {
+            String input = JOptionPane.showInputDialog(this,
+                    DesktopTheme.messageForDialog("Enter soundtrack volume (0-100):"),
+                    "Soundtrack Volume", JOptionPane.QUESTION_MESSAGE);
+            if (input != null) {
+                try {
+                    int pct = Integer.parseInt(input.trim());
+                    soundtrackEngine.setVolume(Math.max(0, Math.min(100, pct)) / 100f);
+                } catch (NumberFormatException ignored) {
+                    JOptionPane.showMessageDialog(this,
+                            DesktopTheme.messageForDialog("Volume must be a number from 0 to 100."),
+                            "Invalid Volume", JOptionPane.WARNING_MESSAGE);
+                }
+            }
+        });
+        audio.add(musicVolItem);
+
         JMenuItem volItem = new JMenuItem("Volume\u2026");
         volItem.setMnemonic(KeyEvent.VK_V);
         volItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V,
@@ -504,19 +552,29 @@ public class LeagueHomeView extends JFrame {
                 KeyStroke.getKeyStroke(KeyEvent.VK_SLASH, KeyEvent.CTRL_DOWN_MASK),
                 JComponent.WHEN_IN_FOCUSED_WINDOW);
 
-        // Space / Enter -> Play week / Advance season (Console [A] SELECT)
+        // Space / Enter -> Play week / Advance season (Console [A] SELECT).
+        // Guarded: don't fire while the user is typing in a text component
+        // (Player Search, settings fields) — space is a character, not a
+        // command, there.
+        java.util.function.Predicate<java.awt.event.ActionEvent> notTyping = e -> {
+            java.awt.Component focus = java.awt.KeyboardFocusManager
+                    .getCurrentKeyboardFocusManager().getFocusOwner();
+            return !(focus instanceof javax.swing.text.JTextComponent);
+        };
         getRootPane().registerKeyboardAction(
-                e -> playWeek(),
+                e -> { if (notTyping.test(e)) playWeek(); },
                 KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0),
                 JComponent.WHEN_IN_FOCUSED_WINDOW);
         getRootPane().registerKeyboardAction(
-                e -> playWeek(),
+                e -> { if (notTyping.test(e)) playWeek(); },
                 KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0),
                 JComponent.WHEN_IN_FOCUSED_WINDOW);
 
-        // Escape -> Return to Dashboard (Console [B] BACK)
+        // Escape -> Return to Dashboard (Console [B] BACK). "Home" is the
+        // dashboard's nav title — routing there directly instead of relying
+        // on the unknown-title fallback.
         getRootPane().registerKeyboardAction(
-                e -> selectScreen("Dashboard"),
+                e -> selectScreen("Home"),
                 KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
                 JComponent.WHEN_IN_FOCUSED_WINDOW);
 
@@ -1843,21 +1901,23 @@ public class LeagueHomeView extends JFrame {
     }
 
     /**
-     * Switch the procedural soundtrack to match the current screen context:
-     * Recruiting → groovy bass, offseason screens → calm pad, game week →
-     * fight song, everything else → dashboard organ. Only switches if the
-     * track actually changes (avoids restarting the same loop).
+     * Switch the procedural soundtrack to match the current context:
+     * Recruiting screen → groovy bass, offseason ladder → calm pad,
+     * postseason + Scoreboard → fight song, everything else → the dashboard
+     * organ ambience. Only switches when the track actually changes.
      */
     private void switchSoundtrackForScreen(String screenTitle) {
         if (soundtrackEngine == null) return;
         SoundtrackEngine.Track desired;
-        boolean inOffseason = leagueCore.currentWeek > leagueCore.regSeasonWeeks + 3
-                && leagueCore.currentWeek < leagueCore.regSeasonWeeks + 13;
+        int wk = leagueCore.currentWeek;
+        int reg = leagueCore.regSeasonWeeks;
+        boolean inPostseason = wk > reg && wk <= reg + 3;
+        boolean inOffseason = wk > reg + 3 && wk < reg + 13;
         if ("Recruiting".equals(screenTitle)) {
             desired = SoundtrackEngine.Track.RECRUITING_GROOVE;
         } else if (inOffseason) {
             desired = SoundtrackEngine.Track.OFFSEASON_CALM;
-        } else if (leagueCore.currentWeek > 0 && leagueCore.currentWeek <= leagueCore.regSeasonWeeks) {
+        } else if (inPostseason || "Scoreboard".equals(screenTitle)) {
             desired = SoundtrackEngine.Track.FIGHT_SONG;
         } else {
             desired = SoundtrackEngine.Track.DASHBOARD_ORGAN;
