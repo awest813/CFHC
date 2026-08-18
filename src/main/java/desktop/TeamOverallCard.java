@@ -80,9 +80,9 @@ public class TeamOverallCard extends CustomCardPanel {
         JPanel subCol = new JPanel(new GridLayout(3, 1, 0, 4));
         subCol.setOpaque(false);
 
-        subCol.add(buildSubItem("\u2694", "OFFENSE", off > 0 ? String.valueOf(off) : "\u2014"));
-        subCol.add(buildSubItem("\u26E8", "DEFENSE", def > 0 ? String.valueOf(def) : "\u2014"));
-        subCol.add(buildSubItem("\u26BD", "SPECIAL TEAMS", st > 0 ? String.valueOf(st) : "\u2014"));
+        subCol.add(buildSubItem("\u2694", "OFFENSE", off > 0 ? String.valueOf(off) : "N/A"));
+        subCol.add(buildSubItem("\u26E8", "DEFENSE", def > 0 ? String.valueOf(def) : "N/A"));
+        subCol.add(buildSubItem("\u26BD", "SPECIAL TEAMS", st > 0 ? String.valueOf(st) : "N/A"));
 
         body.add(subCol, BorderLayout.CENTER);
 
@@ -98,7 +98,7 @@ public class TeamOverallCard extends CustomCardPanel {
         JLabel natLbl = new JLabel("NATIONAL RANK");
         natLbl.setFont(new Font("SansSerif", Font.BOLD, 9));
         natLbl.setForeground(DesktopTheme.textSecondary());
-        JLabel natVal = new JLabel(natRank > 0 ? String.valueOf(natRank) : "\u2014", JLabel.RIGHT);
+        JLabel natVal = new JLabel(natRank > 0 ? String.valueOf(natRank) : "N/A", JLabel.RIGHT);
         natVal.setFont(new Font("SansSerif", Font.BOLD, 16));
         natVal.setForeground(DesktopTheme.warningText());
         natBox.add(natLbl, BorderLayout.WEST);
@@ -109,7 +109,7 @@ public class TeamOverallCard extends CustomCardPanel {
         JLabel confLbl = new JLabel("CONF. RANK");
         confLbl.setFont(new Font("SansSerif", Font.BOLD, 9));
         confLbl.setForeground(DesktopTheme.textSecondary());
-        JLabel confVal = new JLabel(confRank > 0 ? String.valueOf(confRank) : "\u2014", JLabel.RIGHT);
+        JLabel confVal = new JLabel(confRank > 0 ? String.valueOf(confRank) : "N/A", JLabel.RIGHT);
         confVal.setFont(new Font("SansSerif", Font.BOLD, 16));
         confVal.setForeground(DesktopTheme.successGreen());
         confBox.add(confLbl, BorderLayout.WEST);
@@ -153,7 +153,7 @@ public class TeamOverallCard extends CustomCardPanel {
         if (ovr >= 65) return "B-";
         if (ovr >= 60) return "C+";
         if (ovr > 0) return "C";
-        return "\u2014";
+        return "N/A";
     }
 
     /** Derive a 5-star string from the overall rating (was hardcoded 4 stars). */

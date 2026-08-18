@@ -1818,6 +1818,7 @@ public class LeagueHomeView extends JFrame {
         JList<String> list = new JList<>(model);
         list.setFixedCellHeight(36);
         list.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        list.setToolTipText("");
         list.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         list.setBackground(DesktopTheme.sidebarBackground());
         list.setForeground(DesktopTheme.sidebarText());
@@ -1836,6 +1837,13 @@ public class LeagueHomeView extends JFrame {
                     label.setFont(new Font("SansSerif", Font.BOLD, 12));
                 } else {
                     label.setFont(new Font("SansSerif", Font.PLAIN, 12));
+                }
+                // Per-row tooltip advertises the digit-key shortcut per screen.
+                if (index >= 0 && index < NAV_TITLES.length) {
+                    String key = index < 9 ? ("Key " + (index + 1))
+                            : (index < 18 ? ("Ctrl+" + (index - 8)) : "");
+                    list.setToolTipText("Open " + NAV_TITLES[index]
+                            + (key.isEmpty() ? "" : "  (" + key + ")"));
                 }
                 return label;
             }

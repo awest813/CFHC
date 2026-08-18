@@ -69,7 +69,7 @@ public class WeeklyScheduleCard extends CustomCardPanel {
         center.setForeground(isGameDay ? Color.WHITE : DesktopTheme.textSecondary());
 
         JLabel t = new JLabel(time, JLabel.RIGHT);
-        t.setFont(new Font("SansSerif", Font.PLAIN, 8));
+        t.setFont(new Font("SansSerif", Font.PLAIN, 9));
         t.setForeground(DesktopTheme.textSecondary());
 
         item.add(d, BorderLayout.WEST);

@@ -124,11 +124,11 @@ public class UpcomingGamesCard extends CustomCardPanel {
         right.setOpaque(false);
 
         JLabel d = new JLabel(date);
-        d.setFont(new Font("SansSerif", Font.PLAIN, 8));
+        d.setFont(new Font("SansSerif", Font.PLAIN, 9));
         d.setForeground(DesktopTheme.textSecondary());
 
         JLabel s = new JLabel(stars);
-        s.setFont(new Font("SansSerif", Font.PLAIN, 8));
+        s.setFont(new Font("SansSerif", Font.PLAIN, 9));
         s.setForeground(DesktopTheme.warningText());
 
         right.add(d, BorderLayout.WEST);
