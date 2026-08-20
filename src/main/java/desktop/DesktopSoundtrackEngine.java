@@ -7,7 +7,6 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
-import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import java.io.ByteArrayInputStream;
@@ -38,7 +37,6 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
     private volatile Track currentTrack;
     private volatile State state = State.STOPPED;
     private volatile float amplitude = 0f;
-    private volatile boolean oggMode = false;
 
     private Thread synthThread;
     private SourceDataLine line;
@@ -55,17 +53,12 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
         currentTrack = track;
         paused = false;
         if (startOggLoop(track)) {
-            oggMode = true;
             state = State.PLAYING;
             return;
         }
-        oggMode = false;
         state = State.PLAYING;
         startSynth();
     }
-
-    /** True when the current track is a bundled OGG recording. */
-    boolean isOggMode() { return oggMode; }
 
     @Override
     public void pause() {
@@ -152,11 +145,6 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
                 new ByteArrayInputStream(bytes))) {
             Clip clip = AudioSystem.getClip();
             clip.open(ais);
-            clip.addLineListener(ev -> {
-                if (ev.getType() == LineEvent.Type.STOP && !paused && running) {
-                    // Loop drains only on explicit stop; nothing to do.
-                }
-            });
             musicClip = clip;
             amplitude = OGG_NOMINAL_AMPLITUDE;
             applyVolumeToClip();

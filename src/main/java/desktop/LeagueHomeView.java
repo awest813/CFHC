@@ -1931,7 +1931,13 @@ public class LeagueHomeView extends JFrame {
             desired = SoundtrackEngine.Track.DASHBOARD_ORGAN;
         }
         if (soundtrackEngine.getCurrentTrack() != desired) {
+            // Preserve the user's pause: switching context shouldn't force
+            // paused music back on.
+            boolean wasPaused = soundtrackEngine.getState() == SoundtrackEngine.State.PAUSED;
             soundtrackEngine.play(desired);
+            if (wasPaused) {
+                soundtrackEngine.pause();
+            }
             if (statusBar instanceof DesktopStatusFooter) {
                 ((DesktopStatusFooter) statusBar).refreshTrackDisplay();
             }
