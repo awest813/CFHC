@@ -4,26 +4,24 @@ import simulation.SoundtrackEngine;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.LineEvent;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Random;
 
 /**
- * Desktop soundtrack engine — generates original chiptune-style music
- * procedurally via PCM synthesis on a dedicated daemon thread. No external
- * audio files required: every track is an original composition synthesized
- * in real-time from note frequencies and envelopes.
- *
- * <p>If an OGG file exists at {@code assets/sounds/soundtrack/<track>.ogg}
- * on the classpath, it will be loaded via vorbisspi instead of synthesis.
- * This makes the engine forward-compatible with real recorded music.
- *
- * <p>Graceful degradation: if {@link SourceDataLine} is unavailable
- * (headless, no audio device), the engine silently no-ops — callers never
- * see an exception.
+ * Desktop soundtrack engine. Plays the bundled public-domain march
+ * recordings (Sousa/Bagley performed by U.S. military bands) from
+ * {@code assets/sounds/soundtrack/<name>.ogg} via vorbisspi, looping on a
+ * long-lived {@link Clip}. If a track's OGG is missing or audio lines are
+ * unavailable, it falls back to the original procedural PCM synthesis —
+ * and if even that can't open a line (headless CI), it silently no-ops.
  */
 public class DesktopSoundtrackEngine implements SoundtrackEngine {
 
@@ -32,15 +30,19 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
     private static final int BITS = 16;
     private static final int FRAME_BYTES = CHANNELS * (BITS / 8);
     private static final int BUFFER_FRAMES = 2048;
+    /** Nominal amplitude in OGG mode (Clip exposes no meter) for visualizers. */
+    private static final float OGG_NOMINAL_AMPLITUDE = 0.55f;
 
     private volatile float volume = 0.4f;
     private volatile boolean muted = false;
     private volatile Track currentTrack;
     private volatile State state = State.STOPPED;
     private volatile float amplitude = 0f;
+    private volatile boolean oggMode = false;
 
     private Thread synthThread;
     private SourceDataLine line;
+    private Clip musicClip;
     private volatile boolean running = false;
     private volatile boolean paused = false;
 
@@ -51,16 +53,28 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
         if (track == currentTrack && state == State.PLAYING) return;
         stopInternal();
         currentTrack = track;
-        state = State.PLAYING;
         paused = false;
+        if (startOggLoop(track)) {
+            oggMode = true;
+            state = State.PLAYING;
+            return;
+        }
+        oggMode = false;
+        state = State.PLAYING;
         startSynth();
     }
+
+    /** True when the current track is a bundled OGG recording. */
+    boolean isOggMode() { return oggMode; }
 
     @Override
     public void pause() {
         if (state == State.PLAYING) {
             paused = true;
             state = State.PAUSED;
+            if (musicClip != null && musicClip.isRunning()) {
+                musicClip.stop(); // keeps position; resume() loops again
+            }
         }
     }
 
@@ -69,6 +83,9 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
         if (state == State.PAUSED) {
             paused = false;
             state = State.PLAYING;
+            if (musicClip != null && musicClip.isOpen()) {
+                musicClip.loop(Clip.LOOP_CONTINUOUSLY);
+            }
         }
     }
 
@@ -81,6 +98,7 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
     public void setVolume(float volume) {
         this.volume = Math.max(0f, Math.min(1f, volume));
         applyVolumeToLine();
+        applyVolumeToClip();
     }
 
     @Override public float getVolume() { return volume; }
@@ -89,6 +107,7 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
     public void setMuted(boolean muted) {
         this.muted = muted;
         applyVolumeToLine();
+        applyVolumeToClip();
     }
 
     @Override public boolean isMuted() { return muted; }
@@ -99,6 +118,69 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
     @Override
     public void dispose() {
         stopInternal();
+    }
+
+    // ── OGG playback (bundled public-domain marches) ──────────────────────
+
+    private static String oggResourceName(Track track) {
+        switch (track) {
+            case DASHBOARD_ORGAN: return "assets/sounds/soundtrack/dashboard_organ.ogg";
+            case FIGHT_SONG: return "assets/sounds/soundtrack/fight_song.ogg";
+            case OFFSEASON_CALM: return "assets/sounds/soundtrack/offseason_calm.ogg";
+            case RECRUITING_GROOVE: return "assets/sounds/soundtrack/recruiting_groove.ogg";
+            default: return null;
+        }
+    }
+
+    /**
+     * Attempts to load and loop the track's bundled OGG via vorbisspi.
+     * Returns false (no exception) when the resource is missing or the
+     * audio system can't open a Clip — callers fall back to synthesis.
+     */
+    private boolean startOggLoop(Track track) {
+        String res = oggResourceName(track);
+        if (res == null) return false;
+        byte[] bytes;
+        try (InputStream in = DesktopSoundtrackEngine.class.getClassLoader()
+                .getResourceAsStream(res)) {
+            if (in == null) return false;
+            bytes = in.readAllBytes();
+        } catch (Exception e) {
+            return false;
+        }
+        try (javax.sound.sampled.AudioInputStream ais = AudioSystem.getAudioInputStream(
+                new ByteArrayInputStream(bytes))) {
+            Clip clip = AudioSystem.getClip();
+            clip.open(ais);
+            clip.addLineListener(ev -> {
+                if (ev.getType() == LineEvent.Type.STOP && !paused && running) {
+                    // Loop drains only on explicit stop; nothing to do.
+                }
+            });
+            musicClip = clip;
+            amplitude = OGG_NOMINAL_AMPLITUDE;
+            applyVolumeToClip();
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+            return true;
+        } catch (Exception e) {
+            musicClip = null;
+            amplitude = 0f;
+            return false;
+        }
+    }
+
+    private void applyVolumeToClip() {
+        Clip c = musicClip;
+        if (c == null || !c.isOpen()) return;
+        try {
+            FloatControl ctrl = (FloatControl) c.getControl(FloatControl.Type.MASTER_GAIN);
+            float effectiveVol = muted ? 0f : volume;
+            float dB = effectiveVol > 0 ? (float) (20 * Math.log10(effectiveVol)) : -80f;
+            dB = Math.max(ctrl.getMinimum(), Math.min(ctrl.getMaximum(), dB));
+            ctrl.setValue(dB);
+        } catch (IllegalArgumentException ignored) {
+            // No gain control on this line.
+        }
     }
 
     // ── Synthesis thread ──────────────────────────────────────────────────
@@ -113,6 +195,14 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
     private void stopInternal() {
         running = false;
         state = State.STOPPED;
+        if (musicClip != null) {
+            try {
+                musicClip.stop();
+                musicClip.close();
+            } catch (Exception ignored) {
+            }
+            musicClip = null;
+        }
         if (synthThread != null) {
             synthThread.interrupt();
             try { synthThread.join(300); } catch (InterruptedException ignored) {}

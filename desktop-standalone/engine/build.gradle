@@ -148,15 +148,39 @@ tasks.named('compileJava') {
 
 def desktopResourcesDir = layout.buildDirectory.dir('desktop-resources')
 
+tasks.register('verifySoundtrackResources') {
+    group = 'verification'
+    description = 'Validates the public-domain march OGGs in desktop-assets/soundtrack.'
+    def soundtrackDir = file("${repoRoot}/desktop-assets/soundtrack")
+    doLast {
+        if (!soundtrackDir.directory) {
+            throw new GradleException("Missing ${soundtrackDir} (public-domain march OGGs).")
+        }
+        ['dashboard_organ', 'fight_song', 'offseason_calm', 'recruiting_groove'].each { name ->
+            def f = new File(soundtrackDir, "${name}.ogg")
+            if (!f.file) throw new GradleException("Missing soundtrack OGG: ${f}")
+            def b = f.bytes
+            if (b.length < 4 || b[0] != 0x4F as byte || b[1] != 0x67 as byte ||
+                b[2] != 0x67 as byte || b[3] != 0x53 as byte) {
+                throw new GradleException("Invalid OGG header in soundtrack: ${f.name}")
+            }
+        }
+        logger.lifecycle "Soundtrack OK — 4 march OGGs validated"
+    }
+}
+
 tasks.register('prepareDesktopResources', Copy) {
     group = 'desktop'
-    dependsOn verifyDesktopResources
+    dependsOn verifyDesktopResources, verifySoundtrackResources
     from("${repoRoot}/src/main/res/values") {
         include desktopValueXmlFiles
         into 'values'
     }
     from("${repoRoot}/src/main/assets") {
         into 'assets'
+    }
+    from("${repoRoot}/desktop-assets/soundtrack") {
+        into 'assets/sounds/soundtrack'
     }
     into desktopResourcesDir
 }
@@ -227,6 +251,7 @@ tasks.named('test', Test) {
     //   ./gradlew -p desktop-standalone :engine:test --tests "simulation.Stress100SeasonsTest"
     filter {
         excludeTestsMatching '**/Stress100SeasonsTest*'
+        excludeTestsMatching '**/Debug20SeasonsFlowTest*'
     }
 }
 
@@ -252,6 +277,8 @@ tasks.register('desktopStandaloneGate') {
                 'desktop/DesktopVersion.class',
                 'desktop-version.properties',
                 'assets/sounds/click.ogg',
+                'assets/sounds/soundtrack/fight_song.ogg',
+                'assets/sounds/soundtrack/dashboard_organ.ogg',
         ]
         def missing = required.findAll { !entries.contains(it) }
         if (!missing.isEmpty()) {

@@ -44,19 +44,29 @@ Sound files in `src/main/res/raw/` and `src/main/assets/sounds/` are sourced fro
 
 ## Soundtrack / Background Music
 
-### Procedural Synthesis Engine (Original Work — No License Required)
-The background music is generated entirely in-code by the CFHC project's
-`DesktopSoundtrackEngine`. No third-party audio files are used. The music
-is synthesized in real-time from mathematical waveforms (sine, sawtooth,
-square) and original melodic compositions written specifically for this
-project. All four soundtrack tracks are original works:
+### March recordings (Public Domain — U.S. Government Works)
+`desktop-assets/soundtrack/*.ogg` are real military-band performances of
+classic football-marching-band music, sourced from Wikimedia Commons. As
+works of the U.S. federal government (performed by U.S. military bands)
+they are in the public domain; the underlying compositions (Sousa, Bagley)
+are themselves public domain.
 
-- **Stadium Organ — Dashboard:** C major I–V–vi–IV arpeggio progression
-- **Fight Song — Game Day:** Brassy Bb march with snare accents
-- **Offseason Reflection:** Slow piano-like pad in whole notes
-- **Recruiting Groove:** Driving eighth-note bass line in A minor
+| In-game name | Work | Performer | Source (Wikimedia Commons) |
+|---|---|---|---|
+| `fight_song.ogg` | The Stars and Stripes Forever (J.P. Sousa) | United States Marine Band | `File:USMC stars stripes forever.ogg` |
+| `dashboard_organ.ogg` | The Washington Post March (J.P. Sousa) | U.S. Army Band | `File:Washington Post March - U.S. Army Band.ogg` |
+| `offseason_calm.ogg` | National Emblem March (E.E. Bagley) | U.S. Army Band | `File:National Emblem - U.S. Army Band.ogg` |
+| `recruiting_groove.ogg` | Semper Fidelis March (J.P. Sousa) | U.S. Navy Band | `File:Semper Fidelis March - U.S. Navy Band.ogg` |
 
-The engine is forward-compatible with recorded OGG tracks: if files are
-placed at `src/main/assets/sounds/soundtrack/<track>.ogg`, the engine will
-load and loop them via VorbisSPI instead of synthesizing. Any such files
-must be documented here with their source and license.
+- **License:** Public domain (U.S. government work; compositions also PD)
+- **Retrieved from:** commons.wikimedia.org (see per-file source above)
+- **Changes:** Renamed to the engine's track names; audio unmodified.
+- **Packaging:** Kept in `desktop-assets/` (outside `src/main/assets`) so
+  the Android APK is not bloated; Gradle copies them onto the desktop
+  classpath and bundles them into the desktop jar.
+
+### Procedural Synthesis Fallback (Original Work — No License Required)
+If a march OGG is missing or no audio line can be opened, the
+`DesktopSoundtrackEngine` falls back to original in-code PCM synthesis
+(sine/sawtooth/square waveforms with original melodic loops written for
+this project). That fallback is entirely original work.

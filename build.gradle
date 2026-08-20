@@ -99,6 +99,24 @@ tasks.register('verifyAudioResources') {
             }
         }
         logger.lifecycle "Audio OK — ${found.size()} OGG files validated"
+
+        // Soundtrack marches (public-domain U.S. military band performances)
+        // live outside src/main/assets so they don't bloat the Android APK;
+        // prepareDesktopResources copies them onto the desktop classpath.
+        def soundtrackDir = file("${rootProject.projectDir}/desktop-assets/soundtrack")
+        if (!soundtrackDir.directory) {
+            throw new GradleException('Missing desktop-assets/soundtrack/ (public-domain march OGGs).')
+        }
+        ['dashboard_organ', 'fight_song', 'offseason_calm', 'recruiting_groove'].each { name ->
+            def f = new File(soundtrackDir, "${name}.ogg")
+            if (!f.file) throw new GradleException("Missing soundtrack OGG: ${f}")
+            def b = f.bytes
+            if (b.length < 4 || b[0] != 0x4F as byte || b[1] != 0x67 as byte ||
+                b[2] != 0x67 as byte || b[3] != 0x53 as byte) {
+                throw new GradleException("Invalid OGG header in soundtrack: ${f.name}")
+            }
+        }
+        logger.lifecycle "Soundtrack OK — 4 march OGGs validated"
     }
 }
 
@@ -114,6 +132,11 @@ tasks.register('prepareDesktopResources', Copy) {
     }
     from("${rootProject.projectDir}/src/main/assets") {
         into 'assets'
+    }
+    // Public-domain march recordings onto the desktop classpath at
+    // assets/sounds/soundtrack/ (DesktopSoundtrackEngine resource path).
+    from("${rootProject.projectDir}/desktop-assets/soundtrack") {
+        into 'assets/sounds/soundtrack'
     }
 
     into(desktopResourcesDir)

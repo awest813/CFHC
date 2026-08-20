@@ -14,16 +14,16 @@ package simulation;
  */
 public interface SoundtrackEngine {
 
-    /** Procedurally generated or OGG-backed music tracks. */
+    /** Music tracks — public-domain march recordings when OGGs are bundled. */
     enum Track {
-        /** Slow stadium-organ arpeggio — the default dashboard ambience. */
-        DASHBOARD_ORGAN("Stadium Organ — Dashboard"),
-        /** Upbeat brass march — plays during active game weeks. */
-        FIGHT_SONG("Fight Song — Game Day"),
-        /** Gentle piano pad — plays during the offseason. */
-        OFFSEASON_CALM("Offseason Reflection"),
-        /** Energetic bass groove — plays while recruiting. */
-        RECRUITING_GROOVE("Recruiting Groove");
+        /** "Washington Post March" (Sousa) — default dashboard ambience. */
+        DASHBOARD_ORGAN("Washington Post March \u2014 U.S. Army Band"),
+        /** "The Stars and Stripes Forever" (Sousa) — postseason / scoreboard. */
+        FIGHT_SONG("Stars and Stripes Forever \u2014 USMC Band"),
+        /** "National Emblem" (Bagley) — offseason menu music. */
+        OFFSEASON_CALM("National Emblem March \u2014 U.S. Army Band"),
+        /** "Semper Fidelis" (Sousa) — recruiting screen. */
+        RECRUITING_GROOVE("Semper Fidelis March \u2014 U.S. Navy Band");
 
         private final String displayName;
         Track(String displayName) { this.displayName = displayName; }
