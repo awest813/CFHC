@@ -9,7 +9,9 @@ java {
 }
 
 dependencies {
-    testImplementation 'junit:junit:4.13.2'
+    // Engine tests (src/test/java simulation/positions/staff/comparator/recruiting)
+    // are executed by :app:test and by :engine:test in desktop-standalone —
+    // this project declares no test source set, so no junit dependency here.
 }
 
 def sharedJavaRoot = rootProject.file('src/main/java')

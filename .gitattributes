@@ -1,0 +1,24 @@
+# Normalize text files; keep line endings deterministic across platforms.
+* text=auto
+
+# Shell scripts must stay LF or Linux/CI execution breaks.
+gradlew text eol=lf
+*.sh text eol=lf
+
+# Windows scripts stay CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Ensure binaries are never touched.
+*.jar binary
+*.ogg binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.apk binary
+*.ser binary
+*.woff binary
+*.woff2 binary
+*.ttf binary

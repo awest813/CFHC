@@ -35,6 +35,13 @@ jobs:
           unset ANDROID_HOME ANDROID_SDK_ROOT ANDROID_SDK_HOME || true
           ./gradlew -p desktop-standalone :engine:desktopStandaloneGate --no-daemon
 
+      - name: Upload desktop jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: CFHC-desktop-jar
+          path: desktop-standalone/engine/build/libs/CFHC-desktop-*.jar
+          if-no-files-found: error
+
   android:
     runs-on: ubuntu-latest
     steps:
