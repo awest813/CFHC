@@ -76,7 +76,17 @@ public class LauncherFrame extends JFrame {
         launcherMainPanel = buildMainControlPanel();
         add(launcherMainPanel, BorderLayout.CENTER);
         getContentPane().setBackground(DesktopTheme.launcherMainPanel());
+
+        // Enter starts a new career; Escape closes the launcher.
+        getRootPane().setDefaultButton(defaultLaunchButton);
+        getRootPane().registerKeyboardAction(
+                e -> dispatchEvent(new java.awt.event.WindowEvent(this,
+                        java.awt.event.WindowEvent.WINDOW_CLOSING)),
+                javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0),
+                javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW);
     }
+
+    private JButton defaultLaunchButton;
 
     private void loadWindowIcon() {
         DesktopTheme.applyWindowIcon(this);
@@ -149,6 +159,7 @@ public class LauncherFrame extends JFrame {
         newBtn.setMnemonic('N');
         newBtn.addActionListener(e -> { audioManager.play(AudioEvent.UI_CLICK); launchNewLeague(); });
         buttonGrid.add(newBtn);
+        defaultLaunchButton = newBtn;
 
         JButton loadBtn = createStyledButton("Load Save", "Continue an existing simulation (.cfb or .sav).");
         loadBtn.setMnemonic('L');
@@ -189,7 +200,8 @@ public class LauncherFrame extends JFrame {
         centerWrap.add(toggleRow, BorderLayout.SOUTH);
         main.add(centerWrap, BorderLayout.CENTER);
 
-        launcherFooterLabel = new JLabel("Desktop build - simulation core shared with Android", SwingConstants.CENTER);
+        launcherFooterLabel = new JLabel(DesktopVersion.DISPLAY + " \u2022 Java "
+                + System.getProperty("java.version"), SwingConstants.CENTER);
         launcherFooterLabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
         launcherFooterLabel.setForeground(DesktopTheme.launcherFooter());
         main.add(launcherFooterLabel, BorderLayout.SOUTH);

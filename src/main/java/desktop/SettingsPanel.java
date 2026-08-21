@@ -35,7 +35,16 @@ public class SettingsPanel implements LeagueScreen {
         titleBlock.add(subtitle);
         header.add(titleBlock, BorderLayout.CENTER);
         JButton editTop = new JButton("Edit Settings...");
-        editTop.addActionListener(e -> SettingsDialog.show(ctx.parent(), ctx.league()));
+        editTop.addActionListener(e -> {
+            boolean applied = SettingsDialog.show(ctx.parent(), ctx.league());
+            // Mark the league dirty + rebuild this summary when changes were
+            // applied from the screen's own button (previously the dialog's
+            // return was ignored, so edits here skipped the unsaved-changes
+            // prompt and left this panel showing stale values).
+            if (applied && ctx.parent() instanceof LeagueHomeView) {
+                ((LeagueHomeView) ctx.parent()).onSettingsAppliedExternally();
+            }
+        });
         header.add(editTop, BorderLayout.EAST);
         panel.add(header, BorderLayout.NORTH);
 

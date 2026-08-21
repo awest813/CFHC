@@ -1534,6 +1534,13 @@ public class LeagueHomeView extends JFrame {
                 License: Creative Commons Attribution 4.0 International (CC BY 4.0)
                 Attribution: Sound effects by NotExplosive, used under CC BY 4.0.
 
+                Soundtrack (marches)
+                Public-domain U.S. military band performances of Sousa/Bagley marches,
+                sourced from Wikimedia Commons (see SOUND_LICENSES.md for the per-file
+                table): Stars and Stripes Forever (USMC Band), Washington Post March
+                (U.S. Army Band), National Emblem (U.S. Army Band), and Semper Fidelis
+                (U.S. Navy Band).
+
                 OGG playback on desktop
                 VorbisSPI, JOrbis, and Tritonus Share are bundled for javax.sound.sampled
                 OGG support and are licensed under the GNU LGPL 2.1 or later.
@@ -1659,6 +1666,16 @@ public class LeagueHomeView extends JFrame {
         if (SettingsDialog.show(this, leagueCore)) {
             markDirty();
         }
+        refresh();
+    }
+
+    /**
+     * Called when settings were applied via the Settings screen's own
+     * "Edit Settings..." button (SettingsPanel) — marks the league dirty so
+     * exit prompts protect the change, and rebuilds the summary panel.
+     */
+    public void onSettingsAppliedExternally() {
+        markDirty();
         refresh();
     }
 
