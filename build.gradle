@@ -66,40 +66,9 @@ tasks.register('verifyDesktopResources') {
 
 tasks.register('verifyAudioResources') {
     group = 'verification'
-    description = 'Validates OGG audio files exist and have correct OggS headers (desktop audio).'
-
-    def soundsDir = file("${rootProject.projectDir}/src/main/assets/sounds")
-    inputs.dir soundsDir
+    description = 'Validates bundled audio assets (march OGGs + generated WAV SFX).'
 
     doLast {
-        if (!soundsDir.directory) {
-            throw new GradleException('Missing src/main/assets/sounds/ (desktop needs audio OGG files).')
-        }
-
-        def expected = ['advance', 'click', 'confirm', 'error', 'firstdown',
-                        'loss', 'play', 'whistle', 'win'].sort()
-        def found = soundsDir.listFiles()
-                .findAll { it.name.endsWith('.ogg') }
-                .collect { it.name.replace('.ogg', '') }
-                .sort()
-
-        def missing = expected - found
-        def extra = found - expected
-        if (missing) throw new GradleException("Missing OGG files: ${missing}")
-        if (extra)   logger.warn("Unexpected OGG files (not wired in DesktopAudioManager): ${extra}")
-
-        soundsDir.listFiles().findAll { it.name.endsWith('.ogg') }.each { f ->
-            def bytes = f.bytes
-            if (bytes.length < 4 ||
-                bytes[0] != 0x4F as byte ||
-                bytes[1] != 0x67 as byte ||
-                bytes[2] != 0x67 as byte ||
-                bytes[3] != 0x53 as byte) {
-                throw new GradleException("Invalid OGG header in: ${f.name}")
-            }
-        }
-        logger.lifecycle "Audio OK — ${found.size()} OGG files validated"
-
         // Soundtrack marches (public-domain U.S. military band performances)
         // live outside src/main/assets so they don't bloat the Android APK;
         // prepareDesktopResources copies them onto the desktop classpath.
@@ -118,9 +87,9 @@ tasks.register('verifyAudioResources') {
         }
         logger.lifecycle "Soundtrack OK — 4 march OGGs validated"
 
-        // Generated WAV SFX (original synthesized audio — the inherited OGG
-        // set is mostly corrupt or near-inaudible; the desktop shell prefers
-        // these WAVs). prepareDesktopResources copies them onto the classpath.
+        // Generated WAV SFX (original synthesized audio — replaces the
+        // inherited OGG set, which was mostly corrupt or near-inaudible).
+        // Single source of truth, also copied into Android's res/raw.
         def sfxDir = file("${rootProject.projectDir}/desktop-assets/sfx")
         if (!sfxDir.directory) {
             throw new GradleException('Missing desktop-assets/sfx/ (generated WAV SFX).')

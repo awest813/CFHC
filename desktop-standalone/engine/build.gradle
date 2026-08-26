@@ -299,7 +299,6 @@ tasks.register('desktopStandaloneGate') {
                 'desktop/Main.class',
                 'desktop/DesktopVersion.class',
                 'desktop-version.properties',
-                'assets/sounds/click.ogg',
                 'assets/sounds/click.wav',
                 'assets/sounds/win.wav',
                 'assets/sounds/soundtrack/fight_song.ogg',

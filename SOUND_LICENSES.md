@@ -3,27 +3,15 @@
 ## UI and Game Sound Effects
 
 ### Generated WAV SFX (Original Work — No License Required)
-`desktop-assets/sfx/*.wav` are the desktop shell's preferred sound effects:
+`desktop-assets/sfx/*.wav` are the game's sound effects on every platform:
 original PCM synthesized for this project (soft plucked tones, sweeps, and a
 vibrato whistle — click, advance, confirm, error, play, firstdown, whistle,
-win, loss). They replaced the inherited OGG set on desktop because most of
-those files decode to no audio (corrupt) or are near-inaudible, and the
+win, loss). They replaced the previously inherited OGG set because most of
+those files decoded to no audio (corrupt) or were near-inaudible, and the
 retro-buzzer character read as harsh static during rapid UI navigation.
-Gradle copies them onto the desktop classpath at `assets/sounds/` and
-`DesktopAudioManager` prefers them per event (the OGGs remain the fallback
-and the Android `res/raw` source).
-
-Sound files in `src/main/res/raw/` and `src/main/assets/sounds/` are sourced from:
-
-### blips by NotExplosive (CC BY 4.0)
-- **Source:** https://github.com/notexplosive/blips
-- **License:** Creative Commons Attribution 4.0 International (CC BY 4.0)
-- **Attribution:** Sound effects by NotExplosive, used under CC BY 4.0
-- **Files used (original → in-game name):**
-  click.ogg → click.ogg, bong.ogg → confirm.ogg + win.ogg, buzz.ogg → error.ogg,
-  whistle1.ogg → whistle.ogg, metal-tap.ogg → play.ogg, snap.ogg → firstdown.ogg,
-  metal.ogg → advance.ogg, tag2.ogg → loss.ogg
-- **Changes:** Files renamed to match game event names; no audio content modified.
+Gradle copies them onto the desktop classpath at `assets/sounds/` and into
+Android's `src/main/res/raw/` (same resource names, so `R.raw.*` references
+are unchanged). No third-party sound effects are distributed anymore.
 
 ### VorbisSPI (LGPL 2.1+)
 - **Source:** https://github.com/trilarion/vorbisspi
