@@ -143,8 +143,9 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
         } catch (Exception e) {
             return false;
         }
-        try (javax.sound.sampled.AudioInputStream ais = AudioSystem.getAudioInputStream(
-                new ByteArrayInputStream(bytes))) {
+        try (javax.sound.sampled.AudioInputStream raw = AudioSystem.getAudioInputStream(
+                new ByteArrayInputStream(bytes));
+             javax.sound.sampled.AudioInputStream ais = AudioDecoding.toPcm(raw)) {
             Clip clip = AudioSystem.getClip();
             clip.open(ais);
             musicClip = clip;
@@ -221,17 +222,8 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
             return;
         }
 
-        // Each track defines a melodic loop: frequency + duration in beats.
-        double bpm = currentTrack == Track.FIGHT_SONG ? 140
-                : currentTrack == Track.RECRUITING_GROOVE ? 120
-                : currentTrack == Track.OFFSEASON_CALM ? 70 : 90;
-        double beatDur = 60.0 / bpm; // seconds per beat
-        Note[] loop = getLoop(currentTrack);
-        int loopIdx = 0;
-        long noteFrame = 0;
-        long noteLenFrames = (long) (loop.length > 0 ? loop[0].beats * beatDur * SAMPLE_RATE : SAMPLE_RATE);
+        SynthVoice voice = new SynthVoice(currentTrack);
         Random rng = new Random(42);
-
         byte[] buf = new byte[BUFFER_FRAMES * FRAME_BYTES];
 
         while (running) {
@@ -243,34 +235,16 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
                 continue;
             }
 
-            // Advance to next note if current note finished.
-            if (noteFrame >= noteLenFrames && loop.length > 0) {
-                loopIdx = (loopIdx + 1) % loop.length;
-                noteFrame = 0;
-                noteLenFrames = (long) (loop[loopIdx].beats * beatDur * SAMPLE_RATE);
-            }
-
-            // Fill buffer with synthesized samples for the current note.
             double maxAmp = 0;
             for (int i = 0; i < BUFFER_FRAMES; i++) {
-                double t = (double) (noteFrame + i) / SAMPLE_RATE;
-                double sample;
-                if (loop.length > 0) {
-                    Note n = loop[loopIdx];
-                    double envelope = envelope(t, n.beats * beatDur);
-                    sample = synth(n.freq, t, currentTrack) * envelope;
-                } else {
-                    sample = 0;
-                }
+                double sample = voice.nextSample(rng);
                 // Soft limiting to prevent clipping.
                 sample = Math.tanh(sample);
-
                 short s = (short) (sample * Short.MAX_VALUE);
                 buf[i * 2] = (byte) (s & 0xFF);
                 buf[i * 2 + 1] = (byte) ((s >> 8) & 0xFF);
                 maxAmp = Math.max(maxAmp, Math.abs(sample));
             }
-            noteFrame += BUFFER_FRAMES;
             amplitude = (float) maxAmp;
             line.write(buf, 0, buf.length);
         }
@@ -278,60 +252,183 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
 
     // ── Synthesis helpers ─────────────────────────────────────────────────
 
-    /** ADSR-like envelope: quick attack, decay, sustain, release. */
-    private static double envelope(double t, double duration) {
-        double attack = 0.02;
-        double release = 0.15;
-        if (t < attack) return t / attack;
-        if (t > duration - release) return Math.max(0, (duration - t) / release);
-        return 0.7; // sustain level
-    }
-
     /**
-     * Synthesize one sample for a given frequency and time. The waveform
-     * depends on the track character:
-     * <ul>
-     *   <li>DASHBOARD_ORGAN — sine + 3rd harmonic (organ-like)</li>
-     *   <li>FIGHT_SONG — sawtooth-ish (brassy) + noise accent on beat</li>
-     *   <li>OFFSEASON_CALM — pure sine with soft decay (piano-ish)</li>
-     *   <li>RECRUITING_GROOVE — square wave + sub-bass (chiptune)</li>
-     * </ul>
+     * One arranged voice of the fallback soundtrack: melody + chord pad +
+     * bass + (for march/groove tracks) enveloped percussion, all
+     * phase-continuous and passed through a gentle one-pole lowpass.
      */
-    private static double synth(double freq, double t, Track track) {
-        switch (track) {
-            case DASHBOARD_ORGAN: {
-                double fundamental = Math.sin(2 * Math.PI * freq * t);
-                double harm3 = 0.3 * Math.sin(2 * Math.PI * freq * 3 * t);
-                double harm5 = 0.15 * Math.sin(2 * Math.PI * freq * 5 * t);
-                return (fundamental + harm3 + harm5) * 0.33;
+    private static final class SynthVoice {
+        private final Track track;
+        private final double beatDur;    // seconds per beat
+        private final Note[] melody;
+        private final Chord[] chords;
+        private final boolean percussive;
+
+        private int melodyIdx;
+        private double melodyPos;        // seconds into current melody note
+        private double melodyLen;        // duration of current melody note (s)
+        private int chordIdx;
+        private double chordPos;
+        private double chordLen;
+        private double beatPos;
+        private int beatCount;
+
+        private double melodyPhase;
+        private final double[] padPhase = new double[3];
+        private double bassPhase;
+        private double lowpassY;
+
+        private static final double LOWPASS_ALPHA =
+                1.0 - Math.exp(-2.0 * Math.PI * 3200.0 / SAMPLE_RATE);
+
+        SynthVoice(Track track) {
+            this.track = track;
+            double bpm = track == Track.FIGHT_SONG ? 132
+                    : track == Track.RECRUITING_GROOVE ? 112
+                    : track == Track.OFFSEASON_CALM ? 66 : 84;
+            this.beatDur = 60.0 / bpm;
+            this.melody = getLoop(track);
+            this.chords = getChords(track);
+            this.percussive = track == Track.FIGHT_SONG || track == Track.RECRUITING_GROOVE;
+            this.melodyLen = melody.length > 0 ? melody[0].beats * beatDur : beatDur;
+            this.chordLen = chords.length > 0 ? chords[0].beats * beatDur : 4 * beatDur;
+        }
+
+        /** Produces the next output sample. */
+        double nextSample(Random rng) {
+            double dt = 1.0 / SAMPLE_RATE;
+
+            Note note = melody.length > 0 ? melody[melodyIdx] : null;
+            Chord chord = chords.length > 0 ? chords[chordIdx] : null;
+
+            // ── Melody voice (REST notes are true silence). ──
+            double melodyOut = 0;
+            double freq = note != null ? note.freq : 0;
+            if (freq > 0) {
+                double env = noteEnv(melodyPos, melodyLen);
+                melodyPhase += 2 * Math.PI * freq * dt;
+                if (melodyPhase > 2 * Math.PI) melodyPhase -= 2 * Math.PI;
+                melodyOut = melodyWave(melodyPhase) * env * melodyGain();
+            } else {
+                melodyPhase = 0;
             }
-            case FIGHT_SONG: {
-                double fundamental = Math.sin(2 * Math.PI * freq * t);
-                double saw = 0.4 * sawtooth(freq, t);
-                double beatAccent = (t % 0.5 < 0.03) ? 0.15 : 0; // snare-like tick
-                return (fundamental + saw) * 0.28 + beatAccent;
+
+            // ── Chord pad (root + third + fifth). ──
+            double padOut = 0;
+            if (chord != null) {
+                double env = padEnv(chordPos, chordLen);
+                int[] intervals = chord.minor
+                        ? new int[] {0, 3, 7} : new int[] {0, 4, 7};
+                for (int v = 0; v < 3; v++) {
+                    double f = semitones(chord.rootFreq, intervals[v]);
+                    padPhase[v] += 2 * Math.PI * f * dt;
+                    if (padPhase[v] > 2 * Math.PI) padPhase[v] -= 2 * Math.PI;
+                    padOut += Math.sin(padPhase[v]) / 3.0;
+                }
+                padOut *= env * padGain();
+
+                // ── Bass follows the chord root one octave down. ──
+                bassPhase += 2 * Math.PI * (chord.rootFreq / 2.0) * dt;
+                if (bassPhase > 2 * Math.PI) bassPhase -= 2 * Math.PI;
+                double pulse = percussive
+                        ? 0.6 + 0.4 * Math.exp(-beatPos / (beatDur * 0.3)) : 1.0;
+                padOut += Math.sin(bassPhase) * env * bassGain() * pulse;
             }
-            case OFFSEASON_CALM: {
-                return 0.4 * Math.sin(2 * Math.PI * freq * t);
+
+            // ── Percussion: enveloped noise bursts, never step functions. ──
+            double percOut = 0;
+            if (percussive) {
+                double accent = (beatCount % 4 == 0) ? 1.0 : 0.55;
+                percOut = (rng.nextDouble() * 2.0 - 1.0)
+                        * 0.05 * accent * Math.exp(-beatPos / 0.028);
             }
-            case RECRUITING_GROOVE: {
-                double square = 0.35 * squareWave(freq, t);
-                double subBass = 0.25 * Math.sin(2 * Math.PI * (freq / 2.0) * t);
-                return square + subBass;
+
+            // ── Advance timers. ──
+            melodyPos += dt;
+            if (melodyPos >= melodyLen && melody.length > 0) {
+                melodyPos -= melodyLen;
+                melodyIdx = (melodyIdx + 1) % melody.length;
+                melodyLen = Math.max(0.02, melody[melodyIdx].beats * beatDur);
+                melodyPhase = 0;
             }
-            default:
-                return 0.3 * Math.sin(2 * Math.PI * freq * t);
+            chordPos += dt;
+            if (chordPos >= chordLen && chords.length > 0) {
+                chordPos -= chordLen;
+                chordIdx = (chordIdx + 1) % chords.length;
+                chordLen = Math.max(0.05, chords[chordIdx].beats * beatDur);
+            }
+            beatPos += dt;
+            if (beatPos >= beatDur) {
+                beatPos -= beatDur;
+                beatCount++;
+            }
+
+            // ── Mix through a gentle lowpass to remove residual harshness. ──
+            double mixed = melodyOut + padOut + percOut;
+            lowpassY += LOWPASS_ALPHA * (mixed - lowpassY);
+            return lowpassY;
+        }
+
+        /** Band-limited melody timbre per track (no raw saw/square steps). */
+        private double melodyWave(double phase) {
+            switch (track) {
+                case DASHBOARD_ORGAN:
+                    return Math.sin(phase) + 0.35 * Math.sin(2 * phase)
+                            + 0.12 * Math.sin(3 * phase);
+                case FIGHT_SONG: // brass-ish: stacked harmonics
+                    return Math.sin(phase) + 0.40 * Math.sin(2 * phase)
+                            + 0.20 * Math.sin(3 * phase) + 0.10 * Math.sin(4 * phase);
+                case OFFSEASON_CALM:
+                    return Math.sin(phase) + 0.15 * Math.sin(2 * phase);
+                case RECRUITING_GROOVE: // soft square via saturated sine
+                    return Math.tanh(2.2 * Math.sin(phase));
+                default:
+                    return Math.sin(phase);
+            }
+        }
+
+        private double melodyGain() {
+            switch (track) {
+                case OFFSEASON_CALM: return 0.34;
+                case RECRUITING_GROOVE: return 0.20;
+                default: return 0.26;
+            }
+        }
+
+        private double padGain() {
+            switch (track) {
+                case OFFSEASON_CALM: return 0.13;
+                case FIGHT_SONG: return 0.08;
+                default: return 0.10;
+            }
+        }
+
+        private double bassGain() {
+            return track == Track.RECRUITING_GROOVE ? 0.20 : 0.14;
+        }
+
+        /** Pad envelopes are slower than melody envelopes for legato feel. */
+        private double padEnv(double t, double dur) {
+            double attack = track == Track.FIGHT_SONG || track == Track.RECRUITING_GROOVE
+                    ? 0.05 : 0.25;
+            double release = Math.min(0.30, dur * 0.3);
+            if (t < attack) return t / attack;
+            if (t > dur - release) return Math.max(0, (dur - t) / release);
+            return 1.0;
         }
     }
 
-    private static double sawtooth(double freq, double t) {
-        double phase = (freq * t) % 1.0;
-        return 2.0 * phase - 1.0;
+    /** ADSR-like envelope: fast attack, sustain, proportional release. */
+    private static double noteEnv(double t, double dur) {
+        double attack = 0.008;
+        double release = Math.min(0.12, dur * 0.4);
+        if (t < attack) return t / attack;
+        if (t > dur - release) return Math.max(0, (dur - t) / release);
+        return 0.78;
     }
 
-    private static double squareWave(double freq, double t) {
-        double phase = (freq * t) % 1.0;
-        return phase < 0.5 ? 1.0 : -1.0;
+    private static double semitones(double baseFreq, double semis) {
+        return baseFreq * Math.pow(2.0, semis / 12.0);
     }
 
     private void applyVolumeToLine() {
@@ -358,6 +455,18 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
         Note(double freq, double beats) { this.freq = freq; this.beats = beats; }
     }
 
+    /** A pad/bass chord in the procedural loop: root + quality + beats. */
+    private static final class Chord {
+        final double rootFreq;
+        final boolean minor;
+        final double beats;
+        Chord(double rootFreq, boolean minor, double beats) {
+            this.rootFreq = rootFreq;
+            this.minor = minor;
+            this.beats = beats;
+        }
+    }
+
     // Note frequencies (Hz)
     private static final double REST = 0;
     private static final double C4 = 261.63, D4 = 293.66, E4 = 329.63, F4 = 349.23,
@@ -366,6 +475,7 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
             G5 = 783.99, A5 = 880.00;
     private static final double Bb4 = 466.16, E5b = 622.25;
     private static final double A2 = 110.00, A3 = 220.00, E3 = 164.81, G3 = 196.00, C3 = 130.81;
+    private static final double G2 = 98.00, F2 = 87.31, Bb2 = 116.54, Eb2 = 77.78;
 
     /**
      * Returns the melodic loop for a track. Each track is an original
@@ -405,6 +515,37 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
                 };
             default:
                 return new Note[] { new Note(C4, 1), new Note(G4, 1), new Note(E4, 1), new Note(C4, 1) };
+        }
+    }
+
+    /**
+     * Returns the pad/bass chord loop for a track. Each progression is an
+     * original harmony written for CFHC and totals the same length as the
+     * track's melody loop so the two re-align every pass.
+     */
+    private static Chord[] getChords(Track track) {
+        switch (track) {
+            case DASHBOARD_ORGAN: // C–G–Am–F under the 10-beat melody loop
+                return new Chord[] {
+                    new Chord(C3, false, 2.5), new Chord(G2, false, 2.5),
+                    new Chord(A2, true, 2.5), new Chord(F2, false, 2.5),
+                };
+            case FIGHT_SONG: // Bb–F–Eb under the 6.5-beat melody loop
+                return new Chord[] {
+                    new Chord(Bb2, false, 2.5), new Chord(F2, false, 2.0),
+                    new Chord(Eb2, false, 2.0),
+                };
+            case OFFSEASON_CALM: // C–Am–F–G under the 16-beat melody loop
+                return new Chord[] {
+                    new Chord(C3, false, 4), new Chord(A2, true, 4),
+                    new Chord(F2, false, 4), new Chord(G2, false, 4),
+                };
+            case RECRUITING_GROOVE: // Am–C under the 4-beat melody loop
+                return new Chord[] {
+                    new Chord(A2, true, 2), new Chord(C3, false, 2),
+                };
+            default:
+                return new Chord[] { new Chord(C3, false, 2), new Chord(A2, true, 2) };
         }
     }
 }

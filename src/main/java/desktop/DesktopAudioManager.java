@@ -41,22 +41,32 @@ public class DesktopAudioManager implements AudioManager {
     private void preloadSounds() {
         int loaded = 0;
         for (AudioEvent event : AudioEvent.values()) {
-            String fileName = fileNameFor(event);
-            String resourcePath = "assets/sounds/" + fileName;
-            try (InputStream is = Thread.currentThread().getContextClassLoader()
-                    .getResourceAsStream(resourcePath)) {
-                if (is == null) {
-                    continue;
-                }
-                audioCache.put(event, readAllBytes(is));
+            String base = fileBaseFor(event);
+            // Prefer the generated WAV SFX (clean, well-levelled, no SPI
+            // needed); fall back to the bundled OGG if the WAV is absent.
+            byte[] data = readSoundResource(base + ".wav");
+            if (data == null) {
+                data = readSoundResource(base + ".ogg");
+            }
+            if (data != null) {
+                audioCache.put(event, data);
                 loaded++;
-            } catch (Exception e) {
-                PlatformLog.w(TAG, "Failed to load sound: " + fileName + " — " + e.getMessage());
             }
         }
         available = loaded > 0;
         if (!available) {
             PlatformLog.w(TAG, "No sound files loaded — audio is disabled");
+        }
+    }
+
+    private static byte[] readSoundResource(String fileName) {
+        String resourcePath = "assets/sounds/" + fileName;
+        try (InputStream is = Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream(resourcePath)) {
+            return is == null ? null : readAllBytes(is);
+        } catch (Exception e) {
+            PlatformLog.w(TAG, "Failed to load sound: " + fileName + " — " + e.getMessage());
+            return null;
         }
     }
 
@@ -66,15 +76,20 @@ public class DesktopAudioManager implements AudioManager {
     }
 
     static String fileNameFor(AudioEvent event) {
+        return fileBaseFor(event) + ".ogg";
+    }
+
+    /** Resource base name (no extension) for an event's sound file. */
+    static String fileBaseFor(AudioEvent event) {
         return switch (event) {
-            case UI_CLICK -> "click.ogg";
-            case PLAY_SELECT -> "play.ogg";
-            case FIRST_DOWN -> "firstdown.ogg";
-            case FIGHT_SONG -> "fightsong.ogg";
-            case TOUCHDOWN_CHEER -> "touchdown.ogg";
-            case CROWD_ROAR -> "crowd_roar.ogg";
-            case STADIUM_ORGAN -> "organ.ogg";
-            default -> event.name().toLowerCase() + ".ogg";
+            case UI_CLICK -> "click";
+            case PLAY_SELECT -> "play";
+            case FIRST_DOWN -> "firstdown";
+            case FIGHT_SONG -> "fightsong";
+            case TOUCHDOWN_CHEER -> "touchdown";
+            case CROWD_ROAR -> "crowd_roar";
+            case STADIUM_ORGAN -> "organ";
+            default -> event.name().toLowerCase();
         };
     }
 
@@ -101,8 +116,8 @@ public class DesktopAudioManager implements AudioManager {
         Clip clip = null;
         boolean started = false;
         try {
-            ais = AudioSystem.getAudioInputStream(new ByteArrayInputStream(data));
-            AudioFormat format = ais.getFormat();
+            ais = AudioDecoding.toPcm(
+                    AudioSystem.getAudioInputStream(new ByteArrayInputStream(data)));
             try {
                 clip = AudioSystem.getClip();
                 clip.open(ais);
@@ -124,9 +139,8 @@ public class DesktopAudioManager implements AudioManager {
             } catch (LineUnavailableException clipEx) {
                 if (clip != null) clip.close();
                 // Never block the EDT on the synchronous SourceDataLine drain path.
-                final AudioFormat fallbackFormat = format;
                 Thread fallback = new Thread(
-                        () -> playViaSourceDataLine(data, fallbackFormat),
+                        () -> playViaSourceDataLine(data),
                         "cfhc-audio-fallback");
                 fallback.setDaemon(true);
                 fallback.start();
@@ -148,8 +162,10 @@ public class DesktopAudioManager implements AudioManager {
         }
     }
 
-    private void playViaSourceDataLine(byte[] data, AudioFormat format) {
-        try (AudioInputStream ais = AudioSystem.getAudioInputStream(new ByteArrayInputStream(data))) {
+    private void playViaSourceDataLine(byte[] data) {
+        try (AudioInputStream ais = AudioDecoding.toPcm(
+                AudioSystem.getAudioInputStream(new ByteArrayInputStream(data)))) {
+            AudioFormat format = ais.getFormat();
             DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
             if (!AudioSystem.isLineSupported(info)) {
                 PlatformLog.w(TAG, "SourceDataLine not supported for format: " + format);

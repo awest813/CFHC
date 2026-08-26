@@ -2,6 +2,17 @@
 
 ## UI and Game Sound Effects
 
+### Generated WAV SFX (Original Work — No License Required)
+`desktop-assets/sfx/*.wav` are the desktop shell's preferred sound effects:
+original PCM synthesized for this project (soft plucked tones, sweeps, and a
+vibrato whistle — click, advance, confirm, error, play, firstdown, whistle,
+win, loss). They replaced the inherited OGG set on desktop because most of
+those files decode to no audio (corrupt) or are near-inaudible, and the
+retro-buzzer character read as harsh static during rapid UI navigation.
+Gradle copies them onto the desktop classpath at `assets/sounds/` and
+`DesktopAudioManager` prefers them per event (the OGGs remain the fallback
+and the Android `res/raw` source).
+
 Sound files in `src/main/res/raw/` and `src/main/assets/sounds/` are sourced from:
 
 ### blips by NotExplosive (CC BY 4.0)
@@ -67,6 +78,7 @@ are themselves public domain.
 
 ### Procedural Synthesis Fallback (Original Work — No License Required)
 If a march OGG is missing or no audio line can be opened, the
-`DesktopSoundtrackEngine` falls back to original in-code PCM synthesis
-(sine/sawtooth/square waveforms with original melodic loops written for
-this project). That fallback is entirely original work.
+`DesktopSoundtrackEngine` falls back to original in-code PCM synthesis:
+band-limited melody, chord pad, bass, and enveloped percussion voices with
+original progressions written for this project. That fallback is entirely
+original work.

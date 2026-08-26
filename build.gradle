@@ -117,6 +117,27 @@ tasks.register('verifyAudioResources') {
             }
         }
         logger.lifecycle "Soundtrack OK — 4 march OGGs validated"
+
+        // Generated WAV SFX (original synthesized audio — the inherited OGG
+        // set is mostly corrupt or near-inaudible; the desktop shell prefers
+        // these WAVs). prepareDesktopResources copies them onto the classpath.
+        def sfxDir = file("${rootProject.projectDir}/desktop-assets/sfx")
+        if (!sfxDir.directory) {
+            throw new GradleException('Missing desktop-assets/sfx/ (generated WAV SFX).')
+        }
+        ['advance', 'click', 'confirm', 'error', 'firstdown',
+         'loss', 'play', 'whistle', 'win'].each { name ->
+            def f = new File(sfxDir, "${name}.wav")
+            if (!f.file) throw new GradleException("Missing SFX WAV: ${f}")
+            def b = f.bytes
+            if (b.length < 12 || b[0] != 0x52 as byte || b[1] != 0x49 as byte ||
+                b[2] != 0x46 as byte || b[3] != 0x46 as byte ||   // "RIFF"
+                b[8] != 0x57 as byte || b[9] != 0x41 as byte ||
+                b[10] != 0x56 as byte || b[11] != 0x45 as byte) { // "WAVE"
+                throw new GradleException("Invalid RIFF/WAVE header in SFX: ${f.name}")
+            }
+        }
+        logger.lifecycle "SFX WAVs OK — 9 generated files validated"
     }
 }
 
@@ -137,6 +158,11 @@ tasks.register('prepareDesktopResources', Copy) {
     // assets/sounds/soundtrack/ (DesktopSoundtrackEngine resource path).
     from("${rootProject.projectDir}/desktop-assets/soundtrack") {
         into 'assets/sounds/soundtrack'
+    }
+    // Generated WAV SFX onto the desktop classpath at assets/sounds/
+    // (DesktopAudioManager prefers WAV over the inherited OGGs).
+    from("${rootProject.projectDir}/desktop-assets/sfx") {
+        into 'assets/sounds'
     }
 
     into(desktopResourcesDir)
