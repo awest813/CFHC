@@ -27,3 +27,6 @@ signing.properties
 
 # Compiled class output (Gradle uses build/, but other builds may produce target/)
 target/
+
+# Eclipse/IDE compiled output (stale classes were once tracked here)
+bin/

@@ -137,7 +137,9 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
         try (InputStream in = DesktopSoundtrackEngine.class.getClassLoader()
                 .getResourceAsStream(res)) {
             if (in == null) return false;
-            bytes = in.readAllBytes();
+            // IoStreams helper (not InputStream.readAllBytes) — Android lint
+            // scans the shared tree and readAllBytes needs API 33 > minSdk 24.
+            bytes = simulation.IoStreams.readAllBytes(in);
         } catch (Exception e) {
             return false;
         }
