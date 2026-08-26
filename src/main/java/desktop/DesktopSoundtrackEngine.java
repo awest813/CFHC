@@ -15,12 +15,14 @@ import java.util.Arrays;
 import java.util.Random;
 
 /**
- * Desktop soundtrack engine. Plays the bundled public-domain march
- * recordings (Sousa/Bagley performed by U.S. military bands) from
- * {@code assets/sounds/soundtrack/<name>.ogg} via vorbisspi, looping on a
- * long-lived {@link Clip}. If a track's OGG is missing or audio lines are
- * unavailable, it falls back to the original procedural PCM synthesis —
- * and if even that can't open a line (headless CI), it silently no-ops.
+ * Desktop soundtrack engine. Plays the bundled music files from
+ * {@code assets/sounds/soundtrack/} — the MP3 main theme via mp3spi and the
+ * public-domain march OGGs (Sousa/Bagley performed by U.S. military bands)
+ * via vorbisspi — looping on a long-lived {@link Clip}. Both formats go
+ * through {@link AudioDecoding#toPcm} before playback. If a track's file is
+ * missing or audio lines are unavailable, it falls back to the procedural
+ * PCM synthesis — and if even that can't open a line (headless CI), it
+ * silently no-ops.
  */
 public class DesktopSoundtrackEngine implements SoundtrackEngine {
 
@@ -52,7 +54,7 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
         stopInternal();
         currentTrack = track;
         paused = false;
-        if (startOggLoop(track)) {
+        if (startBundledLoop(track)) {
             state = State.PLAYING;
             return;
         }
@@ -113,11 +115,11 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
         stopInternal();
     }
 
-    // ── OGG playback (bundled public-domain marches) ──────────────────────
+    // ── Bundled-file playback (MP3 theme + public-domain march OGGs) ──────
 
-    private static String oggResourceName(Track track) {
+    private static String soundtrackResource(Track track) {
         switch (track) {
-            case DASHBOARD_ORGAN: return "assets/sounds/soundtrack/dashboard_organ.ogg";
+            case DASHBOARD_ORGAN: return "assets/sounds/soundtrack/marching_band.mp3";
             case FIGHT_SONG: return "assets/sounds/soundtrack/fight_song.ogg";
             case OFFSEASON_CALM: return "assets/sounds/soundtrack/offseason_calm.ogg";
             case RECRUITING_GROOVE: return "assets/sounds/soundtrack/recruiting_groove.ogg";
@@ -126,12 +128,13 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
     }
 
     /**
-     * Attempts to load and loop the track's bundled OGG via vorbisspi.
+     * Attempts to load and loop the track's bundled file (MP3 via mp3spi,
+     * OGG via vorbisspi), converting to PCM before opening the Clip.
      * Returns false (no exception) when the resource is missing or the
      * audio system can't open a Clip — callers fall back to synthesis.
      */
-    private boolean startOggLoop(Track track) {
-        String res = oggResourceName(track);
+    private boolean startBundledLoop(Track track) {
+        String res = soundtrackResource(track);
         if (res == null) return false;
         byte[] bytes;
         try (InputStream in = DesktopSoundtrackEngine.class.getClassLoader()

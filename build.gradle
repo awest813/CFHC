@@ -31,6 +31,10 @@ def vorbisspiJar = fileTree("${rootProject.projectDir}/libs").matching {
     include 'jorbis*.jar'
     include 'tritonus-share*.jar'
 }
+def mp3SpiJars = fileTree("${rootProject.projectDir}/libs").matching {
+    include 'mp3spi*.jar'
+    include 'jlayer*.jar'
+}
 def flatlafJar = fileTree("${rootProject.projectDir}/libs").matching {
     include 'flatlaf*.jar'
 }
@@ -69,14 +73,14 @@ tasks.register('verifyAudioResources') {
     description = 'Validates bundled audio assets (march OGGs + generated WAV SFX).'
 
     doLast {
-        // Soundtrack marches (public-domain U.S. military band performances)
-        // live outside src/main/assets so they don't bloat the Android APK;
-        // prepareDesktopResources copies them onto the desktop classpath.
+        // Soundtrack (Pixabay MP3 theme + public-domain U.S. military band
+        // march OGGs) lives outside src/main/assets so it doesn't bloat the
+        // Android APK; prepareDesktopResources copies it onto the classpath.
         def soundtrackDir = file("${rootProject.projectDir}/desktop-assets/soundtrack")
         if (!soundtrackDir.directory) {
-            throw new GradleException('Missing desktop-assets/soundtrack/ (public-domain march OGGs).')
+            throw new GradleException('Missing desktop-assets/soundtrack/ (soundtrack audio).')
         }
-        ['dashboard_organ', 'fight_song', 'offseason_calm', 'recruiting_groove'].each { name ->
+        ['fight_song', 'offseason_calm', 'recruiting_groove'].each { name ->
             def f = new File(soundtrackDir, "${name}.ogg")
             if (!f.file) throw new GradleException("Missing soundtrack OGG: ${f}")
             def b = f.bytes
@@ -85,7 +89,16 @@ tasks.register('verifyAudioResources') {
                 throw new GradleException("Invalid OGG header in soundtrack: ${f.name}")
             }
         }
-        logger.lifecycle "Soundtrack OK — 4 march OGGs validated"
+        def theme = new File(soundtrackDir, 'marching_band.mp3')
+        if (!theme.file) throw new GradleException("Missing soundtrack MP3: ${theme}")
+        def tb = theme.bytes
+        // MP3: "ID3" tag or a raw MPEG frame sync (0xFF Ex).
+        boolean id3 = tb.length > 3 && tb[0] == 0x49 as byte && tb[1] == 0x44 as byte && tb[2] == 0x33 as byte
+        boolean frameSync = tb.length > 2 && (tb[0] & 0xFF) == 0xFF && (tb[1] & 0xE0) == 0xE0
+        if (!id3 && !frameSync) {
+            throw new GradleException('Invalid MP3 header in soundtrack: marching_band.mp3')
+        }
+        logger.lifecycle "Soundtrack OK — MP3 theme + 3 march OGGs validated"
 
         // Generated WAV SFX (original synthesized audio — replaces the
         // inherited OGG set, which was mostly corrupt or near-inaudible).
@@ -265,6 +278,45 @@ gradle.projectsEvaluated {
     }
 }
 
+/**
+ * Merges the javax.sound SPI service files from the bundled audio jars.
+ * vorbisspi and mp3spi each ship a META-INF/services file listing only their
+ * own provider; with DuplicatesStrategy.EXCLUDE a fat jar would keep just
+ * one and silently drop the other decoder's registration.
+ */
+def mergedSpiServicesDir = layout.buildDirectory.dir('merged-spi-services')
+
+tasks.register('mergeSpiServices') {
+    group = 'desktop'
+    description = 'Merges javax.sound SPI service descriptors from the bundled audio jars.'
+    def audioSpiJars = files(vorbisspiJar, mp3SpiJars)
+    inputs.files audioSpiJars
+    outputs.dir mergedSpiServicesDir
+    doLast {
+        def outDir = mergedSpiServicesDir.get().asFile
+        outDir.deleteDir()
+        def byService = new TreeMap<String, LinkedHashSet<String>>()
+        audioSpiJars.each { jarFile ->
+            new java.util.zip.ZipFile(jarFile).withCloseable { zf ->
+                zf.entries().findAll { entry ->
+                    entry.name.startsWith('META-INF/services/javax.sound.sampled.spi.') && !entry.isDirectory()
+                }.each { entry ->
+                    def lines = zf.getInputStream(entry).text.readLines()
+                            .findAll { it.trim() && !it.trim().startsWith('#') }
+                            .collect { it.trim() }
+                    byService.computeIfAbsent(entry.name) { new LinkedHashSet<String>() }.addAll(lines)
+                }
+            }
+        }
+        byService.each { name, lines ->
+            def f = new File(outDir, name)
+            f.parentFile.mkdirs()
+            f.text = lines.join('\n') + '\n'
+            logger.lifecycle "Merged SPI service ${name}: ${lines.size()} provider(s)"
+        }
+    }
+}
+
 tasks.register('desktopJar', Jar) {
     group = 'desktop'
     description = 'Builds a runnable jar for the CFHC desktop shell.'
@@ -272,12 +324,15 @@ tasks.register('desktopJar', Jar) {
     archiveVersion = desktopVersion
     destinationDirectory = layout.buildDirectory.dir('libs')
 
-    dependsOn tasks.named('compileDesktopJava'), tasks.named('prepareDesktopResources')
+    dependsOn tasks.named('compileDesktopJava'), tasks.named('prepareDesktopResources'),
+            tasks.named('mergeSpiServices')
 
     from(desktopClassesDir)
     from(desktopResourcesDir)
-    vorbisspiJar.each { from(zipTree(it)) }
+    vorbisspiJar.each { from(zipTree(it)) { exclude 'META-INF/services/javax.sound.sampled.spi.*' } }
+    mp3SpiJars.each { from(zipTree(it)) { exclude 'META-INF/services/javax.sound.sampled.spi.*' } }
     flatlafJar.each { from(zipTree(it)) }
+    from(mergedSpiServicesDir)
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from(rootProject.projectDir) {
         include 'LICENSE'
@@ -307,7 +362,7 @@ tasks.register('runDesktop', JavaExec) {
     dependsOn tasks.named('compileDesktopJava'), tasks.named('prepareDesktopResources')
 
     mainClass = 'desktop.Main'
-    classpath = files(desktopClassesDir, desktopResourcesDir, vorbisspiJar, flatlafJar)
+    classpath = files(desktopClassesDir, desktopResourcesDir, vorbisspiJar, mp3SpiJars, flatlafJar)
 
     if (project.hasProperty('desktopArgs') && project.property('desktopArgs')) {
         args project.property('desktopArgs').toString().split(/\s+/).findAll { !it.isEmpty() }

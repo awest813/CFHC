@@ -33,15 +33,16 @@ public class DesktopAudioManagerTest {
     }
 
     @Test
-    public void classpath_hasVorbisAudioFileReaderSpi() {
-        boolean found = false;
+    public void classpath_hasVorbisAndMpegAudioFileReaderSpis() {
+        boolean vorbis = false;
+        boolean mpeg = false;
         for (AudioFileReader reader : ServiceLoader.load(AudioFileReader.class)) {
-            if (reader.getClass().getName().contains("Vorbis")) {
-                found = true;
-                break;
-            }
+            String name = reader.getClass().getName();
+            if (name.contains("Vorbis")) vorbis = true;
+            if (name.contains("Mpeg")) mpeg = true;
         }
-        assertTrue("Expected Vorbis AudioFileReader on classpath (vorbisspi+jorbis+tritonus)", found);
+        assertTrue("Expected Vorbis AudioFileReader on classpath (vorbisspi+jorbis+tritonus)", vorbis);
+        assertTrue("Expected Mpeg AudioFileReader on classpath (mp3spi+jlayer)", mpeg);
     }
 
     /**
@@ -96,6 +97,31 @@ public class DesktopAudioManagerTest {
                     total += n;
                 }
                 assertTrue("march decode produced no PCM", total > 0);
+            }
+        }
+    }
+
+    /**
+     * The MP3 main theme must survive the two-step SPI conversion to PCM —
+     * same contract as the march OGGs. Reads a small slice only.
+     */
+    @Test
+    public void mp3Theme_convertsToPcm() throws Exception {
+        String res = "assets/sounds/soundtrack/marching_band.mp3";
+        try (InputStream in = getClass().getClassLoader().getResourceAsStream(res)) {
+            assertNotNull("missing " + res, in);
+            byte[] bytes = IoStreams.readAllBytes(in);
+            try (AudioInputStream ais = AudioDecoding.toPcm(
+                    AudioSystem.getAudioInputStream(new ByteArrayInputStream(bytes)))) {
+                assertEquals(AudioFormat.Encoding.PCM_SIGNED, ais.getFormat().getEncoding());
+                byte[] slice = new byte[65536];
+                int total = 0;
+                int n;
+                while (total < slice.length
+                        && (n = ais.read(slice, total, slice.length - total)) != -1) {
+                    total += n;
+                }
+                assertTrue("MP3 decode produced no PCM", total > 0);
             }
         }
     }

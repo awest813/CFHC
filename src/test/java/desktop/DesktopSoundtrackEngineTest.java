@@ -16,7 +16,6 @@ public class DesktopSoundtrackEngineTest {
 
     private static final String[] OGG_RESOURCES = {
             "assets/sounds/soundtrack/fight_song.ogg",
-            "assets/sounds/soundtrack/dashboard_organ.ogg",
             "assets/sounds/soundtrack/offseason_calm.ogg",
             "assets/sounds/soundtrack/recruiting_groove.ogg",
     };
@@ -30,6 +29,19 @@ public class DesktopSoundtrackEngineTest {
                 assertEquals(4, in.read(head));
                 assertEquals("OggS magic for " + res, "OggS", new String(head, "UTF-8"));
             }
+        }
+    }
+
+    @Test
+    public void mp3ThemeResource_isOnClasspathWithMpegMagic() throws Exception {
+        String res = "assets/sounds/soundtrack/marching_band.mp3";
+        try (InputStream in = getClass().getClassLoader().getResourceAsStream(res)) {
+            assertNotNull("missing soundtrack resource: " + res, in);
+            byte[] head = new byte[2];
+            assertEquals(2, in.read(head));
+            // Raw MPEG frame sync: 0xFF followed by 3 set high bits (no ID3 tag).
+            assertEquals(0xFF, head[0] & 0xFF);
+            assertEquals(0xE0, head[1] & 0xE0);
         }
     }
 
@@ -56,11 +68,11 @@ public class DesktopSoundtrackEngineTest {
     }
 
     @Test
-    public void trackDisplayNames_areMarchTitles() {
+    public void trackDisplayNames_areLicensedTitles() {
+        assertTrue(SoundtrackEngine.Track.DASHBOARD_ORGAN.getDisplayName()
+                .contains("Marching Band"));
         assertTrue(SoundtrackEngine.Track.FIGHT_SONG.getDisplayName()
                 .contains("Stars and Stripes"));
-        assertTrue(SoundtrackEngine.Track.DASHBOARD_ORGAN.getDisplayName()
-                .contains("Washington Post"));
         assertTrue(SoundtrackEngine.Track.OFFSEASON_CALM.getDisplayName()
                 .contains("National Emblem"));
         assertTrue(SoundtrackEngine.Track.RECRUITING_GROOVE.getDisplayName()

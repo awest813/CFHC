@@ -14,10 +14,10 @@ package simulation;
  */
 public interface SoundtrackEngine {
 
-    /** Music tracks — public-domain march recordings when OGGs are bundled. */
+    /** Music tracks — bundled recordings (Pixabay / public-domain marches). */
     enum Track {
-        /** "Washington Post March" (Sousa) — default dashboard ambience. */
-        DASHBOARD_ORGAN("Washington Post March \u2014 U.S. Army Band"),
+        /** "Marching Band" (stereo_color, Pixabay) — default dashboard ambience. */
+        DASHBOARD_ORGAN("Marching Band \u2014 stereo_color (Pixabay)"),
         /** "The Stars and Stripes Forever" (Sousa) — postseason / scoreboard. */
         FIGHT_SONG("Stars and Stripes Forever \u2014 USMC Band"),
         /** "National Emblem" (Bagley) — offseason menu music. */

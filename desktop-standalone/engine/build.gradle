@@ -53,11 +53,13 @@ dependencies {
         include 'flatlaf*.jar'
     }
     testImplementation 'junit:junit:4.13.2'
-    // OGG decode for DesktopAudioManager tests / headless smoke parity with desktopJar
+    // OGG/MP3 decode for DesktopAudioManager tests / headless smoke parity with desktopJar
     testRuntimeOnly fileTree("${repoRoot}/libs").matching {
         include 'vorbisspi*.jar'
         include 'jorbis*.jar'
         include 'tritonus-share*.jar'
+        include 'mp3spi*.jar'
+        include 'jlayer*.jar'
     }
 }
 
@@ -150,13 +152,13 @@ def desktopResourcesDir = layout.buildDirectory.dir('desktop-resources')
 
 tasks.register('verifySoundtrackResources') {
     group = 'verification'
-    description = 'Validates the public-domain march OGGs in desktop-assets/soundtrack.'
+    description = 'Validates the soundtrack audio (Pixabay MP3 theme + march OGGs).'
     def soundtrackDir = file("${repoRoot}/desktop-assets/soundtrack")
     doLast {
         if (!soundtrackDir.directory) {
-            throw new GradleException("Missing ${soundtrackDir} (public-domain march OGGs).")
+            throw new GradleException("Missing ${soundtrackDir} (soundtrack audio).")
         }
-        ['dashboard_organ', 'fight_song', 'offseason_calm', 'recruiting_groove'].each { name ->
+        ['fight_song', 'offseason_calm', 'recruiting_groove'].each { name ->
             def f = new File(soundtrackDir, "${name}.ogg")
             if (!f.file) throw new GradleException("Missing soundtrack OGG: ${f}")
             def b = f.bytes
@@ -165,7 +167,16 @@ tasks.register('verifySoundtrackResources') {
                 throw new GradleException("Invalid OGG header in soundtrack: ${f.name}")
             }
         }
-        logger.lifecycle "Soundtrack OK — 4 march OGGs validated"
+        def theme = new File(soundtrackDir, 'marching_band.mp3')
+        if (!theme.file) throw new GradleException("Missing soundtrack MP3: ${theme}")
+        def tb = theme.bytes
+        // MP3: "ID3" tag or a raw MPEG frame sync (0xFF Ex).
+        boolean id3 = tb.length > 3 && tb[0] == 0x49 as byte && tb[1] == 0x44 as byte && tb[2] == 0x33 as byte
+        boolean frameSync = tb.length > 2 && (tb[0] & 0xFF) == 0xFF && (tb[1] & 0xE0) == 0xE0
+        if (!id3 && !frameSync) {
+            throw new GradleException('Invalid MP3 header in soundtrack: marching_band.mp3')
+        }
+        logger.lifecycle "Soundtrack OK — MP3 theme + 3 march OGGs validated"
 
         // Generated WAV SFX (original synthesized audio; the inherited OGG
         // set is mostly corrupt — desktop prefers these WAVs).
@@ -208,10 +219,55 @@ tasks.register('prepareDesktopResources', Copy) {
     into desktopResourcesDir
 }
 
-/** Runnable fat-style jar (classes + copied resources + OGG SPI + FlatLaf). */
+/**
+ * Merges the javax.sound SPI service files from the bundled audio jars.
+ * vorbisspi and mp3spi each ship a META-INF/services file listing only their
+ * own provider; with DuplicatesStrategy.EXCLUDE the fat jar would keep just
+ * one and silently drop the other decoder's registration.
+ */
+def mergedSpiServicesDir = layout.buildDirectory.dir('merged-spi-services')
+
+tasks.register('mergeSpiServices') {
+    group = 'desktop'
+    description = 'Merges javax.sound SPI service descriptors from the bundled audio jars.'
+    def audioSpiJars = files(fileTree("${repoRoot}/libs").matching {
+        include 'vorbisspi*.jar'
+        include 'jorbis*.jar'
+        include 'tritonus-share*.jar'
+        include 'mp3spi*.jar'
+        include 'jlayer*.jar'
+    })
+    inputs.files audioSpiJars
+    outputs.dir mergedSpiServicesDir
+    doLast {
+        def outDir = mergedSpiServicesDir.get().asFile
+        outDir.deleteDir()
+        def byService = new TreeMap<String, LinkedHashSet<String>>()
+        audioSpiJars.each { jarFile ->
+            new java.util.zip.ZipFile(jarFile).withCloseable { zf ->
+                zf.entries().findAll { entry ->
+                    entry.name.startsWith('META-INF/services/javax.sound.sampled.spi.') && !entry.isDirectory()
+                }.each { entry ->
+                    def lines = zf.getInputStream(entry).text.readLines()
+                            .findAll { it.trim() && !it.trim().startsWith('#') }
+                            .collect { it.trim() }
+                    byService.computeIfAbsent(entry.name) { new LinkedHashSet<String>() }.addAll(lines)
+                }
+            }
+        }
+        byService.each { name, lines ->
+            def f = new File(outDir, name)
+            f.parentFile.mkdirs()
+            f.text = lines.join('\n') + '\n'
+            logger.lifecycle "Merged SPI service ${name}: ${lines.size()} provider(s)"
+        }
+    }
+}
+
+/** Runnable fat-style jar (classes + resources + audio SPIs + FlatLaf). */
 tasks.register('desktopJar', Jar) {
     group = 'desktop'
-    dependsOn compileJava, prepareDesktopResources, writeDesktopVersionProperties
+    dependsOn compileJava, prepareDesktopResources, writeDesktopVersionProperties, mergeSpiServices
     archiveBaseName = 'CFHC-desktop'
     archiveVersion = desktopVersion
     destinationDirectory = layout.buildDirectory.dir('libs')
@@ -223,9 +279,18 @@ tasks.register('desktopJar', Jar) {
         include 'vorbisspi*.jar'
         include 'jorbis*.jar'
         include 'tritonus-share*.jar'
+        include 'mp3spi*.jar'
+        include 'jlayer*.jar'
         include 'flatlaf*.jar'
     }
-    bundledJars.each { from(zipTree(it)) }
+    bundledJars.each {
+        from(zipTree(it)) {
+            // SPI registrations come from mergeSpiServices instead — each
+            // source jar lists only its own provider.
+            exclude 'META-INF/services/javax.sound.sampled.spi.*'
+        }
+    }
+    from(mergedSpiServicesDir)
     from("${repoRoot}") {
         include 'LICENSE'
         include 'SOUND_LICENSES.md'
@@ -247,6 +312,8 @@ tasks.register('runDesktop', JavaExec) {
         include 'vorbisspi*.jar'
         include 'jorbis*.jar'
         include 'tritonus-share*.jar'
+        include 'mp3spi*.jar'
+        include 'jlayer*.jar'
     })
     def flatlafJars = files(fileTree("${repoRoot}/libs").matching {
         include 'flatlaf*.jar'
@@ -290,6 +357,8 @@ tasks.register('desktopStandaloneGate') {
         def required = [
                 'META-INF/services/javax.sound.sampled.spi.AudioFileReader',
                 'javazoom/spi/vorbis/sampled/file/VorbisAudioFileReader.class',
+                'javazoom/spi/mpeg/sampled/file/MpegAudioFileReader.class',
+                'javazoom/jl/decoder/Bitstream.class',
                 'com/jcraft/jorbis/VorbisFile.class',
                 'org/tritonus/share/sampled/file/TAudioFileReader.class',
                 'com/formdev/flatlaf/FlatLightLaf.class',
@@ -302,11 +371,25 @@ tasks.register('desktopStandaloneGate') {
                 'assets/sounds/click.wav',
                 'assets/sounds/win.wav',
                 'assets/sounds/soundtrack/fight_song.ogg',
-                'assets/sounds/soundtrack/dashboard_organ.ogg',
+                'assets/sounds/soundtrack/marching_band.mp3',
         ]
         def missing = required.findAll { !entries.contains(it) }
         if (!missing.isEmpty()) {
             throw new GradleException('desktopJar missing required entries: ' + missing)
+        }
+        // The fat jar must register BOTH audio decoders — a first-wins
+        // services file would silently break OGG or MP3 playback.
+        def readerService = 'META-INF/services/javax.sound.sampled.spi.AudioFileReader'
+        def needReaders = ['javazoom.spi.vorbis.sampled.file.VorbisAudioFileReader',
+                           'javazoom.spi.mpeg.sampled.file.MpegAudioFileReader']
+        new java.util.zip.ZipFile(jar).withCloseable { zf ->
+            def providers = zf.getInputStream(zf.getEntry(readerService)).text.readLines()
+                    .collect { it.trim() }
+                    .findAll { it && !it.startsWith('#') }
+            def missingReaders = needReaders.findAll { !providers.contains(it) }
+            if (!missingReaders.isEmpty()) {
+                throw new GradleException('AudioFileReader service missing providers: ' + missingReaders)
+            }
         }
         def mf = new java.util.jar.JarFile(jar).withCloseable { it.manifest }
         def impl = mf?.mainAttributes?.getValue('Implementation-Version')
