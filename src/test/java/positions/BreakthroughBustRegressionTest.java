@@ -121,7 +121,11 @@ public class BreakthroughBustRegressionTest {
         cb.stats[2] = 10;
 
         boolean sawRegression = false;
-        for (int i = 0; i < 500; i++) {
+        // Regression is 10%/5% per season and pre-applied growth often masks
+        // the 1-3 point penalty, so the observable rate per trial is well
+        // under 1% — 500 trials once produced a false negative in CI. Same
+        // high-trial pattern as the 3% bust test above.
+        for (int i = 0; i < 8000; i++) {
             int beforeSpeed = cb.ratAttr2;
             cb.ratAttr1 = 70; cb.ratAttr2 = 80; cb.ratAttr3 = 60; cb.ratAttr4 = 70;
             cb.ratOvr = cb.getOverall();
