@@ -35,9 +35,15 @@ import javax.swing.JSeparator;
 public class SettingsDialog extends JDialog {
 
     private boolean applied = false;
+    private final simulation.AudioManager uiSounds;
 
     public SettingsDialog(JFrame owner, League league) {
+        this(owner, league, null);
+    }
+
+    public SettingsDialog(JFrame owner, League league, simulation.AudioManager sounds) {
         super(owner, "League Settings", true);
+        this.uiSounds = sounds;
         setSize(560, 680);
         setMinimumSize(new java.awt.Dimension(520, 560));
         setLayout(new BorderLayout());
@@ -396,7 +402,19 @@ public class SettingsDialog extends JDialog {
     }
 
     private JCheckBox createStyledCheckBox(String label, boolean selected, JPanel container) {
-        JCheckBox cb = new JCheckBox(label, selected);
+        JCheckBox cb = new JCheckBox(label, selected) {
+            @Override
+            public void setSelected(boolean b) {
+                boolean changed = b != isSelected();
+                super.setSelected(b);
+                // Action listeners only see user clicks; this override also
+                // covers the dialog's own mutual-exclusion re-selects so
+                // every visible toggle clicks. Skips the initial construction.
+                if (changed && uiSounds != null) {
+                    uiSounds.play(simulation.AudioEvent.UI_TOGGLE);
+                }
+            }
+        };
         cb.setFont(new Font("SansSerif", Font.BOLD, 13));
         cb.setForeground(DesktopTheme.textPrimary());
         cb.setOpaque(false);
@@ -450,7 +468,11 @@ public class SettingsDialog extends JDialog {
     }
 
     public static boolean show(JFrame owner, League league) {
-        SettingsDialog dlg = new SettingsDialog(owner, league);
+        return show(owner, league, null);
+    }
+
+    public static boolean show(JFrame owner, League league, simulation.AudioManager sounds) {
+        SettingsDialog dlg = new SettingsDialog(owner, league, sounds);
         dlg.setLocationRelativeTo(owner);
         dlg.setVisible(true);
         return dlg.wasApplied();

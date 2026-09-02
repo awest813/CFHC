@@ -29,6 +29,8 @@ public class DesktopAudioManagerTest {
     @Test
     public void fileBaseFor_mapsUiEventsWithoutExtension() {
         assertEquals("click", DesktopAudioManager.fileBaseFor(AudioEvent.UI_CLICK));
+        assertEquals("ui_back", DesktopAudioManager.fileBaseFor(AudioEvent.UI_BACK));
+        assertEquals("ui_toggle", DesktopAudioManager.fileBaseFor(AudioEvent.UI_TOGGLE));
         assertEquals("crowd_roar", DesktopAudioManager.fileBaseFor(AudioEvent.CROWD_ROAR));
     }
 
@@ -71,7 +73,7 @@ public class DesktopAudioManagerTest {
             }
             validated++;
         }
-        assertEquals("expected exactly 9 wired WAV events", 9, validated);
+        assertEquals("expected exactly 11 wired WAV events", 11, validated);
     }
 
     /**

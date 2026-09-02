@@ -83,6 +83,8 @@ public class DesktopAudioManager implements AudioManager {
     static String fileBaseFor(AudioEvent event) {
         return switch (event) {
             case UI_CLICK -> "click";
+            case UI_BACK -> "ui_back";
+            case UI_TOGGLE -> "ui_toggle";
             case PLAY_SELECT -> "play";
             case FIRST_DOWN -> "firstdown";
             case FIGHT_SONG -> "fightsong";

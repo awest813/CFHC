@@ -36,11 +36,19 @@ public class SettingsPanel implements LeagueScreen {
         header.add(titleBlock, BorderLayout.CENTER);
         JButton editTop = new JButton("Edit Settings...");
         editTop.addActionListener(e -> {
-            boolean applied = SettingsDialog.show(ctx.parent(), ctx.league());
+            simulation.AudioManager sounds =
+                    ctx.parent() instanceof LeagueHomeView home ? home.uiSounds() : null;
+            if (sounds != null) {
+                sounds.play(simulation.AudioEvent.UI_CLICK);
+            }
+            boolean applied = SettingsDialog.show(ctx.parent(), ctx.league(), sounds);
             // Mark the league dirty + rebuild this summary when changes were
             // applied from the screen's own button (previously the dialog's
             // return was ignored, so edits here skipped the unsaved-changes
             // prompt and left this panel showing stale values).
+            if (applied && sounds != null) {
+                sounds.play(simulation.AudioEvent.CONFIRM);
+            }
             if (applied && ctx.parent() instanceof LeagueHomeView) {
                 ((LeagueHomeView) ctx.parent()).onSettingsAppliedExternally();
             }

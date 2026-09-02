@@ -127,6 +127,11 @@ public class LeagueHomeView extends JFrame {
     private AudioManager audioManager;
     private SoundtrackEngine soundtrackEngine;
 
+    /** UI-sound access for theme-adjacent dialogs (package-private). */
+    AudioManager uiSounds() {
+        return audioManager != null ? audioManager : AudioManager.NO_OP;
+    }
+
     public LeagueHomeView(League league) {
         this(league, null);
     }
@@ -572,9 +577,14 @@ public class LeagueHomeView extends JFrame {
 
         // Escape -> Return to Dashboard (Console [B] BACK). "Home" is the
         // dashboard's nav title — routing there directly instead of relying
-        // on the unknown-title fallback.
+        // on the unknown-title fallback. No sound when already on Home.
         getRootPane().registerKeyboardAction(
-                e -> selectScreen("Home"),
+                e -> {
+                    if (!"Home".equals(selectedScreen)) {
+                        audioManager.play(AudioEvent.UI_BACK);
+                    }
+                    selectScreen("Home");
+                },
                 KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
                 JComponent.WHEN_IN_FOCUSED_WINDOW);
 
@@ -1663,8 +1673,9 @@ public class LeagueHomeView extends JFrame {
     }
 
     private void openSettingsDialog() {
-        if (SettingsDialog.show(this, leagueCore)) {
+        if (SettingsDialog.show(this, leagueCore, uiSounds())) {
             markDirty();
+            uiSounds().play(AudioEvent.CONFIRM);
         }
         refresh();
     }

@@ -32,6 +32,8 @@ public class AndroidAudioManager implements AudioManager {
 
     private void loadSounds(Context context) {
         soundIds.put(AudioEvent.UI_CLICK, soundPool.load(context, R.raw.click, 1));
+        soundIds.put(AudioEvent.UI_BACK, soundPool.load(context, R.raw.ui_back, 1));
+        soundIds.put(AudioEvent.UI_TOGGLE, soundPool.load(context, R.raw.ui_toggle, 1));
         soundIds.put(AudioEvent.CONFIRM, soundPool.load(context, R.raw.confirm, 1));
         soundIds.put(AudioEvent.ERROR, soundPool.load(context, R.raw.error, 1));
         soundIds.put(AudioEvent.WHISTLE, soundPool.load(context, R.raw.whistle, 1));
