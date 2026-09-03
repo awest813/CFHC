@@ -71,27 +71,10 @@ public class LeagueScreenContext {
     }
 
     /**
-     * True when every leaderboard row's value parses to zero — the engine
-     * seeds all-time leaderboards at 0 before any season completes, and a
-     * ranked table of all zeros reads as a bug rather than an empty state.
-     * Rows are "rank,name,value" strings (value may carry a % suffix).
+     * True when every leaderboard row's value is zero (unset all-time data).
+     * Canonical logic lives in {@link League#isLeaderboardAllZero}.
      */
     public static boolean isLeaderboardAllZero(java.util.List<String> lines) {
-        if (lines == null || lines.isEmpty()) return false;
-        int parsed = 0;
-        for (String line : lines) {
-            String[] parts = line.split(",", 3);
-            if (parts.length < 3) continue;
-            try {
-                if (Float.parseFloat(parts[2].trim().replace("%", "")) != 0f) {
-                    return false;
-                }
-                parsed++;
-            } catch (NumberFormatException ignored) {
-                // Non-numeric value column — treat as meaningful data.
-                return false;
-            }
-        }
-        return parsed > 0;
+        return League.isLeaderboardAllZero(lines);
     }
 }

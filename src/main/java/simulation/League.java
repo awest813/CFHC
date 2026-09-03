@@ -4983,6 +4983,32 @@ Then conferences can see if they want to add them to their list if the teams mee
         return rankings;
     }
 
+    /**
+     * True when every "rank,name,value" leaderboard row's value parses to
+     * zero — the engine seeds all-time leaderboards at 0 before any season
+     * completes, and ranking all-zero data reads as a bug rather than an
+     * empty state. UI layers (desktop + Android) use this to swap in an
+     * empty-state message. Value may carry a % suffix; non-numeric values
+     * count as meaningful data.
+     */
+    public static boolean isLeaderboardAllZero(java.util.List<String> lines) {
+        if (lines == null || lines.isEmpty()) return false;
+        int parsed = 0;
+        for (String line : lines) {
+            String[] parts = line.split(",", 3);
+            if (parts.length < 3) continue;
+            try {
+                if (Float.parseFloat(parts[2].trim().replace("%", "")) != 0f) {
+                    return false;
+                }
+                parsed++;
+            } catch (NumberFormatException ignored) {
+                return false;
+            }
+        }
+        return parsed > 0;
+    }
+
     public ArrayList<String> getLeagueHistoryStats(int selection) {
         /*
          */

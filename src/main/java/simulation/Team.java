@@ -355,8 +355,6 @@ public class Team {
         playbookOff = getPlaybookOff()[playbookOffNum];
         playbookDef = getPlaybookDef()[playbookDefNum];
 
-        // hallOfFame.add(""); // Placeholder no longer needed for typed list
-
 
         teamBudget = 0;
         teamRecruitBudget = 0;
@@ -425,8 +423,6 @@ public class Team {
         playbookDefNum = getCPUDefense();
         playbookOff = getPlaybookOff()[playbookOffNum];
         playbookDef = getPlaybookDef()[playbookDefNum];
-
-        // hallOfFame.add(""); // Placeholder no longer needed for typed list
 
 
         teamBudget = 0;

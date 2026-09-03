@@ -118,7 +118,7 @@ final class LeagueHistoryDialogController {
                         ArrayList<String> rankings = simLeague.getLeagueHistoryStats(position);
                         teamRankingsAdapter.setUserTeamStrRep(userTeam.getName());
                         teamRankingsAdapter.clear();
-                        teamRankingsAdapter.addAll(rankings);
+                        teamRankingsAdapter.addAll(emptyStateIfAllZero(rankings));
                         teamRankingsAdapter.notifyDataSetChanged();
                     }
 
@@ -126,6 +126,20 @@ final class LeagueHistoryDialogController {
                         // do nothing
                     }
                 });
+    }
+
+    /**
+     * The engine seeds all-time leaderboards at 0 before any season has been
+     * played; ranking all-zero rows reads as a bug. Swap in a single
+     * explanatory row (adapters render "left,center,right" columns).
+     */
+    private static ArrayList<String> emptyStateIfAllZero(ArrayList<String> rankings) {
+        if (!League.isLeaderboardAllZero(rankings)) {
+            return rankings;
+        }
+        ArrayList<String> message = new ArrayList<>();
+        message.add(",No history in this category yet \u2014 it fills in after games are played.,");
+        return message;
     }
 
     static void showCoachDatabase(final MainActivity activity, final League simLeague, final Team userTeam) {
@@ -166,7 +180,7 @@ final class LeagueHistoryDialogController {
                         ArrayList<String> rankings = simLeague.getCoachDatabase(position);
                         coachDatabase.setupUserHC(userCoachLabel(userTeam));
                         coachDatabase.clear();
-                        coachDatabase.addAll(rankings);
+                        coachDatabase.addAll(emptyStateIfAllZero(rankings));
                         coachDatabase.notifyDataSetChanged();
                     }
 
