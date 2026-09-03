@@ -101,6 +101,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private simulation.GameFlowManager flowManager;
     private AndroidAudioManager audioManager;
+    private AndroidSoundtrackEngine soundtrackEngine;
+
+    /** UI-sound access for dialogs (mirrors desktop LeagueHomeView.uiSounds). */
+    public simulation.AudioManager uiSounds() {
+        return audioManager != null ? audioManager : simulation.AudioManager.NO_OP;
+    }
+
+    /** Background-music access for the settings dialog. */
+    public simulation.SoundtrackEngine soundtrack() {
+        return soundtrackEngine != null ? soundtrackEngine : simulation.SoundtrackEngine.NO_OP;
+    }
 
     /** Kept for legacy UI adapters (e.g. TeamHome) that set the home page index. */
     public int getCurrPage() {
@@ -125,6 +136,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         theme = GameNavigation.getTheme(getIntent(), 1);
         flowManager = new AndroidGameFlowManager(this, theme);
         audioManager = new AndroidAudioManager(this);
+        soundtrackEngine = new AndroidSoundtrackEngine(this);
+        soundtrackEngine.play(simulation.SoundtrackEngine.Track.DASHBOARD_ORGAN);
         saveLoadService = new simulation.SaveLoadService(getFilesDir());
         if(theme == 1) setTheme(R.style.AppThemeLight);
 
@@ -2113,9 +2126,29 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     @Override
+    protected void onPause() {
+        if (soundtrackEngine != null) {
+            soundtrackEngine.pause();
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (soundtrackEngine != null) {
+            soundtrackEngine.resume();
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         if (audioManager != null) {
             audioManager.dispose();
+        }
+        if (soundtrackEngine != null) {
+            soundtrackEngine.dispose();
+            soundtrackEngine = null;
         }
         super.onDestroy();
     }

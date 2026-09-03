@@ -7,6 +7,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -188,6 +189,7 @@ public final class SettingsDialogController {
         checkboxAdvRealignment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                activity.uiSounds().play(simulation.AudioEvent.UI_TOGGLE);
                 if (checkboxAdvRealignment.isChecked()) {
                     checkboxProRelegation.setChecked(false);
                     checkboxRealignment.setChecked(true);
@@ -199,6 +201,7 @@ public final class SettingsDialogController {
         checkboxRealignment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                activity.uiSounds().play(simulation.AudioEvent.UI_TOGGLE);
                 if (checkboxRealignment.isChecked()) {
                     checkboxProRelegation.setChecked(false);
                 }
@@ -208,12 +211,33 @@ public final class SettingsDialogController {
         checkboxProRelegation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                activity.uiSounds().play(simulation.AudioEvent.UI_TOGGLE);
                 if (checkboxProRelegation.isChecked()) {
                     checkboxRealignment.setChecked(false);
                     checkboxAdvRealignment.setChecked(false);
                 }
             }
         });
+
+        // Sound section: background-music toggle. Set state before attaching
+        // the listener so initialization doesn't click.
+        final CheckBox checkboxMusic = dialog.findViewById(R.id.checkboxMusic);
+        if (checkboxMusic != null) {
+            checkboxMusic.setChecked(!activity.soundtrack().isMuted());
+            checkboxMusic.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    activity.soundtrack().setMuted(!isChecked);
+                    activity.uiSounds().play(simulation.AudioEvent.UI_TOGGLE);
+                }
+            });
+        }
+
+        // Toggle clicks for the plain checkboxes (listeners attached after
+        // the initial setChecked calls above, so init is silent). The
+        // realignment trio uses click listeners instead — wired inline.
+        wireToggleSounds(activity, checkboxShowPotential, checkboxGameLog,
+                checkboxCareerMode, checkboxNeverRetire, checkboxTV, checkboxPlayoffs);
 
         Button cancelButton = dialog.findViewById(R.id.buttonCancelSettings);
         Button okButton = dialog.findViewById(R.id.buttonOkSettings);
@@ -319,7 +343,21 @@ public final class SettingsDialogController {
                         }
                         activity.selectTeam();
                     }
+                    activity.uiSounds().play(simulation.AudioEvent.CONFIRM);
                     dialog.dismiss();
+                }
+            });
+        }
+    }
+
+    /** Plays a UI toggle click whenever any of these boxes changes. */
+    private static void wireToggleSounds(final MainActivity activity, CheckBox... boxes) {
+        for (final CheckBox cb : boxes) {
+            if (cb == null) continue;
+            cb.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    activity.uiSounds().play(simulation.AudioEvent.UI_TOGGLE);
                 }
             });
         }
