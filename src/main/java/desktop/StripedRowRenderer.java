@@ -22,16 +22,22 @@ public class StripedRowRenderer extends DefaultTableCellRenderer {
 
     private final Map<String, Team> teamMap;
     private final int nameColumn;
+    private final String numberPattern; // e.g. "%.1f" for float columns; null = default toString
     private boolean currentSelected;
     private Color teamAccent;
 
     public StripedRowRenderer() {
-        this(null, -1);
+        this(null, -1, null);
     }
 
     public StripedRowRenderer(Map<String, Team> teamMap, int nameColumn) {
+        this(teamMap, nameColumn, null);
+    }
+
+    public StripedRowRenderer(Map<String, Team> teamMap, int nameColumn, String numberPattern) {
         this.teamMap = teamMap;
         this.nameColumn = nameColumn;
+        this.numberPattern = numberPattern;
     }
 
     public static void install(JTable table) {
@@ -41,6 +47,17 @@ public class StripedRowRenderer extends DefaultTableCellRenderer {
 
     public static void installWithTeamColors(JTable table, Map<String, Team> teamMap, int nameColumn) {
         StripedRowRenderer r = new StripedRowRenderer(teamMap, nameColumn);
+        register(table, r);
+    }
+
+    /**
+     * Like {@link #installWithTeamColors}, but Float/Double cells render via
+     * {@code numberPattern} (e.g. "%.1f") so raw double precision such as
+     * "86.09153" never reaches the UI.
+     */
+    public static void installWithTeamColors(JTable table, Map<String, Team> teamMap,
+                                             int nameColumn, String numberPattern) {
+        StripedRowRenderer r = new StripedRowRenderer(teamMap, nameColumn, numberPattern);
         register(table, r);
     }
 
@@ -124,6 +141,15 @@ public class StripedRowRenderer extends DefaultTableCellRenderer {
         }
 
         return c;
+    }
+
+    @Override
+    protected void setValue(Object value) {
+        if (numberPattern != null && (value instanceof Float || value instanceof Double)) {
+            setText(String.format(numberPattern, ((Number) value).doubleValue()));
+        } else {
+            super.setValue(value);
+        }
     }
 
     @Override

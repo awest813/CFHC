@@ -92,12 +92,21 @@ public class LeagueHistoryPanel implements LeagueScreen {
             }
         });
 
+        JScrollPane histStatsScroll = new JScrollPane(table);
+
+        javax.swing.JLabel emptyStats = new javax.swing.JLabel(
+                "No history in this category yet — it fills in after games are played.",
+                javax.swing.JLabel.CENTER);
+        emptyStats.setForeground(DesktopTheme.textSecondary());
+
         Runnable loadHistoryStats = () -> {
             int sel = categoryBox.getSelectedIndex();
             model.setRowCount(0);
+            boolean allZero = false;
             try {
                 ArrayList<String> rankings = ctx.league().getLeagueHistoryStats(sel);
-                if (rankings != null) {
+                allZero = LeagueScreenContext.isLeaderboardAllZero(rankings);
+                if (rankings != null && !allZero) {
                     for (String line : rankings) {
                         String[] parts = line.split(",", 3);
                         if (parts.length >= 3) {
@@ -108,6 +117,7 @@ public class LeagueHistoryPanel implements LeagueScreen {
             } catch (Exception ex) {
                 PlatformLog.e(TAG, "Error loading league history stats", ex);
             }
+            histStatsScroll.setViewportView(allZero ? emptyStats : table);
         };
 
         categoryBox.addActionListener(e -> loadHistoryStats.run());
@@ -118,8 +128,9 @@ public class LeagueHistoryPanel implements LeagueScreen {
         topBar.add(categoryBox);
         DesktopTheme.styleToolbar(topBar);
         statsPanel.add(topBar, BorderLayout.NORTH);
-        JScrollPane histStatsScroll = new JScrollPane(table);
         DesktopTheme.styleDataTableInScroll(histStatsScroll, table, "League history");
+        emptyStats.setOpaque(true);
+        emptyStats.setBackground(table.getBackground());
         statsPanel.add(histStatsScroll, BorderLayout.CENTER);
 
         JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, historyScroll, statsPanel);

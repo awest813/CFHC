@@ -53,22 +53,32 @@ public final class RecruitingPresentation {
         ArrayList<String> labels = new ArrayList<>();
         labels.add("Top 50 Recruits");
         labels.add("All Players");
-        labels.add("QB (Need: " + needs.qbs + ")");
-        labels.add("RB (Need: " + needs.rbs + ")");
-        labels.add("WR (Need: " + needs.wrs + ")");
-        labels.add("TE (Need: " + needs.tes + ")");
-        labels.add("OL (Need: " + needs.ols + ")");
-        labels.add("K (Need: " + needs.ks + ")");
-        labels.add("DL (Need: " + needs.dls + ")");
-        labels.add("LB (Need: " + needs.lbs + ")");
-        labels.add("CB (Need: " + needs.cbs + ")");
-        labels.add("S (Need: " + needs.ss + ")");
+        labels.add("QB " + needLabel(needs.qbs));
+        labels.add("RB " + needLabel(needs.rbs));
+        labels.add("WR " + needLabel(needs.wrs));
+        labels.add("TE " + needLabel(needs.tes));
+        labels.add("OL " + needLabel(needs.ols));
+        labels.add("K " + needLabel(needs.ks));
+        labels.add("DL " + needLabel(needs.dls));
+        labels.add("LB " + needLabel(needs.lbs));
+        labels.add("CB " + needLabel(needs.cbs));
+        labels.add("S " + needLabel(needs.ss));
         labels.add("West (" + sessionData.west.size() + ")");
         labels.add("Midwest (" + sessionData.midwest.size() + ")");
         labels.add("Central (" + sessionData.central.size() + ")");
         labels.add("East (" + sessionData.east.size() + ")");
         labels.add("South (" + sessionData.south.size() + ")");
         return labels;
+    }
+
+    /**
+     * Human-readable roster-need label. Negative needs mean the position is
+     * already overstocked — "Need: -2" read like an error in the UI.
+     */
+    public static String needLabel(int need) {
+        if (need > 0) return "(Need: " + need + ")";
+        if (need == 0) return "(Even)";
+        return "(Surplus +" + (-need) + ")";
     }
 
 
@@ -171,7 +181,7 @@ public final class RecruitingPresentation {
     }
 
     private static void appendPositionSection(RecruitingSessionData sessionData, StringBuilder sb, String label, int need, List<RecruitingPlayerRecord> players, int numStart) {
-        sb.append(label).append(" (Need: ").append(need).append(")\n");
+        sb.append(label).append(" ").append(needLabel(need)).append("\n");
         for (int i = 0; i < players.size(); ++i) {
             String readable = sessionData.getReadablePlayerInfo(players.get(i));
             sb.append("\t").append(i > numStart - 1 ? "BN" : "ST").append(" ").append(readable).append("\n");

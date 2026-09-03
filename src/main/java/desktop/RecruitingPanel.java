@@ -184,7 +184,14 @@ public class RecruitingPanel extends JPanel {
         JScrollPane tableScroll = new JScrollPane(boardTable);
         StripedRowRenderer.install(boardTable);
         DesktopTheme.styleDataTableInScroll(tableScroll, boardTable, "Recruiting board");
-        tableScroll.setPreferredSize(new Dimension(550, 0));
+        // Weighted columns: long player names need the lion's share or the
+        // default equal split ellipsizes them ("Yehuda Carpe...").
+        boardTable.getColumnModel().getColumn(0).setPreferredWidth(50);  // Pos
+        boardTable.getColumnModel().getColumn(1).setPreferredWidth(175); // Name
+        boardTable.getColumnModel().getColumn(2).setPreferredWidth(60);  // Stars
+        boardTable.getColumnModel().getColumn(3).setPreferredWidth(65);  // Cost
+        boardTable.getColumnModel().getColumn(4).setPreferredWidth(70);  // Overall
+        tableScroll.setPreferredSize(new Dimension(620, 0));
 
         JPanel rightPanel = new JPanel(new BorderLayout(0, 6));
         rightPanel.setOpaque(true);

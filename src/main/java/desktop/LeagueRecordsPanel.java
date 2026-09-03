@@ -24,11 +24,29 @@ public class LeagueRecordsPanel implements LeagueScreen {
         panel.add(DesktopTheme.buildScreenHeader("League Records",
                 "All-time single-season and career records across the universe."), BorderLayout.NORTH);
 
+        // The engine seeds unset records with a "XXX%XXX" holder (and 1000
+        // for lower-is-better categories) — showing those rows would be a
+        // wall of placeholder data before any game is played.
+        java.util.List<DataRecord> set = new java.util.ArrayList<>();
+        for (DataRecord dr : ctx.record().leagueRecords()) {
+            if (!isUnset(dr)) {
+                set.add(dr);
+            }
+        }
+        if (set.isEmpty()) {
+            javax.swing.JLabel empty = new javax.swing.JLabel(
+                    "No records yet — they're set as games are played.",
+                    javax.swing.JLabel.CENTER);
+            empty.setForeground(DesktopTheme.textSecondary());
+            panel.add(empty, BorderLayout.CENTER);
+            return panel;
+        }
+
         String[] columns = {"Record", "Value", "Holder", "Year"};
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
-        for (DataRecord dr : ctx.record().leagueRecords()) {
+        for (DataRecord dr : set) {
             model.addRow(new Object[]{
                     dr.key(),
                     LeagueScreenContext.formatValue(dr.value()),
@@ -43,5 +61,11 @@ public class LeagueRecordsPanel implements LeagueScreen {
         DesktopTheme.styleDataTableInScroll(recordsScroll, table, "League records");
         panel.add(recordsScroll, BorderLayout.CENTER);
         return panel;
+    }
+
+    /** True while a record still holds the engine's unset placeholder. */
+    private static boolean isUnset(DataRecord dr) {
+        return dr.holder() == null || dr.holder().isEmpty()
+                || "XXX%XXX".equals(dr.holder());
     }
 }

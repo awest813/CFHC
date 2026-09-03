@@ -62,7 +62,11 @@ public final class UiSnapshotTool {
         Method select = LeagueHomeView.class.getDeclaredMethod("selectScreen", String.class);
         select.setAccessible(true);
 
-        String[] screens = {"Home", "My Coach", "Scoreboard", "News", "Standings", "Settings"};
+        String[] screens = {
+                "Home", "Recruiting", "Standings", "Scoreboard", "My Coach",
+                "Poll Rankings", "Team Rankings", "Player Stats", "Player Search",
+                "League History", "News", "Coaches", "Hall of Fame", "Records",
+                "Settings"};
         for (String screen : screens) {
             select.invoke(view, screen);
             Thread.sleep(300);

@@ -49,12 +49,21 @@ public class CoachDatabasePanel implements LeagueScreen {
         table.setFillsViewportHeight(true);
         StripedRowRenderer.install(table);
 
+        JScrollPane coachDbScroll = new JScrollPane(table);
+
+        javax.swing.JLabel emptyLabel = new javax.swing.JLabel(
+                "No coaching history yet — leaderboards fill in after games are played.",
+                javax.swing.JLabel.CENTER);
+        emptyLabel.setForeground(DesktopTheme.textSecondary());
+
         Runnable loadCoaches = () -> {
             int sel = categoryBox.getSelectedIndex();
             model.setRowCount(0);
+            boolean allZero = false;
             try {
                 java.util.List<String> rankings = ctx.league().getCoachDatabase(sel);
-                if (rankings != null) {
+                allZero = LeagueScreenContext.isLeaderboardAllZero(rankings);
+                if (rankings != null && !allZero) {
                     for (String line : rankings) {
                         String[] parts = line.split(",", 3);
                         if (parts.length >= 3) {
@@ -65,6 +74,7 @@ public class CoachDatabasePanel implements LeagueScreen {
             } catch (Exception ex) {
                 simulation.PlatformLog.e("CoachDatabasePanel", "Error loading coach database", ex);
             }
+            coachDbScroll.setViewportView(allZero ? emptyLabel : table);
         };
 
         categoryBox.addActionListener(e -> loadCoaches.run());
@@ -76,8 +86,9 @@ public class CoachDatabasePanel implements LeagueScreen {
         DesktopTheme.styleToolbar(topBar);
         topPanel.add(topBar, BorderLayout.SOUTH);
         panel.add(topPanel, BorderLayout.NORTH);
-        JScrollPane coachDbScroll = new JScrollPane(table);
         DesktopTheme.styleDataTableInScroll(coachDbScroll, table, "Coach database");
+        emptyLabel.setOpaque(true);
+        emptyLabel.setBackground(table.getBackground());
         panel.add(coachDbScroll, BorderLayout.CENTER);
         return panel;
     }
