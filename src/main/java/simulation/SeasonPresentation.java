@@ -59,7 +59,9 @@ public final class SeasonPresentation {
         SeasonFlowOrder.Phase phase = SeasonFlowOrder.phaseAt(week, regWeeks);
         switch (phase) {
             case PRESEASON:
-                return "Week 0  Preseason";
+                // Phase chip already says "Preseason" — repeating it here
+                // rendered as two identical chips on the dashboard.
+                return "Week 0";
             case REGULAR_SEASON:
                 return "Week " + week;
             case CONFERENCE_CHAMPIONSHIP:

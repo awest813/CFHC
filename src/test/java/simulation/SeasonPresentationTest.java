@@ -32,7 +32,7 @@ public class SeasonPresentationTest {
     @Test
     public void weekChip_preseason() {
         league.currentWeek = 0;
-        assertEquals("Week 0  Preseason", SeasonPresentation.getSeasonWeekChipText(league));
+        assertEquals("Week 0", SeasonPresentation.getSeasonWeekChipText(league));
     }
 
     @Test
@@ -156,8 +156,8 @@ public class SeasonPresentationTest {
 
     @Test
     public void weekChip_negativeWeek() {
-        league.currentWeek = -1;
-        assertEquals("Week 0  Preseason", SeasonPresentation.getSeasonWeekChipText(league));
+        league.currentWeek = -3;
+        assertEquals("Week 0", SeasonPresentation.getSeasonWeekChipText(league));
     }
 
     @Test

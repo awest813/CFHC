@@ -268,7 +268,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //Team Depth Chart Button
         Button depthchartButton = findViewById(R.id.buttonDepthChart);
         if (!gameState.isRedshirtComplete()) {
-            depthchartButton.setText("REDSHIRT");
+            // Title case so the label fits the third-width button without wrapping.
+            depthchartButton.setText("Redshirt");
             depthchartButton.setBackgroundResource(R.drawable.bg_action_danger);
             depthchartButton.setTextColor(ContextCompat.getColor(this, R.color.textPrimary));
         }
@@ -295,7 +296,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //Simulate Week
         final Button simGameButton = findViewById(R.id.simGameButton);
-        simGameButton.setText("START SEASON");
+        simGameButton.setText("Start Season");
         simGameButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 simulateWeek();
@@ -507,7 +508,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void prepareSelectedTeam(final int item) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Preparing Program");
-        builder.setMessage("Setting up your staff, rankings, and gameState.getSeason() outlook...");
+        builder.setMessage("Setting up your staff, rankings, and season outlook...");
         builder.setCancelable(false);
         final AlertDialog preparingDialog = builder.create();
         preparingDialog.setCancelable(false);
@@ -925,7 +926,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void showRealignmentSummary() {
         String news = simLeague.newsRealignment;
         if (news == null || news.isEmpty()) {
-            news = "No conference realignment occurred this off-gameState.getSeason().";
+            news = "No conference realignment occurred this off-season.";
         }
         String title = simLeague.enableUnivProRel
                 ? simLeague.getYear() + " Promotion/Relegation Update"
@@ -1275,10 +1276,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (simLeague.currentWeek < 1 || simLeague.currentWeek == 99 || simLeague.recruitingPhaseActive) {
                 saveLeague();
             } else if (simLeague.currentWeek > 1) {
-                Toast.makeText(MainActivity.this, "Save Function Disabled. Save only available in pre-gameState.getSeason() or before recruiting.",
+                Toast.makeText(MainActivity.this, "Save Function Disabled. Save only available in pre-season or before recruiting.",
                         Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(MainActivity.this, "Save Function disabled during initial gameState.getSeason().",
+                Toast.makeText(MainActivity.this, "Save Function disabled during initial season.",
                         Toast.LENGTH_SHORT).show();
             }
         } else if (id == R.id.action_export_league) {
@@ -1489,7 +1490,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Exit Current Game
     public void exitMainActivity() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage("Are you sure you want to return to main menu? Any progress from the beginning of the gameState.getSeason() will be lost.")
+        builder.setMessage("Are you sure you want to return to main menu? Any progress from the beginning of the season will be lost.")
                 .setPositiveButton("Yes, Exit", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -1551,7 +1552,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         HeadCoach coach = ensureUserHeadCoach();
         String coachName = coach != null ? coach.name : "Coach";
-        goals = "Welcome to the " + simLeague.getYear() + " College Football gameState.getSeason(), Coach " + coachName + "!\n\n";
+        goals = "Welcome to the " + simLeague.getYear() + " College Football season, Coach " + coachName + "!\n\n";
         if (simLeague.isCareerMode()) {
             goals += "Your head coaching career begins at " + userTeam.getName() + ". Job security, performance swings, and future opportunities will all respond to the seasons you build here.\n\n";
         }
@@ -1560,7 +1561,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else {
             goals += "This universe is using the classic four-team playoff, so every loss near the top of the rankings carries extra weight.\n\n";
         }
-        goals += "This gameState.getSeason() your team is projected to finish ranked #" + userTeam.projectedPollRank + "!\n\n";
+        goals += "This season your team is projected to finish ranked #" + userTeam.projectedPollRank + "!\n\n";
 
         int num = (int)(simLeague.getTeamList().size()*.875);
         if (userTeam.projectedPollRank > num) {
@@ -1586,16 +1587,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         if (simLeague.getYear() > seasonStart) {
             if (userTeam.isBowlBan()) {
-                goals += "Your team was penalized heavily for off-gameState.getSeason() issues by the College Athletic Administration and will lose Prestige and suffer a post-gameState.getSeason() bowl ban this year.\n\n";
+                goals += "Your team was penalized heavily for off-season issues by the College Athletic Administration and will lose Prestige and suffer a post-season bowl ban this year.\n\n";
             }
             if (userTeam.penalized) {
-                goals += "Your team had a minor infraction over the off-gameState.getSeason() and lost some Prestige.\n\n";
+                goals += "Your team had a minor infraction over the off-season and lost some Prestige.\n\n";
             }
         }
 
         if (simLeague.getYear() > seasonStart) {
             if (userTeam.facilityUpgrade) {
-                goals += "Your team upgraded the training facilities this off-gameState.getSeason() to Level " + userTeam.getTeamFacilities() + " which added an additional " + userTeam.getTeamFacilities() + " prestige points!\n\n";
+                goals += "Your team upgraded the training facilities this off-season to Level " + userTeam.getTeamFacilities() + " which added an additional " + userTeam.getTeamFacilities() + " prestige points!\n\n";
             }
         }
 
@@ -1699,7 +1700,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             if (jobList.isEmpty()) {
                 userHC.promotionCandidate = false;
                 CareerDialogController.showJobOffersEmpty(this, "Head Coach Opportunities",
-                        "No job offers came through this cycle. Build on this gameState.getSeason() and stronger offers should return if you keep climbing.");
+                        "No job offers came through this cycle. Build on this season and stronger offers should return if you keep climbing.");
             } else {
                 CareerDialogController.showPromotionsDialog(this,
                         "Career Advancement Opportunities",
