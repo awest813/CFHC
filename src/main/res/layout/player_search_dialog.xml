@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_dialog_surface"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Header Panel -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/bg_dialog_section"
+        android:orientation="vertical"
+        android:padding="14dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/player_search_title"
+            android:textColor="@color/textPrimary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/player_search_subtitle"
+            android:textColor="@color/textSecondary"
+            android:textSize="12sp" />
+
+        <!-- Search Bar -->
+        <EditText
+            android:id="@+id/editPlayerSearchName"
+            android:layout_width="match_parent"
+            android:layout_height="46dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/bg_mobile_chip"
+            android:hint="@string/player_search_hint"
+            android:imeOptions="actionDone"
+            android:inputType="textPersonName"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:textColor="@color/textPrimary"
+            android:textColorHint="@color/textMuted"
+            android:textSize="14sp" />
+
+        <!-- Filter Spinners Row 1 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <Spinner
+                android:id="@+id/spinnerSearchPos"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_mobile_chip"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp"
+                android:popupBackground="@color/surfacePrimary" />
+
+            <Spinner
+                android:id="@+id/spinnerSearchClass"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_mobile_chip"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp"
+                android:popupBackground="@color/surfacePrimary" />
+
+            <Spinner
+                android:id="@+id/spinnerSearchOvr"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_mobile_chip"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp"
+                android:popupBackground="@color/surfacePrimary" />
+        </LinearLayout>
+
+        <!-- Team Filter Spinner -->
+        <Spinner
+            android:id="@+id/spinnerSearchTeam"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/bg_mobile_chip"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:popupBackground="@color/surfacePrimary" />
+    </LinearLayout>
+
+    <!-- Results Status Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp">
+
+        <TextView
+            android:id="@+id/textSearchResultCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0 players found"
+            android:textColor="@color/accentGold"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/player_search_tap_hint"
+            android:textColor="@color/textMuted"
+            android:textSize="11sp" />
+    </LinearLayout>
+
+    <!-- Results List & Empty State -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <ListView
+            android:id="@+id/listSearchResults"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="6dp"
+            android:scrollbarStyle="insideInset" />
+
+        <TextView
+            android:id="@+id/textSearchEmpty"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/player_search_no_results"
+            android:textColor="@color/textSecondary"
+            android:textSize="14sp"
+            android:visibility="gone" />
+    </FrameLayout>
+
+    <!-- Close Button -->
+    <Button
+        android:id="@+id/buttonCloseSearch"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_action_secondary"
+        android:text="Close"
+        android:textColor="@color/textPrimary"
+        android:textSize="14sp"
+        android:textStyle="bold" />
+</LinearLayout>

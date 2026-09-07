@@ -77,6 +77,10 @@ public class LeagueHistoryPanel implements LeagueScreen {
         JTable table = new JTable(model);
         table.setRowHeight(22);
         table.setFillsViewportHeight(true);
+        table.getColumnModel().getColumn(0).setPreferredWidth(60);
+        table.getColumnModel().getColumn(0).setMaxWidth(80);
+        table.getColumnModel().getColumn(1).setPreferredWidth(280);
+        table.getColumnModel().getColumn(2).setPreferredWidth(120);
         StripedRowRenderer.installWithTeamColors(table, ctx.teamMap(), 1);
         table.addMouseListener(new MouseAdapter() {
             @Override

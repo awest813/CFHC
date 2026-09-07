@@ -158,4 +158,30 @@
     <string name="dialog_shell_archive_subtitle">Move through historical seasons, postseason archives, and long-form summaries in a cleaner reading surface.</string>
     <string name="dialog_shell_graph_title">Program Trends</string>
     <string name="dialog_shell_graph_subtitle">Track prestige, rankings, and long-term trajectory with a dedicated graph shell.</string>
+
+    <!-- Parity & Navigation Drawer strings -->
+    <string name="menu_my_coach">My Coach</string>
+    <string name="menu_redshirts">Redshirts</string>
+    <string name="menu_player_search">Player Search</string>
+    <string name="menu_transfer_portal">Transfer Portal</string>
+    <string name="menu_history_records">History &amp; Records</string>
+    <string name="menu_coach_database">Coach Database</string>
+    <string name="menu_settings">Settings &amp; Rules</string>
+    <string name="settings_sfx">Sound effects</string>
+
+    <!-- Player Search strings -->
+    <string name="player_search_title">League Player Search</string>
+    <string name="player_search_subtitle">Filter and inspect any player across the collegiate landscape.</string>
+    <string name="player_search_hint">Search player name…</string>
+    <string name="player_search_count_format">%1$d players found</string>
+    <string name="player_search_no_results">No players found matching your criteria.</string>
+    <string name="player_search_tap_hint">Tap any player to inspect ratings and career stats.</string>
+
+    <!-- Transfer Portal strings -->
+    <string name="transfer_portal_title">Transfer Portal</string>
+    <string name="transfer_portal_subtitle">Explore the national transfer registry and monitor program departures.</string>
+    <string name="transfer_tab_registry">Portal Registry</string>
+    <string name="transfer_tab_team">Your Program</string>
+    <string name="transfer_tab_league">League Summary</string>
+    <string name="transfer_portal_count_format">%1$d transfers in portal</string>
 </resources>

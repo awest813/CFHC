@@ -9,8 +9,12 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.function.Consumer;
 
 /**
  * Swing dashboard card component for WEEKLY SCHEDULE.
@@ -20,6 +24,10 @@ import java.awt.GridLayout;
 public class WeeklyScheduleCard extends CustomCardPanel {
 
     public WeeklyScheduleCard(League league, Team team) {
+        this(league, team, null);
+    }
+
+    public WeeklyScheduleCard(League league, Team team, Consumer<Team> onSelectTeam) {
         super("Weekly Schedule" + (league != null && league.currentWeek > 0 ? " \u2022 Week " + league.currentWeek : ""));
         JPanel content = getContentArea();
 
@@ -27,8 +35,9 @@ public class WeeklyScheduleCard extends CustomCardPanel {
         Game next = DesktopWeekResult.findUpcomingGame(team);
         String gameDesc = "No game scheduled";
         boolean hasGame = next != null && team != null;
+        Team opp = null;
         if (hasGame) {
-            Team opp = next.homeTeam == team ? next.awayTeam : next.homeTeam;
+            opp = next.homeTeam == team ? next.awayTeam : next.homeTeam;
             boolean isHome = next.homeTeam == team;
             gameDesc = (isHome ? "vs " : "AT ") + (opp != null ? opp.getName() : "TBD");
         }
@@ -37,24 +46,34 @@ public class WeeklyScheduleCard extends CustomCardPanel {
         JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.setOpaque(false);
 
-        list.add(buildScheduleItem("MON", "\uD83D\uDC9A", "Recovery Day", "", false));
-        list.add(buildScheduleItem("TUE", "\uD83C\uDFC8", "Practice", "3:30 PM", false));
-        list.add(buildScheduleItem("WED", "\uD83C\uDFC8", "Practice", "3:30 PM", false));
-        list.add(buildScheduleItem("THU", "\uD83D\uDCCB", "Walk-Through", "11:00 AM", false));
-        list.add(buildScheduleItem("FRI", "\uD83D\uDE8C", "Travel Day", "10:00 AM", false));
-        list.add(buildScheduleItem("SAT", "\uD83C\uDFC8", gameDesc, hasGame ? "Game Day" : "", hasGame));
-        list.add(buildScheduleItem("SUN", "\u26C5", "Off Day", "", false));
+        list.add(buildScheduleItem("MON", "\uD83D\uDC9A", "Recovery Day", "", false, null, null));
+        list.add(buildScheduleItem("TUE", "\uD83C\uDFC8", "Practice", "3:30 PM", false, null, null));
+        list.add(buildScheduleItem("WED", "\uD83C\uDFC8", "Practice", "3:30 PM", false, null, null));
+        list.add(buildScheduleItem("THU", "\uD83D\uDCCB", "Walk-Through", "11:00 AM", false, null, null));
+        list.add(buildScheduleItem("FRI", "\uD83D\uDE8C", "Travel Day", "10:00 AM", false, null, null));
+        list.add(buildScheduleItem("SAT", "\uD83C\uDFC8", gameDesc, hasGame ? "Game Day" : "", hasGame, opp, onSelectTeam));
+        list.add(buildScheduleItem("SUN", "\u26C5", "Off Day", "", false, null, null));
 
         wrapper.add(list, BorderLayout.CENTER);
         content.add(wrapper, BorderLayout.CENTER);
     }
 
-    private JPanel buildScheduleItem(String day, String icon, String desc, String time, boolean isGameDay) {
+    private JPanel buildScheduleItem(String day, String icon, String desc, String time, boolean isGameDay, Team opp, Consumer<Team> onSelectTeam) {
         JPanel item = new JPanel(new BorderLayout(6, 0));
         item.setOpaque(true);
         if (isGameDay) {
             item.setBackground(new Color(136, 19, 55, 60));
             item.setBorder(BorderFactory.createLineBorder(DesktopTheme.dangerRed(), 1));
+            if (opp != null && onSelectTeam != null) {
+                item.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                item.setToolTipText("Click to view " + opp.getName() + " details");
+                item.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        onSelectTeam.accept(opp);
+                    }
+                });
+            }
         } else {
             item.setBackground(new Color(6, 12, 20));
             item.setBorder(BorderFactory.createLineBorder(DesktopTheme.borderSubtle(), 1));

@@ -347,15 +347,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_roster) {
             gameState.setCurrPage(1);
             viewRoster();
+        } else if (id == R.id.nav_depth_chart) {
+            depthChartDialog();
+        } else if (id == R.id.nav_redshirts) {
+            if (simLeague.currentWeek == 0 && !gameState.isRedshirtComplete()) {
+                redshirtDialog();
+            } else {
+                TransferDialogController.showRedshirtList(this, simLeague, userTeam);
+            }
+        } else if (id == R.id.nav_strategy) {
+            currentTeam = userTeam;
+            showTeamStrategyDialog();
+        } else if (id == R.id.nav_my_coach) {
+            if (userTeam != null && userTeam.getHeadCoach() != null) {
+                CoachProfileDialogController.showProfile(this, userTeam.getHeadCoach(), () -> showCoachHistoryDialog(userTeam.getHeadCoach()));
+            }
         } else if (id == R.id.nav_teamplayerstats) {
             gameState.setCurrPage(2);
-                showTeamPlayerStats();
+            showTeamPlayerStats();
         } else if (id == R.id.nav_teamstats) {
             gameState.setCurrPage(3);
             updateTeamStats();
         } else if (id == R.id.nav_schedule) {
             gameState.setCurrPage(4);
             updateSchedule();
+        } else if (id == R.id.nav_player_search) {
+            PlayerSearchDialogController.show(this, simLeague, userTeam);
+        } else if (id == R.id.nav_transfers) {
+            TransferDialogController.showTransfers(this, simLeague, userTeam);
         } else if (id == R.id.nav_news) {
             gameState.setCurrPage(5);
             showNewsStoriesDialog();
@@ -377,9 +396,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_awards) {
             gameState.setCurrPage(11);
             showLeagueAwards();
+        } else if (id == R.id.nav_history_records) {
+            showLeagueHistoryDialog();
+        } else if (id == R.id.nav_coach_db) {
+            showCoachDatabase();
         } else if (id == R.id.nav_postseason) {
             gameState.setCurrPage(12);
             showBowlCCGDialog();
+        } else if (id == R.id.nav_coach_program) {
+            CoachProgramDialogController.show(this, userTeam);
+        } else if (id == R.id.nav_settings) {
+            changeSettingsDialog();
+        } else if (id == R.id.nav_save_game) {
+            if (simLeague.currentWeek < 1 || simLeague.currentWeek == 99 || simLeague.recruitingPhaseActive) {
+                saveLeague();
+            } else if (simLeague.currentWeek > 1) {
+                Toast.makeText(MainActivity.this, "Save Function Disabled. Save only available in pre-season or before recruiting.",
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(MainActivity.this, "Save Function disabled during initial season.",
+                        Toast.LENGTH_SHORT).show();
+            }
         }
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -1093,7 +1130,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Open Player Profile
     public void examinePlayer(String player) {
-        Player p = currentTeam.findTeamPlayer(player);
+        Player p = currentTeam != null ? currentTeam.findTeamPlayer(player) : null;
+        if (p == null && simLeague != null) {
+            p = simulation.PlayerSearch.findInLeague(simLeague, player, null);
+        }
         if (p != null) {
             PlayerProfileDialogController.showProfile(this, p, userTeam);
         }

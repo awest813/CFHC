@@ -147,13 +147,18 @@ public class TeamRoster extends ArrayAdapter<String> {
         }
 
 
-        textCenter.setOnClickListener(new View.OnClickListener() {
+        View.OnClickListener rowClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(role.equals("HC") || role.equals("OC") || role.equals("DC") ) mainAct.examineCoachDB(name);
-                else mainAct.examinePlayer(name);
+                if (role.equals("HC") || role.equals("OC") || role.equals("DC")) {
+                    mainAct.examineCoachDB(name);
+                } else {
+                    mainAct.examinePlayer(name);
+                }
             }
-        });
+        };
+        textCenter.setOnClickListener(rowClickListener);
+        rowView.setOnClickListener(rowClickListener);
 
         return rowView;
     }

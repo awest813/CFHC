@@ -83,6 +83,16 @@ public class PlayerSearchPanel implements LeagueScreen {
         table.setAutoCreateRowSorter(true);
         table.setRowHeight(22);
         table.setFillsViewportHeight(true);
+        table.getColumnModel().getColumn(0).setPreferredWidth(220);
+        table.getColumnModel().getColumn(1).setPreferredWidth(50);
+        table.getColumnModel().getColumn(1).setMaxWidth(70);
+        table.getColumnModel().getColumn(2).setPreferredWidth(200);
+        table.getColumnModel().getColumn(3).setPreferredWidth(50);
+        table.getColumnModel().getColumn(3).setMaxWidth(70);
+        table.getColumnModel().getColumn(4).setPreferredWidth(60);
+        table.getColumnModel().getColumn(4).setMaxWidth(80);
+        table.getColumnModel().getColumn(5).setPreferredWidth(60);
+        table.getColumnModel().getColumn(5).setMaxWidth(80);
         StripedRowRenderer.install(table);
 
         table.addMouseListener(new MouseAdapter() {

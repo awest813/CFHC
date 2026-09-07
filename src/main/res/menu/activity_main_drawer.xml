@@ -16,6 +16,18 @@
                 android:id="@+id/nav_roster"
                 android:title="@string/menu_roster" />
             <item
+                android:id="@+id/nav_depth_chart"
+                android:title="@string/main_depth_chart" />
+            <item
+                android:id="@+id/nav_redshirts"
+                android:title="@string/menu_redshirts" />
+            <item
+                android:id="@+id/nav_strategy"
+                android:title="@string/main_playbook" />
+            <item
+                android:id="@+id/nav_my_coach"
+                android:title="@string/menu_my_coach" />
+            <item
                 android:id="@+id/nav_teamplayerstats"
                 android:title="@string/menu_teamplayerstats" />
             <item
@@ -30,17 +42,23 @@
     <item android:title="League">
         <menu>
             <item
-                android:id="@+id/nav_news"
-                android:title="@string/menu_news" />
-            <item
-                android:id="@+id/nav_scores"
-                android:title="@string/menu_scores" />
-            <item
                 android:id="@+id/nav_standings"
                 android:title="@string/menu_standings" />
             <item
                 android:id="@+id/nav_rankings"
                 android:title="@string/menu_rankings" />
+            <item
+                android:id="@+id/nav_scores"
+                android:title="@string/menu_scores" />
+            <item
+                android:id="@+id/nav_player_search"
+                android:title="@string/menu_player_search" />
+            <item
+                android:id="@+id/nav_transfers"
+                android:title="@string/menu_transfer_portal" />
+            <item
+                android:id="@+id/nav_news"
+                android:title="@string/menu_news" />
             <item
                 android:id="@+id/nav_leagueteamstats"
                 android:title="@string/menu_leagueteamstats" />
@@ -51,8 +69,28 @@
                 android:id="@+id/nav_awards"
                 android:title="@string/menu_leagueawards" />
             <item
+                android:id="@+id/nav_history_records"
+                android:title="@string/menu_history_records" />
+            <item
+                android:id="@+id/nav_coach_db"
+                android:title="@string/menu_coach_database" />
+            <item
                 android:id="@+id/nav_postseason"
                 android:title="@string/menu_postseason" />
+        </menu>
+    </item>
+
+    <item android:title="Management">
+        <menu>
+            <item
+                android:id="@+id/nav_coach_program"
+                android:title="@string/action_coach_program" />
+            <item
+                android:id="@+id/nav_settings"
+                android:title="@string/menu_settings" />
+            <item
+                android:id="@+id/nav_save_game"
+                android:title="@string/action_save_league" />
         </menu>
     </item>
 

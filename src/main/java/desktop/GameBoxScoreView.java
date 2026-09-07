@@ -35,6 +35,7 @@ public class GameBoxScoreView extends JDialog {
         this.viewerTeam = viewerTeam;
         setSize(720, 520);
         setLayout(new BorderLayout());
+        DesktopTheme.applyWindowIcon(this);
 
         if (!game.hasPlayed || "BYE WEEK".equals(game.gameName)) {
             add(buildNotPlayedPanel(), BorderLayout.CENTER);

@@ -38,6 +38,7 @@ public class SimulationProgressDialog extends JDialog {
             }
         });
         DesktopTheme.styleDialogContentPane(getContentPane());
+        DesktopTheme.applyWindowIcon(this);
 
         JPanel panel = new JPanel(new BorderLayout(12, 12));
         panel.setOpaque(true);

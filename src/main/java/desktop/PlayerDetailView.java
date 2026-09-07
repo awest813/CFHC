@@ -28,6 +28,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.RenderingHints;
+import java.awt.Window;
 import java.awt.geom.Arc2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -47,11 +48,16 @@ public class PlayerDetailView extends JDialog {
     private final Player player;
 
     public PlayerDetailView(JFrame owner, Player player) {
-        super(owner, player.position + " " + player.name + " — " + (player.team != null ? player.team.getName() : "Free Agent"), true);
+        this((Window) owner, player);
+    }
+
+    public PlayerDetailView(Window owner, Player player) {
+        super(owner, player.position + " " + player.name + " — " + (player.team != null ? player.team.getName() : "Free Agent"), ModalityType.APPLICATION_MODAL);
         this.player = player;
         setSize(860, 620);
         setLayout(new BorderLayout());
         DesktopTheme.styleDialogContentPane(getContentPane());
+        DesktopTheme.applyWindowIcon(this);
 
         add(buildHeaderBanner(), BorderLayout.NORTH);
 
@@ -527,6 +533,10 @@ public class PlayerDetailView extends JDialog {
     }
 
     public static void show(JFrame owner, Player player) {
+        show((Window) owner, player);
+    }
+
+    public static void show(Window owner, Player player) {
         PlayerDetailView view = new PlayerDetailView(owner, player);
         view.setLocationRelativeTo(owner);
         view.setVisible(true);

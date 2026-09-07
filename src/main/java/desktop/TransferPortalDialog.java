@@ -183,6 +183,23 @@ public class TransferPortalDialog extends JDialog {
         table.getAccessibleContext().setAccessibleName("Transfer portal prospects");
         StripedRowRenderer.install(table);
 
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int row = table.rowAtPoint(e.getPoint());
+                    if (row >= 0) {
+                        String name = (String) table.getValueAt(row, 1);
+                        String teamName = (String) table.getValueAt(row, 4);
+                        Player player = PlayerSearch.findInLeague(league, name, teamName);
+                        if (player != null) {
+                            PlayerDetailView.show(TransferPortalDialog.this, player);
+                        }
+                    }
+                }
+            }
+        });
+
         table.getTableHeader().setBackground(DesktopTheme.tableBase());
         table.getTableHeader().setForeground(DesktopTheme.textSecondary());
         table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 11));
@@ -199,7 +216,7 @@ public class TransferPortalDialog extends JDialog {
         bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.borderSubtle()));
         bottom.setPreferredSize(new Dimension(0, 80));
 
-        JLabel hintLabel = new JLabel("Portal registry lists available prospects. Use My/All Transfers for signed deals this cycle.");
+        JLabel hintLabel = new JLabel("Portal registry lists available prospects. Double-click any row to view player details.");
         hintLabel.setFont(new Font("SansSerif", Font.ITALIC, 11));
         hintLabel.setForeground(DesktopTheme.textSecondary());
         hintLabel.setBorder(BorderFactory.createEmptyBorder(0, 30, 0, 0));

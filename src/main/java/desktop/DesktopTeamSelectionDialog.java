@@ -43,6 +43,7 @@ public class DesktopTeamSelectionDialog extends JDialog {
         setSize(700, 520);
         setLayout(new BorderLayout());
         DesktopTheme.styleDialogContentPane(getContentPane());
+        DesktopTheme.applyWindowIcon(this);
         buildUi();
     }
 

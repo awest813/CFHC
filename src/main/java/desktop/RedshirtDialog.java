@@ -82,7 +82,7 @@ public class RedshirtDialog extends JDialog {
         };
         hintBar.setBackground(DesktopTheme.tableBase());
         JLabel hint = new JLabel("<html>Season redshirts (including auto-redshirts for players with fewer than 4 games) "
-                + "are listed below when available. Use the pools to review or adjust eligibility.</html>");
+                + "are listed below. Double-click any player to view details. Use the buttons to adjust eligibility.</html>");
         hint.setFont(new Font("SansSerif", Font.ITALIC, 11));
         hint.setForeground(DesktopTheme.textSecondary());
         hintBar.add(hint);
@@ -110,6 +110,17 @@ public class RedshirtDialog extends JDialog {
         currentModel = createModel();
         JTable currentTable = createModernTable(currentModel, "Inactive redshirt pool");
         StripedRowRenderer.install(currentTable);
+        currentTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int row = currentTable.rowAtPoint(e.getPoint());
+                    if (row >= 0 && row < currentList.size()) {
+                        PlayerDetailView.show(RedshirtDialog.this, currentList.get(row));
+                    }
+                }
+            }
+        });
 
         JPanel leftPanel = new JPanel(new BorderLayout(0, 15));
         leftPanel.setOpaque(false);
@@ -149,6 +160,17 @@ public class RedshirtDialog extends JDialog {
         eligibleModel = createModel();
         JTable eligibleTable = createModernTable(eligibleModel, "Redshirt-eligible players");
         StripedRowRenderer.install(eligibleTable);
+        eligibleTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int row = eligibleTable.rowAtPoint(e.getPoint());
+                    if (row >= 0 && row < eligibleList.size()) {
+                        PlayerDetailView.show(RedshirtDialog.this, eligibleList.get(row));
+                    }
+                }
+            }
+        });
 
         JPanel rightPanel = new JPanel(new BorderLayout(0, 15));
         rightPanel.setOpaque(false);

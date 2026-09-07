@@ -1,6 +1,8 @@
 package desktop;
 
+import positions.Player;
 import simulation.PlatformLog;
+import simulation.Team;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
@@ -12,6 +14,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 public class PlayerStatsPanel implements LeagueScreen {
@@ -28,7 +32,7 @@ public class PlayerStatsPanel implements LeagueScreen {
             "Coach Overall", "Coach Score"
     };
 
-    private static final String HINT = "Statistics update after each simulated week.";
+    private static final String HINT = "Statistics update after each simulated week. Double-click any row to view details.";
 
     @Override
     public String title() {
@@ -58,7 +62,39 @@ public class PlayerStatsPanel implements LeagueScreen {
         JTable table = new JTable(model);
         table.setRowHeight(22);
         table.setFillsViewportHeight(true);
+        table.getColumnModel().getColumn(0).setPreferredWidth(60);
+        table.getColumnModel().getColumn(0).setMaxWidth(80);
+        table.getColumnModel().getColumn(1).setPreferredWidth(260);
+        table.getColumnModel().getColumn(2).setPreferredWidth(100);
+        table.getColumnModel().getColumn(3).setPreferredWidth(120);
         StripedRowRenderer.install(table);
+
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int row = table.rowAtPoint(e.getPoint());
+                    if (row >= 0) {
+                        int selCat = categoryBox.getSelectedIndex();
+                        String name = (String) table.getValueAt(row, 1);
+                        String teamAbbr = (String) table.getValueAt(row, 2);
+                        if (selCat < 20) {
+                            Player player = ctx.findPlayerInLeague(name, teamAbbr);
+                            if (player != null) {
+                                PlayerDetailView.show(ctx.parent(), player);
+                            }
+                        } else {
+                            for (Team t : ctx.league().getTeamList()) {
+                                if (t.getAbbr() != null && t.getAbbr().equalsIgnoreCase(teamAbbr)) {
+                                    ctx.nav().openTeamDetail(t);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
 
         Runnable loadPlayerRankings = () -> {
             int sel = categoryBox.getSelectedIndex();

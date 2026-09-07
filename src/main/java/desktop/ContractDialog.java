@@ -40,6 +40,7 @@ public class ContractDialog extends JDialog {
         setSize(700, 500);
         setLayout(new BorderLayout());
         DesktopTheme.styleDialogContentPane(getContentPane());
+        DesktopTheme.applyWindowIcon(this);
 
         Team userTeam = league.userTeam;
         HeadCoach hc = userTeam != null ? userTeam.getHeadCoach() : null;

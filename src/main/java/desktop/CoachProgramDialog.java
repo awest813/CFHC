@@ -49,6 +49,7 @@ public final class CoachProgramDialog {
         d.setLocationRelativeTo(owner);
         d.setLayout(new BorderLayout(0, 8));
         DesktopTheme.styleDialogContentPane(d.getContentPane());
+        DesktopTheme.applyWindowIcon(d);
 
         JTextArea area = new JTextArea(CoachSkills.buildProgramSummary(userTeam, hc));
         area.setEditable(false);

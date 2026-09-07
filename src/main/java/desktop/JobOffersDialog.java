@@ -62,6 +62,7 @@ public class JobOffersDialog extends JDialog {
         setSize(1000, 650);
         setLayout(new BorderLayout());
         DesktopTheme.styleDialogContentPane(getContentPane());
+        DesktopTheme.applyWindowIcon(this);
 
         if (!league.isCareerMode() || userHC == null) {
             buildNoCareerPanel();

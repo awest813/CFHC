@@ -23,6 +23,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -60,6 +61,7 @@ public class TeamDetailView extends JDialog {
         this.onChanged = onChanged != null ? onChanged : () -> {};
         setSize(920, 640);
         setLayout(new BorderLayout());
+        DesktopTheme.applyWindowIcon(this);
 
         JTabbedPane tabs = new JTabbedPane();
         tabs.addTab("Roster",  buildRosterTab(team));
@@ -553,18 +555,54 @@ public class TeamDetailView extends JDialog {
     // -------------------------------------------------------------------------
 
     private JPanel buildFooter(LeagueRecord.TeamRecord team, Team live) {
-        JPanel footer = new JPanel();
-        footer.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10));
+        JPanel footer = new JPanel(new BorderLayout(10, 0));
+        footer.setBorder(BorderFactory.createEmptyBorder(6, 12, 6, 12));
         String recordText;
         if (live != null) {
-            recordText = String.format(Locale.ROOT, "%s (%s)  \u2022  Record %d-%d  \u2022  Conf %d-%d  \u2022  Prestige %d  \u2022  Roster %d  \u2022  Double-click rows for details",
+            recordText = String.format(Locale.ROOT, "%s (%s)  \u2022  Record %d-%d  \u2022  Conf %d-%d  \u2022  Prestige %d  \u2022  Roster %d",
                     team.name(), team.abbr(), live.getWins(), live.getLosses(),
                     live.getConfWins(), live.getConfLosses(), team.prestige(), team.roster().size());
         } else {
             recordText = String.format(Locale.ROOT, "%s (%s)  \u2022  Prestige %d  \u2022  Roster %d",
                     team.name(), team.abbr(), team.prestige(), team.roster().size());
         }
-        footer.add(new JLabel(recordText));
+        JLabel recordLbl = new JLabel(recordText);
+        recordLbl.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        footer.add(recordLbl, BorderLayout.WEST);
+
+        if (live != null && live.isUserControlled()) {
+            JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
+            actionPanel.setOpaque(false);
+
+            JButton schemesBtn = new JButton("Schemes");
+            schemesBtn.setToolTipText("Adjust offensive and defensive playbooks");
+            schemesBtn.addActionListener(e -> PlaybookDialog.show(ownerFrame, live, onChanged));
+            DesktopTheme.styleHudQuickButton(schemesBtn, false);
+            actionPanel.add(schemesBtn);
+
+            JButton coachBtn = new JButton("Coach / NIL");
+            coachBtn.setToolTipText("Upgrade coach skill tree and manage NIL tier");
+            coachBtn.addActionListener(e -> CoachProgramDialog.show(ownerFrame, live, onChanged));
+            DesktopTheme.styleHudQuickButton(coachBtn, false);
+            actionPanel.add(coachBtn);
+
+            if (live.league != null) {
+                JButton redshirtBtn = new JButton("Redshirts");
+                redshirtBtn.setToolTipText("Designate players to preserve eligibility");
+                redshirtBtn.addActionListener(e -> RedshirtDialog.show(ownerFrame, live.league));
+                DesktopTheme.styleHudQuickButton(redshirtBtn, false);
+                actionPanel.add(redshirtBtn);
+
+                JButton portalBtn = new JButton("Transfer Portal");
+                portalBtn.setToolTipText("View players in the NCAA transfer registry");
+                portalBtn.addActionListener(e -> TransferPortalDialog.show(ownerFrame, live.league));
+                DesktopTheme.styleHudQuickButton(portalBtn, false);
+                actionPanel.add(portalBtn);
+            }
+
+            footer.add(actionPanel, BorderLayout.EAST);
+        }
+
         return footer;
     }
 

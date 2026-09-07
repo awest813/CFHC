@@ -87,6 +87,7 @@ public class CoachProfilePanel implements LeagueScreen {
         section.setBorder(DesktopTheme.titledBorder("Coach Career"));
 
         Color teamPrimary = TeamColors.primary(ut.getAbbr());
+        Color readableTeamColor = DesktopTheme.ensureReadableText(teamPrimary, DesktopTheme.windowBackground());
 
         // Name + team with team-color accent.
         JPanel nameBlock = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 2));
@@ -96,7 +97,7 @@ public class CoachProfilePanel implements LeagueScreen {
         name.setForeground(DesktopTheme.textPrimary());
         JLabel teamTag = new JLabel(ut.getName());
         teamTag.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        teamTag.setForeground(teamPrimary != null ? teamPrimary : DesktopTheme.accentBlue());
+        teamTag.setForeground(readableTeamColor);
         nameBlock.add(name);
         nameBlock.add(teamTag);
 

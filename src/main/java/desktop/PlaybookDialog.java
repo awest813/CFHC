@@ -45,6 +45,7 @@ public class PlaybookDialog extends JDialog {
         setSize(850, 650);
         setLayout(new BorderLayout());
         DesktopTheme.styleDialogContentPane(getContentPane());
+        DesktopTheme.applyWindowIcon(this);
 
         // Header
         JPanel header = new JPanel(new BorderLayout()) {

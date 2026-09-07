@@ -8,6 +8,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -15,6 +16,9 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.RenderingHints;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.function.Consumer;
 
 /**
  * Swing dashboard card component for NEXT GAME MATCHUP.
@@ -23,6 +27,10 @@ import java.awt.RenderingHints;
 public class NextGameMatchupCard extends CustomCardPanel {
 
     public NextGameMatchupCard(Team team) {
+        this(team, null);
+    }
+
+    public NextGameMatchupCard(Team team, Consumer<Team> onSelectTeam) {
         super("Next Game");
         JPanel content = getContentArea();
 
@@ -50,8 +58,18 @@ public class NextGameMatchupCard extends CustomCardPanel {
         String atBadge = awayTeam == null ? "\u2014" : (userIsHome ? "VS" : "AT");
 
         // Week + game name from the real schedule.
+        int weekNum = 0;
+        if (upcoming != null) {
+            if (upcoming.week > 0) {
+                weekNum = upcoming.week;
+            } else if (team != null && team.getGameSchedule() != null) {
+                int idx = team.getGameSchedule().indexOf(upcoming);
+                if (idx >= 0) weekNum = idx + 1;
+            }
+        }
         String weekInfo = upcoming != null
-                ? "Week " + upcoming.week + (upcoming.gameName != null && !upcoming.gameName.isEmpty()
+                ? "Week " + (weekNum > 0 ? weekNum : (team != null && team.league != null ? team.league.currentWeek + 1 : 1))
+                    + (upcoming.gameName != null && !upcoming.gameName.isEmpty()
                     && !upcoming.gameName.equals("BYE WEEK") ? "  \u2022  " + upcoming.gameName : "")
                 : "No upcoming game";
 
@@ -59,12 +77,12 @@ public class NextGameMatchupCard extends CustomCardPanel {
         body.setOpaque(false);
 
         // Split Banner
-        JPanel banner = new JPanel(new GridLayout(1, 3, 4, 0)) {
+        JPanel banner = new JPanel(new BorderLayout(6, 0)) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(6, 12, 20));
+                g2.setColor(new Color(17, 28, 46));
                 g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 8, 8);
                 g2.setColor(DesktopTheme.borderSubtle());
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 8, 8);
@@ -73,17 +91,17 @@ public class NextGameMatchupCard extends CustomCardPanel {
             }
         };
         banner.setOpaque(false);
-        banner.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        banner.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
 
         // Home Team Side
         JPanel homeSide = new JPanel(new GridLayout(3, 1, 0, 1));
         homeSide.setOpaque(false);
         JLabel hName = new JLabel(homeName);
-        hName.setFont(new Font("SansSerif", Font.BOLD, 10));
+        hName.setFont(new Font("SansSerif", Font.BOLD, homeName.length() > 11 ? 9 : 10));
         hName.setForeground(Color.WHITE);
 
         JLabel hMascot = new JLabel(homeMascot);
-        hMascot.setFont(new Font("SansSerif", Font.BOLD, 14));
+        hMascot.setFont(new Font("SansSerif", Font.BOLD, homeMascot.length() > 10 ? 12 : 13));
         hMascot.setForeground(DesktopTheme.successGreen());
 
         JLabel hRec = new JLabel(homeRecord);
@@ -93,38 +111,51 @@ public class NextGameMatchupCard extends CustomCardPanel {
         homeSide.add(hName);
         homeSide.add(hMascot);
         homeSide.add(hRec);
+        if (homeTeam != null && onSelectTeam != null) {
+            homeSide.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            homeSide.setToolTipText("Click to view " + homeTeam.getName() + " details");
+            homeSide.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    onSelectTeam.accept(homeTeam);
+                }
+            });
+        }
 
-        // Center AT Pill Badge
-        JPanel atPill = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 8)) {
+        // Center AT Pill Badge with directly centered text
+        final String badgeText = atBadge;
+        JPanel atPill = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 int cx = getWidth() / 2;
                 int cy = getHeight() / 2;
-                g2.setColor(new Color(17, 28, 46));
-                g2.fillOval(cx - 14, cy - 14, 28, 28);
+                g2.setColor(new Color(13, 23, 38));
+                g2.fillOval(cx - 13, cy - 13, 26, 26);
                 g2.setColor(DesktopTheme.warningText());
-                g2.drawOval(cx - 14, cy - 14, 28, 28);
+                g2.drawOval(cx - 13, cy - 13, 26, 26);
+
+                g2.setFont(new Font("SansSerif", Font.BOLD, 9));
+                java.awt.FontMetrics fm = g2.getFontMetrics();
+                int tw = fm.stringWidth(badgeText);
+                int th = fm.getAscent() - fm.getDescent();
+                g2.drawString(badgeText, cx - tw / 2, cy + th / 2);
                 g2.dispose();
-                super.paintComponent(g);
             }
         };
         atPill.setOpaque(false);
-        JLabel atText = new JLabel(atBadge, JLabel.CENTER);
-        atText.setFont(new Font("SansSerif", Font.BOLD, 10));
-        atText.setForeground(DesktopTheme.warningText());
-        atPill.add(atText);
+        atPill.setPreferredSize(new Dimension(32, 50));
 
         // Away Team Side
         JPanel awaySide = new JPanel(new GridLayout(3, 1, 0, 1));
         awaySide.setOpaque(false);
         JLabel aName = new JLabel(awayName, JLabel.RIGHT);
-        aName.setFont(new Font("SansSerif", Font.BOLD, 10));
+        aName.setFont(new Font("SansSerif", Font.BOLD, awayName.length() > 11 ? 9 : 10));
         aName.setForeground(Color.WHITE);
 
         JLabel aMascot = new JLabel(awayMascot, JLabel.RIGHT);
-        aMascot.setFont(new Font("SansSerif", Font.BOLD, 14));
+        aMascot.setFont(new Font("SansSerif", Font.BOLD, awayMascot.length() > 10 ? 12 : 13));
         aMascot.setForeground(DesktopTheme.dangerRed());
 
         JLabel aRec = new JLabel(awayRecord, JLabel.RIGHT);
@@ -134,10 +165,20 @@ public class NextGameMatchupCard extends CustomCardPanel {
         awaySide.add(aName);
         awaySide.add(aMascot);
         awaySide.add(aRec);
+        if (awayTeam != null && onSelectTeam != null) {
+            awaySide.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            awaySide.setToolTipText("Click to view " + awayTeam.getName() + " details");
+            awaySide.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    onSelectTeam.accept(awayTeam);
+                }
+            });
+        }
 
-        banner.add(homeSide);
-        banner.add(atPill);
-        banner.add(awaySide);
+        banner.add(homeSide, BorderLayout.WEST);
+        banner.add(atPill, BorderLayout.CENTER);
+        banner.add(awaySide, BorderLayout.EAST);
 
         body.add(banner, BorderLayout.CENTER);
 

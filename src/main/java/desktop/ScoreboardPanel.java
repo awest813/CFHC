@@ -53,6 +53,9 @@ public class ScoreboardPanel implements LeagueScreen {
         JTable table = new JTable(model);
         table.setRowHeight(28);
         table.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        table.getColumnModel().getColumn(0).setPreferredWidth(340);
+        table.getColumnModel().getColumn(1).setPreferredWidth(140);
+        table.getColumnModel().getColumn(2).setPreferredWidth(160);
         StripedRowRenderer.install(table);
 
         final String userTeamName = ctx.league().userTeam != null ? ctx.league().userTeam.getName() : null;
@@ -98,9 +101,7 @@ public class ScoreboardPanel implements LeagueScreen {
             if (scores != null && currentWeek >= 0 && currentWeek < scores.size()) {
                 for (String s : scores.get(currentWeek)) {
                     if (s == null) continue;
-                    String[] parts = s.split(",");
-                    if (parts.length >= 3) model.addRow(new Object[]{parts[0], parts[1], parts[2]});
-                    else if (parts.length == 1) model.addRow(new Object[]{parts[0], "", "Game"});
+                    parseAndAddScoreRow(s, model);
                 }
             }
             if (model.getRowCount() == 0) {
@@ -123,7 +124,7 @@ public class ScoreboardPanel implements LeagueScreen {
                     if (row >= 0) {
                         String matchup = String.valueOf(table.getValueAt(row, 0));
                         if (matchup.contains(" at ")) {
-                            showBoxScoreFromMatchup(matchup, ctx);
+                            showBoxScoreFromMatchup(matchup, currentWeek, ctx);
                         }
                     }
                 }
@@ -170,23 +171,100 @@ public class ScoreboardPanel implements LeagueScreen {
         return SeasonPresentation.getScoreboardWeekType(week, league.regSeasonWeeks);
     }
 
-    private static void showBoxScoreFromMatchup(String matchup, LeagueScreenContext ctx) {
+    private static void parseAndAddScoreRow(String s, DefaultTableModel model) {
+        if (s == null || s.trim().isEmpty()) return;
+
+        String header = "Game";
+        String body = s;
+        int gt = s.indexOf('>');
+        if (gt >= 0) {
+            header = s.substring(0, gt).trim();
+            body = s.substring(gt + 1).trim();
+        }
+
+        if (body.isEmpty() || body.startsWith("No games")) {
+            model.addRow(new Object[]{body.isEmpty() ? "No game data" : body, "", header});
+            return;
+        }
+
+        String[] lines = body.split("\n");
+        if (lines.length >= 2) {
+            String awayLine = lines[0].trim();
+            String homeLine = lines[1].trim();
+
+            int lastSpaceA = awayLine.lastIndexOf(' ');
+            int lastSpaceH = homeLine.lastIndexOf(' ');
+
+            String awayName = awayLine;
+            String awayScoreStr = "";
+            if (lastSpaceA > 0) {
+                String potScore = awayLine.substring(lastSpaceA + 1).trim();
+                if (potScore.matches("\\d+")) {
+                    awayScoreStr = potScore;
+                    awayName = awayLine.substring(0, lastSpaceA).trim();
+                }
+            }
+
+            String homeName = homeLine;
+            String homeScoreStr = "";
+            if (lastSpaceH > 0) {
+                String potScore = homeLine.substring(lastSpaceH + 1).trim();
+                if (potScore.matches("\\d+")) {
+                    homeScoreStr = potScore;
+                    homeName = homeLine.substring(0, lastSpaceH).trim();
+                }
+            }
+
+            String matchup = awayName + " at " + homeName;
+            String result = "";
+            if (!awayScoreStr.isEmpty() && !homeScoreStr.isEmpty()) {
+                int scoreA = Integer.parseInt(awayScoreStr);
+                int scoreH = Integer.parseInt(homeScoreStr);
+                result = scoreA > scoreH
+                        ? awayName + " " + scoreA + ", " + homeName + " " + scoreH
+                        : homeName + " " + scoreH + ", " + awayName + " " + scoreA;
+            } else {
+                result = awayScoreStr.isEmpty() ? "Scheduled" : awayScoreStr + " - " + homeScoreStr;
+            }
+
+            model.addRow(new Object[]{matchup, result, header});
+        } else {
+            String[] parts = s.split(",");
+            if (parts.length >= 3) {
+                model.addRow(new Object[]{parts[0].trim(), parts[1].trim(), parts[2].trim()});
+            } else {
+                model.addRow(new Object[]{body, "", header});
+            }
+        }
+    }
+
+    private static void showBoxScoreFromMatchup(String matchup, int week, LeagueScreenContext ctx) {
         if (matchup == null) return;
         int atIdx = matchup.lastIndexOf(" at ");
         if (atIdx < 0) return;
-        String teamA = matchup.substring(0, atIdx).replaceFirst("\\s+\\d+$", "").trim();
+        String teamA = matchup.substring(0, atIdx).replaceAll("^#\\d+\\s*", "").replaceFirst("\\s+\\d+$", "").trim();
         String homePart = matchup.substring(atIdx + 4);
-        String teamH = homePart.replaceFirst("\\s+\\d+.*", "").trim();
+        String teamH = homePart.replaceAll("^#\\d+\\s*", "").replaceFirst("\\s+\\d+.*", "").trim();
 
-        Team away = ctx.teamMap().get(teamA);
-        Team home = ctx.teamMap().get(teamH);
+        Team away = ctx.teamMap() != null ? ctx.teamMap().get(teamA) : null;
+        Team home = ctx.teamMap() != null ? ctx.teamMap().get(teamH) : null;
 
-        if (away != null && home != null) {
+        if (away != null && home != null && away.getGameSchedule() != null) {
+            Game fallback = null;
             for (Game g : away.getGameSchedule()) {
-                if (g.homeTeam == home || g.awayTeam == home) {
-                    GameBoxScoreView.show(ctx.parent(), g, ctx.league().userTeam);
-                    return;
+                if ((g.homeTeam == home && g.awayTeam == away) || (g.homeTeam == away && g.awayTeam == home)) {
+                    if (g.hasPlayed) {
+                        int gWeek = g.week > 0 ? g.week : away.getGameSchedule().indexOf(g) + 1;
+                        if (gWeek == week) {
+                            GameBoxScoreView.show(ctx.parent(), g, ctx.league().userTeam);
+                            return;
+                        }
+                        fallback = g;
+                    }
                 }
+            }
+            if (fallback != null) {
+                GameBoxScoreView.show(ctx.parent(), fallback, ctx.league().userTeam);
             }
         }
     }

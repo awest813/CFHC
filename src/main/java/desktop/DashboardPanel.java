@@ -65,10 +65,10 @@ public class DashboardPanel implements LeagueScreen {
 
     @Override
     public JPanel build(LeagueScreenContext ctx) {
-        return buildPanel();
+        return buildPanel(ctx);
     }
 
-    private JPanel buildPanel() {
+    private JPanel buildPanel(LeagueScreenContext ctx) {
         JPanel panel = new JPanel(new BorderLayout(12, 12));
         panel.setOpaque(true);
         panel.setBackground(DesktopTheme.windowBackground());
@@ -80,20 +80,46 @@ public class DashboardPanel implements LeagueScreen {
         JPanel grid = new JPanel(new GridLayout(3, 4, 12, 12));
         grid.setOpaque(false);
 
-        grid.add(new TeamOverallCard(league.userTeam));
-        grid.add(new NextGameMatchupCard(league.userTeam));
-        grid.add(new TopNewsCarouselCard(league));
-        grid.add(new StandingsPanel().build(new LeagueScreenContext(league, null, null, null, bridge, null, null)));
+        grid.add(new TeamOverallCard(league.userTeam, () -> {
+            if (ctx != null) ctx.nav().openUserTeamDetail();
+            else cb.openUserTeamDetail().run();
+        }));
+        grid.add(new NextGameMatchupCard(league.userTeam, opp -> {
+            if (ctx != null && opp != null) ctx.nav().openTeamDetail(opp);
+        }));
+        grid.add(new TopNewsCarouselCard(league, () -> {
+            if (ctx != null) ctx.nav().selectScreen("News");
+            else cb.selectScreenNews().run();
+        }));
+        grid.add(new ConferenceStandingsCard(league.userTeam, () -> {
+            if (ctx != null) ctx.nav().selectScreen("Standings");
+            else cb.selectScreenStandings().run();
+        }, opp -> {
+            if (ctx != null && opp != null) ctx.nav().openTeamDetail(opp);
+        }));
 
-        grid.add(new WeeklyScheduleCard(league, league.userTeam));
-        grid.add(new RecruitingPipelineCard(league.userTeam, () -> cb.selectScreenRecruiting().run()));
+        grid.add(new WeeklyScheduleCard(league, league.userTeam, opp -> {
+            if (ctx != null && opp != null) ctx.nav().openTeamDetail(opp);
+        }));
+        grid.add(new RecruitingPipelineCard(league.userTeam, () -> {
+            if (ctx != null) ctx.nav().selectScreen("Recruiting");
+            else cb.selectRecruitingTab().run();
+        }));
         grid.add(new ProgramFinancesCard(league.userTeam));
         grid.add(new ProgramPrestigeCard(league.userTeam));
 
         grid.add(new TeamMoraleCard());
-        grid.add(new RosterSpotlightCard(league.userTeam));
-        grid.add(new UpcomingGamesCard(league.userTeam));
-        grid.add(new HeadCoachCard(league.userTeam));
+        grid.add(new RosterSpotlightCard(league.userTeam, player -> {
+            if (ctx != null && ctx.parent() != null && player != null) {
+                PlayerDetailView.show(ctx.parent(), player);
+            }
+        }));
+        grid.add(new UpcomingGamesCard(league.userTeam, opp -> {
+            if (ctx != null && opp != null) ctx.nav().openTeamDetail(opp);
+        }));
+        grid.add(new HeadCoachCard(league.userTeam, () -> {
+            if (ctx != null) ctx.nav().selectScreen("My Coach");
+        }));
 
         panel.add(grid, BorderLayout.CENTER);
 
@@ -101,17 +127,21 @@ public class DashboardPanel implements LeagueScreen {
         bottom.setOpaque(false);
         JPanel quick = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         quick.setOpaque(false);
-        quick.add(mkNavButton("Play Week", cb.playWeek()));
-        quick.add(mkNavButton("Standings", cb.selectScreenStandings()));
-        quick.add(mkNavButton("Scoreboard", cb.selectScreenScoreboard()));
-        quick.add(mkNavButton("Poll Rankings", cb.selectScreenPoll()));
-        quick.add(mkNavButton("Player Stats", cb.selectScreenPlayerStats()));
-        quick.add(mkNavButton("News", cb.selectScreenNews()));
-        quick.add(mkNavButton("Recruiting", cb.selectScreenRecruiting()));
+        quick.add(mkNavButton("Play Week", cb.playWeek(), true));
+        quick.add(mkNavButton("Standings", cb.selectScreenStandings(), false));
+        quick.add(mkNavButton("Scoreboard", cb.selectScreenScoreboard(), false));
+        quick.add(mkNavButton("Poll Rankings", cb.selectScreenPoll(), false));
+        quick.add(mkNavButton("Player Stats", cb.selectScreenPlayerStats(), false));
+        quick.add(mkNavButton("News", cb.selectScreenNews(), false));
+        quick.add(mkNavButton("Recruiting", cb.selectScreenRecruiting(), false));
+        quick.add(mkNavButton("My Coach", () -> {
+            if (ctx != null) ctx.nav().selectScreen("My Coach");
+        }, false));
         if (league.userTeam != null) {
             JButton my = new JButton("\u2605 My Program");
             my.setToolTipText("Roster, depth chart, and team tools (Ctrl+U)");
             my.addActionListener(e -> cb.openUserTeamDetail().run());
+            DesktopTheme.styleHudQuickButton(my, false);
             quick.add(my);
         }
         bottom.add(quick, BorderLayout.NORTH);
@@ -456,13 +486,11 @@ public class DashboardPanel implements LeagueScreen {
         return awards;
     }
 
-    private JButton mkNavButton(String tabTitle, Runnable action) {
+    private JButton mkNavButton(String tabTitle, Runnable action, boolean isAccent) {
         JButton b = new JButton(tabTitle);
         b.setToolTipText("Open " + tabTitle);
         b.addActionListener(e -> action.run());
-        b.setFont(new Font("SansSerif", Font.BOLD, 12));
-        DesktopTheme.stylePrimaryButton(b);
-        b.setBorder(BorderFactory.createEmptyBorder(6, 14, 6, 14));
+        DesktopTheme.styleHudQuickButton(b, isAccent);
         return b;
     }
 }

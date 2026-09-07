@@ -233,6 +233,18 @@ public final class SettingsDialogController {
             });
         }
 
+        final CheckBox checkboxSfx = dialog.findViewById(R.id.checkboxSfx);
+        if (checkboxSfx != null) {
+            checkboxSfx.setChecked(!activity.uiSounds().isMuted());
+            checkboxSfx.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    activity.uiSounds().setMuted(!isChecked);
+                    activity.uiSounds().play(simulation.AudioEvent.UI_TOGGLE);
+                }
+            });
+        }
+
         // Toggle clicks for the plain checkboxes (listeners attached after
         // the initial setChecked calls above, so init is silent). The
         // realignment trio uses click listeners instead — wired inline.

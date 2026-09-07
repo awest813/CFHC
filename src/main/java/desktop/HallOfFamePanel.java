@@ -53,6 +53,12 @@ public class HallOfFamePanel implements LeagueScreen {
         table.setAutoCreateRowSorter(true);
         table.setRowHeight(22);
         table.setFillsViewportHeight(true);
+        table.getColumnModel().getColumn(0).setPreferredWidth(240);
+        table.getColumnModel().getColumn(1).setPreferredWidth(70);
+        table.getColumnModel().getColumn(1).setMaxWidth(90);
+        table.getColumnModel().getColumn(2).setPreferredWidth(200);
+        table.getColumnModel().getColumn(3).setPreferredWidth(60);
+        table.getColumnModel().getColumn(3).setMaxWidth(80);
         StripedRowRenderer.install(table);
 
         table.addMouseListener(new MouseAdapter() {

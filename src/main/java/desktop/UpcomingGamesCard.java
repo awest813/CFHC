@@ -8,10 +8,14 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Swing dashboard card component for UPCOMING GAMES.
@@ -22,6 +26,10 @@ import java.util.List;
 public class UpcomingGamesCard extends CustomCardPanel {
 
     public UpcomingGamesCard(Team team) {
+        this(team, null);
+    }
+
+    public UpcomingGamesCard(Team team, Consumer<Team> onSelectTeam) {
         super("Upcoming Games");
         JPanel content = getContentArea();
 
@@ -65,9 +73,10 @@ public class UpcomingGamesCard extends CustomCardPanel {
                 int oppPrestige = opp != null ? opp.getTeamPrestige() : 50;
                 Color diffColor = difficultyColor(oppPrestige, userPrestige);
                 String stars = difficultyStars(oppPrestige, userPrestige);
-                list.add(buildGameRow("Wk " + g.week, oppAbbr, oppName,
+                int wk = g.week > 0 ? g.week : (team.getGameSchedule().indexOf(g) + 1);
+                list.add(buildGameRow("Wk " + wk, oppAbbr, oppName,
                         g.gameName != null && !g.gameName.equals("BYE WEEK") && !g.gameName.isEmpty()
-                                ? g.gameName : "", stars, diffColor));
+                                ? g.gameName : "", stars, diffColor, opp, onSelectTeam));
             }
         }
 
@@ -91,13 +100,24 @@ public class UpcomingGamesCard extends CustomCardPanel {
         return sb.toString();
     }
 
-    private JPanel buildGameRow(String week, String oppLogo, String oppName, String date, String stars, Color logoBg) {
+    private JPanel buildGameRow(String week, String oppLogo, String oppName, String date, String stars, Color logoBg, Team opp, Consumer<Team> onSelectTeam) {
         JPanel r = new JPanel(new BorderLayout(6, 0));
         r.setOpaque(true);
         r.setBackground(new Color(6, 12, 20));
         r.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(DesktopTheme.borderSubtle(), 1),
                 BorderFactory.createEmptyBorder(4, 6, 4, 6)));
+
+        if (opp != null && onSelectTeam != null) {
+            r.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            r.setToolTipText("Click to view " + opp.getName() + " details");
+            r.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    onSelectTeam.accept(opp);
+                }
+            });
+        }
 
         JPanel left = new JPanel(new BorderLayout(6, 0));
         left.setOpaque(false);

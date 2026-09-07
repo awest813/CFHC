@@ -1150,7 +1150,7 @@ public class Player {
         return trait;
     }
 
-    String getStatus() {
+    public String getStatus() {
         return simulation.PlayerStatusCopy.profileStatus(this);
     }
 

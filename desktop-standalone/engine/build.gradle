@@ -340,8 +340,8 @@ tasks.named('test', Test) {
     // Exclude long-running stress sims from the default gate; run on demand:
     //   ./gradlew -p desktop-standalone :engine:test --tests "simulation.Stress100SeasonsTest"
     filter {
-        excludeTestsMatching '**/Stress100SeasonsTest*'
-        excludeTestsMatching '**/Debug20SeasonsFlowTest*'
+        excludeTestsMatching '*Stress100SeasonsTest*'
+        excludeTestsMatching '*Debug20SeasonsFlowTest*'
     }
 }
 

@@ -47,7 +47,36 @@ public class CoachDatabasePanel implements LeagueScreen {
         JTable table = new JTable(model);
         table.setRowHeight(22);
         table.setFillsViewportHeight(true);
+        table.getColumnModel().getColumn(0).setPreferredWidth(60);
+        table.getColumnModel().getColumn(0).setMaxWidth(80);
+        table.getColumnModel().getColumn(1).setPreferredWidth(280);
+        table.getColumnModel().getColumn(2).setPreferredWidth(120);
         StripedRowRenderer.install(table);
+
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    int row = table.rowAtPoint(e.getPoint());
+                    if (row >= 0) {
+                        String coachStr = String.valueOf(table.getValueAt(row, 1));
+                        int openParen = coachStr.lastIndexOf('(');
+                        int closeParen = coachStr.lastIndexOf(')');
+                        if (openParen >= 0 && closeParen > openParen) {
+                            String teamAbbr = coachStr.substring(openParen + 1, closeParen).trim();
+                            if (!teamAbbr.equalsIgnoreCase("RET")) {
+                                for (simulation.Team t : ctx.league().getTeamList()) {
+                                    if (t.getAbbr() != null && t.getAbbr().equalsIgnoreCase(teamAbbr)) {
+                                        ctx.nav().openTeamDetail(t);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
 
         JScrollPane coachDbScroll = new JScrollPane(table);
 
@@ -90,6 +119,11 @@ public class CoachDatabasePanel implements LeagueScreen {
         emptyLabel.setOpaque(true);
         emptyLabel.setBackground(table.getBackground());
         panel.add(coachDbScroll, BorderLayout.CENTER);
+
+        javax.swing.JLabel coachHint = new javax.swing.JLabel("Double-click any active coach to view team details.");
+        coachHint.setForeground(DesktopTheme.textSecondary());
+        panel.add(coachHint, BorderLayout.SOUTH);
+
         return panel;
     }
 }

@@ -7,16 +7,21 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.RenderingHints;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Swing dashboard card component for ROSTER SPOTLIGHT.
@@ -27,10 +32,14 @@ import java.util.List;
 public class RosterSpotlightCard extends CustomCardPanel {
 
     public RosterSpotlightCard(Team team) {
+        this(team, null);
+    }
+
+    public RosterSpotlightCard(Team team, Consumer<positions.Player> onSelectPlayer) {
         super("Roster Spotlight");
         JPanel content = getContentArea();
 
-        JPanel dualGrid = new JPanel(new GridLayout(1, 2, 10, 0));
+        JPanel dualGrid = new JPanel(new GridLayout(1, 2, 8, 0));
         dualGrid.setOpaque(false);
 
         // Pick the top offensive (QB/RB/WR/TE) and top defensive (DL/LB/CB/S)
@@ -38,8 +47,8 @@ public class RosterSpotlightCard extends CustomCardPanel {
         positions.Player offense = topOffensivePlayer(team);
         positions.Player defense = topDefensivePlayer(team);
 
-        dualGrid.add(buildPlayerCard(offense, true));
-        dualGrid.add(buildPlayerCard(defense, false));
+        dualGrid.add(buildPlayerCard(offense, true, onSelectPlayer));
+        dualGrid.add(buildPlayerCard(defense, false, onSelectPlayer));
 
         content.add(dualGrid, BorderLayout.CENTER);
     }
@@ -75,13 +84,13 @@ public class RosterSpotlightCard extends CustomCardPanel {
                 .orElse(null);
     }
 
-    private JPanel buildPlayerCard(positions.Player player, boolean isOffense) {
-        JPanel card = new JPanel(new BorderLayout(0, 6)) {
+    private JPanel buildPlayerCard(positions.Player player, boolean isOffense, Consumer<positions.Player> onSelectPlayer) {
+        JPanel card = new JPanel(new BorderLayout(0, 4)) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(6, 12, 20));
+                g2.setColor(new Color(11, 20, 34));
                 g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 8, 8);
                 g2.setColor(DesktopTheme.borderSubtle());
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 8, 8);
@@ -90,102 +99,136 @@ public class RosterSpotlightCard extends CustomCardPanel {
             }
         };
         card.setOpaque(false);
-        card.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
+        card.setBorder(BorderFactory.createEmptyBorder(6, 6, 6, 6));
 
         boolean hasPlayer = player != null;
-        String name = hasPlayer ? player.getName().toUpperCase() : "\u2014";
-        String pos = hasPlayer && player.position != null ? player.position : "\u2014";
+        if (hasPlayer && onSelectPlayer != null) {
+            card.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            card.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    onSelectPlayer.accept(player);
+                }
+            });
+        }
+
+        String rawName = hasPlayer ? player.getName() : "—";
+        String displayName = rawName;
+        String initials = "??";
+        if (hasPlayer && !rawName.isEmpty()) {
+            String[] parts = rawName.trim().split("\\s+");
+            if (parts.length >= 2 && parts[0].length() > 0 && parts[1].length() > 0) {
+                initials = ("" + parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+                if (rawName.length() > 12) {
+                    displayName = parts[0].charAt(0) + ". " + parts[1];
+                }
+            } else {
+                initials = rawName.substring(0, Math.min(2, rawName.length())).toUpperCase();
+            }
+        }
+
+        String pos = hasPlayer && player.position != null ? player.position : "—";
         String year = hasPlayer ? player.getYrStr() : "";
-        String bio = hasPlayer ? (year + " \u2022 " + pos) : "No player";
         String archetype = hasPlayer ? player.getArchetypeDisplayName() : "";
-        String ovr = hasPlayer ? String.valueOf(player.ratOvr) : "\u2014";
-        final String initials = hasPlayer && name.length() >= 2 ? name.substring(0, 2) : "??";
+        String ovr = hasPlayer ? String.valueOf(player.ratOvr) : "—";
 
-        // Header Row: Sprite Avatar + Meta + OVR Badge
-        JPanel headerRow = new JPanel(new BorderLayout(8, 0));
-        headerRow.setOpaque(false);
+        card.setToolTipText(hasPlayer
+                ? (rawName + " (" + pos + ", " + year + ") • " + (archetype.isEmpty() ? "" : archetype + " • ") + ovr + " OVR"
+                    + (onSelectPlayer != null ? " (Click to view details)" : ""))
+                : "No player data");
 
-        // Sprite Avatar Container
+        // Top Row: Role Pill (OFFENSE / DEFENSE) on Left + OVR on Right
+        JPanel topRow = new JPanel(new BorderLayout());
+        topRow.setOpaque(false);
+
+        JLabel roleBadge = new JLabel(isOffense ? "OFF" : "DEF");
+        roleBadge.setFont(new Font("SansSerif", Font.BOLD, 9));
+        roleBadge.setForeground(isOffense ? new Color(96, 165, 250) : new Color(248, 113, 113));
+
+        JLabel ovrBadge = new JLabel(ovr + " OVR");
+        ovrBadge.setFont(new Font("SansSerif", Font.BOLD, 10));
+        ovrBadge.setForeground(DesktopTheme.successGreen());
+
+        topRow.add(roleBadge, BorderLayout.WEST);
+        topRow.add(ovrBadge, BorderLayout.EAST);
+        card.add(topRow, BorderLayout.NORTH);
+
+        // Center Area: Pixel Jersey Avatar + Name + Year/Pos
+        JPanel centerArea = new JPanel(new BorderLayout(0, 4));
+        centerArea.setOpaque(false);
+
+        final String avatarInitials = initials;
         JPanel spriteBox = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(13, 23, 38));
-                g2.fillRect(0, 0, getWidth(), getHeight());
+                g2.setColor(new Color(17, 28, 46));
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 6, 6);
 
-                // Pixel sprite face drawing
+                // Jersey body
+                g2.setColor(isOffense ? new Color(30, 64, 175) : new Color(153, 27, 27));
+                g2.fillRoundRect(3, 16, getWidth() - 6, getHeight() - 17, 4, 4);
+
+                // Face
                 g2.setColor(isOffense ? new Color(243, 208, 168) : new Color(141, 85, 36));
-                g2.fillRect(14, 8, 16, 14);
-                g2.setColor(new Color(27, 77, 62));
-                g2.fillRect(10, 6, 24, 8);
-                g2.fillRect(6, 22, 32, 26);
-                g2.setColor(DesktopTheme.warningText());
-                g2.fillRect(14, 24, 16, 24);
+                g2.fillOval(getWidth() / 2 - 7, 7, 14, 14);
 
+                // Helmet
+                g2.setColor(isOffense ? new Color(59, 130, 246) : new Color(239, 68, 68));
+                g2.fillArc(getWidth() / 2 - 8, 5, 16, 14, 0, 180);
+
+                // Jersey Initials
                 g2.setColor(Color.WHITE);
-                g2.setFont(new Font("SansSerif", Font.BOLD, 12));
-                g2.drawString(initials, 12, 42);
+                g2.setFont(new Font("SansSerif", Font.BOLD, 9));
+                FontMetrics fm = g2.getFontMetrics();
+                int tw = fm.stringWidth(avatarInitials);
+                g2.drawString(avatarInitials, (getWidth() - tw) / 2, getHeight() - 4);
 
+                g2.setColor(DesktopTheme.borderSubtle());
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 6, 6);
                 g2.dispose();
             }
         };
-        spriteBox.setPreferredSize(new Dimension(44, 50));
-        spriteBox.setBorder(BorderFactory.createLineBorder(DesktopTheme.borderSubtle(), 1));
+        spriteBox.setPreferredSize(new Dimension(38, 40));
+        spriteBox.setOpaque(false);
 
-        JPanel meta = new JPanel(new GridLayout(4, 1, 0, 1));
+        JPanel spriteCenter = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        spriteCenter.setOpaque(false);
+        spriteCenter.add(spriteBox);
+        centerArea.add(spriteCenter, BorderLayout.NORTH);
+
+        JPanel meta = new JPanel(new GridLayout(2, 1, 0, 1));
         meta.setOpaque(false);
 
-        JLabel nameLbl = new JLabel(name);
-        nameLbl.setFont(new Font("SansSerif", Font.BOLD, 11));
+        JLabel nameLbl = new JLabel(displayName, JLabel.CENTER);
+        nameLbl.setFont(new Font("SansSerif", Font.BOLD, 10));
         nameLbl.setForeground(Color.WHITE);
+        nameLbl.setToolTipText(rawName);
 
-        JLabel bioLbl = new JLabel(bio);
-        bioLbl.setFont(new Font("SansSerif", Font.PLAIN, 9));
-        bioLbl.setForeground(DesktopTheme.textSecondary());
-
-        JLabel archLbl = new JLabel(archetype.isEmpty() ? pos : archetype);
-        archLbl.setFont(new Font("SansSerif", Font.BOLD, 9));
-        archLbl.setForeground(DesktopTheme.textSecondary());
-
-        JLabel moraleLbl = new JLabel(hasPlayer ? ("OVR " + ovr + "  \u2022  " + pos) : "Roster empty");
-        moraleLbl.setFont(new Font("SansSerif", Font.BOLD, 9));
-        moraleLbl.setForeground(DesktopTheme.successGreen());
+        JLabel subLbl = new JLabel(hasPlayer ? (pos + " \u2022 " + year) : "Empty", JLabel.CENTER);
+        subLbl.setFont(new Font("SansSerif", Font.PLAIN, 9));
+        subLbl.setForeground(DesktopTheme.textSecondary());
 
         meta.add(nameLbl);
-        meta.add(bioLbl);
-        meta.add(archLbl);
-        meta.add(moraleLbl);
+        meta.add(subLbl);
+        centerArea.add(meta, BorderLayout.CENTER);
+        card.add(centerArea, BorderLayout.CENTER);
 
-        headerRow.add(spriteBox, BorderLayout.WEST);
-        headerRow.add(meta, BorderLayout.CENTER);
+        // Footer: Archetype pill
+        JPanel foot = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        foot.setOpaque(false);
 
-        // OVR badge
-        JPanel ovrBadge = new JPanel(new GridLayout(2, 1, 0, 0));
-        ovrBadge.setOpaque(false);
-        JLabel oTitle = new JLabel("OVR", JLabel.CENTER);
-        oTitle.setFont(new Font("SansSerif", Font.BOLD, 8));
-        oTitle.setForeground(DesktopTheme.textSecondary());
-        JLabel oVal = new JLabel(ovr, JLabel.CENTER);
-        oVal.setFont(new Font("SansSerif", Font.BOLD, 18));
-        oVal.setForeground(DesktopTheme.successGreen());
-        ovrBadge.add(oTitle);
-        ovrBadge.add(oVal);
-        headerRow.add(ovrBadge, BorderLayout.EAST);
+        String archText = archetype.isEmpty() ? (hasPlayer ? pos : "No data") : archetype;
+        JLabel archLbl = new JLabel(archText, JLabel.CENTER);
+        archLbl.setFont(new Font("SansSerif", Font.BOLD, 8));
+        archLbl.setForeground(DesktopTheme.warningText());
+        archLbl.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(DesktopTheme.borderSubtle(), 1),
+                BorderFactory.createEmptyBorder(1, 4, 1, 4)));
 
-        card.add(headerRow, BorderLayout.NORTH);
-
-        // Footer: position summary line (stat grids vary too much by position
-        // to hardcode columns; the header now carries the real OVR + archetype).
-        JLabel footLbl = new JLabel(hasPlayer
-                ? (pos + " \u2022 " + year + (archetype.isEmpty() ? "" : " \u2022 " + archetype))
-                : "No roster data", JLabel.CENTER);
-        footLbl.setFont(new Font("SansSerif", Font.PLAIN, 8));
-        footLbl.setForeground(DesktopTheme.textSecondary());
-        footLbl.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.borderSubtle()),
-                BorderFactory.createEmptyBorder(3, 0, 0, 0)));
-        card.add(footLbl, BorderLayout.SOUTH);
+        foot.add(archLbl);
+        card.add(foot, BorderLayout.SOUTH);
 
         return card;
     }

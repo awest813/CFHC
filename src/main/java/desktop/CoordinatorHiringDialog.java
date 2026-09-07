@@ -49,6 +49,7 @@ public class CoordinatorHiringDialog extends JDialog {
         setSize(900, 600);
         setLayout(new BorderLayout());
         DesktopTheme.styleDialogContentPane(getContentPane());
+        DesktopTheme.applyWindowIcon(this);
 
         if (userTeam == null || userTeam.getHeadCoach() == null) {
             buildErrorPanel("No active user team or head coach record found.");

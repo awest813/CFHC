@@ -373,6 +373,14 @@ public class LeagueHomeView extends JFrame {
         recruitingTabItem.setEnabled(leagueCore.userTeam != null);
         season.add(recruitingTabItem);
 
+        JMenuItem portalSeasonItem = new JMenuItem("Transfer Portal\u2026");
+        portalSeasonItem.addActionListener(e -> TransferPortalDialog.show(this, leagueCore));
+        season.add(portalSeasonItem);
+
+        JMenuItem awardsSeasonItem = new JMenuItem("Season Awards\u2026");
+        awardsSeasonItem.addActionListener(e -> SeasonAwardsDialog.show(this, leagueCore));
+        season.add(awardsSeasonItem);
+
         bar.add(season);
 
         JMenu team = new JMenu("Team");
@@ -392,12 +400,32 @@ public class LeagueHomeView extends JFrame {
         coachProgramItem.setEnabled(leagueCore.userTeam != null);
         team.add(coachProgramItem);
 
+        JMenuItem redshirtItem = new JMenuItem("Redshirt Management\u2026");
+        redshirtItem.addActionListener(e -> RedshirtDialog.show(this, leagueCore));
+        redshirtItem.setEnabled(leagueCore.userTeam != null);
+        team.add(redshirtItem);
+
+        JMenuItem transferItem = new JMenuItem("Transfer Portal\u2026");
+        transferItem.addActionListener(e -> TransferPortalDialog.show(this, leagueCore));
+        team.add(transferItem);
+
+        JMenuItem coordinatorsItem = new JMenuItem("Staff & Coordinators\u2026");
+        coordinatorsItem.addActionListener(e -> CoordinatorHiringDialog.show(this, leagueCore));
+        coordinatorsItem.setEnabled(leagueCore.userTeam != null);
+        team.add(coordinatorsItem);
+
+        team.addSeparator();
+
         JMenuItem myProgramItem = new JMenuItem("My Program\u2026");
         myProgramItem.setMnemonic(KeyEvent.VK_M);
         myProgramItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, KeyEvent.CTRL_DOWN_MASK));
         myProgramItem.addActionListener(e -> openUserTeamDetail());
         myProgramItem.setEnabled(leagueCore.userTeam != null);
         team.add(myProgramItem);
+
+        JMenuItem myCoachItem = new JMenuItem("My Coach Profile\u2026");
+        myCoachItem.addActionListener(e -> selectScreen("My Coach"));
+        team.add(myCoachItem);
 
         bar.add(team);
 
@@ -436,6 +464,75 @@ public class LeagueHomeView extends JFrame {
         mockDraft.setMnemonic(KeyEvent.VK_M);
         mockDraft.addActionListener(e -> showMockDraft());
         view.add(mockDraft);
+
+        view.addSeparator();
+
+        JMenu navMenu = new JMenu("Go to Screen");
+        navMenu.setMnemonic(KeyEvent.VK_G);
+
+        JMenuItem goHome = new JMenuItem("Home Dashboard");
+        goHome.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, KeyEvent.CTRL_DOWN_MASK));
+        goHome.addActionListener(e -> selectScreen("Home"));
+        navMenu.add(goHome);
+
+        JMenuItem goStandings = new JMenuItem("Standings");
+        goStandings.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, KeyEvent.CTRL_DOWN_MASK));
+        goStandings.addActionListener(e -> selectScreen("Standings"));
+        navMenu.add(goStandings);
+
+        JMenuItem goScoreboard = new JMenuItem("Scoreboard");
+        goScoreboard.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, KeyEvent.CTRL_DOWN_MASK));
+        goScoreboard.addActionListener(e -> selectScreen("Scoreboard"));
+        navMenu.add(goScoreboard);
+
+        JMenuItem goPoll = new JMenuItem("Poll Rankings");
+        goPoll.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_4, KeyEvent.CTRL_DOWN_MASK));
+        goPoll.addActionListener(e -> selectScreen("Poll Rankings"));
+        navMenu.add(goPoll);
+
+        JMenuItem goTeamRank = new JMenuItem("Team Rankings");
+        goTeamRank.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_5, KeyEvent.CTRL_DOWN_MASK));
+        goTeamRank.addActionListener(e -> selectScreen("Team Rankings"));
+        navMenu.add(goTeamRank);
+
+        JMenuItem goPlayerStats = new JMenuItem("Player Stats");
+        goPlayerStats.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_6, KeyEvent.CTRL_DOWN_MASK));
+        goPlayerStats.addActionListener(e -> selectScreen("Player Stats"));
+        navMenu.add(goPlayerStats);
+
+        JMenuItem goPlayerSearch = new JMenuItem("Player Search");
+        goPlayerSearch.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_DOWN_MASK));
+        goPlayerSearch.addActionListener(e -> selectScreen("Player Search"));
+        navMenu.add(goPlayerSearch);
+
+        JMenuItem goNews = new JMenuItem("News");
+        goNews.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_7, KeyEvent.CTRL_DOWN_MASK));
+        goNews.addActionListener(e -> selectScreen("News"));
+        navMenu.add(goNews);
+
+        JMenuItem goCoaches = new JMenuItem("Coaches Database");
+        goCoaches.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_8, KeyEvent.CTRL_DOWN_MASK));
+        goCoaches.addActionListener(e -> selectScreen("Coaches"));
+        navMenu.add(goCoaches);
+
+        JMenuItem goHistory = new JMenuItem("League History");
+        goHistory.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_9, KeyEvent.CTRL_DOWN_MASK));
+        goHistory.addActionListener(e -> selectScreen("League History"));
+        navMenu.add(goHistory);
+
+        JMenuItem goHof = new JMenuItem("Hall of Fame");
+        goHof.addActionListener(e -> selectScreen("Hall of Fame"));
+        navMenu.add(goHof);
+
+        JMenuItem goRecords = new JMenuItem("League Records");
+        goRecords.addActionListener(e -> selectScreen("Records"));
+        navMenu.add(goRecords);
+
+        JMenuItem goMyCoach = new JMenuItem("My Coach");
+        goMyCoach.addActionListener(e -> selectScreen("My Coach"));
+        navMenu.add(goMyCoach);
+
+        view.add(navMenu);
 
         bar.add(view);
 

@@ -179,7 +179,7 @@ public final class DesktopTheme {
         if (!loaded) {
             loaded = true;
             Preferences p = Preferences.userRoot().node(PREF_NODE);
-            dark = p.getBoolean(KEY_DARK, false);
+            dark = p.getBoolean(KEY_DARK, true);
             highContrast = p.getBoolean(KEY_HIGH_CONTRAST, false);
         }
         recache();
@@ -387,6 +387,49 @@ public final class DesktopTheme {
         btn.setContentAreaFilled(false);
         btn.setBorder(BorderFactory.createEmptyBorder(10, 24, 10, 24));
         btn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+    }
+
+    /**
+     * Styles a dashboard quick navigation button with sleek HUD styling.
+     */
+    public static void styleHudQuickButton(JButton btn, boolean isAccent) {
+        if (btn == null) return;
+        Color bg = isAccent
+                ? (dark ? new Color(0, 230, 118, 50) : new Color(50, 100, 180))
+                : (dark ? new Color(17, 28, 46) : new Color(240, 243, 248));
+        Color fg = isAccent
+                ? (dark ? successGreen() : Color.WHITE)
+                : (dark ? Color.WHITE : textPrimary());
+        Color border = isAccent
+                ? (dark ? successGreen() : new Color(50, 100, 180))
+                : borderSubtle();
+
+        btn.setFont(new Font("SansSerif", Font.BOLD, 11));
+        btn.setBackground(bg);
+        btn.setForeground(fg);
+        btn.setFocusPainted(false);
+        btn.setContentAreaFilled(true);
+        btn.setOpaque(true);
+        btn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        btn.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(border, 1),
+                BorderFactory.createEmptyBorder(6, 12, 6, 12)));
+    }
+
+    /**
+     * Ensures foreground text color has sufficient contrast against a given background.
+     * If contrast is too low, falls back to textPrimary().
+     */
+    public static Color ensureReadableText(Color fg, Color bg) {
+        if (fg == null) return textPrimary();
+        double lFg = (0.299 * fg.getRed() + 0.587 * fg.getGreen() + 0.114 * fg.getBlue()) / 255.0;
+        double lBg = bg != null
+                ? (0.299 * bg.getRed() + 0.587 * bg.getGreen() + 0.114 * bg.getBlue()) / 255.0
+                : (dark ? 0.05 : 0.95);
+        if (Math.abs(lFg - lBg) < 0.32) {
+            return textPrimary();
+        }
+        return fg;
     }
 
     /**

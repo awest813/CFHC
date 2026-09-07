@@ -7,6 +7,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -14,6 +15,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
 import java.awt.RenderingHints;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 /**
  * Swing dashboard card component for TEAM OVERALL.
@@ -22,8 +25,40 @@ import java.awt.RenderingHints;
 public class TeamOverallCard extends CustomCardPanel {
 
     public TeamOverallCard(Team team) {
+        this(team, null);
+    }
+
+    public TeamOverallCard(Team team, Runnable onOpenTeamDetail) {
         super("Team Overall");
         JPanel content = getContentArea();
+
+        if (onOpenTeamDetail != null) {
+            JPanel headerRight = new JPanel();
+            headerRight.setOpaque(false);
+            JLabel viewTeam = new JLabel("DETAILS \u25B8");
+            viewTeam.setFont(new Font("SansSerif", Font.BOLD, 9));
+            viewTeam.setForeground(DesktopTheme.successGreen());
+            viewTeam.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            viewTeam.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    onOpenTeamDetail.run();
+                }
+            });
+            headerRight.add(viewTeam);
+            if (getHeaderBar() != null) {
+                getHeaderBar().add(headerRight, BorderLayout.EAST);
+            }
+
+            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            setToolTipText("Click to view full program details");
+            addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    onOpenTeamDetail.run();
+                }
+            });
+        }
 
         int off = team != null ? (int) team.teamOffTalent : 0;
         int def = team != null ? (int) team.teamDefTalent : 0;
@@ -44,15 +79,15 @@ public class TeamOverallCard extends CustomCardPanel {
         // Conference rank: count teams in the same conference with higher prestige.
         int confRank = computeConfRank(team);
 
-        JPanel body = new JPanel(new BorderLayout(0, 10));
+        JPanel body = new JPanel(new BorderLayout(0, 6));
         body.setOpaque(false);
 
         // Top Row: Big OVR Digit + Grade & Stars
-        JPanel topRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 14, 0));
+        JPanel topRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         topRow.setOpaque(false);
 
         JLabel ovrDigit = new JLabel(String.valueOf(ovr));
-        ovrDigit.setFont(new Font("SansSerif", Font.BOLD, 54));
+        ovrDigit.setFont(new Font("SansSerif", Font.BOLD, 46));
         ovrDigit.setForeground(DesktopTheme.successGreen());
 
         JPanel gradeBox = new JPanel(new GridLayout(2, 1, 0, 2));
@@ -77,7 +112,7 @@ public class TeamOverallCard extends CustomCardPanel {
         body.add(topRow, BorderLayout.NORTH);
 
         // Center Column: Offense / Defense / Special Teams breakdown
-        JPanel subCol = new JPanel(new GridLayout(3, 1, 0, 4));
+        JPanel subCol = new JPanel(new GridLayout(3, 1, 0, 3));
         subCol.setOpaque(false);
 
         subCol.add(buildSubItem("\u2694", "OFFENSE", off > 0 ? String.valueOf(off) : "N/A"));
@@ -91,7 +126,7 @@ public class TeamOverallCard extends CustomCardPanel {
         footerRanks.setOpaque(false);
         footerRanks.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.borderSubtle()),
-                BorderFactory.createEmptyBorder(6, 0, 0, 0)));
+                BorderFactory.createEmptyBorder(4, 0, 0, 0)));
 
         JPanel natBox = new JPanel(new BorderLayout());
         natBox.setOpaque(false);
@@ -99,7 +134,7 @@ public class TeamOverallCard extends CustomCardPanel {
         natLbl.setFont(new Font("SansSerif", Font.BOLD, 9));
         natLbl.setForeground(DesktopTheme.textSecondary());
         JLabel natVal = new JLabel(natRank > 0 ? String.valueOf(natRank) : "N/A", JLabel.RIGHT);
-        natVal.setFont(new Font("SansSerif", Font.BOLD, 16));
+        natVal.setFont(new Font("SansSerif", Font.BOLD, 15));
         natVal.setForeground(DesktopTheme.warningText());
         natBox.add(natLbl, BorderLayout.WEST);
         natBox.add(natVal, BorderLayout.EAST);
@@ -110,7 +145,7 @@ public class TeamOverallCard extends CustomCardPanel {
         confLbl.setFont(new Font("SansSerif", Font.BOLD, 9));
         confLbl.setForeground(DesktopTheme.textSecondary());
         JLabel confVal = new JLabel(confRank > 0 ? String.valueOf(confRank) : "N/A", JLabel.RIGHT);
-        confVal.setFont(new Font("SansSerif", Font.BOLD, 16));
+        confVal.setFont(new Font("SansSerif", Font.BOLD, 15));
         confVal.setForeground(DesktopTheme.successGreen());
         confBox.add(confLbl, BorderLayout.WEST);
         confBox.add(confVal, BorderLayout.EAST);
@@ -123,19 +158,19 @@ public class TeamOverallCard extends CustomCardPanel {
     }
 
     private JPanel buildSubItem(String icon, String label, String val) {
-        JPanel p = new JPanel(new BorderLayout(8, 0));
+        JPanel p = new JPanel(new BorderLayout(6, 0));
         p.setOpaque(true);
-        p.setBackground(new Color(6, 12, 20));
+        p.setBackground(new Color(17, 28, 46));
         p.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(DesktopTheme.borderSubtle(), 1),
-                BorderFactory.createEmptyBorder(4, 8, 4, 8)));
+                BorderFactory.createEmptyBorder(2, 8, 2, 8)));
 
         JLabel lbl = new JLabel(icon + "  " + label);
         lbl.setFont(new Font("SansSerif", Font.BOLD, 10));
-        lbl.setForeground(DesktopTheme.textSecondary());
+        lbl.setForeground(Color.WHITE);
 
         JLabel v = new JLabel(val);
-        v.setFont(new Font("Monospaced", Font.BOLD, 13));
+        v.setFont(new Font("SansSerif", Font.BOLD, 12));
         v.setForeground(DesktopTheme.successGreen());
 
         p.add(lbl, BorderLayout.WEST);

@@ -32,6 +32,7 @@ public class SeasonAwardsDialog extends JDialog {
         setSize(700, 540);
         setLayout(new BorderLayout());
         DesktopTheme.styleDialogContentPane(getContentPane());
+        DesktopTheme.applyWindowIcon(this);
 
         JTabbedPane tabs = new JTabbedPane();
         tabs.setOpaque(true);
@@ -84,6 +85,10 @@ public class SeasonAwardsDialog extends JDialog {
             return "(No data available yet — play through the end of the season.)";
         }
         return s;
+    }
+
+    public static void show(JFrame owner, League league) {
+        show(owner, league, null);
     }
 
     /**
