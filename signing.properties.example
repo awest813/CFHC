@@ -1,0 +1,12 @@
+# Template for the gitignored signing.properties read by app/build.gradle.
+# Copy to signing.properties at the repo root and fill in real values.
+# Env vars (CFHC_KEYSTORE, CFHC_STORE_PASSWORD, CFHC_KEY_ALIAS, CFHC_KEY_PASSWORD)
+# take precedence over this file.
+#
+#   storeFile=C:/absolute/path/to/cfhc-release.jks
+#   storePassword=CHANGE_ME
+#   keyAlias=cfhc
+#   keyPassword=CHANGE_ME
+#
+# BACK UP the keystore + passwords somewhere safe: the keystore IS the app's
+# identity on Google Play — losing it means the app can never be updated again.

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Engine data resolved by name at runtime via getIdentifier()
+     (AndroidResourceProvider; key constants on PlatformResourceProvider).
+     The resource shrinker must never strip these, or league generation
+     renders "[teams]" / "[bowls]" instead of real data. -->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@string/app_name,@string/changelog,@string/credits,@string/league_player_names,@string/league_last_names,@string/conferences,@string/teams,@string/bowls" />

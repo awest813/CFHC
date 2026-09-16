@@ -1,0 +1,93 @@
+# Release pipeline: pushing a v* tag builds the signed Android artifacts and the
+# desktop jar, then attaches them to a GitHub Release (which also feeds the
+# in-app Help → Check for Updates checker).
+#
+# One-time setup (repo Settings → Secrets and variables → Actions):
+#   CFHC_KEYSTORE_BASE64   — base64 of cfhc-release.jks (certutil/-base64 the file)
+#   CFHC_STORE_PASSWORD    — keystore password
+#   CFHC_KEY_ALIAS         — key alias (cfhc)
+#   CFHC_KEY_PASSWORD      — key password
+# Without those secrets the android job fails fast by design (see
+# app/build.gradle) — release artifacts must never ship debug-signed.
+# Full manual procedure: docs/release-runbook.md
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x gradlew
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: 'tools platform-tools platforms;android-35 build-tools;35.0.0'
+
+      - name: Restore release keystore
+        run: echo "${{ secrets.CFHC_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/cfhc-release.jks"
+
+      - name: Build signed release AAB + APK
+        env:
+          CFHC_KEYSTORE: ${{ runner.temp }}/cfhc-release.jks
+          CFHC_STORE_PASSWORD: ${{ secrets.CFHC_STORE_PASSWORD }}
+          CFHC_KEY_ALIAS: ${{ secrets.CFHC_KEY_ALIAS }}
+          CFHC_KEY_PASSWORD: ${{ secrets.CFHC_KEY_PASSWORD }}
+        run: ./gradlew :app:bundleRelease :app:assembleRelease --no-daemon
+
+      - name: Attach Android artifacts to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || \
+            gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --verify-tag --generate-notes
+          gh release upload "$GITHUB_REF_NAME" \
+            app/build/outputs/bundle/release/*.aab \
+            app/build/outputs/apk/release/*.apk --clobber
+
+  desktop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x gradlew
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Desktop standalone gate (no Android SDK)
+        run: |
+          unset ANDROID_HOME ANDROID_SDK_ROOT ANDROID_SDK_HOME || true
+          ./gradlew -p desktop-standalone :engine:desktopStandaloneGate --no-daemon
+
+      - name: Attach desktop jar to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 || \
+            gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --verify-tag --generate-notes
+          gh release upload "$GITHUB_REF_NAME" \
+            desktop-standalone/engine/build/libs/CFHC-desktop-*.jar --clobber

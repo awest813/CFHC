@@ -4,24 +4,31 @@ plugins {
 
 def repoRoot = rootProject.projectDir
 
+// Release signing resolution order: CFHC_* env vars, then a gitignored
+// signing.properties at the repo root (see signing.properties.example),
+// then the auto-generated debug key as a last resort so the project still
+// configures on fresh clones and CI. Packaging a release artifact with the
+// debug key fails fast unless -PallowDebugSignedRelease is passed — CI sets
+// it because it only exercises the R8/minify config; its release artifacts
+// are for smoke tests and must never be distributed.
+def signingProps = new Properties()
+def signingPropsFile = rootProject.file('signing.properties')
+if (signingPropsFile.exists()) {
+    signingPropsFile.withInputStream { signingProps.load(it) }
+}
+def releaseKeystorePath = System.getenv('CFHC_KEYSTORE') ?: signingProps.getProperty('storeFile')
+def releaseKeystoreUsable = releaseKeystorePath != null && !releaseKeystorePath.isEmpty() && file(releaseKeystorePath).exists()
+ext.usingDebugSigningForRelease = !releaseKeystoreUsable
+
 android {
     namespace 'antdroid.cfbcoach'
     signingConfigs {
-        // Optional env-var driven release signing. When CFHC_KEYSTORE points
-        // at a real keystore, sign with it; otherwise fall back to the
-        // auto-generated debug key so release is always buildable (CI, fresh
-        // clones) without carrying release secrets in the repo.
-        //   CFHC_KEYSTORE       — absolute path to the .jks keystore
-        //   CFHC_STORE_PASSWORD — keystore password
-        //   CFHC_KEY_ALIAS      — key alias
-        //   CFHC_KEY_PASSWORD   — key password
         config {
-            def keystorePath = System.getenv('CFHC_KEYSTORE')
-            if (keystorePath != null && !keystorePath.isEmpty() && file(keystorePath).exists()) {
-                storeFile file(keystorePath)
-                storePassword System.getenv('CFHC_STORE_PASSWORD') ?: ''
-                keyAlias System.getenv('CFHC_KEY_ALIAS') ?: ''
-                keyPassword System.getenv('CFHC_KEY_PASSWORD') ?: ''
+            if (releaseKeystoreUsable) {
+                storeFile file(releaseKeystorePath)
+                storePassword System.getenv('CFHC_STORE_PASSWORD') ?: signingProps.getProperty('storePassword') ?: ''
+                keyAlias System.getenv('CFHC_KEY_ALIAS') ?: signingProps.getProperty('keyAlias') ?: ''
+                keyPassword System.getenv('CFHC_KEY_PASSWORD') ?: signingProps.getProperty('keyPassword') ?: ''
             } else {
                 storeFile signingConfigs.debug.storeFile
                 storePassword signingConfigs.debug.storePassword
@@ -133,10 +140,27 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
 }
 
+// Refuse to package a distribution release signed with the debug key. CI passes
+// -PallowDebugSignedRelease because it only exercises the R8/minify pipeline.
+gradle.taskGraph.whenReady { graph ->
+    def packagingRelease = graph.allTasks.any { it.name == 'assembleRelease' || it.name == 'bundleRelease' }
+    if (packagingRelease && ext.usingDebugSigningForRelease && !project.hasProperty('allowDebugSignedRelease')) {
+        throw new GradleException(
+            "Refusing to build a release artifact signed with the debug key.\n" +
+            "Provide signing via CFHC_KEYSTORE / CFHC_STORE_PASSWORD / CFHC_KEY_ALIAS /\n" +
+            "CFHC_KEY_PASSWORD env vars, or a gitignored signing.properties at the repo\n" +
+            "root (see signing.properties.example). To intentionally build a\n" +
+            "debug-signed release (CI config check only), pass -PallowDebugSignedRelease.")
+    }
+}
+
 tasks.withType(Test).configureEach {
     workingDir = repoRoot
     filter {
-        excludeTestsMatching '*Stress100SeasonsTest*'
-        excludeTestsMatching '*Debug20SeasonsFlowTest*'
+        // Long-running suites: opt in with -PrunStress for release-gate runs.
+        if (!project.hasProperty('runStress')) {
+            excludeTestsMatching '*Stress100SeasonsTest*'
+            excludeTestsMatching '*Debug20SeasonsFlowTest*'
+        }
     }
 }

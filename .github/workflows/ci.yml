@@ -73,7 +73,9 @@ jobs:
       - name: Assemble beta, release APKs + release AAB
         # Exercises the release buildType (R8/minify + signing) so config,
         # ProGuard, and signing-config breaks surface here, not at release.
-        run: ./gradlew :app:assembleBeta :app:assembleRelease :app:bundleRelease --no-daemon
+        # No signing secrets exist in CI, so allow the (debug-signed) fallback
+        # explicitly — these artifacts are for smoke tests, never distribution.
+        run: ./gradlew :app:assembleBeta :app:assembleRelease :app:bundleRelease -PallowDebugSignedRelease --no-daemon
 
       - name: Android lint (debug, beta, release)
         run: ./gradlew :app:lintDebug :app:lintBeta :app:lintRelease --no-daemon
