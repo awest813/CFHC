@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
+import java.util.concurrent.CountDownLatch;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,6 +38,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.core.view.GravityCompat;
 import com.google.android.material.navigation.NavigationView;
 import positions.Player;
+import simulation.SeasonAdvanceResult;
+import simulation.SeasonFlowOrder;
 import simulation.Conference;
 
 import simulation.CustomUniverseParser;
@@ -102,6 +105,21 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private simulation.GameFlowManager flowManager;
     private AndroidAudioManager audioManager;
     private AndroidSoundtrackEngine soundtrackEngine;
+
+    //Bulk simulation (Phase 5 part 2): decisions met mid-bulk are queued, the
+    //bulk stops, and the queued dialog shows when the run ends.
+    private boolean bulkRunning;
+    private volatile boolean cancelBulk;
+    private final java.util.List<Runnable> pendingBulkDialogs = new java.util.ArrayList<>();
+
+    /** Queues a decision dialog during a bulk run; false when not bulking. */
+    private boolean bulkQueueDialog(Runnable show) {
+        if (!bulkRunning) {
+            return false;
+        }
+        pendingBulkDialogs.add(show);
+        return true;
+    }
 
     /** UI-sound access for dialogs (mirrors desktop LeagueHomeView.uiSounds). */
     public simulation.AudioManager uiSounds() {
@@ -407,15 +425,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             CoachProgramDialogController.show(this, userTeam);
         } else if (id == R.id.nav_settings) {
             changeSettingsDialog();
+        } else if (id == R.id.nav_sim_next_stop) {
+            startBulkSim(false);
+        } else if (id == R.id.nav_sim_postseason) {
+            startBulkSim(true);
         } else if (id == R.id.nav_save_game) {
-            if (simLeague.currentWeek < 1 || simLeague.currentWeek == 99 || simLeague.recruitingPhaseActive) {
-                saveLeague();
-            } else if (simLeague.currentWeek > 1) {
-                Toast.makeText(MainActivity.this, "Save Function Disabled. Save only available in pre-season or before recruiting.",
+            if (bulkRunning) {
+                Toast.makeText(MainActivity.this, "Finish the current simulation first.",
                         Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(MainActivity.this, "Save Function disabled during initial season.",
-                        Toast.LENGTH_SHORT).show();
+                // Midseason saves are allowed: the structured save format
+                // round-trips any point in a season (recruiting checkpoints
+                // keep their dedicated slot path).
+                saveLeague();
             }
         }
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -898,16 +920,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void showNotification(String title, String message) {
+        if (bulkRunning) return;
         PlatformUiHelper.showNotification(this, title, message);
     }
 
     @Override
     public void refreshCurrentPage() {
+        if (bulkRunning) return; // the bulk runner does one final resetUI
         resetUI();
     }
 
     @Override
     public void showAwardsSummary(String summaryText) {
+        if (bulkQueueDialog(() -> showAwardsSummary(summaryText))) return;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Awards ceremony")
                 .setMessage(summaryText)
@@ -917,21 +942,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void showMidseasonSummary() {
+        if (bulkQueueDialog(this::showMidseasonSummary)) return;
         midseasonSummary();
     }
 
     @Override
     public void showSeasonSummary() {
+        if (bulkQueueDialog(this::showSeasonSummary)) return;
         seasonSummary();
     }
 
     @Override
     public void showContractDialog() {
+        if (bulkQueueDialog(this::showContractDialog)) return;
         if (simLeague.isCareerMode()) contractDialog();
     }
 
     @Override
     public void showJobOffersDialog() {
+        if (bulkQueueDialog(this::showJobOffersDialog)) return;
         if (simLeague.isCareerMode() && userTeam != null && userTeam.fired) {
             jobOffers(userHC);
         }
@@ -939,11 +968,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void showPromotionsDialog() {
+        if (bulkQueueDialog(this::showPromotionsDialog)) return;
         if (simLeague.isCareerMode()) promotions(userHC);
     }
 
     @Override
     public void showCoordinatorHiringDialog() {
+        if (bulkQueueDialog(this::showCoordinatorHiringDialog)) return;
         if (userTeam != null && userTeam.isUserControlled()) {
             hireAssistants();
         }
@@ -951,16 +982,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void showRedshirtList() {
-                        TransferDialogController.showRedshirtList(this, simLeague, userTeam);
+        if (bulkQueueDialog(this::showRedshirtList)) return;
+        TransferDialogController.showRedshirtList(this, simLeague, userTeam);
     }
 
     @Override
     public void showTransferList() {
+        if (bulkQueueDialog(this::showTransferList)) return;
         transfers();
     }
 
     @Override
     public void showRealignmentSummary() {
+        if (bulkQueueDialog(this::showRealignmentSummary)) return;
         String news = simLeague.newsRealignment;
         if (news == null || news.isEmpty()) {
             news = "No conference realignment occurred this off-season.";
@@ -980,6 +1014,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void startRecruitingFlow() {
+        if (bulkRunning) {
+            cancelBulk = true; // recruiting needs the real UI; stop the bulk here
+            return;
+        }
         SimulationFacade.prepareCpuRecruiting(simLeague);
         if (!SimulationFacade.needsUserRecruiting(simLeague)) {
             completeRecruitingWithoutUserUi();
@@ -1261,14 +1299,139 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             resetUI();
             return;
         }
+        simulation.SeasonAdvanceResult advance = null;
         if (seasonController != null) {
-            seasonController.advanceWeek();
+            advance = seasonController.advanceWeek();
         }
 
         if (userTeam != null && userTeam.disciplineAction) {
             disciplineSetup();
         }
         resetUI();
+
+        if (advance != null) {
+            if (advance.getAudioEvent() != null) {
+                audioManager.play(advance.getAudioEvent());
+            }
+            String digest = advance.getWeekDigest();
+            if (digest != null && !digest.isEmpty()) {
+                showWeekDigestDialog(digest);
+            }
+        }
+    }
+
+    /** Auto-popup week-in-review (desktop parity: the result dialog fires there). */
+    private void showWeekDigestDialog(String digest) {
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Week In Review")
+                .setMessage(digest)
+                .setPositiveButton(android.R.string.ok, null)
+                .show();
+    }
+
+    /**
+     * Bulk simulation (desktop parity): advance weeks on a background thread
+     * while the engine hops onto the UI thread per step, stopping at the target
+     * week, a queued decision dialog, the recruiting gate, or a season rollover.
+     * Informational dialogs are suppressed; the decision dialog (if any) shows
+     * when the run ends.
+     */
+    private void startBulkSim(final boolean throughPostseason) {
+        if (bulkRunning || seasonController == null || simLeague == null) {
+            return;
+        }
+        if (simLeague.recruitingPhaseActive) {
+            beginRecruiting();
+            return;
+        }
+        final int targetWeek = throughPostseason
+                ? SeasonFlowOrder.firstOffseasonWeek(simLeague.regSeasonWeeks)
+                : Integer.MAX_VALUE;
+
+        bulkRunning = true;
+        cancelBulk = false;
+        pendingBulkDialogs.clear();
+        audioManager.play(AudioEvent.ADVANCE);
+
+        final android.app.AlertDialog progress = new android.app.AlertDialog.Builder(this)
+                .setTitle("Simulating")
+                .setMessage("Week " + simLeague.currentWeek)
+                .setNegativeButton("Stop", (d, w) -> cancelBulk = true)
+                .show();
+
+        final String[] bulkError = new String[1];
+        final Thread worker = new Thread(() -> {
+            int played = 0;
+            String lastDigest = "";
+            SeasonAdvanceResult last = null;
+            try {
+                while (!cancelBulk && played < 60) {
+                    if (simLeague == null || simLeague.recruitingPhaseActive) break;
+                    if (simLeague.currentWeek >= targetWeek) break;
+                    final CountDownLatch step = new CountDownLatch(1);
+                    final SeasonAdvanceResult[] box = new SeasonAdvanceResult[1];
+                    runOnUiThread(() -> {
+                        try {
+                            box[0] = seasonController != null ? seasonController.advanceWeek() : null;
+                        } catch (RuntimeException ex) {
+                            PlatformLog.e("MainActivity", "Bulk sim step failed", ex);
+                            bulkError[0] = ex.getMessage() != null ? ex.getMessage() : ex.toString();
+                            cancelBulk = true;
+                        } finally {
+                            step.countDown();
+                        }
+                    });
+                    step.await();
+                    SeasonAdvanceResult r = box[0];
+                    if (r == null) break;
+                    played++;
+                    last = r;
+                    if (r.getWeekDigest() != null && !r.getWeekDigest().isEmpty()) {
+                        lastDigest = r.getWeekDigest();
+                    }
+                    if (!pendingBulkDialogs.isEmpty()) break; // decision point reached
+                    if (r.hasEvent(SeasonAdvanceResult.EventType.NEEDS_DIALOG)) break;
+                    if (r.hasEvent(SeasonAdvanceResult.EventType.RECRUITING_STARTED)
+                            || r.hasEvent(SeasonAdvanceResult.EventType.AWAITING_RECRUITING)) break;
+                    if (simLeague.currentWeek == 0) break; // season rolled over
+                    if (simLeague.currentWeek >= targetWeek) break;
+                    final int weekNow = simLeague.currentWeek;
+                    runOnUiThread(() -> {
+                        if (progress.isShowing()) progress.setMessage("Week " + weekNow);
+                    });
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+
+            final int playedFinal = played;
+            final String digestFinal = lastDigest;
+            final SeasonAdvanceResult lastFinal = last;
+            runOnUiThread(() -> {
+                bulkRunning = false;
+                progress.dismiss();
+                resetUI();
+                audioManager.play(AudioEvent.CONFIRM);
+                while (!pendingBulkDialogs.isEmpty()) {
+                    pendingBulkDialogs.remove(0).run(); // dialogs stack; user works top-down
+                }
+                if (digestFinal != null && !digestFinal.isEmpty()) {
+                    showWeekDigestDialog(digestFinal);
+                } else if (lastFinal != null && simLeague != null && simLeague.currentWeek == 0) {
+                    Toast.makeText(MainActivity.this,
+                            "Season complete. The new season is ready.",
+                            Toast.LENGTH_SHORT).show();
+                }
+                String summary = "Simulated " + playedFinal + " week"
+                        + (playedFinal == 1 ? "" : "s") + ".";
+                if (bulkError[0] != null) {
+                    summary = "Simulation stopped: " + bulkError[0];
+                }
+                Toast.makeText(MainActivity.this, summary,
+                        bulkError[0] != null ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT).show();
+            });
+        });
+        worker.start();
     }
 
 
@@ -1313,14 +1476,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.action_save_league) {
 
               //Clicked Save League in drop down menu
-            if (simLeague.currentWeek < 1 || simLeague.currentWeek == 99 || simLeague.recruitingPhaseActive) {
-                saveLeague();
-            } else if (simLeague.currentWeek > 1) {
-                Toast.makeText(MainActivity.this, "Save Function Disabled. Save only available in pre-season or before recruiting.",
+            if (bulkRunning) {
+                Toast.makeText(MainActivity.this, "Finish the current simulation first.",
                         Toast.LENGTH_SHORT).show();
             } else {
-                Toast.makeText(MainActivity.this, "Save Function disabled during initial season.",
-                        Toast.LENGTH_SHORT).show();
+                // Midseason saves are allowed: the structured save format
+                // round-trips any point in a season (recruiting checkpoints
+                // keep their dedicated slot path).
+                saveLeague();
             }
         } else if (id == R.id.action_export_league) {
 
@@ -2080,11 +2243,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public void disciplineAction(final Player player, final String issue, final int gamesA, final int gamesB) {
+        if (bulkQueueDialog(() -> disciplineAction(player, issue, gamesA, gamesB))) return;
         DisciplineDialogController.showDisciplineAction(this, player, issue, gamesA, gamesB, userTeam);
     }
 
     @Override
     public void transferPlayer(final Player p) {
+        if (bulkQueueDialog(() -> transferPlayer(p))) return;
         PlayerProfileSnapshot snapshot = PlayerProfileSnapshot.fromPlayer(p);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);

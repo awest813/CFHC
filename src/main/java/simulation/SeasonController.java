@@ -41,7 +41,7 @@ public final class SeasonController {
 
         if (league.currentWeek == 0 && !redshirtComplete) {
             handlePreseasonTransition(result);
-        } else if (league.currentWeek <= regSeasonWeeks + 3) {
+        } else if (league.currentWeek <= SeasonFlowOrder.nationalChampionshipWeek(regSeasonWeeks)) {
             handleInSeasonWeek(result);
         } else {
             handleOffseasonWeek(result);
@@ -60,6 +60,7 @@ public final class SeasonController {
         league.preseasonNews();
         league.currentWeek++; // Advance to Week 1
         updateSimStatus(result, "Preseason", "Play Week 1", true);
+        result.audioEvent(AudioEvent.WHISTLE);
         result.weekAdvanced();
     }
 
@@ -76,30 +77,67 @@ public final class SeasonController {
             result.needsDialog(SeasonAdvanceResult.DialogType.MIDSEASON_SUMMARY, null);
         }
 
+        result.weekDigest(league.buildWeekDigest(weekBefore));
+        result.audioEvent(weekAudioEvent(weekBefore));
         updateInSeasonStatus(result);
+    }
+
+    /**
+     * Result-atmosphere audio cue for the week just played: postseason crowd noise,
+     * the championship organ, a roar for a ranked upset, a cheer for a routine win.
+     */
+    private AudioEvent weekAudioEvent(int weekPlayed) {
+        if (league.userTeam == null) {
+            return null;
+        }
+        if (weekPlayed == SeasonFlowOrder.nationalChampionshipWeek(regSeasonWeeks)) {
+            return AudioEvent.STADIUM_ORGAN;
+        }
+        if (weekPlayed >= SeasonFlowOrder.conferenceChampionshipWeek(regSeasonWeeks)) {
+            return AudioEvent.CROWD_ROAR;
+        }
+        Game g = league.findPlayedUserGame(weekPlayed);
+        if (g == null) {
+            return null;
+        }
+        boolean home = g.homeTeam == league.userTeam;
+        int us = home ? g.homeScore : g.awayScore;
+        int them = home ? g.awayScore : g.homeScore;
+        if (us <= them) {
+            return null;
+        }
+        Team opp = home ? g.awayTeam : g.homeTeam;
+        int oppRank = opp.getRankTeamPollScore();
+        int ourRank = league.userTeam.getRankTeamPollScore();
+        if (oppRank >= 1 && oppRank <= 25 && oppRank + 4 < ourRank) {
+            return AudioEvent.CROWD_ROAR; // upset over a better-ranked opponent
+        }
+        return AudioEvent.TOUCHDOWN_CHEER;
     }
 
     private void updateInSeasonStatus(SeasonAdvanceResult.Builder result) {
         String buttonText;
-        if (league.currentWeek < regSeasonWeeks - 1) {
+        if (league.currentWeek < SeasonFlowOrder.conferenceChampionshipWeek(regSeasonWeeks)) {
             buttonText = "Play Week " + (league.currentWeek + 1);
-        } else if (league.currentWeek == regSeasonWeeks - 1) {
+        } else if (league.currentWeek == SeasonFlowOrder.conferenceChampionshipWeek(regSeasonWeeks)) {
             buttonText = "Play Conf Championships";
-        } else if (league.currentWeek == regSeasonWeeks) {
+        } else if (league.currentWeek == SeasonFlowOrder.bowlWeek1(regSeasonWeeks)) {
             String awards = league.getHeismanCeremonyStr();
+            String linemanAwards = league.getLinemanPOTYStr();
             Player heismanWinner = league.getHeismanWinner();
             String awardsSummary = heismanWinner != null ? heismanWinner.getAwardDescription() : awards;
             if (awardsSummary == null) awardsSummary = "";
+            awardsSummary = awardsSummary + "\n\n" + linemanAwards;
             bridge.showAwardsSummary(awardsSummary);
             result.needsDialog(SeasonAdvanceResult.DialogType.AWARDS_SUMMARY, awardsSummary);
 
             buttonText = league.expPlayoffs ? "Play First Round" : "Play Bowl Week 1";
 
-        } else if (league.currentWeek == regSeasonWeeks + 1) {
+        } else if (league.currentWeek == SeasonFlowOrder.bowlWeek2(regSeasonWeeks)) {
             buttonText = league.expPlayoffs ? "Play Quarterfinals" : "Play Bowl Week 2";
-        } else if (league.currentWeek == regSeasonWeeks + 2) {
+        } else if (league.currentWeek == SeasonFlowOrder.bowlWeek3(regSeasonWeeks)) {
             buttonText = league.expPlayoffs ? "Play Semifinals" : "Play Bowl Week 3";
-        } else if (league.currentWeek == regSeasonWeeks + 3) {
+        } else if (league.currentWeek == SeasonFlowOrder.nationalChampionshipWeek(regSeasonWeeks)) {
             buttonText = "Play National Championship";
         } else {
             buttonText = "Season Summary";
@@ -108,26 +146,26 @@ public final class SeasonController {
     }
 
     private void handleOffseasonWeek(SeasonAdvanceResult.Builder result) {
-        if (league.currentWeek == regSeasonWeeks + 4) {
+        if (league.currentWeek == SeasonFlowOrder.seasonSummaryWeek(regSeasonWeeks)) {
             bridge.showSeasonSummary();
             result.needsDialog(SeasonAdvanceResult.DialogType.SEASON_SUMMARY, null);
             handleSeasonSummary(result);
 
-        } else if (league.currentWeek == regSeasonWeeks + 5) {
+        } else if (league.currentWeek == SeasonFlowOrder.contractsWeek(regSeasonWeeks)) {
             handleContracts(result);
-        } else if (league.currentWeek == regSeasonWeeks + 6) {
+        } else if (league.currentWeek == SeasonFlowOrder.jobOffersWeek(regSeasonWeeks)) {
             handleJobOffers(result);
-        } else if (league.currentWeek == regSeasonWeeks + 7) {
+        } else if (league.currentWeek == SeasonFlowOrder.coachCarouselWeek(regSeasonWeeks)) {
             handleCoachCarousel(result);
-        } else if (league.currentWeek == regSeasonWeeks + 8) {
+        } else if (league.currentWeek == SeasonFlowOrder.coordinatorHiringWeek(regSeasonWeeks)) {
             handleHireAssistants(result);
-        } else if (league.currentWeek == regSeasonWeeks + 9) {
+        } else if (league.currentWeek == SeasonFlowOrder.graduationWeek(regSeasonWeeks)) {
             handleSeasonAdvance(result);
-        } else if (league.currentWeek == regSeasonWeeks + 10) {
+        } else if (league.currentWeek == SeasonFlowOrder.transferPortalWeek(regSeasonWeeks)) {
             handleTransferLogic(result);
-        } else if (league.currentWeek == regSeasonWeeks + 11) {
+        } else if (league.currentWeek == SeasonFlowOrder.transferListWeek(regSeasonWeeks)) {
             handleTransferList(result);
-        } else if (league.currentWeek == regSeasonWeeks + 12) {
+        } else if (league.currentWeek == SeasonFlowOrder.realignmentWeek(regSeasonWeeks)) {
             handleRealignment(result);
         } else if (SeasonFlowOrder.isRecruitingGate(league.currentWeek, regSeasonWeeks)) {
             if (!league.recruitingPhaseActive) {
@@ -141,6 +179,23 @@ public final class SeasonController {
                 result.awaitingRecruiting();
             }
         }
+    }
+
+    /**
+     * Clears the recruiting gate without any UI: runs the CPU recruiting pass and
+     * rolls straight into the next season with an empty user class. Headless hosts
+     * and automation call this instead of pressing {@link #advanceWeek()} at the
+     * gate, which never advances the week on its own.
+     *
+     * @return true when the gate was active and the year rolled over
+     */
+    public boolean autoCompleteRecruiting() {
+        if (!SeasonFlowOrder.isRecruitingGate(league.currentWeek, regSeasonWeeks)) {
+            return false;
+        }
+        league.recruitPlayers();
+        league.finishRecruitingSeason("");
+        return true;
     }
 
 
@@ -168,6 +223,7 @@ public final class SeasonController {
     private void handleJobOffers(SeasonAdvanceResult.Builder result) {
         league.currentWeek++;
         result.weekAdvanced();
+        league.jobInterestNews();
         updateSimStatus(result, "Offseason", "Offseason: Coaching Changes", true);
         if (league.userTeam != null && league.userTeam.fired) {
             bridge.showJobOffersDialog();
@@ -215,6 +271,7 @@ public final class SeasonController {
     private void handleTransferList(SeasonAdvanceResult.Builder result) {
         league.currentWeek++;
         result.weekAdvanced();
+        league.portalNeedsNews();
         updateSimStatus(result, "Offseason", "Offseason: Continue", true);
         bridge.showTransferList();
         result.needsDialog(SeasonAdvanceResult.DialogType.TRANSFER_LIST, null);

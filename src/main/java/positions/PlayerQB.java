@@ -1,5 +1,6 @@
 package positions;
 
+import simulation.SimRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -29,8 +30,8 @@ public class PlayerQB extends Player {
     //New Player
     public PlayerQB(String nm, int yr, int stars, Team t) {
         position = "QB";
-        height = hAvg + (int) (Math.random() * ((hMax - hMin) + 1)) + hMin;
-        weight = wAvg + (int) (Math.random() * ((wMax - wMin) + 1)) + wMin;
+        height = hAvg + (int) (SimRandom.nextDouble() * ((hMax - hMin) + 1)) + hMin;
+        weight = wAvg + (int) (SimRandom.nextDouble() * ((wMax - wMin) + 1)) + wMin;
         name = nm;
         year = yr;
         team = t;
@@ -38,7 +39,7 @@ public class PlayerQB extends Player {
         wasRedshirt = getWasRedshirtStatus();
 
         createGenericAttributes(stars, attrDropper1, attDropper2, attDropper3, attDropper4, overallWt);
-        ratAttr4 = (int)(Math.random()*45)+45;
+        ratAttr4 = (int)(SimRandom.nextDouble()*45)+45;
         assignArchetype();
         ratOvr = getOverall();
 
@@ -49,14 +50,14 @@ public class PlayerQB extends Player {
         cost = (int) (cost / qbImportance);
 
         cost = getLocationCost();
-        if (cost < 0) cost = (int)(Math.random() * 5) + 1;
+        if (cost < 0) cost = (int)(SimRandom.nextDouble() * 5) + 1;
     }
 
     //Custom Player
     public PlayerQB(String nm, int yr, int stars, Team t, Boolean custom) {
         position = "QB";
-        height = hAvg + (int) (Math.random() * ((hMax - hMin) + 1)) + hMin;
-        weight = wAvg + (int) (Math.random() * ((wMax - wMin) + 1)) + wMin;
+        height = hAvg + (int) (SimRandom.nextDouble() * ((hMax - hMin) + 1)) + hMin;
+        weight = wAvg + (int) (SimRandom.nextDouble() * ((wMax - wMin) + 1)) + wMin;
         name = nm;
         year = yr;
         team = t;
@@ -66,7 +67,7 @@ public class PlayerQB extends Player {
         createGenericAttributes(stars, attrDropper1, attDropper2, attDropper3, attDropper4, overallWt);
 
         createImportedSkills(stars, attrDropper1, attDropper2, attDropper3, attDropper4, overallWt);
-        ratAttr4 = (int)(Math.random()*45)+45;
+        ratAttr4 = (int)(SimRandom.nextDouble()*45)+45;
         assignArchetype();
 
         ratOvr = getOverall();

@@ -26,4 +26,15 @@ public class DesktopThemeAccessibilityTest {
                 new DefaultTableModel(new Object[]{"Name"}, 0), 30, 11, "Candidates");
         assertEquals("Candidates", table.getAccessibleContext().getAccessibleName());
     }
+
+    @Test
+    public void applyWindowIcon_loadsWindowIconAsset() {
+        try (java.io.InputStream stream = Thread.currentThread()
+                .getContextClassLoader()
+                .getResourceAsStream("assets/cfhc_icon.png")) {
+            org.junit.Assert.assertNotNull("assets/cfhc_icon.png must be accessible on desktop classpath", stream);
+        } catch (Exception e) {
+            org.junit.Assert.fail("Failed to read assets/cfhc_icon.png: " + e.getMessage());
+        }
+    }
 }

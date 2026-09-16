@@ -1,5 +1,6 @@
 package positions;
 
+import simulation.SimRandom;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
@@ -249,16 +250,16 @@ public class Player {
     //PLAYER CREATION
 
     public void createGenericAttributes(int stars, int attrDropper1, int attrDropper2, int attrDropper3, int attrDropper4, int[] wt) {
-        ratPot = (int) (attrBase + 50 * Math.random());
-        ratIntelligence = (int) (attrBase + 50 * Math.random());
-        ratDurability = (int) (attrBase + 50 * Math.random());
-        character = (int) (attrBase + 50 * Math.random());
-        homeState = (int) (Math.random() * 50);
+        ratPot = (int) (attrBase + 50 * SimRandom.nextDouble());
+        ratIntelligence = (int) (attrBase + 50 * SimRandom.nextDouble());
+        ratDurability = (int) (attrBase + 50 * SimRandom.nextDouble());
+        character = (int) (attrBase + 50 * SimRandom.nextDouble());
+        homeState = (int) (SimRandom.nextDouble() * 50);
 
-        ratAttr1 = (int) (ratBase + year * yearFactor + stars * starFactor - ratTolerance * Math.random()) - (int) (Math.random() * attrDropper1);
-        ratAttr2 = (int) (ratBase + year * yearFactor + stars * starFactor - ratTolerance * Math.random()) - (int) (Math.random() * attrDropper2);
-        ratAttr3 = (int) (ratBase + year * yearFactor + stars * starFactor - ratTolerance * Math.random()) - (int) (Math.random() * attrDropper3);
-        ratAttr4 = (int) (ratBase + year * yearFactor + stars * starFactor - ratTolerance * Math.random()) - (int) (Math.random() * attrDropper4);
+        ratAttr1 = (int) (ratBase + year * yearFactor + stars * starFactor - ratTolerance * SimRandom.nextDouble()) - (int) (SimRandom.nextDouble() * attrDropper1);
+        ratAttr2 = (int) (ratBase + year * yearFactor + stars * starFactor - ratTolerance * SimRandom.nextDouble()) - (int) (SimRandom.nextDouble() * attrDropper2);
+        ratAttr3 = (int) (ratBase + year * yearFactor + stars * starFactor - ratTolerance * SimRandom.nextDouble()) - (int) (SimRandom.nextDouble() * attrDropper3);
+        ratAttr4 = (int) (ratBase + year * yearFactor + stars * starFactor - ratTolerance * SimRandom.nextDouble()) - (int) (SimRandom.nextDouble() * attrDropper4);
 
         ratOvr = getOverall();
 
@@ -269,16 +270,16 @@ public class Player {
         cost = (int) (cost / qbImportance);
 
         cost = getLocationCost();
-        if (cost < 0) cost = (int)(Math.random() * 5) + 1;
+        if (cost < 0) cost = (int)(SimRandom.nextDouble() * 5) + 1;
 
         createNewStats();
     }
 
     public void createImportedSkills(int stars, int attrDropper1, int attrDropper2, int attrDropper3, int attrDropper4, int[] wt) {
-        ratAttr1 = (int) (ratBase + stars * customFactor - ratTolerance * Math.random()) - (int) (Math.random() * attrDropper1);
-        ratAttr2 = (int) (ratBase + stars * customFactor - ratTolerance * Math.random()) - (int) (Math.random() * attrDropper2);
-        ratAttr3 = (int) (ratBase + stars * customFactor - ratTolerance * Math.random()) - (int) (Math.random() * attrDropper3);
-        ratAttr4 = (int) (ratBase + stars * customFactor - ratTolerance * Math.random()) - (int) (Math.random() * attrDropper4);
+        ratAttr1 = (int) (ratBase + stars * customFactor - ratTolerance * SimRandom.nextDouble()) - (int) (SimRandom.nextDouble() * attrDropper1);
+        ratAttr2 = (int) (ratBase + stars * customFactor - ratTolerance * SimRandom.nextDouble()) - (int) (SimRandom.nextDouble() * attrDropper2);
+        ratAttr3 = (int) (ratBase + stars * customFactor - ratTolerance * SimRandom.nextDouble()) - (int) (SimRandom.nextDouble() * attrDropper3);
+        ratAttr4 = (int) (ratBase + stars * customFactor - ratTolerance * SimRandom.nextDouble()) - (int) (SimRandom.nextDouble() * attrDropper4);
         ratOvr = getOverall();
     }
 
@@ -319,13 +320,13 @@ public class Player {
     }
 
     int getInitialCost() {
-        return (int) ((Math.pow((float) ratOvr - costBaseRating, 2) / 5) + (int) (Math.random() * recruitTolerance));
+        return (int) ((Math.pow((float) ratOvr - costBaseRating, 2) / 5) + (int) (SimRandom.nextDouble() * recruitTolerance));
     }
 
     int getLocationCost() {
         double locFactor = Math.abs(team.getLocation() - (homeState / 10)) - 2.5;
-        cost = cost + (int) (Math.random() * (locFactor * locationDiscount));
-        if (cost < 0) cost = (int)(Math.random() * 5) + 1;
+        cost = cost + (int) (SimRandom.nextDouble() * (locFactor * locationDiscount));
+        if (cost < 0) cost = (int)(SimRandom.nextDouble() * 5) + 1;
         return cost;
     }
 
@@ -511,11 +512,11 @@ public class Player {
 
         double[] mult = getArchetypeMultipliers();
 
-        ratIntelligence += (int) (Math.random() * games) / 1.5;
-        ratAttr1 += (int) ((Math.random() * games) * mult[0]);
-        ratAttr2 += (int) ((Math.random() * games) * mult[1]);
-        ratAttr3 += (int) ((Math.random() * games) * mult[2]);
-        ratAttr4 += (int) ((Math.random() * games) * mult[3]) / 1.5;
+        ratIntelligence += (int) (SimRandom.nextDouble() * games) / 1.5;
+        ratAttr1 += (int) ((SimRandom.nextDouble() * games) * mult[0]);
+        ratAttr2 += (int) ((SimRandom.nextDouble() * games) * mult[1]);
+        ratAttr3 += (int) ((SimRandom.nextDouble() * games) * mult[2]);
+        ratAttr4 += (int) ((SimRandom.nextDouble() * games) * mult[3]) / 1.5;
 
         applyPracticeFocusMidSeason(practiceFocus, games);
 
@@ -545,37 +546,37 @@ public class Player {
         if(ratOvrStart == 0) ratOvrStart = ratOvr;
 
         if (!isMedicalRS) {
-            if (wonAllConference) ratPot += (int)(Math.random() * allConfPotBonus);
-            if (wonAllAmerican) ratPot += (int)(Math.random() * allAmericanBonus);
-            if (wonAllFreshman) ratPot += (int)(Math.random() * allFreshmanBonus);
-            if (wonTopFreshman) ratPot += (int)(Math.random() * topBonus);
-            if (wonHeisman) ratPot += (int)(Math.random() * topBonus);
+            if (wonAllConference) ratPot += (int)(SimRandom.nextDouble() * allConfPotBonus);
+            if (wonAllAmerican) ratPot += (int)(SimRandom.nextDouble() * allAmericanBonus);
+            if (wonAllFreshman) ratPot += (int)(SimRandom.nextDouble() * allFreshmanBonus);
+            if (wonTopFreshman) ratPot += (int)(SimRandom.nextDouble() * topBonus);
+            if (wonHeisman) ratPot += (int)(SimRandom.nextDouble() * topBonus);
 
             if (offensePos.contains(position)) progression = getProgressionOff();
             else if (defensePos.contains(position)) progression = getProgressionDef();
             else progression = getProgression();
 
-            if (year > 2 && games < minGamesPot) ratPot -= (int) (Math.random() * 15);
+            if (year > 2 && games < minGamesPot) ratPot -= (int) (SimRandom.nextDouble() * 15);
 
             double[] mult = getArchetypeMultipliers();
 
-            ratIntelligence += (int) ((Math.random() * (progression + games - endseason)) / (endseasonFactor * 1.5));
-            ratAttr1 += (int) (((Math.random() * (progression + games - endseason)) / endseasonFactor) * mult[0]);
-            ratAttr2 += (int) (((Math.random() * (progression + games - endseason)) / endseasonFactor) * mult[1]);
-            ratAttr3 += (int) (((Math.random() * (progression + games - endseason)) / endseasonFactor) * mult[2]);
-            ratAttr4 += (int) (((Math.random() * (progression + games - endseason)) / (endseasonFactor * 1.5)) * mult[3]);
+            ratIntelligence += (int) ((SimRandom.nextDouble() * (progression + games - endseason)) / (endseasonFactor * 1.5));
+            ratAttr1 += (int) (((SimRandom.nextDouble() * (progression + games - endseason)) / endseasonFactor) * mult[0]);
+            ratAttr2 += (int) (((SimRandom.nextDouble() * (progression + games - endseason)) / endseasonFactor) * mult[1]);
+            ratAttr3 += (int) (((SimRandom.nextDouble() * (progression + games - endseason)) / endseasonFactor) * mult[2]);
+            ratAttr4 += (int) (((SimRandom.nextDouble() * (progression + games - endseason)) / (endseasonFactor * 1.5)) * mult[3]);
 
-            if (Math.random() * 100 < progression) {
+            if (SimRandom.nextDouble() * 100 < progression) {
                 double btScale = (progression + games - endseasonBonus) / (endseasonFactor * 1.2);
-                int primaryBoost = (int) (8 + Math.random() * 8);
+                int primaryBoost = (int) (8 + SimRandom.nextDouble() * 8);
                 ratAttr1 += (int) (primaryBoost * mult[0] / 2);
                 ratAttr2 += (int) (primaryBoost * mult[1] / 2);
                 ratAttr3 += (int) (primaryBoost * mult[2] / 2);
                 ratAttr4 += (int) (primaryBoost * mult[3] / 2);
             }
 
-            if (Math.random() * 100 < bustChance && character < 50 && games < 15) {
-                int bustPenalty = (int) (2 + Math.random() * 4);
+            if (SimRandom.nextDouble() * 100 < bustChance && character < 50 && games < 15) {
+                int bustPenalty = (int) (2 + SimRandom.nextDouble() * 4);
                 ratAttr1 -= (int) (bustPenalty * (2.0 - mult[0]));
                 ratAttr2 -= (int) (bustPenalty * (2.0 - mult[1]));
                 ratAttr3 -= (int) (bustPenalty * (2.0 - mult[2]));
@@ -583,8 +584,8 @@ public class Player {
             }
 
             if (year >= 3 && ratPot >= lateBloomerMinPot && ratOvr < (ratPot * lateBloomerThreshold)) {
-                if (Math.random() < 0.3) {
-                    int bloomBoost = (int) (8 + Math.random() * 5);
+                if (SimRandom.nextDouble() < 0.3) {
+                    int bloomBoost = (int) (8 + SimRandom.nextDouble() * 5);
                     ratAttr1 += (int) (bloomBoost * mult[0] / 1.5);
                     ratAttr2 += (int) (bloomBoost * mult[1] / 1.5);
                     ratAttr3 += (int) (bloomBoost * mult[2] / 1.5);
@@ -631,36 +632,36 @@ public class Player {
         switch (focus) {
             case FOOTBALL_IQ:
                 ratIntelligence += matchesGroup
-                        ? (int)(Math.random() * scale / 1.2 * 1.5)
-                        : (int)(Math.random() * scale / 1.2);
+                        ? (int)(SimRandom.nextDouble() * scale / 1.2 * 1.5)
+                        : (int)(SimRandom.nextDouble() * scale / 1.2);
                 break;
             case FUNDAMENTALS:
                 if (matchesGroup) {
-                    ratAttr1 += (int)(Math.random() * scale * 1.5);
-                    ratAttr2 += (int)(Math.random() * scale * 1.5);
+                    ratAttr1 += (int)(SimRandom.nextDouble() * scale * 1.5);
+                    ratAttr2 += (int)(SimRandom.nextDouble() * scale * 1.5);
                 } else {
-                    ratAttr1 += (int)(Math.random() * scale);
-                    ratAttr2 += (int)(Math.random() * scale);
+                    ratAttr1 += (int)(SimRandom.nextDouble() * scale);
+                    ratAttr2 += (int)(SimRandom.nextDouble() * scale);
                 }
                 break;
             case ATHLETICISM:
                 if (matchesGroup) {
-                    ratAttr3 += (int)(Math.random() * scale * 1.5);
-                    ratAttr4 += (int)(Math.random() * scale / 1.2 * 1.5);
+                    ratAttr3 += (int)(SimRandom.nextDouble() * scale * 1.5);
+                    ratAttr4 += (int)(SimRandom.nextDouble() * scale / 1.2 * 1.5);
                 } else {
-                    ratAttr3 += (int)(Math.random() * scale);
-                    ratAttr4 += (int)(Math.random() * scale / 1.2);
+                    ratAttr3 += (int)(SimRandom.nextDouble() * scale);
+                    ratAttr4 += (int)(SimRandom.nextDouble() * scale / 1.2);
                 }
                 break;
             case PHYSICAL:
                 if (matchesGroup) {
-                    ratDurability += (int)(Math.random() * scale * 0.55 * 1.5);
-                    ratAttr3 += (int)(Math.random() * scale * 0.35 * 1.5);
-                    ratAttr4 += (int)(Math.random() * scale * 0.35 * 1.5);
+                    ratDurability += (int)(SimRandom.nextDouble() * scale * 0.55 * 1.5);
+                    ratAttr3 += (int)(SimRandom.nextDouble() * scale * 0.35 * 1.5);
+                    ratAttr4 += (int)(SimRandom.nextDouble() * scale * 0.35 * 1.5);
                 } else {
-                    ratDurability += (int)(Math.random() * scale * 0.55);
-                    ratAttr3 += (int)(Math.random() * scale * 0.35);
-                    ratAttr4 += (int)(Math.random() * scale * 0.35);
+                    ratDurability += (int)(SimRandom.nextDouble() * scale * 0.55);
+                    ratAttr3 += (int)(SimRandom.nextDouble() * scale * 0.35);
+                    ratAttr4 += (int)(SimRandom.nextDouble() * scale * 0.35);
                 }
                 break;
             default:
@@ -688,36 +689,36 @@ public class Player {
         switch (focus) {
             case FOOTBALL_IQ:
                 ratIntelligence += matchesGroup
-                        ? (int)(Math.random() * bonusBase * 1.1 * 1.5 * mult)
-                        : (int)(Math.random() * bonusBase * 1.1 * mult);
+                        ? (int)(SimRandom.nextDouble() * bonusBase * 1.1 * 1.5 * mult)
+                        : (int)(SimRandom.nextDouble() * bonusBase * 1.1 * mult);
                 break;
             case FUNDAMENTALS:
                 if (matchesGroup) {
-                    ratAttr1 += (int)(Math.random() * bonusBase * 1.5 * mult);
-                    ratAttr2 += (int)(Math.random() * bonusBase * 1.5 * mult);
+                    ratAttr1 += (int)(SimRandom.nextDouble() * bonusBase * 1.5 * mult);
+                    ratAttr2 += (int)(SimRandom.nextDouble() * bonusBase * 1.5 * mult);
                 } else {
-                    ratAttr1 += (int)(Math.random() * bonusBase * mult);
-                    ratAttr2 += (int)(Math.random() * bonusBase * mult);
+                    ratAttr1 += (int)(SimRandom.nextDouble() * bonusBase * mult);
+                    ratAttr2 += (int)(SimRandom.nextDouble() * bonusBase * mult);
                 }
                 break;
             case ATHLETICISM:
                 if (matchesGroup) {
-                    ratAttr3 += (int)(Math.random() * bonusBase * 1.5 * mult);
-                    ratAttr4 += (int)(Math.random() * bonusBase / 1.1 * 1.5 * mult);
+                    ratAttr3 += (int)(SimRandom.nextDouble() * bonusBase * 1.5 * mult);
+                    ratAttr4 += (int)(SimRandom.nextDouble() * bonusBase / 1.1 * 1.5 * mult);
                 } else {
-                    ratAttr3 += (int)(Math.random() * bonusBase * mult);
-                    ratAttr4 += (int)(Math.random() * bonusBase / 1.1 * mult);
+                    ratAttr3 += (int)(SimRandom.nextDouble() * bonusBase * mult);
+                    ratAttr4 += (int)(SimRandom.nextDouble() * bonusBase / 1.1 * mult);
                 }
                 break;
             case PHYSICAL:
                 if (matchesGroup) {
-                    ratDurability += (int)(Math.random() * bonusBase * 0.65 * 1.5 * mult);
-                    ratAttr3 += (int)(Math.random() * bonusBase * 0.45 * 1.5 * mult);
-                    ratAttr4 += (int)(Math.random() * bonusBase * 0.45 * 1.5 * mult);
+                    ratDurability += (int)(SimRandom.nextDouble() * bonusBase * 0.65 * 1.5 * mult);
+                    ratAttr3 += (int)(SimRandom.nextDouble() * bonusBase * 0.45 * 1.5 * mult);
+                    ratAttr4 += (int)(SimRandom.nextDouble() * bonusBase * 0.45 * 1.5 * mult);
                 } else {
-                    ratDurability += (int)(Math.random() * bonusBase * 0.65 * mult);
-                    ratAttr3 += (int)(Math.random() * bonusBase * 0.45 * mult);
-                    ratAttr4 += (int)(Math.random() * bonusBase * 0.45 * mult);
+                    ratDurability += (int)(SimRandom.nextDouble() * bonusBase * 0.65 * mult);
+                    ratAttr3 += (int)(SimRandom.nextDouble() * bonusBase * 0.45 * mult);
+                    ratAttr4 += (int)(SimRandom.nextDouble() * bonusBase * 0.45 * mult);
                 }
                 break;
             default:
@@ -737,35 +738,35 @@ public class Player {
         double scale = mult * 0.15;
         switch (focus) {
             case FOOTBALL_IQ:
-                ratIntelligence += matchesGroup ? (int)(Math.random() * scale * 1.5) : (int)(Math.random() * scale);
+                ratIntelligence += matchesGroup ? (int)(SimRandom.nextDouble() * scale * 1.5) : (int)(SimRandom.nextDouble() * scale);
                 break;
             case FUNDAMENTALS:
                 if (matchesGroup) {
-                    ratAttr1 += (int)(Math.random() * scale * 1.5);
-                    ratAttr2 += (int)(Math.random() * scale * 1.5);
+                    ratAttr1 += (int)(SimRandom.nextDouble() * scale * 1.5);
+                    ratAttr2 += (int)(SimRandom.nextDouble() * scale * 1.5);
                 } else {
-                    ratAttr1 += (int)(Math.random() * scale);
-                    ratAttr2 += (int)(Math.random() * scale);
+                    ratAttr1 += (int)(SimRandom.nextDouble() * scale);
+                    ratAttr2 += (int)(SimRandom.nextDouble() * scale);
                 }
                 break;
             case ATHLETICISM:
                 if (matchesGroup) {
-                    ratAttr3 += (int)(Math.random() * scale * 1.5);
-                    ratAttr4 += (int)(Math.random() * scale / 1.2 * 1.5);
+                    ratAttr3 += (int)(SimRandom.nextDouble() * scale * 1.5);
+                    ratAttr4 += (int)(SimRandom.nextDouble() * scale / 1.2 * 1.5);
                 } else {
-                    ratAttr3 += (int)(Math.random() * scale);
-                    ratAttr4 += (int)(Math.random() * scale / 1.2);
+                    ratAttr3 += (int)(SimRandom.nextDouble() * scale);
+                    ratAttr4 += (int)(SimRandom.nextDouble() * scale / 1.2);
                 }
                 break;
             case PHYSICAL:
                 if (matchesGroup) {
-                    ratDurability += (int)(Math.random() * scale * 0.55 * 1.5);
-                    ratAttr3 += (int)(Math.random() * scale * 0.35 * 1.5);
-                    ratAttr4 += (int)(Math.random() * scale * 0.35 * 1.5);
+                    ratDurability += (int)(SimRandom.nextDouble() * scale * 0.55 * 1.5);
+                    ratAttr3 += (int)(SimRandom.nextDouble() * scale * 0.35 * 1.5);
+                    ratAttr4 += (int)(SimRandom.nextDouble() * scale * 0.35 * 1.5);
                 } else {
-                    ratDurability += (int)(Math.random() * scale * 0.55);
-                    ratAttr3 += (int)(Math.random() * scale * 0.35);
-                    ratAttr4 += (int)(Math.random() * scale * 0.35);
+                    ratDurability += (int)(SimRandom.nextDouble() * scale * 0.55);
+                    ratAttr3 += (int)(SimRandom.nextDouble() * scale * 0.35);
+                    ratAttr4 += (int)(SimRandom.nextDouble() * scale * 0.35);
                 }
                 break;
             default:
@@ -775,9 +776,9 @@ public class Player {
 
     private void applyRegression(double[] mult) {
         double chance = year >= 5 ? 0.25 : 0.10;
-        int penalty = year >= 5 ? (int)(2 + Math.random() * 4) : (int)(1 + Math.random() * 3);
+        int penalty = year >= 5 ? (int)(2 + SimRandom.nextDouble() * 4) : (int)(1 + SimRandom.nextDouble() * 3);
 
-        if (Math.random() < chance) {
+        if (SimRandom.nextDouble() < chance) {
             int physAttr = getPhysicalAttributeIndex();
             switch (physAttr) {
                 case 0: ratAttr1 -= penalty; break;
@@ -786,10 +787,10 @@ public class Player {
                 case 3: ratAttr4 -= penalty; break;
             }
         }
-        if (Math.random() < chance / 2) {
+        if (SimRandom.nextDouble() < chance / 2) {
             int physAttr2 = getPhysicalAttributeIndex();
             while (physAttr2 == getPhysicalAttributeIndex()) {
-                physAttr2 = (int)(Math.random() * 4);
+                physAttr2 = (int)(SimRandom.nextDouble() * 4);
             }
             int p2 = Math.max(1, penalty - 1);
             switch (physAttr2) {
@@ -813,7 +814,7 @@ public class Player {
             case "CB" -> 1;
             case "S"  -> 2;
             case "K"  -> 0;
-            default -> (int)(Math.random() * 4);
+            default -> (int)(SimRandom.nextDouble() * 4);
         };
     }
 
@@ -850,12 +851,12 @@ public class Player {
         if (isFocus) {
             int[] primaries = Archetypes.getPrimaryAttributeIndices(position, archetypeTag);
             for (int idx : primaries) {
-                int boost = 3 + (int)(Math.random() * 6);
+                int boost = 3 + (int)(SimRandom.nextDouble() * 6);
                 addToAttribute(idx, boost);
             }
         } else {
-            int idx = (int)(Math.random() * 4);
-            int boost = (int)(Math.random() * 3);
+            int idx = (int)(SimRandom.nextDouble() * 4);
+            int boost = (int)(SimRandom.nextDouble() * 3);
             addToAttribute(idx, boost);
         }
         clampCoreRatings();
@@ -910,7 +911,7 @@ public class Player {
 
     public boolean getWasRedshirtStatus() {
         if (year <= 1) return false;
-        return (int) (Math.random() * 5) > 1;
+        return (int) (SimRandom.nextDouble() * 5) > 1;
     }
 
     public int getSeasonAwards() {
@@ -979,7 +980,7 @@ public class Player {
         int dev = hc != null ? hc.developmentBonusPoints() : 0;
         int mentor = getMentorBonus();
         int num = (ratPot * 2 + (hc != null ? hc.ratTalent : 0) + 3 * team.getTeamFacilities() + dev + mentor
-                + (int) (Math.random() * getChemistryProgression())) / 3;
+                + (int) (SimRandom.nextDouble() * getChemistryProgression())) / 3;
         return num;
     }
 
@@ -991,7 +992,7 @@ public class Player {
         int mentor = getMentorBonus();
         int num = (ratPot * 4 + (hc != null ? hc.ratTalent * 2 : 0) + ocRating + 7 * team.getTeamFacilities() + dev
                 + mentor
-                + (int) (Math.random() * getChemistryProgression())) / 7;
+                + (int) (SimRandom.nextDouble() * getChemistryProgression())) / 7;
         return num + schemeBonus;
     }
 
@@ -1003,7 +1004,7 @@ public class Player {
         int mentor = getMentorBonus();
         int num = (ratPot * 4 + (hc != null ? hc.ratTalent * 2 : 0) + dcRating + 7 * team.getTeamFacilities() + dev
                 + mentor
-                + (int) (Math.random() * getChemistryProgression())) / 7;
+                + (int) (SimRandom.nextDouble() * getChemistryProgression())) / 7;
         return num + schemeBonus;
     }
 
@@ -1061,7 +1062,7 @@ public class Player {
     }
 
     public void durabilityProgression() {
-        ratDurability += Math.random() * 2 * year;
+        ratDurability += SimRandom.nextDouble() * 2 * year;
         if(ratDurability > 100) ratDurability = 100;
     }
 

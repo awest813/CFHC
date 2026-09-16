@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Random;
 
 import comparator.CompCoachAllAmericans;
 import comparator.CompCoachAllConference;
@@ -120,6 +119,18 @@ public class League {
 
     public String leagueName = "Custom League";
     public String saveVer = CURRENT_SAVE_VERSION;
+
+    /** Persisted RNG seed for this league; drives {@link SimRandom} (see SaveManager L: header). */
+    private long rngSeed;
+
+    public long getRngSeed() {
+        return rngSeed;
+    }
+
+    private void bindFreshRngSeed() {
+        this.rngSeed = SimRandom.freshSeed();
+        SimRandom.bind(this.rngSeed);
+    }
 
     public PlatformResourceProvider resProvider;
 
@@ -271,7 +282,22 @@ public class League {
     public String defPOTYWinnerStrFull;
     public String freshmanWinnerStrFull;
     public String coachWinnerStrFull;
+    public boolean linemanPOTYDecided;
+    public ArrayList<Player> linemanPOTYCandidates;
+    public Player linemanPOTY;
+    public String linemanPOTYWinnerStrFull;
     public boolean careerMode;
+
+    /** Opt-in interactive gameday: when set, the user team's games pause for coach decisions. */
+    private GameCoachListener gameCoachListener;
+
+    public GameCoachListener getGameCoachListener() {
+        return gameCoachListener;
+    }
+
+    public void setGameCoachListener(GameCoachListener listener) {
+        this.gameCoachListener = listener;
+    }
 
 
 
@@ -285,7 +311,7 @@ public class League {
 
     public final String bowlNamesText = "Carnation Bowl, Mandarin Bowl, Honey Bowl, Fiesta Bowl, Nectarine Bowl, Polyester Bowl, Twister Bowl, Gator Bowl, Desert Bowl, Fort Bowl, Vacation Bowl, Star Bowl, Bell Bowl, Freedom Bowl, Casino Bowl, American Bowl, Island Bowl, Charity Bowl, Steak Bowl, Camping Bowl, Spud Bowl, Music Bowl, New Orleans Bowl, Cowboy Bowl, Santa Fe Bowl, Burrito Bowl, Mexico Bowl, Chick Bowl, Empire Bowl, Rainbow Bowl, Mushroom Bowl, Coffee Bowl, Cascade Bowl, Great Lakes Bowl, Alliance Bowl, Appalachian Bowl, Bayou Bowl, Nexus Bowl, Space Bowl, Everest Bowl, Cloud Bowl, Healthcare Bowl, More Chicken Bowl, Avocado Bowl, Realtors Bowl, Search Engine Bowl, Instant Photo Bowl, Social Faces Bowl, Grape Bowl, Tesla Bowl, Earthquake Bowl, Rainforest Bowl";
 
-    public String[] teamsFCS = {"Alabama State", "Albany", "Cal Poly", "Central Arkansas", "Chattanooga", "Columbia", "Dayton", "Delaware", "Eastern Washington", "East Tennessee St", "Idaho", "Harvard", "Yale", "Princeton", "Grambling", "Georgetown", "Idaho State", "James Madison", "Maine", "Mississippi Valley St", "Montana", "Montana State", "New Hampshire", "North Dakota", "North Dakota St", "South Dakota", "South Dakota St", "Northern Arizona", "Northern Colorado", "Portland State", "Rhode Island", "Sacramento State", "Southern", "Texas Southern", "Western Illinois", "Youngstown St"};
+    public String[] teamsFCS = {"Alabama State", "Albany", "Cal Poly", "Central Arkansas", "Chattanooga", "Columbia", "Dayton", "Eastern Washington", "East Tennessee State", "Idaho", "Harvard", "Yale", "Princeton", "Grambling", "Georgetown", "Idaho State", "Maine", "Mississippi Valley State", "Montana", "Montana State", "New Hampshire", "North Dakota", "South Dakota", "South Dakota State", "Northern Arizona", "Northern Colorado", "Portland State", "Rhode Island", "Sacramento State", "Southern", "Texas Southern", "Western Illinois", "Youngstown State"};
 
     public String[] confNamesNew = {"Antdroid", "Big 8", "National", "Constitution", "Colonial", "Continental"};
 
@@ -301,6 +327,7 @@ public class League {
         enableTV = true;
         enableUnivProRel = false;
         neverRetire = false;
+        bindFreshRngSeed();
         setupCommonInitalizers();
 
         //set up names database from xml
@@ -350,8 +377,8 @@ public class League {
         } else if (randomize) {
             for (int t = 0; t < teamText.split("%").length; t++) {
                 int tmPres = 0;
-                if (c < 5) tmPres = (int) (Math.random() * 35) + 60;
-                else tmPres = (int) (Math.random() * 35) + 25;
+                if (c < 5) tmPres = (int) (SimRandom.nextDouble() * 35) + 60;
+                else tmPres = (int) (SimRandom.nextDouble() * 35) + 25;
                 if (teamText.split("%")[t].contains("[END_CONF]")) {
                     x = 0;
                     c++;
@@ -439,6 +466,7 @@ public class League {
         enableTV = true;
         enableUnivProRel = false;
         neverRetire = false;
+        bindFreshRngSeed();
 
         setupCommonInitalizers();
         setupNamesDB(namesCSV, lastNamesCSV);
@@ -484,15 +512,19 @@ public class League {
                             String tmConf = filesSplit[2];
                             int tmPres = Integer.parseInt(filesSplit[3]);
                             if (randomize) {
-                                if (c < 5) tmPres = (int) (Math.random() * 35) + 60;
-                                else tmPres = (int) (Math.random() * 35) + 25;
+                                if (c < 5) tmPres = (int) (SimRandom.nextDouble() * 35) + 60;
+                                else tmPres = (int) (SimRandom.nextDouble() * 35) + 25;
                             }
                             if (equalize) {
                                 tmPres = 60;
                             }
-                            String tmRival = filesSplit[4];
+                            String tmDivision = filesSplit[4];
                             int tmLoc = Integer.parseInt(filesSplit[5]);
-                            conferences.get(c).confTeams.add(new Team(tmName, tmAbbr, tmConf, tmPres, tmRival, tmLoc, this));
+                            Team importedTeam = new Team(tmName, tmAbbr, tmConf, tmPres, tmDivision, tmLoc, this);
+                            if (filesSplit.length > 6 && !filesSplit[6].trim().isEmpty()) {
+                                importedTeam.setRivalName(filesSplit[6].trim());
+                            }
+                            conferences.get(c).confTeams.add(importedTeam);
                         } else {
                             filesSplit = line.split(",");
                             String tmName = filesSplit[0];
@@ -500,15 +532,19 @@ public class League {
                             String tmConf = filesSplit[2];
                             int tmPres = Integer.parseInt(filesSplit[3]);
                             if (randomize) {
-                                if (c < 5) tmPres = (int) (Math.random() * 35) + 60;
-                                else tmPres = (int) (Math.random() * 35) + 25;
+                                if (c < 5) tmPres = (int) (SimRandom.nextDouble() * 35) + 60;
+                                else tmPres = (int) (SimRandom.nextDouble() * 35) + 25;
                             }
                             if (equalize) {
                                 tmPres = 60;
                             }
-                            String tmRival = filesSplit[4];
+                            String tmDivision = filesSplit[4];
                             int tmLoc = Integer.parseInt(filesSplit[5]);
-                            conferences.get(c).confTeams.add(new Team(tmName, tmAbbr, tmConf, tmPres, tmRival, tmLoc, this));
+                            Team importedTeam = new Team(tmName, tmAbbr, tmConf, tmPres, tmDivision, tmLoc, this);
+                            if (filesSplit.length > 6 && !filesSplit[6].trim().isEmpty()) {
+                                importedTeam.setRivalName(filesSplit[6].trim());
+                            }
+                            conferences.get(c).confTeams.add(importedTeam);
                         }
                         countTeam++;
                     }
@@ -844,7 +880,7 @@ public class League {
             if(recruitingChk) {
                 while ((line = bufferedReader.readLine()) != null && !line.equals("END_RECRUITING")) {
                     if (line.contains("RECRUITING")) {
-                        currentWeek = 99;
+                        currentWeek = SeasonFlowOrder.RECRUITING_SENTINEL_WEEK;
                         setTeamRanks();
                         bridge.startRecruiting(saveFile, userTeam);
                     }
@@ -1220,7 +1256,8 @@ public class League {
                 leagueRecords.toRecordList(),
                 heismanWinnerStrFull != null ? heismanWinnerStrFull : "",
                 nationalChampionNameForRecord(),
-                java.util.List.copyOf(buildGameRecordsForSave())
+                java.util.List.copyOf(buildGameRecordsForSave()),
+                rngSeed
         );
     }
 
@@ -1287,7 +1324,7 @@ public class League {
 
             Team away = byName.get(gr.awayName());
             if (away == null) {
-                away = new Team(gr.awayName(), "FCS", "FCS Division", (int) (Math.random() * 40), "FCS1", 0, this, false);
+                away = new Team(gr.awayName(), "FCS", "FCS Division", (int) (SimRandom.nextDouble() * 40), "FCS1", 0, this, false);
             }
 
             String gName = gr.gameName();
@@ -1309,8 +1346,12 @@ public class League {
         this.leagueName = record.leagueName();
         this.seasonStart = record.year() - (leagueHistory != null ? leagueHistory.size() : 0);
 
+        // Re-bind the persisted RNG stream (legacy saves without a seed start a fresh one).
+        this.rngSeed = record.rngSeed() != 0 ? record.rngSeed() : SimRandom.freshSeed();
+        SimRandom.bind(this.rngSeed);
+
         this.currentWeek = record.currentWeek();
-        this.recruitingPhaseActive = this.currentWeek >= regSeasonWeeks + 13;
+        this.recruitingPhaseActive = SeasonFlowOrder.isRecruitingGate(record.currentWeek(), regSeasonWeeks);
         this.heismanWinnerStrFull = record.heismanWinnerName();
         this.nationalChampionName = record.nationalChampName() != null ? record.nationalChampName() : "";
 
@@ -1440,6 +1481,9 @@ public class League {
         // Initialize new stories lists
         newsStories = new ArrayList<>();
         weeklyScores = new ArrayList<>();
+        if (enableTV) {
+            newsTV = new ArrayList<>();
+        }
         for (int i = 0; i < seasonWeeks; ++i) {
             newsStories.add(new ArrayList<String>());
             weeklyScores.add(new ArrayList<String>());
@@ -1487,6 +1531,7 @@ public class League {
 
         upgradeFacilities();
         upgradeNilCollectives();
+        upgradeStadiums();
 
         sb = new StringBuilder();
         for (int i = 0; i < teamList.size(); i++) {
@@ -1548,8 +1593,8 @@ public class League {
      */
     public String getRandName() {
         String name;
-        int fn = (int) (Math.random() * nameList.size());
-        int ln = (int) (Math.random() * lastNameList.size());
+        int fn = (int) (SimRandom.nextDouble() * nameList.size());
+        int ln = (int) (SimRandom.nextDouble() * lastNameList.size());
         name = nameList.get(fn) + " " + lastNameList.get(ln);
         return name;
     }
@@ -1850,7 +1895,7 @@ public class League {
                 teamList.get(i).setTeamBudget((int)(teamList.get(i).getTeamBudget() - teamList.get(i).getTeamBudget() * 0.12));
 
                 teamList.get(i).getHeadCoach().contractLength = Math.max(1, teamList.get(i).getHeadCoach().contractLength - 2);
-                if(!teamList.get(i).isUserControlled() && Math.random() < .15) {
+                if(!teamList.get(i).isUserControlled() && SimRandom.nextDouble() < .15) {
                     teamList.get(i).midSeasonFiring();
                 }
 
@@ -1911,6 +1956,226 @@ public class League {
         }
     }
 
+    /** Stadium expansions: rich, prestigious programs add seats (max tier 5). */
+    public void upgradeStadiums() {
+        int baselineCost = 22000;
+        final int maxTier = 5;
+        for (Team tm : teamList) {
+            int next = tm.teamStadium + 1;
+            if (next > maxTier || tm.getTeamPrestige() < 70 || !isCareerMode()) {
+                continue;
+            }
+            int cost = baselineCost * next;
+            if (tm.getTeamBudget() > cost * 3) {
+                tm.setTeamBudget(tm.getTeamBudget() - cost);
+                tm.teamStadium = next;
+                addNewsStory(currentWeek + 1, "Stadium Expansion>" + tm.getName()
+                        + " has broken ground on a stadium expansion, raising capacity to "
+                        + tm.getStadiumCapacity() + " seats.");
+                addNewsHeadline(tm.getName() + " expands " + tm.getName()
+                        + " Stadium to " + tm.getStadiumCapacity() + " seats.");
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Media polls: AP (noisy) and Coaches (steadier) ballots over the
+    // composite poll score. Derived weekly — never persisted.
+    // ------------------------------------------------------------------
+
+    private final java.util.HashMap<String, Integer> apRanks = new java.util.HashMap<>();
+    private final java.util.HashMap<String, Integer> coachesRanks = new java.util.HashMap<>();
+    private final java.util.HashMap<String, Integer> prevApRanks = new java.util.HashMap<>();
+    private final java.util.HashMap<String, Integer> prevCoachesRanks = new java.util.HashMap<>();
+
+    public int getApRank(Team t) {
+        return apRanks.getOrDefault(t.getName(), 0);
+    }
+
+    public int getCoachesRank(Team t) {
+        return coachesRanks.getOrDefault(t.getName(), 0);
+    }
+
+    private void rankMediaPoll(java.util.HashMap<String, Integer> ranks, double amplitude) {
+        // Draw each team's voter-noise score ONCE up front: a comparator that
+        // rolled fresh noise per comparison would violate the sort contract.
+        java.util.HashMap<String, Double> noisy = new java.util.HashMap<>();
+        for (Team t : teamList) {
+            noisy.put(t.getName(), t.teamPollScore * (1.0 + amplitude * (SimRandom.nextDouble() - 0.5)));
+        }
+        ArrayList<Team> order = new ArrayList<>(teamList);
+        order.sort((x, y) -> Double.compare(noisy.get(y.getName()), noisy.get(x.getName())));
+        for (int i = 0; i < order.size(); i++) {
+            ranks.put(order.get(i).getName(), i + 1);
+        }
+    }
+
+    private String mediaPollTop10(String pollName, java.util.HashMap<String, Integer> ranks,
+                                  java.util.HashMap<String, Integer> prev) {
+        ArrayList<Team> order = new ArrayList<>(teamList);
+        order.sort((x, y) -> Integer.compare(
+                ranks.getOrDefault(x.getName(), 999), ranks.getOrDefault(y.getName(), 999)));
+        StringBuilder sb = new StringBuilder(pollName + " Top 10:");
+        for (int i = 0; i < Math.min(10, order.size()); i++) {
+            Team t = order.get(i);
+            int rank = ranks.get(t.getName());
+            Integer prevRank = prev.get(t.getName());
+            String movement = prevRank == null ? "" : (prevRank == 0 ? " (NEW)"
+                    : prevRank - rank > 0 ? " (▲" + (prevRank - rank) + ")"
+                    : rank - prevRank > 0 ? " (▼" + (rank - prevRank) + ")" : "");
+            sb.append("\n").append(rank).append(". ").append(t.getName())
+                    .append(" (").append(t.getWins()).append("-").append(t.getLosses()).append(")").append(movement);
+        }
+        return sb.toString();
+    }
+
+    /** Weekly AP/Coaches ballots with voter noise and a split-No.1 storyline. */
+    public void releaseMediaPolls() {
+        if (currentWeek < 1 || currentWeek > SeasonFlowOrder.conferenceChampionshipWeek(regSeasonWeeks)) {
+            return;
+        }
+        prevApRanks.clear();
+        prevApRanks.putAll(apRanks);
+        prevCoachesRanks.clear();
+        prevCoachesRanks.putAll(coachesRanks);
+        apRanks.clear();
+        coachesRanks.clear();
+
+        rankMediaPoll(apRanks, 0.25);
+        rankMediaPoll(coachesRanks, 0.10);
+
+        StringBuilder story = new StringBuilder("Media Polls>\n")
+                .append(mediaPollTop10("AP", apRanks, prevApRanks)).append("\n\n")
+                .append(mediaPollTop10("Coaches", coachesRanks, prevCoachesRanks));
+        addNewsStory(currentWeek + 1, story.toString().trim());
+
+        Team apNo1 = null;
+        Team coachesNo1 = null;
+        for (Team t : teamList) {
+            if (apNo1 == null && getApRank(t) == 1) apNo1 = t;
+            if (coachesNo1 == null && getCoachesRank(t) == 1) coachesNo1 = t;
+        }
+        if (apNo1 != null && coachesNo1 != null) {
+            if (!apNo1.getName().equals(coachesNo1.getName())) {
+                newsHeadlines.add("Poll Chaos: AP has " + apNo1.getName() + " at No. 1, the Coaches poll says "
+                        + coachesNo1.getName() + "!");
+            } else {
+                newsHeadlines.add(apNo1.getName() + " is the unanimous No. 1 in the media polls.");
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Lineman of the Year (follows the Defensive POTY ceremony pattern)
+    // ------------------------------------------------------------------
+
+    public ArrayList<Player> getLinemanPOTY() {
+        ArrayList<Player> candidates = new ArrayList<>();
+        for (Team team : teamList) {
+            candidates.addAll(team.getTeamDLs());
+        }
+        candidates.sort(new CompPlayerHeisman());
+        return candidates;
+    }
+
+    /**
+     * Perform the Lineman of the Year ceremony.
+     *
+     * @return string of the ceremony.
+     */
+    public String getLinemanPOTYStr() {
+        if (!linemanPOTYDecided) {
+            linemanPOTYDecided = true;
+            linemanPOTYCandidates = getLinemanPOTY();
+            if (linemanPOTYCandidates.isEmpty()) {
+                linemanPOTYWinnerStrFull = "No Lineman of the Year candidates this season.";
+                return linemanPOTYWinnerStrFull;
+            }
+            linemanPOTY = linemanPOTYCandidates.get(0);
+            linemanPOTY.wonHeisman = true;
+            linemanPOTY.recordHeismans(1);
+            linemanPOTY.team.getHeadCoach().recordHeismans(1);
+
+            StringBuilder top5 = new StringBuilder("\n");
+            int topN = Math.min(5, linemanPOTYCandidates.size());
+            for (int i = 0; i < topN; ++i) {
+                top5.append(i + 1).append(". ").append(linemanPOTYCandidates.get(i).getAwardStats());
+            }
+
+            String winnerStr = "Congratulations to the Lineman of the Year, " + linemanPOTY.getAwardDescription();
+            linemanPOTYWinnerStrFull = winnerStr + "\n\nFull Results:" + top5;
+
+            newsStories.get(currentWeek + 1).add(linemanPOTY.name + " is the Lineman of the Year!>" + winnerStr);
+            newsHeadlines.add(linemanPOTY.team.getName() + " " + linemanPOTY.position + " "
+                    + linemanPOTY.name + " is the Lineman of the Year!");
+            return linemanPOTYWinnerStrFull;
+        }
+        return linemanPOTYWinnerStrFull;
+    }
+
+    /** Draft Night: departing players become a drafted class with per-team credit. */
+    public void draftNightNews() {
+        ArrayList<Player> pool = new ArrayList<>();
+        for (Team t : teamList) {
+            pool.addAll(t.getPlayersLeavingRaw());
+        }
+        if (pool.isEmpty()) {
+            return;
+        }
+        pool.sort((x, y) -> y.ratOvr != x.ratOvr
+                ? Integer.compare(y.ratOvr, x.ratOvr)
+                : x.name.compareTo(y.name));
+
+        int picks = Math.min(32, pool.size());
+        java.util.LinkedHashMap<String, Integer> picksByTeam = new java.util.LinkedHashMap<>();
+        StringBuilder sb = new StringBuilder("Draft Night>\nThe first round is off the board:");
+        for (int i = 0; i < picks; i++) {
+            Player p = pool.get(i);
+            int round = (i * 7) / Math.max(1, picks) + 1;
+            sb.append("\nRound ").append(round).append(": ").append(p.position).append(" ")
+                    .append(p.name).append(", ").append(p.team.getName())
+                    .append(" (").append(p.ratOvr).append(" ovr)");
+            picksByTeam.merge(p.team.getName(), 1, Integer::sum);
+        }
+        addNewsStory(currentWeek + 1, sb.toString());
+        newsHeadlines.add("Draft Night: " + pool.get(0).name + " headlines a " + picks
+                + "-player first round.");
+
+        // Credit the top producers.
+        ArrayList<java.util.Map.Entry<String, Integer>> producers = new ArrayList<>(picksByTeam.entrySet());
+        producers.sort((x, y) -> Integer.compare(y.getValue(), x.getValue()));
+        for (int i = 0; i < Math.min(2, producers.size()); i++) {
+            newsHeadlines.add(producers.get(i).getKey() + " produced "
+                    + producers.get(i).getValue() + " first-round draft pick"
+                    + (producers.get(i).getValue() == 1 ? "" : "s") + ".");
+        }
+    }
+
+    /** Signing Day ceremony, published as the new season begins. */
+    public void signingDayNews() {
+        ArrayList<Team> classRanking = new ArrayList<>(teamList);
+        classRanking.sort((x, y) -> Integer.compare(
+                x.getRankTeamRecruitClass(), y.getRankTeamRecruitClass()));
+
+        StringBuilder sb = new StringBuilder("Signing Day>\nThe fax machines have gone quiet. Top recruiting classes:\n");
+        for (int i = 0; i < Math.min(5, classRanking.size()); i++) {
+            Team t = classRanking.get(i);
+            sb.append(i + 1).append(". ").append(t.getName()).append("\n");
+        }
+        addNewsStory(1, sb.toString().trim());
+        if (!classRanking.isEmpty()) {
+            newsHeadlines.add("Signing Day: " + classRanking.get(0).getName()
+                    + " signs the No. 1 recruiting class in the nation.");
+        }
+        if (userTeam != null) {
+            int userRank = userTeam.getRankTeamRecruitClass();
+            if (userRank >= 1 && userRank <= 25) {
+                newsHeadlines.add(userTeam.getName() + " lands the No. " + userRank
+                        + " recruiting class on Signing Day.");
+            }
+        }
+    }
+
     private void applyWeeklyEconomyPulse() {
         for (Team t : teamList) {
             int stipend = t.getWeeklyCollectiveStipend();
@@ -1959,6 +2224,9 @@ public class League {
 
         //Clear "next week" scoreboard blank data
         weeklyScores.get(currentWeek+1).clear();
+
+        //Marquee-game flavor for the user team (rivalry week, senior day, homecoming)
+        marqueeGameNews();
 
         if (currentWeek <= regSeasonWeeks-1) {
             for (int i = 0; i < conferences.size(); ++i) {
@@ -2057,13 +2325,353 @@ public class League {
 
         coachingHotSeat();
 
+        snapshotPollRanks();
         setTeamRanks();
+        releaseWeeklyPoll();
 
         updateLongestActiveWinStreak();
 
         applyWeeklyEconomyPulse();
 
         currentWeek++;
+    }
+
+    /** Copies current poll ranks to prevRank so the weekly release can show movement. */
+    private void snapshotPollRanks() {
+        for (Team t : teamList) {
+            t.setPrevRankTeamPollScore(t.getRankTeamPollScore());
+        }
+    }
+
+    /** Poll movement suffix vs the previous release: (NEW) / (▲n) / (▼n) / "". */
+    private String pollMovementStr(Team t) {
+        int prev = t.getPrevRankTeamPollScore();
+        int now = t.getRankTeamPollScore();
+        if (prev <= 0) {
+            return " (NEW)";
+        }
+        int diff = prev - now;
+        if (diff > 0) {
+            return " (▲" + diff + ")";
+        }
+        if (diff < 0) {
+            return " (▼" + (-diff) + ")";
+        }
+        return "";
+    }
+
+    private ArrayList<Team> teamsRankedByPoll() {
+        ArrayList<Team> ranked = new ArrayList<>(teamList);
+        ranked.sort((a, b) -> Integer.compare(a.getRankTeamPollScore(), b.getRankTeamPollScore()));
+        return ranked;
+    }
+
+    /** Weekly Top-25 release, through the conference-championship week. */
+    public void releaseWeeklyPoll() {
+        if (currentWeek < 1 || currentWeek > SeasonFlowOrder.conferenceChampionshipWeek(regSeasonWeeks)) {
+            return;
+        }
+        ArrayList<Team> ranked = teamsRankedByPoll();
+        if (ranked.isEmpty() || ranked.get(0).getRankTeamPollScore() <= 0) {
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder("New Top 25 Released>\n");
+        int shown = 0;
+        for (Team t : ranked) {
+            int r = t.getRankTeamPollScore();
+            if (r > 25) break;
+            sb.append(r).append(". ").append(t.getName()).append(" (")
+                    .append(t.getWins()).append("-").append(t.getLosses()).append(")")
+                    .append(pollMovementStr(t)).append("\n");
+            shown++;
+        }
+        if (shown == 0) {
+            return;
+        }
+        addNewsStory(currentWeek + 1, sb.toString().trim());
+
+        Team no1 = ranked.get(0);
+        newsHeadlines.add(no1.getName() + " holds No. 1 in the new Top 25.");
+        if (userTeam != null && userTeam.getRankTeamPollScore() >= 1 && userTeam.getRankTeamPollScore() <= 25) {
+            newsHeadlines.add(userTeam.getName() + " check in at No. " + userTeam.getRankTeamPollScore()
+                    + pollMovementStr(userTeam) + " in the new Top 25.");
+        }
+
+        releaseMediaPolls();
+    }
+
+    /**
+     * The user team's game played in the given week, or null. Regular weeks map
+     * to schedule slots ({@code schedule[week - 1]}, mirroring Conference.playWeek);
+     * postseason games are appended, so the newest played slot wins there.
+     */
+    public Game findPlayedUserGame(int week) {
+        Game g = userGameForWeek(week);
+        if (g != null && g.hasPlayed && !g.isByeWeek()) {
+            return g;
+        }
+        return null;
+    }
+
+    private Game userGameForWeek(int week) {
+        if (userTeam == null || week < 1) {
+            return null;
+        }
+        List<Game> sched = userTeam.getGameSchedule();
+        if (sched == null || sched.isEmpty()) {
+            return null;
+        }
+        if (week < regSeasonWeeks - 1) {
+            int idx = week - 1;
+            return idx < sched.size() ? sched.get(idx) : null;
+        }
+        int minIdx = Math.max(0, regSeasonWeeks - 1);
+        for (int i = sched.size() - 1; i >= minIdx; i--) {
+            Game g = sched.get(i);
+            if (g != null && !g.isByeWeek()) {
+                return g;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Week-in-review digest: user result, top-10 (+ user) with poll movement,
+     * this week's headlines, user injury report, and the next matchup. Built as
+     * plain data so either shell (or a headless host) can render it.
+     */
+    public String buildWeekDigest(int weekPlayed) {
+        if (weekPlayed < 1 || weekPlayed > regSeasonWeeks + 3) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("Week ").append(weekPlayed).append(" In Review\n\n");
+
+        Game ug = findPlayedUserGame(weekPlayed);
+        if (ug != null) {
+            boolean home = ug.homeTeam == userTeam;
+            int us = home ? ug.homeScore : ug.awayScore;
+            int them = home ? ug.awayScore : ug.homeScore;
+            String res = us > them ? "W" : (us < them ? "L" : "T");
+            sb.append("Your Result: ").append(res).append(" ").append(us).append("-").append(them)
+                    .append(home ? " vs " : " at ")
+                    .append(home ? ug.awayTeam.getName() : ug.homeTeam.getName())
+                    .append("  (").append(ug.gameName).append(")\n\n");
+        } else if (userTeam != null) {
+            Game bye = userGameForWeek(weekPlayed);
+            if (bye != null && bye.isByeWeek()) {
+                sb.append("Your Result: BYE WEEK\n\n");
+            }
+        }
+
+        ArrayList<Team> ranked = teamsRankedByPoll();
+        if (!ranked.isEmpty() && ranked.get(0).getRankTeamPollScore() > 0) {
+            int userRank = userTeam != null ? userTeam.getRankTeamPollScore() : 0;
+            sb.append("Top 10\n");
+            int lines = 0;
+            for (Team t : ranked) {
+                int r = t.getRankTeamPollScore();
+                if (r <= 0 || (r > 10 && r != userRank)) continue;
+                sb.append(r).append(". ").append(t.getName()).append(" (")
+                        .append(t.getWins()).append("-").append(t.getLosses()).append(")")
+                        .append(pollMovementStr(t)).append("\n");
+                if (++lines >= 11) break;
+            }
+            sb.append("\n");
+        }
+
+        if (!newsHeadlines.isEmpty()) {
+            sb.append("Headlines\n");
+            for (int i = 0; i < Math.min(5, newsHeadlines.size()); i++) {
+                sb.append("- ").append(newsHeadlines.get(i)).append("\n");
+            }
+            sb.append("\n");
+        }
+
+        if (userTeam != null) {
+            ArrayList<String> injuries = new ArrayList<>();
+            for (positions.Player p : userTeam.getAllPlayers()) {
+                if (p.isInjured && p.injury != null) {
+                    injuries.add(p.position + " " + p.name + " (" + p.injury.getDuration() + " wks)");
+                }
+            }
+            if (!injuries.isEmpty()) {
+                sb.append("Injury Report\n");
+                for (int i = 0; i < Math.min(3, injuries.size()); i++) {
+                    sb.append("- ").append(injuries.get(i)).append("\n");
+                }
+                if (injuries.size() > 3) {
+                    sb.append("- and ").append(injuries.size() - 3).append(" more\n");
+                }
+                sb.append("\n");
+            }
+
+            // Next regular-season matchup (postseason pairings are announced in the news).
+            Game next = null;
+            if (weekPlayed + 1 < regSeasonWeeks - 1 && userTeam != null) {
+                List<Game> sched = userTeam.getGameSchedule();
+                int idx = weekPlayed;
+                if (sched != null && idx >= 0 && idx < sched.size()) {
+                    next = sched.get(idx);
+                }
+            }
+            if (next != null && !next.isByeWeek() && !next.hasPlayed) {
+                boolean home = next.homeTeam == userTeam;
+                Team opp = home ? next.awayTeam : next.homeTeam;
+                sb.append("Next Up: ").append(home ? "vs " : "at ").append(opp.getName());
+                if (next.gameName != null && !next.gameName.isEmpty() && !"Game".equals(next.gameName)) {
+                    sb.append("  (").append(next.gameName).append(")");
+                }
+                sb.append("\n");
+            }
+        }
+        return sb.toString().trim();
+    }
+
+    /**
+     * Offseason week R+6 texture: coaching-carousel interest in the user HC after
+     * a strong season, plus league-wide carousel buzz. Replaces a dead dialog-only week.
+     */
+    public void jobInterestNews() {
+        HeadCoach hc = userTeam != null ? userTeam.getHeadCoach() : null;
+        if (hc != null && !userTeam.fired) {
+            int games = userTeam.getWins() + userTeam.getLosses();
+            double winPct = games > 0 ? (double) userTeam.getWins() / games : 0;
+            int rank = userTeam.getRankTeamPollScore();
+            if (winPct >= 0.65 || (rank >= 1 && rank <= 20)) {
+                addNewsStory(currentWeek + 1, "Coaching Carousel>" + hc.name + " has " + userTeam.getName()
+                        + " at " + userTeam.getWins() + "-" + userTeam.getLosses() + ". Multiple athletic directors are expected to gauge his interest once the season officially ends.");
+                newsHeadlines.add(userTeam.getName() + " HC " + hc.name + " drawing national interest after a "
+                        + userTeam.getWins() + "-" + userTeam.getLosses() + " campaign.");
+            }
+        }
+        int rumors = 0;
+        for (Team t : teamsRankedByPoll()) {
+            if (rumors >= 2) break;
+            if (t.isUserControlled() || t.getHeadCoach() == null) continue;
+            if (t.getTeamPrestige() >= 85) {
+                newsHeadlines.add("Carousel Watch: " + t.getName() + " expected to be active in the coaching search season.");
+                rumors++;
+            }
+        }
+        if (rumors == 0) {
+            newsHeadlines.add("Coaching Carousel: the league braces for a busy search season.");
+        }
+    }
+
+    /**
+     * Offseason week R+11 texture: transfer-portal needs per team. Replaces a
+     * dead dialog-only week.
+     */
+    public void portalNeedsNews() {
+        ArrayList<Team> pool = new ArrayList<>(teamList);
+        SimRandom.shuffle(pool);
+        int needs = 0;
+        for (Team t : pool) {
+            if (needs >= 6) break;
+            String need = firstRosterNeed(t);
+            if (need != null) {
+                newsHeadlines.add("Portal Need: " + t.getName() + " shopping for a " + need + " in the transfer portal.");
+                needs++;
+            }
+        }
+        if (needs == 0) {
+            newsHeadlines.add("Transfer Portal: rosters across the league look set heading into next season.");
+        }
+    }
+
+    private String firstRosterNeed(Team t) {
+        if (t.getTeamQBs().size() < 2) return "QB";
+        if (t.getTeamRBs().size() < 3) return "RB";
+        if (t.getTeamWRs().size() < 4) return "WR";
+        if (t.getTeamTEs().size() < 2) return "TE";
+        if (t.getTeamOLs().size() < 6) return "OL";
+        if (t.getTeamKs().size() < 1) return "K";
+        if (t.getTeamDLs().size() < 4) return "DL";
+        if (t.getTeamLBs().size() < 4) return "LB";
+        if (t.getTeamCBs().size() < 4) return "CB";
+        if (t.getTeamSs().size() < 2) return "S";
+        return null;
+    }
+
+    /** Trophy-name patterns for generated rivalries. */
+    private static final String[] RIVALRY_TROPHY_PATTERNS = {
+            "Bucket", "Ax", "Keg", "Bell", "Cannon", "Trophy", "Oar", "Sledge", "Star", "Cup"
+    };
+
+    private static boolean isPageantryTeam(Team t) {
+        String conf = t.getConference();
+        return conf != null && !conf.contains("FCS") && !conf.equals("BYE");
+    }
+
+    /**
+     * Pairs every team without a rival with its nearest geographic neighbor that
+     * is also unpaired (preferring cross-conference pairs — those rivalries are
+     * guaranteed an annual meeting through the OOC slate). Rivals declared in an
+     * imported universe CSV keep their declared rival. Deterministic under the
+     * league seed; safe to call on every schedule build.
+     */
+    public void generateRivalries() {
+        ArrayList<Team> unmatched = new ArrayList<>();
+        for (Team t : teamList) {
+            if (isPageantryTeam(t) && t.getRivalName().isEmpty()) {
+                unmatched.add(t);
+            }
+        }
+
+        while (!unmatched.isEmpty()) {
+            Team a = unmatched.remove(0);
+            Team best = null;
+            int bestDistance = Integer.MAX_VALUE;
+            boolean bestCrossConf = false;
+            for (Team b : unmatched) {
+                int distance = Math.abs(a.getLocation() - b.getLocation());
+                boolean crossConf = !b.getConference().equals(a.getConference());
+                if (best == null
+                        || distance < bestDistance
+                        || (distance == bestDistance && crossConf && !bestCrossConf)) {
+                    best = b;
+                    bestDistance = distance;
+                    bestCrossConf = crossConf;
+                }
+            }
+            if (best == null) {
+                break;
+            }
+            unmatched.remove(best);
+
+            String trophy = "The " + RIVALRY_TROPHY_PATTERNS[SimRandom.nextInt(RIVALRY_TROPHY_PATTERNS.length)]
+                    + " (" + a.getAbbr() + "-" + best.getAbbr() + ")";
+            a.setRivalName(best.getName());
+            a.setRivalryTrophyName(trophy);
+            best.setRivalName(a.getName());
+            best.setRivalryTrophyName(trophy);
+        }
+    }
+
+    /** Headlines for this week's user-team marquee game (rivalry / senior day / homecoming). */
+    private void marqueeGameNews() {
+        if (userTeam == null || currentWeek < 1 || currentWeek > regSeasonWeeks - 2) {
+            return;
+        }
+        Game ug = userGameForWeek(currentWeek);
+        if (ug == null || ug.hasPlayed || ug.isByeWeek()) {
+            return;
+        }
+        if (ug.rivalryGame) {
+            Team opp = ug.homeTeam == userTeam ? ug.awayTeam : ug.homeTeam;
+            String trophy = !userTeam.getRivalryTrophyName().isEmpty()
+                    ? userTeam.getRivalryTrophyName() : "the rivalry trophy";
+            newsHeadlines.add("Rivalry Week: " + userTeam.getName() + " and " + opp.getName()
+                    + " meet for " + trophy + "!");
+        }
+        if (ug.seniorDay) {
+            newsHeadlines.add(userTeam.getName() + " honors its senior class at today's game.");
+        }
+        if (ug.homecomingGame) {
+            newsHeadlines.add("Homecoming weekend at " + userTeam.getName() + " — alumni fill the stands.");
+        }
     }
 
 
@@ -2074,16 +2682,16 @@ public class League {
         for (int t = 0; t < teamList.size(); ++t) {
             double disChance = disciplineChance;
             if(teamList.get(t).getTeamDisciplineScore() < 50 || teamList.get(t).getRankTeamPrestige() < teamList.size()*.20) disChance += disciplineScrutiny;
-            else if(Math.random() < 0.33) disChance += disciplineScrutiny;
+            else if(SimRandom.nextDouble() < 0.33) disChance += disciplineScrutiny;
 
-            if (Math.random() < disChance) {
+            if (SimRandom.nextDouble() < disChance) {
                 HeadCoach hc = teamList.get(t).getHeadCoach();
                 if (hc == null) {
                     continue;
                 }
                 int teamDis = teamList.get(t).getTeamDiscipline();
 
-                if ((int) (Math.random() * (100 - teamDis)) > (int) (Math.random() * hc.ratDiscipline)) {
+                if ((int) (SimRandom.nextDouble() * (100 - teamDis)) > (int) (SimRandom.nextDouble() * hc.ratDiscipline)) {
                     teamDiscipline.add(teamList.get(t).getName());
                     teamList.get(t).disciplineFailure();
                 } else {
@@ -2113,6 +2721,9 @@ public class League {
         ArrayList<PlayerLB> LB = rankLB();
         ArrayList<PlayerCB> CB = rankCB();
         ArrayList<PlayerS> S = rankS();
+        // Spotlight weeks are relative to season length; skip depleted/short boards.
+        if (currentWeek < 5 || currentWeek > Math.min(11, regSeasonWeeks - 2)) return;
+        if (QB.isEmpty() || RB.isEmpty() || WR.isEmpty() || DL.isEmpty() || LB.isEmpty() || CB.isEmpty() || S.isEmpty()) return;
         if (currentWeek == 5) {
             newsStories.get(currentWeek + 1).add("Player Spotlight>" + S.get(0).getYrStr() + " safety, " + S.get(0).name + ", has been cleaning up in the back this year helping " + S.get(0).team.getName() +
                     " to a record of " + S.get(0).team.strTeamRecord() + ". The safety has made " + S.get(0).getTackles() + " tackles and sacked the QB " + S.get(0).getSacks() + " times this year. In coverage, he's recovered " +
@@ -2985,7 +3596,7 @@ public class League {
             int cPres = coach.team.getConfPrestige();
 
             for (int t = 0; t < teamList.size(); ++t) {
-                if (teamList.get(t).getHeadCoach() == null && coachStarList.get(i).getStaffOverall(ovr) >= teamList.get(t).getMinCoachHireReq() && !teamList.get(t).getName().equals(tmName) && Math.random() > 0.66) {
+                if (teamList.get(t).getHeadCoach() == null && coachStarList.get(i).getStaffOverall(ovr) >= teamList.get(t).getMinCoachHireReq() && !teamList.get(t).getName().equals(tmName) && SimRandom.nextDouble() > 0.66) {
                     if (!coachStarList.get(i).position.equals("HC") || teamList.get(t).getTeamPrestige() > tmPres && teamList.get(t).getConfPrestige() > cPres || teamList.get(t).getTeamPrestige() > tmPres + 5 || teamList.get(t).getConfPrestige() + 10 > cPres) {
                         final Staff hiredHC = coachStarList.get(i);
                         teamList.get(t).setHeadCoach(new HeadCoach(hiredHC, teamList.get(t)));
@@ -3001,7 +3612,7 @@ public class League {
                             if (teamList.get(j).getName().equals(tmName)) {
                                 if(pos.equals("HC")) {
                                     teamList.get(j).setHeadCoach(null);
-                                    if (Math.random() > 0.20) {
+                                    if (SimRandom.nextDouble() > 0.20) {
                                         teamList.get(j).promoteCoach();
                                         teamList.get(j).getHeadCoach().history.add("");
                                         newsStories.get(currentWeek + 1).add("Replacement Promoted: " + teamList.get(j).getName() + ">" + teamList.get(j).strRankTeamRecord() +
@@ -3037,7 +3648,7 @@ public class League {
         for (int i = 0; i < coachFreeAgents.size(); ++i) {
             final Staff c = coachFreeAgents.get(i);
             for (int t = 0; t < teamList.size(); ++t) {
-                if (teamList.get(t).getHeadCoach() == null && coachFreeAgents.get(i).getStaffOverall(ovr) >= teamList.get(t).getMinCoachHireReq() && Math.random() < 0.60 && !coachFreeAgents.get(i).retired) {
+                if (teamList.get(t).getHeadCoach() == null && coachFreeAgents.get(i).getStaffOverall(ovr) >= teamList.get(t).getMinCoachHireReq() && SimRandom.nextDouble() < 0.60 && !coachFreeAgents.get(i).retired) {
                     teamList.get(t).setHeadCoach(new HeadCoach(c, teamList.get(t)));
                     teamList.get(t).getHeadCoach().contractLength = 6;
                     teamList.get(t).getHeadCoach().contractYear = 0;
@@ -3056,7 +3667,7 @@ public class League {
 
         //Assistants Promoted
         for (int t = 0; t < teamList.size(); ++t) {
-            if (teamList.get(t).getHeadCoach() == null && Math.random() > 0.60) {
+            if (teamList.get(t).getHeadCoach() == null && SimRandom.nextDouble() > 0.60) {
                 teamList.get(t).promoteCoach();
                 teamList.get(t).getHeadCoach().history.add("");
                 newsStories.get(currentWeek + 1).add("Coaching Promotion: " + teamList.get(t).getName() + ">Following the departure of their previous head coach, " + teamList.get(t).strRankTeamRecord() + " has promoted assistant " + teamList.get(t).getHeadCoach().name +
@@ -3075,7 +3686,7 @@ public class League {
             String prevTeam = c.team != null && c.team.getName() != null ? c.team.getName() : "N/A";
             for (int t = 0; t < teamList.size(); ++t) {
                 if (teamList.get(t).getHeadCoach() == null && c.getStaffOverall(ovr) >= teamList.get(t).getMinCoachHireReq()
-                        && !teamList.get(t).getName().equals(prevTeam) && Math.random() > 0.60) {
+                        && !teamList.get(t).getName().equals(prevTeam) && SimRandom.nextDouble() > 0.60) {
 
                     newsStories.get(currentWeek + 1).add("Coaching Switch: " + teamList.get(t).getName() + ">After an extensive search for a new head coach, " + teamList.get(t).strRankTeamRecord() + " has hired " + c.name +
                             " to lead the team. Head Coach " + c.name + " previously coached at " + prevTeam + ", before being let go this past season.");
@@ -3133,7 +3744,7 @@ public class League {
             }
             final String pos = c.position == null ? "" : c.position;
 
-            if (c.getStaffOverall(ovr) >= school.getMinCoachHireReq() && !school.getName().equals(tmName) && Math.random() > 0.60) {
+            if (c.getStaffOverall(ovr) >= school.getMinCoachHireReq() && !school.getName().equals(tmName) && SimRandom.nextDouble() > 0.60) {
                 if (school.getTeamPrestige() > tmPres && school.getConfPrestige() > cPres || school.getTeamPrestige() > tmPres + 5 || school.getConfPrestige() + 10 > cPres) {
                     school.setHeadCoach(new HeadCoach(c, school));
                     school.getHeadCoach().contractLength = 6;
@@ -3149,7 +3760,7 @@ public class League {
                         if (teamList.get(j).getName().equals(tmName)) {
                             if (pos.equals("HC")) {
                                 teamList.get(j).setHeadCoach(null);
-                                if (Math.random() > 0.25) {
+                                if (SimRandom.nextDouble() > 0.25) {
                                     teamList.get(j).promoteCoach();
                                     teamList.get(j).getHeadCoach().history.add("");
                                     newsStories.get(currentWeek + 1).add("Replacement Promoted: " + teamList.get(j).getName() + ">" + teamList.get(j).strRankTeamRecord() +
@@ -3187,7 +3798,7 @@ public class League {
             Collections.sort(coachFreeAgents, new CompCoachOvr());
             for (int i = 0; i < coachFreeAgents.size(); ++i) {
                 final Staff c = coachFreeAgents.get(i);
-                if (school.getHeadCoach() == null && coachFreeAgents.get(i).getStaffOverall(ovr) >= school.getMinCoachHireReq() && Math.random() < 0.65 && !coachFreeAgents.get(i).retired) {
+                if (school.getHeadCoach() == null && coachFreeAgents.get(i).getStaffOverall(ovr) >= school.getMinCoachHireReq() && SimRandom.nextDouble() < 0.65 && !coachFreeAgents.get(i).retired) {
                     school.setHeadCoach(new HeadCoach(c, school));
                     school.getHeadCoach().contractLength = 6;
                     school.getHeadCoach().contractYear = 0;
@@ -3213,7 +3824,7 @@ public class League {
                 }
                 String prevTeam = c.team != null && c.team.getName() != null ? c.team.getName() : "N/A";
                 if (school.getHeadCoach() == null && c.getStaffOverall(ovr) + 5 >= school.getMinCoachHireReq()
-                        && !school.getName().equals(prevTeam) && Math.random() > 0.45) {
+                        && !school.getName().equals(prevTeam) && SimRandom.nextDouble() > 0.45) {
                     school.setHeadCoach(new HeadCoach(c, school));
                     school.getHeadCoach().contractLength = 6;
                     school.getHeadCoach().contractYear = 0;
@@ -3365,7 +3976,6 @@ public class League {
         final Team user = userTeam;
         Collections.sort(teamList, new CompTeamPoll());
         int rand;
-        Random random = new Random();
         int max = teamList.size() - 1;
         int min = 0;
 
@@ -3380,8 +3990,9 @@ public class League {
         for (int loc = 1; loc < 4; ++loc) {
 
             for (int i = 0; i < transferQBs.size(); ++i) {
-                rand = random.nextInt((max - min) + 1) + min;
-                for (int t = rand; t < teamList.size() - rand; ++t) {
+                rand = SimRandom.nextInt((max - min) + 1) + min;
+                for (int n = 0; n < teamList.size(); ++n) {
+                    int t = (rand + n) % teamList.size();
                     if (teamList.get(t).getTeamQBs().size() < 1 || teamList.get(t).getTeamQBs().get(0).ratOvr < transferQBs.get(i).ratOvr) {
                         if (Math.abs(teamList.get(t).getLocation() - transferQBs.get(i).getRegion()) < loc) {
                             int qbTransfers = 0;
@@ -3399,11 +4010,13 @@ public class League {
                                 transfersList.add(transferQBs.get(i).ratOvr + " " + transferQBs.get(i).position + " " + transferQBs.get(i).name + " [" + transferQBs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferQBs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerQB(transferQBs.get(i));
                                 transferQBs.remove(i);
+                                --i;
                                 break;
                             } else if (user != null && user.getQbTransferNum() == 0) {
                                 user.incrementQbTransferNum();
                                 bridge.transferPlayer(transferQBs.get(i));
                                 transferQBs.remove(i);
+                                --i;
                                 break;
                             }
                         }
@@ -3412,8 +4025,9 @@ public class League {
             }
 
             for (int i = 0; i < transferRBs.size(); ++i) {
-                rand = random.nextInt((max - min) + 1) + min;
-                for (int t = rand; t < teamList.size() - rand; ++t) {
+                rand = SimRandom.nextInt((max - min) + 1) + min;
+                for (int n = 0; n < teamList.size(); ++n) {
+                    int t = (rand + n) % teamList.size();
                     if (teamList.get(t).getTeamRBs().size() < 2 || teamList.get(t).getTeamRBs().get(0).ratOvr < transferRBs.get(i).ratOvr) {
                         if (Math.abs(teamList.get(t).getLocation() - transferRBs.get(i).getRegion()) < loc) {
                             if (!teamList.get(t).isUserControlled()) {
@@ -3427,10 +4041,12 @@ public class League {
                                 transfersList.add(transferRBs.get(i).ratOvr + " " + transferRBs.get(i).position + " " + transferRBs.get(i).name + " [" + transferRBs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferRBs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerRB(transferRBs.get(i));
                                 transferRBs.remove(i);
+                                --i;
                                 break;
                             } else if (user != null) {
                                 bridge.transferPlayer(transferRBs.get(i));
                                 transferRBs.remove(i);
+                                --i;
                                 break;
                             }
                         }
@@ -3439,8 +4055,9 @@ public class League {
             }
 
             for (int i = 0; i < transferWRs.size(); ++i) {
-                rand = random.nextInt((max - min) + 1) + min;
-                for (int t = rand; t < teamList.size() - rand; ++t) {
+                rand = SimRandom.nextInt((max - min) + 1) + min;
+                for (int n = 0; n < teamList.size(); ++n) {
+                    int t = (rand + n) % teamList.size();
                     if (teamList.get(t).getTeamWRs().size() < 3 || teamList.get(t).getTeamWRs().get(0).ratOvr < transferWRs.get(i).ratOvr) {
                         if (Math.abs(teamList.get(t).getLocation() - transferWRs.get(i).getRegion()) < 1) {
                             if (!teamList.get(t).isUserControlled()) {
@@ -3454,10 +4071,12 @@ public class League {
                                 transfersList.add(transferWRs.get(i).ratOvr + " " + transferWRs.get(i).position + " " + transferWRs.get(i).name + " [" + transferWRs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferWRs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerWR(transferWRs.get(i));
                                 transferWRs.remove(i);
+                                --i;
                                 break;
                             } else if (user != null) {
                                 bridge.transferPlayer(transferWRs.get(i));
                                 transferWRs.remove(i);
+                                --i;
                                 break;
                             }
                         }
@@ -3466,8 +4085,9 @@ public class League {
             }
 
             for (int i = 0; i < transferTEs.size(); ++i) {
-                rand = random.nextInt((max - min) + 1) + min;
-                for (int t = rand; t < teamList.size() - rand; ++t) {
+                rand = SimRandom.nextInt((max - min) + 1) + min;
+                for (int n = 0; n < teamList.size(); ++n) {
+                    int t = (rand + n) % teamList.size();
                     if (teamList.get(t).getTeamTEs().size() < 1 || teamList.get(t).getTeamTEs().get(0).ratOvr < transferTEs.get(i).ratOvr) {
                         if (Math.abs(teamList.get(t).getLocation() - transferTEs.get(i).getRegion()) < loc) {
                             if (!teamList.get(t).isUserControlled()) {
@@ -3481,10 +4101,12 @@ public class League {
                                 transfersList.add(transferTEs.get(i).ratOvr + " " + transferTEs.get(i).position + " " + transferTEs.get(i).name + " [" + transferTEs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferTEs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerTE(transferTEs.get(i));
                                 transferTEs.remove(i);
+                                --i;
                                 break;
                             } else if (user != null) {
                                 bridge.transferPlayer(transferTEs.get(i));
                                 transferTEs.remove(i);
+                                --i;
                                 break;
                             }
                         }
@@ -3493,8 +4115,9 @@ public class League {
             }
 
             for (int i = 0; i < transferOLs.size(); ++i) {
-                rand = random.nextInt((max - min) + 1) + min;
-                for (int t = rand; t < teamList.size() - rand; ++t) {
+                rand = SimRandom.nextInt((max - min) + 1) + min;
+                for (int n = 0; n < teamList.size(); ++n) {
+                    int t = (rand + n) % teamList.size();
                     if (teamList.get(t).getTeamOLs().size() < 5 || teamList.get(t).getTeamOLs().get(0).ratOvr < transferOLs.get(i).ratOvr && Math.abs(teamList.get(t).getLocation() - transferOLs.get(i).getRegion()) < loc) {
                         if (!teamList.get(t).isUserControlled()) {
                             newsStories.get(currentWeek + 1).add(teamList.get(t).getName() + " Transfer News>" + transferOLs.get(i).getYrStr() + " OL " + transferOLs.get(i).name + "(" + transferOLs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ". He was previously enrolled at " +
@@ -3507,10 +4130,12 @@ public class League {
                             transfersList.add(transferOLs.get(i).ratOvr + " " + transferOLs.get(i).position + " " + transferOLs.get(i).name + " [" + transferOLs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferOLs.get(i).team.getAbbr() + ")");
                             teamList.get(t).addPlayerOL(transferOLs.get(i));
                             transferOLs.remove(i);
+                            --i;
                             break;
                         } else if (user != null) {
                             bridge.transferPlayer(transferOLs.get(i));
                             transferOLs.remove(i);
+                            --i;
                             break;
                         }
                     }
@@ -3518,8 +4143,9 @@ public class League {
             }
 
             for (int i = 0; i < transferKs.size(); ++i) {
-                rand = random.nextInt((max - min) + 1) + min;
-                for (int t = rand; t < teamList.size() - rand; ++t) {
+                rand = SimRandom.nextInt((max - min) + 1) + min;
+                for (int n = 0; n < teamList.size(); ++n) {
+                    int t = (rand + n) % teamList.size();
                     if (teamList.get(t).getTeamKs().size() < 1 || teamList.get(t).getTeamKs().get(0).ratOvr < transferKs.get(i).ratOvr) {
                         if (Math.abs(teamList.get(t).getLocation() - transferKs.get(i).getRegion()) < loc) {
                             if (!teamList.get(t).isUserControlled()) {
@@ -3533,10 +4159,12 @@ public class League {
                                 transfersList.add(transferKs.get(i).ratOvr + " " + transferKs.get(i).position + " " + transferKs.get(i).name + " [" + transferKs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferKs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerK(transferKs.get(i));
                                 transferKs.remove(i);
+                                --i;
                                 break;
                             } else if (user != null) {
                                 bridge.transferPlayer(transferKs.get(i));
                                 transferKs.remove(i);
+                                --i;
                                 break;
                             }
                         }
@@ -3545,8 +4173,9 @@ public class League {
             }
 
             for (int i = 0; i < transferDLs.size(); ++i) {
-                rand = random.nextInt((max - min) + 1) + min;
-                for (int t = rand; t < teamList.size() - rand; ++t) {
+                rand = SimRandom.nextInt((max - min) + 1) + min;
+                for (int n = 0; n < teamList.size(); ++n) {
+                    int t = (rand + n) % teamList.size();
                     if (teamList.get(t).getTeamDLs().size() < 4 || teamList.get(t).getTeamDLs().get(0).ratOvr < transferDLs.get(i).ratOvr) {
                         if (Math.abs(teamList.get(t).getLocation() - transferDLs.get(i).getRegion()) < loc) {
                             if (!teamList.get(t).isUserControlled()) {
@@ -3560,10 +4189,12 @@ public class League {
                                 transfersList.add(transferDLs.get(i).ratOvr + " " + transferDLs.get(i).position + " " + transferDLs.get(i).name + " [" + transferDLs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferDLs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerDL(transferDLs.get(i));
                                 transferDLs.remove(i);
+                                --i;
                                 break;
                             } else if (user != null) {
                                 bridge.transferPlayer(transferDLs.get(i));
                                 transferDLs.remove(i);
+                                --i;
                                 break;
                             }
                         }
@@ -3572,8 +4203,9 @@ public class League {
             }
 
             for (int i = 0; i < transferLBs.size(); ++i) {
-                rand = random.nextInt((max - min) + 1) + min;
-                for (int t = rand; t < teamList.size() - rand; ++t) {
+                rand = SimRandom.nextInt((max - min) + 1) + min;
+                for (int n = 0; n < teamList.size(); ++n) {
+                    int t = (rand + n) % teamList.size();
                     if (teamList.get(t).getTeamLBs().size() < 3 || teamList.get(t).getTeamLBs().get(0).ratOvr < transferLBs.get(i).ratOvr) {
                         if (Math.abs(teamList.get(t).getLocation() - transferLBs.get(i).getRegion()) < loc) {
                             if (!teamList.get(t).isUserControlled()) {
@@ -3587,10 +4219,12 @@ public class League {
                                 transfersList.add(transferLBs.get(i).ratOvr + " " + transferLBs.get(i).position + " " + transferLBs.get(i).name + " [" + transferLBs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferLBs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerLB(transferLBs.get(i));
                                 transferLBs.remove(i);
+                                --i;
                                 break;
                             } else if (user != null) {
                                 bridge.transferPlayer(transferLBs.get(i));
                                 transferLBs.remove(i);
+                                --i;
                                 break;
                             }
                         }
@@ -3599,8 +4233,9 @@ public class League {
             }
 
             for (int i = 0; i < transferCBs.size(); ++i) {
-                rand = random.nextInt((max - min) + 1) + min;
-                for (int t = rand; t < teamList.size() - rand; ++t) {
+                rand = SimRandom.nextInt((max - min) + 1) + min;
+                for (int n = 0; n < teamList.size(); ++n) {
+                    int t = (rand + n) % teamList.size();
                     if (teamList.get(t).getTeamCBs().size() < 3 || teamList.get(t).getTeamCBs().get(0).ratOvr < transferCBs.get(i).ratOvr) {
                         if (Math.abs(teamList.get(t).getLocation() - transferCBs.get(i).getRegion()) < loc) {
                             if (!teamList.get(t).isUserControlled()) {
@@ -3614,10 +4249,12 @@ public class League {
                                 transfersList.add(transferCBs.get(i).ratOvr + " " + transferCBs.get(i).position + " " + transferCBs.get(i).name + " [" + transferCBs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferCBs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerCB(transferCBs.get(i));
                                 transferCBs.remove(i);
+                                --i;
                                 break;
                             } else if (user != null) {
                                 bridge.transferPlayer(transferCBs.get(i));
                                 transferCBs.remove(i);
+                                --i;
                                 break;
                             }
                         }
@@ -3626,8 +4263,9 @@ public class League {
             }
 
             for (int i = 0; i < transferSs.size(); ++i) {
-                rand = random.nextInt((max - min) + 1) + min;
-                for (int t = rand; t < teamList.size() - rand; ++t) {
+                rand = SimRandom.nextInt((max - min) + 1) + min;
+                for (int n = 0; n < teamList.size(); ++n) {
+                    int t = (rand + n) % teamList.size();
                     if (teamList.get(t).getTeamSs().size() < 1 || teamList.get(t).getTeamSs().get(0).ratOvr < transferSs.get(i).ratOvr) {
                         if (Math.abs(teamList.get(t).getLocation() - transferSs.get(i).getRegion()) < loc) {
                             if (!teamList.get(t).isUserControlled()) {
@@ -3641,10 +4279,12 @@ public class League {
                                 transfersList.add(transferSs.get(i).ratOvr + " " + transferSs.get(i).position + " " + transferSs.get(i).name + " [" + transferSs.get(i).getTransferStatus() + "] " + teamList.get(t).getName() + " (" + transferSs.get(i).team.getAbbr() + ")");
                                 teamList.get(t).addPlayerS(transferSs.get(i));
                                 transferSs.remove(i);
+                                --i;
                                 break;
                             } else if (user != null) {
                                 bridge.transferPlayer(transferSs.get(i));
                                 transferSs.remove(i);
+                                --i;
                                 break;
                             }
                         }
@@ -3653,105 +4293,166 @@ public class League {
             }
         }
 
-        //The remaining user players transfer to FCS/Div II Football
+        //Unmatched portal players: half rejoin their old team, the rest depart for FCS/Div II (recorded in the summary)
 
         for (int i = 0; i < transferQBs.size(); ++i) {
-            if(Math.random() > .50) {
+            if (SimRandom.nextDouble() > .50) {
                 if (transferQBs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
+                    tOut.append(transferQBs.get(i).position + " " + transferQBs.get(i).name + ", " + transferQBs.get(i).getYrStr() + "  Ovr: " + transferQBs.get(i).ratOvr + " (FCS)\n\n");
                 }
+                transfersList.add(transferQBs.get(i).ratOvr + " " + transferQBs.get(i).position + " " + transferQBs.get(i).name + " (FCS)");
+                newsStories.get(currentWeek + 1).add("Transfer News>" + transferQBs.get(i).getYrStr() + " QB " + transferQBs.get(i).name + " (" + transferQBs.get(i).ratOvr + ") has left " + transferQBs.get(i).team.getName() + " for the FCS Division.");
+                transferQBs.remove(i);
+                --i;
             } else {
                 transferQBs.get(i).isTransfer = false;
                 transferQBs.get(i).team.addPlayerQB(transferQBs.get(i));
+                transferQBs.remove(i);
+                --i;
             }
         }
         for (int i = 0; i < transferRBs.size(); ++i) {
-            if (Math.random() > .50) {
+            if (SimRandom.nextDouble() > .50) {
                 if (transferRBs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
                     tOut.append(transferRBs.get(i).position + " " + transferRBs.get(i).name + ", " + transferRBs.get(i).getYrStr() + "  Ovr: " + transferRBs.get(i).ratOvr + " (FCS)\n\n");
                 }
+                transfersList.add(transferRBs.get(i).ratOvr + " " + transferRBs.get(i).position + " " + transferRBs.get(i).name + " (FCS)");
+                newsStories.get(currentWeek + 1).add("Transfer News>" + transferRBs.get(i).getYrStr() + " RB " + transferRBs.get(i).name + " (" + transferRBs.get(i).ratOvr + ") has left " + transferRBs.get(i).team.getName() + " for the FCS Division.");
+                transferRBs.remove(i);
+                --i;
             } else {
                 transferRBs.get(i).isTransfer = false;
                 transferRBs.get(i).team.addPlayerRB(transferRBs.get(i));
+                transferRBs.remove(i);
+                --i;
             }
         }
         for (int i = 0; i < transferWRs.size(); ++i) {
-            if (Math.random() > .50) {
+            if (SimRandom.nextDouble() > .50) {
                 if (transferWRs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
                     tOut.append(transferWRs.get(i).position + " " + transferWRs.get(i).name + ", " + transferWRs.get(i).getYrStr() + "  Ovr: " + transferWRs.get(i).ratOvr + " (FCS)\n\n");
                 }
+                transfersList.add(transferWRs.get(i).ratOvr + " " + transferWRs.get(i).position + " " + transferWRs.get(i).name + " (FCS)");
+                newsStories.get(currentWeek + 1).add("Transfer News>" + transferWRs.get(i).getYrStr() + " WR " + transferWRs.get(i).name + " (" + transferWRs.get(i).ratOvr + ") has left " + transferWRs.get(i).team.getName() + " for the FCS Division.");
+                transferWRs.remove(i);
+                --i;
             } else {
                 transferWRs.get(i).isTransfer = false;
                 transferWRs.get(i).team.addPlayerWR(transferWRs.get(i));
+                transferWRs.remove(i);
+                --i;
             }
         }
         for (int i = 0; i < transferTEs.size(); ++i) {
-            if (Math.random() > .50) {
+            if (SimRandom.nextDouble() > .50) {
                 if (transferTEs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
                     tOut.append(transferTEs.get(i).position + " " + transferTEs.get(i).name + ", " + transferTEs.get(i).getYrStr() + "  Ovr: " + transferTEs.get(i).ratOvr + " (FCS)\n\n");
                 }
+                transfersList.add(transferTEs.get(i).ratOvr + " " + transferTEs.get(i).position + " " + transferTEs.get(i).name + " (FCS)");
+                newsStories.get(currentWeek + 1).add("Transfer News>" + transferTEs.get(i).getYrStr() + " TE " + transferTEs.get(i).name + " (" + transferTEs.get(i).ratOvr + ") has left " + transferTEs.get(i).team.getName() + " for the FCS Division.");
+                transferTEs.remove(i);
+                --i;
             } else {
                 transferTEs.get(i).isTransfer = false;
                 transferTEs.get(i).team.addPlayerTE(transferTEs.get(i));
+                transferTEs.remove(i);
+                --i;
             }
         }
         for (int i = 0; i < transferOLs.size(); ++i) {
-            if (Math.random() > .50) {
+            if (SimRandom.nextDouble() > .50) {
                 if (transferOLs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
                     tOut.append(transferOLs.get(i).position + " " + transferOLs.get(i).name + ", " + transferOLs.get(i).getYrStr() + "  Ovr: " + transferOLs.get(i).ratOvr + " (FCS)\n\n");
                 }
+                transfersList.add(transferOLs.get(i).ratOvr + " " + transferOLs.get(i).position + " " + transferOLs.get(i).name + " (FCS)");
+                newsStories.get(currentWeek + 1).add("Transfer News>" + transferOLs.get(i).getYrStr() + " OL " + transferOLs.get(i).name + " (" + transferOLs.get(i).ratOvr + ") has left " + transferOLs.get(i).team.getName() + " for the FCS Division.");
+                transferOLs.remove(i);
+                --i;
             } else {
                 transferOLs.get(i).isTransfer = false;
                 transferOLs.get(i).team.addPlayerOL(transferOLs.get(i));
+                transferOLs.remove(i);
+                --i;
             }
         }
         for (int i = 0; i < transferKs.size(); ++i) {
-            if (Math.random() > .50) {
-                if (transferKs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+            if (SimRandom.nextDouble() > .50) {
+                if (transferKs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
                     tOut.append(transferKs.get(i).position + " " + transferKs.get(i).name + ", " + transferKs.get(i).getYrStr() + "  Ovr: " + transferKs.get(i).ratOvr + " (FCS)\n\n");
                 }
+                transfersList.add(transferKs.get(i).ratOvr + " " + transferKs.get(i).position + " " + transferKs.get(i).name + " (FCS)");
+                newsStories.get(currentWeek + 1).add("Transfer News>" + transferKs.get(i).getYrStr() + " K " + transferKs.get(i).name + " (" + transferKs.get(i).ratOvr + ") has left " + transferKs.get(i).team.getName() + " for the FCS Division.");
+                transferKs.remove(i);
+                --i;
             } else {
                 transferKs.get(i).isTransfer = false;
                 transferKs.get(i).team.addPlayerK(transferKs.get(i));
+                transferKs.remove(i);
+                --i;
             }
         }
         for (int i = 0; i < transferDLs.size(); ++i) {
-            if (Math.random() > .50) {
-                if (transferDLs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+            if (SimRandom.nextDouble() > .50) {
+                if (transferDLs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
                     tOut.append(transferDLs.get(i).position + " " + transferDLs.get(i).name + ", " + transferDLs.get(i).getYrStr() + "  Ovr: " + transferDLs.get(i).ratOvr + " (FCS)\n\n");
                 }
+                transfersList.add(transferDLs.get(i).ratOvr + " " + transferDLs.get(i).position + " " + transferDLs.get(i).name + " (FCS)");
+                newsStories.get(currentWeek + 1).add("Transfer News>" + transferDLs.get(i).getYrStr() + " DL " + transferDLs.get(i).name + " (" + transferDLs.get(i).ratOvr + ") has left " + transferDLs.get(i).team.getName() + " for the FCS Division.");
+                transferDLs.remove(i);
+                --i;
             } else {
                 transferDLs.get(i).isTransfer = false;
                 transferDLs.get(i).team.addPlayerDL(transferDLs.get(i));
+                transferDLs.remove(i);
+                --i;
             }
         }
         for (int i = 0; i < transferLBs.size(); ++i) {
-            if (Math.random() > .50) {
-                if (transferLBs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+            if (SimRandom.nextDouble() > .50) {
+                if (transferLBs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
                     tOut.append(transferLBs.get(i).position + " " + transferLBs.get(i).name + ", " + transferLBs.get(i).getYrStr() + "  Ovr: " + transferLBs.get(i).ratOvr + " (FCS)\n\n");
                 }
+                transfersList.add(transferLBs.get(i).ratOvr + " " + transferLBs.get(i).position + " " + transferLBs.get(i).name + " (FCS)");
+                newsStories.get(currentWeek + 1).add("Transfer News>" + transferLBs.get(i).getYrStr() + " LB " + transferLBs.get(i).name + " (" + transferLBs.get(i).ratOvr + ") has left " + transferLBs.get(i).team.getName() + " for the FCS Division.");
+                transferLBs.remove(i);
+                --i;
             } else {
                 transferLBs.get(i).isTransfer = false;
                 transferLBs.get(i).team.addPlayerLB(transferLBs.get(i));
+                transferLBs.remove(i);
+                --i;
             }
         }
         for (int i = 0; i < transferCBs.size(); ++i) {
-            if (Math.random() > .50) {
-                if (transferCBs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+            if (SimRandom.nextDouble() > .50) {
+                if (transferCBs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
                     tOut.append(transferCBs.get(i).position + " " + transferCBs.get(i).name + ", " + transferCBs.get(i).getYrStr() + "  Ovr: " + transferCBs.get(i).ratOvr + " (FCS)\n\n");
                 }
+                transfersList.add(transferCBs.get(i).ratOvr + " " + transferCBs.get(i).position + " " + transferCBs.get(i).name + " (FCS)");
+                newsStories.get(currentWeek + 1).add("Transfer News>" + transferCBs.get(i).getYrStr() + " CB " + transferCBs.get(i).name + " (" + transferCBs.get(i).ratOvr + ") has left " + transferCBs.get(i).team.getName() + " for the FCS Division.");
+                transferCBs.remove(i);
+                --i;
             } else {
                 transferCBs.get(i).isTransfer = false;
                 transferCBs.get(i).team.addPlayerCB(transferCBs.get(i));
+                transferCBs.remove(i);
+                --i;
             }
         }
         for (int i = 0; i < transferSs.size(); ++i) {
-            if (Math.random() > .50) {
-                if (transferSs.get(i).team.getAbbr().equals(userTeam.getAbbr())) {
+            if (SimRandom.nextDouble() > .50) {
+                if (transferSs.get(i).team.getAbbr().equals(user != null ? user.getAbbr() : "")) {
                     tOut.append(transferSs.get(i).position + " " + transferSs.get(i).name + ", " + transferSs.get(i).getYrStr() + "  Ovr: " + transferSs.get(i).ratOvr + " (FCS)\n\n");
                 }
+                transfersList.add(transferSs.get(i).ratOvr + " " + transferSs.get(i).position + " " + transferSs.get(i).name + " (FCS)");
+                newsStories.get(currentWeek + 1).add("Transfer News>" + transferSs.get(i).getYrStr() + " S " + transferSs.get(i).name + " (" + transferSs.get(i).ratOvr + ") has left " + transferSs.get(i).team.getName() + " for the FCS Division.");
+                transferSs.remove(i);
+                --i;
             } else {
                 transferSs.get(i).isTransfer = false;
                 transferSs.get(i).team.addPlayerS(transferSs.get(i));
+                transferSs.remove(i);
+                --i;
             }
         }
 
@@ -3819,7 +4520,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         countRealignment = 0;
 
         //Independent Home finding...
-        if (advancedRealignment && Math.random() < realignmentChance) {
+        if (advancedRealignment && SimRandom.nextDouble() < realignmentChance) {
             ArrayList<Conference> confList = conferences;
             promoteTeamList = new ArrayList<>();
 
@@ -3841,7 +4542,7 @@ Then conferences can see if they want to add them to their list if the teams mee
                 if (conferences.get(c).confTeams.size() < maxConfTeams && conferences.get(c).confTeams.size() >= conferences.get(c).minConfTeams) {
                     Conference conf = conferences.get(c);
                     for (int i = 0; i < promoteTeamList.size(); i++) {
-                        if (promoteTeamList.get(i).getTeamPrestige() > (conf.confRelegateMin * 1.2) && Math.random() < realignmentChance && Math.abs(promoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2) {
+                        if (promoteTeamList.get(i).getTeamPrestige() > (conf.confRelegateMin * 1.2) && SimRandom.nextDouble() < realignmentChance && Math.abs(promoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2) {
                             final Team teamA = promoteTeamList.get(i);
                             conferences.get(getConfNumber(teamA.getConference())).confTeams.remove(teamA);
                             teamA.setConference(conf.confName);
@@ -3863,7 +4564,7 @@ Then conferences can see if they want to add them to their list if the teams mee
 
         //Advanced Realignment Craziness
 
-        if (advancedRealignment && Math.random() < confRealignmentChance && leagueHistory.size() > 4) {
+        if (advancedRealignment && SimRandom.nextDouble() < confRealignmentChance && leagueHistory.size() > 4) {
 
             ArrayList<Conference> confList = conferences;
             promoteTeamList = new ArrayList<>();
@@ -3886,7 +4587,7 @@ Then conferences can see if they want to add them to their list if the teams mee
                 if (conferences.get(c).confTeams.size() < maxConfTeams && conferences.get(c).confTeams.size() >= conferences.get(c).minConfTeams) {
                     Conference conf = conferences.get(c);
                     for (int i = 0; i < promoteTeamList.size(); i++) {
-                        if (promoteTeamList.get(i).getTeamPrestige() > (conf.confRelegateMin * 1.2) && Math.random() < realignmentChance && Math.abs(promoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2) {
+                        if (promoteTeamList.get(i).getTeamPrestige() > (conf.confRelegateMin * 1.2) && SimRandom.nextDouble() < realignmentChance && Math.abs(promoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2) {
                             final Team teamA = promoteTeamList.get(i);
                             conferences.get(getConfNumber(teamA.getConference())).confTeams.remove(teamA);
                             teamA.setConference(conf.confName);
@@ -3927,7 +4628,7 @@ Then conferences can see if they want to add them to their list if the teams mee
                 if (conferences.get(c).confTeams.size() < maxConfTeams && conferences.get(c).confTeams.size() >= conferences.get(c).minConfTeams) {
                     Conference conf = conferences.get(c);
                     for (int i = 0; i < demoteTeamList.size(); i++) {
-                        if (demoteTeamList.get(i).getTeamPrestige() > conf.confPromoteMin && Math.random() < realignmentChance && Math.abs(demoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2 && !demoteTeamList.get(i).getConference().equals(conferences.get(c).confName)) {
+                        if (demoteTeamList.get(i).getTeamPrestige() > conf.confPromoteMin && SimRandom.nextDouble() < realignmentChance && Math.abs(demoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2 && !demoteTeamList.get(i).getConference().equals(conferences.get(c).confName)) {
                             final Team teamA = demoteTeamList.get(i);
                             final String oldConf = teamA.getConference();
                             if (conferences.get(getConfNumber(teamA.getConference())).confTeams.size() > conferences.get(getConfNumber(teamA.getConference())).minConfTeams && conferences.get(getConfNumber(teamA.getConference())).confTeams.size() > minConfTeams) {
@@ -3967,7 +4668,7 @@ Then conferences can see if they want to add them to their list if the teams mee
                 if (conferences.get(c).confTeams.size() < maxConfTeams && conferences.get(c).confTeams.size() >= conferences.get(c).minConfTeams) {
                     Conference conf = conferences.get(c);
                     for (int i = 0; i < promoteTeamList.size(); i++) {
-                        if (promoteTeamList.get(i).getTeamPrestige() > conf.confPromoteMin && Math.random() < realignmentChance && Math.abs(promoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2 && !promoteTeamList.get(i).getConference().equals(conferences.get(c).confName) && conferences.get(getConfNumber(promoteTeamList.get(i).getConference())).confPrestige < conf.confPrestige) {
+                        if (promoteTeamList.get(i).getTeamPrestige() > conf.confPromoteMin && SimRandom.nextDouble() < realignmentChance && Math.abs(promoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2 && !promoteTeamList.get(i).getConference().equals(conferences.get(c).confName) && conferences.get(getConfNumber(promoteTeamList.get(i).getConference())).confPrestige < conf.confPrestige) {
                             final Team teamA = promoteTeamList.get(i);
                             final String oldConf = teamA.getConference();
                             if (conferences.get(getConfNumber(teamA.getConference())).confTeams.size() > conferences.get(getConfNumber(teamA.getConference())).minConfTeams && conferences.get(getConfNumber(teamA.getConference())).confTeams.size() > minConfTeams) {
@@ -4000,7 +4701,7 @@ Then conferences can see if they want to add them to their list if the teams mee
             if (indSpace) {
                 Conference indy = conferences.get(indConf);
                 for (int i = 0; i < demoteTeamList.size(); i++) {
-                    if (Math.random() < realignmentChance && indy.confTeams.size() < (indy.minConfTeams - 1) && !demoteTeamList.get(i).getConference().equals("Independent")) {
+                    if (SimRandom.nextDouble() < realignmentChance && indy.confTeams.size() < (indy.minConfTeams - 1) && !demoteTeamList.get(i).getConference().equals("Independent")) {
                         final Team teamA = demoteTeamList.get(i);
                         final String oldConf = teamA.getConference();
 
@@ -4024,7 +4725,7 @@ Then conferences can see if they want to add them to their list if the teams mee
 
 
         //Promote FCS School
-        if (advancedRealignment && Math.random() < confRealignmentChance && Math.random() < realignmentChance) {
+        if (advancedRealignment && SimRandom.nextDouble() < confRealignmentChance && SimRandom.nextDouble() < realignmentChance) {
             int matches = 0;
             for (int t = 0; t < teamsFCSList.size(); t++) {
                 for (int x = 0; x < teamList.size(); x++) {
@@ -4049,7 +4750,7 @@ Then conferences can see if they want to add them to their list if the teams mee
 
                     while (!named) {
                         int nameTest = 0;
-                        fcsName = teamsFCSList.get((int) (teamsFCSList.size() * Math.random()));
+                        fcsName = teamsFCSList.get((int) (teamsFCSList.size() * SimRandom.nextDouble()));
                         for (int i = 0; i < teamList.size(); i++) {
                             if (teamList.get(i).getName().equals(fcsName)) {
                                 nameTest++;
@@ -4061,7 +4762,7 @@ Then conferences can see if they want to add them to their list if the teams mee
                     }
 
 
-                    Team FCS = new Team(fcsName, "FCS", "Independent", 35, "A", (int) (Math.random() * 6), this, true);
+                    Team FCS = new Team(fcsName, "FCS", "Independent", 35, "A", (int) (SimRandom.nextDouble() * 6), this, true);
                     FCS.setAbbr(FCS.getName().substring(0, 3));
                     FCS.setRankTeamPollScore(teamList.size());
                     teamList.add(FCS);
@@ -4078,7 +4779,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         }
 
         //Create New Conference
-        if (advancedRealignment && Math.random() < confRealignmentChance && Math.random() < realignmentChance && Math.random() < 0.35) {
+        if (advancedRealignment && SimRandom.nextDouble() < confRealignmentChance && SimRandom.nextDouble() < realignmentChance && SimRandom.nextDouble() < 0.35) {
             int matches = 0;
             for (Conference c : conferences) {
                 if (c.confName.equals("Antdroid")) {
@@ -4127,7 +4828,7 @@ Then conferences can see if they want to add them to their list if the teams mee
 
                         while (!named) {
                             int nameTest = 0;
-                            fcsName = teamsFCSList.get((int) (teamsFCSList.size() * Math.random()));
+                            fcsName = teamsFCSList.get((int) (teamsFCSList.size() * SimRandom.nextDouble()));
                             for (int i = 0; i < teamList.size(); i++) {
                                 if (teamList.get(i).getName().equals(fcsName)) {
                                     nameTest++;
@@ -4138,7 +4839,7 @@ Then conferences can see if they want to add them to their list if the teams mee
                             }
                         }
 
-                        Team FCS = new Team(fcsName, "FCS", "Antdroid", 35, "A", (int) (Math.random() * 6), this, true);
+                        Team FCS = new Team(fcsName, "FCS", "Antdroid", 35, "A", (int) (SimRandom.nextDouble() * 6), this, true);
                         FCS.setAbbr(FCS.getName().substring(0, 3));
                         FCS.setRankTeamPollScore(teamList.size());
                         teamList.add(FCS);
@@ -4160,7 +4861,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         }
 
         //Conference Realignment (Trading Teams between Conferences)
-        if (Math.random() < confRealignmentChance && leagueHistory.size() > 4) {
+        if (SimRandom.nextDouble() < confRealignmentChance && leagueHistory.size() > 4) {
             ArrayList<Conference> confList = conferences;
             Collections.sort(confList, new CompConfPrestige());
             demoteTeamList = new ArrayList<>();
@@ -4183,7 +4884,7 @@ Then conferences can see if they want to add them to their list if the teams mee
                     Conference conf = conferences.get(c);
                     ArrayList<Team> qualified = new ArrayList<>();
                     for (int i = 0; i < demoteTeamList.size(); i++) {
-                        if (demoteTeamList.get(i).getTeamPrestige() > conf.confRelegateMin && Math.random() < realignmentChance * 2 && Math.abs(demoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2) {
+                        if (demoteTeamList.get(i).getTeamPrestige() > conf.confRelegateMin && SimRandom.nextDouble() < realignmentChance * 2 && Math.abs(demoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2) {
                             qualified.add(demoteTeamList.get(i));
                         }
                         if (qualified.size() >= 2) {
@@ -4229,11 +4930,11 @@ Then conferences can see if they want to add them to their list if the teams mee
 
             //Bigger Conferences will extend Invites
             for (int i = 0; i < promoteTeamList.size(); i++) {
-                int randomConf = (int) (Math.random() * (confList.size() / 2));
+                int randomConf = (int) (SimRandom.nextDouble() * (confList.size() / 2));
                 if (promoteTeamList.get(i).getTeamPrestige() > confList.get(randomConf).confPromoteMin && confList.get(randomConf).confTeams.size() >= confList.get(randomConf).minConfTeams) {
                     for (int k = confList.get(randomConf).confTeams.size() - 1; k >= 0; k--) {
                         if (confList.get(randomConf).confTeams.get(k).getTeamPrestige() < confList.get(randomConf).confRelegateMin) {
-                            if (Math.random() < realignmentChance && Math.abs(confList.get(randomConf).confTeams.get(k).getLocation() - promoteTeamList.get(i).getLocation()) < 2) {
+                            if (SimRandom.nextDouble() < realignmentChance && Math.abs(confList.get(randomConf).confTeams.get(k).getLocation() - promoteTeamList.get(i).getLocation()) < 2) {
 
                                 final String teamAconf = confList.get(randomConf).confName;
                                 final String teamBconf = promoteTeamList.get(i).getConference();
@@ -4252,7 +4953,7 @@ Then conferences can see if they want to add them to their list if the teams mee
                                 confList.get(getConfNumber(teamBconf)).confTeams.add(teamA);
 
                                 //Remove some prestige from demoted teams
-                                teamA.setTeamPrestige(teamA.getTeamPrestige() - (int) (Math.random() * 4));
+                                teamA.setTeamPrestige(teamA.getTeamPrestige() - (int) (SimRandom.nextDouble() * 4));
 
                                 //break the news
                                 newsStories.get(currentWeek + 1).add("Conference Realignment News>The " + teamAconf + " conference announced today they will be adding " + teamB.getName() + " to their conference next season! The " + teamBconf + " conference has agreed to add " + teamA.getName() + " as part of the realignment.");
@@ -4288,7 +4989,7 @@ Then conferences can see if they want to add them to their list if the teams mee
 
         //check if there is an even number of teams
         if(teamList.size() % 2 != 0) {
-            teamList.add(new Team(teamsFCSList.get((int) (teamsFCSList.size() * Math.random())), "FCS", "FCS Division", (int) (Math.random() * 40), "FCS1", (int)(Math.random()*6), this, false));
+            teamList.add(new Team(teamsFCSList.get((int) (teamsFCSList.size() * SimRandom.nextDouble())), "FCS", "FCS Division", (int) (SimRandom.nextDouble() * 40), "FCS1", (int)(SimRandom.nextDouble()*6), this, false));
         }
 
         //Clear all Conferences
@@ -4423,7 +5124,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         }
 
         List<String> nfl = Arrays.asList(proTeams);
-        Collections.shuffle(nfl);
+        SimRandom.shuffle(nfl);
 
         String[] nflPlayers = new String[NFLPlayers.size()];
         int n = 0, r = 1;
@@ -4462,6 +5163,8 @@ Then conferences can see if they want to add them to their list if the teams mee
         }
 
         advanceSeasonWinStreaks();
+
+        draftNightNews();
 
         if (enableTV) newsTV = new ArrayList<>();
         for (int c = 0; c < conferences.size(); ++c) {
@@ -5912,10 +6615,10 @@ Then conferences can see if they want to add them to their list if the teams mee
 
         for (Staff h : coachFreeAgents) {
             if (h.age < 63) {
-                h.ratOff += (int) (Math.random()*3);
-                h.ratDef += (int) (Math.random()*3);
-                h.ratTalent += (int) (Math.random()*3);
-                h.ratDiscipline += (int) (Math.random()*3);
+                h.ratOff += (int) (SimRandom.nextDouble()*3);
+                h.ratDef += (int) (SimRandom.nextDouble()*3);
+                h.ratTalent += (int) (SimRandom.nextDouble()*3);
+                h.ratDiscipline += (int) (SimRandom.nextDouble()*3);
             } else {
                 h.retired = true;
             }
@@ -5956,6 +6659,7 @@ Then conferences can see if they want to add them to their list if the teams mee
     public void finishRecruitingSeason(String recruitsData) {
         applyRecruitingSignings(recruitsData);
         startNextSeason();
+        signingDayNews();
     }
 
     public void startNextSeason() {
@@ -5964,6 +6668,10 @@ Then conferences can see if they want to add them to their list if the teams mee
         defPOTYDecided = false;
         freshmanDecided = false;
         coachAwardDecided = false;
+        linemanPOTYDecided = false;
+        linemanPOTY = null;
+        linemanPOTYCandidates = new ArrayList<>();
+        linemanPOTYWinnerStrFull = "";
         hasScheduledBowls = false;
         heisman = null;
         defPOTY = null;

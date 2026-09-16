@@ -151,7 +151,7 @@ public class Conference {
     public String getTVName() {
         String name;
 
-        int t = (int) (Math.random() * 6);
+        int t = (int) (SimRandom.nextDouble() * 6);
 
         if (t == 0) {
             name = confName + " Multimedia";
@@ -190,9 +190,9 @@ public class Conference {
     //Check for Contracts and Negotiate a new deal if no deal is already in place
     private void negotiateConfTV() {
         if (!confTV || confTV && confTVContract <= 1) {
-            if (Math.random() < 0.75 && confPrestige >= league.getAverageConfPrestige()) {
+            if (SimRandom.nextDouble() < 0.75 && confPrestige >= league.getAverageConfPrestige()) {
                 confTV = true;
-                confTVContract = (int) (Math.random() * 5) + 4;
+                confTVContract = (int) (SimRandom.nextDouble() * 5) + 4;
                 confTVBonus = (int)(confPrestige * 17.5);
 
                 league.addNewsStory(league.currentWeek + 1, TV + " TV Contract>A new television contract has been worked out with the "
@@ -203,7 +203,7 @@ public class Conference {
 
                 league.addNewsHeadline(confName + " TV Contract Reached for " + confTVContract + " years.");
                 league.updateTV = true;
-                if(Math.random() < 0.15) {
+                if(SimRandom.nextDouble() < 0.15) {
                     TV = getTVName();
                     league.addNewsStory(league.currentWeek + 1, confName + " TV Re-Branding>The " + confName + " conference has announced today that they will be re-branding their network branding to go along with the new network contract. The conference television channel will now be known as The "
                     + TV + ".");
@@ -213,9 +213,9 @@ public class Conference {
 
                     league.addNewsHeadline(confName + " Re-Brands Network to The " + TV + ".");
                 }
-            } else if (Math.random() < 0.50 && confPrestige < league.getAverageConfPrestige()) {
+            } else if (SimRandom.nextDouble() < 0.50 && confPrestige < league.getAverageConfPrestige()) {
                 confTV = true;
-                confTVContract = (int) (Math.random() * 5) + 3;
+                confTVContract = (int) (SimRandom.nextDouble() * 5) + 3;
                 confTVBonus = confPrestige * 6;
 
                 league.addNewsStory(league.currentWeek + 1, TV + " TV Contract>A new television contract has been worked out with the "
@@ -226,7 +226,7 @@ public class Conference {
 
                 league.addNewsHeadline(confName + " TV Contract Reached for " + confTVContract + " years.");
                 league.updateTV = true;
-                if(Math.random() < 0.15) {
+                if(SimRandom.nextDouble() < 0.15) {
                     TV = getTVName();
                     league.addNewsStory(league.currentWeek + 1, confName + " TV Re-Branding>The " + confName + " conference has announced today that they will be re-branding their network branding to go along with the new network contract. The conference television channel will now be known as The "
                             + TV + ".");
@@ -684,7 +684,7 @@ public class Conference {
             ccg.awayTeam.incrementTotalCCLosses();
             ccg.homeTeam.getHeadCoach().recordConfWins(1);
             ccg.awayTeam.getHeadCoach().recordConfLosses(1);
-            league.addNewsStory(13,
+            league.addNewsStory(league.currentWeek + 1,
                     ccg.homeTeam.getName() + " wins the " + confName + "!>" +
                             ccg.homeTeam.strRep() + " took care of business in the conference championship against " + ccg.awayTeam.strRep() +
                             ", winning at home with a score of " + ccg.homeScore + " to " + ccg.awayScore + "."
@@ -696,7 +696,7 @@ public class Conference {
             ccg.homeTeam.incrementTotalCCLosses();
             ccg.awayTeam.getHeadCoach().recordConfWins(1);
             ccg.homeTeam.getHeadCoach().recordConfLosses(1);
-            league.addNewsStory(13,
+            league.addNewsStory(league.currentWeek + 1,
                     ccg.awayTeam.getName() + " wins the " + confName + "!>" +
                             ccg.awayTeam.strRep() + " surprised many in the conference championship against " + ccg.homeTeam.strRep() +
                             ", winning on the road with a score of " + ccg.awayScore + " to " + ccg.homeScore + "."

@@ -5,6 +5,7 @@
  */
 package positions;
 
+import simulation.SimRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -36,8 +37,8 @@ public class PlayerS extends Player {
     //New Player
     public PlayerS(String nm, int yr, int stars, Team t) {
         position = "S";
-        height = hAvg + (int) (Math.random() * ((hMax - hMin) + 1)) + hMin;
-        weight = wAvg + (int) (Math.random() * ((wMax - wMin) + 1)) + wMin;
+        height = hAvg + (int) (SimRandom.nextDouble() * ((hMax - hMin) + 1)) + hMin;
+        weight = wAvg + (int) (SimRandom.nextDouble() * ((wMax - wMin) + 1)) + wMin;
         name = nm;
         year = yr;
         team = t;
@@ -53,14 +54,14 @@ public class PlayerS extends Player {
         cost = (int) (cost / sImportance);
 
         cost = getLocationCost();
-        if (cost < 0) cost = (int)(Math.random() * 5) + 1;
+        if (cost < 0) cost = (int)(SimRandom.nextDouble() * 5) + 1;
     }
 
     //Custom Player
     public PlayerS(String nm, int yr, int stars, Team t, Boolean custom) {
         position = "S";
-        height = hAvg + (int) (Math.random() * ((hMax - hMin) + 1)) + hMin;
-        weight = wAvg + (int) (Math.random() * ((wMax - wMin) + 1)) + wMin;
+        height = hAvg + (int) (SimRandom.nextDouble() * ((hMax - hMin) + 1)) + hMin;
+        weight = wAvg + (int) (SimRandom.nextDouble() * ((wMax - wMin) + 1)) + wMin;
         name = nm;
         year = yr;
         team = t;

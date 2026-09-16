@@ -1,6 +1,7 @@
 package desktop;
 
-import javax.swing.BorderFactory;
+import simulation.TeamMoraleSnapshot;
+
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -15,12 +16,47 @@ import java.awt.RenderingHints;
 
 /**
  * Swing dashboard card component for TEAM MORALE.
- * Displays green smiley gauge, key factors checklist, and progress bars for Chemistry, Leadership, and Buy-In.
+ * Renders the live {@link TeamMoraleSnapshot} from the engine: chemistry comes
+ * from season-long chemistry (the same value the game sim feeds into its
+ * coaching advantage), leadership from the top players' character, and buy-in
+ * from staff discipline, the active win streak, and the coach's culture skill.
  */
 public class TeamMoraleCard extends CustomCardPanel {
 
-    public TeamMoraleCard() {
+    private final simulation.Team team;
+    private final JLabel statusTxt = new JLabel("-", JLabel.CENTER);
+    private final JPanel smiley = new JPanel() {
+        @Override
+        protected void paintComponent(Graphics g) {
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            int overall = overall();
+
+            g2.setColor(new Color(0, 230, 118, 30));
+            g2.fillOval(2, 2, getWidth() - 5, getHeight() - 5);
+            g2.setColor(moraleColor(overall));
+            g2.drawOval(2, 2, getWidth() - 5, getHeight() - 5);
+
+            // Eyes & Mouth — the smile flattens as morale drops
+            g2.fillOval(12, 14, 4, 4);
+            g2.fillOval(24, 14, 4, 4);
+            if (overall >= 55) {
+                g2.drawArc(12, 18, 16, 12, 180, 180);
+            } else if (overall >= 40) {
+                g2.drawLine(12, 24, 28, 24);
+            } else {
+                g2.drawArc(12, 26, 16, 10, 0, 180);
+            }
+
+            g2.dispose();
+        }
+    };
+    private final JPanel checklist = new JPanel(new GridLayout(4, 1, 0, 2));
+    private final JPanel sliders = new JPanel(new GridLayout(3, 1, 0, 4));
+
+    public TeamMoraleCard(simulation.Team team) {
         super("Team Morale");
+        this.team = team;
         JPanel content = getContentArea();
 
         JPanel body = new JPanel(new BorderLayout(0, 8));
@@ -30,62 +66,75 @@ public class TeamMoraleCard extends CustomCardPanel {
         JPanel topRow = new JPanel(new BorderLayout(12, 0));
         topRow.setOpaque(false);
 
-        // Smiley Gauge
         JPanel gaugeCol = new JPanel(new BorderLayout(0, 4));
         gaugeCol.setOpaque(false);
 
-        JPanel smiley = new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-                g2.setColor(new Color(0, 230, 118, 30));
-                g2.fillOval(2, 2, getWidth() - 5, getHeight() - 5);
-                g2.setColor(DesktopTheme.successGreen());
-                g2.drawOval(2, 2, getWidth() - 5, getHeight() - 5);
-
-                // Eyes & Smile
-                g2.fillOval(12, 14, 4, 4);
-                g2.fillOval(24, 14, 4, 4);
-                g2.drawArc(12, 18, 16, 12, 180, 180);
-
-                g2.dispose();
-            }
-        };
         smiley.setPreferredSize(new Dimension(40, 40));
         smiley.setOpaque(false);
 
-        JLabel statusTxt = new JLabel("High", JLabel.CENTER);
         statusTxt.setFont(new Font("SansSerif", Font.BOLD, 14));
-        statusTxt.setForeground(DesktopTheme.successGreen());
 
         gaugeCol.add(smiley, BorderLayout.CENTER);
         gaugeCol.add(statusTxt, BorderLayout.SOUTH);
         topRow.add(gaugeCol, BorderLayout.WEST);
 
-        // Factors Checklist
-        JPanel checklist = new JPanel(new GridLayout(4, 1, 0, 2));
         checklist.setOpaque(false);
-
-        checklist.add(buildFactorRow("\u2713  2 Game Win Streak", true));
-        checklist.add(buildFactorRow("\u2713  Close Locker Room", true));
-        checklist.add(buildFactorRow("\u2713  Players Confident", true));
-        checklist.add(buildFactorRow("\u2193  Road Game", false));
-
         topRow.add(checklist, BorderLayout.CENTER);
         body.add(topRow, BorderLayout.NORTH);
 
-        // Sliders Grid
-        JPanel sliders = new JPanel(new GridLayout(3, 1, 0, 4));
         sliders.setOpaque(false);
-
-        sliders.add(buildSliderRow("Chemistry", 82));
-        sliders.add(buildSliderRow("Leadership", 78));
-        sliders.add(buildSliderRow("Buy-In", 85));
-
         body.add(sliders, BorderLayout.CENTER);
         content.add(body, BorderLayout.CENTER);
+
+        render(snapshot());
+    }
+
+    private TeamMoraleSnapshot snapshot() {
+        return team != null ? team.getTeamMoraleSnapshot() : new TeamMoraleSnapshot(50, 50, 50);
+    }
+
+    private int overall() {
+        return snapshot().overall();
+    }
+
+    private void render(TeamMoraleSnapshot snap) {
+        int overall = snap.overall();
+
+        String label = overall >= 75 ? "High" : (overall >= 55 ? "Steady" : (overall >= 40 ? "Uneasy" : "Low"));
+        statusTxt.setText(label);
+        statusTxt.setForeground(moraleColor(overall));
+
+        int streak = team != null && team.getWinStreak() != null ? team.getWinStreak().getStreakLength() : 0;
+        checklist.removeAll();
+        checklist.add(buildFactorRow(streak >= 2 ? "\u2713  " + streak + " Game Win Streak"
+                : (streak <= -2 ? "\u2193  " + (-streak) + " Game Slump" : "\u2713  Season On Track"), streak >= -1));
+        checklist.add(buildFactorRow(snap.leadership() >= 70 ? "\u2713  Strong Locker Room"
+                : "\u2193  Leadership Questions", snap.leadership() >= 70));
+        checklist.add(buildFactorRow(snap.buyIn() >= 70 ? "\u2713  Players Bought In"
+                : "\u2193  Buy-In Slipping", snap.buyIn() >= 70));
+        checklist.add(buildFactorRow(snap.chemistry() >= 65 ? "\u2713  Tight Chemistry"
+                : "\u2193  Chemistry Building", snap.chemistry() >= 65));
+
+        sliders.removeAll();
+        sliders.add(buildSliderRow("Chemistry", snap.chemistry()));
+        sliders.add(buildSliderRow("Leadership", snap.leadership()));
+        sliders.add(buildSliderRow("Buy-In", snap.buyIn()));
+
+        checklist.revalidate();
+        checklist.repaint();
+        sliders.revalidate();
+        sliders.repaint();
+        smiley.repaint();
+    }
+
+    private Color moraleColor(int overall) {
+        if (overall >= 55) {
+            return DesktopTheme.successGreen();
+        }
+        if (overall >= 40) {
+            return new Color(0xF5, 0x9E, 0x0B); // Trophy Gold
+        }
+        return DesktopTheme.dangerRed();
     }
 
     private JPanel buildFactorRow(String text, boolean isPositive) {

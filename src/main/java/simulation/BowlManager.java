@@ -114,7 +114,7 @@ public class BowlManager {
         for (int x = 0; x < league.playoffTeams.size(); x++)
             qualifiedTeams.remove(league.playoffTeams.get(x));
 
-        if (league.hasScheduledBowls) bowlScheduleLogic(qualifiedTeams);
+        if (!league.hasScheduledBowls) bowlScheduleLogic(qualifiedTeams);
     }
 
     public ArrayList<Team> getExpandedPlayoffAutoBids(ArrayList<Team> qualifiedTeams) {
@@ -147,8 +147,11 @@ public class BowlManager {
         return autoBids;
     }
 
+    /** Bowls are played in three tiers: top 6 (New Year's Six style), next 10, then the rest. */
+    static final int TIER1_CUTOFF = 6;
+    static final int TIER2_CUTOFF = 16;
+
     public void scheduleExpPlayoff() {
-        league.hasScheduledBowls = true;
         league.playoffWeek = 1;
         getExpPlayoffTeams();
 
@@ -392,10 +395,15 @@ public class BowlManager {
     }
 
     public void bowlScheduleLogic(ArrayList<Team> bowlTeams) {
-        int bowlCount = (bowlTeams.size()) / 2;
-        if (bowlCount > league.bowlNames.length) bowlCount = league.bowlNames.length;
+        // Idempotence: bowls are scheduled exactly once per postseason.
+        if (league.hasScheduledBowls) return;
 
-        int g = 0;
+        // Marquee bowls honor conference tie-ins before the at-large snake fill.
+        int g = scheduleConferenceTieInBowls(bowlTeams);
+
+        int bowlCount = (bowlTeams.size()) / 2;
+        if (bowlCount > league.bowlNames.length - g) bowlCount = league.bowlNames.length - g;
+
         int r = 1;
         int t = 0;
 
@@ -409,11 +417,11 @@ public class BowlManager {
                         + " will compete with #" + bowlTeams.get(i + 4).getRankTeamPollScore() + " "
                         + bowlTeams.get(i + 4).getStrAbbrWL() + " in the " + league.getYear() + " "
                         + league.bowlGames[g].gameName + "!");
-                if (g < 6)
+                if (g < TIER1_CUTOFF)
                     league.weeklyScores.get(league.currentWeek + 4).add(league.bowlGames[g].gameName + ">"
                             + league.bowlGames[g].awayTeam.strRankTeamRecord() + "\n"
                             + league.bowlGames[g].homeTeam.strRankTeamRecord());
-                else if (g < 16)
+                else if (g < TIER2_CUTOFF)
                     league.weeklyScores.get(league.currentWeek + 3).add(league.bowlGames[g].gameName + ">"
                             + league.bowlGames[g].awayTeam.strRankTeamRecord() + "\n"
                             + league.bowlGames[g].homeTeam.strRankTeamRecord());
@@ -442,19 +450,96 @@ public class BowlManager {
         }
     }
 
+    /** Average team prestige of a conference — the tie-in seeding order. */
+    private static double avgConfPrestige(Conference c) {
+        if (c.confTeams.isEmpty()) return 0;
+        long sum = 0;
+        for (Team t : c.confTeams) sum += t.getTeamPrestige();
+        return (double) sum / c.confTeams.size();
+    }
+
+    /**
+     * Best bowl-eligible team from the given conference still in the pool:
+     * the conference champion when present, otherwise its top-ranked member.
+     */
+    private static Team pickTieInTeam(Conference conf, ArrayList<Team> pool) {
+        Team champion = null;
+        for (Team t : pool) {
+            if (t.getConference().equals(conf.confName)) {
+                if (champion == null) champion = t;
+                if ("CC".equals(t.getConfChampion())) return t;
+            }
+        }
+        return champion;
+    }
+
+    /**
+     * Conference tie-ins for the marquee (first-tier) bowls: the highest-prestige
+     * conferences are paired off, each sending its champion (or best eligible
+     * member) to that bowl. Returns how many tie-in slots were filled; paired
+     * teams leave the at-large pool. The remaining slots go to the snake fill.
+     */
+    private int scheduleConferenceTieInBowls(ArrayList<Team> pool) {
+        ArrayList<Conference> confs = new ArrayList<>();
+        for (Conference c : league.conferences) {
+            if (!c.confName.contains("FCS") && !c.confTeams.isEmpty()) confs.add(c);
+        }
+        confs.sort((x, y) -> Double.compare(avgConfPrestige(y), avgConfPrestige(x)));
+
+        int g = 0;
+        for (int i = 0; i + 1 < confs.size() && g < TIER1_CUTOFF; i += 2) {
+            Team teamA = pickTieInTeam(confs.get(i), pool);
+            Team teamB = pickTieInTeam(confs.get(i + 1), pool);
+            if (teamA == null || teamB == null || teamA == teamB) continue;
+
+            Game tie = teamA.getRankTeamPollScore() <= teamB.getRankTeamPollScore()
+                    ? new Game(teamA, teamB, league.bowlNames[g])
+                    : new Game(teamB, teamA, league.bowlNames[g]);
+            tie.homeTeam.addGameToSchedule(tie);
+            tie.awayTeam.addGameToSchedule(tie);
+            league.bowlGames[g] = tie;
+
+            league.newsStories.get(league.currentWeek + 1).add(league.bowlGames[g].gameName + " Announced!>#"
+                    + teamA.getRankTeamPollScore() + " " + teamA.getStrAbbrWL()
+                    + " will compete with #" + teamB.getRankTeamPollScore() + " "
+                    + teamB.getStrAbbrWL() + " in the " + league.getYear() + " "
+                    + league.bowlGames[g].gameName + "!");
+            league.newsStories.get(league.currentWeek + 1).add("Bowl Bids>" + teamA.getName() + " and "
+                    + teamB.getName() + " accepted their bids to the " + league.bowlNames[g]
+                    + " — a showcase pairing of the " + confs.get(i).confName + " and "
+                    + confs.get(i + 1).confName + ".");
+            league.weeklyScores.get(league.currentWeek + 4).add(league.bowlGames[g].gameName + ">"
+                    + league.bowlGames[g].awayTeam.strRankTeamRecord() + "\n"
+                    + league.bowlGames[g].homeTeam.strRankTeamRecord());
+            newsHeadlinesBid(tie);
+
+            pool.remove(teamA);
+            pool.remove(teamB);
+            teamA.healInjury(3);
+            teamB.healInjury(3);
+            g++;
+        }
+        return g;
+    }
+
+    private void newsHeadlinesBid(Game tie) {
+        league.newsHeadlines.add(tie.awayTeam.getName() + " and " + tie.homeTeam.getName()
+                + " accept bids to the " + tie.gameName + ".");
+    }
+
     public void playBowlWeek1() {
-        for (int g = 16; g < league.bowlGames.length; g++)
+        for (int g = TIER2_CUTOFF; g < league.bowlGames.length; g++)
             if (league.bowlGames[g] != null) playBowl(league.bowlGames[g]);
     }
 
     public void playBowlWeek2() {
-        int end = Math.min(16, league.bowlGames.length);
-        for (int g = 6; g < end; g++)
+        int end = Math.min(TIER2_CUTOFF, league.bowlGames.length);
+        for (int g = TIER1_CUTOFF; g < end; g++)
             if (league.bowlGames[g] != null) playBowl(league.bowlGames[g]);
     }
 
     public void playBowlWeek3() {
-        int end = Math.min(6, league.bowlGames.length);
+        int end = Math.min(TIER1_CUTOFF, league.bowlGames.length);
         for (int g = 0; g < end; g++)
             if (league.bowlGames[g] != null) playBowl(league.bowlGames[g]);
 

@@ -1,8 +1,8 @@
 package staff;
 
+import simulation.SimRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Random;
 
 import positions.Archetypes;
 import simulation.CoachSkills;
@@ -75,7 +75,6 @@ public class Staff {
     public int defStrat;
     public String schemeArchetypes;
 
-    private final Random rand = new Random();
     private final int max = 4;
     private final int min = 0;
 
@@ -184,29 +183,29 @@ public class Staff {
 
 
     public void createStaff(int stars) {
-        if (age == 0) age = 30 + (int) (Math.random() * 28);
+        if (age == 0) age = 30 + (int) (SimRandom.nextDouble() * 28);
         year = 0;
-        contractYear = (int) (6 * Math.random());
+        contractYear = (int) (6 * SimRandom.nextDouble());
         contractLength = 6;
 
         if(position.equals("OC") || position.equals("DC")) {
-            contractYear = (int) (3 * Math.random());
+            contractYear = (int) (3 * SimRandom.nextDouble());
             contractLength = 3;
         }
 
-        ratOff = (int) (50 + stars * 5 - 15 * Math.random());
-        ratDef = (int) (50 + stars * 5 - 15 * Math.random());
+        ratOff = (int) (50 + stars * 5 - 15 * SimRandom.nextDouble());
+        ratDef = (int) (50 + stars * 5 - 15 * SimRandom.nextDouble());
 
-        if(position.equals("OC")) ratDef -= (int)(Math.random()*25);
-        if(position.equals("DC")) ratOff -= (int)(Math.random()*25);
+        if(position.equals("OC")) ratDef -= (int)(SimRandom.nextDouble()*25);
+        if(position.equals("DC")) ratOff -= (int)(SimRandom.nextDouble()*25);
 
-        ratTalent = (int) (45 + 50 * Math.random());
-        ratDiscipline = (int) (45 + 45 * Math.random());
+        ratTalent = (int) (45 + 50 * SimRandom.nextDouble());
+        ratDiscipline = (int) (45 + 45 * SimRandom.nextDouble());
 
-        offStrat = (int) (Math.random()*6);
+        offStrat = (int) (SimRandom.nextDouble()*6);
         if (offStrat > 5) offStrat = 5;
 
-        defStrat = (int) (Math.random()*5);
+        defStrat = (int) (SimRandom.nextDouble()*5);
         if (defStrat > 4) defStrat = 4;
 
         assignSchemeArchetypes();
@@ -257,17 +256,17 @@ public class Staff {
 
 
         if (age > 60 && team != null && !team.isUserControlled()) {
-            ratOff -= (int) (Math.random() * (age / 10));
-            ratDef -= (int) (Math.random() * (age / 10));
-            ratTalent -= (int)(Math.random() * (age / 10));
-            ratDiscipline -= (int) (Math.random() * (age / 10));
+            ratOff -= (int) (SimRandom.nextDouble() * (age / 10));
+            ratDef -= (int) (SimRandom.nextDouble() * (age / 10));
+            ratTalent -= (int)(SimRandom.nextDouble() * (age / 10));
+            ratDiscipline -= (int) (SimRandom.nextDouble() * (age / 10));
         }
 
         if (age > 60 && team != null && team.isUserControlled() && team.league.isCareerMode() && !team.league.neverRetire ) {
-            ratOff -= (int) (Math.random() * (age / 10));
-            ratDef -= (int) (Math.random() * (age / 10));
-            ratTalent -= (int)(Math.random() * (age / 10));
-            ratDiscipline -= (int) (Math.random() * (age / 10));
+            ratOff -= (int) (SimRandom.nextDouble() * (age / 10));
+            ratDef -= (int) (SimRandom.nextDouble() * (age / 10));
+            ratTalent -= (int)(SimRandom.nextDouble() * (age / 10));
+            ratDiscipline -= (int) (SimRandom.nextDouble() * (age / 10));
         }
 
         ratOvr = getStaffOverall(overallWt);
@@ -479,9 +478,9 @@ public class Staff {
             return;
         }
 
-        int count = 2 + (int)(Math.random() * 2);
+        int count = 2 + (int)(SimRandom.nextDouble() * 2);
         java.util.ArrayList<String> picks = new java.util.ArrayList<>(java.util.Arrays.asList(pool));
-        java.util.Collections.shuffle(picks, rand);
+        SimRandom.shuffle(picks);
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < count && i < picks.size(); i++) {
             if (i > 0) sb.append(",");

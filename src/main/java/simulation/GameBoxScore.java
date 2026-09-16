@@ -123,11 +123,13 @@ class GameBoxScore {
         StringBuilder gameC = new StringBuilder();
         StringBuilder gameR = new StringBuilder();
 
-        gameL.append("\nPoints\nYards\nPass Yards\nRush Yards\nTOs\n");
+        gameL.append("\nPoints\nYards\nPass Yards\nRush Yards\nTOs\nPenalties\n");
         gameC.append("#" + game.awayTeam.getRankTeamPollScore() + " " + game.awayTeam.getAbbr() + "\n" + game.awayScore + "\n" + game.awayYards + " yds\n" +
-                game.awayPassYards + " pyds\n" + game.awayRushYards + " ryds\n" + game.awayTOs + " TOs\n");
+                game.awayPassYards + " pyds\n" + game.awayRushYards + " ryds\n" + game.awayTurnovers + " TOs\n"
+                + game.awayPenalties + " for " + game.awayPenaltyYards + " yds\n");
         gameR.append("#" + game.homeTeam.getRankTeamPollScore() + " " + game.homeTeam.getAbbr() + "\n" + game.homeScore + "\n" + game.homeYards + " yds\n" +
-                game.homePassYards + " pyds\n" + game.homeRushYards + " ryds\n" + game.homeTOs + " TOs\n");
+                game.homePassYards + " pyds\n" + game.homeRushYards + " ryds\n" + game.homeTurnovers + " TOs\n"
+                + game.homePenalties + " for " + game.homePenaltyYards + " yds\n");
 
         StringBuilder gamePL = new StringBuilder();
         StringBuilder gamePC = new StringBuilder();
@@ -332,11 +334,11 @@ class GameBoxScore {
         StringBuilder gameC = new StringBuilder();
         StringBuilder gameR = new StringBuilder();
 
-        gameL.append("\nPoints\nYards\nPass Yards\nRush Yards\nTOs\n\nOffense\nDefense\n");
+        gameL.append("\nPoints\nYards\nPass Yards\nRush Yards\nTOs\nPenalties\n\nOffense\nDefense\n");
         gameC.append("#" + game.awayTeam.getRankTeamPollScore() + " " + game.awayTeam.getName() + "\n" + game.awayScore + "\n" + game.awayYards + " yds\n" +
-                game.awayPassYards + " pyds\n" + game.awayRushYards + " ryds\n" + game.awayTOs + " TOs\n\n" + game.awayTeam.getPlaybookOffense().getStratName() + "\n" + game.awayTeam.getPlaybookDefense().getStratName() + " \n");
+                game.awayPassYards + " pyds\n" + game.awayRushYards + " ryds\n" + game.awayTurnovers + " TOs\n" + game.awayPenalties + " for " + game.awayPenaltyYards + " yds\n\n" + game.awayTeam.getPlaybookOffense().getStratName() + "\n" + game.awayTeam.getPlaybookDefense().getStratName() + " \n");
         gameR.append("#" + game.homeTeam.getRankTeamPollScore() + " " + game.homeTeam.getName() + "\n" + game.homeScore + "\n" + game.homeYards + " yds\n" +
-                game.homePassYards + " pyds\n" + game.homeRushYards + " ryds\n" + game.homeTOs + " TOs\n\n" + game.homeTeam.getPlaybookOffense().getStratName() + "\n" + game.homeTeam.getPlaybookDefense().getStratName() + " \n");
+                game.homePassYards + " pyds\n" + game.homeRushYards + " ryds\n" + game.homeTurnovers + " TOs\n" + game.homePenalties + " for " + game.homePenaltyYards + " yds\n\n" + game.homeTeam.getPlaybookOffense().getStratName() + "\n" + game.homeTeam.getPlaybookDefense().getStratName() + " \n");
 
         StringBuilder gamePL = new StringBuilder();
         StringBuilder gamePC = new StringBuilder();

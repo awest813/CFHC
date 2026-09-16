@@ -826,15 +826,38 @@ public final class DesktopTheme {
 
     public static Color dialogSurface() { return _dialogSurface; }
 
+    private static volatile java.util.List<java.awt.Image> _cachedWindowIcons = null;
+    private static final Object ICON_LOCK = new Object();
+
     public static void applyWindowIcon(java.awt.Window window) {
-        try (java.io.InputStream iconStream = Thread.currentThread()
-                .getContextClassLoader()
-                .getResourceAsStream("assets/cfhc_icon.png")) {
-            if (iconStream != null) {
-                java.awt.Image icon = javax.imageio.ImageIO.read(iconStream);
-                if (icon != null) {
-                    window.setIconImage(icon);
+        if (window == null) return;
+        try {
+            if (_cachedWindowIcons == null) {
+                synchronized (ICON_LOCK) {
+                    if (_cachedWindowIcons == null) {
+                        try (java.io.InputStream iconStream = Thread.currentThread()
+                                .getContextClassLoader()
+                                .getResourceAsStream("assets/cfhc_icon.png")) {
+                            if (iconStream != null) {
+                                java.awt.image.BufferedImage base = javax.imageio.ImageIO.read(iconStream);
+                                if (base != null) {
+                                    java.util.List<java.awt.Image> list = new java.util.ArrayList<>();
+                                    list.add(base);
+                                    int[] sizes = {256, 128, 64, 48, 32, 16};
+                                    for (int s : sizes) {
+                                        if (s < base.getWidth()) {
+                                            list.add(base.getScaledInstance(s, s, java.awt.Image.SCALE_SMOOTH));
+                                        }
+                                    }
+                                    _cachedWindowIcons = java.util.Collections.unmodifiableList(list);
+                                }
+                            }
+                        }
+                    }
                 }
+            }
+            if (_cachedWindowIcons != null && !_cachedWindowIcons.isEmpty()) {
+                window.setIconImages(_cachedWindowIcons);
             }
         } catch (Exception ignored) {
         }

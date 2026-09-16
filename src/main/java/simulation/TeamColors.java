@@ -165,11 +165,77 @@ public final class TeamColors {
         m.put("SB",    colors(0x002B5C, 0xCEB888)); // South Bend Fighting Irish
         m.put("MASS",  colors(0x881C1C, 0xFFFFFF)); // Massachusetts Minutemen
 
+        // Modern universe (teams.xml) — real schools, 2024 alignment
+        m.put("CLEM",  colors(0xF56600, 0x522D80)); // Clemson Tigers
+        m.put("LOU",   colors(0xAD1F2B, 0x000000)); // Louisville Cardinals
+        m.put("SMU",   colors(0xA6192E, 0x003087)); // SMU Mustangs
+        m.put("STAN",  colors(0x8C1515, 0x63666A)); // Stanford Cardinal
+        m.put("UVA",   colors(0x232D4B, 0xE57200)); // Virginia Cavaliers
+        m.put("VT",    colors(0x861F41, 0xCF4420)); // Virginia Tech Hokies
+        m.put("WAKE",  colors(0x9E7E38, 0x000000)); // Wake Forest Demon Deacons
+        m.put("MICH",  colors(0x00274C, 0xFFCB05)); // Michigan Wolverines
+        m.put("NWU",   colors(0x4E2A84, 0xFFFFFF)); // Northwestern Wildcats
+        m.put("ORE",   colors(0x154733, 0xFEE123)); // Oregon Ducks
+        m.put("RUTG",  colors(0xCC0033, 0x000000)); // Rutgers Scarlet Knights
+        m.put("UCLA",  colors(0x2774AE, 0xFFD100)); // UCLA Bruins
+        m.put("USC",   colors(0x990000, 0xFFC72C)); // USC Trojans
+        m.put("WISC",  colors(0xC5050C, 0x000000)); // Wisconsin Badgers
+        m.put("BAY",   colors(0x003015, 0xFFB81C)); // Baylor Bears
+        m.put("BYU",   colors(0x002E5D, 0x8E8070)); // BYU Cougars
+        m.put("TCU",   colors(0x4D1979, 0xB1B3B3)); // TCU Horned Frogs
+        m.put("TTU",   colors(0xCC0000, 0x000000)); // Texas Tech Red Raiders
+        m.put("FLA",   colors(0x0021A5, 0xFA4616)); // Florida Gators
+        m.put("SCAR",  colors(0x73000A, 0x000000)); // South Carolina Gamecocks
+        m.put("TAMU",  colors(0x500000, 0xFFFFFF)); // Texas A&M Aggies
+        m.put("VAND",  colors(0x000000, 0xCEB111)); // Vanderbilt Commodores
+        m.put("FAU",   colors(0x003366, 0xCC0000)); // Florida Atlantic Owls
+        m.put("RICE",  colors(0x002051, 0x747679)); // Rice Owls
+        m.put("TEMP",  colors(0x9D1B34, 0xFFFFFF)); // Temple Owls
+        m.put("TULN",  colors(0x006747, 0x4472CA)); // Tulane Green Wave
+        m.put("BALL",  colors(0xBA0C2F, 0xFFFFFF)); // Ball State Cardinals
+        m.put("BGSU",  colors(0xFE5000, 0x4F2C1D)); // Bowling Green Falcons
+        m.put("BUFF",  colors(0x006699, 0xFFFFFF)); // Buffalo Bulls
+        m.put("MIOH",  colors(0xAA0000, 0xFFFFFF)); // Miami OH RedHawks
+        m.put("DEL",   colors(0x00539B, 0xFFC72C)); // Delaware Fightin Blue Hens
+        m.put("FIU",   colors(0x081E3F, 0xC1922E)); // FIU Panthers
+        m.put("JVST",  colors(0xC8102E, 0xFFCD00)); // Jacksonville State Gamecocks
+        m.put("LIB",   colors(0xA6192E, 0x0C2340)); // Liberty Flames
+        m.put("MOST",  colors(0x8B1D3F, 0xFFFFFF)); // Missouri State Bears
+        m.put("NMSU",  colors(0x881600, 0xFFFFFF)); // New Mexico State Aggies
+        m.put("SHSU",  colors(0xF26522, 0x000000)); // Sam Houston Bearkats
+        m.put("AFA",   colors(0x003366, 0x8A8D8F)); // Air Force Falcons
+        m.put("UNM",   colors(0xBA0C2E, 0xAFAFAF)); // New Mexico Lobos
+        m.put("NDSU",  colors(0x00513C, 0xF7D417)); // North Dakota State Bison
+        m.put("SJSU",  colors(0x0055A2, 0xF1C400)); // San Jose State Spartans
+        m.put("WYO",   colors(0x492F24, 0xFFC425)); // Wyoming Cowboys
+        m.put("BSU",   colors(0x0033A0, 0xD64309)); // Boise State Broncos
+        m.put("SDSU",  colors(0xCE1126, 0x000000)); // San Diego State Aztecs
+        m.put("USU",   colors(0x0F2464, 0xFFFFFF)); // Utah State Aggies
+        m.put("ARST",  colors(0xCC092F, 0x000000)); // Arkansas State Red Wolves
+        m.put("CCU",   colors(0x006BA6, 0x856D46)); // Coastal Carolina Chanticleers
+        m.put("GASO",  colors(0x041E42, 0xA2AAAD)); // Georgia Southern Eagles
+        m.put("JMU",   colors(0x450084, 0xC1A470)); // James Madison Dukes
+        m.put("ULL",   colors(0xCE181E, 0x00205C)); // Louisiana Ragin Cajuns
+        m.put("ULM",   colors(0x8A0D15, 0xFFB81C)); // Louisiana-Monroe Warhawks
+        m.put("MARSH", colors(0x00A160, 0x7A7A7A)); // Marshall Thundering Herd
+        m.put("ODU",   colors(0x003C71, 0xA7A9AC)); // Old Dominion Monarchs
+        m.put("USA",   colors(0x00205B, 0xC8102E)); // South Alabama Jaguars
+        m.put("USM",   colors(0x000000, 0xFFB81C)); // Southern Miss Golden Eagles
+        m.put("UCONN", colors(0x000E2F, 0xFFFFFF)); // UConn Huskies
+        m.put("ND",    colors(0x0C2340, 0xC99700)); // Notre Dame Fighting Irish
+
+        m.put("KENN",  colors(0xFFB81C, 0x000000)); // Kennesaw State Owls
+
         return Collections.unmodifiableMap(m);
     }
 
     private static Color[] colors(int primaryRgb, int secondaryRgb) {
         return new Color[] { new Color(primaryRgb), new Color(secondaryRgb) };
+    }
+
+    /** True when the universe entry has a dedicated color pair (vs the gray fallback). */
+    public static boolean has(String abbr) {
+        return TEAM_MAP.containsKey(abbr);
     }
 
     public static Color primary(String abbr) {

@@ -1,6 +1,5 @@
 package simulation;
 
-import java.util.Random;
 
 import staff.HeadCoach;
 import staff.Staff;
@@ -72,10 +71,10 @@ public class TeamFinance {
     }
 
     public int nudgeCpuFreshmanStarRating(int stars, int recruitChance) {
-        if (recruitChance * Math.random() > Math.random() * 50) {
-            stars += Math.random() * (team.maxStarRating - stars);
+        if (recruitChance * SimRandom.nextDouble() > SimRandom.nextDouble() * 50) {
+            stars += SimRandom.nextDouble() * (team.maxStarRating - stars);
         } else {
-            stars -= Math.random() * (stars);
+            stars -= SimRandom.nextDouble() * (stars);
         }
         return stars;
     }
@@ -93,11 +92,74 @@ public class TeamFinance {
         return req;
     }
 
+    // ------------------------------------------------------------------
+    // Coach money (derived — never persisted, so saves stay compatible)
+    // ------------------------------------------------------------------
+
+    /** Annual head-coach salary in $M, from program prestige and coach pedigree. */
+    public double headCoachSalary() {
+        if (team.HC == null) {
+            return 0;
+        }
+        double salary = 0.8
+                + team.teamPrestige * 0.055
+                + Math.max(0, team.HC.baselinePrestige) * 0.10
+                + (team.HC.ratOff + team.HC.ratDef) / 2.0 * 0.02;
+        return Math.max(0.5, Math.min(12.0, salary));
+    }
+
+    /** Annual coordinator salary in $M. */
+    public double coordinatorSalary(staff.Staff coord) {
+        if (coord == null) {
+            return 0;
+        }
+        double salary = 0.4
+                + (coord.ratOff + coord.ratDef) / 2.0 * 0.012
+                + Math.max(0, coord.baselinePrestige) * 0.05;
+        return Math.max(0.2, Math.min(4.0, salary));
+    }
+
+    public static String salaryStr(double millions) {
+        return "$" + String.format(java.util.Locale.ROOT, "%.1fM", millions);
+    }
+
+    /** Buyout owed when terminating a coach: half the salary times years remaining. */
+    public double buyout(staff.Staff coach, double salary) {
+        int yearsRemaining = Math.max(0, coach.contractLength - coach.contractYear);
+        return Math.max(0.5, salary * 0.5 * yearsRemaining);
+    }
+
+    /**
+     * Charges the firing buyout to the budget (career mode) and returns the news
+     * sentence describing it. Empty string when money is off.
+     */
+    public String applyBuyout(staff.Staff coach, double salary) {
+        if (!team.league.isCareerMode()) {
+            return "";
+        }
+        double cost = buyout(coach, salary);
+        team.setTeamBudget(team.getTeamBudget() - (int) (cost * 1000));
+        return " The buyout is estimated at " + salaryStr(cost) + ".";
+    }
+
+    /**
+     * Athletic-director approval (0-100): season prestige change, wins, and
+     * program discipline. Drives the hot-seat copy and whether a struggling
+     * coach earns a prove-it deal.
+     */
+    public int getAdApproval() {
+        int prestigeDelta = team.teamPrestige - team.teamPrestigeStart;
+        int games = team.getWins() + team.getLosses();
+        double winPct = games > 0 ? team.getWins() / (double) games : 0.5;
+        int disciplinePenalty = team.teamDisciplineScore < 60 ? (60 - team.teamDisciplineScore) / 3 : 0;
+        int approval = 50 + 2 * prestigeDelta + Math.round((float) ((winPct - 0.5) * 40)) - disciplinePenalty;
+        return Math.max(0, Math.min(100, approval));
+    }
+
     public void coachContracts(int totalPDiff) {
         int max = 78;
         int min = 60;
-        Random rand = new Random();
-        int retire = rand.nextInt((max - min) + 1) + min;
+        int retire = SimRandom.nextInt((max - min) + 1) + min;
         int age = team.HC.age;
         int wins = team.HC.getWins();
         int losses = team.HC.getLosses();
@@ -124,12 +186,12 @@ public class TeamFinance {
                 team.league.addNewsStory(team.league.currentWeek + 1,"Head Coach Rumor Mill>After another successful season at " + team.name + ", " + age + " year old head coach " + team.HC.name + " has moved to the top of" +
                         " many of the schools looking for a replacement at that position. He has a career record of " + wins + "-" + losses + ". ");
                 team.league.addNewsHeadline(team.name + " " + team.HC.position + " " + team.HC.name + " rumored for a bigger program?");
-                if (Math.random() > 0.50) {
+                if (SimRandom.nextDouble() > 0.50) {
                     team.league.coachStarList.add(team.HC);
                 }
             }
             //New Contracts or Firing
-            if ((team.HC.contractYear) >= team.HC.contractLength || team.natChampWL.equals("NCW") || team.natChampWL.equals("NCL") || (team.HC.contractYear + 1 == team.HC.contractLength && Math.random() < 0.38) || (team.HC.contractYear + 2 == team.HC.contractLength && Math.random() < 0.23)) {
+            if ((team.HC.contractYear) >= team.HC.contractLength || team.natChampWL.equals("NCW") || team.natChampWL.equals("NCL") || (team.HC.contractYear + 1 == team.HC.contractLength && SimRandom.nextDouble() < 0.38) || (team.HC.contractYear + 2 == team.HC.contractLength && SimRandom.nextDouble() < 0.23)) {
                 if (totalPDiff > 15 || (team.natChampWL.equals("NCW"))) {
                     team.HC.contractLength = 7;
                     team.HC.contractYear = 0;
@@ -158,8 +220,10 @@ public class TeamFinance {
                         team.HC.baselinePrestige = (team.HC.baselinePrestige + 2 * team.teamPrestige) / 3;
                         team.newContract = true;
                     }
-                } else if (totalPDiff < 0 && (team.teamPrestige - team.teamPrestigeStart) > 2 || team.rankTeamPrestige > 15 && (team.teamPrestige - team.teamPrestigeStart) > 2) {
-                    if (Math.random() > 0.40) {
+                } else if (getAdApproval() >= 25
+                        && ((totalPDiff < 0 && (team.teamPrestige - team.teamPrestigeStart) > 2)
+                            || (team.rankTeamPrestige > 15 && (team.teamPrestige - team.teamPrestigeStart) > 2))) {
+                    if (SimRandom.nextDouble() > 0.40) {
                         team.HC.contractLength = 2;
                         team.HC.contractYear = 0;
                         team.league.addNewsStory(team.league.currentWeek + 1,"2-Year Prove-It Contract Given by " + team.name + ">" + team.name + " has an additional 2-year contract to " + team.HC.name +
@@ -167,10 +231,11 @@ public class TeamFinance {
                         team.newContract = true;
                         proveIt = true;
                     } else {
+                        String buyout = applyBuyout(team.HC, headCoachSalary());
                         team.fired = true;
                         team.league.addNewsStory(team.league.currentWeek + 1,"Polarizing Head Coach Firing at " + team.name + ">" + team.strRankTeamRecord() + " has fired their head coach, " + team.HC.name +
                                 " despite finally getting the team on the right track. The team struggled during his first few seasons at the school, but had shown some promise this season." +
-                                " He has a career record of " + wins + "-" + losses + ".  The team is now searching for a new head coach.");
+                                " He has a career record of " + wins + "-" + losses + ".  The team is now searching for a new head coach." + buyout);
                         team.league.addNewsHeadline(team.name + " has fired Head Coach " + team.HC.name + ".");
                         team.newCoachTeamChanges();
                         if (!team.userControlled) {
@@ -180,16 +245,18 @@ public class TeamFinance {
                     }
                 } else if (!team.userControlled && (((!team.league.isCareerMode()) && totalPDiff < -2 && team.rankTeamPollScore > 15) || (team.rankTeamPollScore > 25 && totalPDiff < -1))) {
                     team.fired = true;
+                    String buyout = applyBuyout(team.HC, headCoachSalary());
                     team.league.addNewsStory(team.league.currentWeek + 1,"Head Coach Firing at " + team.name + ">" + team.strRankTeamRecord() + " has fired their head coach, " + team.HC.name +
-                            " after a disappointing tenure. He has a career record of " + wins + "-" + losses + ". The team is now searching for a new head coach.");
+                            " after a disappointing tenure. He has a career record of " + wins + "-" + losses + ". The team is now searching for a new head coach." + buyout);
                     team.league.addNewsHeadline(team.name + " has fired Head Coach " + team.HC.name + ".");
                     team.newCoachTeamChanges();
                     team.league.addCoach(new HeadCoach(team.HC, team));
                     team.HC = null;
                 } else if ((team.league.isCareerMode() && totalPDiff < -2 && team.rankTeamPollScore > 15) || (team.rankTeamPollScore > 25 && totalPDiff < -1)) {
                     team.fired = true;
+                    String buyout = applyBuyout(team.HC, headCoachSalary());
                     team.league.addNewsStory(team.league.currentWeek + 1,"Head Coach Firing at " + team.name + ">" + team.strRankTeamRecord() + " has fired their head coach, " + team.HC.name +
-                            " after a disappointing tenure. He has a career record of " + wins + "-" + losses + ".  The team is now searching for a new head coach.");
+                            " after a disappointing tenure. He has a career record of " + wins + "-" + losses + ".  The team is now searching for a new head coach." + buyout);
                     team.league.addNewsHeadline(team.name + " has fired Head Coach " + team.HC.name + ".");
                     team.newCoachTeamChanges();
                     if (!team.userControlled) {
@@ -217,7 +284,9 @@ public class TeamFinance {
                         team.HC.contractLength - team.HC.contractYear,
                         team.teamPrestige,
                         team.HC.baselinePrestige,
-                        team.HC.coachStatus());
+                        team.HC.coachStatus())
+                        + "\nSalary: " + salaryStr(headCoachSalary()) + "/year"
+                        + "\nAD Approval: " + getAdApproval() + "%";
             }
         }
     }
@@ -227,8 +296,7 @@ public class TeamFinance {
         int cpres = coord.baselinePrestige;
         int max = 78;
         int min = 60;
-        Random rand = new Random();
-        int retire = rand.nextInt((max - min) + 1) + min;
+        int retire = SimRandom.nextInt((max - min) + 1) + min;
         int age = coord.age;
 
         //RETIREMENT
@@ -245,7 +313,7 @@ public class TeamFinance {
             int[] ovr = {1,1,1,1};
 
             if (coord.getStaffOverall(ovr) >= 75 || coord.baselinePrestige >= 5 || coord.baselinePrestige >= 2 && coord.getCumulativeCoord() >= 10) {
-                if (Math.random() > 0.50) {
+                if (SimRandom.nextDouble() > 0.50) {
                     team.league.coachStarList.add(coord);
                     if(coord.getStaffOverall(ovr) >= 80) {
                         team.league.addNewsStory(team.league.currentWeek + 1,"Coordinator Advancement Rumor>After another successful season at " + team.name + ", " + age + " year " + coord.position + " " + coord.name + " has sparked interest at many of the schools looking for a replacement at Head Coach. He has a career record of " + team.wins + "-" + team.losses + ". ");
@@ -259,7 +327,7 @@ public class TeamFinance {
 
             } else {
                 //New Contracts or Firing
-                if (coord.contractYear >= coord.contractLength || (coord.contractYear + 1 == coord.contractLength && Math.random() < 0.38) || (coord.contractYear + 2 == coord.contractLength && Math.random() < 0.23)) {
+                if (coord.contractYear >= coord.contractLength || (coord.contractYear + 1 == coord.contractLength && SimRandom.nextDouble() < 0.38) || (coord.contractYear + 2 == coord.contractLength && SimRandom.nextDouble() < 0.23)) {
                     if (cpres > 5) {
                         coord.contractLength = 4;
                         coord.contractYear = 0;
@@ -269,7 +337,7 @@ public class TeamFinance {
                         coord.contractYear = 0;
                         coord.baselinePrestige = 0;
                     } else if (cpres < 0) {
-                        if (Math.random() > 0.50) {
+                        if (SimRandom.nextDouble() > 0.50) {
                             coord.contractLength = 1;
                             coord.contractYear = 0;
                             coord.baselinePrestige = 0;

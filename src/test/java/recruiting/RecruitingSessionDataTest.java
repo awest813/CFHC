@@ -2,7 +2,6 @@ package recruiting;
 
 import org.junit.Test;
 
-import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -66,7 +65,7 @@ public class RecruitingSessionDataTest {
         RecruitingPlayerRecord recruit = RecruitingPlayerRecord.fromRecruitCsv(
                 "QB,Big Cost,1,45,70,75,3,false,false,70,70,70,500,A,B,C,D,72,200,70,F");
         try {
-            session.recruitPlayer(recruit, false, 0, new Random(1));
+            session.recruitPlayer(recruit, false, 0);
             fail("Expected IllegalArgumentException when cost exceeds budget");
         } catch (IllegalArgumentException expected) {
             assertTrue(expected.getMessage().contains("exceeds"));
@@ -84,7 +83,7 @@ public class RecruitingSessionDataTest {
         RecruitingPlayerRecord recruit = session.availAll.get(0);
         session.recruitingBudget = 500;
 
-        session.recruitPlayer(recruit, false, 1.0, new Random(1));
+        session.recruitPlayer(recruit, false, 1.0);
 
         assertEquals(380, session.recruitingBudget);
         assertTrue(session.playersRecruited.contains(recruit));
@@ -104,7 +103,7 @@ public class RecruitingSessionDataTest {
         RecruitingPlayerRecord recruit = session.availAll.get(0);
         session.recruitingBudget = 500;
 
-        session.recruitPlayer(recruit, false, 1.0, new Random(1));
+        session.recruitPlayer(recruit, false, 1.0);
 
         String saveData = session.buildRecruitsSaveData();
         assertTrue(saveData.contains(rawRecruit));
@@ -136,7 +135,7 @@ public class RecruitingSessionDataTest {
         RecruitingPlayerRecord recruit = RecruitingPlayerRecord.fromRecruitCsv(
                 "QB,Overflow,1,45,70,75,3,false,false,70,70,70,50,A,B,C,D,72,200,70,F");
         try {
-            session.recruitPlayer(recruit, false, 1.0, new Random(1));
+            session.recruitPlayer(recruit, false, 1.0);
             fail("Expected IllegalStateException when roster is full");
         } catch (IllegalStateException expected) {
             assertTrue(expected.getMessage().contains("full"));

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 public final class RecruitingSessionData {
@@ -232,7 +231,7 @@ public final class RecruitingSessionData {
                 if (line.isEmpty() || "END_RECRUITS".equals(line)) continue;
                 RecruitingPlayerRecord found = findAvailableByRaw(line);
                 if (found != null) {
-                    recruitPlayer(found, false, 0.0, new java.util.Random(0L));
+                    recruitPlayer(found, false, 0.0);
                 } else {
                     // Board no longer has the prospect; still count the commit.
                     RecruitingPlayerRecord orphan = RecruitingPlayerRecord.fromRecruitCsv(line);
@@ -308,7 +307,7 @@ public final class RecruitingSessionData {
         return projectedRosterSize() < simulation.RosterRules.MAX_PLAYERS;
     }
 
-    public void recruitPlayer(RecruitingPlayerRecord recruit, boolean autoFilter, double recruitOffBoardChance, Random random) {
+    public void recruitPlayer(RecruitingPlayerRecord recruit, boolean autoFilter, double recruitOffBoardChance) {
         if (!canRecruitMore()) {
             throw new IllegalStateException(
                     "Roster is full (" + projectedRosterSize() + "/" + simulation.RosterRules.MAX_PLAYERS + ")");
@@ -328,7 +327,7 @@ public final class RecruitingSessionData {
         if (autoFilter) {
             removeUnaffordableRecruits();
         }
-        removeRandomRecruits(recruitOffBoardChance, random);
+        removeRandomRecruits(recruitOffBoardChance);
     }
 
 
@@ -432,10 +431,10 @@ public final class RecruitingSessionData {
     }
 
 
-    public void removeRandomRecruits(double recruitOffBoardChance, Random random) {
+    public void removeRandomRecruits(double recruitOffBoardChance) {
         ArrayList<RecruitingPlayerRecord> removeList = new ArrayList<>();
         for (int i = 0; i < availAll.size(); i++) {
-            if (random.nextDouble() > recruitOffBoardChance) {
+            if (simulation.SimRandom.nextDouble() > recruitOffBoardChance) {
                 removeList.add(availAll.get(i));
             }
         }

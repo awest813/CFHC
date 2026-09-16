@@ -7,7 +7,17 @@ public final class PlatformLog {
     private PlatformLog() {
     }
 
+    private static volatile boolean debugEnabled = true;
+
+    /** Gates only {@link #d}; warnings and errors always print. Dev tools use this to quiet schedule spam. */
+    public static void setDebugEnabled(boolean enabled) {
+        debugEnabled = enabled;
+    }
+
     public static void d(String tag, String message) {
+        if (!debugEnabled) {
+            return;
+        }
         System.out.println("[D/" + tag + "] " + message);
     }
 

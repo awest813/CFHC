@@ -93,9 +93,12 @@ public class DesktopHeaderBar extends JPanel {
         schoolLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
         schoolLabel.setForeground(Color.WHITE);
 
-        int currentWeek = league != null ? league.currentWeek : 8;
         int currentYear = league != null ? league.getYear() : 2026;
-        JLabel seasonLabel = new JLabel(currentYear + " SEASON  \u2022  WEEK " + currentWeek);
+        String seasonText = league != null
+                ? simulation.SeasonPresentation.getSeasonPhaseChipText(league)
+                    + "  •  " + simulation.SeasonPresentation.getSeasonWeekChipText(league)
+                : currentYear + " SEASON  •  WEEK 8";
+        JLabel seasonLabel = new JLabel(seasonText.toUpperCase());
         seasonLabel.setFont(new Font("SansSerif", Font.BOLD, 11));
         seasonLabel.setForeground(DesktopTheme.textSecondary());
 

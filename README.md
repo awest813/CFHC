@@ -178,8 +178,8 @@ More detail: [docs/platform-expansion.md](docs/platform-expansion.md).
 
 - **Career:** hiring, staff, facilities, contracts, promotions and pressure
 - **Recruiting:** full cycle, large name pools, scholarships, transfers, redshirt options
-- **Simulation:** play-by-play, multiple schemes, stats, news, awards, progression
-- **League:** conferences, bowls, playoff options, polls, prestige, infractions, history
+- **Simulation:** play-by-play, multiple schemes, stats, news, awards, progression; weather, penalties, momentum and timeouts; interactive coaching (opt-in gameplan / halftime / crunch-time decisions)
+- **League:** conferences, bowls (with tie-ins), playoff options, AP/Coaches polls, prestige, infractions, rivalries and trophies, senior day / homecoming, realignment, history; offseason coaching carousel, transfer portal, draft night and signing day
 - **Customization:** CSV import for universes/rosters/coaches; in-game renames; light/dark themes
 - **Desktop:** Career Hub launcher, league shell, docked recruiting, dark/high-contrast themes, CSV import/export — Java 17 jar (`CFHC-desktop-1.4e.jar`)
 
@@ -201,7 +201,7 @@ More detail: [docs/platform-expansion.md](docs/platform-expansion.md).
 <details>
 <summary><strong>How do I save?</strong></summary>
 
-**Android:** The game can auto-save at season boundaries (you’ll see a prompt). Restoring a save returns you to the **start of the season** in which that file was created.
+**Android:** Save any time from the drawer (**Save Game**) or the options menu — mid-season saves included; a save restores to the exact point it was taken (the recruiting handoff keeps its own checkpoint save). Bulk simulation (Sim to Next Decision / Sim Through Postseason) lives in the same drawer.
 
 **Desktop:** Use **File → Save** (Ctrl+S). Saves default to your CFHC saves folder (`~/.cfhc/saves` on Linux). Desktop prompts to save when a new season begins and when you exit with unsaved changes. There is no silent auto-save — save before quitting.
 </details>

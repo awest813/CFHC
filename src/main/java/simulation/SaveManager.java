@@ -41,10 +41,12 @@ public class SaveManager {
         try {
         writer.write(SaveSchema.VERSION_PREFIX + SaveSchema.current() + "\n");
 
-        // Save League Base (tab-separated so names may contain commas)
+        // Save League Base (tab-separated so names may contain commas).
+        // Field 6 (rng seed) is optional on load; older builds simply ignore it.
         writer.write(LEAGUE_PREFIX + sanitizeInlineValue(league.leagueName()) + "\t" + league.year() + "\t"
                 + league.currentWeek() + "\t" + sanitizeInlineValue(league.heismanWinnerName()) + "\t"
-                + sanitizeInlineValue(league.nationalChampName()) + "\n");
+                + sanitizeInlineValue(league.nationalChampName()) + "\t"
+                + league.rngSeed() + "\n");
 
         // Global Hall of Fame
         for (PlayerRecord p : league.leagueHoF()) {
@@ -76,7 +78,13 @@ public class SaveManager {
                         + sanitizeInlineValue(t.practiceFocus()) + "\t"
                         + t.nilCollectiveLevel() + "\t"
                         + sanitizeInlineValue(t.practicePositionGroup()) + "\t"
-                        + sanitizeInlineValue(t.focusIntensity()) + "\n");
+                        + sanitizeInlineValue(t.focusIntensity()) + "\t"
+                        + t.prevRankTeamPollScore() + "\t"
+                        + sanitizeInlineValue(t.rivalName()) + "\t"
+                        + sanitizeInlineValue(t.rivalryTrophyName()) + "\t"
+                        + t.rivalryWins() + "\t"
+                        + (t.holdsRivalryTrophy() ? 1 : 0) + "\t"
+                        + t.teamStadium() + "\n");
                 
                 // Coaches
                 writer.write(COACH_PREFIX + "HC," + Persistence.toCsv(t.headCoach()) + "\n");
@@ -150,6 +158,7 @@ public class SaveManager {
         String leagueName = "";
         int year = 0, week = 0;
         String heisman = "", champ = "";
+        long rngSeed = 0;
         List<PlayerRecord> hof = new ArrayList<>();
         List<DataRecord> lRecords = new ArrayList<>();
         List<LeagueRecord.ConferenceRecord> conferences = new ArrayList<>();
@@ -174,6 +183,12 @@ public class SaveManager {
         String teamPracticePositionGroup = "";
         String teamFocusIntensity = "";
         int teamNilCollectiveLevel = 0;
+        int teamPrevRankTeamPollScore = 0;
+        String teamRivalName = "";
+        String teamRivalryTrophyName = "";
+        int teamRivalryWins = 0;
+        boolean teamHoldsRivalryTrophy = false;
+        int teamStadiumLevel = 1;
         List<LeagueRecord.GameRecord> gameRecords = new ArrayList<>();
         String schemaVersion = null;
         boolean sawLeagueHeader = false;
@@ -195,6 +210,7 @@ public class SaveManager {
                 week = h.week();
                 heisman = h.heisman();
                 champ = h.champ();
+                rngSeed = h.rngSeed();
             } else if (line.startsWith("HOF:")) {
                 hof.add(PlayerRecord.fromCsv(line.substring(4)));
             } else if (line.startsWith("LR:")) {
@@ -263,6 +279,24 @@ public class SaveManager {
                 if (p.length >= 11) {
                     teamFocusIntensity = p[10];
                 }
+                if (p.length >= 12 && !p[11].trim().isEmpty()) {
+                    teamPrevRankTeamPollScore = Integer.parseInt(p[11].trim());
+                }
+                if (p.length >= 13) {
+                    teamRivalName = p[12];
+                }
+                if (p.length >= 14) {
+                    teamRivalryTrophyName = p[13];
+                }
+                if (p.length >= 15 && !p[14].trim().isEmpty()) {
+                    teamRivalryWins = Integer.parseInt(p[14].trim());
+                }
+                if (p.length >= 16 && !p[15].trim().isEmpty()) {
+                    teamHoldsRivalryTrophy = "1".equals(p[15].trim());
+                }
+                if (p.length >= 17 && !p[16].trim().isEmpty()) {
+                    teamStadiumLevel = Integer.parseInt(p[16].trim());
+                }
                 roster = new ArrayList<>();
                 history = new ArrayList<>();
                 tRecords = new ArrayList<>();
@@ -304,7 +338,9 @@ public class SaveManager {
                         teamPollSnap, teamRankSnap,
                         hc, oc, dc, roster, history, tRecords, teamPracticeFocus,
                         teamPracticePositionGroup, teamFocusIntensity,
-                        teamNilCollectiveLevel, ""));
+                        teamNilCollectiveLevel, "", teamPrevRankTeamPollScore,
+                        teamRivalName, teamRivalryTrophyName, teamRivalryWins, teamHoldsRivalryTrophy,
+                        teamStadiumLevel));
             } else if (line.startsWith(GAME_PREFIX)) {
                 gameRecords.add(LeagueRecord.GameRecord.fromSaveLine(line.substring(GAME_PREFIX.length())));
             }
@@ -318,30 +354,36 @@ public class SaveManager {
             schemaVersion = SaveSchema.unversionedNewFormatDefault();
         }
         LeagueRecord raw = new LeagueRecord(leagueName, year, week, conferences, hof, lRecords, heisman, champ,
-                List.copyOf(gameRecords));
+                List.copyOf(gameRecords), rngSeed);
         LeagueRecord migrated = SaveSchema.migrate(schemaVersion, raw);
         return new LoadResult(migrated, schemaVersion);
     }
 
     /**
-     * Parsed {@code L:} header: league name, season year, current week, heisman string, national champ string.
+     * Parsed {@code L:} header: league name, season year, current week, heisman string,
+     * national champ string, and (from field 6) the RNG seed — 0 when absent (legacy saves).
      */
-    private record ParsedLeagueHeader(String leagueName, int year, int week, String heisman, String champ) {}
+    private record ParsedLeagueHeader(String leagueName, int year, int week, String heisman, String champ, long rngSeed) {}
 
     private static ParsedLeagueHeader parseLeagueHeaderTabSeparated(String body) throws IOException {
         String[] p = body.split("\t", -1);
         if (p.length < 5) {
-            throw new IOException("L: tab line expected 5 fields, got " + p.length + ": " + body);
+            throw new IOException("L: tab line expected at least 5 fields, got " + p.length + ": " + body);
         }
         try {
+            long seed = 0;
+            if (p.length >= 6 && !p[5].trim().isEmpty()) {
+                seed = Long.parseLong(p[5].trim());
+            }
             return new ParsedLeagueHeader(
                     p[0],
                     Integer.parseInt(p[1].trim()),
                     Integer.parseInt(p[2].trim()),
                     p[3],
-                    p[4]);
+                    p[4],
+                    seed);
         } catch (NumberFormatException e) {
-            throw new IOException("L: tab line bad year/week: " + body, e);
+            throw new IOException("L: tab line bad year/week/seed: " + body, e);
         }
     }
 
@@ -381,7 +423,7 @@ public class SaveManager {
             }
             int year = Integer.parseInt(s.substring(i + 1).trim());
             String leagueName = s.substring(0, i);
-            return new ParsedLeagueHeader(leagueName, year, week, heisman, champ);
+            return new ParsedLeagueHeader(leagueName, year, week, heisman, champ, 0);
         } catch (NumberFormatException e) {
             throw new IOException("L: line has non-numeric year or week: " + body, e);
         }

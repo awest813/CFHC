@@ -58,10 +58,24 @@ public final class SeasonAdvanceResult {
         private final int weekBefore;
         private int weekAfter;
         private final List<Event> events = new ArrayList<>();
+        private String weekDigest = "";
+        private AudioEvent audioEvent;
 
         Builder(int weekBefore) {
             this.weekBefore = weekBefore;
             this.weekAfter = weekBefore;
+        }
+
+        /** Week-in-review text for in-season advances ("" outside the season). */
+        public Builder weekDigest(String digest) {
+            this.weekDigest = digest != null ? digest : "";
+            return this;
+        }
+
+        /** Optional result-atmosphere audio cue for the shells to play. */
+        public Builder audioEvent(AudioEvent event) {
+            this.audioEvent = event;
+            return this;
         }
 
         public Builder weekAfter(int weekAfter) {
@@ -105,18 +119,33 @@ public final class SeasonAdvanceResult {
         }
 
         public SeasonAdvanceResult build() {
-            return new SeasonAdvanceResult(weekBefore, weekAfter, events);
+            return new SeasonAdvanceResult(weekBefore, weekAfter, events, weekDigest, audioEvent);
         }
     }
 
     public final int weekBefore;
     public final int weekAfter;
     public final List<Event> events;
+    private final String weekDigest;
+    private final AudioEvent audioEvent;
 
-    private SeasonAdvanceResult(int weekBefore, int weekAfter, List<Event> events) {
+    private SeasonAdvanceResult(int weekBefore, int weekAfter, List<Event> events,
+                                String weekDigest, AudioEvent audioEvent) {
         this.weekBefore = weekBefore;
         this.weekAfter = weekAfter;
         this.events = Collections.unmodifiableList(new ArrayList<>(events));
+        this.weekDigest = weekDigest != null ? weekDigest : "";
+        this.audioEvent = audioEvent;
+    }
+
+    /** Week-in-review text for in-season advances; empty otherwise. */
+    public String getWeekDigest() {
+        return weekDigest;
+    }
+
+    /** Optional result-atmosphere audio cue; null when none applies. */
+    public AudioEvent getAudioEvent() {
+        return audioEvent;
     }
 
     public boolean hasEvent(EventType type) {

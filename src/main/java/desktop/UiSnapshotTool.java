@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 public final class UiSnapshotTool {
 
     public static void main(String[] args) throws Exception {
+        simulation.PlatformLog.setDebugEnabled(false);
         String outDir = args.length > 0 ? args[0] : "build/ui-audit";
         int weeks = args.length > 1 ? Integer.parseInt(args[1]) : 8;
         new File(outDir).mkdirs();
@@ -59,6 +60,8 @@ public final class UiSnapshotTool {
         view.setVisible(true);
         Thread.sleep(800); // let layout + LAF settle
 
+        auditMenus(view, league);
+
         Method select = LeagueHomeView.class.getDeclaredMethod("selectScreen", String.class);
         select.setAccessible(true);
 
@@ -78,6 +81,56 @@ public final class UiSnapshotTool {
         view.dispose();
         System.out.println("done -> " + outDir);
         System.exit(0);
+    }
+
+    /**
+     * Menu audit: dumps the full menu tree (including the Phase 5 additions)
+     * and smoke-tests the Interactive Coaching toggle end to end.
+     */
+    private static void auditMenus(javax.swing.JFrame view, League league) {
+        System.out.println("== MENU AUDIT ==");
+        javax.swing.JMenuBar bar = view.getJMenuBar();
+        for (int i = 0; i < bar.getMenuCount(); i++) {
+            javax.swing.JMenu menu = bar.getMenu(i);
+            if (menu != null) {
+                System.out.println("MENU: " + menu.getText());
+                walkMenu(menu, "  ", league);
+            }
+        }
+        System.out.println("== MENU AUDIT DONE ==");
+    }
+
+    private static void walkMenu(javax.swing.JMenu menu, String indent, League league) {
+        for (java.awt.Component c : menu.getMenuComponents()) {
+            if (c instanceof javax.swing.JMenu) {
+                javax.swing.JMenu sub = (javax.swing.JMenu) c;
+                System.out.println(indent + "MENU: " + sub.getText());
+                walkMenu(sub, indent + "  ", league);
+            } else if (c instanceof javax.swing.JMenuItem) {
+                javax.swing.JMenuItem item = (javax.swing.JMenuItem) c;
+                String flags = item.isEnabled() ? "" : " [disabled]";
+                if (c instanceof javax.swing.JCheckBoxMenuItem) {
+                    flags += " [selected=" + ((javax.swing.JCheckBoxMenuItem) c).isSelected() + "]";
+                }
+                System.out.println(indent + "ITEM: " + item.getText() + flags);
+
+                if ("Interactive Coaching".equals(item.getText())
+                        && c instanceof javax.swing.JCheckBoxMenuItem) {
+                    javax.swing.JCheckBoxMenuItem toggle = (javax.swing.JCheckBoxMenuItem) c;
+                    toggle.doClick(); // fires the action synchronously
+                    System.out.println(indent + "  -> coach listener installed: "
+                            + (league.getGameCoachListener() != null));
+                    toggle.doClick();
+                    System.out.println(indent + "  -> coach listener removed: "
+                            + (league.getGameCoachListener() == null));
+                }
+                if ("Offseason Hub".equals(item.getText())) {
+                    System.out.println(indent + "  -> offseason hub enabled: " + item.isEnabled()
+                            + " (step " + simulation.SeasonFlowOrder.offseasonStepIndex(
+                                    league.currentWeek, league.regSeasonWeeks) + ")");
+                }
+            }
+        }
     }
 
     private static GameUiBridge silentBridge() {

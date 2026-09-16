@@ -93,6 +93,11 @@ public final class CoachSkills {
                 .append("  (drives base player development in the sim)\n");
         sb.append("NIL / booster collective: Tier ").append(t.nilCollectiveLevel)
                 .append("  (home revenue, weekly stipend, recruiting budget)\n\n");
+        TeamMoraleSnapshot morale = t.getTeamMoraleSnapshot();
+        sb.append("Team morale: Chemistry ").append(morale.chemistry())
+                .append(", Leadership ").append(morale.leadership())
+                .append(", Buy-In ").append(morale.buyIn())
+                .append("  (overall ").append(morale.overall()).append("/100)\n\n");
         sb.append("Coach skills:\n");
         for (int b = 0; b < BRANCH_COUNT; b++) {
             int r = getRank(hc.coachSkillRanksBits, b);

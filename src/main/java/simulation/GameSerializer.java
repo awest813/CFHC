@@ -13,7 +13,7 @@ class GameSerializer {
         if (nm.isEmpty()) {
             nm = "Unknown";
         }
-        return new Team(nm, "FCS", "FCS Division", (int) (Math.random() * 40), "FCS1", 0, league, false);
+        return new Team(nm, "FCS", "FCS Division", (int) (SimRandom.nextDouble() * 40), "FCS1", 0, league, false);
     }
 
     static ArrayList<String> saveGameData(Game game) {
@@ -23,7 +23,7 @@ class GameSerializer {
         gameData.add(game.awayTeam.getName());
         gameData.add(game.gameName);
         gameData.add(game.gameEventLog.toString());
-        gameData.add(game.homeScore + "," + game.awayScore + "," + game.homeYards + "," + game.awayYards + "," + game.homePassYards + "," + game.awayPassYards+ "," + game.homeRushYards + "," + game.awayRushYards+ "," + game.homeTOs + "," + game.awayTOs + "," + game.numOT);
+        gameData.add(game.homeScore + "," + game.awayScore + "," + game.homeYards + "," + game.awayYards + "," + game.homePassYards + "," + game.awayPassYards+ "," + game.homeRushYards + "," + game.awayRushYards+ "," + game.homeTurnovers + "," + game.awayTurnovers + "," + game.numOT);
 
         StringBuilder sb = new StringBuilder();
         for(int x = 0; x < game.homeQScore.length; x++) {

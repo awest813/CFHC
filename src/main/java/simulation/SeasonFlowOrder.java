@@ -59,6 +59,95 @@ public final class SeasonFlowOrder {
         return Math.max(1, regSeasonWeeks) / 2;
     }
 
+    /** Legacy save-format sentinel: currentWeek 99 means "recruiting checkpoint saved". */
+    public static final int RECRUITING_SENTINEL_WEEK = 99;
+
+    // Canonical in-season boundary weeks (all relative to R = regSeasonWeeks).
+
+    public static int conferenceChampionshipWeek(int regSeasonWeeks) {
+        return Math.max(1, regSeasonWeeks) - 1;
+    }
+
+    public static int bowlWeek1(int regSeasonWeeks) {
+        return Math.max(1, regSeasonWeeks);
+    }
+
+    public static int bowlWeek2(int regSeasonWeeks) {
+        return Math.max(1, regSeasonWeeks) + 1;
+    }
+
+    public static int bowlWeek3(int regSeasonWeeks) {
+        return Math.max(1, regSeasonWeeks) + 2;
+    }
+
+    public static int nationalChampionshipWeek(int regSeasonWeeks) {
+        return Math.max(1, regSeasonWeeks) + 3;
+    }
+
+    // Canonical offseason step weeks (see SeasonController class doc for the sequence).
+
+    public static int seasonSummaryWeek(int regSeasonWeeks) {
+        return firstOffseasonWeek(regSeasonWeeks);
+    }
+
+    public static int contractsWeek(int regSeasonWeeks) {
+        return Math.max(1, regSeasonWeeks) + 5;
+    }
+
+    public static int jobOffersWeek(int regSeasonWeeks) {
+        return Math.max(1, regSeasonWeeks) + 6;
+    }
+
+    public static int coachCarouselWeek(int regSeasonWeeks) {
+        return Math.max(1, regSeasonWeeks) + 7;
+    }
+
+    public static int coordinatorHiringWeek(int regSeasonWeeks) {
+        return Math.max(1, regSeasonWeeks) + 8;
+    }
+
+    public static int graduationWeek(int regSeasonWeeks) {
+        return Math.max(1, regSeasonWeeks) + 9;
+    }
+
+    public static int transferPortalWeek(int regSeasonWeeks) {
+        return Math.max(1, regSeasonWeeks) + 10;
+    }
+
+    public static int transferListWeek(int regSeasonWeeks) {
+        return Math.max(1, regSeasonWeeks) + 11;
+    }
+
+    public static int realignmentWeek(int regSeasonWeeks) {
+        return Math.max(1, regSeasonWeeks) + 12;
+    }
+
+    /** Ordered offseason step names, matching weeks R+4 through R+13. */
+    public static String[] offseasonSteps() {
+        return new String[]{
+                "Season Summary",
+                "Contracts",
+                "Job Offers",
+                "Coach Carousel",
+                "Coordinator Hiring",
+                "Graduation & Development",
+                "Transfer Portal",
+                "Transfer List",
+                "Realignment",
+                "Recruiting"
+        };
+    }
+
+    /** Index (0-based) into {@link #offseasonSteps} for the given week, or -1 outside the offseason. */
+    public static int offseasonStepIndex(int week, int regSeasonWeeks) {
+        int w = clampWeek(week);
+        int r = Math.max(1, regSeasonWeeks);
+        if (w < r + 4 || w > r + 13) {
+            return -1;
+        }
+        return w - (r + 4);
+    }
+
     /**
      * First offseason week — postseason (through NCG) is complete when
      * {@code currentWeek} reaches this value.

@@ -1,6 +1,7 @@
 package desktop;
 
 import simulation.League;
+import simulation.PlatformLog;
 import simulation.PlatformResourceProvider;
 import simulation.SeasonController;
 import simulation.Team;
@@ -17,6 +18,7 @@ public class StabilityTester {
     private static final int MIN_HEALTHY_ROSTER_SIZE = 40;
 
     public static void runTest() {
+        PlatformLog.setDebugEnabled(false);
         try {
             DesktopResourceProvider resources = new DesktopResourceProvider(System.getProperty("user.dir"));
 

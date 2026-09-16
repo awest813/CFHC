@@ -1,11 +1,11 @@
 package recruiting;
 
 import simulation.GameFlowManager;
+import simulation.SimRandom;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 /**
  * Platform-agnostic controller for managing the recruiting process logic.
@@ -14,7 +14,6 @@ public final class RecruitingController {
 
     private final RecruitingSessionData sessionData;
     private final GameFlowManager flowManager;
-    private final Random random = new Random();
 
     public RecruitingController(RecruitingSessionData sessionData, GameFlowManager flowManager) {
         this.sessionData = sessionData;
@@ -26,7 +25,7 @@ public final class RecruitingController {
     }
 
     public void recruitPlayer(RecruitingPlayerRecord recruit, boolean autoFilter) {
-        sessionData.recruitPlayer(recruit, autoFilter, sessionData.recruitOffBoard, random);
+        sessionData.recruitPlayer(recruit, autoFilter, sessionData.recruitOffBoard);
     }
 
     public boolean scoutPlayer(RecruitingPlayerRecord recruit) {

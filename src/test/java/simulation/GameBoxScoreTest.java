@@ -173,8 +173,13 @@ public class GameBoxScoreTest {
             for (int i = 4; i < 4 + g.numOT; i++) {
                 awayOT += g.awayQScore[i];
             }
-            assertTrue("OT home score should be > 0 when numOT > 0: " + homeOT, homeOT > 0);
-            assertTrue("OT away score should be > 0 when numOT > 0: " + awayOT, awayOT > 0);
+            // The game only ends in OT once someone leads, so the OT periods must
+            // record scoring for at least one side (a first-possession walk-off
+            // legitimately leaves the loser at zero).
+            assertTrue("OT buckets must record scoring: home " + homeOT + ", away " + awayOT,
+                    homeOT > 0 || awayOT > 0);
+            assertTrue("OT scores cannot exceed final scores",
+                    homeOT <= g.homeScore && awayOT <= g.awayScore);
         }
     }
 
@@ -230,8 +235,8 @@ public class GameBoxScoreTest {
         Game g = new Game(homeTeam, awayTeam, "TO Test");
         g.playGame();
 
-        assertTrue("Home TOs should be >= 0", g.homeTOs >= 0);
-        assertTrue("Away TOs should be >= 0", g.awayTOs >= 0);
+        assertTrue("Home TOs should be >= 0", g.homeTurnovers >= 0);
+        assertTrue("Away TOs should be >= 0", g.awayTurnovers >= 0);
     }
 
     @Test

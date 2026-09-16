@@ -16,8 +16,14 @@ public record LeagueRecord(
     List<DataRecord> leagueRecords,
     String heismanWinnerName,
     String nationalChampName,
-    List<GameRecord> scheduledGames
+    List<GameRecord> scheduledGames,
+    long rngSeed
 ) {
+    public LeagueRecord {
+        if (rngSeed < 0) {
+            rngSeed = 0;
+        }
+    }
     // Nested records for structured hierarchy
     public record ConferenceRecord(
         String name,
@@ -45,7 +51,13 @@ public record LeagueRecord(
         String practicePositionGroup,
         String focusIntensity,
         int nilCollectiveLevel,
-        String nickname
+        String nickname,
+        int prevRankTeamPollScore,
+        String rivalName,
+        String rivalryTrophyName,
+        int rivalryWins,
+        boolean holdsRivalryTrophy,
+        int teamStadium
     ) {
         public TeamRecord {
             if (practiceFocus == null) {
@@ -62,6 +74,21 @@ public record LeagueRecord(
             }
             if (nickname == null) {
                 nickname = "";
+            }
+            if (prevRankTeamPollScore < 0) {
+                prevRankTeamPollScore = 0;
+            }
+            if (rivalName == null) {
+                rivalName = "";
+            }
+            if (rivalryTrophyName == null) {
+                rivalryTrophyName = "";
+            }
+            if (rivalryWins < 0) {
+                rivalryWins = 0;
+            }
+            if (teamStadium < 0) {
+                teamStadium = 0;
             }
         }
     }

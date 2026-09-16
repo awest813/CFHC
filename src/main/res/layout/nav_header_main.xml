@@ -34,12 +34,12 @@
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginBottom="6dp"
         android:adjustViewBounds="true"
         android:contentDescription="@string/nav_header_desc"
         android:scaleType="fitCenter"
-        android:scaleX=".72"
-        android:scaleY=".72"
         app:srcCompat="@drawable/main_menu_logo" />
 
     <TextView

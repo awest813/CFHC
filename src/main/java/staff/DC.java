@@ -1,5 +1,6 @@
 package staff;
 
+import simulation.SimRandom;
 import java.util.ArrayList;
 
 import simulation.Team;
@@ -145,10 +146,10 @@ public class DC extends Staff {
 
 
         if (age > 60 && team != null && !team.isUserControlled()) {
-            ratOff -= (int) (Math.random() * (age / 10));
-            ratDef -= (int) (Math.random() * (age / 10));
-            ratTalent -= (int)(Math.random() * (age / 10));
-            ratDiscipline -= (int) (Math.random() * (age / 10));
+            ratOff -= (int) (SimRandom.nextDouble() * (age / 10));
+            ratDef -= (int) (SimRandom.nextDouble() * (age / 10));
+            ratTalent -= (int)(SimRandom.nextDouble() * (age / 10));
+            ratDiscipline -= (int) (SimRandom.nextDouble() * (age / 10));
         }
 
         ratOvr = getStaffOverall(overallWt);

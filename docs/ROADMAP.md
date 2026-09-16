@@ -260,5 +260,6 @@ Replace the lightweight `PlatformLog` shim with SLF4J (portable) + Timber (Andro
 |:---|:---|
 | [Platform Expansion](platform-expansion.md) | Design goals for iOS and desktop shells |
 | [Threading](THREADING.md) | Single-thread mutation contract for `League` / `Team` |
+| [Game Flow Audit & Premium Plan](game-flow-audit-and-premium-plan.md) | Season/game-day loop audit, verified defects, phased premium-features plan |
 | [README — Engine Audit Summary](../README.md#engine-audit-summary) | High-level audit findings |
 | [Privacy Policy](../Privacy-Policy.md) | App privacy disclosures |

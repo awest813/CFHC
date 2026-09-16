@@ -1,7 +1,6 @@
 package staff;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 import simulation.Team;
 

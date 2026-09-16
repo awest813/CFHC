@@ -108,7 +108,7 @@ public class DashboardPanel implements LeagueScreen {
         grid.add(new ProgramFinancesCard(league.userTeam));
         grid.add(new ProgramPrestigeCard(league.userTeam));
 
-        grid.add(new TeamMoraleCard());
+        grid.add(new TeamMoraleCard(league.userTeam));
         grid.add(new RosterSpotlightCard(league.userTeam, player -> {
             if (ctx != null && ctx.parent() != null && player != null) {
                 PlayerDetailView.show(ctx.parent(), player);
@@ -120,6 +120,12 @@ public class DashboardPanel implements LeagueScreen {
         grid.add(new HeadCoachCard(league.userTeam, () -> {
             if (ctx != null) ctx.nav().selectScreen("My Coach");
         }));
+
+        // Phase 5 part 3: wire the previously built-but-unmounted dashboard panels.
+        grid.add(buildProgramHealthPanel());
+        grid.add(buildPollLeadersPanel());
+        grid.add(buildAwardsPanel());
+        grid.add(buildLatestHeadlinesPanel());
 
         panel.add(grid, BorderLayout.CENTER);
 

@@ -1,6 +1,5 @@
 package simulation;
 
-import java.util.Random;
 
 import positions.Player;
 
@@ -8,7 +7,6 @@ import positions.Player;
 public class Injury {
 
     private static final String[] injuries = {"Knee", "Thigh", "Shoulder", "Wrist", "Ankle", "Foot", "Arm", "Back", "Head"};
-    private static final Random rando = new Random();
     public League league;
     public int duration; // Duration of the injury (in games)
     private final String description; // What the injury is
@@ -23,10 +21,10 @@ public class Injury {
 
     public Injury(Player p) {
         // Generate an injury
-        duration = Math.abs((int) (rando.nextGaussian() * 3 + 1));
+        duration = Math.abs((int) (SimRandom.nextGaussian() * 3 + 1));
         if (duration == 0) duration = 1;
-        if (Math.random() < 0.01) duration = 15;
-        description = injuries[(int) (Math.random() * injuries.length)];
+        if (SimRandom.nextDouble() < 0.01) duration = 15;
+        description = injuries[(int) (SimRandom.nextDouble() * injuries.length)];
         player = p;
         player.isInjured = true;
         player.ratPot -= duration / 1.5;
@@ -38,7 +36,12 @@ public class Injury {
             player.team.league.addNewsHeadline("A major injury was sustained by " + player.team.getName() + " " + player.position + " " + player.name + " suffered a " + description
                     + " injury and will be out for " + duration + " weeks.");
         }
-        if (duration > (12 - player.team.league.currentWeek) && player.team.league.currentWeek < 6 && player.getGamesStarted() < 4 && !player.wasRedshirt) {
+        // Medical redshirt: season-ending injury suffered early in the season.
+        // Window derived from regSeasonWeeks so custom season lengths behave.
+        League injLeague = player.team.league;
+        if (duration > (injLeague.regSeasonWeeks - 1 - injLeague.currentWeek)
+                && injLeague.currentWeek < SeasonFlowOrder.midseasonWeek(injLeague.regSeasonWeeks)
+                && player.getGamesStarted() < 4 && !player.wasRedshirt) {
             player.isMedicalRS = true;
             duration = 26;
             if (player.team.isUserControlled()) {

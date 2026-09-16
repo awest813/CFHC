@@ -51,7 +51,7 @@ class GameStatRecorder {
             selLB.recordTackles(1);
             defender = "LB " + selLB.name;
         } else if (yardsGain >= 12 && !gotTD) {
-            if (selCB.getRatTackle() * Math.random() * 50 >= selS.getRatTackle() * Math.random() * 100) {
+            if (selCB.getRatTackle() * SimRandom.nextDouble() * 50 >= selS.getRatTackle() * SimRandom.nextDouble() * 100) {
                 selCB.gameTackles++;
                 selCB.recordTackles(1);
                 defender = "CB " + selCB.name;
@@ -114,9 +114,9 @@ class GameStatRecorder {
         }
 
         if (game.gamePoss) {
-            game.homeTOs++;
+            game.homeTurnovers++;
         } else {
-            game.awayTOs++;
+            game.awayTurnovers++;
         }
 
         if (pos.equals("DL")) {
@@ -287,7 +287,7 @@ class GameStatRecorder {
 
     void recordDefendedCB(PlayerWR selWR, PlayerCB selCB) {
 
-        if ((selCB.getRatJump() * Math.random() + selCB.getRatCoverage() * Math.random()) > (selWR.getRatJump() * Math.random() + selWR.getRatCatch() * Math.random()) * 2) {
+        if ((selCB.getRatJump() * SimRandom.nextDouble() + selCB.getRatCoverage() * SimRandom.nextDouble()) > (selWR.getRatJump() * SimRandom.nextDouble() + selWR.getRatCatch() * SimRandom.nextDouble()) * 2) {
             selCB.recordDefended(1);
             selCB.gameDefended++;
         }
@@ -297,7 +297,7 @@ class GameStatRecorder {
 
     void recordDefendedLB(PlayerTE selTE, PlayerLB selLB) {
 
-        if ((selLB.getRatSpeed() * Math.random() + selLB.getRatCoverage() * Math.random()) > (selTE.getRatSpeed() * Math.random() + selTE.getRatCatch() * Math.random()) * 2) {
+        if ((selLB.getRatSpeed() * SimRandom.nextDouble() + selLB.getRatCoverage() * SimRandom.nextDouble()) > (selTE.getRatSpeed() * SimRandom.nextDouble() + selTE.getRatCatch() * SimRandom.nextDouble()) * 2) {
             selLB.recordDefended(1);
             selLB.gameDefended++;
         }
@@ -307,7 +307,7 @@ class GameStatRecorder {
 
     void recordDefendedLB2(PlayerRB selRB, PlayerLB selLB) {
 
-        if ((selLB.getRatSpeed() * Math.random() + selLB.getRatCoverage() * Math.random()) > (selRB.getRatSpeed() * Math.random() + selRB.getRatCatch() * Math.random()) * 2) {
+        if ((selLB.getRatSpeed() * SimRandom.nextDouble() + selLB.getRatCoverage() * SimRandom.nextDouble()) > (selRB.getRatSpeed() * SimRandom.nextDouble() + selRB.getRatCatch() * SimRandom.nextDouble()) * 2) {
             selLB.recordDefended(1);
             selLB.gameDefended++;
         }
@@ -353,28 +353,24 @@ class GameStatRecorder {
         }
 
         if (game.gamePoss) {
-            game.homeTOs++;
+            game.homeTurnovers++;
         } else {
-            game.awayTOs++;
+            game.awayTurnovers++;
         }
 
         selQB.recordPassInt(1);
         selQB.gamePassInts++;
 
         game.gameEventLog.append(game.getEventLog()).append("INTERCEPTED!\n").append(offense.getAbbr()).append(" QB ").append(offense.getQB(0).name).append(" was intercepted by ").append(defender).append(".");
-        game.gameTime -= game.timePerPlay * Math.random();
-        if (!game.playingOT) {
-            game.gameDown = 1;
-            game.gameYardsNeed = 10;
-            game.gamePoss = !game.gamePoss;
-            game.gameYardLine = 100 - game.gameYardLine;
-        } else game.resetForOT();
 
     }
 
-    void recordSack(Team offense, Team defense, PlayerQB selQB, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS) {
+    /** Recorded sack outcome: yards lost and the defender credited (rule engine consumes both). */
+    record SackResult(int loss, String defender) {}
+
+    SackResult recordSack(Team offense, Team defense, PlayerQB selQB, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS) {
         String defender = "";
-        int sackloss = (3 + (int) (Math.random() * (((int) defense.getCompositeDLPass()) - ((int) offense.getCompositeOLPass())) / 2));
+        int sackloss = (3 + (int) (SimRandom.nextDouble() * (((int) defense.getCompositeDLPass()) - ((int) offense.getCompositeOLPass())) / 2));
         if (sackloss < 2) sackloss = 2;
 
         ArrayList<Player> def = new ArrayList<>();
@@ -425,17 +421,7 @@ class GameStatRecorder {
             game.gameEventLog.append(game.getEventLog()).append("SACK!\n").append(" QB ").append(offense.getQB(0).name).append(
                     " was sacked for a loss of ").append(sackloss).append(" by ").append(defender).append(".");
 
-        game.gameDown++;
-        game.gameYardsNeed += sackloss;
-        game.gameYardLine -= sackloss;
-
-        if (game.gameYardLine < 0) {
-            game.gameTime -= 10 * Math.random();
-            recordSafety(defender);
-            return;
-        }
-
-        game.gameTime -= game.timePerPlay + game.timePerPlay * Math.random();
+        return new SackResult(sackloss, defender);
     }
 
     void recordRecFumble(Team offense, PlayerRB selRB, PlayerWR selWR, PlayerTE selTE, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS, String pos) {
@@ -495,20 +481,6 @@ class GameStatRecorder {
         }
 
         game.gameEventLog.append(game.getEventLog()).append("FUMBLE!\n").append(offense.getAbbr()).append(" receiver ").append(fumblerName).append(" fumbled the ball after a catch. It was recovered by ").append(defender).append(".");
-    }
-
-    void recordSafety(String defender) {
-        if (game.gamePoss) {
-            game.awayScore += 2;
-            game.gameEventLog.append(game.getEventLogScoring()).append("SAFETY!\n").append(game.homeTeam.getAbbr()).append(" QB ").append(game.homeTeam.getQB(0).name).append(
-                    " was tackled in the endzone by ").append(defender).append("! Result is a Safety and ").append(game.awayTeam.getAbbr()).append(" will get possession.");
-            game.freeKick(game.homeTeam, game.awayTeam);
-        } else {
-            game.homeScore += 2;
-            game.gameEventLog.append(game.getEventLogScoring()).append("SAFETY!\n").append(game.awayTeam.getAbbr()).append(" QB ").append(game.awayTeam.getQB(0).name)
-                    .append(" was tackled in the endzone by ").append(defender).append("! Result is a Safety and ").append(game.homeTeam.getAbbr()).append(" will get possession.");
-            game.freeKick(game.awayTeam, game.homeTeam);
-        }
     }
 
     void recordReturnStats() {

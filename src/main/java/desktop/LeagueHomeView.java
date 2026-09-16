@@ -86,6 +86,8 @@ public class LeagueHomeView extends JFrame {
     private SimulationFacade facade;
     private DesktopBulkSimulator bulkSimulator;
     private boolean bulkRunning;
+    /** Interactive gameday (Phase 5 part 3): coach the user team's games. */
+    private boolean interactiveCoaching;
 
     /** Tracks whether the league has been modified since the last save. */
     private boolean dirty = false;
@@ -205,11 +207,13 @@ public class LeagueHomeView extends JFrame {
             }
             @Override public void markDirty() { LeagueHomeView.this.markDirty(); }
             @Override public void afterBulkRefresh() {
+                bridge.drainDeferredDialogs();
                 bulkRunning = false;
                 refresh();
             }
             @Override public void onRecruitingGateFromBulk() {
                 bulkRunning = false;
+                bridge.drainDeferredDialogs();
                 clearRecruitingSessionState();
                 selectRecruitingTab();
                 JOptionPane.showMessageDialog(LeagueHomeView.this,
@@ -222,6 +226,7 @@ public class LeagueHomeView extends JFrame {
             @Override public void onNewSeasonFromBulk() {
                 bulkRunning = false;
                 startNewSeason();
+                bridge.drainDeferredDialogs();
             }
             @Override public String seasonPeriodLabel() { return decodeSeasonPeriod(); }
             @Override public int maxFullYearSteps() { return MAX_FULL_YEAR_STEPS; }
@@ -363,6 +368,24 @@ public class LeagueHomeView extends JFrame {
         advanceFull.addActionListener(e -> advanceFullYear());
         advanceFull.setEnabled(!bridge.isAwaitingDockedRecruiting());
         season.add(advanceFull);
+
+        JCheckBoxMenuItem coachToggle = new JCheckBoxMenuItem("Interactive Coaching");
+        coachToggle.setMnemonic(KeyEvent.VK_I);
+        coachToggle.setSelected(interactiveCoaching);
+        coachToggle.addActionListener(e -> {
+            interactiveCoaching = coachToggle.isSelected();
+            leagueCore.setGameCoachListener(interactiveCoaching
+                    ? (game, checkpoint) -> CoachDecisionDialog.show(this, game, checkpoint)
+                    : null);
+        });
+        season.add(coachToggle);
+
+        JMenuItem offseasonHub = new JMenuItem("Offseason Hub");
+        offseasonHub.setMnemonic(KeyEvent.VK_H);
+        offseasonHub.addActionListener(e -> OffseasonHubDialog.show(this, leagueCore, this::playWeek));
+        offseasonHub.setEnabled(SeasonFlowOrder.offseasonStepIndex(
+                leagueCore.currentWeek, leagueCore.regSeasonWeeks) >= 0);
+        season.add(offseasonHub);
 
         season.addSeparator();
 
@@ -1115,7 +1138,7 @@ public class LeagueHomeView extends JFrame {
         int weekBefore = leagueCore.currentWeek;
         bridge.clearNewSeasonPending();
         audioManager.play(AudioEvent.ADVANCE);
-        controller.advanceWeek();
+        simulation.SeasonAdvanceResult advance = controller.advanceWeek();
         markDirty();
 
         // Android polls disciplineAction after each week; desktop must do the same.
@@ -1134,8 +1157,11 @@ public class LeagueHomeView extends JFrame {
             startNewSeason();
         } else {
             refresh();
-            // Show result summary for user team
-            showWeekResultSummary(weekBefore);
+            if (advance.getAudioEvent() != null) {
+                audioManager.play(advance.getAudioEvent());
+            }
+            // Show week-in-review (result + league texture) for the user team
+            showWeekResultSummary(weekBefore, advance.getWeekDigest());
         }
     }
 
@@ -1145,11 +1171,19 @@ public class LeagueHomeView extends JFrame {
         }
     }
 
-    private void showWeekResultSummary(int weekBefore) {
+    private void showWeekResultSummary(int weekBefore, String weekDigest) {
         if (leagueCore.userTeam == null) return;
         simulation.Game g = DesktopWeekResult.findPlayedGame(
                 leagueCore.userTeam, weekBefore, leagueCore.regSeasonWeeks);
+
+        String digestBlock = weekDigest == null || weekDigest.isEmpty() ? "" : "\n--------------------\n" + weekDigest;
+
         if (g == null || g == lastSummarizedGame) {
+            // No user game this week (BYE / dead week) — still surface the week in review.
+            if (!digestBlock.isEmpty()) {
+                JOptionPane.showMessageDialog(this, DesktopTheme.messageForDialog(weekDigest),
+                        "Week " + weekBefore + " In Review", JOptionPane.INFORMATION_MESSAGE);
+            }
             return;
         }
         lastSummarizedGame = g;
@@ -1167,9 +1201,9 @@ public class LeagueHomeView extends JFrame {
 
         String result = score > oppScore ? "WIN" : (score < oppScore ? "LOSS" : "TIE");
 
-        String msg = String.format(Locale.ROOT, "Week %d Result:\n\n%s %s %s\nFinal Score: %d - %d\n\nRecord: %d-%d",
+        String msg = String.format(Locale.ROOT, "Week %d Result:\n\n%s %s %s\nFinal Score: %d - %d\n\nRecord: %d-%d%s",
                 weekBefore, result, site, opp, score, oppScore,
-                leagueCore.userTeam.getWins(), leagueCore.userTeam.getLosses());
+                leagueCore.userTeam.getWins(), leagueCore.userTeam.getLosses(), digestBlock);
 
         JOptionPane.showMessageDialog(this, DesktopTheme.messageForDialog(msg), "Game Result",
                 score >= oppScore ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE);

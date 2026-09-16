@@ -48,8 +48,39 @@ public class DesktopUiBridge implements GameUiBridge {
      * Suppress informational modal dialogs during background simulation.
      * Decision dialogs still run on the EDT so career choices are not skipped.
      */
+    /** Informational dialogs deferred during a bulk run; replayed by {@link #drainDeferredDialogs()}. */
+    private final java.util.List<Runnable> deferredDialogs = new java.util.ArrayList<>();
+
     public void setSuppressBlockingUi(boolean suppressBlockingUi) {
         this.suppressBlockingUi = suppressBlockingUi;
+        if (suppressBlockingUi) {
+            deferredDialogs.clear();
+        }
+    }
+
+    /**
+     * Replays the informational dialogs (midseason/season summaries, awards,
+     * realignment) that a bulk run deferred. Each becomes a stacked modal on
+     * the EDT; call once when the bulk finishes.
+     */
+    public void drainDeferredDialogs() {
+        if (deferredDialogs.isEmpty()) {
+            return;
+        }
+        java.util.List<Runnable> replay = new java.util.ArrayList<>(deferredDialogs);
+        deferredDialogs.clear();
+        for (Runnable r : replay) {
+            javax.swing.SwingUtilities.invokeLater(r);
+        }
+    }
+
+    /** Queue-or-drop for informational dialogs: defer when bulking with a window, drop when headless. */
+    private void deferOrLog(String title, Runnable show) {
+        if (owner != null) {
+            deferredDialogs.add(show);
+        } else {
+            logDialog(title, "(deferred)");
+        }
     }
 
     /** True after {@link #startRecruitingFlow()} has been called. */
@@ -175,7 +206,7 @@ public class DesktopUiBridge implements GameUiBridge {
     @Override
     public void showAwardsSummary(String summaryText) {
         if (suppressInformationalUi()) {
-            logDialog("Awards", summaryText);
+            deferOrLog("Awards", () -> SeasonAwardsDialog.show(owner, league, summaryText));
             return;
         }
         SeasonAwardsDialog.show(owner, league, summaryText);
@@ -184,7 +215,8 @@ public class DesktopUiBridge implements GameUiBridge {
     @Override
     public void showMidseasonSummary() {
         if (suppressInformationalUi()) {
-            logDialog("Mid-Season Summary", "midseason progression applied");
+            deferOrLog("Mid-Season Summary",
+                    () -> showScrollableText("Mid-Season Progress Report", buildMidseasonSummary()));
             return;
         }
         showScrollableText("Mid-Season Progress Report", buildMidseasonSummary());
@@ -199,8 +231,9 @@ public class DesktopUiBridge implements GameUiBridge {
             PlatformLog.w(TAG, "Season summary unavailable: " + ex.getMessage());
             summary = "Season summary is unavailable (championship data not ready).";
         }
+        final String summaryFinal = summary;
         if (suppressInformationalUi()) {
-            logDialog("Season Summary", summary);
+            deferOrLog("Season Summary", () -> showScrollableText("Season Summary", summaryFinal));
             return;
         }
         showScrollableText("Season Summary", summary);
@@ -273,8 +306,10 @@ public class DesktopUiBridge implements GameUiBridge {
         if (news == null || news.isEmpty()) {
             news = "No conference realignment occurred this off-season.";
         }
+        final String newsFinal = news;
         if (suppressInformationalUi()) {
-            logDialog("Conference Realignment", news);
+            deferOrLog("Conference Realignment",
+                    () -> showScrollableText("Conference Realignment", newsFinal));
             return;
         }
         showScrollableText("Conference Realignment", news);

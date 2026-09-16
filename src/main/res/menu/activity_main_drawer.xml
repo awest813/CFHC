@@ -80,6 +80,17 @@
         </menu>
     </item>
 
+    <item android:title="Simulation">
+        <menu>
+            <item
+                android:id="@+id/nav_sim_next_stop"
+                android:title="Sim to Next Decision" />
+            <item
+                android:id="@+id/nav_sim_postseason"
+                android:title="Sim Through Postseason" />
+        </menu>
+    </item>
+
     <item android:title="Management">
         <menu>
             <item
