@@ -37,8 +37,10 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
+        # 'tools' omitted: removed from Google's SDK repository; sdkmanager
+        # (cmdline-tools 20+) fails on it.
         with:
-          packages: 'tools platform-tools platforms;android-35 build-tools;35.0.0'
+          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
 
       - name: Restore release keystore
         run: echo "${{ secrets.CFHC_KEYSTORE_BASE64 }}" | base64 -d > "$RUNNER_TEMP/cfhc-release.jks"

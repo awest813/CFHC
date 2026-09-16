@@ -61,8 +61,10 @@ jobs:
 
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
+        # 'tools' omitted: the obsolete package was removed from Google's SDK
+        # repository and sdkmanager (cmdline-tools 20+) fails on it.
         with:
-          packages: 'tools platform-tools platforms;android-35 build-tools;35.0.0'
+          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
 
       - name: Run unit tests (Android + shared engine)
         run: ./gradlew test --no-daemon
