@@ -104,6 +104,28 @@ public class Main {
     private static void fail(String message) {
         PlatformLog.e(TAG, message);
         System.err.println("Error: " + message);
+        showErrorDialog(message);
+    }
+
+    /**
+     * Swing-visible error for GUI launches (double-clicked jar, Finder file
+     * association) where stderr is invisible. Headless runs keep console-only.
+     */
+    private static void showErrorDialog(String message) {
+        try {
+            if (java.awt.GraphicsEnvironment.isHeadless()) {
+                return;
+            }
+            Runnable show = () -> javax.swing.JOptionPane.showMessageDialog(null, message,
+                    "CFHC " + DesktopVersion.VERSION, javax.swing.JOptionPane.ERROR_MESSAGE);
+            if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+                show.run();
+            } else {
+                javax.swing.SwingUtilities.invokeLater(show);
+            }
+        } catch (RuntimeException dialogFailure) {
+            PlatformLog.e(TAG, "Could not show error dialog", dialogFailure);
+        }
     }
 
     private static void printUsage() {
@@ -141,6 +163,7 @@ public class Main {
         } catch (Exception e) {
             PlatformLog.e(TAG, "Error launching new desktop league", e);
             System.err.println("Error launching new desktop league: " + e.getMessage());
+            showErrorDialog("Could not start a new league:\n" + e.getMessage());
         }
     }
 
@@ -175,6 +198,8 @@ public class Main {
         } catch (Exception e) {
             PlatformLog.e(TAG, "Error launching play mode", e);
             System.err.println("Error launching play mode: " + e.getMessage());
+            showErrorDialog("Could not open save file:\n" + saveFile.getAbsolutePath()
+                    + "\n\n" + e.getMessage());
         }
     }
 

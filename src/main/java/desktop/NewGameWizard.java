@@ -224,28 +224,69 @@ public class NewGameWizard extends JDialog {
     // -------------------------------------------------------------------------
 
     private void createLeagueAndShowTeamPicker(NewGameOptions options) {
-        try {
-            boolean randomize = options.mode == PrestigeMode.RANDOMIZE;
-            boolean equalize = options.mode == PrestigeMode.EQUALIZE;
+        // Building a 130-team league takes seconds; run it off the EDT behind
+        // a modal wait dialog instead of freezing the wizard.
+        boolean randomize = options.mode == PrestigeMode.RANDOMIZE;
+        boolean equalize = options.mode == PrestigeMode.EQUALIZE;
 
-            resultLeague = new League(
-                    resources.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
-                    resources.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES),
-                    resources.getString(PlatformResourceProvider.KEY_CONFERENCES),
-                    resources.getString(PlatformResourceProvider.KEY_TEAMS),
-                    resources.getString(PlatformResourceProvider.KEY_BOWLS),
-                    randomize,
-                    equalize
-            );
-            resultLeague.setPlatformResourceProvider(resources);
-            options.applyTo(resultLeague, true, true, true);
-            showTeamPickerPage();
-        } catch (Exception ex) {
-            PlatformLog.e(TAG, "Error creating league", ex);
-            JOptionPane.showMessageDialog(this,
-                    DesktopTheme.messageForDialog("Failed to create league:\n" + ex.getMessage()),
-                    "Error", JOptionPane.ERROR_MESSAGE);
-        }
+        java.util.concurrent.atomic.AtomicReference<League> built = new java.util.concurrent.atomic.AtomicReference<>();
+        java.util.concurrent.atomic.AtomicReference<Exception> failure = new java.util.concurrent.atomic.AtomicReference<>();
+        javax.swing.JDialog wait = buildWaitDialog("Creating league…");
+
+        new Thread(() -> {
+            try {
+                League league = new League(
+                        resources.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
+                        resources.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES),
+                        resources.getString(PlatformResourceProvider.KEY_CONFERENCES),
+                        resources.getString(PlatformResourceProvider.KEY_TEAMS),
+                        resources.getString(PlatformResourceProvider.KEY_BOWLS),
+                        randomize,
+                        equalize
+                );
+                league.setPlatformResourceProvider(resources);
+                options.applyTo(league, true, true, true);
+                built.set(league);
+            } catch (Exception ex) {
+                PlatformLog.e(TAG, "Error creating league", ex);
+                failure.set(ex);
+            }
+            javax.swing.SwingUtilities.invokeLater(() -> {
+                wait.setVisible(false);
+                wait.dispose();
+                if (failure.get() != null) {
+                    JOptionPane.showMessageDialog(this,
+                            DesktopTheme.messageForDialog("Failed to create league:\n" + failure.get().getMessage()),
+                            "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                resultLeague = built.get();
+                showTeamPickerPage();
+            });
+        }, "cfhc-create-league").start();
+        // Blocking call on the EDT, but modal dialogs pump a secondary event
+        // loop: the worker's completion runnable still runs and hides the
+        // dialog, which unblocks this dispatch. If the worker finishes first,
+        // the dialog simply never becomes visible.
+        wait.setVisible(true);
+    }
+
+    /** Small application-modal indeterminate progress dialog (EDT-only use). */
+    private javax.swing.JDialog buildWaitDialog(String message) {
+        java.awt.Window owner = javax.swing.SwingUtilities.getWindowAncestor(this);
+        javax.swing.JDialog d = new javax.swing.JDialog(owner, "Working",
+                java.awt.Dialog.ModalityType.APPLICATION_MODAL);
+        javax.swing.JProgressBar bar = new javax.swing.JProgressBar();
+        bar.setIndeterminate(true);
+        javax.swing.JPanel p = new javax.swing.JPanel(new java.awt.BorderLayout(12, 12));
+        p.setBorder(javax.swing.BorderFactory.createEmptyBorder(16, 16, 16, 16));
+        p.add(new javax.swing.JLabel(message), java.awt.BorderLayout.NORTH);
+        p.add(bar, java.awt.BorderLayout.CENTER);
+        d.setContentPane(p);
+        d.setSize(340, 120);
+        d.setLocationRelativeTo(owner);
+        d.setDefaultCloseOperation(javax.swing.JDialog.DO_NOTHING_ON_CLOSE);
+        return d;
     }
 
     private JCheckBox createOptionCheckBox(String text, boolean selected) {

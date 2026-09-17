@@ -1373,28 +1373,66 @@ public class LeagueHomeView extends JFrame {
             return;
         }
 
-        try {
-            DesktopResourceProvider resources = new DesktopResourceProvider(System.getProperty("user.dir"));
-            League league = new League(
-                    file,
-                    resources.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
-                    resources.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES),
-                    false
-            );
-            league.setPlatformResourceProvider(resources);
-            league.rebuildScheduleIfNeeded();
-            if (!DesktopTeamSelectionDialog.ensureUserTeam(this, league)) {
-                return;
+        // Parsing a deep dynasty save takes seconds; run it off the EDT behind
+        // a modal wait dialog instead of freezing the window.
+        DesktopResourceProvider resources = new DesktopResourceProvider(System.getProperty("user.dir"));
+        java.util.concurrent.atomic.AtomicReference<League> loaded = new java.util.concurrent.atomic.AtomicReference<>();
+        java.util.concurrent.atomic.AtomicReference<Exception> failure = new java.util.concurrent.atomic.AtomicReference<>();
+        javax.swing.JDialog wait = buildWaitDialog("Loading league…");
+
+        new Thread(() -> {
+            try {
+                League league = new League(
+                        file,
+                        resources.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
+                        resources.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES),
+                        false
+                );
+                league.setPlatformResourceProvider(resources);
+                league.rebuildScheduleIfNeeded();
+                loaded.set(league);
+            } catch (Exception ex) {
+                PlatformLog.e(TAG, "Error opening save file", ex);
+                failure.set(ex);
             }
-            PlatformLog.i(TAG, "Loaded save from " + file.getAbsolutePath());
-            LeagueHomeView.show(league, file);
-            dispose(); // close the current window so only one LeagueHomeView is open
-        } catch (Exception ex) {
-            PlatformLog.e(TAG, "Error opening save file", ex);
-            JOptionPane.showMessageDialog(this,
-                    DesktopTheme.messageForDialog(simulation.SaveLoadMessages.loadFailureMessage(ex)),
-                    "Open Failed", JOptionPane.ERROR_MESSAGE);
-        }
+            javax.swing.SwingUtilities.invokeLater(() -> {
+                wait.setVisible(false);
+                wait.dispose();
+                if (failure.get() != null) {
+                    JOptionPane.showMessageDialog(this,
+                            DesktopTheme.messageForDialog(simulation.SaveLoadMessages.loadFailureMessage(failure.get())),
+                            "Open Failed", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                League league = loaded.get();
+                if (!DesktopTeamSelectionDialog.ensureUserTeam(this, league)) {
+                    return;
+                }
+                PlatformLog.i(TAG, "Loaded save from " + file.getAbsolutePath());
+                LeagueHomeView.show(league, file);
+                dispose(); // close the current window so only one LeagueHomeView is open
+            });
+        }, "cfhc-open-save").start();
+        // Modal dialogs pump a secondary event loop while this blocks, so the
+        // worker's completion runnable still executes and unblocks us.
+        wait.setVisible(true);
+    }
+
+    /** Small application-modal indeterminate progress dialog (EDT-only use). */
+    private javax.swing.JDialog buildWaitDialog(String message) {
+        javax.swing.JDialog d = new javax.swing.JDialog(this, "Working",
+                java.awt.Dialog.ModalityType.APPLICATION_MODAL);
+        javax.swing.JProgressBar bar = new javax.swing.JProgressBar();
+        bar.setIndeterminate(true);
+        javax.swing.JPanel p = new javax.swing.JPanel(new java.awt.BorderLayout(12, 12));
+        p.setBorder(javax.swing.BorderFactory.createEmptyBorder(16, 16, 16, 16));
+        p.add(new javax.swing.JLabel(message), java.awt.BorderLayout.NORTH);
+        p.add(bar, java.awt.BorderLayout.CENTER);
+        d.setContentPane(p);
+        d.setSize(340, 120);
+        d.setLocationRelativeTo(this);
+        d.setDefaultCloseOperation(javax.swing.JDialog.DO_NOTHING_ON_CLOSE);
+        return d;
     }
 
     private void exportLeague() {
@@ -1887,6 +1925,12 @@ public class LeagueHomeView extends JFrame {
 
     private void rebuildStatusBar() {
         remove(statusBar);
+        // Stop the old footer's 50 ms equalizer timer before replacing it:
+        // refresh() runs after every week/bulk, and a leaked live timer per
+        // rebuild repaints detached panels for the rest of the session.
+        if (statusBar instanceof DesktopStatusFooter) {
+            ((DesktopStatusFooter) statusBar).dispose();
+        }
         // Preserve the controller-chip / soundtrack HUD footer across refreshes.
         statusBar = new DesktopStatusFooter(soundtrackEngine);
         add(statusBar, BorderLayout.SOUTH);
