@@ -105,7 +105,10 @@ public record LeagueRecord(
             int week,
             boolean played,
             int homeScore,
-            int awayScore
+            int awayScore,
+            boolean seniorDay,
+            boolean homecomingGame,
+            boolean rivalryGame
     ) {
         private static String tabSafe(String s) {
             return s == null ? "" : s.replace("\t", " ");
@@ -113,7 +116,8 @@ public record LeagueRecord(
 
         public String toSaveLine() {
             return slot + "\t" + tabSafe(homeName) + "\t" + tabSafe(awayName) + "\t" + tabSafe(gameName) + "\t"
-                    + week + "\t" + (played ? 1 : 0) + "\t" + homeScore + "\t" + awayScore;
+                    + week + "\t" + (played ? 1 : 0) + "\t" + homeScore + "\t" + awayScore
+                    + "\t" + (seniorDay ? 1 : 0) + "\t" + (homecomingGame ? 1 : 0) + "\t" + (rivalryGame ? 1 : 0);
         }
 
         public static GameRecord fromSaveLine(String line) {
@@ -121,13 +125,18 @@ public record LeagueRecord(
             if (p.length < 8) {
                 throw new IllegalArgumentException("Bad GM line (expected 8 tab fields): " + line);
             }
+            // Marquee flags (fields 9-11) are optional; saves from before they
+            // were persisted load with all flags false.
             return new GameRecord(
                     Integer.parseInt(p[0]),
                     p[1], p[2], p[3],
                     Integer.parseInt(p[4]),
                     "1".equals(p[5]),
                     Integer.parseInt(p[6]),
-                    Integer.parseInt(p[7])
+                    Integer.parseInt(p[7]),
+                    p.length > 8 && "1".equals(p[8]),
+                    p.length > 9 && "1".equals(p[9]),
+                    p.length > 10 && "1".equals(p[10])
             );
         }
 
@@ -141,7 +150,10 @@ public record LeagueRecord(
                     g.week,
                     g.hasPlayed,
                     g.homeScore,
-                    g.awayScore
+                    g.awayScore,
+                    g.seniorDay,
+                    g.homecomingGame,
+                    g.rivalryGame
             );
         }
     }

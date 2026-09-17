@@ -239,7 +239,8 @@ public final class ScheduleManager {
     /**
      * Tags marquee games on every team's schedule: games between declared rivals,
      * each team's senior day (final home game) and homecoming (home game nearest
-     * mid-season). Flags are session-only and re-tagged on every schedule build.
+     * mid-season). Runs on every schedule build; the flags are also persisted
+     * per game in saves (GameRecord) so mid-season load keeps them intact.
      */
     private static void tagMarqueeGames(League league) {
         for (Team t : league.teamList) {

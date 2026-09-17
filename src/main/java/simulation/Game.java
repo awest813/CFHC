@@ -1659,9 +1659,9 @@ public class Game implements Serializable {
                     recordPassingTD(offense, selQB, selRB, selWR, selTE, yardsGain, pos);
                     gotTD = true;
                 } else {
-                    //check for fumble
+                    //check for fumble (wet weather increases the odds)
                     double fumChance = (selS.getRatTackle() + selCB.getRatTackle() + selLB.getRatTackle()) / 3;
-                    if (100 * SimRandom.nextDouble() < fumChance / 50) {
+                    if (100 * SimRandom.nextDouble() < fumChance * weather.fumbleMultiplier() / 50) {
                         //Fumble!
                         gotFumble = true;
                     }
@@ -1834,9 +1834,9 @@ public class Game implements Serializable {
             else resetForOT();
         } else {
             gameTime -= timePerPlay + timePerPlay * SimRandom.nextDouble();
-            //check for fumble
+            //check for fumble (wet weather increases the odds)
             double fumChance = ((defense.getS(0).getRatTackle() + selLB.getRatTackle()) / 2 + defense.getCompositeDLRush() - getHFadv()) / 2 + offense.getPlaybookOffense().getRunProtection();  //STRATEGIES
-            if (100 * SimRandom.nextDouble() < fumChance / 50) {
+            if (100 * SimRandom.nextDouble() < fumChance * weather.fumbleMultiplier() / 50) {
                 //Fumble!
 
                 if (yardsGain < 5) {

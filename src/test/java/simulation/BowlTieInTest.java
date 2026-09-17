@@ -32,6 +32,10 @@ public class BowlTieInTest {
                 false
         );
         league.setPlatformResourceProvider(resources);
+        // Legacy 4-team playoff: the expanded format can auto-bid up to five
+        // champions into the CFP, which makes "a champion reaches a marquee
+        // bowl" season-luck rather than a property of the tie-in logic.
+        league.expPlayoffs = false;
         league.userTeam = league.getTeamList().get(0);
         league.userTeam.setUserControlled(true);
     }

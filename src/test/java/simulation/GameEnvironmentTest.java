@@ -107,6 +107,23 @@ public class GameEnvironmentTest {
     }
 
     @Test
+    public void fumbleMultiplier_wetWeatherRaisesOdds() {
+        assertEquals("Rain should raise fumble odds 25%", 1.25, Weather.RAIN.fumbleMultiplier(), 1e-9);
+        assertEquals("Snow should raise fumble odds 25%", 1.25, Weather.SNOW.fumbleMultiplier(), 1e-9);
+        assertEquals("Clear skies leave fumbles alone", 1.0, Weather.CLEAR.fumbleMultiplier(), 1e-9);
+        assertEquals("Cloud cover leaves fumbles alone", 1.0, Weather.CLOUDY.fumbleMultiplier(), 1e-9);
+        assertEquals("Wind leaves fumbles alone", 1.0, Weather.WIND.fumbleMultiplier(), 1e-9);
+
+        // The fumble rolls inside play resolution apply this multiplier
+        // (kickoff re-derives weather deterministically, so wetness is driven
+        // by the seed — any played game exercises the same roll expression).
+        Game g = new Game(home, away, "Conference");
+        g.playGame();
+        assertTrue(g.hasPlayed);
+        assertNotNull("Kickoff must assign weather", g.weather);
+    }
+
+    @Test
     public void momentum_staysBounded() {
         Momentum m = new Momentum();
         for (int i = 0; i < 10; i++) {

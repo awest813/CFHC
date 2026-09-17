@@ -1336,6 +1336,9 @@ public class League {
             g.hasPlayed = gr.played();
             g.homeScore = gr.homeScore();
             g.awayScore = gr.awayScore();
+            g.seniorDay = gr.seniorDay();
+            g.homecomingGame = gr.homecomingGame();
+            g.rivalryGame = gr.rivalryGame();
 
             home.addGameToSchedule(g);
             away.addGameToSchedule(g);
