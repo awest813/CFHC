@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Full-backup content for API 24-30. Dynasty saves (files/) and exports
+     (external app-specific dir) deliberately back up: losing them on
+     device transfer is the worst-case user harm. No sensitive data exists. -->
+<full-backup-content>
+    <include domain="file" path="." />
+    <include domain="external" path="." />
+    <include domain="sharedpref" path="." />
+</full-backup-content>

@@ -131,6 +131,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return soundtrackEngine != null ? soundtrackEngine : simulation.SoundtrackEngine.NO_OP;
     }
 
+    private static final String PREFS_HOME = "cfhc_home";
+
+    /** Re-applies the BGM/SFX mutes persisted by the settings dialog. */
+    private void applyPersistedAudioPrefs() {
+        android.content.SharedPreferences prefs = getSharedPreferences(PREFS_HOME, MODE_PRIVATE);
+        if (soundtrackEngine != null) {
+            soundtrackEngine.setMuted(prefs.getBoolean("cfhc_audio_bgm_muted", false));
+        }
+        if (audioManager != null) {
+            audioManager.setMuted(prefs.getBoolean("cfhc_audio_sfx_muted", false));
+        }
+    }
+
     /** Kept for legacy UI adapters (e.g. TeamHome) that set the home page index. */
     public int getCurrPage() {
         return gameState.getCurrPage();
@@ -155,6 +168,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         flowManager = new AndroidGameFlowManager(this, theme);
         audioManager = new AndroidAudioManager(this);
         soundtrackEngine = new AndroidSoundtrackEngine(this);
+        applyPersistedAudioPrefs();
         soundtrackEngine.play(simulation.SoundtrackEngine.Track.DASHBOARD_ORGAN);
         saveLoadService = new simulation.SaveLoadService(getFilesDir());
         if(theme == 1) setTheme(R.style.AppThemeLight);
@@ -1426,6 +1440,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         + (playedFinal == 1 ? "" : "s") + ".";
                 if (bulkError[0] != null) {
                     summary = "Simulation stopped: " + bulkError[0];
+                } else if (playedFinal >= 60) {
+                    summary += " Reached the 60-week bulk cap — start the bulk again to keep simulating.";
                 }
                 Toast.makeText(MainActivity.this, summary,
                         bulkError[0] != null ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT).show();
@@ -1445,6 +1461,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        // Export writes a full league snapshot and is only safe preseason
+        // (week 0); hide the item the rest of the year instead of refusing
+        // after the tap.
+        MenuItem export = menu.findItem(R.id.action_export_league);
+        if (export != null) {
+            export.setVisible(simLeague != null && simLeague.currentWeek < 1);
+        }
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override

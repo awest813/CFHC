@@ -38,4 +38,6 @@
     <!-- Deeper stadium night gradient stops (home + field hub) -->
     <color name="bgNightTop">#0B0F19</color>
     <color name="bgNightBottom">#020617</color>
+    <!-- Adaptive launcher icon background (matches the crest's dark plate) -->
+    <color name="ic_launcher_background">#0B0F19</color>
 </resources>

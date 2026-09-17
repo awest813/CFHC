@@ -1,5 +1,6 @@
 package antdroid.cfbcoach;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.view.View;
@@ -228,6 +229,8 @@ public final class SettingsDialogController {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     activity.soundtrack().setMuted(!isChecked);
+                    activity.getSharedPreferences("cfhc_home", Activity.MODE_PRIVATE)
+                            .edit().putBoolean("cfhc_audio_bgm_muted", !isChecked).apply();
                     activity.uiSounds().play(simulation.AudioEvent.UI_TOGGLE);
                 }
             });
@@ -240,6 +243,8 @@ public final class SettingsDialogController {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     activity.uiSounds().setMuted(!isChecked);
+                    activity.getSharedPreferences("cfhc_home", Activity.MODE_PRIVATE)
+                            .edit().putBoolean("cfhc_audio_sfx_muted", !isChecked).apply();
                     activity.uiSounds().play(simulation.AudioEvent.UI_TOGGLE);
                 }
             });
