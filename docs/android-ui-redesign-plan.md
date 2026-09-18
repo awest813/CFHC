@@ -95,20 +95,27 @@ New Java view classes (the heart of the redo — everything else composes these)
 Each wave ends green: `quickVerify` + `lintDebug` + emulator smoke of the touched
 screens + commit. No wave mixes re-skinning with engine changes.
 
-### Wave 0 — Foundations & demolition (~1 day)
-- Delete the 5 dead layouts (~1,400 lines) and the hidden legacy spinner in
-  `content_main.xml`; rename the `antdroid.cfbcoach.RecruitingDialogController` →
-  `RecruitingOptionsDialogController` (two same-named classes exist today).
-- Add tokens: extend `colors.xml` to the full style-guide palette, `dimens.xml`
-  (spacing/radius/type sizes), `res/font/` (Inter, JetBrains Mono, Caveat),
-  `TextAppearance.Cfhc.*` completed for all 4 families.
-- Enable ViewBinding. Copy sprites → `res/drawable-nodpi/` (downscaled: crests are
-  ~360KB today → target <40KB each; slice position sheets into per-position avatar
-  PNGs). Extend `scripts/verify_assets.py` to check them.
-- **Screenshot harness**: `scripts/android_snapshots.sh` — boots the emulator AVD,
-  installs the debug APK, drives each screen via `adb shell input`, captures
-  `adb exec-out screencap` PNGs into `preview/android-snapshots/`. This is the
-  before/after evidence for every later wave.
+### Wave 0 — Foundations & demolition (~1 day) — ✅ done
+- Deleted the 5 dead layouts (~1,400 lines) and the hidden legacy spinner in
+  `content_main.xml`; renamed `antdroid.cfbcoach.RecruitingDialogController` →
+  `RecruitingOptionsDialogController` (two same-named classes existed).
+- Tokens: `cf_canvas/sidebar/card/card_elevated/card_hover/border/border_highlight`,
+  accents (`cf_emerald/green/gold/amber/crimson/crimson_bright`), on-accent and
+  gauge colors, `cf_space_*`/`cf_radius_*`/`cf_stroke*`/`cf_text_*` dimens and a
+  component-metrics set in `dimens.xml`.
+- Fonts: Inter (4 weights), JetBrains Mono (2), Caveat (variable) subsetted with
+  pyftsubset to Latin + HUD glyphs (~570 KB total, down from 2.6 MB), wired into
+  both themes and every `TextAppearance.Cfhc.*`; component-library appearances
+  added as `TextAppearance.Cfhc.Cf.*`. Licenses: `docs/FONT_LICENSES.md` (OFL).
+- ViewBinding enabled in `app/build.gradle`.
+- Sprites: 12 palette PNGs in `res/drawable-nodpi/` (integer nearest-neighbor
+  downscale + adaptive palette; 176 KB total, all < 40 KB each), covered by
+  `scripts/verify_assets.py` (mode/size/size-budget checks) alongside the fonts.
+- **Screenshot harness**: `scripts/android_snapshots.py` — installs the debug APK,
+  plays the new-game wizard by text matching (exact-first; scroll recovery;
+  generic "Choose Your X" handling), sweeps all 22 drawer destinations with
+  occurrence-aware matching, captures `adb exec-out screencap` PNGs.
+  Baseline committed under `preview/android-snapshots/before/` (22 screens).
 
 ### Wave 1 — Component library (~2–3 days)
 - Build the 8 components in §4 with unit-tested binding logic where practical and a

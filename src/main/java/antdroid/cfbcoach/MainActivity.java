@@ -1042,7 +1042,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Recruiting Begins
     public void beginRecruiting() {
-        RecruitingDialogController.showBeginRecruiting(this, userTeam, simLeague, null,
+        RecruitingOptionsDialogController.showBeginRecruiting(this, userTeam, simLeague, null,
                 () -> {
                     try {
                         String payload = SimulationFacade.saveForUserRecruitingUi(
@@ -2113,7 +2113,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void showRecruitingClassDialog() {
-        RecruitingDialogController.showRecruitingClassRankings(this, simLeague, userTeam, this::seasonGoals);
+        RecruitingOptionsDialogController.showRecruitingClassRankings(this, simLeague, userTeam, this::seasonGoals);
     }
 
     //Retirement vs Eternal

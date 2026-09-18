@@ -10,8 +10,13 @@ import simulation.Team;
 import ui.MockDraft;
 import ui.StatsRowAdapter;
 
-public final class RecruitingDialogController {
-    private RecruitingDialogController() {}
+/**
+ * MainActivity-side recruiting dialogs (pre-board handoff and class rankings).
+ * Distinct from {@code antdroid.cfbcoach.recruiting.RecruitingDialogController},
+ * which serves the in-board RecruitingActivity flows.
+ */
+public final class RecruitingOptionsDialogController {
+    private RecruitingOptionsDialogController() {}
 
     public static void showBeginRecruiting(MainActivity activity, Team userTeam, League simLeague,
                                             String playerInfo, Runnable onRecruiting,

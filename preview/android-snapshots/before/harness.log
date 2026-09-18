@@ -1,0 +1,36 @@
+[18:08:03] snapshot run 'before' -> C:\Users\allen\CFHC\preview\android-snapshots\before
+[18:08:03] install: Success
+[18:08:12] captured 01_home_menu.png (339 KB)
+[18:08:18] wizard step 0: ['New Dynasty Setup', 'Use default team prestige, randomize prestige, or equalize the field for a fresh start?', 'DEFAULT', 'RANDOMIZE', 'EQUALIZE']
+[18:08:23] wizard step 1: ['2026 Head Coach Career Setup', '2026 Head Coach Career', 'Set the tone for your first season, choose whether your coach is on the hot seat, and decide if this universe opens with the modern 12-team playoff.', 'Gameplay', 'Show player potential']
+[18:08:26] wizard step 2: ['2026 Head Coach Career Setup', 'Sound', 'Background music', 'Sound effects', 'Universe Rules']
+[18:08:31] wizard step 3: ['Choose Your Program', 'ACC:  Boston College  [55]', 'ACC:  California  [65]', 'ACC:  Clemson  [88]', 'ACC:  Duke  [55]']
+[18:08:39] wizard step 4: ['Name Your Head Coach', 'Enter the full name that will represent your head coach across the league, records, and news stories.', 'Coach Name', 'Use a first and last name. This is the identity that will appear in headlines, records, and career history.', 'Bishop Jackson']
+[18:08:43] wizard step 5: ['Choose Your Coaching Identity', 'Balanced Leader', 'Defensive Architect', 'Offensive Innovator', 'Graduate Assistant (Hard Mode)']
+[18:08:47] wizard step 6: ['Choose Your Offensive Scheme', 'Multiple Pro', 'Power Spread', 'Quick Game', 'Air Raid']
+[18:08:52] wizard step 7: ['Choose Your Defensive Scheme', 'Multiple 4-2-5', 'Bear Front', 'Zero Pressure', 'Tampa 2']
+[18:08:56] wizard step 8: ['2026 Season Goals', 'Welcome to the 2026 College Football season, Coach Bishop Jackson!\n\nYour head coaching career begins at Boston College. Job security, performance swings, and future opportunities will all respond to the seasons you build here.\n\nThis universe is using the 12-team playoff, so a strong finish can still open a path to the national title even if your team starts outside the top four.\n\nThis season your team is projected to finish ranked #81!\n\nIn conference play, your team is expected to finish 13th in the ACC conference.\n\nBased on your schedule, your team is projected to finish with a record of 2 - 10.\n\nContract outlook: 6 year(s) remain on your deal, and your current AD pressure is OK.\n\n\nNote: You can always review your season goals in the Preseason News.', 'SAVE PROGRESS', 'OK']
+[18:09:00] wizard step 9: ['Boston College', '2026 SEASON', 'Boston College 2026', 'Track the campaign at a glance with your current week, season phase, and team command center in one place.', 'Year 2026']
+[18:09:00] wizard complete after 9 steps
+[18:09:01] captured 02_dashboard_home.png (163 KB)
+[18:09:12] captured 03_roster.png (163 KB)
+[18:09:39] captured 04_depth_chart.png (185 KB)
+[18:09:58] captured 05_redshirts.png (185 KB)
+[18:10:16] captured 06_schemes.png (180 KB)
+[18:10:37] captured 07_my_coach.png (129 KB)
+[18:10:56] captured 08_player_stats.png (165 KB)
+[18:11:23] captured 09_team_stats.png (165 KB)
+[18:11:52] captured 10_schedule.png (165 KB)
+[18:12:25] captured 11_standings.png (165 KB)
+[18:12:54] captured 12_rankings.png (165 KB)
+[18:13:27] captured 13_scores.png (167 KB)
+[18:13:47] captured 14_player_search.png (213 KB)
+[18:14:07] captured 15_transfer_portal.png (167 KB)
+[18:14:25] captured 16_news.png (195 KB)
+[18:14:45] captured 17_league_team_stats.png (156 KB)
+[18:15:06] captured 18_league_player_stats.png (170 KB)
+[18:15:30] captured 19_awards.png (168 KB)
+[18:15:51] captured 20_history_records.png (153 KB)
+[18:16:12] captured 21_coach_database.png (169 KB)
+[18:16:32] captured 22_postseason.png (241 KB)
+[18:16:41] done: 22 screenshots

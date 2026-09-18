@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Variable font: renders at its default weight (400). Used only for script
+     mascot accents ("Owls"), where weight fidelity is not critical. -->
+<font-family xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <font android:fontStyle="normal" android:fontWeight="400" android:font="@font/caveat_variable"
+        app:fontStyle="normal" app:fontWeight="400" app:font="@font/caveat_variable" />
+</font-family>

@@ -93,6 +93,12 @@ android {
     }
     productFlavors {
     }
+    buildFeatures {
+        // Typed view access for new/redesigned screens (Wave 0 of the Android
+        // UI redesign; migrated per-screen, existing findViewById stays until
+        // each screen is touched).
+        viewBinding true
+    }
     sourceSets {
         main {
             java {

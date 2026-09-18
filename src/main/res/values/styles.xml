@@ -9,12 +9,14 @@
         <item name="colorSurface">@color/colorSurface</item>
         <item name="colorOnSurface">@color/colorOnSurface</item>
         <item name="android:windowBackground">@color/colorPrimaryDark</item>
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:statusBarColor">@color/colorPrimaryDark</item>
         <item name="android:navigationBarColor">@color/colorPrimaryDark</item>
         <item name="android:windowLightStatusBar">false</item>
     </style>
 
     <style name="AppThemeLight" parent="Theme.Material3.Light.NoActionBar">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorOnPrimary">@color/colorOnPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -32,6 +34,7 @@
 
     <!-- Typography: dense sports-management readability (reference: premium dynasty sim UIs) -->
     <style name="TextAppearance.Cfhc.HeroTitle" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/textPrimary</item>
         <item name="android:textSize">26sp</item>
         <item name="android:letterSpacing">0.01</item>
@@ -39,23 +42,27 @@
     </style>
 
     <style name="TextAppearance.Cfhc.HeroBody" parent="TextAppearance.Material3.BodyLarge">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/textSecondary</item>
         <item name="android:textSize">15sp</item>
         <item name="android:lineSpacingExtra">2dp</item>
     </style>
 
     <style name="TextAppearance.Cfhc.SectionTitle" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/textPrimary</item>
         <item name="android:textSize">19sp</item>
         <item name="android:letterSpacing">0.02</item>
     </style>
 
     <style name="TextAppearance.Cfhc.SectionBody" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/textSecondary</item>
         <item name="android:textSize">14sp</item>
     </style>
 
     <style name="TextAppearance.Cfhc.HubTitle" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/textPrimary</item>
         <item name="android:textSize">22sp</item>
         <item name="android:letterSpacing">0.02</item>
@@ -87,24 +94,28 @@
 
     <!-- Shared list rows & stat chips: one typography system (tabular lining figures on numeric-heavy lines). -->
     <style name="TextAppearance.Cfhc.ListRowPrimary" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/textPrimary</item>
         <item name="android:textSize">14sp</item>
         <item name="android:fontFeatureSettings">tnum</item>
     </style>
 
     <style name="TextAppearance.Cfhc.ListRowExpandedPrimary" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/textPrimary</item>
         <item name="android:textSize">13sp</item>
         <item name="android:fontFeatureSettings">tnum</item>
     </style>
 
     <style name="TextAppearance.Cfhc.ListRowExpandedSecondary" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/textSecondary</item>
         <item name="android:textSize">13sp</item>
         <item name="android:fontFeatureSettings">tnum</item>
     </style>
 
     <style name="TextAppearance.Cfhc.ChipAccentSmall" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/accentGold</item>
         <item name="android:textSize">12sp</item>
         <item name="android:textStyle">bold</item>
@@ -112,6 +123,7 @@
     </style>
 
     <style name="TextAppearance.Cfhc.ChipHubMetric" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/textPrimary</item>
         <item name="android:textSize">13sp</item>
         <item name="android:textStyle">bold</item>
@@ -119,82 +131,96 @@
     </style>
 
     <style name="TextAppearance.Cfhc.ChipHubCaption" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/textPrimary</item>
         <item name="android:textSize">11sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="TextAppearance.Cfhc.ChipRosterMuted" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/textSecondary</item>
         <item name="android:textStyle">bold</item>
         <item name="android:fontFeatureSettings">tnum</item>
     </style>
 
     <style name="TextAppearance.Cfhc.ChipRosterValue" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/textPrimary</item>
         <item name="android:textStyle">bold</item>
         <item name="android:fontFeatureSettings">tnum</item>
     </style>
 
     <style name="TextAppearance.Cfhc.ChipRosterAccent" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/accentGold</item>
         <item name="android:textStyle">bold</item>
         <item name="android:fontFeatureSettings">tnum</item>
     </style>
 
     <style name="TextAppearance.Cfhc.ListRowHeadline" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/textPrimary</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="TextAppearance.Cfhc.ListRowCompactBold" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/textPrimary</item>
         <item name="android:textStyle">bold</item>
         <item name="android:fontFeatureSettings">tnum</item>
     </style>
 
     <style name="TextAppearance.Cfhc.ListRankOrdinal" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/textSecondary</item>
         <item name="android:textStyle">bold</item>
         <item name="android:fontFeatureSettings">tnum</item>
     </style>
 
     <style name="TextAppearance.Cfhc.ListRankTitle" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/textPrimary</item>
         <item name="android:textSize">13sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="TextAppearance.Cfhc.ListRankStat" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/accentGold</item>
         <item name="android:textStyle">bold</item>
         <item name="android:fontFeatureSettings">tnum</item>
     </style>
 
     <style name="TextAppearance.Cfhc.StatRowLabel" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/textSecondary</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="TextAppearance.Cfhc.StatRowValuePrimary" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/textPrimary</item>
         <item name="android:textStyle">bold</item>
         <item name="android:fontFeatureSettings">tnum</item>
     </style>
 
     <style name="TextAppearance.Cfhc.StatRowValueAccent" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/accentGold</item>
         <item name="android:textStyle">bold</item>
         <item name="android:fontFeatureSettings">tnum</item>
     </style>
 
     <style name="TextAppearance.Cfhc.HubSummary" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/textSecondary</item>
         <item name="android:textSize">13sp</item>
         <item name="android:lineSpacingExtra">2dp</item>
     </style>
 
     <style name="TextAppearance.Cfhc.ButtonCompactPrimary" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/blueDark</item>
         <item name="android:textSize">12sp</item>
         <item name="android:textStyle">bold</item>
@@ -202,20 +228,99 @@
     </style>
 
     <style name="TextAppearance.Cfhc.ButtonCompactSecondary" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/textPrimary</item>
         <item name="android:textSize">12sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="TextAppearance.Cfhc.NewsRowHeadline" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/accentGold</item>
         <item name="android:textSize">13sp</item>
         <item name="android:textStyle">bold</item>
     </style>
 
     <style name="TextAppearance.Cfhc.NewsRowBody" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/inter</item>
         <item name="android:textColor">@color/textPrimary</item>
         <item name="android:textSize">13sp</item>
+    </style>
+
+    <!-- ================================================================== -->
+    <!-- Component-library appearances (broadcast HUD, style_guide.md §2).  -->
+    <!-- Cf.* = new UI only; older styles above stay for legacy layouts.    -->
+    <!-- ================================================================== -->
+
+    <style name="TextAppearance.Cfhc.Cf.Rating" parent="TextAppearance.Material3.DisplayLarge">
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textSize">@dimen/cf_text_rating</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/cf_emerald</item>
+        <item name="android:letterSpacing">-0.02</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.Cf.Hero" parent="TextAppearance.Material3.HeadlineSmall">
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textSize">@dimen/cf_text_hero</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/cf_text_primary</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.Cf.Display" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textSize">@dimen/cf_text_display</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/cf_text_primary</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.Cf.Title" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textSize">@dimen/cf_text_title</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:textColor">@color/cf_text_primary</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.Cf.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textSize">@dimen/cf_text_body</item>
+        <item name="android:textColor">@color/cf_text_secondary</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.Cf.Caption" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textSize">@dimen/cf_text_caption</item>
+        <item name="android:textColor">@color/cf_text_secondary</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.Cf.Micro" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textSize">@dimen/cf_text_micro</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.05</item>
+        <item name="android:textColor">@color/cf_text_muted</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.Cf.Stat" parent="TextAppearance.Material3.LabelMedium">
+        <item name="android:fontFamily">@font/jetbrains_mono</item>
+        <item name="android:textSize">@dimen/cf_text_stat</item>
+        <item name="android:textColor">@color/cf_text_primary</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.Cf.StatBold" parent="TextAppearance.Cfhc.Cf.Stat">
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.Cf.StatAccent" parent="TextAppearance.Cfhc.Cf.Stat">
+        <item name="android:textColor">@color/cf_gold</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.Cfhc.Cf.Script" parent="TextAppearance.Material3.TitleMedium">
+        <item name="android:fontFamily">@font/caveat</item>
+        <item name="android:textSize">@dimen/cf_text_hero</item>
+        <item name="android:textColor">@color/cf_text_secondary</item>
     </style>
 
 </resources>

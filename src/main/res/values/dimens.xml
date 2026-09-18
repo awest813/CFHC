@@ -7,4 +7,43 @@
     <dimen name="text_margin">16dp</dimen>
     <dimen name="nav_header_vertical_spacing">8dp</dimen>
     <dimen name="nav_header_height">270dp</dimen>
+
+    <!-- ================================================================== -->
+    <!-- Broadcast-HUD design tokens (style_guide.md). cf_ = component      -->
+    <!-- library namespace: spacing, radius, stroke, type ramp, sprite box. -->
+    <!-- ================================================================== -->
+
+    <!-- Spacing scale -->
+    <dimen name="cf_space_xs">4dp</dimen>
+    <dimen name="cf_space_sm">8dp</dimen>
+    <dimen name="cf_space_md">12dp</dimen>
+    <dimen name="cf_space_lg">16dp</dimen>
+    <dimen name="cf_space_xl">20dp</dimen>
+    <dimen name="cf_space_xxl">24dp</dimen>
+
+    <!-- Corner radius + strokes -->
+    <dimen name="cf_radius_sm">4dp</dimen>
+    <dimen name="cf_radius_md">8dp</dimen>
+    <dimen name="cf_radius_lg">12dp</dimen>
+    <dimen name="cf_stroke">1dp</dimen>
+    <dimen name="cf_stroke_thick">2dp</dimen>
+
+    <!-- Type ramp (sp). Display/hierarchy per style guide §2, scaled for phone. -->
+    <dimen name="cf_text_rating">44sp</dimen>
+    <dimen name="cf_text_hero">28sp</dimen>
+    <dimen name="cf_text_display">22sp</dimen>
+    <dimen name="cf_text_title">16sp</dimen>
+    <dimen name="cf_text_body">14sp</dimen>
+    <dimen name="cf_text_caption">12sp</dimen>
+    <dimen name="cf_text_micro">10sp</dimen>
+    <dimen name="cf_text_stat">13sp</dimen>
+
+    <!-- Component metrics -->
+    <dimen name="cf_sprite_avatar_width">44dp</dimen>
+    <dimen name="cf_sprite_avatar_height">52dp</dimen>
+    <dimen name="cf_badge_size">16dp</dimen>
+    <dimen name="cf_nav_indicator">4dp</dimen>
+    <dimen name="cf_footer_height">36dp</dimen>
+    <dimen name="cf_card_padding_h">14dp</dimen>
+    <dimen name="cf_card_padding_v">12dp</dimen>
 </resources>

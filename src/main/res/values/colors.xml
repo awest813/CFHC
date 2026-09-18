@@ -40,4 +40,38 @@
     <color name="bgNightBottom">#020617</color>
     <!-- Adaptive launcher icon background (matches the crest's dark plate) -->
     <color name="ic_launcher_background">#0B0F19</color>
+
+    <!-- ================================================================== -->
+    <!-- Broadcast-HUD design tokens (style_guide.md). cf_ = component      -->
+    <!-- library namespace; new UI must consume these, never raw hex.       -->
+    <!-- ================================================================== -->
+
+    <!-- Surfaces (dark obsidian -> slate ramp) -->
+    <color name="cf_canvas">#060C14</color>
+    <color name="cf_sidebar">#0A111C</color>
+    <color name="cf_card">#0D1726</color>
+    <color name="cf_card_elevated">#111C2E</color>
+    <color name="cf_card_hover">#16243B</color>
+    <color name="cf_border">#1E293B</color>
+    <color name="cf_border_highlight">#2A3A52</color>
+
+    <!-- Accents -->
+    <color name="cf_emerald">#00E676</color>
+    <color name="cf_green">#10B981</color>
+    <color name="cf_gold">#F59E0B</color>
+    <color name="cf_amber">#FBBF24</color>
+    <color name="cf_crimson">#881337</color>
+    <color name="cf_crimson_bright">#9F1239</color>
+
+    <!-- On-accent and gauge states -->
+    <color name="cf_on_emerald">#061018</color>
+    <color name="cf_on_gold">#1A1205</color>
+    <color name="cf_star_empty">#1E293B</color>
+    <color name="cf_emerald_glow">#4000E676</color>
+
+    <!-- Alias legacy semantic names onto the token palette where the value
+         already matched, so old and new styles stay coherent. -->
+    <color name="cf_text_primary">@color/textPrimary</color>
+    <color name="cf_text_secondary">@color/textSecondary</color>
+    <color name="cf_text_muted">@color/textMuted</color>
 </resources>
