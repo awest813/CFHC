@@ -42,8 +42,10 @@ sourceSets {
             srcDir "${repoRoot}/src/test/java"
             include 'comparator/**'
             include 'desktop/**'
+            include 'positions/**'
             include 'recruiting/**'
             include 'simulation/**'
+            include 'staff/**'
         }
     }
 }

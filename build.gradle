@@ -230,10 +230,13 @@ tasks.register('quickVerify') {
     dependsOn tasks.named('desktopJar')
 }
 
-/** Bumps the Android version (versionName + versionCode) in app/build.gradle. */
+/** Bumps the release version everywhere it lives: Android versionName/versionCode
+ *  in app/build.gradle, the desktopVersion property in gradle.properties, and the
+ *  DesktopVersion.java fallback. Android v1.4.5 maps to desktop 1.4e (patch N ->
+ *  Nth letter of the alphabet; patches beyond 26 fall back to the number). */
 tasks.register('bumpVersion') {
     group = 'publishing'
-    description = 'Bump Android version. Usage: ./gradlew bumpVersion [-Pmajor | -Pminor | -Ppatch] (default: patch)'
+    description = 'Bump version everywhere (Android + desktop). Usage: ./gradlew bumpVersion [-Pmajor | -Pminor | -Ppatch] (default: patch)'
 
     doLast {
         def buildFile = file("app/build.gradle")
@@ -257,9 +260,28 @@ tasks.register('bumpVersion') {
 
         text = text.replaceFirst(/versionName\s+'v(\d+\.\d+\.\d+)'/, "versionName '${newVersionName}'")
         text = text.replaceFirst(/versionCode\s+\d+/, "versionCode ${newVersionCode}")
-        buildFile.text = text
 
-        logger.lifecycle "Bumped: ${newVersionName} (code ${newVersionCode})"
+        // Desktop version follows the Android patch: v1.4.5 -> 1.4e.
+        def desktopSuffix = patch <= 26 ? (char) (97 + patch - 1) : String.valueOf(patch)
+        def desktopVer = "${major}.${minor}${desktopSuffix}"
+        def propsFile = file("gradle.properties")
+        def propsText = propsFile.text
+        if (!propsText =~ /desktopVersion=.*/) throw new GradleException("Could not find desktopVersion in gradle.properties")
+        propsText = propsText.replaceFirst(/desktopVersion=.*/, "desktopVersion=${desktopVer}")
+        def dvFile = file("src/main/java/desktop/DesktopVersion.java")
+        def dvText = dvFile.exists() ? dvFile.text : null
+        if (dvText != null && !(dvText =~ /FALLBACK_VERSION = "[^"]*"/)) {
+            throw new GradleException("Could not find FALLBACK_VERSION in DesktopVersion.java")
+        }
+        def dvNew = dvText?.replaceFirst(/FALLBACK_VERSION = "[^"]*"/, "FALLBACK_VERSION = \"${desktopVer}\"")
+
+        // All three files validated — write last so a failure never leaves a
+        // half-bumped tree.
+        buildFile.text = text
+        propsFile.text = propsText
+        if (dvNew != null) dvFile.text = dvNew
+
+        logger.lifecycle "Bumped: ${newVersionName} (code ${newVersionCode}); desktop ${desktopVer}"
     }
 }
 

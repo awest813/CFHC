@@ -1,0 +1,49 @@
+# Nightly long-running verification: the stress suites excluded from the
+# regular CI gate (Stress100SeasonsTest, Debug20SeasonsFlowTest) plus the
+# SDK-free desktop gate. Runs daily and on demand via workflow_dispatch.
+name: Nightly
+
+on:
+  schedule:
+    - cron: "0 6 * * *" # 06:00 UTC daily
+  workflow_dispatch:
+
+jobs:
+  stress:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x gradlew
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+        # 'tools' omitted: removed from Google's SDK repository; sdkmanager
+        # (cmdline-tools 20+) fails on it.
+        with:
+          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
+
+      - name: Stress suites (100-season + 20-season flow)
+        run: ./gradlew :app:testDebugUnitTest -PrunStress --tests "simulation.Stress100SeasonsTest" --tests "simulation.Debug20SeasonsFlowTest" --no-daemon
+
+      - name: SDK-free desktop gate (second data point)
+        run: |
+          unset ANDROID_HOME ANDROID_SDK_ROOT ANDROID_SDK_HOME || true
+          ./gradlew -p desktop-standalone :engine:desktopStandaloneGate --no-daemon
+
+      - name: Upload test reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stress-test-reports
+          path: app/build/reports/tests/

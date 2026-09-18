@@ -41,11 +41,13 @@ Push and let both CI jobs (`.github/workflows/ci.yml`) go green before tagging.
 
 ## 2. Version check
 
-Android: `app/build.gradle` → `versionName 'v1.4.5'`, `versionCode 320`
-(bump with `./gradlew bumpVersion -Ppatch` if needed). Desktop:
-`gradle.properties` → `desktopVersion=1.4e`. Both must match the README and
-release notes. If versionCode was already consumed on the Play Console, bump
-first.
+One command bumps every location atomically (validated before any file is
+written): `./gradlew bumpVersion -Ppatch` updates `app/build.gradle`
+(versionName/versionCode), `gradle.properties` → `desktopVersion`, and the
+`DesktopVersion.java` fallback. Mapping: Android `v1.4.N` → desktop `1.4` +
+Nth letter (v1.4.5 → 1.4e; patches past 26 fall back to the number). Current
+release identity: `v1.4.5` / versionCode 320 / desktop `1.4e`. If versionCode
+320 was already consumed on the Play Console, bump first.
 
 ## 3. Local signed build + smoke test (recommended before tagging)
 
