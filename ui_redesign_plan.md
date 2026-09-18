@@ -1,5 +1,9 @@
 # Franchise Dashboard & UI Redesign Plan
 
+> **Status: superseded.** This plan covered the web `preview/` sandbox and desktop
+> theme work (both ✅ below). The Android app — the remaining surface — now has its
+> own phased plan: [`docs/android-ui-redesign-plan.md`](docs/android-ui-redesign-plan.md).
+
 ## Objective
 Create a "crisp," high-fidelity sports broadcast console HUD interface for **College Football Head Coach (CFHC)** that adopts the layout, visual identity, and information density of the reference design, featuring dark obsidian backdrops, slate card containers, neon emerald highlights, trophy gold accents, and custom pixel-art player spotlight components.
 
