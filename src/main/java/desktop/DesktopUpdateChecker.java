@@ -123,7 +123,29 @@ public final class DesktopUpdateChecker {
         if (localVersion == null || localVersion.isBlank() || remoteTag == null || remoteTag.isBlank()) {
             return true;
         }
-        return normalize(localVersion).equals(normalize(remoteTag));
+        String local = normalize(localVersion);
+        String remote = normalize(remoteTag);
+        if (local.equals(remote)) {
+            return true;
+        }
+        // Android-style release tags (v1.4.5) map to the desktop letter scheme
+        // (1.4e) — same mapping as the bumpVersion task — so a current desktop
+        // build does not get a false "update available" against its own release.
+        String mapped = desktopEquivalent(remote);
+        return mapped != null && local.equals(mapped);
+    }
+
+    /** Maps "1.4.5" -> "1.4e" (patch N -> Nth letter); null when not numeric. */
+    private static String desktopEquivalent(String normalizedTag) {
+        Matcher m = Pattern.compile("^(\\d+)\\.(\\d+)\\.(\\d+)$").matcher(normalizedTag);
+        if (!m.matches()) {
+            return null;
+        }
+        int patch = Integer.parseInt(m.group(3));
+        String suffix = patch >= 1 && patch <= 26
+                ? String.valueOf((char) ('a' + patch - 1))
+                : String.valueOf(patch);
+        return m.group(1) + "." + m.group(2) + suffix;
     }
 
     /** @deprecated use {@link #isSameVersion}; kept for older call sites/tests. */

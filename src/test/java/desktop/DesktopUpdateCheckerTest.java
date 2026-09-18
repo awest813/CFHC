@@ -21,6 +21,15 @@ public class DesktopUpdateCheckerTest {
     }
 
     @Test
+    public void isSameVersion_mapsAndroidPatchTagToDesktopLetter() {
+        // bumpVersion mapping: v1.4.5 -> 1.4e, v1.4.6 -> 1.4f.
+        assertTrue(DesktopUpdateChecker.isSameVersion("1.4e", "v1.4.5"));
+        assertTrue(DesktopUpdateChecker.isSameVersion("1.4f", "v1.4.6"));
+        assertFalse(DesktopUpdateChecker.isSameVersion("1.4e", "v1.4.6"));
+        assertFalse(DesktopUpdateChecker.isSameVersion("1.5a", "v1.4.5"));
+    }
+
+    @Test
     public void isSameVersion_rejectsDifferentOrHotfixSuffix() {
         assertFalse(DesktopUpdateChecker.isSameVersion("1.4e", "1.5.0"));
         assertFalse(DesktopUpdateChecker.isSameVersion("1.4e", "desktop-1.5a"));
