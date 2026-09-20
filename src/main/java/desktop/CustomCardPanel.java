@@ -60,7 +60,7 @@ public class CustomCardPanel extends JPanel {
         int h = getHeight();
 
         // Card Slate Background (#0D1726)
-        g2.setColor(new Color(13, 23, 38));
+        g2.setColor(DesktopTheme.tableBase());
         g2.fillRoundRect(0, 0, w - 1, h - 1, 12, 12);
 
         // 1px Dark Slate Border (#1E293B)

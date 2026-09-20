@@ -116,7 +116,7 @@ public class Main {
             if (java.awt.GraphicsEnvironment.isHeadless()) {
                 return;
             }
-            Runnable show = () -> javax.swing.JOptionPane.showMessageDialog(null, message,
+            Runnable show = () -> javax.swing.JOptionPane.showMessageDialog(null, DesktopTheme.messageForDialog(message),
                     "CFHC " + DesktopVersion.VERSION, javax.swing.JOptionPane.ERROR_MESSAGE);
             if (javax.swing.SwingUtilities.isEventDispatchThread()) {
                 show.run();

@@ -138,7 +138,7 @@ public class ConferenceStandingsCard extends CustomCardPanel {
                     BorderFactory.createLineBorder(new Color(0, 230, 118, 120), 1),
                     BorderFactory.createEmptyBorder(1, 4, 1, 4)));
         } else {
-            r.setBackground(rank % 2 == 0 ? new Color(17, 28, 46) : new Color(13, 23, 38));
+            r.setBackground(rank % 2 == 0 ? DesktopTheme.tableStripe() : DesktopTheme.tableBase());
             r.setBorder(BorderFactory.createEmptyBorder(2, 5, 2, 5));
         }
 

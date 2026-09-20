@@ -272,6 +272,7 @@ public class JobOffersDialog extends JDialog {
         });
 
         JButton acceptBtn = DesktopTheme.createGlassButton("ACCEPT CONTRACT", DesktopTheme.successGreen());
+        DesktopTheme.installDialogKeys(this, acceptBtn);
         acceptBtn.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row >= 0 && row < vacancies.size()) {

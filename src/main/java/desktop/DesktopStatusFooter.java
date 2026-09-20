@@ -114,6 +114,9 @@ public class DesktopStatusFooter extends JPanel {
 
     /** Called by LeagueHomeView when the track changes — refreshes the label. */
     public void refreshTrackDisplay() {
+        if (!eqTimer.isRunning()) {
+            eqTimer.start();
+        }
         trackTitle.setText(updateTrackLabel());
         volIcon.setText(engine.isMuted() ? "\uD83D\uDD07" : "\uD83D\uDD0A");
     }
@@ -146,6 +149,20 @@ public class DesktopStatusFooter extends JPanel {
             }
         }
         spectrumBar.repaint();
+        // Nothing animating: park the 50 ms timer instead of repainting
+        // 20x/second at zero height until the next track starts.
+        boolean idle = !playing;
+        if (idle) {
+            for (float h : barHeights) {
+                if (h > 0f) {
+                    idle = false;
+                    break;
+                }
+            }
+        }
+        if (idle && eqTimer.isRunning()) {
+            eqTimer.stop();
+        }
     }
 
     /** Stop the equalizer timer (call on window close). */
@@ -185,7 +202,7 @@ public class DesktopStatusFooter extends JPanel {
     @Override
     protected void paintComponent(Graphics g) {
         Graphics2D g2 = (Graphics2D) g.create();
-        g2.setColor(new Color(5, 10, 18)); // #050A12 Obsidian Footer
+        g2.setColor(DesktopTheme.statusBackground()); // #050A12 Obsidian Footer
         g2.fillRect(0, 0, getWidth(), getHeight());
         g2.setColor(DesktopTheme.borderSubtle());
         g2.drawLine(0, 0, getWidth(), 0);

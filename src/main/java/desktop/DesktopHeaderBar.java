@@ -161,7 +161,7 @@ public class DesktopHeaderBar extends JPanel {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(17, 28, 46));
+                g2.setColor(DesktopTheme.tableStripe());
                 g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 12, 12);
                 g2.setColor(pillColor);
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 12, 12);
@@ -182,7 +182,7 @@ public class DesktopHeaderBar extends JPanel {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(17, 28, 46));
+                g2.setColor(DesktopTheme.tableStripe());
                 g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 16, 16);
                 g2.setColor(DesktopTheme.borderSubtle());
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 16, 16);
@@ -225,7 +225,7 @@ public class DesktopHeaderBar extends JPanel {
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
         // Dark Deep Navy Slate Header Gradient Background (#09121F)
-        g2.setColor(new Color(9, 18, 31));
+        g2.setColor(DesktopTheme.headerBackground());
         g2.fillRect(0, 0, getWidth(), getHeight());
 
         g2.setColor(DesktopTheme.borderSubtle());

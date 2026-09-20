@@ -35,7 +35,7 @@ public class CoachDatabasePanel implements LeagueScreen {
         topPanel.add(DesktopTheme.buildScreenHeader("Coaches Database",
                 "Browse all-time coaching leaderboards across the league."), BorderLayout.NORTH);
 
-        JComboBox<String> categoryBox = new JComboBox<>(COACH_DATABASE_CATEGORIES);
+        categoryBox = new JComboBox<>(COACH_DATABASE_CATEGORIES);
         categoryBox.setFont(new Font("SansSerif", Font.PLAIN, 13));
         categoryBox.getAccessibleContext().setAccessibleName("Coach database category");
 
@@ -125,5 +125,13 @@ public class CoachDatabasePanel implements LeagueScreen {
         panel.add(coachHint, BorderLayout.SOUTH);
 
         return panel;
+    }
+
+    /** Filter control focused by Ctrl+F (LeagueScreen.searchTarget). */
+    private javax.swing.JComboBox<String> categoryBox;
+
+    @Override
+    public javax.swing.JComponent searchTarget() {
+        return categoryBox;
     }
 }

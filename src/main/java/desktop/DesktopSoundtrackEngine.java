@@ -46,20 +46,54 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
     private volatile boolean running = false;
     private volatile boolean paused = false;
 
+    // ── Background decode (keeps multi-second OGG→PCM work off the EDT) ──
+
+    private final java.util.concurrent.ExecutorService loader =
+            java.util.concurrent.Executors.newSingleThreadExecutor(r -> {
+                Thread t = new Thread(r, "cfhc-soundtrack-loader");
+                t.setDaemon(true);
+                return t;
+            });
+    /** Bumped on every play()/stop()/dispose() — stale async loads are dropped. */
+    private volatile int loadGeneration;
+    /** Single-entry decoded-PCM cache: track switches re-play instantly once
+     *  a track has been decoded once, and every decode runs off the EDT. */
+    private Track cachedPcmTrack;
+    private byte[] cachedPcm;
+    private AudioFormat cachedPcmFormat;
+
     // ── Public API ────────────────────────────────────────────────────────
 
     @Override
     public void play(Track track) {
         if (track == currentTrack && state == State.PLAYING) return;
+        final int gen = ++loadGeneration;
         stopInternal();
         currentTrack = track;
         paused = false;
-        if (startBundledLoop(track)) {
-            state = State.PLAYING;
+        state = State.PLAYING;
+        if (openCachedClip(track)) {
             return;
         }
-        state = State.PLAYING;
+        // Synthesis starts instantly (no decode), covering the gap until the
+        // real track finishes decoding on the loader thread.
         startSynth();
+        loader.execute(() -> {
+            DecodedPcm pcm = decodeTrack(track);
+            if (pcm == null || gen != loadGeneration) return;
+            synchronized (this) {
+                cachedPcmTrack = track;
+                cachedPcm = pcm.bytes;
+                cachedPcmFormat = pcm.format;
+            }
+            if (gen != loadGeneration || currentTrack != track || state != State.PLAYING) {
+                return;
+            }
+            stopSynthOnly();
+            if (!openPcmClip(pcm.bytes, pcm.format)) {
+                startSynth(); // decode OK but line unusable — stay on synthesis
+            }
+        });
     }
 
     @Override
@@ -86,6 +120,7 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
 
     @Override
     public void stop() {
+        loadGeneration++;
         stopInternal();
     }
 
@@ -112,7 +147,9 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
 
     @Override
     public void dispose() {
+        loadGeneration++;
         stopInternal();
+        loader.shutdownNow();
     }
 
     // ── Bundled-file playback (MP3 theme + public-domain march OGGs) ──────
@@ -127,39 +164,58 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
         }
     }
 
-    /**
-     * Attempts to load and loop the track's bundled file (MP3 via mp3spi,
-     * OGG via vorbisspi), converting to PCM before opening the Clip.
-     * Returns false (no exception) when the resource is missing or the
-     * audio system can't open a Clip — callers fall back to synthesis.
-     */
-    private boolean startBundledLoop(Track track) {
-        String res = soundtrackResource(track);
-        if (res == null) return false;
-        byte[] bytes;
-        try (InputStream in = DesktopSoundtrackEngine.class.getClassLoader()
-                .getResourceAsStream(res)) {
-            if (in == null) return false;
-            // IoStreams helper (not InputStream.readAllBytes) — Android lint
-            // scans the shared tree and readAllBytes needs API 33 > minSdk 24.
-            bytes = simulation.IoStreams.readAllBytes(in);
-        } catch (Exception e) {
-            return false;
-        }
-        try (javax.sound.sampled.AudioInputStream raw = AudioSystem.getAudioInputStream(
-                new ByteArrayInputStream(bytes));
-             javax.sound.sampled.AudioInputStream ais = AudioDecoding.toPcm(raw)) {
+    /** Decoded PCM payload ready to be opened into a Clip. */
+    private static final class DecodedPcm {
+        final byte[] bytes;
+        final AudioFormat format;
+        DecodedPcm(byte[] bytes, AudioFormat format) { this.bytes = bytes; this.format = format; }
+    }
+
+    /** Opens the cached PCM for {@code track} into the looping Clip. False on any failure. */
+    private synchronized boolean openCachedClip(Track track) {
+        if (cachedPcmTrack != track || cachedPcm == null) return false;
+        return openPcmClip(cachedPcm, cachedPcmFormat);
+    }
+
+    private boolean openPcmClip(byte[] pcm, AudioFormat format) {
+        try (javax.sound.sampled.AudioInputStream ais =
+                     new javax.sound.sampled.AudioInputStream(
+                             new ByteArrayInputStream(pcm), format, pcm.length / format.getFrameSize())) {
             Clip clip = AudioSystem.getClip();
             clip.open(ais);
             musicClip = clip;
             amplitude = OGG_NOMINAL_AMPLITUDE;
             applyVolumeToClip();
+            if (paused) return true; // paused mid-load: keep it loaded, silent until resume()
             clip.loop(Clip.LOOP_CONTINUOUSLY);
             return true;
         } catch (Exception e) {
             musicClip = null;
             amplitude = 0f;
             return false;
+        }
+    }
+
+    /** Reads + fully decodes a bundled track to PCM. Null (no exception) on failure. */
+    private static DecodedPcm decodeTrack(Track track) {
+        String res = soundtrackResource(track);
+        if (res == null) return null;
+        byte[] bytes;
+        try (InputStream in = DesktopSoundtrackEngine.class.getClassLoader()
+                .getResourceAsStream(res)) {
+            if (in == null) return null;
+            // IoStreams helper (not InputStream.readAllBytes) — Android lint
+            // scans the shared tree and readAllBytes needs API 33 > minSdk 24.
+            bytes = simulation.IoStreams.readAllBytes(in);
+        } catch (Exception e) {
+            return null;
+        }
+        try (javax.sound.sampled.AudioInputStream raw = AudioSystem.getAudioInputStream(
+                new ByteArrayInputStream(bytes));
+             javax.sound.sampled.AudioInputStream ais = AudioDecoding.toPcm(raw)) {
+            return new DecodedPcm(simulation.IoStreams.readAllBytes(ais), ais.getFormat());
+        } catch (Exception e) {
+            return null;
         }
     }
 
@@ -197,6 +253,14 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
             }
             musicClip = null;
         }
+        stopSynthOnly();
+        amplitude = 0f;
+    }
+
+    /** Stops the synthesis voice without touching the looping Clip (used when
+     *  a decoded track takes over from the placeholder synth). */
+    private void stopSynthOnly() {
+        running = false;
         if (synthThread != null) {
             synthThread.interrupt();
             try { synthThread.join(300); } catch (InterruptedException ignored) {}
@@ -207,7 +271,9 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
             line.close();
             line = null;
         }
-        amplitude = 0f;
+        if (musicClip == null) {
+            amplitude = 0f;
+        }
     }
 
     private void synthLoop() {

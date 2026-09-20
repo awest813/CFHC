@@ -223,6 +223,7 @@ public class TransferPortalDialog extends JDialog {
         bottom.add(hintLabel, BorderLayout.WEST);
 
         JButton closeBtn = DesktopTheme.createGlassButton("CLOSE PORTAL", DesktopTheme.accentBlue());
+        DesktopTheme.installDialogKeys(this, closeBtn);
         closeBtn.addActionListener(e -> dispose());
 
         JPanel closePanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 30, 20));

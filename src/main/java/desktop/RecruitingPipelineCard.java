@@ -61,7 +61,7 @@ public class RecruitingPipelineCard extends CustomCardPanel {
                 int h = getHeight();
 
                 // Map Outline backdrop polygon fill (#111C2E)
-                g2.setColor(new Color(17, 28, 46));
+                g2.setColor(DesktopTheme.tableStripe());
                 int[] px = {20, 60, 110, 160, 200, 220, 210, 170, 130, 90, 40, 15};
                 int[] py = {20, 15, 18, 10, 15, 60, 100, 110, 95, 105, 75, 45};
                 g2.fillPolygon(px, py, px.length);

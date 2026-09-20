@@ -32,6 +32,7 @@ final class CoachDecisionDialog {
     static GameCoachPlan show(javax.swing.JFrame owner, Game game, GameCoachListener.Checkpoint checkpoint) {
         GameCoachPlan plan = new GameCoachPlan();
         JDialog dialog = new JDialog(owner, titleFor(checkpoint), true);
+        DesktopTheme.applyWindowIcon(dialog);
         dialog.setLayout(new BorderLayout(0, 8));
 
         JPanel body = new JPanel(new GridLayout(0, 1, 0, 6));

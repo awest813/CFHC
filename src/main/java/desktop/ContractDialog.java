@@ -91,6 +91,7 @@ public class ContractDialog extends JDialog {
             dispose();
         });
         
+        DesktopTheme.installDialogKeys(this, continueBtn);
         JButton retireBtn = DesktopTheme.createGlassButton("RETIRE IMMEDIATELY", DesktopTheme.dangerRed());
         retireBtn.addActionListener(e -> {
             int confirm = JOptionPane.showConfirmDialog(this,

@@ -56,6 +56,7 @@ public class SeasonAwardsDialog extends JDialog {
         bottom.setOpaque(true);
         bottom.setBackground(DesktopTheme.windowBackground());
         JButton closeBtn = new JButton("Close");
+        DesktopTheme.installDialogKeys(this, closeBtn);
         DesktopTheme.stylePrimaryButton(closeBtn);
         closeBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         closeBtn.addActionListener(e -> dispose());

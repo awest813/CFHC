@@ -65,7 +65,7 @@ public class LeagueHistoryPanel implements LeagueScreen {
         DesktopTheme.styleTabRoot(statsPanel);
         statsPanel.setBorder(DesktopTheme.titledBorder("All-Time Team Records"));
 
-        JComboBox<String> categoryBox = new JComboBox<>(CATEGORIES);
+        categoryBox = new JComboBox<>(CATEGORIES);
         categoryBox.setFont(new Font("SansSerif", Font.PLAIN, 13));
         categoryBox.getAccessibleContext().setAccessibleName("League history category");
 
@@ -143,5 +143,13 @@ public class LeagueHistoryPanel implements LeagueScreen {
         split.setBackground(DesktopTheme.windowBackground());
         panel.add(split, BorderLayout.CENTER);
         return panel;
+    }
+
+    /** Filter control focused by Ctrl+F (LeagueScreen.searchTarget). */
+    private javax.swing.JComboBox<String> categoryBox;
+
+    @Override
+    public javax.swing.JComponent searchTarget() {
+        return categoryBox;
     }
 }

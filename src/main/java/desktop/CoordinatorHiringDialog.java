@@ -43,7 +43,7 @@ public class CoordinatorHiringDialog extends JDialog {
     private final Team userTeam;
 
     public CoordinatorHiringDialog(JFrame owner, League league) {
-        super(owner, "STAFF ACQUISITION — COORDINATORS", true);
+        super(owner, "STAFF ACQUISITION — COORDINATORS (PASS 1 OF 2: OFFENSE)", true);
         this.league = league;
         this.userTeam = league.userTeam;
         setSize(900, 600);
@@ -99,15 +99,16 @@ public class CoordinatorHiringDialog extends JDialog {
         cardsPanel.setOpaque(false);
 
         if (userTeam.getOC() != null) {
-            cardsPanel.add(createStaffStabilityCard("OFFENSIVE COORDINATOR", userTeam.getOC(), new Color(52, 152, 219)));
+            cardsPanel.add(createStaffStabilityCard("OFFENSIVE COORDINATOR", userTeam.getOC(), DesktopTheme.accentBlue()));
         }
         if (userTeam.getDC() != null) {
-            cardsPanel.add(createStaffStabilityCard("DEFENSIVE COORDINATOR", userTeam.getDC(), new Color(231, 76, 60)));
+            cardsPanel.add(createStaffStabilityCard("DEFENSIVE COORDINATOR", userTeam.getDC(), DesktopTheme.dangerRed()));
         }
 
         panel.add(cardsPanel, BorderLayout.CENTER);
 
         JButton ok = DesktopTheme.createGlassButton("PROCEED TO SEASON", DesktopTheme.accentBlue());
+        DesktopTheme.installDialogKeys(this, ok);
         ok.addActionListener(e -> {
             league.coordinatorCarousel();
             dispose();
@@ -183,6 +184,7 @@ public class CoordinatorHiringDialog extends JDialog {
         buttons.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.borderSubtle()));
         
         JButton hireBtn = DesktopTheme.createGlassButton("CONFIRM HIRE", DesktopTheme.accentBlue());
+        DesktopTheme.installDialogKeys(this, hireBtn);
         hireBtn.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row < 0) {
@@ -201,8 +203,16 @@ public class CoordinatorHiringDialog extends JDialog {
                 league.coordinatorCarousel();
             }
         });
-        JButton closeBtn = DesktopTheme.createGlassButton("CLOSE", DesktopTheme.textSecondary());
-        closeBtn.addActionListener(e -> dispose());
+        JButton closeBtn = DesktopTheme.createGlassButton("KEEP STAFF & PROCEED", DesktopTheme.textSecondary());
+        closeBtn.addActionListener(e -> {
+            // Closing is a decision too: renew the current coordinators and
+            // still run the CPU carousel (previously Close silently skipped
+            // both, leaving the rest of the league's offseason unpicked).
+            renewIfPresent(userTeam.getOC());
+            renewIfPresent(userTeam.getDC());
+            league.coordinatorCarousel();
+            dispose();
+        });
         buttons.add(closeBtn);
         buttons.add(hireBtn);
 
@@ -257,6 +267,7 @@ public class CoordinatorHiringDialog extends JDialog {
         buttons.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.borderSubtle()));
 
         JButton hireBtn = DesktopTheme.createGlassButton("CONFIRM HIRE", DesktopTheme.accentBlue());
+        DesktopTheme.installDialogKeys(this, hireBtn);
         hireBtn.addActionListener(e -> {
             int row = table.getSelectedRow();
             if (row < 0) {
@@ -325,6 +336,14 @@ public class CoordinatorHiringDialog extends JDialog {
         return "UNKNOWN";
     }
 
+    private static void renewIfPresent(Staff coordinator) {
+        if (coordinator != null) {
+            coordinator.contractLength = COORDINATOR_CONTRACT_LENGTH;
+            coordinator.contractYear = 0;
+            coordinator.baselinePrestige = 0;
+        }
+    }
+
     private void hireCoordinator(boolean offense, ArrayList<Staff> candidates, int selectedIdx) {
         Staff existing = offense ? userTeam.getOC() : userTeam.getDC();
         // selectedIdx < 0 means the [CURRENT] renew row.
@@ -372,7 +391,7 @@ public class CoordinatorHiringDialog extends JDialog {
     }
 
     private static void showDCOnly(JFrame owner, League league) {
-        JDialog dcDialog = new JDialog(owner, "STAFF ACQUISITION — DEFENSIVE COORDINATOR", true);
+        JDialog dcDialog = new JDialog(owner, "STAFF ACQUISITION — COORDINATORS (PASS 2 OF 2: DEFENSE)", true);
         dcDialog.setSize(900, 600);
         CoordinatorHiringDialog helper = new CoordinatorHiringDialog(owner, league);
         helper.showDCContent(dcDialog);

@@ -95,7 +95,7 @@ public class TeamOverallCard extends CustomCardPanel {
 
         JLabel gradePill = new JLabel(" " + letterGrade(ovr) + " ", JLabel.CENTER);
         gradePill.setOpaque(true);
-        gradePill.setBackground(new Color(17, 28, 46));
+        gradePill.setBackground(DesktopTheme.tableStripe());
         gradePill.setForeground(DesktopTheme.successGreen());
         gradePill.setFont(new Font("SansSerif", Font.BOLD, 12));
         gradePill.setBorder(BorderFactory.createLineBorder(DesktopTheme.borderSubtle(), 1));
@@ -160,7 +160,7 @@ public class TeamOverallCard extends CustomCardPanel {
     private JPanel buildSubItem(String icon, String label, String val) {
         JPanel p = new JPanel(new BorderLayout(6, 0));
         p.setOpaque(true);
-        p.setBackground(new Color(17, 28, 46));
+        p.setBackground(DesktopTheme.tableStripe());
         p.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(DesktopTheme.borderSubtle(), 1),
                 BorderFactory.createEmptyBorder(2, 8, 2, 8)));

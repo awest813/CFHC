@@ -50,27 +50,60 @@ public class DesktopUiBridge implements GameUiBridge {
      */
     /** Informational dialogs deferred during a bulk run; replayed by {@link #drainDeferredDialogs()}. */
     private final java.util.List<Runnable> deferredDialogs = new java.util.ArrayList<>();
+    /** Text digests deferred during a bulk run; replayed as ONE dialog by {@link #drainDeferredDialogs()}. */
+    private final java.util.List<Object[]> deferredDigests = new java.util.ArrayList<>();
 
     public void setSuppressBlockingUi(boolean suppressBlockingUi) {
         this.suppressBlockingUi = suppressBlockingUi;
         if (suppressBlockingUi) {
             deferredDialogs.clear();
+            deferredDigests.clear();
         }
     }
 
     /**
-     * Replays the informational dialogs (midseason/season summaries, awards,
-     * realignment) that a bulk run deferred. Each becomes a stacked modal on
-     * the EDT; call once when the bulk finishes.
+     * Replays the informational dialogs a bulk run deferred. Text digests
+     * (season summary, midseason report, realignment) are merged into a single
+     * scrollable dialog so the user reviews one digest instead of clicking
+     * through a modal stack; richer dialogs (awards) still replay on their own.
+     * Call once when the bulk finishes — before any new-season prompt.
      */
     public void drainDeferredDialogs() {
-        if (deferredDialogs.isEmpty()) {
+        if (deferredDialogs.isEmpty() && deferredDigests.isEmpty()) {
             return;
         }
         java.util.List<Runnable> replay = new java.util.ArrayList<>(deferredDialogs);
         deferredDialogs.clear();
-        for (Runnable r : replay) {
-            javax.swing.SwingUtilities.invokeLater(r);
+
+        final StringBuilder digest = new StringBuilder();
+        for (Object[] entry : deferredDigests) {
+            String title = (String) entry[0];
+            @SuppressWarnings("unchecked")
+            java.util.function.Supplier<String> content =
+                    (java.util.function.Supplier<String>) entry[1];
+            String body;
+            try {
+                body = content.get();
+            } catch (RuntimeException ex) {
+                body = "(unavailable)";
+            }
+            if (digest.length() > 0) {
+                digest.append("\n\n");
+            }
+            digest.append("═══ ").append(title.toUpperCase(java.util.Locale.ROOT))
+                    .append(" ═══\n\n").append(body == null ? "" : body.trim());
+        }
+        deferredDigests.clear();
+        final String digestText = digest.toString();
+
+        if (!replay.isEmpty()) {
+            for (Runnable r : replay) {
+                javax.swing.SwingUtilities.invokeLater(r);
+            }
+        }
+        if (!digestText.isEmpty()) {
+            javax.swing.SwingUtilities.invokeLater(
+                    () -> DesktopTheme.showScrollableText(owner, "Season Digest", digestText));
         }
     }
 
@@ -80,6 +113,21 @@ public class DesktopUiBridge implements GameUiBridge {
             deferredDialogs.add(show);
         } else {
             logDialog(title, "(deferred)");
+        }
+    }
+
+    /** Queue-or-merge a text digest section for the combined Season Digest dialog. */
+    private void deferDigest(String title, java.util.function.Supplier<String> content) {
+        if (owner != null) {
+            deferredDigests.add(new Object[]{title, content});
+        } else {
+            String text;
+            try {
+                text = content.get();
+            } catch (RuntimeException ex) {
+                text = "(unavailable)";
+            }
+            logDialog(title, text);
         }
     }
 
@@ -215,8 +263,7 @@ public class DesktopUiBridge implements GameUiBridge {
     @Override
     public void showMidseasonSummary() {
         if (suppressInformationalUi()) {
-            deferOrLog("Mid-Season Summary",
-                    () -> showScrollableText("Mid-Season Progress Report", buildMidseasonSummary()));
+            deferDigest("Mid-Season Progress Report", this::buildMidseasonSummary);
             return;
         }
         showScrollableText("Mid-Season Progress Report", buildMidseasonSummary());
@@ -233,7 +280,7 @@ public class DesktopUiBridge implements GameUiBridge {
         }
         final String summaryFinal = summary;
         if (suppressInformationalUi()) {
-            deferOrLog("Season Summary", () -> showScrollableText("Season Summary", summaryFinal));
+            deferDigest("Season Summary", () -> summaryFinal);
             return;
         }
         showScrollableText("Season Summary", summary);
@@ -243,9 +290,43 @@ public class DesktopUiBridge implements GameUiBridge {
     public void showContractDialog() {
         runDecisionUi(() -> {
             if (league.isCareerMode() && league.userTeam != null) {
-                ContractDialog.show(owner, league);
+                boolean retired = ContractDialog.show(owner, league);
+                if (retired) {
+                    handleRetirement();
+                }
             }
         });
+    }
+
+    /**
+     * Retirement follow-through: the CONTRACT dialog only sets the flag —
+     * without this the season rolls on with a "retired" coach and the same
+     * panel reappears next offseason. Show the career retrospective, offer a
+     * save, then hand control back to the Career Hub.
+     */
+    private void handleRetirement() {
+        Team team = league.userTeam;
+        String name = team != null && team.getHeadCoach() != null
+                ? team.getHeadCoach().name : "Head Coach";
+        String record = team != null
+                ? team.getName() + " — " + team.getWins() + "-" + team.getLosses()
+                        + " this season, " + team.getTotalWins() + "-" + team.getTotalLosses()
+                        + " all-time (" + team.getTotalCCs() + " conference titles, "
+                        + team.getTotalNCs() + " national titles)"
+                : "Career complete.";
+        StringBuilder text = new StringBuilder();
+        text.append(name).append(" has retired from college football.\n\n")
+                .append(record).append("\n\n")
+                .append("Your coaching legacy is written into the league and team histories. ")
+                .append("The Career Hub lets you start a new dynasty — or load this save ")
+                .append("and watch the league you built carry on without you.");
+
+        if (owner instanceof LeagueHomeView) {
+            ((LeagueHomeView) owner).retireToLauncher(
+                    "COACH RETIREMENT", text.toString());
+        } else {
+            showScrollableText("Coach Retirement", text.toString());
+        }
     }
 
     @Override
@@ -253,8 +334,13 @@ public class DesktopUiBridge implements GameUiBridge {
         runDecisionUi(() -> {
             if (league.isCareerMode() && league.userTeam != null && league.userTeam.fired) {
                 boolean accepted = JobOffersDialog.showJobOffers(owner, league);
-                if (accepted) {
+                if (accepted && userTeamNeedsCoordinatorHire(league.userTeam)) {
+                    // Only open the hire pass when the new staff is actually
+                    // short a coordinator; the dialog itself runs the CPU
+                    // carousel on close.
                     CoordinatorHiringDialog.show(owner, league);
+                } else if (accepted) {
+                    league.coordinatorCarousel();
                 }
             }
         });
@@ -263,10 +349,17 @@ public class DesktopUiBridge implements GameUiBridge {
     @Override
     public void showPromotionsDialog() {
         runDecisionUi(() -> {
-            if (league.isCareerMode()) {
-                // Hiring is owned by showCoordinatorHiringDialog on the next offseason step.
-                JobOffersDialog.showPromotions(owner, league);
+            if (!league.isCareerMode()) {
+                return;
             }
+            // Skip the empty-notice dialog in quiet years: nothing to decide
+            // when the coach is not a promotion candidate.
+            if (league.userTeam != null && league.userTeam.getHeadCoach() != null
+                    && !league.userTeam.getHeadCoach().promotionCandidate) {
+                return;
+            }
+            // Hiring is owned by showCoordinatorHiringDialog on the next offseason step.
+            JobOffersDialog.showPromotions(owner, league);
         });
     }
 
@@ -308,8 +401,7 @@ public class DesktopUiBridge implements GameUiBridge {
         }
         final String newsFinal = news;
         if (suppressInformationalUi()) {
-            deferOrLog("Conference Realignment",
-                    () -> showScrollableText("Conference Realignment", newsFinal));
+            deferDigest("Conference Realignment", () -> newsFinal);
             return;
         }
         showScrollableText("Conference Realignment", news);

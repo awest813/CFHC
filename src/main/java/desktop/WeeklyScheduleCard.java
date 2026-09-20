@@ -75,7 +75,7 @@ public class WeeklyScheduleCard extends CustomCardPanel {
                 });
             }
         } else {
-            item.setBackground(new Color(6, 12, 20));
+            item.setBackground(DesktopTheme.windowBackground());
             item.setBorder(BorderFactory.createLineBorder(DesktopTheme.borderSubtle(), 1));
         }
 

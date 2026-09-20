@@ -82,7 +82,7 @@ public class NextGameMatchupCard extends CustomCardPanel {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(17, 28, 46));
+                g2.setColor(DesktopTheme.tableStripe());
                 g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 8, 8);
                 g2.setColor(DesktopTheme.borderSubtle());
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 8, 8);
@@ -131,7 +131,7 @@ public class NextGameMatchupCard extends CustomCardPanel {
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                 int cx = getWidth() / 2;
                 int cy = getHeight() / 2;
-                g2.setColor(new Color(13, 23, 38));
+                g2.setColor(DesktopTheme.tableBase());
                 g2.fillOval(cx - 13, cy - 13, 26, 26);
                 g2.setColor(DesktopTheme.warningText());
                 g2.drawOval(cx - 13, cy - 13, 26, 26);

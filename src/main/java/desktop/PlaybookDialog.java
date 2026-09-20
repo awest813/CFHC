@@ -204,7 +204,7 @@ public class PlaybookDialog extends JDialog {
         
         JLabel v = new JLabel((val > 0 ? "+" : "") + val);
         v.setFont(new Font("Monospaced", Font.BOLD, 14));
-        v.setForeground(val > 0 ? new Color(46, 204, 113) : (val < 0 ? new Color(231, 76, 60) : DesktopTheme.textPrimary()));
+        v.setForeground(val > 0 ? DesktopTheme.successGreen() : (val < 0 ? DesktopTheme.dangerRed() : DesktopTheme.textPrimary()));
         
         row.add(l, BorderLayout.WEST);
         row.add(v, BorderLayout.EAST);

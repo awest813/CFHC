@@ -132,7 +132,7 @@ public class TeamMoraleCard extends CustomCardPanel {
             return DesktopTheme.successGreen();
         }
         if (overall >= 40) {
-            return new Color(0xF5, 0x9E, 0x0B); // Trophy Gold
+            return DesktopTheme.gold();
         }
         return DesktopTheme.dangerRed();
     }
@@ -159,7 +159,7 @@ public class TeamMoraleCard extends CustomCardPanel {
         JProgressBar bar = new JProgressBar(0, 100);
         bar.setValue(val);
         bar.setForeground(DesktopTheme.successGreen());
-        bar.setBackground(new Color(6, 12, 20));
+        bar.setBackground(DesktopTheme.windowBackground());
         bar.setBorderPainted(false);
         bar.setPreferredSize(new Dimension(100, 6));
 

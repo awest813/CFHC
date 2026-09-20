@@ -818,6 +818,11 @@ public final class DesktopTheme {
         }
     }
 
+    /** Brand-constant HUD accents (style_guide.md); theme-independent by design. */
+    public static Color emerald() { return new Color(0, 230, 118); }
+
+    public static Color gold() { return new Color(245, 158, 11); }
+
     public static Color accentBlue() { return _accentBlue; }
 
     public static Color successGreen() { return _successGreen; }
@@ -1002,4 +1007,25 @@ public final class DesktopTheme {
             Math.min(255, Math.max(0, (int)(alpha * 255f))));
     }
 
+
+    /**
+     * Keyboard support for custom dialogs: Enter triggers {@code defaultButton},
+     * Esc disposes. Career dialogs are the weekly interaction surface — they
+     * should be drivable without the mouse.
+     */
+    public static void installDialogKeys(javax.swing.JDialog dialog, javax.swing.JButton defaultButton) {
+        if (defaultButton != null) {
+            dialog.getRootPane().setDefaultButton(defaultButton);
+        }
+        javax.swing.JRootPane rp = dialog.getRootPane();
+        rp.getInputMap(javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ESCAPE, 0),
+                        "cfhcDialogClose");
+        rp.getActionMap().put("cfhcDialogClose", new javax.swing.AbstractAction() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                dialog.dispose();
+            }
+        });
+    }
 }

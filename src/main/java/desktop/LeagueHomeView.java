@@ -225,8 +225,10 @@ public class LeagueHomeView extends JFrame {
             }
             @Override public void onNewSeasonFromBulk() {
                 bulkRunning = false;
-                startNewSeason();
+                // Review what happened (digest/awards) BEFORE the save prompt,
+                // so the season is fresh in mind when asked to keep it.
                 bridge.drainDeferredDialogs();
+                startNewSeason();
             }
             @Override public String seasonPeriodLabel() { return decodeSeasonPeriod(); }
             @Override public int maxFullYearSteps() { return MAX_FULL_YEAR_STEPS; }
@@ -729,7 +731,8 @@ public class LeagueHomeView extends JFrame {
                         KeyEvent.CTRL_DOWN_MASK | KeyEvent.SHIFT_DOWN_MASK),
                 JComponent.WHEN_IN_FOCUSED_WINDOW);
 
-        // Digit 1..9 -> Direct jump to sidebar screens
+        // Digit 1..9 -> Direct jump to sidebar screens. Same notTyping guard
+        // as SPACE: typing "12" into Player Search must not change screens.
         int[] digitKeys = {
                 KeyEvent.VK_1, KeyEvent.VK_2, KeyEvent.VK_3, KeyEvent.VK_4,
                 KeyEvent.VK_5, KeyEvent.VK_6, KeyEvent.VK_7, KeyEvent.VK_8,
@@ -739,11 +742,11 @@ public class LeagueHomeView extends JFrame {
         for (int i = 0; i < navLimit; i++) {
             final int index = i;
             getRootPane().registerKeyboardAction(
-                    e -> selectScreen(NAV_TITLES[index]),
+                    e -> { if (notTyping.test(e)) selectScreen(NAV_TITLES[index]); },
                     KeyStroke.getKeyStroke(digitKeys[i], 0),
                     JComponent.WHEN_IN_FOCUSED_WINDOW);
             getRootPane().registerKeyboardAction(
-                    e -> selectScreen(NAV_TITLES[index]),
+                    e -> { if (notTyping.test(e)) selectScreen(NAV_TITLES[index]); },
                     KeyStroke.getKeyStroke(digitKeys[i], KeyEvent.CTRL_DOWN_MASK),
                     JComponent.WHEN_IN_FOCUSED_WINDOW);
         }
@@ -755,7 +758,7 @@ public class LeagueHomeView extends JFrame {
             final int index = i;
             int digit = digitKeys[i - altNavStart];
             getRootPane().registerKeyboardAction(
-                    e -> selectScreen(NAV_TITLES[index]),
+                    e -> { if (notTyping.test(e)) selectScreen(NAV_TITLES[index]); },
                     KeyStroke.getKeyStroke(digit, KeyEvent.ALT_DOWN_MASK),
                     JComponent.WHEN_IN_FOCUSED_WINDOW);
         }
@@ -820,73 +823,6 @@ public class LeagueHomeView extends JFrame {
     // Header with user-team info
     // =========================================================================
 
-    private JPanel buildHeader() {
-        JPanel header = new JPanel(new BorderLayout()) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                DesktopTheme.paintHeaderGradient(g, getWidth(), getHeight(),
-                    leagueCore.userTeam != null
-                        ? TeamColors.primary(leagueCore.userTeam.getAbbr())
-                        : null);
-                super.paintComponent(g);
-            }
-        };
-        header.setOpaque(false);
-        header.setPreferredSize(new Dimension(getWidth(), HEADER_HEIGHT));
-
-        // Left: league title + optional user-team summary
-        JPanel leftPanel = new JPanel(new GridLayout(0, 1));
-        leftPanel.setOpaque(false);
-        leftPanel.setBorder(BorderFactory.createEmptyBorder(8, 12, 8, 12));
-
-        JLabel title = new JLabel(currentRecord.leagueName() + " \u2014 Season " + currentRecord.year());
-        title.setForeground(Color.WHITE);
-        title.setFont(new Font("SansSerif", Font.BOLD, 22));
-        leftPanel.add(title);
-
-        if (leagueCore.userTeam != null) {
-            Team ut = leagueCore.userTeam;
-            String userInfo = "\u25B6 " + ut.getName() + "  (" + ut.getWins() + "-" + ut.getLosses()
-                    + ")  \u2022  Prestige " + ut.getTeamPrestige()
-                    + "  \u2022  Poll #" + ut.getRankTeamPollScore();
-            JLabel userLabel = new JLabel(userInfo);
-            userLabel.setForeground(new Color(100, 200, 255));
-            userLabel.setFont(new Font("SansSerif", Font.PLAIN, 13));
-            leftPanel.add(userLabel);
-        }
-        JLabel phase = new JLabel(decodeSeasonPeriod() + " - " + buildHeaderFocusText());
-        phase.setForeground(new Color(200, 210, 220));
-        phase.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        leftPanel.add(phase);
-        header.add(leftPanel, BorderLayout.WEST);
-
-        // Right: action buttons
-        JPanel controls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 23));
-        controls.setOpaque(false);
-
-        JButton playWeekBtn = new JButton(playWeekLabel());
-        playWeekBtn.setToolTipText("Simulate the next week (Space)");
-        playWeekBtn.addActionListener(e -> playWeek());
-        playWeekBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
-        JButton advanceBtn = new JButton(bulkAdvanceLabel());
-        advanceBtn.setToolTipText(bulkAdvanceTooltip());
-        advanceBtn.addActionListener(e -> runBulkAdvanceFromHeader());
-        advanceBtn.setEnabled(canBulkAdvanceFromHeader());
-        advanceBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
-        JButton saveBtn = new JButton("Save");
-        saveBtn.setToolTipText("Save the current league (Ctrl+S)");
-        saveBtn.addActionListener(e -> saveLeague(false));
-        saveBtn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
-        controls.add(playWeekBtn);
-        controls.add(advanceBtn);
-        controls.add(saveBtn);
-        header.add(controls, BorderLayout.EAST);
-
-        return header;
-    }
 
     private String playWeekLabel() {
         return SeasonPresentation.getPlayWeekLabel(leagueCore.currentWeek, leagueCore.regSeasonWeeks);
@@ -929,40 +865,11 @@ public class LeagueHomeView extends JFrame {
         }
     }
 
-    private String buildHeaderFocusText() {
-        if (bridge != null && bridge.isAwaitingDockedRecruiting()) {
-            return "finish recruiting to start the next season";
-        }
-        int week = leagueCore.currentWeek;
-        int reg = leagueCore.regSeasonWeeks;
-        if (week >= reg + 13) return "sign your recruiting class";
-        if (week >= reg + 4) return "work through offseason decisions";
-        if (week >= reg) return "settle postseason games";
-        if (week <= 0) return "review your roster and begin the year";
-        return "play, review, and adjust";
-    }
 
     // =========================================================================
     // Status bar
     // =========================================================================
 
-    private JPanel buildStatusBar() {
-        JPanel status = new JPanel(new BorderLayout());
-        status.setBackground(DesktopTheme.statusBackground());
-        status.setBorder(BorderFactory.createEmptyBorder(4, 10, 4, 10));
-
-        statusLabel = new JLabel(buildStatusText());
-        statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        statusLabel.setForeground(DesktopTheme.textPrimary());
-        status.add(statusLabel, BorderLayout.WEST);
-
-        playedIndicator = new JLabel(saveStatusText());
-        playedIndicator.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        playedIndicator.setForeground(dirty ? DesktopTheme.warningText() : DesktopTheme.textSecondary());
-        status.add(playedIndicator, BorderLayout.EAST);
-
-        return status;
-    }
 
     private String saveStatusText() {
         if (dirty) {
@@ -1017,6 +924,15 @@ public class LeagueHomeView extends JFrame {
      * @return {@code true} if the window was closed and the app should quit
      */
     public boolean requestQuitFromOs() {
+        if (bulkRunning) {
+            JOptionPane.showMessageDialog(this,
+                    DesktopTheme.messageForDialog(
+                            "A bulk simulation is running. Stop it (the progress dialog's close box)\n"
+                                    + "before quitting so the league is not left mid-advance."),
+                    "Simulation In Progress",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return false;
+        }
         if (needsSavePrompt()) {
             int choice = JOptionPane.showConfirmDialog(this,
                     DesktopTheme.messageForDialog(
@@ -1064,9 +980,31 @@ public class LeagueHomeView extends JFrame {
         dispose();
     }
 
-    private void exitApplication() {
+    /**
+     * Retirement exit path (called from {@link DesktopUiBridge} after the
+     * contract dialog's RETIRE choice): show the retrospective, offer a save,
+     * then hand control back to the Career Hub in this JVM.
+     */
+    public void retireToLauncher(String title, String text) {
+        DesktopTheme.showScrollableText(this, title, text);
+        if (needsSavePrompt()) {
+            int choice = JOptionPane.showConfirmDialog(this,
+                    DesktopTheme.messageForDialog(
+                            "Save the league before returning to the Career Hub?\n"
+                                    + "The retired coach's season stays in the league history either way."),
+                    "Save Before Retiring",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE);
+            if (choice == JOptionPane.YES_OPTION) {
+                saveLeague(false);
+                if (needsSavePrompt()) {
+                    return; // save failed and was reported — stay to retry
+                }
+            }
+        }
+        LauncherFrame frame = new LauncherFrame();
+        frame.setVisible(true);
         disposeForQuit();
-        System.exit(0);
     }
 
     /**
@@ -2291,45 +2229,4 @@ public class LeagueHomeView extends JFrame {
         });
     }
 
-    /**
-     * Opens a read-only snapshot viewer for an already-loaded LeagueRecord.
-     * Useful when inspecting a save without wiring up the live simulation.
-     */
-    public static void showSnapshot(LeagueRecord record) {
-        SwingUtilities.invokeLater(() -> {
-            JDialog dialog = new JDialog((JFrame) null, "CFHC - " + record.leagueName()
-                    + " (" + record.year() + ") [read-only]", true);
-            dialog.setSize(900, 600);
-            dialog.setLayout(new BorderLayout());
-            JPanel snapRoot = (JPanel) dialog.getContentPane();
-            snapRoot.setOpaque(true);
-            snapRoot.setBackground(DesktopTheme.windowBackground());
-
-            DefaultListModel<LeagueRecord.TeamRecord> model = new DefaultListModel<>();
-            record.conferences().stream()
-                    .flatMap(c -> c.teams().stream())
-                    .sorted(Comparator.comparingInt(LeagueRecord.TeamRecord::prestige).reversed())
-                    .forEach(model::addElement);
-            JList<LeagueRecord.TeamRecord> list = new JList<>(model);
-            list.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
-            DesktopTheme.styleListShell(list);
-            list.setCellRenderer(new DefaultListCellRenderer() {
-                @Override
-                public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                                                              boolean isSelected, boolean cellHasFocus) {
-                    LeagueRecord.TeamRecord t = (LeagueRecord.TeamRecord) value;
-                    String label = "#" + (index + 1) + " " + t.name() + " (prestige " + t.prestige() + ")";
-                    JLabel l = (JLabel) super.getListCellRendererComponent(list, label, index, isSelected, cellHasFocus);
-                    l.setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 8));
-                    DesktopTheme.decorateListCellLabel(l, index, isSelected, null);
-                    return l;
-                }
-            });
-            JScrollPane snapScroll = new JScrollPane(list);
-            snapScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
-            dialog.add(snapScroll, BorderLayout.CENTER);
-            dialog.setLocationRelativeTo(null);
-            dialog.setVisible(true);
-        });
-    }
 }

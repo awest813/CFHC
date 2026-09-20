@@ -59,6 +59,7 @@ public class RedshirtDialog extends JDialog {
         bottom.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.borderSubtle()));
         
         JButton doneBtn = DesktopTheme.createGlassButton("CLOSE MANAGEMENT", DesktopTheme.accentBlue());
+        DesktopTheme.installDialogKeys(this, doneBtn);
         doneBtn.addActionListener(e -> dispose());
         bottom.add(doneBtn);
         add(bottom, BorderLayout.SOUTH);

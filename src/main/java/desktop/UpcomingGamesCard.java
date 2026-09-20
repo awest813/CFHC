@@ -103,7 +103,7 @@ public class UpcomingGamesCard extends CustomCardPanel {
     private JPanel buildGameRow(String week, String oppLogo, String oppName, String date, String stars, Color logoBg, Team opp, Consumer<Team> onSelectTeam) {
         JPanel r = new JPanel(new BorderLayout(6, 0));
         r.setOpaque(true);
-        r.setBackground(new Color(6, 12, 20));
+        r.setBackground(DesktopTheme.windowBackground());
         r.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(DesktopTheme.borderSubtle(), 1),
                 BorderFactory.createEmptyBorder(4, 6, 4, 6)));

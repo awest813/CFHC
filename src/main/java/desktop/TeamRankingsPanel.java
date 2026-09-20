@@ -45,7 +45,7 @@ public class TeamRankingsPanel implements LeagueScreen {
         topPanel.add(DesktopTheme.buildScreenHeader("Team Rankings",
                 "Compare programs by advanced team metrics and sortable categories."), BorderLayout.NORTH);
 
-        JComboBox<String> categoryBox = new JComboBox<>(CATEGORIES);
+        categoryBox = new JComboBox<>(CATEGORIES);
         categoryBox.setFont(new Font("SansSerif", Font.PLAIN, 13));
         categoryBox.getAccessibleContext().setAccessibleName("Team rankings category");
 
@@ -108,5 +108,13 @@ public class TeamRankingsPanel implements LeagueScreen {
         DesktopTheme.styleDataTableInScroll(teamRankScroll, table, "Team rankings");
         panel.add(teamRankScroll, BorderLayout.CENTER);
         return panel;
+    }
+
+    /** Filter control focused by Ctrl+F (LeagueScreen.searchTarget). */
+    private javax.swing.JComboBox<String> categoryBox;
+
+    @Override
+    public javax.swing.JComponent searchTarget() {
+        return categoryBox;
     }
 }

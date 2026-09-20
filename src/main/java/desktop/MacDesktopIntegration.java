@@ -132,7 +132,7 @@ public final class MacDesktopIntegration {
                 DesktopTheme.messageForDialog(
                         "No league is open.\n\nToggle dark mode for the desktop shell?"),
                 "CFHC Preferences",
-                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE);
         if (choice == JOptionPane.YES_OPTION) {
             DesktopTheme.setDark(!DesktopTheme.isDark());

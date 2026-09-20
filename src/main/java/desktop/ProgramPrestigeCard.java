@@ -102,7 +102,7 @@ public class ProgramPrestigeCard extends CustomCardPanel {
         JProgressBar pBar = new JProgressBar(0, 100);
         pBar.setValue(Math.min(100, (prestige * 100) / Math.max(1, Team.PRESTIGE_SOFT_MAX)));
         pBar.setForeground(DesktopTheme.successGreen());
-        pBar.setBackground(new Color(6, 12, 20));
+        pBar.setBackground(DesktopTheme.windowBackground());
         pBar.setBorderPainted(false);
         pBar.setPreferredSize(new Dimension(180, 4));
 

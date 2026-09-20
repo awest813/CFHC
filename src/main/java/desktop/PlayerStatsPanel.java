@@ -50,7 +50,7 @@ public class PlayerStatsPanel implements LeagueScreen {
         topPanel.add(DesktopTheme.buildScreenHeader("Player Statistics",
                 "League-wide individual stat leaderboards by category."), BorderLayout.NORTH);
 
-        JComboBox<String> categoryBox = new JComboBox<>(CATEGORIES);
+        categoryBox = new JComboBox<>(CATEGORIES);
         categoryBox.setFont(new Font("SansSerif", Font.PLAIN, 13));
         categoryBox.getAccessibleContext().setAccessibleName("Player stats category");
 
@@ -133,5 +133,13 @@ public class PlayerStatsPanel implements LeagueScreen {
         prHint.setForeground(DesktopTheme.textSecondary());
         panel.add(prHint, BorderLayout.SOUTH);
         return panel;
+    }
+
+    /** Filter control focused by Ctrl+F (LeagueScreen.searchTarget). */
+    private javax.swing.JComboBox<String> categoryBox;
+
+    @Override
+    public javax.swing.JComponent searchTarget() {
+        return categoryBox;
     }
 }

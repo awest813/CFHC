@@ -9,7 +9,18 @@
 - Launcher audio disposed when handing off to league window
 - Coordinator hire dialog has an explicit Close button
 
+## Fixed (September 2026 polish pass)
+- Contract retirement follow-through: RETIRE now shows the career retrospective,
+  offers a save, and returns to the Career Hub (reincarnate/job-offers parity
+  intentionally deferred — exit path covers the flag that nothing read).
+- Double coordinator hire pass: the post-job-offer pass only opens when the new
+  staff actually needs a hire (otherwise the CPU carousel runs directly), the
+  OC/DC passes are labeled "PASS n OF 2", and CLOSE ("KEEP STAFF & PROCEED")
+  renews the current coordinators and runs the carousel instead of silently
+  skipping both.
+- Stacking informational modals: bulk-run text digests (season summary,
+  midseason report, realignment) merge into one "Season Digest" dialog, replayed
+  BEFORE the new-season save prompt.
+
 ## Deferred
-- Contract retirement follow-through (Android parity: reincarnate / job offers)
-- Double coordinator hire pass after accepting a new job
-- Stacking informational modals on Play Week (awards/midseason/result)
+- Coach reincarnation after retirement (Android-parity new-coach flow).

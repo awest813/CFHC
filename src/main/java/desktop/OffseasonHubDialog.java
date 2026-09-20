@@ -28,6 +28,7 @@ final class OffseasonHubDialog {
 
     static void show(Frame owner, League league, Runnable advanceOneStep) {
         JDialog dialog = new JDialog(owner, "Offseason Hub \u2014 " + league.getYear() + " Season", true);
+        DesktopTheme.applyWindowIcon(dialog);
         dialog.setLayout(new BorderLayout(0, 8));
 
         DefaultListModel<String> model = new DefaultListModel<>();
