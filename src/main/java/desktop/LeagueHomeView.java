@@ -982,11 +982,10 @@ public class LeagueHomeView extends JFrame {
 
     /**
      * Retirement exit path (called from {@link DesktopUiBridge} after the
-     * contract dialog's RETIRE choice): show the retrospective, offer a save,
-     * then hand control back to the Career Hub in this JVM.
+     * contract dialog's RETIRE choice): offer a save, then hand control back
+     * to the Career Hub in this JVM. The retrospective is shown by the caller.
      */
-    public void retireToLauncher(String title, String text) {
-        DesktopTheme.showScrollableText(this, title, text);
+    public void retireToLauncher() {
         if (needsSavePrompt()) {
             int choice = JOptionPane.showConfirmDialog(this,
                     DesktopTheme.messageForDialog(
@@ -1005,6 +1004,53 @@ public class LeagueHomeView extends JFrame {
         LauncherFrame frame = new LauncherFrame();
         frame.setVisible(true);
         disposeForQuit();
+    }
+
+    /**
+     * Start a fresh coaching career at the same program (Android-parity
+     * "Use Same Team" reincarnation): prestige knockdown, staff/facilities
+     * reset, the old coach enters the free-agent pool, and a new user coach
+     * takes over. Call only after the retirement retrospective.
+     */
+    public void reincarnateCoach() {
+        Team team = leagueCore.userTeam;
+        if (team == null) {
+            return;
+        }
+        String oldName = team.getHeadCoach() != null ? team.getHeadCoach().name : "Head Coach";
+        String newName = (String) JOptionPane.showInputDialog(this,
+                DesktopTheme.messageForDialog(
+                        "A new era begins at " + team.getName() + ".\n"
+                                + "Name your next head coach:"),
+                "New Head Coach",
+                JOptionPane.QUESTION_MESSAGE,
+                null, null, oldName);
+        if (newName == null || newName.trim().isEmpty()) {
+            return; // cancelled — stay retired-in-place, user can act again
+        }
+
+        // Mirrors Android MainActivity.reincarnation ("Use Same Team") order:
+        // prestige knockdown -> team changes -> old coach to the free-agent
+        // pool -> fresh user coach with (possibly renamed) identity.
+        team.setTeamPrestige((int) (team.getTeamPrestige() * Team.knockdownRet));
+        team.newCoachTeamChanges();
+        staff.HeadCoach old = team.getHeadCoach();
+        if (old != null) {
+            old.retired = true;
+            old.team = null;
+            leagueCore.addCoachFreeAgent(new staff.HeadCoach(old, team));
+        }
+        team.setupUserCoach(newName.trim());
+
+        markDirty();
+        refresh();
+        JOptionPane.showMessageDialog(this,
+                DesktopTheme.messageForDialog(
+                        "Welcome to the " + team.getName() + " sidelines, Coach " + newName.trim() + ".\n"
+                                + "The program took a small prestige hit for the transition — "
+                                + "time to build again."),
+                "New Era",
+                JOptionPane.INFORMATION_MESSAGE);
     }
 
     /**
@@ -1876,12 +1922,59 @@ public class LeagueHomeView extends JFrame {
 
     private void rebuildContentCards() {
         screenContext.updateRecord(currentRecord);
+        // Weekly refresh rebuilds every screen; without capturing scroll
+        // positions first, the user's place in long lists (standings, stats,
+        // records) jumps back to the top every single week.
+        java.util.List<java.awt.Point> scrollPositions = captureScrollPositions();
         mainContentCards.removeAll();
         screenFocusTargets.clear();
         for (Map.Entry<String, LeagueScreen> e : screens.entrySet()) {
             addScreenCard(e.getKey(), e.getValue());
         }
         mainContentCards.add(buildRecruitingTab(), "Recruiting");
+        restoreScrollPositions(scrollPositions);
+    }
+
+    /** One viewport position per content card, in card insertion order. */
+    private java.util.List<java.awt.Point> captureScrollPositions() {
+        java.util.List<java.awt.Point> out = new java.util.ArrayList<>();
+        for (java.awt.Component c : mainContentCards.getComponents()) {
+            javax.swing.JScrollPane sp = findScrollPane(c);
+            out.add(sp != null ? sp.getViewport().getViewPosition() : null);
+        }
+        return out;
+    }
+
+    private void restoreScrollPositions(java.util.List<java.awt.Point> saved) {
+        javax.swing.SwingUtilities.invokeLater(() -> {
+            java.awt.Component[] comps = mainContentCards.getComponents();
+            for (int i = 0; i < comps.length && i < saved.size(); i++) {
+                java.awt.Point p = saved.get(i);
+                if (p == null) {
+                    continue;
+                }
+                javax.swing.JScrollPane sp = findScrollPane(comps[i]);
+                if (sp != null) {
+                    sp.getViewport().setViewPosition(p);
+                }
+            }
+        });
+    }
+
+    /** First JScrollPane in the component subtree, or null. */
+    private static javax.swing.JScrollPane findScrollPane(java.awt.Component c) {
+        if (c instanceof javax.swing.JScrollPane sp) {
+            return sp;
+        }
+        if (c instanceof java.awt.Container container) {
+            for (java.awt.Component child : container.getComponents()) {
+                javax.swing.JScrollPane sp = findScrollPane(child);
+                if (sp != null) {
+                    return sp;
+                }
+            }
+        }
+        return null;
     }
 
     /** Targeted refresh for data model changes (avoids full UI rebuild). */

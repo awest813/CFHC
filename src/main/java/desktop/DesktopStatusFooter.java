@@ -58,11 +58,11 @@ public class DesktopStatusFooter extends JPanel {
 
         JLabel musicIcon = new JLabel("\u266B");
         musicIcon.setFont(new Font("SansSerif", Font.BOLD, 12));
-        musicIcon.setForeground(Color.WHITE);
+        musicIcon.setForeground(DesktopTheme.textPrimary());
 
         trackTitle = new JLabel(updateTrackLabel());
         trackTitle.setFont(new Font("SansSerif", Font.PLAIN, 11));
-        trackTitle.setForeground(Color.WHITE);
+        trackTitle.setForeground(DesktopTheme.textPrimary());
 
         // Animated equalizer — reads engine amplitude, animates bars.
         spectrumBar = new JPanel() {

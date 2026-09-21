@@ -22,5 +22,13 @@
   midseason report, realignment) merge into one "Season Digest" dialog, replayed
   BEFORE the new-season save prompt.
 
+## Fixed (follow-up)
+- Coach reincarnation ("Use Same Team" Android parity): after retiring, the
+  user can start a fresh coaching career at the same program — prestige
+  knockdown (x0.925), staff/facilities reset, old coach to the free-agent
+  pool, new named user coach. Full refresh re-renders the shell in place;
+  scroll positions of every screen are preserved across weekly refreshes.
+
 ## Deferred
-- Coach reincarnation after retirement (Android-parity new-coach flow).
+- "Pick New Team" reincarnation branch (needs the fired-coach job pipeline
+  reused from a mid-offseason state).

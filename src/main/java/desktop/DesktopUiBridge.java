@@ -301,8 +301,8 @@ public class DesktopUiBridge implements GameUiBridge {
     /**
      * Retirement follow-through: the CONTRACT dialog only sets the flag —
      * without this the season rolls on with a "retired" coach and the same
-     * panel reappears next offseason. Show the career retrospective, offer a
-     * save, then hand control back to the Career Hub.
+     * panel reappears next offseason. Show the career retrospective, then let
+     * the user start a new career at the same program or return to the Hub.
      */
     private void handleRetirement() {
         Team team = league.userTeam;
@@ -317,13 +317,27 @@ public class DesktopUiBridge implements GameUiBridge {
         StringBuilder text = new StringBuilder();
         text.append(name).append(" has retired from college football.\n\n")
                 .append(record).append("\n\n")
-                .append("Your coaching legacy is written into the league and team histories. ")
-                .append("The Career Hub lets you start a new dynasty — or load this save ")
-                .append("and watch the league you built carry on without you.");
+                .append("Your coaching legacy is written into the league and team histories.");
 
-        if (owner instanceof LeagueHomeView) {
-            ((LeagueHomeView) owner).retireToLauncher(
-                    "COACH RETIREMENT", text.toString());
+        if (owner instanceof LeagueHomeView view) {
+            DesktopTheme.showScrollableText(view, "COACH RETIREMENT", text.toString());
+            String[] options = team != null
+                    ? new String[]{"NEW CAREER AT " + team.getAbbr(), "CAREER HUB"}
+                    : new String[]{"CAREER HUB"};
+            int choice = JOptionPane.showOptionDialog(view,
+                    DesktopTheme.messageForDialog("Life after football — what's next?\n\n"
+                            + "New career: take over " + (team != null ? team.getName() : "the program")
+                            + " with a fresh coach (small prestige hit).\n"
+                            + "Career Hub: leave the sideline; you can keep this save or start a dynasty elsewhere."),
+                    "Life After Football",
+                    JOptionPane.DEFAULT_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null, options, options[0]);
+            if (choice == 0 && team != null) {
+                view.reincarnateCoach();
+            } else {
+                view.retireToLauncher();
+            }
         } else {
             showScrollableText("Coach Retirement", text.toString());
         }
