@@ -79,7 +79,7 @@ public class DesktopAudioManagerTest {
     /**
      * The march OGGs must survive the two-step SPI conversion to PCM —
      * passing a VORBISENC stream to Clip.open() is what previously produced
-     * static and forced the synth fallback. Reads a small slice only (the
+     * static and broke clip playback. Reads a small slice only (the
      * full decode is ~38MB).
      */
     @Test

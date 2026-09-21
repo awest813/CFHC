@@ -50,8 +50,8 @@ public class DesktopSoundtrackEngineTest {
         SoundtrackEngine engine = new DesktopSoundtrackEngine();
         try {
             engine.play(SoundtrackEngine.Track.FIGHT_SONG);
-            // On machines with audio the OGG loop starts; on headless CI the
-            // engine silently no-ops (falls back to synth, which also no-ops).
+            // On machines with audio the OGG loop starts (decoded async on
+            // the loader thread); on headless CI the engine stays silent.
             // Either way the API contract holds:
             assertEquals(SoundtrackEngine.Track.FIGHT_SONG, engine.getCurrentTrack());
             engine.pause();

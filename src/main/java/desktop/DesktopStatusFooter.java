@@ -132,7 +132,7 @@ public class DesktopStatusFooter extends JPanel {
 
     /**
      * Animate the equalizer bars. When music is playing, bars respond to the
-     * real synthesis amplitude from the engine. When paused/stopped, bars
+     * engine amplitude (nominal in clip mode). When paused/stopped, bars
      * decay to zero.
      */
     private void animateEqualizer() {
