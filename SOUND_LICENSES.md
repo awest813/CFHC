@@ -5,10 +5,13 @@
 ### Generated WAV SFX (Original Work — No License Required)
 `desktop-assets/sfx/*.wav` are the game's sound effects on every platform:
 original PCM synthesized for this project (soft plucked tones, sweeps, and a
-vibrato whistle — click, advance, confirm, error, play, firstdown, whistle,
-win, loss). They replaced the previously inherited OGG set because most of
+vibrato whistle — advance, click, confirm, crowd_roar, error, fightsong,
+firstdown, loss, organ, play, touchdown, ui_back, ui_toggle, whistle, win;
+15 files total). They replaced the previously inherited OGG set because most of
 those files decoded to no audio (corrupt) or were near-inaudible, and the
 retro-buzzer character read as harsh static during rapid UI navigation.
+The atmosphere stingers (crowd_roar, fightsong, organ, touchdown) back the
+championship-week and win cues emitted by `SeasonController`.
 Gradle copies them onto the desktop classpath at `assets/sounds/` and into
 Android's `src/main/res/raw/` (same resource names, so `R.raw.*` references
 are unchanged). No third-party sound effects are distributed anymore.
@@ -60,6 +63,7 @@ are unchanged). No third-party sound effects are distributed anymore.
 
 ### Main theme: "Marching Band" (Pixabay Content License)
 `desktop-assets/soundtrack/marching_band.mp3` is the default dashboard /
+  (the identical file is also bundled in Android's `src/main/res/raw/marching_band.mp3`)
 main-menu theme.
 - **Source:** https://pixabay.com/music/marching-band-marching-band-485958/
 - **Licensor:** stereo_color — https://pixabay.com/users/stereo_color-54563004/

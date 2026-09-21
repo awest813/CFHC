@@ -57,6 +57,10 @@ public class Home extends AppCompatActivity {
 
         flowManager = new AndroidGameFlowManager(this, theme);
         audioManager = new AndroidAudioManager(this);
+        // Honor the settings-dialog SFX mute here too — Home builds its own
+        // manager, so without this the launcher clicks ignore the setting.
+        audioManager.setMuted(getSharedPreferences("cfhc_home", MODE_PRIVATE)
+                .getBoolean("cfhc_audio_sfx_muted", false));
         setContentView(R.layout.activity_home);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

@@ -60,7 +60,7 @@ public class DesktopAudioManagerTest {
             String res = "assets/sounds/" + DesktopAudioManager.fileBaseFor(event) + ".wav";
             try (InputStream in = cl.getResourceAsStream(res)) {
                 if (in == null) {
-                    continue; // only the 9 wired events ship generated WAVs
+                    continue; // every wired event ships a generated WAV today
                 }
                 byte[] bytes = IoStreams.readAllBytes(in);
                 try (AudioInputStream ais = AudioDecoding.toPcm(
@@ -73,7 +73,7 @@ public class DesktopAudioManagerTest {
             }
             validated++;
         }
-        assertEquals("expected exactly 11 wired WAV events", 11, validated);
+        assertEquals("expected all 15 AudioEvents to have wired WAVs", 15, validated);
     }
 
     /**

@@ -98,6 +98,9 @@ public class DesktopStatusFooter extends JPanel {
                 boolean nowMuted = !engine.isMuted();
                 engine.setMuted(nowMuted);
                 volIcon.setText(nowMuted ? "\uD83D\uDD07" : "\uD83D\uDD0A");
+                if (!nowMuted && !eqTimer.isRunning()) {
+                    eqTimer.start(); // unmuted while idle: wake the parked bars
+                }
             }
         });
 

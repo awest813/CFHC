@@ -28,10 +28,14 @@ public class DesktopAudioManager implements AudioManager {
 
     private static final String TAG = "DesktopAudioManager";
 
+    private static final java.util.prefs.Preferences PREFS =
+            java.util.prefs.Preferences.userRoot().node("cfhc/desktop/audio");
+
     private final Map<AudioEvent, byte[]> audioCache = new HashMap<>();
     private final List<Clip> activeClips = new ArrayList<>();
-    private float volume = 0.7f;
-    private volatile boolean muted = false;
+    private final java.util.Set<AudioEvent> warnedMissing = new java.util.HashSet<>();
+    private float volume = PREFS.getFloat("sfx_volume", 0.7f);
+    private volatile boolean muted = PREFS.getBoolean("sfx_muted", false);
     private volatile boolean available = false;
 
     public DesktopAudioManager() {
@@ -110,7 +114,11 @@ public class DesktopAudioManager implements AudioManager {
         if (muted || !available) return;
         byte[] data = audioCache.get(event);
         if (data == null) {
-            PlatformLog.w(TAG, "No audio data for event: " + event.name());
+            // Warn once per event — some cues legitimately have no asset, and
+            // a per-week warning is log noise.
+            if (warnedMissing.add(event)) {
+                PlatformLog.w(TAG, "No audio data for event: " + event.name());
+            }
             return;
         }
 
@@ -207,6 +215,7 @@ public class DesktopAudioManager implements AudioManager {
     @Override
     public void setVolume(float vol) {
         this.volume = Math.max(0, Math.min(1, vol));
+        PREFS.putFloat("sfx_volume", this.volume);
     }
 
     @Override
@@ -217,6 +226,7 @@ public class DesktopAudioManager implements AudioManager {
     @Override
     public void setMuted(boolean muted) {
         this.muted = muted;
+        PREFS.putBoolean("sfx_muted", muted);
     }
 
     @Override

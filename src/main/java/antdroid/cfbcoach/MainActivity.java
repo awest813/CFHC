@@ -2359,17 +2359,31 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         PlatformUiHelper.showImmersive(alert);
     }
 
+    private final android.content.BroadcastReceiver noisyAudioReceiver =
+            new android.content.BroadcastReceiver() {
+                @Override
+                public void onReceive(android.content.Context context, android.content.Intent intent) {
+                    // Headphones unplugged: silence the speaker immediately.
+                    if (soundtrackEngine != null) {
+                        soundtrackEngine.pauseForNoisyDevice();
+                    }
+                }
+            };
+
     @Override
     protected void onPause() {
         if (soundtrackEngine != null) {
             soundtrackEngine.pause();
         }
+        unregisterReceiver(noisyAudioReceiver);
         super.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        registerReceiver(noisyAudioReceiver,
+                new android.content.IntentFilter(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY));
         if (soundtrackEngine != null) {
             soundtrackEngine.resume();
         }
@@ -2379,6 +2393,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onDestroy() {
         if (audioManager != null) {
             audioManager.dispose();
+            audioManager = null;
         }
         if (soundtrackEngine != null) {
             soundtrackEngine.dispose();

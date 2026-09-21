@@ -34,17 +34,24 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
     /** Nominal amplitude in OGG mode (Clip exposes no meter) for visualizers. */
     private static final float OGG_NOMINAL_AMPLITUDE = 0.55f;
 
-    private volatile float volume = 0.4f;
-    private volatile boolean muted = false;
+    private static final java.util.prefs.Preferences PREFS =
+            java.util.prefs.Preferences.userRoot().node("cfhc/desktop/audio");
+
+    private volatile float volume =
+            java.util.prefs.Preferences.userRoot().node("cfhc/desktop/audio").getFloat("bgm_volume", 0.4f);
+    private volatile boolean muted =
+            java.util.prefs.Preferences.userRoot().node("cfhc/desktop/audio").getBoolean("bgm_muted", false);
     private volatile Track currentTrack;
     private volatile State state = State.STOPPED;
     private volatile float amplitude = 0f;
 
     private Thread synthThread;
     private SourceDataLine line;
-    private Clip musicClip;
+    /** Written by the loader thread (handoff), read/stopped by the EDT. */
+    private volatile Clip musicClip;
     private volatile boolean running = false;
     private volatile boolean paused = false;
+    private volatile boolean disposed = false;
 
     // ── Background decode (keeps multi-second OGG→PCM work off the EDT) ──
 
@@ -66,6 +73,7 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
 
     @Override
     public void play(Track track) {
+        if (disposed) return;
         if (track == currentTrack && state == State.PLAYING) return;
         final int gen = ++loadGeneration;
         stopInternal();
@@ -80,18 +88,22 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
         startSynth();
         loader.execute(() -> {
             DecodedPcm pcm = decodeTrack(track);
-            if (pcm == null || gen != loadGeneration) return;
+            if (pcm == null) return;
+            // Handoff under the engine lock, with the generation re-checked
+            // inside it: play()/stop() on the EDT bump the generation and tear
+            // down voices — a stale decode must never kill the newer synth
+            // voice or install an older track's clip.
             synchronized (this) {
+                if (gen != loadGeneration || currentTrack != track || state != State.PLAYING) {
+                    return;
+                }
                 cachedPcmTrack = track;
                 cachedPcm = pcm.bytes;
                 cachedPcmFormat = pcm.format;
-            }
-            if (gen != loadGeneration || currentTrack != track || state != State.PLAYING) {
-                return;
-            }
-            stopSynthOnly();
-            if (!openPcmClip(pcm.bytes, pcm.format)) {
-                startSynth(); // decode OK but line unusable — stay on synthesis
+                stopSynthOnly();
+                if (!openPcmClip(pcm.bytes, pcm.format)) {
+                    startSynth(); // decode OK but line unusable — stay on synthesis
+                }
             }
         });
     }
@@ -127,6 +139,7 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
     @Override
     public void setVolume(float volume) {
         this.volume = Math.max(0f, Math.min(1f, volume));
+        PREFS.putFloat("bgm_volume", this.volume);
         applyVolumeToLine();
         applyVolumeToClip();
     }
@@ -136,6 +149,7 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
     @Override
     public void setMuted(boolean muted) {
         this.muted = muted;
+        PREFS.putBoolean("bgm_muted", muted);
         applyVolumeToLine();
         applyVolumeToClip();
     }
@@ -147,6 +161,7 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
 
     @Override
     public void dispose() {
+        disposed = true;
         loadGeneration++;
         stopInternal();
         loader.shutdownNow();
@@ -285,9 +300,12 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
             applyVolumeToLine();
             line.start();
         } catch (LineUnavailableException e) {
-            // Headless or no audio device — silently degrade.
+            // Headless or no audio device — the synth voice ends here, but
+            // `state` stays PLAYING: the loader's decoded-Clip handoff checks
+            // state and must still install the real track (Clip often works
+            // where SourceDataLine fails). Setting STOPPED here caused
+            // permanent silence on such machines.
             running = false;
-            state = State.STOPPED;
             return;
         }
 

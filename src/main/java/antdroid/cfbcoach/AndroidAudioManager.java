@@ -42,6 +42,12 @@ public class AndroidAudioManager implements AudioManager {
         soundIds.put(AudioEvent.ADVANCE, soundPool.load(context, R.raw.advance, 1));
         soundIds.put(AudioEvent.WIN, soundPool.load(context, R.raw.win, 1));
         soundIds.put(AudioEvent.LOSS, soundPool.load(context, R.raw.loss, 1));
+        // Atmosphere stingers (championship week, conference-champ upsets,
+        // routine wins — emitted by SeasonController).
+        soundIds.put(AudioEvent.FIGHT_SONG, soundPool.load(context, R.raw.fightsong, 1));
+        soundIds.put(AudioEvent.TOUCHDOWN_CHEER, soundPool.load(context, R.raw.touchdown, 1));
+        soundIds.put(AudioEvent.CROWD_ROAR, soundPool.load(context, R.raw.crowd_roar, 1));
+        soundIds.put(AudioEvent.STADIUM_ORGAN, soundPool.load(context, R.raw.organ, 1));
     }
 
     @Override
@@ -49,7 +55,10 @@ public class AndroidAudioManager implements AudioManager {
         if (muted || soundPool == null) return;
         Integer id = soundIds.get(event);
         if (id != null && id != 0) {
-            soundPool.play(id, volume, volume, 1, 0, 1f);
+            // Perceptual (quadratic) curve — matches the desktop's perceived
+            // loudness at the same slider value.
+            float v = (float) Math.pow(volume, 2);
+            soundPool.play(id, v, v, 1, 0, 1f);
         }
     }
 

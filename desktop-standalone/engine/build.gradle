@@ -187,7 +187,8 @@ tasks.register('verifySoundtrackResources') {
             throw new GradleException("Missing ${sfxDir} (generated WAV SFX).")
         }
         ['advance', 'click', 'confirm', 'error', 'firstdown',
-         'loss', 'play', 'ui_back', 'ui_toggle', 'whistle', 'win'].each { name ->
+         'crowd_roar', 'fightsong', 'loss', 'organ', 'play',
+         'touchdown', 'ui_back', 'ui_toggle', 'whistle', 'win'].each { name ->
             def f = new File(sfxDir, "${name}.wav")
             if (!f.file) throw new GradleException("Missing SFX WAV: ${f}")
             def b = f.bytes
@@ -198,7 +199,7 @@ tasks.register('verifySoundtrackResources') {
                 throw new GradleException("Invalid RIFF/WAVE header in SFX: ${f.name}")
             }
         }
-        logger.lifecycle "SFX WAVs OK — 11 generated files validated"
+        logger.lifecycle "SFX WAVs OK — 15 generated files validated"
     }
 }
 
