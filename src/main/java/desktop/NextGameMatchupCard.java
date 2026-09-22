@@ -92,6 +92,9 @@ public class NextGameMatchupCard extends CustomCardPanel {
         };
         banner.setOpaque(false);
         banner.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
+        // Min height: the 3-row name/mascot/record columns need ~66px or the
+        // 9/13pt glyphs compress into each other.
+        banner.setPreferredSize(new Dimension(0, 66));
 
         // Home Team Side
         JPanel homeSide = new JPanel(new GridLayout(3, 1, 0, 1));

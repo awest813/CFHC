@@ -62,6 +62,12 @@ public final class UiSnapshotTool {
 
         auditMenus(view, league);
 
+        // Full-frame shot INCLUDING the JMenuBar (getContentPane() captures
+        // exclude it, which hid the menu bar from every earlier audit).
+        Thread.sleep(300);
+        capture(view, outDir + "/_full_window.png");
+        System.out.println("captured: _full_window (frame + menu bar)");
+
         Method select = LeagueHomeView.class.getDeclaredMethod("selectScreen", String.class);
         select.setAccessible(true);
 

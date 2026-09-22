@@ -76,8 +76,11 @@ public class DashboardPanel implements LeagueScreen {
 
         panel.add(buildCommandCenterHero(), BorderLayout.NORTH);
 
-        // 4-Column Grid for Modular Cards Suite
-        JPanel grid = new JPanel(new GridLayout(3, 4, 12, 12));
+        // 4-Column Grid for Modular Cards Suite.
+        // rows=0 (auto) is deliberate: 16 cards flow into 4 rows x 4 cols.
+        // A fixed rows>0 makes GridLayout recompute columns (16/3 -> 6 cols),
+        // which squeezed every card to ~210px and broke their layouts.
+        JPanel grid = new JPanel(new GridLayout(0, 4, 12, 12));
         grid.setOpaque(false);
 
         grid.add(new TeamOverallCard(league.userTeam, () -> {
@@ -279,21 +282,24 @@ public class DashboardPanel implements LeagueScreen {
         JPanel health = new JPanel(new BorderLayout(0, 8));
         health.setOpaque(false);
         health.setBorder(DesktopTheme.titledBorder("Program Health"));
-        JPanel cards = new JPanel(new GridLayout(0, 3, 8, 8));
+        // 2 columns: three across a ~325px card left ~100px per stat card,
+        // which truncated every label ("Recruiting Bu...").
+        JPanel cards = new JPanel(new GridLayout(0, 2, 8, 8));
         cards.setOpaque(false);
 
         Color cardBg = DesktopTheme.pollLeaderCard();
         Color cardFg = DesktopTheme.textPrimary();
+        // 2x2 cards: "Current Period" / "Next Action" were dropped — they
+        // duplicated the Coach Command Center hero directly above, and 6
+        // cards could not fit the panel's height (rows crushed to ~28px,
+        // overlapping label and value).
         Team user = league.userTeam;
-        cards.add(makeStatCard("Current Period", decodeSeasonPeriod(), cardBg, cardFg));
         if (user != null) {
-            cards.add(makeStatCard("Next Action", playWeekLabel(), cardBg, cardFg));
             cards.add(makeStatCard("Recruiting Budget", buildRecruitingBudgetLabel(user), cardBg, cardFg));
             cards.add(makeStatCard("NIL Collective", "Tier " + user.getNilCollectiveLevel(), cardBg, cardFg));
             cards.add(makeStatCard("Skill Progress", buildCoachSkillLabel(user), cardBg, cardFg));
             cards.add(makeStatCard("Roster Health", buildRosterHealthLabel(user), cardBg, cardFg));
         } else {
-            cards.add(makeStatCard("Next Action", playWeekLabel(), cardBg, cardFg));
             cards.add(makeStatCard("Recruiting Budget", "-", cardBg, cardFg));
             cards.add(makeStatCard("NIL Collective", "-", cardBg, cardFg));
             cards.add(makeStatCard("Skill Progress", "-", cardBg, cardFg));
@@ -331,18 +337,19 @@ public class DashboardPanel implements LeagueScreen {
     }
 
     private JPanel makeStatCard(String label, String value, Color bg, Color fg) {
-        JPanel card = new JPanel(new BorderLayout(4, 2));
+        JPanel card = new JPanel(new BorderLayout());
         card.setOpaque(true);
         card.setBackground(bg);
-        card.setBorder(BorderFactory.createEmptyBorder(8, 10, 8, 10));
-        JLabel lbl = new JLabel(label);
-        lbl.setFont(new Font("SansSerif", Font.PLAIN, 10));
-        lbl.setForeground(DesktopTheme.textSecondary());
-        JLabel val = new JLabel(value);
-        val.setFont(new Font("SansSerif", Font.BOLD, 14));
-        val.setForeground(fg);
-        card.add(lbl, BorderLayout.NORTH);
-        card.add(val, BorderLayout.SOUTH);
+        card.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        // Single HTML label (small caption over bold value): these cards live
+        // in ~34px grid rows — two BorderLayout regions get crushed into each
+        // other there, one label can't.
+        JLabel combined = new JLabel("<html><span style=\"font-size:9px;color:"
+                + DesktopTheme.cssRgb(DesktopTheme.textSecondary()) + "\">"
+                + DesktopTheme.escapeForHtml(label)
+                + "</span><br><b style=\"font-size:12px;color:" + DesktopTheme.cssRgb(fg)
+                + "\">" + DesktopTheme.escapeForHtml(value) + "</b></html>");
+        card.add(combined, BorderLayout.CENTER);
         return card;
     }
 
@@ -431,7 +438,7 @@ public class DashboardPanel implements LeagueScreen {
         }
         JList<String> newsList = new JList<>(newsModel);
         newsList.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        newsList.setVisibleRowCount(6);
+        newsList.setVisibleRowCount(4);
         DesktopTheme.styleListShell(newsList);
         newsList.setCellRenderer(new javax.swing.DefaultListCellRenderer() {
             @Override
@@ -439,13 +446,14 @@ public class DashboardPanel implements LeagueScreen {
                 JLabel l = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 l.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
                 String fg = isSelected ? "rgb(255,255,255)" : DesktopTheme.cssRgb(DesktopTheme.textPrimary());
-                l.setText("<html><body style='width:250px;color:" + fg + ";'>- "
+                l.setText("<html><body style='width:230px;color:" + fg + ";'>- "
                         + DesktopTheme.escapeForHtml(value.toString()) + "</body></html>");
                 DesktopTheme.decorateListCellLabel(l, index, isSelected, null);
                 return l;
             }
         });
         JScrollPane dashNewsScroll = new JScrollPane(newsList);
+        dashNewsScroll.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         dashNewsScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
         dashNewsScroll.setOpaque(true);
         news.add(dashNewsScroll, BorderLayout.CENTER);
