@@ -30,3 +30,7 @@ target/
 
 # Eclipse/IDE compiled output (stale classes were once tracked here)
 bin/
+
+# Python bytecode
+__pycache__/
+*.pyc
