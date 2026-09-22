@@ -184,7 +184,7 @@ public class DashboardPanel implements LeagueScreen {
         nextAction.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 26));
         nextAction.setForeground(DesktopTheme.textPrimary());
         JLabel context = new JLabel("<html><body style='width:420px; margin-top: 4px;'>"
-                + "<span style='font-size:14px; font-weight:bold; color:" + DesktopTheme.cssRgb(Color.WHITE) + "'>"
+                + "<span style='font-size:14px; font-weight:bold; color:" + DesktopTheme.cssRgb(DesktopTheme.textPrimary()) + "'>"
                 + DesktopTheme.escapeForHtml(buildUpcomingMatchupText()) + "</span><br>"
                 + "<span style='font-size:12px; color:" + DesktopTheme.cssRgb(DesktopTheme.textSecondary()) + "'>"
                 + DesktopTheme.escapeForHtml(buildNextActionContext()) + "</span></body></html>");

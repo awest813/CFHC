@@ -26,9 +26,18 @@ public final class UiSnapshotTool {
         simulation.PlatformLog.setDebugEnabled(false);
         String outDir = args.length > 0 ? args[0] : "build/ui-audit";
         int weeks = args.length > 1 ? Integer.parseInt(args[1]) : 8;
+        // Optional 3rd arg: force a theme variant for color-scheme audits
+        // ("dark" | "light" | "hc"). Default: whatever the user prefs hold.
+        String themeArg = args.length > 2 ? args[2] : null;
         new File(outDir).mkdirs();
 
         DesktopTheme.load();
+        // Theme forcing for color-scheme audits (default = persisted prefs):
+        // dark / light / dark-hc / light-hc.
+        if ("dark".equalsIgnoreCase(themeArg)) { DesktopTheme.setDark(true); DesktopTheme.setHighContrast(false); }
+        else if ("light".equalsIgnoreCase(themeArg)) { DesktopTheme.setDark(false); DesktopTheme.setHighContrast(false); }
+        else if ("dark-hc".equalsIgnoreCase(themeArg)) { DesktopTheme.setDark(true); DesktopTheme.setHighContrast(true); }
+        else if ("light-hc".equalsIgnoreCase(themeArg)) { DesktopTheme.setDark(false); DesktopTheme.setHighContrast(true); }
         DesktopResourceProvider resources =
                 new DesktopResourceProvider(System.getProperty("user.dir"));
         League league = new League(

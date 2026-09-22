@@ -77,7 +77,7 @@ public class ConferenceStandingsCard extends CustomCardPanel {
             });
         }
 
-        int maxRows = Math.min(7, teams.size());
+        int maxRows = Math.min(5, teams.size()); // 7 rows exceeded the card height and clipped every row
         JPanel list = new JPanel(new GridLayout(Math.max(1, maxRows + 1), 1, 0, 2));
         list.setOpaque(false);
 
@@ -171,14 +171,14 @@ public class ConferenceStandingsCard extends CustomCardPanel {
                 ? "#" + t.getRankTeamPollScore() + " " : "";
         JLabel nameLbl = new JLabel(prefix + t.getName());
         nameLbl.setFont(new Font("SansSerif", isUser ? Font.BOLD : Font.PLAIN, 11));
-        nameLbl.setForeground(isUser ? DesktopTheme.successGreen() : Color.WHITE);
+        nameLbl.setForeground(isUser ? DesktopTheme.successGreen() : DesktopTheme.textPrimary());
 
         JPanel rightBox = new JPanel(new GridLayout(1, 2, 6, 0));
         rightBox.setOpaque(false);
 
         JLabel confRec = new JLabel(t.getConfWins() + "-" + t.getConfLosses(), JLabel.RIGHT);
         confRec.setFont(new Font("SansSerif", Font.BOLD, 10));
-        confRec.setForeground(isUser ? DesktopTheme.successGreen() : Color.WHITE);
+        confRec.setForeground(isUser ? DesktopTheme.successGreen() : DesktopTheme.textPrimary());
         confRec.setPreferredSize(new Dimension(38, 16));
 
         JLabel ovrRec = new JLabel(t.getWins() + "-" + t.getLosses(), JLabel.RIGHT);

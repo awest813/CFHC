@@ -101,7 +101,7 @@ public class NextGameMatchupCard extends CustomCardPanel {
         homeSide.setOpaque(false);
         JLabel hName = new JLabel(homeName);
         hName.setFont(new Font("SansSerif", Font.BOLD, homeName.length() > 11 ? 9 : 10));
-        hName.setForeground(Color.WHITE);
+        hName.setForeground(DesktopTheme.textPrimary());
 
         JLabel hMascot = new JLabel(homeMascot);
         hMascot.setFont(new Font("SansSerif", Font.BOLD, homeMascot.length() > 10 ? 12 : 13));
@@ -155,7 +155,7 @@ public class NextGameMatchupCard extends CustomCardPanel {
         awaySide.setOpaque(false);
         JLabel aName = new JLabel(awayName, JLabel.RIGHT);
         aName.setFont(new Font("SansSerif", Font.BOLD, awayName.length() > 11 ? 9 : 10));
-        aName.setForeground(Color.WHITE);
+        aName.setForeground(DesktopTheme.textPrimary());
 
         JLabel aMascot = new JLabel(awayMascot, JLabel.RIGHT);
         aMascot.setFont(new Font("SansSerif", Font.BOLD, awayMascot.length() > 10 ? 12 : 13));

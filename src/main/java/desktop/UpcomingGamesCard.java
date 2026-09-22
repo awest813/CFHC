@@ -129,12 +129,12 @@ public class UpcomingGamesCard extends CustomCardPanel {
         JLabel badge = new JLabel(" " + oppLogo + " ", JLabel.CENTER);
         badge.setOpaque(true);
         badge.setBackground(logoBg);
-        badge.setForeground(Color.WHITE);
+        badge.setForeground(DesktopTheme.textPrimary());
         badge.setFont(new Font("SansSerif", Font.BOLD, 8));
 
         JLabel name = new JLabel(oppName);
         name.setFont(new Font("SansSerif", Font.PLAIN, 9));
-        name.setForeground(Color.WHITE);
+        name.setForeground(DesktopTheme.textPrimary());
 
         left.add(w, BorderLayout.WEST);
         left.add(badge, BorderLayout.CENTER);

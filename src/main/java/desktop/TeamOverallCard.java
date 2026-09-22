@@ -167,7 +167,7 @@ public class TeamOverallCard extends CustomCardPanel {
 
         JLabel lbl = new JLabel(icon + "  " + label);
         lbl.setFont(new Font("SansSerif", Font.BOLD, 10));
-        lbl.setForeground(Color.WHITE);
+        lbl.setForeground(DesktopTheme.textPrimary());
 
         JLabel v = new JLabel(val);
         v.setFont(new Font("SansSerif", Font.BOLD, 12));

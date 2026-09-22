@@ -81,11 +81,11 @@ public class WeeklyScheduleCard extends CustomCardPanel {
 
         JLabel d = new JLabel(day);
         d.setFont(new Font("SansSerif", Font.BOLD, 9));
-        d.setForeground(isGameDay ? Color.WHITE : DesktopTheme.textSecondary());
+        d.setForeground(isGameDay ? DesktopTheme.dangerRed() : DesktopTheme.textSecondary());
 
         JLabel center = new JLabel(icon + "  " + desc);
         center.setFont(new Font("SansSerif", isGameDay ? Font.BOLD : Font.PLAIN, 9));
-        center.setForeground(isGameDay ? Color.WHITE : DesktopTheme.textSecondary());
+        center.setForeground(isGameDay ? DesktopTheme.dangerRed() : DesktopTheme.textSecondary());
 
         JLabel t = new JLabel(time, JLabel.RIGHT);
         t.setFont(new Font("SansSerif", Font.PLAIN, 9));

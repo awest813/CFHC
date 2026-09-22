@@ -51,15 +51,15 @@ public class TeamMoraleCard extends CustomCardPanel {
             g2.dispose();
         }
     };
-    private final JPanel checklist = new JPanel(new GridLayout(4, 1, 0, 2));
-    private final JPanel sliders = new JPanel(new GridLayout(3, 1, 0, 4));
+    private final JPanel checklist = new JPanel(new GridLayout(4, 1, 0, 1));
+    private final JPanel sliders = new JPanel(new GridLayout(3, 1, 0, 2));
 
     public TeamMoraleCard(simulation.Team team) {
         super("Team Morale");
         this.team = team;
         JPanel content = getContentArea();
 
-        JPanel body = new JPanel(new BorderLayout(0, 8));
+        JPanel body = new JPanel(new BorderLayout(0, 5));
         body.setOpaque(false);
 
         // Top Row: Smiley Gauge + Checklist
@@ -69,7 +69,7 @@ public class TeamMoraleCard extends CustomCardPanel {
         JPanel gaugeCol = new JPanel(new BorderLayout(0, 4));
         gaugeCol.setOpaque(false);
 
-        smiley.setPreferredSize(new Dimension(40, 40));
+        smiley.setPreferredSize(new Dimension(34, 34));
         smiley.setOpaque(false);
 
         statusTxt.setFont(new Font("SansSerif", Font.BOLD, 14));
