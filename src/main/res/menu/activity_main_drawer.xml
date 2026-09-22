@@ -6,6 +6,7 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_home"
+            android:icon="@drawable/ic_menu_home"
             android:title="@string/menu_home"
             android:visible="true" />
     </group>
@@ -14,27 +15,35 @@
         <menu>
             <item
                 android:id="@+id/nav_roster"
+                android:icon="@drawable/ic_menu_roster"
                 android:title="@string/menu_roster" />
             <item
                 android:id="@+id/nav_depth_chart"
+                android:icon="@drawable/ic_menu_depth"
                 android:title="@string/main_depth_chart" />
             <item
                 android:id="@+id/nav_redshirts"
+                android:icon="@drawable/ic_menu_redshirt"
                 android:title="@string/menu_redshirts" />
             <item
                 android:id="@+id/nav_strategy"
+                android:icon="@drawable/ic_menu_schemes"
                 android:title="@string/main_playbook" />
             <item
                 android:id="@+id/nav_my_coach"
+                android:icon="@drawable/ic_menu_coach"
                 android:title="@string/menu_my_coach" />
             <item
                 android:id="@+id/nav_teamplayerstats"
+                android:icon="@drawable/ic_menu_playerstats"
                 android:title="@string/menu_teamplayerstats" />
             <item
                 android:id="@+id/nav_teamstats"
+                android:icon="@drawable/ic_menu_teamstats"
                 android:title="@string/menu_teamstats" />
             <item
                 android:id="@+id/nav_schedule"
+                android:icon="@drawable/ic_menu_schedule"
                 android:title="@string/menu_schedule" />
         </menu>
     </item>
@@ -43,39 +52,51 @@
         <menu>
             <item
                 android:id="@+id/nav_standings"
+                android:icon="@drawable/ic_menu_standings"
                 android:title="@string/menu_standings" />
             <item
                 android:id="@+id/nav_rankings"
+                android:icon="@drawable/ic_menu_rankings"
                 android:title="@string/menu_rankings" />
             <item
                 android:id="@+id/nav_scores"
+                android:icon="@drawable/ic_menu_scores"
                 android:title="@string/menu_scores" />
             <item
                 android:id="@+id/nav_player_search"
+                android:icon="@drawable/ic_menu_search"
                 android:title="@string/menu_player_search" />
             <item
                 android:id="@+id/nav_transfers"
+                android:icon="@drawable/ic_menu_transfer"
                 android:title="@string/menu_transfer_portal" />
             <item
                 android:id="@+id/nav_news"
+                android:icon="@drawable/ic_menu_news"
                 android:title="@string/menu_news" />
             <item
                 android:id="@+id/nav_leagueteamstats"
+                android:icon="@drawable/ic_menu_teamstats"
                 android:title="@string/menu_leagueteamstats" />
             <item
                 android:id="@+id/nav_leagueplayerstats"
+                android:icon="@drawable/ic_menu_playerstats"
                 android:title="@string/menu_leagueplayerstats" />
             <item
                 android:id="@+id/nav_awards"
+                android:icon="@drawable/ic_menu_awards"
                 android:title="@string/menu_leagueawards" />
             <item
                 android:id="@+id/nav_history_records"
+                android:icon="@drawable/ic_menu_history"
                 android:title="@string/menu_history_records" />
             <item
                 android:id="@+id/nav_coach_db"
+                android:icon="@drawable/ic_menu_roster"
                 android:title="@string/menu_coach_database" />
             <item
                 android:id="@+id/nav_postseason"
+                android:icon="@drawable/ic_menu_awards"
                 android:title="@string/menu_postseason" />
         </menu>
     </item>
@@ -84,9 +105,11 @@
         <menu>
             <item
                 android:id="@+id/nav_sim_next_stop"
+                android:icon="@drawable/ic_menu_transfer"
                 android:title="Sim to Next Decision" />
             <item
                 android:id="@+id/nav_sim_postseason"
+                android:icon="@drawable/ic_menu_schedule"
                 android:title="Sim Through Postseason" />
         </menu>
     </item>
@@ -95,12 +118,15 @@
         <menu>
             <item
                 android:id="@+id/nav_coach_program"
+                android:icon="@drawable/ic_menu_coach"
                 android:title="@string/action_coach_program" />
             <item
                 android:id="@+id/nav_settings"
+                android:icon="@drawable/ic_menu_schemes"
                 android:title="@string/menu_settings" />
             <item
                 android:id="@+id/nav_save_game"
+                android:icon="@drawable/ic_menu_save"
                 android:title="@string/action_save_league" />
         </menu>
     </item>

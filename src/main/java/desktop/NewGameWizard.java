@@ -61,6 +61,7 @@ public class NewGameWizard extends JDialog {
 
     public NewGameWizard(JFrame owner, DesktopResourceProvider resources) {
         super(owner, "New Game", true);
+        DesktopTheme.applyWindowIcon(this);
         this.resources = resources;
         setSize(760, 660);
         setMinimumSize(new Dimension(720, 600));

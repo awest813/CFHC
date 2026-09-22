@@ -18,6 +18,7 @@ public class RecruitingView extends JDialog {
 
     public RecruitingView(JFrame owner, League league) {
         super(owner, "Recruiting \u2014 " + getUserTeamName(league), true);
+        DesktopTheme.applyWindowIcon(this);
         setLayout(new BorderLayout());
         DesktopTheme.styleDialogContentPane(getContentPane());
         RecruitingPanel panel = new RecruitingPanel(league, data -> {
