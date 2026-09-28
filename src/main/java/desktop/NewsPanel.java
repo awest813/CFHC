@@ -37,7 +37,14 @@ public class NewsPanel implements LeagueScreen {
         storyArea.setFont(new Font("SansSerif", Font.PLAIN, 13));
         DesktopTheme.styleTextContent(storyArea);
 
-        JList<String> headlineList = new JList<>(headlineModel);
+        // Track the viewport width so rows wrap instead of running off the pane
+        // (headlines were cut mid-word behind a horizontal scrollbar).
+        JList<String> headlineList = new JList<>(headlineModel) {
+            @Override
+            public boolean getScrollableTracksViewportWidth() {
+                return true;
+            }
+        };
         headlineList.setFont(new Font("SansSerif", Font.PLAIN, 13));
         DesktopTheme.styleListShell(headlineList);
         headlineList.setCellRenderer(new javax.swing.DefaultListCellRenderer() {
@@ -47,7 +54,8 @@ public class NewsPanel implements LeagueScreen {
                 JLabel l = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 l.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
                 String fg = isSelected ? "rgb(255,255,255)" : DesktopTheme.cssRgb(DesktopTheme.textPrimary());
-                l.setText("<html><body style='color:" + fg + ";'>"
+                int wrap = Math.max(120, list.getWidth() - 20);
+                l.setText("<html><body style='width:" + wrap + "px;color:" + fg + ";'>"
                         + DesktopTheme.escapeForHtml(value.toString()) + "</body></html>");
                 DesktopTheme.decorateListCellLabel(l, index, isSelected, null);
                 return l;
@@ -121,7 +129,16 @@ public class NewsPanel implements LeagueScreen {
             }
         });
 
-        JScrollPane headScroll = new JScrollPane(headlineList);
+        // JList caches row heights; re-measure the wrapped rows on resize.
+        headlineList.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                headlineList.setFixedCellHeight(10);
+                headlineList.setFixedCellHeight(-1);
+            }
+        });
+        JScrollPane headScroll = new JScrollPane(headlineList,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         headScroll.setBorder(DesktopTheme.titledBorder("Headlines"));
         headScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
         headScroll.setOpaque(true);
@@ -130,7 +147,8 @@ public class NewsPanel implements LeagueScreen {
         storyScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
         storyScroll.setOpaque(true);
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, headScroll, storyScroll);
-        split.setDividerLocation(320);
+        split.setDividerLocation(440);
+        split.setResizeWeight(0.4);
         split.setOpaque(true);
         split.setBackground(DesktopTheme.windowBackground());
         panel.add(split, BorderLayout.CENTER);

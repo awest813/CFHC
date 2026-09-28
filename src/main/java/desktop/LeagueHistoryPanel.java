@@ -47,11 +47,8 @@ public class LeagueHistoryPanel implements LeagueScreen {
         historyArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         historyArea.setLineWrap(false);
         String historyText = ctx.league().getLeagueHistoryStr();
-        if (historyText == null || historyText.trim().isEmpty()) {
-            historyText = "No season history yet - play at least one full season.";
-        } else {
-            historyText = historyText.replace("%", "");
-        }
+        boolean noHistory = historyText == null || historyText.trim().isEmpty();
+        historyText = noHistory ? "" : historyText.replace("%", "");
         historyArea.setText(historyText);
         historyArea.setCaretPosition(0);
         DesktopTheme.styleTextContent(historyArea);
@@ -60,6 +57,21 @@ public class LeagueHistoryPanel implements LeagueScreen {
         historyScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
         historyScroll.setOpaque(true);
         historyScroll.setPreferredSize(new Dimension(0, 200));
+        // Empty state matches the other screens (centered secondary text); the
+        // monospace text area is only for the column-aligned history itself.
+        javax.swing.JComponent championsPane = historyScroll;
+        if (noHistory) {
+            javax.swing.JLabel emptyHistory = new javax.swing.JLabel(
+                    "No season history yet \u2014 champions appear after the first full season.",
+                    javax.swing.JLabel.CENTER);
+            emptyHistory.setForeground(DesktopTheme.textSecondary());
+            JPanel emptyPane = new JPanel(new BorderLayout());
+            DesktopTheme.styleTabRoot(emptyPane);
+            emptyPane.setBorder(DesktopTheme.titledBorder("Season Champions"));
+            emptyPane.setPreferredSize(new Dimension(0, 200));
+            emptyPane.add(emptyHistory, BorderLayout.CENTER);
+            championsPane = emptyPane;
+        }
 
         JPanel statsPanel = new JPanel(new BorderLayout());
         DesktopTheme.styleTabRoot(statsPanel);
@@ -137,7 +149,7 @@ public class LeagueHistoryPanel implements LeagueScreen {
         emptyStats.setBackground(table.getBackground());
         statsPanel.add(histStatsScroll, BorderLayout.CENTER);
 
-        JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, historyScroll, statsPanel);
+        JSplitPane split = new JSplitPane(JSplitPane.VERTICAL_SPLIT, championsPane, statsPanel);
         split.setDividerLocation(220);
         split.setOpaque(true);
         split.setBackground(DesktopTheme.windowBackground());

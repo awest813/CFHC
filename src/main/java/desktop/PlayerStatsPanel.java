@@ -68,6 +68,7 @@ public class PlayerStatsPanel implements LeagueScreen {
         table.getColumnModel().getColumn(2).setPreferredWidth(100);
         table.getColumnModel().getColumn(3).setPreferredWidth(120);
         StripedRowRenderer.install(table);
+        StripedRowRenderer.rightAlignColumns(table, 3);
 
         table.addMouseListener(new MouseAdapter() {
             @Override

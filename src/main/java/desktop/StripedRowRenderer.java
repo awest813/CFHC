@@ -40,6 +40,27 @@ public class StripedRowRenderer extends DefaultTableCellRenderer {
         this.numberPattern = numberPattern;
     }
 
+    private static final String RIGHT_ALIGN_KEY = "cfhc.rightAlignColumns";
+
+    /**
+     * Right-aligns the given model columns even when they hold preformatted
+     * strings (engine leaderboards arrive as text, so the Number-class check
+     * below never matches them). Call after install.
+     */
+    public static void rightAlignColumns(JTable table, int... modelColumns) {
+        table.putClientProperty(RIGHT_ALIGN_KEY, modelColumns);
+    }
+
+    private static boolean isRightAligned(JTable table, int viewColumn) {
+        if (table.getClientProperty(RIGHT_ALIGN_KEY) instanceof int[] cols) {
+            int modelColumn = table.convertColumnIndexToModel(viewColumn);
+            for (int c : cols) {
+                if (c == modelColumn) return true;
+            }
+        }
+        return false;
+    }
+
     public static void install(JTable table) {
         StripedRowRenderer r = new StripedRowRenderer();
         register(table, r);
@@ -121,7 +142,8 @@ public class StripedRowRenderer extends DefaultTableCellRenderer {
             boolean useTeamColors = teamMap != null && nameColumn >= 0;
             jl.setOpaque(!useTeamColors);
             Class<?> colClass = table.getColumnClass(column);
-            if (colClass != null && Number.class.isAssignableFrom(colClass)) {
+            if ((colClass != null && Number.class.isAssignableFrom(colClass))
+                    || isRightAligned(table, column)) {
                 jl.setHorizontalAlignment(SwingConstants.RIGHT);
             } else {
                 jl.setHorizontalAlignment(SwingConstants.LEFT);

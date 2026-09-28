@@ -68,7 +68,13 @@ public class CoachProfilePanel implements LeagueScreen {
         body.add(Box.createVerticalStrut(12));
         body.add(buildHistoryTimeline(hc));
 
-        JScrollPane scroll = new JScrollPane(body);
+        // Pin the sections to the top: as the viewport's view, the BoxLayout
+        // body was stretched to the page height and spread the extra space into
+        // every section (rating digits floated far above their captions).
+        JPanel top = new JPanel(new BorderLayout());
+        top.setOpaque(false);
+        top.add(body, BorderLayout.NORTH);
+        JScrollPane scroll = new JScrollPane(top);
         scroll.setOpaque(false);
         scroll.getViewport().setOpaque(false);
         scroll.setBorder(BorderFactory.createEmptyBorder());
@@ -191,6 +197,10 @@ public class CoachProfilePanel implements LeagueScreen {
         host.setLayout(new BorderLayout());
         host.add(tile, BorderLayout.CENTER);
         host.setOpaque(false);
+        // A JLabel's preferred size ignores child components; size the host
+        // from its tile or it collapses once the layout stops stretching it.
+        java.awt.Dimension tilePref = tile.getPreferredSize();
+        host.setPreferredSize(new java.awt.Dimension(tilePref.width, tilePref.height + 8));
         return host;
     }
 
@@ -266,6 +276,10 @@ public class CoachProfilePanel implements LeagueScreen {
         host.setLayout(new BorderLayout());
         host.add(tile, BorderLayout.CENTER);
         host.setOpaque(false);
+        // A JLabel's preferred size ignores child components; size the host
+        // from its tile or it collapses once the layout stops stretching it.
+        java.awt.Dimension tilePref = tile.getPreferredSize();
+        host.setPreferredSize(new java.awt.Dimension(tilePref.width, tilePref.height + 8));
         return host;
     }
 

@@ -62,6 +62,7 @@ public class TeamRankingsPanel implements LeagueScreen {
         table.getColumnModel().getColumn(1).setPreferredWidth(280);
         table.getColumnModel().getColumn(2).setPreferredWidth(120);
         StripedRowRenderer.installWithTeamColors(table, ctx.teamMap(), 1);
+        StripedRowRenderer.rightAlignColumns(table, 2);
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {

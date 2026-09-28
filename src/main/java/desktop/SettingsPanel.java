@@ -7,7 +7,10 @@ import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 
 public class SettingsPanel implements LeagueScreen {
 
@@ -56,7 +59,9 @@ public class SettingsPanel implements LeagueScreen {
         header.add(editTop, BorderLayout.EAST);
         panel.add(header, BorderLayout.NORTH);
 
-        JPanel summary = new JPanel(new GridLayout(0, 2, 10, 8));
+        // GridBag pinned to the top: a GridLayout in CENTER spread the ten rows
+        // over the whole page height with values half a screen from labels.
+        JPanel summary = new JPanel(new GridBagLayout());
         summary.setOpaque(false);
         summary.setBorder(DesktopTheme.titledBorder("Active Options"));
         addOptionRow(summary, "Desktop theme", DesktopTheme.isDark() ? "Dark" : "Light");
@@ -69,7 +74,10 @@ public class SettingsPanel implements LeagueScreen {
         addOptionRow(summary, "Conference realignment", enabledLabel(ctx.league().confRealignment));
         addOptionRow(summary, "Advanced realignment", enabledLabel(ctx.league().advancedRealignment));
         addOptionRow(summary, "Promotion/relegation", enabledLabel(ctx.league().enableUnivProRel));
-        panel.add(summary, BorderLayout.CENTER);
+        JPanel summaryHost = new JPanel(new BorderLayout());
+        summaryHost.setOpaque(false);
+        summaryHost.add(summary, BorderLayout.NORTH);
+        panel.add(summaryHost, BorderLayout.CENTER);
 
         JLabel note = new JLabel("<html><div style='width:620px'>Expanded playoffs lock once the regular season is underway. Promotion/relegation conversion is only available in Week 0. Save after applying changes to persist them.</div></html>");
         note.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
@@ -85,11 +93,21 @@ public class SettingsPanel implements LeagueScreen {
     }
 
     private static void addOptionRow(JPanel panel, String label, String value) {
-        JLabel left = new JLabel(label + ":");
+        int row = panel.getComponentCount() / 2;
+        JLabel left = new JLabel(label);
         JLabel right = new JLabel(value);
         right.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 13));
-        panel.add(left);
-        panel.add(right);
+
+        GridBagConstraints c = new GridBagConstraints();
+        c.gridy = row;
+        c.anchor = GridBagConstraints.WEST;
+        c.insets = new Insets(6, 4, 6, 24);
+        c.gridx = 0;
+        panel.add(left, c);
+        c.gridx = 1;
+        c.weightx = 1;
+        c.insets = new Insets(6, 0, 6, 4);
+        panel.add(right, c);
     }
 
     private static String enabledLabel(boolean enabled) {
