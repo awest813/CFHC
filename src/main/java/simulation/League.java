@@ -435,6 +435,7 @@ public class League {
         checkIndyConfExists();
 
         setupSeason();
+        prepareSeasonBaselines();
     }
 
     public static String normalizeSeedText(String value) {
@@ -630,6 +631,7 @@ public class League {
         checkIndyConfExists();
 
         setupSeason();
+        prepareSeasonBaselines();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1383,6 +1385,7 @@ public class League {
         linkUserTeamFromLoadedCoaches();
 
         restoreScheduledGames(record.scheduledGames());
+        restoreSeasonBaselines();
 
         // New-format loads skip setupSeason(), which normally allocates weekly news/score
         // buckets. Without this, preseasonNews/topRecruits NPEs on newsStories.
@@ -1602,6 +1605,82 @@ public class League {
         return name;
     }
     
+    /**
+     * Season baselines every team is graded against at season end: projected
+     * wins/poll rank (prestige change), starting prestige and talent (staff
+     * evaluation), and the league talent averages. The engine owns this now;
+     * it used to run only from Android's season-goals dialog, so desktop and
+     * headless careers had every team "projected #0" (a ~5-point prestige loss
+     * per team per season) and a zero league talent average that divided to
+     * NaN in {@code Team.advanceHC}, crushing coach OFF/DEF ratings to the floor.
+     * Keeps {@link #teamList} and conference order intact (setTeamBenchMarks
+     * re-sorts the list; updateTeamTalentRatings would re-sort every
+     * conference, which also reorders the save file).
+     */
+    public void prepareSeasonBaselines() {
+        List<Team> order = new ArrayList<>(teamList);
+        for (Team t : teamList) {
+            t.updateTalentRatings();
+        }
+        setTeamBenchMarks();
+        teamList.clear();
+        teamList.addAll(order);
+    }
+
+    /**
+     * After a record load: saves written before {@link LeagueRecord.SeasonBaseline}
+     * carry none, so measure them from the current state. Rosters are left alone
+     * (no re-sort) so a customised depth chart survives the load.
+     */
+    void restoreSeasonBaselines() {
+        if (teamList.isEmpty()) {
+            return;
+        }
+        boolean missing = false;
+        for (Team t : teamList) {
+            if (!t.hasSeasonBaseline()) {
+                missing = true;
+                break;
+            }
+        }
+        List<Team> order = new ArrayList<>(teamList);
+        if (missing) {
+            for (Team t : teamList) {
+                t.updateTalentRatings();
+            }
+            setTeamRanks();
+            for (Team t : teamList) {
+                t.captureSeasonBaselineWithoutRosterChanges();
+            }
+            for (Team t : teamList) {
+                t.projectTeamWins();
+                t.projectPollRank();
+            }
+            List<Team> byProjection = new ArrayList<>(teamList);
+            byProjection.sort(new CompTeamProjPoll());
+            for (int i = 0; i < byProjection.size(); ++i) {
+                byProjection.get(i).setProjectedPollRank(i + 1);
+            }
+        }
+        // League averages over the teams' starting talent, with the same
+        // per-step int truncation (and projected-rank iteration order) as
+        // getAverageOffTalent()/getAverageDefTalent() inside setTeamBenchMarks(),
+        // so a reload reproduces the values set when the baselines were taken.
+        List<Team> byRank = new ArrayList<>(teamList);
+        byRank.sort(java.util.Comparator.comparingInt(Team::getProjectedPollRank));
+        int off = 0;
+        int def = 0;
+        for (Team t : byRank) {
+            off += t.teamStartOffTal;
+            def += t.teamStartDefTal;
+        }
+        leagueOffTal = off / teamList.size();
+        leagueDefTal = def / teamList.size();
+        leagueChemistry = getAverageTeamChemistry();
+        teamList.clear();
+        teamList.addAll(order);
+    }
+
     //Set Up Team Benchmarks for Goals
     public void setTeamBenchMarks() {
         setTeamRanks();
@@ -6718,6 +6797,7 @@ Then conferences can see if they want to add them to their list if the teams mee
 
         // Rebuild the schedule for the new season
         setupSeason();
+        prepareSeasonBaselines();
     }
 
     /**

@@ -558,6 +558,15 @@ public class Team {
         this.rivalryWins = Math.max(0, record.rivalryWins());
         this.holdsRivalryTrophy = record.holdsRivalryTrophy();
         this.teamStadium = Math.max(0, record.teamStadium());
+        LeagueRecord.SeasonBaseline baseline = record.seasonBaseline();
+        if (baseline != null) {
+            this.teamPrestigeStart = baseline.prestigeStart();
+            this.rankTeamPrestigeStart = baseline.rankPrestigeStart();
+            this.projectedWins = baseline.projectedWins();
+            this.projectedPollRank = baseline.projectedPollRank();
+            this.teamStartOffTal = baseline.startOffTal();
+            this.teamStartDefTal = baseline.startDefTal();
+        }
         this.practiceFocus = PracticeFocus.fromSave(record.practiceFocus());
         this.practicePositionGroup = PracticeFocus.PositionGroup.fromSave(
                 record.practicePositionGroup() != null ? record.practicePositionGroup() : "");
@@ -694,8 +703,35 @@ public class Team {
                 rivalryTrophyName != null ? rivalryTrophyName : "",
                 rivalryWins,
                 holdsRivalryTrophy,
-                teamStadium
+                teamStadium,
+                seasonBaseline()
         );
+    }
+
+    /** This season's baselines for the save, or null before they were ever computed. */
+    LeagueRecord.SeasonBaseline seasonBaseline() {
+        if (projectedPollRank <= 0) {
+            return null;
+        }
+        return new LeagueRecord.SeasonBaseline(teamPrestigeStart, rankTeamPrestigeStart,
+                projectedWins, projectedPollRank, teamStartOffTal, teamStartDefTal);
+    }
+
+    boolean hasSeasonBaseline() {
+        return projectedPollRank > 0;
+    }
+
+    /**
+     * Load-time fallback for saves without a {@link LeagueRecord.SeasonBaseline}:
+     * measures the baselines from the current state. Unlike {@link #setupTeamBenchmark()}
+     * it leaves rosters alone (no re-sort, so a hand-edited depth chart survives the load).
+     */
+    void captureSeasonBaselineWithoutRosterChanges() {
+        teamPrestigeStart = teamPrestige;
+        rankTeamPrestigeStart = rankTeamPrestige;
+        teamStartOffTal = getOffTalent();
+        teamStartDefTal = getDefTalent();
+        projectedPollScore = getPreseasonBiasScore();
     }
 
     /**
@@ -1542,8 +1578,8 @@ public class Team {
         double offTal =  league.leagueOffTal - teamStartOffTal;
         double defTal = league.leagueDefTal - teamStartDefTal;
 
-        double offpts = ((offYards / avgOff) + (offTal / league.leagueOffTal)) * 4;
-        double defpts = ((defYards / avgOff) + (defTal / league.leagueDefTal)) * 4;
+        double offpts = ((offYards / avgOff) + talentShare(offTal, league.leagueOffTal)) * 4;
+        double defpts = ((defYards / avgOff) + talentShare(defTal, league.leagueDefTal)) * 4;
 
         HC.advanceSeason(offpts, defpts);
 
@@ -1576,6 +1612,15 @@ public class Team {
         }
     }
 
+    /**
+     * Talent gap as a share of the league average, 0 when the average is unknown.
+     * A zero average used to divide to NaN; {@code int += NaN} is 0, which then
+     * clamped every staff OFF/DEF rating to its floor.
+     */
+    static double talentShare(double talentGap, int leagueAverage) {
+        return leagueAverage > 0 ? talentGap / leagueAverage : 0;
+    }
+
     public void advanceCoordinator() {
         int avgOff = league.getAverageYards();
         double offYards = teamYards - avgOff;
@@ -1583,8 +1628,8 @@ public class Team {
         double offTal =  league.leagueOffTal - teamStartOffTal;
         double defTal = league.leagueDefTal - teamStartDefTal;
 
-        double offpts = ((offYards / avgOff) + (offTal / league.leagueOffTal)) * 4;
-        double defpts = ((defYards / avgOff) + (defTal / league.leagueDefTal)) * 4;
+        double offpts = ((offYards / avgOff) + talentShare(offTal, league.leagueOffTal)) * 4;
+        double defpts = ((defYards / avgOff) + talentShare(defTal, league.leagueDefTal)) * 4;
 
         if(OC != null) OC.advanceSeason(offpts, defpts);
         if(DC != null) DC.advanceSeason(offpts, defpts);
@@ -5031,10 +5076,15 @@ public class Team {
     }
 
     /**
-     * Add a QB to the team.
+     * Add a QB to the team. All addPlayerXX methods also make this team the
+     * player's owner: transfer-portal moves used to add the player here while
+     * {@code player.team} still pointed at the old school, so stat leaders,
+     * awards and player cards credited the wrong program (and the stale
+     * references accumulated season after season).
      */
     public void addPlayerQB(PlayerQB player) {
         if (player != null) {
+            player.team = this;
             teamQBs.add(player);
         }
     }
@@ -5052,6 +5102,7 @@ public class Team {
      */
     public void addPlayerRB(PlayerRB player) {
         if (player != null) {
+            player.team = this;
             teamRBs.add(player);
         }
     }
@@ -5069,6 +5120,7 @@ public class Team {
      */
     public void addPlayerWR(PlayerWR player) {
         if (player != null) {
+            player.team = this;
             teamWRs.add(player);
         }
     }
@@ -5086,6 +5138,7 @@ public class Team {
      */
     public void addPlayerTE(PlayerTE player) {
         if (player != null) {
+            player.team = this;
             teamTEs.add(player);
         }
     }
@@ -5103,6 +5156,7 @@ public class Team {
      */
     public void addPlayerK(PlayerK player) {
         if (player != null) {
+            player.team = this;
             teamKs.add(player);
         }
     }
@@ -5120,6 +5174,7 @@ public class Team {
      */
     public void addPlayerOL(PlayerOL player) {
         if (player != null) {
+            player.team = this;
             teamOLs.add(player);
         }
     }
@@ -5137,6 +5192,7 @@ public class Team {
      */
     public void addPlayerDL(PlayerDL player) {
         if (player != null) {
+            player.team = this;
             teamDLs.add(player);
         }
     }
@@ -5154,6 +5210,7 @@ public class Team {
      */
     public void addPlayerLB(PlayerLB player) {
         if (player != null) {
+            player.team = this;
             teamLBs.add(player);
         }
     }
@@ -5171,6 +5228,7 @@ public class Team {
      */
     public void addPlayerCB(PlayerCB player) {
         if (player != null) {
+            player.team = this;
             teamCBs.add(player);
         }
     }
@@ -5188,6 +5246,7 @@ public class Team {
      */
     public void addPlayerS(PlayerS player) {
         if (player != null) {
+            player.team = this;
             teamSs.add(player);
         }
     }

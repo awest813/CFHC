@@ -36,6 +36,33 @@ public class SaveManager {
     /** Result of loading a new-format save, including the resolved schema version. */
     public record LoadResult(LeagueRecord record, String schemaVersion) {}
 
+    /**
+     * Six trailing T: fields (17..22) for {@link LeagueRecord.SeasonBaseline}; empty when
+     * absent. Older readers index the T: fields they know and ignore extras.
+     */
+    static String seasonBaselineFields(LeagueRecord.SeasonBaseline b) {
+        if (b == null) {
+            return "";
+        }
+        return "\t" + b.prestigeStart() + "\t" + b.rankPrestigeStart() + "\t" + b.projectedWins()
+                + "\t" + b.projectedPollRank() + "\t" + b.startOffTal() + "\t" + b.startDefTal();
+    }
+
+    /** @return the baseline at {@code p[from..from+5]}, or null when unreadable (then recomputed on load) */
+    static LeagueRecord.SeasonBaseline parseSeasonBaseline(String[] p, int from) {
+        try {
+            return new LeagueRecord.SeasonBaseline(
+                    Integer.parseInt(p[from].trim()),
+                    Integer.parseInt(p[from + 1].trim()),
+                    Integer.parseInt(p[from + 2].trim()),
+                    Integer.parseInt(p[from + 3].trim()),
+                    Float.parseFloat(p[from + 4].trim()),
+                    Float.parseFloat(p[from + 5].trim()));
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
     public static void save(LeagueRecord league, OutputStream out) throws IOException {
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
         try {
@@ -84,7 +111,8 @@ public class SaveManager {
                         + sanitizeInlineValue(t.rivalryTrophyName()) + "\t"
                         + t.rivalryWins() + "\t"
                         + (t.holdsRivalryTrophy() ? 1 : 0) + "\t"
-                        + t.teamStadium() + "\n");
+                        + t.teamStadium()
+                        + seasonBaselineFields(t.seasonBaseline()) + "\n");
                 
                 // Coaches
                 writer.write(COACH_PREFIX + "HC," + Persistence.toCsv(t.headCoach()) + "\n");
@@ -189,6 +217,7 @@ public class SaveManager {
         int teamRivalryWins = 0;
         boolean teamHoldsRivalryTrophy = false;
         int teamStadiumLevel = 1;
+        LeagueRecord.SeasonBaseline teamSeasonBaseline = null;
         List<LeagueRecord.GameRecord> gameRecords = new ArrayList<>();
         String schemaVersion = null;
         boolean sawLeagueHeader = false;
@@ -251,6 +280,7 @@ public class SaveManager {
                 teamPracticePositionGroup = "";
                 teamFocusIntensity = "";
                 teamNilCollectiveLevel = 0;
+                teamSeasonBaseline = null;
                 String[] p = line.substring(2).split("\t", -1);
                 teamName = p[0];
                 teamAbbr = p[1];
@@ -297,6 +327,9 @@ public class SaveManager {
                 if (p.length >= 17 && !p[16].trim().isEmpty()) {
                     teamStadiumLevel = Integer.parseInt(p[16].trim());
                 }
+                if (p.length >= 23) {
+                    teamSeasonBaseline = parseSeasonBaseline(p, 17);
+                }
                 roster = new ArrayList<>();
                 history = new ArrayList<>();
                 tRecords = new ArrayList<>();
@@ -340,7 +373,7 @@ public class SaveManager {
                         teamPracticePositionGroup, teamFocusIntensity,
                         teamNilCollectiveLevel, "", teamPrevRankTeamPollScore,
                         teamRivalName, teamRivalryTrophyName, teamRivalryWins, teamHoldsRivalryTrophy,
-                        teamStadiumLevel));
+                        teamStadiumLevel, teamSeasonBaseline));
             } else if (line.startsWith(GAME_PREFIX)) {
                 gameRecords.add(LeagueRecord.GameRecord.fromSaveLine(line.substring(GAME_PREFIX.length())));
             }

@@ -57,8 +57,26 @@ public record LeagueRecord(
         String rivalryTrophyName,
         int rivalryWins,
         boolean holdsRivalryTrophy,
-        int teamStadium
+        int teamStadium,
+        SeasonBaseline seasonBaseline
     ) {
+        /** Pre-baseline call shape: saves and callers without a {@link SeasonBaseline}. */
+        public TeamRecord(String name, String abbr, int prestige, int wins, int losses,
+                          List<Integer> oocWeeks, List<String> oocOpponentNames,
+                          float teamPollScore, int rankTeamPollScore,
+                          StaffRecord headCoach, StaffRecord offenseCoach, StaffRecord defenseCoach,
+                          List<PlayerRecord> roster, List<TeamHistoryRecord> history, List<DataRecord> records,
+                          String practiceFocus, String practicePositionGroup, String focusIntensity,
+                          int nilCollectiveLevel, String nickname, int prevRankTeamPollScore,
+                          String rivalName, String rivalryTrophyName, int rivalryWins,
+                          boolean holdsRivalryTrophy, int teamStadium) {
+            this(name, abbr, prestige, wins, losses, oocWeeks, oocOpponentNames, teamPollScore,
+                    rankTeamPollScore, headCoach, offenseCoach, defenseCoach, roster, history, records,
+                    practiceFocus, practicePositionGroup, focusIntensity, nilCollectiveLevel, nickname,
+                    prevRankTeamPollScore, rivalName, rivalryTrophyName, rivalryWins, holdsRivalryTrophy,
+                    teamStadium, null);
+        }
+
         public TeamRecord {
             if (practiceFocus == null) {
                 practiceFocus = "";
@@ -92,6 +110,23 @@ public record LeagueRecord(
             }
         }
     }
+
+    /**
+     * What a team was measured against this season: starting prestige/rank,
+     * the preseason projection, and starting talent. The season-end prestige
+     * update ({@code Team.calcSeasonPrestige}) and staff evaluation
+     * ({@code Team.advanceHC}) grade against these, so they must survive a
+     * mid-season save/load. {@code null} on a {@link TeamRecord} means the save
+     * predates them; {@code League} recomputes them on load.
+     */
+    public record SeasonBaseline(
+            int prestigeStart,
+            int rankPrestigeStart,
+            int projectedWins,
+            int projectedPollRank,
+            float startOffTal,
+            float startDefTal
+    ) {}
 
     /**
      * One row per unique {@link Game} (deduped by identity across team schedules).

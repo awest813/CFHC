@@ -98,6 +98,9 @@ public class StabilityTester {
 
                 validateCompletedSeason(league, expectedTeamCount, seasonYear,
                         historyBefore, championsBefore, steps);
+                // Realignment may promote an FCS school into the Independents
+                // (never removes one), so the count can only grow.
+                expectedTeamCount = league.getTeamList().size();
 
                 System.out.println("Season " + seasonYear + " complete in " + steps + " steps.");
                 System.out.println("User Team Record: " + userTeam.getWins() + "-" + userTeam.getLosses());
@@ -124,8 +127,8 @@ public class StabilityTester {
     }
 
     private static void validateNewSeasonState(League league, int expectedTeamCount, int expectedYear) {
-        require(league.getTeamList().size() == expectedTeamCount,
-                "Team count changed at new-season boundary: expected " + expectedTeamCount
+        require(league.getTeamList().size() >= expectedTeamCount,
+                "Team count shrank at new-season boundary: expected at least " + expectedTeamCount
                         + " but got " + league.getTeamList().size());
         require(league.getYear() == expectedYear,
                 "Unexpected league year at new-season boundary: expected " + expectedYear
@@ -149,8 +152,8 @@ public class StabilityTester {
                                                 int historyBefore, int championsBefore, int steps) {
         require(steps > league.regSeasonWeeks,
                 "Season " + seasonYear + " completed suspiciously quickly in " + steps + " steps.");
-        require(league.getTeamList().size() == expectedTeamCount,
-                "Team count changed during season " + seasonYear);
+        require(league.getTeamList().size() >= expectedTeamCount,
+                "Team count shrank during season " + seasonYear);
         require(league.getLeagueHistory().size() > historyBefore,
                 "League history did not record season " + seasonYear);
         require(countNationalChampionships(league) > championsBefore,
