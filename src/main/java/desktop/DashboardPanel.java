@@ -50,6 +50,10 @@ public class DashboardPanel implements LeagueScreen {
     private final Callbacks cb;
     private final DesktopUiBridge bridge;
     private final League league;
+    /** Resolved per build in {@link #buildPanel}; see {@link DesktopRecruitingBudget}. */
+    private int recruitingBudget = -1;
+    /** Program Health's budget tile, captured per build for in-place updates. */
+    private JLabel healthBudgetLabel;
 
     public DashboardPanel(League league, DesktopUiBridge bridge, Callbacks cb) {
         this.league = league;
@@ -105,7 +109,12 @@ public class DashboardPanel implements LeagueScreen {
             if (ctx != null) ctx.nav().selectScreen("Recruiting");
             else cb.selectRecruitingTab().run();
         }));
-        grid.add(new ProgramFinancesCard(league.userTeam));
+        // One value for Program Finances and Program Health so they can't
+        // disagree; the host window supplies the live board's remaining budget.
+        recruitingBudget = DesktopRecruitingBudget.forTeam(league.userTeam,
+                ctx != null ? ctx.parent() : null);
+        ProgramFinancesCard finances = new ProgramFinancesCard(league.userTeam, recruitingBudget);
+        grid.add(finances);
         grid.add(new ProgramPrestigeCard(league.userTeam));
 
         grid.add(new TeamMoraleCard(league.userTeam));
@@ -159,6 +168,23 @@ public class DashboardPanel implements LeagueScreen {
         }
         bottom.add(quick, BorderLayout.NORTH);
         panel.add(bottom, BorderLayout.SOUTH);
+
+        // Sidebar navigation only flips cards; it doesn't rebuild this screen.
+        // Re-read the budget whenever Home is shown so money spent on the
+        // recruiting board shows up immediately, not after the next week.
+        JLabel healthBudget = healthBudgetLabel;
+        panel.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
+                int now = DesktopRecruitingBudget.forTeam(league.userTeam,
+                        ctx != null ? ctx.parent() : null);
+                finances.setRecruitingBudget(now);
+                if (healthBudget != null) {
+                    setStatCardText(healthBudget, "Recruiting Budget", DesktopRecruitingBudget.format(now),
+                            DesktopTheme.textPrimary());
+                }
+            }
+        });
 
         return panel;
     }
@@ -304,11 +330,14 @@ public class DashboardPanel implements LeagueScreen {
         // overlapping label and value).
         Team user = league.userTeam;
         if (user != null) {
-            cards.add(makeStatCard("Recruiting Budget", buildRecruitingBudgetLabel(user), cardBg, cardFg));
+            JPanel budgetCard = makeStatCard("Recruiting Budget", buildRecruitingBudgetLabel(user), cardBg, cardFg);
+            healthBudgetLabel = (JLabel) budgetCard.getComponent(0);
+            cards.add(budgetCard);
             cards.add(makeStatCard("NIL Collective", "Tier " + user.getNilCollectiveLevel(), cardBg, cardFg));
             cards.add(makeStatCard("Skill Progress", buildCoachSkillLabel(user), cardBg, cardFg));
             cards.add(makeStatCard("Roster Health", buildRosterHealthLabel(user), cardBg, cardFg));
         } else {
+            healthBudgetLabel = null;
             cards.add(makeStatCard("Recruiting Budget", "-", cardBg, cardFg));
             cards.add(makeStatCard("NIL Collective", "-", cardBg, cardFg));
             cards.add(makeStatCard("Skill Progress", "-", cardBg, cardFg));
@@ -319,9 +348,7 @@ public class DashboardPanel implements LeagueScreen {
     }
 
     private String buildRecruitingBudgetLabel(Team user) {
-        if (user == null) return "-";
-        // Shared with Program Finances so the two cards can't disagree again.
-        return "$" + ProgramFinancesCard.recruitingBudget(user);
+        return user == null ? "-" : DesktopRecruitingBudget.format(recruitingBudget);
     }
 
     private String buildCoachSkillLabel(Team user) {
@@ -351,14 +378,19 @@ public class DashboardPanel implements LeagueScreen {
         // Single HTML label (small caption over bold value): these cards live
         // in ~34px grid rows — two BorderLayout regions get crushed into each
         // other there, one label can't.
-        JLabel combined = new JLabel("<html><span style=\"font-size:9px;color:"
+        JLabel combined = new JLabel();
+        setStatCardText(combined, label, value, fg);
+        card.add(combined, BorderLayout.CENTER);
+        return card;
+    }
+
+    private static void setStatCardText(JLabel target, String label, String value, Color fg) {
+        target.setText("<html><span style=\"font-size:9px;color:"
                 + DesktopTheme.cssRgb(DesktopTheme.textSecondary()) + "\">"
                 + DesktopTheme.escapeForHtml(label.toUpperCase(Locale.ROOT))
                 + "</span><br><b style=\"font-size:12px;color:" + DesktopTheme.cssRgb(fg)
                 + "\">" + DesktopTheme.escapeForHtml(value) + "</b></html>");
-        combined.setToolTipText(label + ": " + value);
-        card.add(combined, BorderLayout.CENTER);
-        return card;
+        target.setToolTipText(label + ": " + value);
     }
 
     private JPanel buildNextMovesPanel() {

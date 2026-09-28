@@ -374,6 +374,23 @@ public final class SimulationFacade {
         return prepareRecruitingSessionFromPayload(buildRecruitingPayload(userTeam));
     }
 
+    /**
+     * The starting recruiting budget {@link #prepareRecruitingSession} would give
+     * {@code team} (base + NIL tier + coach bonus + roster-need bonus), computed
+     * without its side effects: no roster sort (which would reset a hand-edited
+     * depth chart) and no freshly generated recruit class (which consumes the
+     * simulation RNG). Safe to call from read-only views.
+     */
+    public static int previewRecruitingBudget(Team team) {
+        if (team == null) {
+            throw new IllegalArgumentException("team is required");
+        }
+        RecruitingSessionData session = RecruitingSessionData.fromUserTeamInfo(
+                buildRecruitingHeader(team) + "END_TEAM_INFO%\n");
+        session.applyBudgetBonuses(MIN_ROSTER_SIZE, team.getAllPlayers().size());
+        return session.recruitingBudget;
+    }
+
     /** Builds a session from a frozen board payload (used for desktop recruiting checkpoints). */
     public static RecruitingSessionData prepareRecruitingSessionFromPayload(String payload) {
         if (payload == null || payload.isEmpty()) {
@@ -388,24 +405,28 @@ public final class SimulationFacade {
         if (userTeam == null) {
             throw new IllegalArgumentException("userTeam is required");
         }
-        StringBuilder sb = new StringBuilder();
         userTeam.sortPlayers();
-        HeadCoach hc = userTeam.getHeadCoach();
-        int recruitSkill = hc != null ? Math.min(95, hc.ratTalent + hc.recruitingPitchBonus()) : 70;
-        int coachBudgetBonus = hc != null ? hc.recruitingBudgetBonus() : 0;
-        sb.append(userTeam.getConference()).append(",")
-                .append(userTeam.getName()).append(",")
-                .append(userTeam.getAbbr()).append(",")
-                .append(userTeam.getUserRecruitBudget()).append(",")
-                .append(recruitSkill).append(",")
-                .append(userTeam.getNilCollectiveLevel()).append(",")
-                .append(coachBudgetBonus).append("%\n");
+        StringBuilder sb = new StringBuilder(buildRecruitingHeader(userTeam));
         for (Player player : userTeam.getAllPlayers()) {
             sb.append(Persistence.toCsv(player.toRecord())).append("%\n");
         }
         sb.append("END_TEAM_INFO%\n");
         sb.append(userTeam.getRecruitsInfoSaveFile());
         return sb.toString();
+    }
+
+    /** First payload line: conference, name, abbr, budget units, coach skill, NIL tier, coach bonus. */
+    private static String buildRecruitingHeader(Team team) {
+        HeadCoach hc = team.getHeadCoach();
+        int recruitSkill = hc != null ? Math.min(95, hc.ratTalent + hc.recruitingPitchBonus()) : 70;
+        int coachBudgetBonus = hc != null ? hc.recruitingBudgetBonus() : 0;
+        return team.getConference() + ","
+                + team.getName() + ","
+                + team.getAbbr() + ","
+                + team.getUserRecruitBudget() + ","
+                + recruitSkill + ","
+                + team.getNilCollectiveLevel() + ","
+                + coachBudgetBonus + "%\n";
     }
 
     private void requireLeague() {

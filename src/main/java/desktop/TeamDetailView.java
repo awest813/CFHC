@@ -467,7 +467,8 @@ public class TeamDetailView extends JDialog {
         };
 
         model.addRow(new Object[]{"Team Budget", "$" + String.format(Locale.ROOT, "%,d", team.getTeamBudget())});
-        model.addRow(new Object[]{"Recruiting Budget", "$" + String.format(Locale.ROOT, "%,d", ProgramFinancesCard.recruitingBudget(team))});
+        model.addRow(new Object[]{"Recruiting Budget",
+                DesktopRecruitingBudget.format(DesktopRecruitingBudget.forTeam(team, ownerFrame))});
         model.addRow(new Object[]{"Discipline Budget", "$" + String.format(Locale.ROOT, "%,d", team.getTeamDisciplineBudget())});
         model.addRow(new Object[]{"", ""});
         model.addRow(new Object[]{"Facilities Level", team.getTeamFacilities()});

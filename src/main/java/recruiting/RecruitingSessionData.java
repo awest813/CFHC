@@ -175,7 +175,12 @@ public final class RecruitingSessionData {
     }
 
     public void applyBudgetBonuses(int minPlayers) {
-        int recBonus = (int) ((minPlayers - teamPlayers.size()) * 27.5);
+        applyBudgetBonuses(minPlayers, teamPlayers.size());
+    }
+
+    /** As {@link #applyBudgetBonuses(int)} with an explicit roster size (budget previews carry no roster). */
+    public void applyBudgetBonuses(int minPlayers, int rosterSize) {
+        int recBonus = (int) ((minPlayers - rosterSize) * 27.5);
         int coachBonus = (int) (coachTalent * 3.5);
         recruitingBudget += Math.max(0, recBonus + coachBonus);
     }

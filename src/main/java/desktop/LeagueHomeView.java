@@ -66,7 +66,7 @@ import java.util.Locale;
  * <p>The view uses {@link SeasonController} for all week advancement so the full
  * season/offseason/new-season loop works correctly without any Android dependencies.
  */
-public class LeagueHomeView extends JFrame {
+public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.LiveBoard {
 
     private static final String TAG = "LeagueHomeView";
     private static final int HEADER_HEIGHT = 96;
@@ -1922,6 +1922,12 @@ public class LeagueHomeView extends JFrame {
 
     private void rebuildContentCards() {
         screenContext.updateRecord(currentRecord);
+        // Load (or restore) the recruiting board before the screens are built,
+        // so the dashboard's recruiting budget reflects money already spent.
+        // buildRecruitingTab() below needs it loaded anyway.
+        if (leagueCore.userTeam != null && leagueCore.userTeam.isUserControlled()) {
+            ensureRecruitingSessionLoaded();
+        }
         // Weekly refresh rebuilds every screen; without capturing scroll
         // positions first, the user's place in long lists (standings, stats,
         // records) jumps back to the top every single week.
@@ -2240,6 +2246,14 @@ public class LeagueHomeView extends JFrame {
         info.setForeground(DesktopTheme.textPrimary());
         outer.add(info, BorderLayout.NORTH);
         return outer;
+    }
+
+    @Override
+    public int remainingRecruitingBudget(Team team) {
+        if (team == null || team != leagueCore.userTeam || !recruitingStore.hasSession()) {
+            return -1;
+        }
+        return recruitingStore.session().recruitingBudget;
     }
 
     private void ensureRecruitingSessionLoaded() {
