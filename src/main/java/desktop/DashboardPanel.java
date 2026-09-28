@@ -1,6 +1,5 @@
 package desktop;
 
-import recruiting.RecruitingSessionData;
 import simulation.CoachSkills;
 import simulation.League;
 import simulation.SeasonFlowOrder;
@@ -321,12 +320,8 @@ public class DashboardPanel implements LeagueScreen {
 
     private String buildRecruitingBudgetLabel(Team user) {
         if (user == null) return "-";
-        try {
-            RecruitingSessionData session = SimulationFacade.prepareRecruitingSession(user);
-            return "$" + session.recruitingBudget;
-        } catch (RuntimeException ex) {
-            return "$" + user.getUserRecruitBudget();
-        }
+        // Shared with Program Finances so the two cards can't disagree again.
+        return "$" + ProgramFinancesCard.recruitingBudget(user);
     }
 
     private String buildCoachSkillLabel(Team user) {

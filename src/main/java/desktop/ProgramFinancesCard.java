@@ -1,5 +1,6 @@
 package desktop;
 
+import simulation.SimulationFacade;
 import simulation.Team;
 
 import javax.swing.JLabel;
@@ -21,7 +22,7 @@ public class ProgramFinancesCard extends CustomCardPanel {
         JPanel content = getContentArea();
 
         int budget = team != null ? team.getTeamBudget() : 0;
-        int recruitBudget = team != null ? team.getTeamRecruitBudget() : 0;
+        int recruitBudget = recruitingBudget(team);
         int nilTier = team != null ? team.getNilCollectiveLevel() : 0;
         int facilities = team != null ? team.teamFacilities : 0;
 
@@ -35,6 +36,21 @@ public class ProgramFinancesCard extends CustomCardPanel {
         list.add(buildFinRow("Discipline", team != null ? team.teamDisciplineScore + "%" : "\u2014", DesktopTheme.textPrimary()));
 
         content.add(list, BorderLayout.CENTER);
+    }
+
+    /**
+     * The recruiting budget the user actually gets on the board: base budget
+     * plus coach and roster-need bonuses, the same figure the Recruiting screen
+     * shows. ({@code Team.getTeamRecruitBudget()} is a legacy field that is
+     * never set and always read $0.)
+     */
+    static int recruitingBudget(Team team) {
+        if (team == null) return 0;
+        try {
+            return SimulationFacade.prepareRecruitingSession(team).recruitingBudget;
+        } catch (RuntimeException ex) {
+            return team.getUserRecruitBudget();
+        }
     }
 
     /** Format an integer budget as $X.XM or $XK depending on magnitude. */
