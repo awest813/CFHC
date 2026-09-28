@@ -165,7 +165,7 @@ public class TeamMoraleCard extends CustomCardPanel {
 
         JLabel v = new JLabel(String.valueOf(val), JLabel.RIGHT);
         v.setFont(new Font("Monospaced", Font.BOLD, 10));
-        v.setForeground(Color.WHITE);
+        v.setForeground(DesktopTheme.textPrimary());
         v.setPreferredSize(new Dimension(20, 14));
 
         r.add(l, BorderLayout.WEST);

@@ -111,7 +111,8 @@ public class TopNewsCarouselCard extends CustomCardPanel {
 
         JLabel sub = new JLabel("COLLEGE FOOTBALL BULLETIN");
         sub.setFont(new Font("SansSerif", Font.PLAIN, 8));
-        sub.setForeground(DesktopTheme.textSecondary());
+        // The hero banner paints a fixed navy gradient in every theme.
+        sub.setForeground(new Color(148, 163, 184));
 
         hero.add(heroTop, BorderLayout.NORTH);
         hero.add(sub, BorderLayout.SOUTH);
@@ -140,7 +141,7 @@ public class TopNewsCarouselCard extends CustomCardPanel {
 
         JLabel title = new JLabel("<html><b>" + escapeHtml(titleText) + "</b></html>");
         title.setFont(new Font("SansSerif", Font.BOLD, 12));
-        title.setForeground(Color.WHITE);
+        title.setForeground(DesktopTheme.textPrimary());
 
         JLabel snippet = new JLabel("<html><body style='width: 180px;'>" + escapeHtml(snippetText) + "</body></html>");
         snippet.setFont(new Font("SansSerif", Font.PLAIN, 10));

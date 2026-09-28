@@ -18,7 +18,7 @@ import java.lang.reflect.Method;
  * buffered images.
  *
  * Run from the repo root (needs desktop classes + resources on classpath):
- *   java -cp "build/desktop/classes;build/desktop/resources;libs/*" desktop.UiSnapshotTool outDir [weeksToSim]
+ *   java -cp "build/desktop/classes;build/desktop/resources;libs/*" desktop.UiSnapshotTool outDir [weeksToSim] [theme] [WxH]
  */
 public final class UiSnapshotTool {
 
@@ -29,6 +29,15 @@ public final class UiSnapshotTool {
         // Optional 3rd arg: force a theme variant for color-scheme audits
         // ("dark" | "light" | "hc"). Default: whatever the user prefs hold.
         String themeArg = args.length > 2 ? args[2] : null;
+        // Optional 4th arg: window size as WIDTHxHEIGHT (default 1600x1000).
+        // Audit at 1200x850 too — that is the size a new LeagueHomeView opens at.
+        int frameW = 1600;
+        int frameH = 1000;
+        if (args.length > 3) {
+            String[] wh = args[3].toLowerCase(java.util.Locale.ROOT).split("x");
+            frameW = Integer.parseInt(wh[0].trim());
+            frameH = Integer.parseInt(wh[1].trim());
+        }
         new File(outDir).mkdirs();
 
         DesktopTheme.load();
@@ -61,7 +70,7 @@ public final class UiSnapshotTool {
         }
 
         LeagueHomeView view = new LeagueHomeView(league);
-        view.setSize(1600, 1000);
+        view.setSize(frameW, frameH);
         view.setLocationRelativeTo(null);
         // The window must actually be realized on-screen for the LAF and
         // RepaintManager to paint correctly; printAll captures it without
@@ -90,6 +99,20 @@ public final class UiSnapshotTool {
             Thread.sleep(300);
             capture(view.getContentPane(), outDir + "/" + screen.replace(' ', '_').toLowerCase() + ".png");
             System.out.println("captured: " + screen);
+            if ("Home".equals(screen)) {
+                // The dashboard grid scrolls when its rows don't fit; capture the lower half too.
+                javax.swing.JScrollPane gridScroll = findGridScroll(view.getContentPane());
+                if (gridScroll != null) {
+                    // Whole grid in one image, regardless of the viewport.
+                    capture(gridScroll.getViewport().getView(), outDir + "/home_grid.png");
+                    javax.swing.JScrollBar bar = gridScroll.getVerticalScrollBar();
+                    javax.swing.SwingUtilities.invokeAndWait(() -> bar.setValue(bar.getMaximum()));
+                    Thread.sleep(300);
+                    capture(view.getContentPane(), outDir + "/home_scrolled.png");
+                    javax.swing.SwingUtilities.invokeAndWait(() -> bar.setValue(0));
+                    System.out.println("captured: Home (scrolled)");
+                }
+            }
         }
 
         view.setVisible(false);
@@ -146,6 +169,24 @@ public final class UiSnapshotTool {
                 }
             }
         }
+    }
+
+    /** Scroll pane whose view is the dashboard {@link DashboardCardGrid}, or null. */
+    private static javax.swing.JScrollPane findGridScroll(java.awt.Container root) {
+        for (java.awt.Component c : root.getComponents()) {
+            if (c instanceof javax.swing.JScrollPane sp
+                    && sp.getViewport().getView() instanceof DashboardCardGrid
+                    && sp.isShowing()) {
+                return sp;
+            }
+            if (c instanceof java.awt.Container inner) {
+                javax.swing.JScrollPane found = findGridScroll(inner);
+                if (found != null) {
+                    return found;
+                }
+            }
+        }
+        return null;
     }
 
     private static GameUiBridge silentBridge() {

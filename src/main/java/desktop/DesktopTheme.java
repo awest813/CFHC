@@ -311,6 +311,28 @@ public final class DesktopTheme {
 
     public static Color headerBackground() { return _headerBg; }
 
+    /*
+     * The broadcast header is dark in every theme (light mode uses a charcoal
+     * header, high-contrast modes use black), so its text and chips must not
+     * follow the body text tokens — textSecondary() is near-black in light mode
+     * and would vanish against the header.
+     */
+
+    /** Primary text on {@link #headerBackground()} (always light). */
+    public static Color headerText() { return Color.WHITE; }
+
+    /** Secondary text on {@link #headerBackground()} (always a light slate). */
+    public static Color headerTextMuted() {
+        if (highContrast) return new Color(225, 225, 225);
+        return dark ? new Color(148, 163, 184) : new Color(173, 181, 189);
+    }
+
+    /** Pill / chip fill that sits on {@link #headerBackground()}. */
+    public static Color headerChipBackground() {
+        if (highContrast) return new Color(28, 28, 28);
+        return dark ? new Color(17, 28, 46) : new Color(52, 58, 64);
+    }
+
     public static Color conferenceHeaderBackground() { return _confHeaderBg; }
 
     public static Color statusBackground() { return _statusBg; }

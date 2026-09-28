@@ -76,12 +76,10 @@ public class DashboardPanel implements LeagueScreen {
 
         panel.add(buildCommandCenterHero(), BorderLayout.NORTH);
 
-        // 4-Column Grid for Modular Cards Suite.
-        // rows=0 (auto) is deliberate: 16 cards flow into 4 rows x 4 cols.
-        // A fixed rows>0 makes GridLayout recompute columns (16/3 -> 6 cols),
-        // which squeezed every card to ~210px and broke their layouts.
-        JPanel grid = new JPanel(new GridLayout(0, 4, 12, 12));
-        grid.setOpaque(false);
+        // Responsive card grid (2-4 columns, minimum row height) in a vertical
+        // scroll pane: a fixed 4x4 grid crushed every card at the default
+        // 1200x850 window size. See DashboardCardGrid.
+        DashboardCardGrid grid = new DashboardCardGrid();
 
         grid.add(new TeamOverallCard(league.userTeam, () -> {
             if (ctx != null) ctx.nav().openUserTeamDetail();
@@ -130,7 +128,14 @@ public class DashboardPanel implements LeagueScreen {
         grid.add(buildAwardsPanel());
         grid.add(buildLatestHeadlinesPanel());
 
-        panel.add(grid, BorderLayout.CENTER);
+        JScrollPane gridScroll = new JScrollPane(grid,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        gridScroll.setBorder(BorderFactory.createEmptyBorder());
+        gridScroll.setOpaque(false);
+        gridScroll.getViewport().setOpaque(false);
+        gridScroll.getVerticalScrollBar().setUnitIncrement(24);
+        panel.add(gridScroll, BorderLayout.CENTER);
 
         JPanel bottom = new JPanel(new BorderLayout(0, 4));
         bottom.setOpaque(false);
@@ -160,7 +165,7 @@ public class DashboardPanel implements LeagueScreen {
     }
 
     private JPanel buildCommandCenterHero() {
-        JPanel hero = new JPanel(new BorderLayout(16, 0)) {
+        JPanel hero = new JPanel(new BorderLayout(16, 8)) {
             @Override
             protected void paintComponent(Graphics g) {
                 DesktopTheme.paintCardGradient(g, getWidth(), getHeight(),
@@ -175,29 +180,33 @@ public class DashboardPanel implements LeagueScreen {
                 BorderFactory.createLineBorder(DesktopTheme.borderSubtle(), 1),
                 BorderFactory.createEmptyBorder(14, 16, 14, 16)));
 
-        JPanel actionBlock = new JPanel(new BorderLayout(0, 8));
-        actionBlock.setOpaque(false);
+        // Top row: eyebrow + season timeline. Keeping the 6-chip timeline out
+        // of the EAST column stops it from starving the action text of width
+        // ("Upcoming: vs Cincinnati (4-" was clipped at 1200px).
+        JPanel topRow = new JPanel(new BorderLayout(16, 0));
+        topRow.setOpaque(false);
         JLabel eyebrow = new JLabel("COACH COMMAND CENTER");
         eyebrow.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 11));
         eyebrow.setForeground(DesktopTheme.textSecondary());
+        topRow.add(eyebrow, BorderLayout.WEST);
+        topRow.add(buildSeasonTimelinePanel(), BorderLayout.EAST);
+        hero.add(topRow, BorderLayout.NORTH);
+
+        JPanel actionBlock = new JPanel(new BorderLayout(0, 4));
+        actionBlock.setOpaque(false);
         JLabel nextAction = new JLabel(playWeekLabel());
         nextAction.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 26));
         nextAction.setForeground(DesktopTheme.textPrimary());
-        JLabel context = new JLabel("<html><body style='width:420px; margin-top: 4px;'>"
+        JLabel context = new JLabel("<html><body style='width:400px;'>"
                 + "<span style='font-size:14px; font-weight:bold; color:" + DesktopTheme.cssRgb(DesktopTheme.textPrimary()) + "'>"
                 + DesktopTheme.escapeForHtml(buildUpcomingMatchupText()) + "</span><br>"
                 + "<span style='font-size:12px; color:" + DesktopTheme.cssRgb(DesktopTheme.textSecondary()) + "'>"
                 + DesktopTheme.escapeForHtml(buildNextActionContext()) + "</span></body></html>");
-        actionBlock.add(eyebrow, BorderLayout.NORTH);
-        actionBlock.add(nextAction, BorderLayout.CENTER);
-        actionBlock.add(context, BorderLayout.SOUTH);
+        actionBlock.add(nextAction, BorderLayout.NORTH);
+        actionBlock.add(context, BorderLayout.CENTER);
         hero.add(actionBlock, BorderLayout.CENTER);
 
-        JPanel right = new JPanel(new BorderLayout(0, 10));
-        right.setOpaque(false);
-        right.add(buildSeasonTimelinePanel(), BorderLayout.NORTH);
-        right.add(buildLastResultPanel(), BorderLayout.CENTER);
-        hero.add(right, BorderLayout.EAST);
+        hero.add(buildLastResultPanel(), BorderLayout.EAST);
         return hero;
     }
 
@@ -240,10 +249,11 @@ public class DashboardPanel implements LeagueScreen {
     private JPanel buildLastResultPanel() {
         JPanel result = new JPanel(new BorderLayout(0, 2));
         result.setOpaque(false);
-        JLabel label = new JLabel("Recent Outcome");
+        result.setBorder(BorderFactory.createEmptyBorder(6, 0, 0, 0));
+        JLabel label = new JLabel("RECENT OUTCOME");
         label.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 11));
         label.setForeground(DesktopTheme.textSecondary());
-        JLabel value = new JLabel("<html><body style='width:360px;'>"
+        JLabel value = new JLabel("<html><body style='width:240px;'>"
                 + DesktopTheme.escapeForHtml(buildRecentOutcomeText()) + "</body></html>");
         value.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 13));
         value.setForeground(DesktopTheme.textPrimary());
@@ -279,15 +289,15 @@ public class DashboardPanel implements LeagueScreen {
     }
 
     private JPanel buildProgramHealthPanel() {
-        JPanel health = new JPanel(new BorderLayout(0, 8));
-        health.setOpaque(false);
-        health.setBorder(DesktopTheme.titledBorder("Program Health"));
+        // HUD card like the 12 above it (was a TitledBorder panel, a second
+        // visual language on the same screen).
+        CustomCardPanel health = new CustomCardPanel("Program Health");
         // 2 columns: three across a ~325px card left ~100px per stat card,
         // which truncated every label ("Recruiting Bu...").
         JPanel cards = new JPanel(new GridLayout(0, 2, 8, 8));
         cards.setOpaque(false);
 
-        Color cardBg = DesktopTheme.pollLeaderCard();
+        Color cardBg = DesktopTheme.tableStripe();
         Color cardFg = DesktopTheme.textPrimary();
         // 2x2 cards: "Current Period" / "Next Action" were dropped — they
         // duplicated the Coach Command Center hero directly above, and 6
@@ -305,7 +315,7 @@ public class DashboardPanel implements LeagueScreen {
             cards.add(makeStatCard("Skill Progress", "-", cardBg, cardFg));
             cards.add(makeStatCard("Roster Health", "-", cardBg, cardFg));
         }
-        health.add(cards, BorderLayout.CENTER);
+        health.getContentArea().add(cards, BorderLayout.CENTER);
         return health;
     }
 
@@ -326,7 +336,7 @@ public class DashboardPanel implements LeagueScreen {
         for (int b = 0; b < CoachSkills.BRANCH_COUNT; b++) {
             totalRanks += CoachSkills.getRank(hc.coachSkillRanksBits, b);
         }
-        return hc.coachSkillXp + " XP / " + totalRanks + " ranks";
+        return hc.coachSkillXp + " XP \u2022 " + totalRanks + (totalRanks == 1 ? " rank" : " ranks");
     }
 
     private String buildRosterHealthLabel(Team user) {
@@ -340,15 +350,18 @@ public class DashboardPanel implements LeagueScreen {
         JPanel card = new JPanel(new BorderLayout());
         card.setOpaque(true);
         card.setBackground(bg);
-        card.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(DesktopTheme.borderSubtle()),
+                BorderFactory.createEmptyBorder(4, 10, 4, 10)));
         // Single HTML label (small caption over bold value): these cards live
         // in ~34px grid rows — two BorderLayout regions get crushed into each
         // other there, one label can't.
         JLabel combined = new JLabel("<html><span style=\"font-size:9px;color:"
                 + DesktopTheme.cssRgb(DesktopTheme.textSecondary()) + "\">"
-                + DesktopTheme.escapeForHtml(label)
+                + DesktopTheme.escapeForHtml(label.toUpperCase(Locale.ROOT))
                 + "</span><br><b style=\"font-size:12px;color:" + DesktopTheme.cssRgb(fg)
                 + "\">" + DesktopTheme.escapeForHtml(value) + "</b></html>");
+        combined.setToolTipText(label + ": " + value);
         card.add(combined, BorderLayout.CENTER);
         return card;
     }
@@ -425,10 +438,7 @@ public class DashboardPanel implements LeagueScreen {
     }
 
     private JPanel buildLatestHeadlinesPanel() {
-        JPanel news = new JPanel(new BorderLayout());
-        news.setOpaque(true);
-        news.setBackground(DesktopTheme.windowBackground());
-        news.setBorder(DesktopTheme.titledBorder("Latest Headlines"));
+        CustomCardPanel news = new CustomCardPanel("Latest Headlines");
         DefaultListModel<String> newsModel = new DefaultListModel<>();
         if (league.getNewsHeadlines() != null) {
             league.getNewsHeadlines().stream().limit(8).forEach(newsModel::addElement);
@@ -436,67 +446,116 @@ public class DashboardPanel implements LeagueScreen {
         if (newsModel.isEmpty()) {
             newsModel.addElement("No headlines yet. Advance the week to generate league news.");
         }
-        JList<String> newsList = new JList<>(newsModel);
-        newsList.setFont(new Font("SansSerif", Font.PLAIN, 13));
+        // Track the viewport width: a plain JList sizes itself to its widest
+        // (unwrapped) row, so the width-based wrap below never kicked in.
+        JList<String> newsList = new JList<>(newsModel) {
+            @Override
+            public boolean getScrollableTracksViewportWidth() {
+                return true;
+            }
+        };
+        newsList.setFont(new Font("SansSerif", Font.PLAIN, 12));
         newsList.setVisibleRowCount(4);
         DesktopTheme.styleListShell(newsList);
         newsList.setCellRenderer(new javax.swing.DefaultListCellRenderer() {
             @Override
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 JLabel l = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                l.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+                l.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
                 String fg = isSelected ? "rgb(255,255,255)" : DesktopTheme.cssRgb(DesktopTheme.textPrimary());
-                l.setText("<html><body style='width:230px;color:" + fg + ";'>- "
-                        + DesktopTheme.escapeForHtml(value.toString()) + "</body></html>");
+                // Wrap to the list's real width (a fixed 230px clipped headlines
+                // mid-word whenever the card was narrower than the HTML body).
+                int wrap = Math.max(120, list.getWidth() - 24);
+                l.setText("<html><body style='width:" + wrap + "px;color:" + fg + ";'>"
+                        + DesktopTheme.escapeForHtml(headlineTitle(value.toString())) + "</body></html>");
+                l.setToolTipText(null);
                 DesktopTheme.decorateListCellLabel(l, index, isSelected, null);
                 return l;
             }
         });
+        // JList caches row heights; re-measure the wrapped rows when the card resizes.
+        newsList.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                newsList.setFixedCellHeight(10);
+                newsList.setFixedCellHeight(-1);
+            }
+        });
         JScrollPane dashNewsScroll = new JScrollPane(newsList);
         dashNewsScroll.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        dashNewsScroll.setBorder(BorderFactory.createLineBorder(DesktopTheme.borderSubtle()));
         dashNewsScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
         dashNewsScroll.setOpaque(true);
-        news.add(dashNewsScroll, BorderLayout.CENTER);
+        news.getContentArea().add(dashNewsScroll, BorderLayout.CENTER);
         return news;
     }
 
+    /** Engine news entries may be "headline>story"; the list shows the headline. */
+    private static String headlineTitle(String entry) {
+        if (entry == null) return "";
+        int gt = entry.indexOf('>');
+        return gt > 0 ? entry.substring(0, gt).trim() : entry.trim();
+    }
+
     private JPanel buildPollLeadersPanel() {
-        JPanel top5 = new JPanel(new GridLayout(0, 1, 4, 2));
-        top5.setOpaque(true);
-        top5.setBackground(DesktopTheme.windowBackground());
-        top5.setBorder(DesktopTheme.titledBorder("Poll Leaders"));
+        CustomCardPanel card = new CustomCardPanel("Poll Leaders");
+        JPanel top5 = new JPanel(new GridLayout(5, 1, 0, 3));
+        top5.setOpaque(false);
         league.getTeamList().stream()
                 .sorted(Comparator.comparingInt(Team::getRankTeamPollScore))
                 .limit(5)
-                .forEach(t -> {
-                    JLabel l = new JLabel(String.format(Locale.ROOT, " #%-2d %-18s  (%d-%d)",
-                            t.getRankTeamPollScore(), t.getName(), t.getWins(), t.getLosses()));
-                    l.setFont(new Font("SansSerif", Font.BOLD, 12));
-                    l.setOpaque(true);
-                    l.setBackground(DesktopTheme.pollLeaderCard());
-                    l.setForeground(DesktopTheme.textPrimary());
-                    l.setBorder(BorderFactory.createEmptyBorder(4, 10, 4, 10));
-                    top5.add(l);
-                });
-        return top5;
+                .forEach(t -> top5.add(buildPollLeaderRow(t)));
+        card.getContentArea().add(top5, BorderLayout.CENTER);
+        return card;
+    }
+
+    /** Rank | team | record as real columns (space padding misaligned in a proportional font). */
+    private JPanel buildPollLeaderRow(Team t) {
+        boolean isUser = t == league.userTeam;
+        JPanel row = new JPanel(new BorderLayout(8, 0));
+        row.setOpaque(true);
+        row.setBackground(isUser ? DesktopTheme.userTeamRowTint() : DesktopTheme.tableStripe());
+        row.setBorder(BorderFactory.createEmptyBorder(2, 8, 2, 8));
+
+        JLabel rank = new JLabel("#" + t.getRankTeamPollScore());
+        rank.setFont(new Font(Font.MONOSPACED, Font.BOLD, 12));
+        rank.setForeground(DesktopTheme.warningText());
+        rank.setPreferredSize(new java.awt.Dimension(32, 18));
+
+        JLabel name = new JLabel(t.getName());
+        name.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 12));
+        name.setForeground(DesktopTheme.textPrimary());
+
+        JLabel record = new JLabel(t.getWins() + "-" + t.getLosses());
+        record.setFont(new Font(Font.MONOSPACED, Font.BOLD, 12));
+        record.setForeground(DesktopTheme.textSecondary());
+
+        row.add(rank, BorderLayout.WEST);
+        row.add(name, BorderLayout.CENTER);
+        row.add(record, BorderLayout.EAST);
+        return row;
     }
 
     private JPanel buildAwardsPanel() {
-        JPanel awards = new JPanel(new BorderLayout());
-        awards.setOpaque(true);
-        awards.setBackground(DesktopTheme.windowBackground());
-        awards.setBorder(DesktopTheme.titledBorder("Awards Race"));
+        CustomCardPanel awards = new CustomCardPanel("Awards Race");
         JTextArea awardsArea = new JTextArea();
         awardsArea.setEditable(false);
+        awardsArea.setLineWrap(true);
+        awardsArea.setWrapStyleWord(true);
+        awardsArea.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
+        awardsArea.setBorder(BorderFactory.createEmptyBorder(6, 8, 6, 8));
         String awardsText = league.getHeismanWinnerStrFull();
         if (awardsText == null || awardsText.trim().isEmpty()) {
             awardsText = "Awards tracking appears once the season has enough statistics.";
         }
         awardsArea.setText(awardsText);
         DesktopTheme.styleTextContent(awardsArea);
-        JScrollPane awardsScroll = new JScrollPane(awardsArea);
+        awardsArea.setCaretPosition(0);
+        JScrollPane awardsScroll = new JScrollPane(awardsArea,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        awardsScroll.setBorder(BorderFactory.createLineBorder(DesktopTheme.borderSubtle()));
         awardsScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
-        awards.add(awardsScroll, BorderLayout.CENTER);
+        awards.getContentArea().add(awardsScroll, BorderLayout.CENTER);
         return awards;
     }
 
