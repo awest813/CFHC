@@ -34,6 +34,18 @@ public class BalanceTuningTest {
     }
 
     @Test
+    public void interceptionCurve_keepsTheLeagueNearFbsRates() {
+        // Risk score ~4.2 was the league-average throw (3.1% under the old
+        // straight risk/135 roll); ~10.8 the riskiest QBs (8%).
+        assertEquals(0.011, Game.interceptionChance(0), 0.001);
+        assertEquals(0.022, Game.interceptionChance(4.2), 0.002);
+        assertEquals(0.039, Game.interceptionChance(10.8), 0.003);
+        assertTrue("riskier throws are picked more often",
+                Game.interceptionChance(6) > Game.interceptionChance(3));
+        assertEquals(0.06, Game.interceptionChance(1000), 1e-9);
+    }
+
+    @Test
     public void generatedPlayers_overallMatchesTheirCappedAttributes() {
         // Generation boosts upperclassmen past the archetype caps; the overall must
         // be recomputed after the caps apply (it used to leave some at 101-105).

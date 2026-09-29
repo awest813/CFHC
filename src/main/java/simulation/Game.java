@@ -149,7 +149,10 @@ public class Game implements Serializable {
     private boolean bottomOT;
 
     final int timePerPlay = 18;
-    private final int intValue = 135; //higher less ints
+    private static final double INT_RISK_SCALE = 135; // risk score that meant a 100% raw chance
+    private static final double INT_BASE_CHANCE = 0.011;
+    private static final double INT_RISK_SLOPE = 0.35;
+    private static final double INT_MAX_CHANCE = 0.06;
     private final int sackValue = 200; //higher less sacks
     private final int escapeValue = 150;
     private final int compValue = 250; //higher more completions
@@ -1495,8 +1498,7 @@ public class Game implements Serializable {
                 double intChance = (pressureOnQB + defense.getS(0).ratOvr - (2 * selQB.getRatPassAcc() + selQB.ratIntelligence + 100) / 4.0) / 18.0
                         - offense.getPlaybookOffense().getPassProtection() + defense.getPlaybookDefense().getPassRush();
                 intChance += getArchetypeIntBonus(defense.getS(0), intChance);
-                if (intChance < 0.015) intChance = 0.015;
-                if (intValue * SimRandom.nextDouble() < intChance) {
+                if (SimRandom.nextDouble() < interceptionChance(intChance)) {
                     //Interception
                     if (pos.equals("WR")) {
                         selDL.gameSim = selDL.getRatPassRush() * SimRandom.nextDouble() * 15;
@@ -2015,6 +2017,18 @@ public class Game implements Serializable {
         int past = Math.max(0, distance - 17);
         double p = 0.99 - 0.00050 * past * past + (accuracy - 80) * 0.006;
         return Math.max(0.05, Math.min(0.99, p));
+    }
+
+    /**
+     * Chance a pass attempt is intercepted, from the play's risk score (pressure
+     * and safety quality against QB accuracy and football IQ, plus playbooks).
+     * The raw score / {@link #INT_RISK_SCALE} ran from ~0% to 8% per throw (league
+     * ~3.1%, season leaders 30-40 INTs); a base rate plus a flatter slope keeps
+     * the league near FBS (~2.3%) and the riskiest QBs around 4-5%.
+     */
+    static double interceptionChance(double risk) {
+        double raw = Math.max(0.015, risk) / INT_RISK_SCALE;
+        return Math.min(INT_MAX_CHANCE, INT_BASE_CHANCE + INT_RISK_SLOPE * raw);
     }
 
     /** True when a field goal from the current spot is within the kicker's range. */
