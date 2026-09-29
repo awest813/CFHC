@@ -492,7 +492,7 @@ public class DashboardPanel implements LeagueScreen {
                 String fg = isSelected ? "rgb(255,255,255)" : DesktopTheme.cssRgb(DesktopTheme.textPrimary());
                 // Wrap to the list's real width (a fixed 230px clipped headlines
                 // mid-word whenever the card was narrower than the HTML body).
-                int wrap = Math.max(120, list.getWidth() - 24);
+                int wrap = DesktopTheme.htmlWrapWidth(Math.max(120, list.getWidth() - 24));
                 l.setText("<html><body style='width:" + wrap + "px;color:" + fg + ";'>"
                         + DesktopTheme.escapeForHtml(headlineTitle(value.toString())) + "</body></html>");
                 l.setToolTipText(null);

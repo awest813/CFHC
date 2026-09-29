@@ -826,21 +826,28 @@ public class Player {
         };
     }
 
-    private void clampCoreRatings() {
+    /** @return true when a core attribute was out of range and changed */
+    private boolean clampCoreRatings() {
         int[] caps = Archetypes.getCaps(position, archetypeTag);
+        int a1 = ratAttr1, a2 = ratAttr2, a3 = ratAttr3, a4 = ratAttr4;
         ratIntelligence = Math.min(100, Math.max(0, ratIntelligence));
         ratDurability = Math.min(100, Math.max(0, ratDurability));
         ratAttr1 = Math.min(caps[0], Math.max(0, ratAttr1));
         ratAttr2 = Math.min(caps[1], Math.max(0, ratAttr2));
         ratAttr3 = Math.min(caps[2], Math.max(0, ratAttr3));
         ratAttr4 = Math.min(caps[3], Math.max(0, ratAttr4));
+        return a1 != ratAttr1 || a2 != ratAttr2 || a3 != ratAttr3 || a4 != ratAttr4;
     }
 
     public void assignArchetype() {
         if (archetypeTag == null || archetypeTag.isEmpty()) {
             archetypeTag = Archetypes.assignArchetype(position, ratAttr1, ratAttr2, ratAttr3, ratAttr4);
         }
-        clampCoreRatings();
+        if (clampCoreRatings()) {
+            // Generation computes OVR before the archetype caps apply; an elite
+            // redshirt senior could otherwise start at 101-105 OVR.
+            ratOvr = getOverall();
+        }
     }
 
     public String getArchetypeDisplayName() {

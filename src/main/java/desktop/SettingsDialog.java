@@ -41,11 +41,8 @@ public class SettingsDialog extends JDialog {
         this(owner, league, null);
     }
 
-    /**
-     * CSS width of the wrapped description/hint labels. HTML px scale with the UI
-     * font, so this stays well under the 560px dialog's content width.
-     */
-    private static final int HTML_TEXT_WIDTH = 330;
+    /** Wrapped description/hint labels: 430 real px fits the 560px dialog's content column. */
+    private static final int HTML_TEXT_WIDTH = DesktopTheme.htmlWrapWidth(430);
 
     public SettingsDialog(JFrame owner, League league, simulation.AudioManager sounds) {
         super(owner, "League Settings", true);

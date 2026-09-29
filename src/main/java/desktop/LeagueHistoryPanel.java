@@ -5,6 +5,7 @@ import simulation.Team;
 
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -59,11 +60,11 @@ public class LeagueHistoryPanel implements LeagueScreen {
         historyScroll.setPreferredSize(new Dimension(0, 200));
         // Empty state matches the other screens (centered secondary text); the
         // monospace text area is only for the column-aligned history itself.
-        javax.swing.JComponent championsPane = historyScroll;
+        JComponent championsPane = historyScroll;
         if (noHistory) {
-            javax.swing.JLabel emptyHistory = new javax.swing.JLabel(
+            JLabel emptyHistory = new JLabel(
                     "No season history yet \u2014 champions appear after the first full season.",
-                    javax.swing.JLabel.CENTER);
+                    JLabel.CENTER);
             emptyHistory.setForeground(DesktopTheme.textSecondary());
             JPanel emptyPane = new JPanel(new BorderLayout());
             DesktopTheme.styleTabRoot(emptyPane);

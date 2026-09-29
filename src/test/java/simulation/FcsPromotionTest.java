@@ -214,7 +214,8 @@ public class FcsPromotionTest {
         int before = loaded.getTeamList().size();
 
         SimRandom.bind(SEED);
-        for (int i = 0; i < 60; i++) {
+        // ~6% promotion roll per offseason: 150 leave a no-promotion run at ~0.01%.
+        for (int i = 0; i < 150; i++) {
             loaded.conferenceRealignmentV2(GameUiBridge.NO_OP);
         }
 

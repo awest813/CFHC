@@ -2,6 +2,7 @@ package simulation;
 
 import org.junit.Test;
 
+import positions.Player;
 import staff.HeadCoach;
 
 import static org.junit.Assert.assertEquals;
@@ -30,6 +31,28 @@ public class BalanceTuningTest {
         assertTrue(Game.fgMakeChance(30, 80) > Game.fgMakeChance(45, 80));
         assertEquals(0.99, Game.fgMakeChance(18, 99), 1e-9);
         assertEquals(0.05, Game.fgMakeChance(70, 40), 1e-9);
+    }
+
+    @Test
+    public void generatedPlayers_overallMatchesTheirCappedAttributes() {
+        // Generation boosts upperclassmen past the archetype caps; the overall must
+        // be recomputed after the caps apply (it used to leave some at 101-105).
+        SimRandom.pinNextSeed(1L);
+        FileSystemResourceProvider res = new FileSystemResourceProvider(System.getProperty("user.dir"));
+        League league = new League(
+                res.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
+                res.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES),
+                res.getString(PlatformResourceProvider.KEY_CONFERENCES),
+                res.getString(PlatformResourceProvider.KEY_TEAMS),
+                res.getString(PlatformResourceProvider.KEY_BOWLS),
+                false, false);
+
+        for (Team t : league.getTeamList()) {
+            for (Player p : t.getAllPlayers()) {
+                assertTrue(p.position + " " + p.name + " OVR " + p.ratOvr, p.ratOvr <= 100);
+                assertEquals(p.position + " " + p.name, p.getOverall(), p.ratOvr);
+            }
+        }
     }
 
     @Test

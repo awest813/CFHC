@@ -98,8 +98,8 @@ public class StabilityTester {
 
                 validateCompletedSeason(league, expectedTeamCount, seasonYear,
                         historyBefore, championsBefore, steps);
-                // Realignment may promote an FCS school into the Independents
-                // (never removes one), so the count can only grow.
+                // Realignment may promote FCS schools (it never removes a
+                // team), so the count can only grow.
                 expectedTeamCount = league.getTeamList().size();
 
                 System.out.println("Season " + seasonYear + " complete in " + steps + " steps.");

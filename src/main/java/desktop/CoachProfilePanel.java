@@ -8,6 +8,7 @@ import staff.HeadCoach;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -197,10 +198,7 @@ public class CoachProfilePanel implements LeagueScreen {
         host.setLayout(new BorderLayout());
         host.add(tile, BorderLayout.CENTER);
         host.setOpaque(false);
-        // A JLabel's preferred size ignores child components; size the host
-        // from its tile or it collapses once the layout stops stretching it.
-        java.awt.Dimension tilePref = tile.getPreferredSize();
-        host.setPreferredSize(new java.awt.Dimension(tilePref.width, tilePref.height + 8));
+        sizeHostToTile(host, tile);
         return host;
     }
 
@@ -276,10 +274,7 @@ public class CoachProfilePanel implements LeagueScreen {
         host.setLayout(new BorderLayout());
         host.add(tile, BorderLayout.CENTER);
         host.setOpaque(false);
-        // A JLabel's preferred size ignores child components; size the host
-        // from its tile or it collapses once the layout stops stretching it.
-        java.awt.Dimension tilePref = tile.getPreferredSize();
-        host.setPreferredSize(new java.awt.Dimension(tilePref.width, tilePref.height + 8));
+        sizeHostToTile(host, tile);
         return host;
     }
 
@@ -381,5 +376,14 @@ public class CoachProfilePanel implements LeagueScreen {
         msg.setHorizontalAlignment(JLabel.CENTER);
         empty.add(msg, BorderLayout.CENTER);
         return empty;
+    }
+
+    /**
+     * A JLabel's preferred size ignores child components; size the host from
+     * its tile or it collapses once the layout stops stretching it.
+     */
+    private static void sizeHostToTile(JComponent host, JComponent tile) {
+        java.awt.Dimension tilePref = tile.getPreferredSize();
+        host.setPreferredSize(new java.awt.Dimension(tilePref.width, tilePref.height + 8));
     }
 }

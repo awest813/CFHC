@@ -737,6 +737,15 @@ public final class DesktopTheme {
      * Escapes text embedded in minimal {@code <html>} fragments so engine copy cannot
      * break markup (e.g. accidental {@code <b>} or stray ampersands).
      */
+    /**
+     * CSS width that makes a Swing HTML body fill {@code pixels} real pixels.
+     * Swing's HTML renderer draws CSS {@code px} at 1.3x, so a body sized to a
+     * component's pixel width wraps 30% wider than the component and clips.
+     */
+    public static int htmlWrapWidth(int pixels) {
+        return Math.max(1, Math.round(pixels / 1.3f));
+    }
+
     public static String escapeForHtml(String s) {
         if (s == null || s.isEmpty()) {
             return s == null ? "" : s;
