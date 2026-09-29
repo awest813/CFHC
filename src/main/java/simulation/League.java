@@ -3589,10 +3589,71 @@ public class League {
         coachList.clear();
         coachStarList.clear();
         Collections.sort(teamList, new CompTeamPrestige());
+        // Staff are graded against this season's league average, so an average
+        // year leaves ratings where they were (a raw grade let the whole coaching
+        // pool creep toward the 95 cap). The facility-upgrade prestige used to be
+        // re-applied here as well (checkFacilitiesUpgradeBonus), double-counting
+        // the bonus upgradeFacilities() already gave.
+        double prestigeSum = 0;
+        double recordSum = 0;
+        for (Team t : teamList) {
+            prestigeSum += t.getTeamPrestige() - t.getTeamPrestigeStart() - t.getDisciplinePts();
+            recordSum += t.getWins() - t.getLosses();
+        }
+        staffEvalPrestigeMean = prestigeSum / teamList.size();
+        staffEvalRecordMean = recordSum / teamList.size();
         for (int t = 0; t < teamList.size(); ++t) {
             teamList.get(t).advanceHC(leagueRecords, teamList.get(t).getTeamRecords());
             teamList.get(t).advanceCoordinator();
-            teamList.get(t).checkFacilitiesUpgradeBonus();
+        }
+    }
+
+    /** League-average season prestige change / (W-L), set by {@link #advanceStaff()}. */
+    public double staffEvalPrestigeMean;
+    public double staffEvalRecordMean;
+
+    /**
+     * Keeps program prestige relative. Season results, facility / NIL / stadium
+     * upgrades, and coaching changes all add or remove prestige; with most teams
+     * upgrading every offseason the whole league inflated (~1.5 pts/team/year).
+     * Shifts every team by the league-average change since the season began,
+     * so over- and under-performers still move against each other. Staff
+     * prestige baselines move with it so "prestige gained since hired"
+     * (contracts, firing, promotion) is unaffected.
+     */
+    void normalizeLeaguePrestige() {
+        long start = 0;
+        long now = 0;
+        int n = 0;
+        for (Team t : teamList) {
+            if (!t.hasSeasonBaseline()) {
+                continue; // promoted this offseason: nothing to compare against
+            }
+            start += t.teamPrestigeStart;
+            now += t.teamPrestige;
+            n++;
+        }
+        if (n == 0) {
+            return;
+        }
+        // Remove the exact league-wide total (the per-team mean rounded away
+        // ~0.3 pts/season): everyone moves by the floor of the mean and a
+        // random handful by one more point to cover the remainder.
+        long excess = (now - start) * teamList.size() / n;
+        int base = (int) Math.floorDiv(excess, (long) teamList.size());
+        int extra = (int) (excess - (long) base * teamList.size());
+        if (base == 0 && extra == 0) {
+            return;
+        }
+        List<Team> order = new ArrayList<>(teamList);
+        SimRandom.shuffle(order);
+        for (int i = 0; i < order.size(); i++) {
+            Team t = order.get(i);
+            int shift = base + (i < extra ? 1 : 0);
+            t.teamPrestige = Math.max(0, Math.min(Team.PRESTIGE_SOFT_MAX, t.teamPrestige - shift));
+            if (t.getHeadCoach() != null) t.getHeadCoach().baselinePrestige -= shift;
+            if (t.getOC() != null) t.getOC().baselinePrestige -= shift;
+            if (t.getDC() != null) t.getDC().baselinePrestige -= shift;
         }
     }
 
@@ -6797,6 +6858,7 @@ Then conferences can see if they want to add them to their list if the teams mee
 
         // Rebuild the schedule for the new season
         setupSeason();
+        normalizeLeaguePrestige();
         prepareSeasonBaselines();
     }
 

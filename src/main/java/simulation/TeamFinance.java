@@ -79,13 +79,6 @@ public class TeamFinance {
         return stars;
     }
 
-    public void checkFacilitiesUpgradeBonus() {
-        if(team.facilityUpgrade) {
-            team.teamPrestige += team.teamFacilities;
-            if(team.HC != null) team.HC.baselinePrestige += team.teamFacilities*.5;
-        }
-    }
-
     public int getMinCoachHireReq() {
         int req = (team.league.getTeamList().size() - team.rankTeamPrestige) / 2 + (int)Math.round(team.league.getTeamList().size()/3.6);
         if (req >= 87) req = 87;

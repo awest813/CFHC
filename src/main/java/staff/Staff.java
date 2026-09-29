@@ -235,19 +235,28 @@ public class Staff {
         year++;
         contractYear++;
 
-        double coachScore = (getCoachScore() - team.getConfPrestige())/10;
+        // Centred on a .500 season (the career "coach score" weights wins 3:1
+        // and adds strength-of-wins, so it is positive for an average year and
+        // pushed staff ratings up until ~30 head coaches sat at the 95 cap).
+        // Graded against the league's average season (see League.advanceStaff).
+        double relPrestige = prestigeDiff - team.league.staffEvalPrestigeMean;
+        double coachScore = relPrestige
+                + ((team.getWins() - team.getLosses()) - team.league.staffEvalRecordMean) / 5.0;
         if (coachScore < -4) coachScore = -4;
+        if (coachScore > 4) coachScore = 4;
 
 
-        ratOff += (2*prestigeDiff + offpts + coachScore)/4;
+        // Rounded: int += double floors, so every small negative grade cost a full
+        // point while small positive ones vanished (a steady downward creep).
+        ratOff += (int) Math.round((2*relPrestige + offpts + coachScore)/4);
         if (ratOff > 95) ratOff = 95;
         if (ratOff < 20) ratOff = 20;
 
-        ratDef += (2*prestigeDiff + defpts + coachScore)/4;
+        ratDef += (int) Math.round((2*relPrestige + defpts + coachScore)/4);
         if (ratDef > 95) ratDef = 95;
         if (ratDef < 20) ratDef = 20;
 
-        ratTalent += (2*prestigeDiff  + coachScore)/3;
+        ratTalent += (int) Math.round((2*relPrestige  + coachScore)/3);
         if (ratTalent > 95) ratTalent = 95;
         if (ratTalent < 20) ratTalent = 20;
 

@@ -256,10 +256,18 @@ public class Player {
         character = (int) (attrBase + 50 * SimRandom.nextDouble());
         homeState = (int) (SimRandom.nextDouble() * 50);
 
-        ratAttr1 = (int) (ratBase + year * yearFactor + stars * starFactor - ratTolerance * SimRandom.nextDouble()) - (int) (SimRandom.nextDouble() * attrDropper1);
-        ratAttr2 = (int) (ratBase + year * yearFactor + stars * starFactor - ratTolerance * SimRandom.nextDouble()) - (int) (SimRandom.nextDouble() * attrDropper2);
-        ratAttr3 = (int) (ratBase + year * yearFactor + stars * starFactor - ratTolerance * SimRandom.nextDouble()) - (int) (SimRandom.nextDouble() * attrDropper3);
-        ratAttr4 = (int) (ratBase + year * yearFactor + stars * starFactor - ratTolerance * SimRandom.nextDouble()) - (int) (SimRandom.nextDouble() * attrDropper4);
+        // A redshirted upperclassman has had an extra year in the program. The
+        // season sim develops redshirts for that year, so a generated roster
+        // that ignored it started ~6 OVR below where careers settle, and the
+        // whole league (and scoring) climbed for five seasons to catch up.
+        // Plus a point per class above freshman for the in-season (midseason)
+        // development careers also bank.
+        int devYears = year + (wasRedshirt ? 1 : 0);
+        int inSeasonGrowth = Math.max(0, year - 1);
+        ratAttr1 = (int) (ratBase + devYears * yearFactor + inSeasonGrowth + stars * starFactor - ratTolerance * SimRandom.nextDouble()) - (int) (SimRandom.nextDouble() * attrDropper1);
+        ratAttr2 = (int) (ratBase + devYears * yearFactor + inSeasonGrowth + stars * starFactor - ratTolerance * SimRandom.nextDouble()) - (int) (SimRandom.nextDouble() * attrDropper2);
+        ratAttr3 = (int) (ratBase + devYears * yearFactor + inSeasonGrowth + stars * starFactor - ratTolerance * SimRandom.nextDouble()) - (int) (SimRandom.nextDouble() * attrDropper3);
+        ratAttr4 = (int) (ratBase + devYears * yearFactor + inSeasonGrowth + stars * starFactor - ratTolerance * SimRandom.nextDouble()) - (int) (SimRandom.nextDouble() * attrDropper4);
 
         ratOvr = getOverall();
 

@@ -871,6 +871,15 @@ public class Team {
 
         for (int i = 0; i < qbNeeds; ++i) {
             //make QBs
+            if (i == 0) {
+                // Every program starts with an established upperclass starter.
+                // A league is created mid-history: real starting QBs are mostly
+                // developed juniors/seniors or portal arrivals, and generating the
+                // QB room purely at random left QB1s ~5 OVR below where careers
+                // settle (scoring then climbed for five seasons as they caught up).
+                teamQBs.add(new PlayerQB(league.getRandName(), 3 + (int) (2 * SimRandom.nextDouble()), stars + 1, this));
+                continue;
+            }
             num = (int) (SimRandom.nextDouble() * 100);
             if (num < chance) {
                 teamQBs.add(new PlayerQB(league.getRandName(), (int) (4 * SimRandom.nextDouble() + 1), stars - 2, this));
@@ -885,7 +894,7 @@ public class Team {
             num = (int) (SimRandom.nextDouble() * 100);
             if (num < chance) {
                 teamKs.add(new PlayerK(league.getRandName(), (int) (4 * SimRandom.nextDouble() + 1), stars - 2, this));
-            } else if (num < (100 - chance)) {
+            } else if (num > (100 - chance)) {
                 teamKs.add(new PlayerK(league.getRandName(), (int) (4 * SimRandom.nextDouble() + 1), stars + 2, this));
             } else {
                 teamKs.add(new PlayerK(league.getRandName(), (int) (4 * SimRandom.nextDouble() + 1), stars, this));
@@ -1428,6 +1437,8 @@ public class Team {
                 }
             }
 
+            // These nudges are one-sided (+1 only); the league-wide inflation they
+            // cause is removed by League.normalizeLeaguePrestige() each offseason.
             if((postSeasonGames) > 0 && prestigeChange < 0) prestigeChange++;
             if (prestigeChange < (wins - projectedWins)) prestigeChange++;
             if(prestigeChange <= 0 && rankTeamPollScore < rankTeamPrestige) prestigeChange++;
@@ -1637,10 +1648,6 @@ public class Team {
         if(OC != null) coordinatorContracts(OC);
         if(DC != null) coordinatorContracts(DC);
 
-    }
-
-    public void checkFacilitiesUpgradeBonus() {
-        teamFinance.checkFacilitiesUpgradeBonus();
     }
 
     public void coachContracts(int totalPDiff) {

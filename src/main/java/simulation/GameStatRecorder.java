@@ -42,14 +42,39 @@ class GameStatRecorder {
             game.teamOLs.get(i).recordRunSnaps(1);
         }
 
+        // Spread run-stop credit across the defenders on the field. Always
+        // crediting the top-ranked LB for every 2-12 yard run gave one
+        // linebacker ~19% of his team's tackles (200-240 a season; real
+        // leaders post ~130-150).
+        double who = SimRandom.nextDouble();
         if (yardsGain < 2 && !gotTD) {
-            selDL.gameTackles++;
-            selDL.recordTackles(1);
-            defender = "DL " + selDL.name;
+            if (who < 0.60) {
+                selDL.gameTackles++;
+                selDL.recordTackles(1);
+                defender = "DL " + selDL.name;
+            } else {
+                selLB.gameTackles++;
+                selLB.recordTackles(1);
+                defender = "LB " + selLB.name;
+            }
         } else if (yardsGain >= 2 && yardsGain < 12 && !gotTD) {
-            selLB.gameTackles++;
-            selLB.recordTackles(1);
-            defender = "LB " + selLB.name;
+            if (who < 0.55) {
+                selLB.gameTackles++;
+                selLB.recordTackles(1);
+                defender = "LB " + selLB.name;
+            } else if (who < 0.75) {
+                selS.gameTackles++;
+                selS.recordTackles(1);
+                defender = "S " + selS.name;
+            } else if (who < 0.90) {
+                selDL.gameTackles++;
+                selDL.recordTackles(1);
+                defender = "DL " + selDL.name;
+            } else {
+                selCB.gameTackles++;
+                selCB.recordTackles(1);
+                defender = "CB " + selCB.name;
+            }
         } else if (yardsGain >= 12 && !gotTD) {
             if (selCB.getRatTackle() * SimRandom.nextDouble() * 50 >= selS.getRatTackle() * SimRandom.nextDouble() * 100) {
                 selCB.gameTackles++;
