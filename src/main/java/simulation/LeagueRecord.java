@@ -17,11 +17,125 @@ public record LeagueRecord(
     String heismanWinnerName,
     String nationalChampName,
     List<GameRecord> scheduledGames,
-    long rngSeed
+    long rngSeed,
+    Settings settings
 ) {
     public LeagueRecord {
         if (rngSeed < 0) {
             rngSeed = 0;
+        }
+    }
+
+    /** Pre-settings call shape: saves and callers without {@link Settings}. */
+    public LeagueRecord(String leagueName, int year, int currentWeek, List<ConferenceRecord> conferences,
+                        List<PlayerRecord> leagueHoF, List<DataRecord> leagueRecords,
+                        String heismanWinnerName, String nationalChampName,
+                        List<GameRecord> scheduledGames, long rngSeed) {
+        this(leagueName, year, currentWeek, conferences, leagueHoF, leagueRecords, heismanWinnerName,
+                nationalChampName, scheduledGames, rngSeed, null);
+    }
+
+    /**
+     * The league options chosen in New Game / Settings. {@code null} on a
+     * {@link LeagueRecord} means the save predates them; {@code League} then falls
+     * back to new-league defaults.
+     */
+    public record Settings(
+            boolean careerMode,
+            boolean showPotential,
+            boolean fullGameLog,
+            boolean neverRetire,
+            boolean enableTv,
+            boolean expandedPlayoffs,
+            boolean confRealignment,
+            boolean advancedRealignment,
+            boolean universalProRel,
+            FcsPromotionMode fcsPromotionMode,
+            int fcsPromotionCap,
+            int fcsPromotionsUsed
+    ) {
+        public Settings {
+            if (fcsPromotionMode == null) {
+                fcsPromotionMode = FcsPromotionMode.UNLIMITED;
+            }
+            if (fcsPromotionCap < 0) {
+                fcsPromotionCap = 0;
+            }
+            if (fcsPromotionsUsed < 0) {
+                fcsPromotionsUsed = 0;
+            }
+        }
+
+        /** What a freshly generated league starts with. */
+        public static Settings defaults() {
+            return new Settings(true, false, false, false, true, true, true, false, false,
+                    FcsPromotionMode.UNLIMITED, League.DEFAULT_FCS_PROMOTION_CAP, 0);
+        }
+
+        /** Tab-separated {@code key=value} pairs; readers ignore keys they don't know. */
+        public String toSaveLine() {
+            return "careerMode=" + flag(careerMode)
+                    + "\tshowPotential=" + flag(showPotential)
+                    + "\tfullGameLog=" + flag(fullGameLog)
+                    + "\tneverRetire=" + flag(neverRetire)
+                    + "\tenableTv=" + flag(enableTv)
+                    + "\texpandedPlayoffs=" + flag(expandedPlayoffs)
+                    + "\tconfRealignment=" + flag(confRealignment)
+                    + "\tadvancedRealignment=" + flag(advancedRealignment)
+                    + "\tuniversalProRel=" + flag(universalProRel)
+                    + "\tfcsPromotion=" + fcsPromotionMode.name()
+                    + "\tfcsPromotionCap=" + fcsPromotionCap
+                    + "\tfcsPromotionsUsed=" + fcsPromotionsUsed;
+        }
+
+        /** Missing or unreadable keys keep their {@link #defaults()} value. */
+        public static Settings fromSaveLine(String line) {
+            Settings d = defaults();
+            java.util.Map<String, String> kv = new java.util.HashMap<>();
+            if (line != null) {
+                for (String pair : line.split("\t")) {
+                    int eq = pair.indexOf('=');
+                    if (eq > 0) {
+                        kv.put(pair.substring(0, eq).trim(), pair.substring(eq + 1).trim());
+                    }
+                }
+            }
+            return new Settings(
+                    bool(kv, "careerMode", d.careerMode()),
+                    bool(kv, "showPotential", d.showPotential()),
+                    bool(kv, "fullGameLog", d.fullGameLog()),
+                    bool(kv, "neverRetire", d.neverRetire()),
+                    bool(kv, "enableTv", d.enableTv()),
+                    bool(kv, "expandedPlayoffs", d.expandedPlayoffs()),
+                    bool(kv, "confRealignment", d.confRealignment()),
+                    bool(kv, "advancedRealignment", d.advancedRealignment()),
+                    bool(kv, "universalProRel", d.universalProRel()),
+                    FcsPromotionMode.parse(kv.get("fcsPromotion"), d.fcsPromotionMode()),
+                    integer(kv, "fcsPromotionCap", d.fcsPromotionCap()),
+                    integer(kv, "fcsPromotionsUsed", d.fcsPromotionsUsed()));
+        }
+
+        private static String flag(boolean b) {
+            return b ? "1" : "0";
+        }
+
+        private static boolean bool(java.util.Map<String, String> kv, String key, boolean fallback) {
+            String v = kv.get(key);
+            if ("1".equals(v) || "true".equalsIgnoreCase(v)) {
+                return true;
+            }
+            if ("0".equals(v) || "false".equalsIgnoreCase(v)) {
+                return false;
+            }
+            return fallback;
+        }
+
+        private static int integer(java.util.Map<String, String> kv, String key, int fallback) {
+            try {
+                return Integer.parseInt(kv.get(key));
+            } catch (RuntimeException e) {
+                return fallback;
+            }
         }
     }
     // Nested records for structured hierarchy

@@ -238,6 +238,14 @@ public class League {
     public boolean expPlayoffs;
     public boolean advancedRealignment;
 
+    public static final int DEFAULT_FCS_PROMOTION_CAP = 6;
+    /** Whether (and how many) FCS schools realignment may promote into the league. */
+    public FcsPromotionMode fcsPromotionMode = FcsPromotionMode.UNLIMITED;
+    /** Career-wide limit on FCS promotions when {@link #fcsPromotionMode} is CAPPED. */
+    public int fcsPromotionCap = DEFAULT_FCS_PROMOTION_CAP;
+    /** FCS schools promoted into this league so far (counts against the cap). */
+    public int fcsPromotionsUsed;
+
     /** Coach skill XP for the user head coach each simulated week (parity-tuned). */
     private static final int WEEKLY_USER_COACH_SKILL_XP = 3;
     public int countRealignment;
@@ -1259,8 +1267,62 @@ public class League {
                 heismanWinnerStrFull != null ? heismanWinnerStrFull : "",
                 nationalChampionNameForRecord(),
                 java.util.List.copyOf(buildGameRecordsForSave()),
-                rngSeed
+                rngSeed,
+                settingsRecord()
         );
+    }
+
+    /** The persisted league options (see {@link LeagueRecord.Settings}). */
+    LeagueRecord.Settings settingsRecord() {
+        return new LeagueRecord.Settings(careerMode, showPotential, fullGameLog, neverRetire, enableTV,
+                expPlayoffs, confRealignment, advancedRealignment, enableUnivProRel,
+                fcsPromotionMode, fcsPromotionCap, fcsPromotionsUsed);
+    }
+
+    /**
+     * Restores the league options. Saves from before they were persisted get the
+     * new-league defaults (they used to reload with every option off), except that a
+     * league already converted to promotion/relegation stays in that mode.
+     */
+    private void applySettingsRecord(LeagueRecord.Settings settings) {
+        boolean legacy = settings == null;
+        if (legacy) {
+            settings = LeagueRecord.Settings.defaults();
+        }
+        careerMode = settings.careerMode();
+        showPotential = settings.showPotential();
+        fullGameLog = settings.fullGameLog();
+        neverRetire = settings.neverRetire();
+        enableTV = settings.enableTv();
+        expPlayoffs = settings.expandedPlayoffs();
+        confRealignment = settings.confRealignment();
+        advancedRealignment = settings.advancedRealignment();
+        enableUnivProRel = settings.universalProRel();
+        fcsPromotionMode = settings.fcsPromotionMode();
+        fcsPromotionCap = settings.fcsPromotionCap();
+        fcsPromotionsUsed = settings.fcsPromotionsUsed();
+        if (legacy) {
+            if (looksLikeUniversalProRel()) {
+                enableUnivProRel = true;
+                confRealignment = false;
+                advancedRealignment = false;
+            }
+            // Pro/rel's odd-count filler school isn't a realignment promotion.
+            fcsPromotionsUsed = enableUnivProRel ? 0 : countPromotedFcsSchools();
+        }
+    }
+
+    /** {@link #convertUnivProRel()} renames every conference to "1st Tier", "2nd Tier", ... */
+    private boolean looksLikeUniversalProRel() {
+        if (conferences.isEmpty()) {
+            return false;
+        }
+        for (Conference c : conferences) {
+            if (!c.confName.endsWith(" Tier") && !c.confName.equals("Independent")) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -1383,6 +1445,7 @@ public class League {
         }
 
         linkUserTeamFromLoadedCoaches();
+        applySettingsRecord(record.settings());
 
         restoreScheduledGames(record.scheduledGames());
         restoreSeasonBaselines();
@@ -4868,7 +4931,9 @@ Then conferences can see if they want to add them to their list if the teams mee
 
 
         //Promote FCS School
-        if (advancedRealignment && SimRandom.nextDouble() < confRealignmentChance && SimRandom.nextDouble() < realignmentChance) {
+        if (advancedRealignment && remainingFcsPromotions() >= 1
+                && SimRandom.nextDouble() < confRealignmentChance && SimRandom.nextDouble() < realignmentChance) {
+            ensureFcsNamePool();
             int matches = 0;
             for (int t = 0; t < teamsFCSList.size(); t++) {
                 for (int x = 0; x < teamList.size(); x++) {
@@ -4910,6 +4975,7 @@ Then conferences can see if they want to add them to their list if the teams mee
                     FCS.setRankTeamPollScore(teamList.size());
                     teamList.add(FCS);
                     indy.confTeams.add(FCS);
+                    fcsPromotionsUsed++;
 
                     //break the news
                     newsStories.get(currentWeek + 1).add("Lower Division School Promoted!>Today is a special day at " + FCS.getName() + ". They have been promoted to Division I College Football today, and will be listed as an Independent team!");
@@ -4923,13 +4989,27 @@ Then conferences can see if they want to add them to their list if the teams mee
 
         //Create New Conference
         if (advancedRealignment && SimRandom.nextDouble() < confRealignmentChance && SimRandom.nextDouble() < realignmentChance && SimRandom.nextDouble() < 0.35) {
+            ensureFcsNamePool();
             int matches = 0;
             for (Conference c : conferences) {
                 if (c.confName.equals("Antdroid")) {
                     matches++;
                 }
             }
-            if (matches <= 0) {
+
+            //Find Independent Conf
+            int indConf = 0;
+            for (Conference c : conferences) {
+                if (c.confName.equals("Independent") && c.confTeams.size() < c.minConfTeams) {
+                    indConf = getConfNumber(c.confName);
+                }
+            }
+            Conference indy = conferences.get(indConf);
+            // The new conference is filled to 10 with promoted FCS schools; skip it when
+            // the FCS promotion setting can't supply that many.
+            int promotionsNeeded = Math.max(0, 10 - indy.confTeams.size());
+
+            if (matches <= 0 && promotionsNeeded <= remainingFcsPromotions()) {
                 matches = 0;
                 for (int t = 0; t < teamsFCSList.size(); t++) {
                     for (int x = 0; x < teamList.size(); x++) {
@@ -4944,15 +5024,6 @@ Then conferences can see if they want to add them to their list if the teams mee
                     //Create new Conference
                     Conference antdroid = new Conference("Antdroid", this, false, 0, 0);
                     conferences.add(antdroid);
-
-                    //Find Independent Conf
-                    int indConf = 0;
-                    for (Conference c : conferences) {
-                        if (c.confName.equals("Independent") && c.confTeams.size() < c.minConfTeams) {
-                            indConf = getConfNumber(c.confName);
-                        }
-                    }
-                    Conference indy = conferences.get(indConf);
 
                     //Move Independent Teams to new Conf & remove from independents
                     for (int i = 0; i < indy.confTeams.size(); i++) {
@@ -4987,6 +5058,7 @@ Then conferences can see if they want to add them to their list if the teams mee
                         FCS.setRankTeamPollScore(teamList.size());
                         teamList.add(FCS);
                         antdroid.confTeams.add(FCS);
+                        fcsPromotionsUsed++;
                         count++;
                     }
 
@@ -7377,7 +7449,75 @@ Then conferences can see if they want to add them to their list if the teams mee
      * Get an unmodifiable view of FCS teams list.
      */
     public java.util.List<String> getTeamsFCSList() {
+        ensureFcsNamePool();
         return java.util.Collections.unmodifiableList(teamsFCSList);
+    }
+
+    /** FCS names not already used by a league team (rebuilt every season by the scheduler). */
+    void rebuildFcsNamePool() {
+        ArrayList<String> leagueTeams = new ArrayList<>();
+        for (Team t : teamList) {
+            leagueTeams.add(t.getName());
+        }
+        teamsFCSList = new ArrayList<>();
+        for (String name : teamsFCS) {
+            if (!leagueTeams.contains(name)) {
+                teamsFCSList.add(name);
+            }
+        }
+    }
+
+    /** Loaded saves skip scheduling, which is what normally builds the FCS name pool. */
+    void ensureFcsNamePool() {
+        if (teamsFCSList == null) {
+            rebuildFcsNamePool();
+        }
+    }
+
+    /**
+     * How many more FCS schools realignment may promote under the current
+     * {@link #fcsPromotionMode}: none, what's left of the cap, or unbounded.
+     */
+    public int remainingFcsPromotions() {
+        if (fcsPromotionMode == null) {
+            return Integer.MAX_VALUE;
+        }
+        switch (fcsPromotionMode) {
+            case NONE:
+                return 0;
+            case CAPPED:
+                return Math.max(0, fcsPromotionCap - fcsPromotionsUsed);
+            default:
+                return Integer.MAX_VALUE;
+        }
+    }
+
+    /** One-line description for settings summaries, e.g. "Capped at 6 (2 used)". */
+    public String fcsPromotionSummary() {
+        FcsPromotionMode mode = fcsPromotionMode != null ? fcsPromotionMode : FcsPromotionMode.UNLIMITED;
+        switch (mode) {
+            case NONE:
+                return "None";
+            case CAPPED:
+                return "Capped at " + fcsPromotionCap + " (" + fcsPromotionsUsed + " used)";
+            default:
+                return "Unlimited";
+        }
+    }
+
+    /**
+     * Best estimate of past FCS promotions for saves that predate the counter: FCS-pool
+     * schools in the league outside the pro/rel "FCS Division" filler.
+     */
+    int countPromotedFcsSchools() {
+        java.util.Set<String> fcsNames = new java.util.HashSet<>(java.util.Arrays.asList(teamsFCS));
+        int count = 0;
+        for (Team t : teamList) {
+            if (fcsNames.contains(t.getName()) && !"FCS Division".equals(t.getConference())) {
+                count++;
+            }
+        }
+        return count;
     }
 
 

@@ -40,9 +40,21 @@ final class SaveFileSummary {
 
             boolean careerMode = false;
             boolean twelveTeamPlayoff = false;
+            if (primary.startsWith("L:")) {
+                // New-format saves without an OPT: line load with the new-league defaults.
+                LeagueRecord.Settings defaults = LeagueRecord.Settings.defaults();
+                careerMode = defaults.careerMode();
+                twelveTeamPlayoff = defaults.expandedPlayoffs();
+            }
             String line;
             String previousLine = null;
             while ((line = bufferedReader.readLine()) != null) {
+                if (line.startsWith(SaveManager.SETTINGS_PREFIX)) {
+                    LeagueRecord.Settings settings = LeagueRecord.Settings.fromSaveLine(
+                            line.substring(SaveManager.SETTINGS_PREFIX.length()));
+                    careerMode = settings.careerMode();
+                    twelveTeamPlayoff = settings.expandedPlayoffs();
+                }
                 if ("END_CAREER_MODE".equals(line)) {
                     if (previousLine != null) {
                         careerMode = Boolean.parseBoolean(previousLine.trim());

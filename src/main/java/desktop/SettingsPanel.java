@@ -73,6 +73,7 @@ public class SettingsPanel implements LeagueScreen {
         addOptionRow(summary, "Expanded playoffs", enabledLabel(ctx.league().expPlayoffs));
         addOptionRow(summary, "Conference realignment", enabledLabel(ctx.league().confRealignment));
         addOptionRow(summary, "Advanced realignment", enabledLabel(ctx.league().advancedRealignment));
+        addOptionRow(summary, "FCS promotions", ctx.league().fcsPromotionSummary());
         addOptionRow(summary, "Promotion/relegation", enabledLabel(ctx.league().enableUnivProRel));
         JPanel summaryHost = new JPanel(new BorderLayout());
         summaryHost.setOpaque(false);

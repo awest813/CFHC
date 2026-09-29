@@ -32,6 +32,8 @@
     <string name="settings_conf_realignment">Conference realignment</string>
     <string name="settings_adv_realignment">Advanced transfers and realignment</string>
     <string name="settings_universal_pro_rel">Universal promotion / relegation</string>
+    <string name="settings_fcs_promotion">FCS schools moving up</string>
+    <string name="settings_fcs_promotion_cap">Promotion cap (whole career)</string>
     <string name="settings_footer_hint">Settings are applied immediately to the active universe. Expanded playoffs and promotion/relegation can only be changed before the regular season starts. Save your league to persist these changes.</string>
     <string name="league_settings_title">League Settings</string>
     <string name="league_settings_apply">Apply Settings</string>

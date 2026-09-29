@@ -13,6 +13,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import simulation.FcsPromotionMode;
 import simulation.League;
 import simulation.LeagueSettingsOptions;
 import simulation.PracticeFocus;
@@ -86,6 +87,66 @@ public final class SettingsDialogController {
             checkboxAdvRealignment.setVisibility(View.INVISIBLE);
         }
         checkboxAdvRealignment.setChecked(simLeague.advancedRealignment);
+
+        // FCS promotion: none / capped / unlimited, with the cap row shown only when capped.
+        final View rowFcsPromotion = dialog.findViewById(R.id.rowFcsPromotion);
+        final View rowFcsPromotionCap = dialog.findViewById(R.id.rowFcsPromotionCap);
+        final Spinner spinnerFcsPromotion = dialog.findViewById(R.id.spinnerFcsPromotion);
+        final Spinner spinnerFcsPromotionCap = dialog.findViewById(R.id.spinnerFcsPromotionCap);
+        final TextView textFcsPromotionCap = dialog.findViewById(R.id.textFcsPromotionCap);
+        final FcsPromotionMode[] fcsModes = FcsPromotionMode.values();
+        if (spinnerFcsPromotion != null && spinnerFcsPromotionCap != null) {
+            String[] modeLabels = new String[fcsModes.length];
+            for (int i = 0; i < fcsModes.length; i++) {
+                modeLabels[i] = fcsModes[i].label();
+            }
+            ArrayAdapter<String> modeAdapter = new ArrayAdapter<>(activity,
+                    android.R.layout.simple_spinner_item, modeLabels);
+            modeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerFcsPromotion.setAdapter(modeAdapter);
+            FcsPromotionMode currentMode = simLeague.fcsPromotionMode != null
+                    ? simLeague.fcsPromotionMode
+                    : FcsPromotionMode.UNLIMITED;
+            spinnerFcsPromotion.setSelection(currentMode.ordinal());
+
+            int maxCap = LeagueSettingsOptions.MAX_FCS_PROMOTION_CAP;
+            String[] capLabels = new String[maxCap];
+            for (int i = 0; i < maxCap; i++) {
+                capLabels[i] = String.valueOf(i + 1);
+            }
+            ArrayAdapter<String> capAdapter = new ArrayAdapter<>(activity,
+                    android.R.layout.simple_spinner_item, capLabels);
+            capAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerFcsPromotionCap.setAdapter(capAdapter);
+            spinnerFcsPromotionCap.setSelection(Math.max(1, Math.min(maxCap, simLeague.fcsPromotionCap)) - 1);
+            if (textFcsPromotionCap != null && simLeague.fcsPromotionsUsed > 0) {
+                textFcsPromotionCap.setText(activity.getString(R.string.settings_fcs_promotion_cap)
+                        + " \u00b7 " + simLeague.fcsPromotionsUsed + " used");
+            }
+
+            if (rowFcsPromotionCap != null) {
+                rowFcsPromotionCap.setVisibility(
+                        currentMode == FcsPromotionMode.CAPPED ? View.VISIBLE : View.GONE);
+            }
+            spinnerFcsPromotion.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                    if (rowFcsPromotionCap != null) {
+                        rowFcsPromotionCap.setVisibility(
+                                position == FcsPromotionMode.CAPPED.ordinal() ? View.VISIBLE : View.GONE);
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                }
+            });
+        }
+        if (!isNewGameSetup && simLeague.enableUnivProRel) {
+            // Promotion/relegation leagues don't run realignment, so FCS promotion never applies.
+            if (rowFcsPromotion != null) rowFcsPromotion.setVisibility(View.GONE);
+            if (rowFcsPromotionCap != null) rowFcsPromotionCap.setVisibility(View.GONE);
+        }
 
         final CheckBox checkboxProRelegation = dialog.findViewById(R.id.checkboxProRelegation);
         checkboxProRelegation.setChecked(simLeague.enableUnivProRel);
@@ -328,6 +389,15 @@ public final class SettingsDialogController {
                     options.advancedRealignment = checkboxAdvRealignment.isChecked();
                     options.expandedPlayoffs = checkboxPlayoffs.isChecked();
                     options.enableTv = checkboxTV.isChecked();
+                    if (spinnerFcsPromotion != null) {
+                        int modePos = spinnerFcsPromotion.getSelectedItemPosition();
+                        if (modePos >= 0 && modePos < fcsModes.length) {
+                            options.fcsPromotionMode = fcsModes[modePos];
+                        }
+                    }
+                    if (spinnerFcsPromotionCap != null && spinnerFcsPromotionCap.getSelectedItemPosition() >= 0) {
+                        options.fcsPromotionCap = spinnerFcsPromotionCap.getSelectedItemPosition() + 1;
+                    }
 
                     boolean allowPlayoffChange = isNewGameSetup || simLeague.currentWeek < simLeague.regSeasonWeeks;
                     options.applyTo(simLeague, allowPlayoffChange, isNewGameSetup, false);

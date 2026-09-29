@@ -31,6 +31,8 @@ public class SaveManager {
     private static final String RECORD_PREFIX = "R:";
     private static final String GAME_PREFIX = "GM:";
     private static final String TEAM_OOC_PREFIX = "TO:";
+    /** League options ({@link LeagueRecord.Settings}); optional, older readers skip it. */
+    static final String SETTINGS_PREFIX = "OPT:";
     private static final String END_TOKEN = "END";
 
     /** Result of loading a new-format save, including the resolved schema version. */
@@ -74,6 +76,9 @@ public class SaveManager {
                 + league.currentWeek() + "\t" + sanitizeInlineValue(league.heismanWinnerName()) + "\t"
                 + sanitizeInlineValue(league.nationalChampName()) + "\t"
                 + league.rngSeed() + "\n");
+        if (league.settings() != null) {
+            writer.write(SETTINGS_PREFIX + league.settings().toSaveLine() + "\n");
+        }
 
         // Global Hall of Fame
         for (PlayerRecord p : league.leagueHoF()) {
@@ -219,6 +224,7 @@ public class SaveManager {
         int teamStadiumLevel = 1;
         LeagueRecord.SeasonBaseline teamSeasonBaseline = null;
         List<LeagueRecord.GameRecord> gameRecords = new ArrayList<>();
+        LeagueRecord.Settings settings = null;
         String schemaVersion = null;
         boolean sawLeagueHeader = false;
 
@@ -240,6 +246,8 @@ public class SaveManager {
                 heisman = h.heisman();
                 champ = h.champ();
                 rngSeed = h.rngSeed();
+            } else if (line.startsWith(SETTINGS_PREFIX)) {
+                settings = LeagueRecord.Settings.fromSaveLine(line.substring(SETTINGS_PREFIX.length()));
             } else if (line.startsWith("HOF:")) {
                 hof.add(PlayerRecord.fromCsv(line.substring(4)));
             } else if (line.startsWith("LR:")) {
@@ -387,7 +395,7 @@ public class SaveManager {
             schemaVersion = SaveSchema.unversionedNewFormatDefault();
         }
         LeagueRecord raw = new LeagueRecord(leagueName, year, week, conferences, hof, lRecords, heisman, champ,
-                List.copyOf(gameRecords), rngSeed);
+                List.copyOf(gameRecords), rngSeed, settings);
         LeagueRecord migrated = SaveSchema.migrate(schemaVersion, raw);
         return new LoadResult(migrated, schemaVersion);
     }

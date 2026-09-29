@@ -63,17 +63,7 @@ public final class ScheduleManager {
         }
 
         // FCS name pool (exclude names already used by FBS teams)
-        ArrayList<String> leagueTeams = new ArrayList<>();
-        for (int i = 0; i < league.teamList.size(); i++) {
-            leagueTeams.add(league.teamList.get(i).getName());
-        }
-
-        league.teamsFCSList = new ArrayList<>();
-        for (int i = 0; i < league.teamsFCS.length; i++) {
-            if (!leagueTeams.contains(league.teamsFCS[i])) {
-                league.teamsFCSList.add(league.teamsFCS[i]);
-            }
-        }
+        league.rebuildFcsNamePool();
 
         // OOC pairing (skipped under universal promotion/relegation)
         if (!league.enableUnivProRel) {
