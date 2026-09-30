@@ -56,6 +56,7 @@ public class RecruitingPanel extends JPanel {
     private JComboBox<String> filterBox;
     private DefaultTableModel boardModel;
     private JTable boardTable;
+    private static final String SCOUT_LABEL = "Scout (10% cost)";
     /** Disabled for a recruit already scouted (mirrors the Android board). */
     private JButton scoutButton;
     private JTextArea detailArea;
@@ -237,7 +238,7 @@ public class RecruitingPanel extends JPanel {
         actionPanel.setBackground(DesktopTheme.windowBackground());
         actionPanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 
-        JButton scoutBtn = new JButton("Scout (10% cost)");
+        JButton scoutBtn = new JButton(SCOUT_LABEL);
         scoutButton = scoutBtn;
         scoutBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         scoutBtn.setFocusPainted(false);
@@ -341,7 +342,7 @@ public class RecruitingPanel extends JPanel {
             detailArea.setText("Select a recruit to see scouting, cost, and roster fit.");
             if (scoutButton != null) {
                 scoutButton.setEnabled(true);
-                scoutButton.setText("Scout (10% cost)");
+                scoutButton.setText(SCOUT_LABEL);
             }
             return;
         }
@@ -355,7 +356,7 @@ public class RecruitingPanel extends JPanel {
         boolean scouted = sessionData.isScouted(recruit);
         if (scoutButton != null) {
             scoutButton.setEnabled(!scouted);
-            scoutButton.setText(scouted ? "Scouted" : "Scout (10% cost)");
+            scoutButton.setText(scouted ? "Scouted" : SCOUT_LABEL);
         }
 
         StringBuilder sb = new StringBuilder();

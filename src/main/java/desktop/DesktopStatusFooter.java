@@ -86,16 +86,16 @@ public class DesktopStatusFooter extends JPanel {
         spectrumBar.setOpaque(false);
 
         // Clickable speaker icon — toggles mute.
-        volIcon = new JLabel(volumeIcon(engine.isMuted()), JLabel.CENTER);
+        volIcon = new JLabel("", JLabel.CENTER);
+        showMuteState(engine.isMuted());
         volIcon.setForeground(DesktopTheme.textSecondary());
         volIcon.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        volIcon.setToolTipText("Click to toggle soundtrack");
         volIcon.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 boolean nowMuted = !engine.isMuted();
                 engine.setMuted(nowMuted);
-                volIcon.setIcon(volumeIcon(nowMuted));
+                showMuteState(nowMuted);
                 if (!nowMuted && !eqTimer.isRunning()) {
                     eqTimer.start(); // unmuted while idle: wake the parked bars
                 }
@@ -119,11 +119,15 @@ public class DesktopStatusFooter extends JPanel {
             eqTimer.start();
         }
         trackTitle.setText(updateTrackLabel());
-        volIcon.setIcon(volumeIcon(engine.isMuted()));
+        showMuteState(engine.isMuted());
     }
 
-    private static javax.swing.Icon volumeIcon(boolean muted) {
-        return UiIcons.of(muted ? UiIcons.Glyph.MUTED : UiIcons.Glyph.VOLUME, 14);
+    /** Speaker icon plus a tooltip / accessible name that say what a click will do. */
+    private void showMuteState(boolean muted) {
+        volIcon.setIcon(UiIcons.of(muted ? UiIcons.Glyph.MUTED : UiIcons.Glyph.VOLUME, 14));
+        String action = muted ? "Unmute soundtrack" : "Mute soundtrack";
+        volIcon.setToolTipText(action);
+        volIcon.getAccessibleContext().setAccessibleName(action);
     }
 
     private String updateTrackLabel() {
