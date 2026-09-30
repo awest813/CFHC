@@ -33,6 +33,8 @@ public class SaveManager {
     private static final String TEAM_OOC_PREFIX = "TO:";
     /** League options ({@link LeagueRecord.Settings}); optional, older readers skip it. */
     static final String SETTINGS_PREFIX = "OPT:";
+    /** A coach without a job (free agent or retired); older builds skip the line. */
+    static final String FREE_AGENT_COACH_PREFIX = "CFA:";
     private static final String END_TOKEN = "END";
 
     /** Result of loading a new-format save, including the resolved schema version. */
@@ -94,6 +96,10 @@ public class SaveManager {
         // Global Records
         for (DataRecord r : league.leagueRecords()) {
             writer.write("LR:" + r.toCsv(new java.text.DecimalFormat("#.##")) + "\n");
+        }
+
+        for (StaffRecord coach : league.coachFreeAgents()) {
+            writer.write(FREE_AGENT_COACH_PREFIX + Persistence.toCsv(coach) + "\n");
         }
 
         for (LeagueRecord.ConferenceRecord c : league.conferences()) {
@@ -201,6 +207,7 @@ public class SaveManager {
         Boolean recruitingStarted = null;
         List<PlayerRecord> hof = new ArrayList<>();
         List<DataRecord> lRecords = new ArrayList<>();
+        List<StaffRecord> freeAgentCoaches = new ArrayList<>();
         List<LeagueRecord.ConferenceRecord> conferences = new ArrayList<>();
 
         LeagueRecord.ConferenceRecord currentConf = null;
@@ -261,6 +268,8 @@ public class SaveManager {
             } else if (line.startsWith("LR:")) {
                 DataRecord dr = DataRecord.fromCsv(line.substring(3));
                 if (dr != null) lRecords.add(dr);
+            } else if (line.startsWith(FREE_AGENT_COACH_PREFIX)) {
+                freeAgentCoaches.add(StaffRecord.fromCsv(line.substring(FREE_AGENT_COACH_PREFIX.length())));
             } else if (line.startsWith(CONF_PREFIX)) {
                 confTeams = new ArrayList<>();
                 String raw = line.substring(2);
@@ -403,7 +412,7 @@ public class SaveManager {
             schemaVersion = SaveSchema.unversionedNewFormatDefault();
         }
         LeagueRecord raw = new LeagueRecord(leagueName, year, week, conferences, hof, lRecords, heisman, champ,
-                List.copyOf(gameRecords), rngSeed, settings, recruitingStarted);
+                List.copyOf(gameRecords), rngSeed, settings, recruitingStarted, freeAgentCoaches);
         LeagueRecord migrated = SaveSchema.migrate(schemaVersion, raw);
         return new LoadResult(migrated, schemaVersion);
     }

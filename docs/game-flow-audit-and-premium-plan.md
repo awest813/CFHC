@@ -34,8 +34,8 @@ Canonical cycle as implemented:
 | R+3 | National championship | NCG, champion news | — |
 | R+4 | Season summary | `enterOffseason()`, records/history updates | **Season summary** |
 | R+5 | Contracts | `advanceStaff()` (extensions, firings, retirements) | **Contract** |
-| R+6 | Job offers | *no-op* (dialog only if user was fired) | **Job offers** (conditional) |
-| R+7 | Coach carousel | `coachCarousel()` fills all HC vacancies | **Promotions** |
+| R+6 | Job offers | `jobInterestNews()`; the openings from contracts are still unfilled | **Job offers** if the user was fired, otherwise **Promotions** |
+| R+7 | Coach carousel | `coachCarousel()` fills all HC vacancies | — |
 | R+8 | Coordinator hiring | *no-op engine side* — pure UI slot | **Coordinator hiring** (desktop gates on OC/DC null) |
 | R+9 | Graduation | `advanceSeason()` — seniors leave, early NFL entries, development, training camp | **Redshirt list** |
 | R+10 | Transfers | `transferPlayers()` — CPU portal placement, user Accept/Decline prompts | per-player portal prompts |

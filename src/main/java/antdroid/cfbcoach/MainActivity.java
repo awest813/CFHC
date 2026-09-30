@@ -1972,14 +1972,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 () -> {
                     userHC.promotionCandidate = false;
                     changeTeams(jobList, item);
-                    if (gameState.getJobType() == 2) simLeague.coachCarousel();
                 });
     }
 
 
     //Method to actually switch teams
     private void changeTeams(ArrayList<Team> teamList, int item) {
-        userTeam.newCoachTeamChanges();
+        if (!userTeam.fired) {
+            // A firing already took the coaching-change prestige hit at contracts.
+            userTeam.newCoachTeamChanges();
+        }
         userTeam.setUserControlled(false);
         userTeam.setHeadCoach(null);
         simLeague.coachHiringSingleTeam(userTeam);

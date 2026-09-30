@@ -353,6 +353,7 @@ public class CoordinatorHiringDialog extends JDialog {
             existing.baselinePrestige = 0;
         } else if (selectedIdx >= 0 && selectedIdx < candidates.size()) {
             Staff hired = candidates.get(selectedIdx);
+            league.releaseCoordinator(existing, userTeam);
             String coordName;
             if (offense) {
                 userTeam.setOC(new OC(hired, userTeam));

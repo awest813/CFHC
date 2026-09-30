@@ -8,7 +8,6 @@ public class HeadCoach extends Staff {
 
     public HeadCoach(simulation.StaffRecord record, Team team) {
         super(team, record);
-        this.history = new java.util.ArrayList<>();
     }
 
 
@@ -47,7 +46,7 @@ public class HeadCoach extends Staff {
     public HeadCoach(Team t, String data) {
         team = t;
 
-        String[] parts = data.split("&");
+        String[] parts = data.split("&", 4); // history (last) may name "Texas A&M"
         String x = parts[0];
         String y = parts[1];
         String z = parts[2];
@@ -65,7 +64,6 @@ public class HeadCoach extends Staff {
 
     public HeadCoach(Team t, simulation.StaffRecord record) {
         super(t, record);
-        history = new ArrayList<>();
     }
 
 
@@ -73,7 +71,7 @@ public class HeadCoach extends Staff {
     public HeadCoach(String data) {
         team = null;
 
-        String[] parts = data.split("&");
+        String[] parts = data.split("&", 4); // history (last) may name "Texas A&M"
         String x = parts[0];
         String y = parts[1];
         String z = parts[2];

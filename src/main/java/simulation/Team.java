@@ -1673,7 +1673,7 @@ public class Team {
         }
 
         league.addNewsStory(0, "FIRED! Acting Head Coach named at " + name + ">" + name + " has fired their head coach, " + hcName +
-                " and has promoted his assistant coach, " + HC.name + ", as Acting Head Coach for the remainder of the season. After the season ends, the team will determine what to do for the Head Head Coach vacancy.");
+                " and has promoted his assistant coach, " + HC.name + ", as Acting Head Coach for the remainder of the season. After the season ends, the team will determine what to do for the Head Coach vacancy.");
         league.addNewsHeadline(name + " has fired " + hcName + ".");
     }
 
@@ -1681,10 +1681,15 @@ public class Team {
 
         if(HC.contractLength != 1) teamPrestige = (int)(teamPrestige * knockdownFired);
 
+        resetDisciplineForNewCoach();
+
+    }
+
+    /** A new head coach starts with the locker room at least steady. */
+    void resetDisciplineForNewCoach() {
         if(teamDisciplineScore < 60) {
             teamDisciplineScore = 60;
         }
-
     }
 
     public void promoteCoach() {
@@ -1731,19 +1736,32 @@ public class Team {
     //If a new HC is hired, decide whether to keep staff or not
     public void newCoachDecisions() {
         if(OC != null && HC.offStrat != OC.offStrat && SimRandom.nextDouble() > 0.30) {
+            league.removeCoachStar(OC);
             league.addCoachFreeAgent(new HeadCoach(OC, this));
             league.addNewsStory(league.currentWeek+1, name + " New HC Lets OC Go>The " + name + " have let go of their OC " + OC.name + " after the hiring of new Head Coach " + HC.name);
             league.addNewsHeadline(name + "'s new HC has let go of OC " + OC.name);
             OC = null;
             if(league.currentWeek < league.regSeasonWeeks) league.OCCarousel();
         }
-        if(DC != null && HC.offStrat != DC.offStrat && SimRandom.nextDouble() > 0.30) {
+        if(DC != null && HC.defStrat != DC.defStrat && SimRandom.nextDouble() > 0.30) {
+            league.removeCoachStar(DC);
             league.addCoachFreeAgent(new HeadCoach(DC, this));
             league.addNewsStory(league.currentWeek+1, name + " New HC Lets DC Go>The " + name + " have let go of their DC " + DC.name + " after the hiring of new Head Coach " + HC.name);
             league.addNewsHeadline(name + "'s new HC has let go of DC " + DC.name);
             DC = null;
             if(league.currentWeek < league.regSeasonWeeks) league.DCCarousel();
         }
+    }
+
+    /**
+     * Star level of an assistant this program hires or promotes into a
+     * coordinator job: the level the league generated the program's staff at
+     * (prestige / 10; see Staff.createStaff for how stars map to ratings). Every
+     * school used to hire at 6 stars, so within a few seasons top and bottom
+     * programs had the same coordinators.
+     */
+    public int assistantCoachStars() {
+        return Math.max(1, Math.min(9, teamPrestige / 10));
     }
 
     //Provide the minimum overall rating for a new coach hire

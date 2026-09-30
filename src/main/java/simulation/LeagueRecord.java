@@ -10,6 +10,10 @@ import java.util.List;
  * <p>{@code recruitingStarted}: whether this offseason's recruiting gate already
  * ran (CPU teams signed their classes). Null when the save predates it; League
  * then infers it from the CPU rosters.
+ *
+ * <p>{@code coachFreeAgents}: coaches without a job, unemployed or retired (the
+ * hiring pool and the coach database's former coaches). Empty for saves that
+ * predate it.
  */
 public record LeagueRecord(
     String leagueName,
@@ -23,12 +27,14 @@ public record LeagueRecord(
     List<GameRecord> scheduledGames,
     long rngSeed,
     Settings settings,
-    Boolean recruitingStarted
+    Boolean recruitingStarted,
+    List<StaffRecord> coachFreeAgents
 ) {
     public LeagueRecord {
         if (rngSeed < 0) {
             rngSeed = 0;
         }
+        coachFreeAgents = coachFreeAgents == null ? List.of() : List.copyOf(coachFreeAgents);
     }
 
     /** Pre-settings call shape: saves and callers without {@link Settings}. */
@@ -37,7 +43,7 @@ public record LeagueRecord(
                         String heismanWinnerName, String nationalChampName,
                         List<GameRecord> scheduledGames, long rngSeed) {
         this(leagueName, year, currentWeek, conferences, leagueHoF, leagueRecords, heismanWinnerName,
-                nationalChampName, scheduledGames, rngSeed, null, null);
+                nationalChampName, scheduledGames, rngSeed, null, null, null);
     }
 
     /**

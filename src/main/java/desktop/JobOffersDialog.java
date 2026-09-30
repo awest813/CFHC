@@ -343,7 +343,10 @@ public class JobOffersDialog extends JDialog {
      */
     private void changeTeams(Team newTeam) {
         Team oldTeam = league.userTeam;
-        oldTeam.newCoachTeamChanges();
+        if (!oldTeam.fired) {
+            // A firing already took the coaching-change prestige hit at contracts.
+            oldTeam.newCoachTeamChanges();
+        }
         oldTeam.setUserControlled(false);
         oldTeam.setHeadCoach(null);
         league.coachHiringSingleTeam(oldTeam);

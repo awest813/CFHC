@@ -13,6 +13,7 @@ public class SeasonControllerJobOffersGateTest {
     private League league;
     private SeasonController controller;
     private final boolean[] jobOffersShown = {false};
+    private final boolean[] promotionsShown = {false};
 
     @Before
     public void setUp() {
@@ -45,7 +46,7 @@ public class SeasonControllerJobOffersGateTest {
             @Override public void showSeasonSummary() {}
             @Override public void showContractDialog() {}
             @Override public void showJobOffersDialog() { jobOffersShown[0] = true; }
-            @Override public void showPromotionsDialog() {}
+            @Override public void showPromotionsDialog() { promotionsShown[0] = true; }
             @Override public void showRedshirtList() {}
             @Override public void showTransferList() {}
             @Override public void showRealignmentSummary() {}
@@ -54,13 +55,27 @@ public class SeasonControllerJobOffersGateTest {
     }
 
     @Test
-    public void jobOffersWeek_skipsDialogWhenCoachNotFired() {
+    public void jobOffersWeek_offersPromotionsWhenCoachNotFired() {
         league.currentWeek = league.regSeasonWeeks + 6;
         league.userTeam.fired = false;
 
         SeasonAdvanceResult result = controller.advanceWeek();
 
         assertFalse(jobOffersShown[0]);
+        // Promotion offers come on this step, while the offseason's openings are
+        // still unfilled; the carousel on the next step fills them all.
+        assertTrue(promotionsShown[0]);
+        assertTrue(result.hasEvent(SeasonAdvanceResult.EventType.NEEDS_DIALOG));
+    }
+
+    @Test
+    public void carouselWeek_needsNoDialog() {
+        league.currentWeek = league.regSeasonWeeks + 7;
+        league.userTeam.fired = false;
+
+        SeasonAdvanceResult result = controller.advanceWeek();
+
+        assertFalse(promotionsShown[0]);
         assertFalse(result.hasEvent(SeasonAdvanceResult.EventType.NEEDS_DIALOG));
     }
 
@@ -72,6 +87,7 @@ public class SeasonControllerJobOffersGateTest {
         SeasonAdvanceResult result = controller.advanceWeek();
 
         assertTrue(jobOffersShown[0]);
+        assertFalse("a fired coach gets job offers, not promotions", promotionsShown[0]);
         assertTrue(result.hasEvent(SeasonAdvanceResult.EventType.NEEDS_DIALOG));
     }
 }
