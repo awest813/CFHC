@@ -1268,7 +1268,8 @@ public class League {
                 nationalChampionNameForRecord(),
                 java.util.List.copyOf(buildGameRecordsForSave()),
                 rngSeed,
-                settingsRecord()
+                settingsRecord(),
+                recruitingPhaseActive
         );
     }
 
@@ -1310,6 +1311,26 @@ public class League {
             // Pro/rel's odd-count filler school isn't a realignment promotion.
             fcsPromotionsUsed = enableUnivProRel ? 0 : countPromotedFcsSchools();
         }
+    }
+
+    /**
+     * Whether this offseason's CPU recruiting already ran, for saves that don't
+     * record it. Recruiting fills every CPU roster to {@link RosterRules#MIN_PLAYERS};
+     * before it, graduation leaves them well short. Assuming "ran" at the gate
+     * (the old rule) skipped CPU recruiting for a save made just before it.
+     */
+    private boolean cpuClassesSigned() {
+        boolean anyCpu = false;
+        for (Team t : teamList) {
+            if (t.isUserControlled()) {
+                continue;
+            }
+            anyCpu = true;
+            if (t.getAllPlayers().size() < RosterRules.MIN_PLAYERS) {
+                return false;
+            }
+        }
+        return anyCpu;
     }
 
     /** {@link #convertUnivProRel()} renames every conference to "1st Tier", "2nd Tier", ... */
@@ -1418,7 +1439,6 @@ public class League {
         SimRandom.bind(this.rngSeed);
 
         this.currentWeek = record.currentWeek();
-        this.recruitingPhaseActive = SeasonFlowOrder.isRecruitingGate(record.currentWeek(), regSeasonWeeks);
         this.heismanWinnerStrFull = record.heismanWinnerName();
         this.nationalChampionName = record.nationalChampName() != null ? record.nationalChampName() : "";
 
@@ -1446,6 +1466,8 @@ public class League {
 
         linkUserTeamFromLoadedCoaches();
         applySettingsRecord(record.settings());
+        this.recruitingPhaseActive = SeasonFlowOrder.isRecruitingGate(currentWeek, regSeasonWeeks)
+                && (record.recruitingStarted() != null ? record.recruitingStarted() : cpuClassesSigned());
 
         restoreScheduledGames(record.scheduledGames());
         restoreSeasonBaselines();

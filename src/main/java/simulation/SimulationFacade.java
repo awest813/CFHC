@@ -19,17 +19,20 @@ public final class SimulationFacade {
 
     public static final int SEASON_START = 2022;
 
-    public static final int MIN_QBS = 2;
-    public static final int MIN_RBS = 3;
-    public static final int MIN_WRS = 4;
-    public static final int MIN_TES = 2;
-    public static final int MIN_OLS = 6;
-    public static final int MIN_KS = 1;
-    public static final int MIN_DLS = 4;
-    public static final int MIN_LBS = 4;
-    public static final int MIN_CBS = 4;
-    public static final int MIN_SS = 2;
-    public static final int MIN_ROSTER_SIZE = 55;
+    // Roster targets are RosterRules', shared with CPU recruiting and the Android
+    // board. The desktop board used smaller copies (QB 2 ... 55 players), which
+    // understated position needs and cut about $275 from the recruiting budget.
+    public static final int MIN_QBS = RosterRules.MIN_QBS;
+    public static final int MIN_RBS = RosterRules.MIN_RBS;
+    public static final int MIN_WRS = RosterRules.MIN_WRS;
+    public static final int MIN_TES = RosterRules.MIN_TES;
+    public static final int MIN_OLS = RosterRules.MIN_OLS;
+    public static final int MIN_KS = RosterRules.MIN_KS;
+    public static final int MIN_DLS = RosterRules.MIN_DLS;
+    public static final int MIN_LBS = RosterRules.MIN_LBS;
+    public static final int MIN_CBS = RosterRules.MIN_CBS;
+    public static final int MIN_SS = RosterRules.MIN_SS;
+    public static final int MIN_ROSTER_SIZE = RosterRules.MIN_PLAYERS;
 
     public static final GameFlowManager NO_OP_FLOW_MANAGER = new GameFlowManager() {
         @Override

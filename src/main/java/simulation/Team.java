@@ -2420,7 +2420,22 @@ public class Team {
             }
             int s = minSs - (teamSs.size() - numTransfers);
 
-            int rosterSize = getTeamSize() + qb + rb + wr + te + ol + dl + lb + cb + s;
+            // A surplus position needs nobody. Negative needs used to be summed
+            // into the roster estimate (signing one extra random recruit per
+            // surplus player, 65 + surplus in all) and could swallow the top-up
+            // below, which only adds a player when the need ends up positive.
+            qb = Math.max(0, qb);
+            rb = Math.max(0, rb);
+            wr = Math.max(0, wr);
+            te = Math.max(0, te);
+            ol = Math.max(0, ol);
+            k = Math.max(0, k);
+            dl = Math.max(0, dl);
+            lb = Math.max(0, lb);
+            cb = Math.max(0, cb);
+            s = Math.max(0, s);
+
+            int rosterSize = getTeamSize() + qb + rb + wr + te + ol + k + dl + lb + cb + s;
 
             for (int i = rosterSize; i < minPlayers; i++) {
                 int x = (int) (SimRandom.nextDouble() * 9) + 1;

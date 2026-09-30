@@ -29,15 +29,23 @@ final class DesktopRecruitingCheckpoint {
     final int budget;
     final String boardPayload;
     final List<String> recruitedRaws;
+    /** Prospects the user paid to scout; restored so a reload doesn't hide what they bought. */
+    final List<String> scoutedRaws;
 
     DesktopRecruitingCheckpoint(int year, String teamName, int week, int budget,
                                 String boardPayload, List<String> recruitedRaws) {
+        this(year, teamName, week, budget, boardPayload, recruitedRaws, null);
+    }
+
+    DesktopRecruitingCheckpoint(int year, String teamName, int week, int budget,
+                                String boardPayload, List<String> recruitedRaws, List<String> scoutedRaws) {
         this.year = year;
         this.teamName = teamName != null ? teamName : "";
         this.week = week;
         this.budget = budget;
         this.boardPayload = boardPayload != null ? boardPayload : "";
         this.recruitedRaws = recruitedRaws != null ? recruitedRaws : new ArrayList<>();
+        this.scoutedRaws = scoutedRaws != null ? scoutedRaws : new ArrayList<>();
     }
 
     static File pathFor(File leagueSave, League league) {
@@ -69,7 +77,8 @@ final class DesktopRecruitingCheckpoint {
                 league.currentWeek,
                 session.recruitingBudget,
                 boardPayload,
-                recruited);
+                recruited,
+                session.scoutedRaws());
     }
 
     static void write(File target, DesktopRecruitingCheckpoint checkpoint) throws IOException {
@@ -105,6 +114,13 @@ final class DesktopRecruitingCheckpoint {
             }
             w.write("---END---");
             w.newLine();
+            // After ---END---: readers from before scouting was saved stop there.
+            w.write("---SCOUTED---");
+            w.newLine();
+            for (String raw : checkpoint.scoutedRaws) {
+                w.write(raw);
+                w.newLine();
+            }
         }
     }
 
@@ -147,7 +163,16 @@ final class DesktopRecruitingCheckpoint {
                     recruited.add(line.trim());
                 }
             }
-            return new DesktopRecruitingCheckpoint(year, team, week, budget, board.toString(), recruited);
+            List<String> scouted = new ArrayList<>();
+            boolean inScouted = false;
+            while ((line = r.readLine()) != null) {
+                if ("---SCOUTED---".equals(line.trim())) {
+                    inScouted = true;
+                } else if (inScouted && !line.trim().isEmpty()) {
+                    scouted.add(line.trim());
+                }
+            }
+            return new DesktopRecruitingCheckpoint(year, team, week, budget, board.toString(), recruited, scouted);
         }
     }
 
@@ -168,6 +193,7 @@ final class DesktopRecruitingCheckpoint {
     RecruitingSessionData restoreSession() {
         RecruitingSessionData session = SimulationFacade.prepareRecruitingSessionFromPayload(boardPayload);
         session.applyCheckpoint(budget, recruitedRaws);
+        session.restoreScouted(scoutedRaws);
         return session;
     }
 }

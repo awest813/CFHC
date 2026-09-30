@@ -50,6 +50,11 @@ public class SaveManager {
                 + "\t" + b.projectedPollRank() + "\t" + b.startOffTal() + "\t" + b.startDefTal();
     }
 
+    /** L: field 7: 1/0 once the recruiting gate state is known; empty when unknown. */
+    private static String recruitingStartedField(Boolean started) {
+        return started == null ? "" : (started ? "1" : "0");
+    }
+
     /** @return the baseline at {@code p[from..from+5]}, or null when unreadable (then recomputed on load) */
     static LeagueRecord.SeasonBaseline parseSeasonBaseline(String[] p, int from) {
         try {
@@ -75,7 +80,8 @@ public class SaveManager {
         writer.write(LEAGUE_PREFIX + sanitizeInlineValue(league.leagueName()) + "\t" + league.year() + "\t"
                 + league.currentWeek() + "\t" + sanitizeInlineValue(league.heismanWinnerName()) + "\t"
                 + sanitizeInlineValue(league.nationalChampName()) + "\t"
-                + league.rngSeed() + "\n");
+                + league.rngSeed() + "\t"
+                + recruitingStartedField(league.recruitingStarted()) + "\n");
         if (league.settings() != null) {
             writer.write(SETTINGS_PREFIX + league.settings().toSaveLine() + "\n");
         }
@@ -192,6 +198,7 @@ public class SaveManager {
         int year = 0, week = 0;
         String heisman = "", champ = "";
         long rngSeed = 0;
+        Boolean recruitingStarted = null;
         List<PlayerRecord> hof = new ArrayList<>();
         List<DataRecord> lRecords = new ArrayList<>();
         List<LeagueRecord.ConferenceRecord> conferences = new ArrayList<>();
@@ -246,6 +253,7 @@ public class SaveManager {
                 heisman = h.heisman();
                 champ = h.champ();
                 rngSeed = h.rngSeed();
+                recruitingStarted = h.recruitingStarted();
             } else if (line.startsWith(SETTINGS_PREFIX)) {
                 settings = LeagueRecord.Settings.fromSaveLine(line.substring(SETTINGS_PREFIX.length()));
             } else if (line.startsWith("HOF:")) {
@@ -395,16 +403,18 @@ public class SaveManager {
             schemaVersion = SaveSchema.unversionedNewFormatDefault();
         }
         LeagueRecord raw = new LeagueRecord(leagueName, year, week, conferences, hof, lRecords, heisman, champ,
-                List.copyOf(gameRecords), rngSeed, settings);
+                List.copyOf(gameRecords), rngSeed, settings, recruitingStarted);
         LeagueRecord migrated = SaveSchema.migrate(schemaVersion, raw);
         return new LoadResult(migrated, schemaVersion);
     }
 
     /**
      * Parsed {@code L:} header: league name, season year, current week, heisman string,
-     * national champ string, and (from field 6) the RNG seed — 0 when absent (legacy saves).
+     * national champ string, (from field 6) the RNG seed — 0 when absent (legacy saves) — and
+     * (field 7) whether the recruiting gate already ran, null when absent.
      */
-    private record ParsedLeagueHeader(String leagueName, int year, int week, String heisman, String champ, long rngSeed) {}
+    private record ParsedLeagueHeader(String leagueName, int year, int week, String heisman, String champ, long rngSeed,
+                                      Boolean recruitingStarted) {}
 
     private static ParsedLeagueHeader parseLeagueHeaderTabSeparated(String body) throws IOException {
         String[] p = body.split("\t", -1);
@@ -416,13 +426,18 @@ public class SaveManager {
             if (p.length >= 6 && !p[5].trim().isEmpty()) {
                 seed = Long.parseLong(p[5].trim());
             }
+            Boolean recruitingStarted = null;
+            if (p.length >= 7 && !p[6].trim().isEmpty()) {
+                recruitingStarted = "1".equals(p[6].trim());
+            }
             return new ParsedLeagueHeader(
                     p[0],
                     Integer.parseInt(p[1].trim()),
                     Integer.parseInt(p[2].trim()),
                     p[3],
                     p[4],
-                    seed);
+                    seed,
+                    recruitingStarted);
         } catch (NumberFormatException e) {
             throw new IOException("L: tab line bad year/week/seed: " + body, e);
         }
@@ -464,7 +479,7 @@ public class SaveManager {
             }
             int year = Integer.parseInt(s.substring(i + 1).trim());
             String leagueName = s.substring(0, i);
-            return new ParsedLeagueHeader(leagueName, year, week, heisman, champ, 0);
+            return new ParsedLeagueHeader(leagueName, year, week, heisman, champ, 0, null);
         } catch (NumberFormatException e) {
             throw new IOException("L: line has non-numeric year or week: " + body, e);
         }

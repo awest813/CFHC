@@ -6,6 +6,10 @@ import java.util.List;
  * A complete, portable snapshot of a League's state.
  * This can be serialized to any format (JSON, XML, Custom)
  * and is entirely platform-agnostic.
+ *
+ * <p>{@code recruitingStarted}: whether this offseason's recruiting gate already
+ * ran (CPU teams signed their classes). Null when the save predates it; League
+ * then infers it from the CPU rosters.
  */
 public record LeagueRecord(
     String leagueName,
@@ -18,7 +22,8 @@ public record LeagueRecord(
     String nationalChampName,
     List<GameRecord> scheduledGames,
     long rngSeed,
-    Settings settings
+    Settings settings,
+    Boolean recruitingStarted
 ) {
     public LeagueRecord {
         if (rngSeed < 0) {
@@ -32,7 +37,7 @@ public record LeagueRecord(
                         String heismanWinnerName, String nationalChampName,
                         List<GameRecord> scheduledGames, long rngSeed) {
         this(leagueName, year, currentWeek, conferences, leagueHoF, leagueRecords, heismanWinnerName,
-                nationalChampName, scheduledGames, rngSeed, null);
+                nationalChampName, scheduledGames, rngSeed, null, null);
     }
 
     /**

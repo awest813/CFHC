@@ -2,9 +2,9 @@ package desktop;
 
 import simulation.CoachSkills;
 import simulation.League;
+import simulation.RosterRules;
 import simulation.SeasonFlowOrder;
 import simulation.SeasonPresentation;
-import simulation.SimulationFacade;
 import simulation.Team;
 import simulation.TeamColors;
 import staff.HeadCoach;
@@ -364,8 +364,8 @@ public class DashboardPanel implements LeagueScreen {
     private String buildRosterHealthLabel(Team user) {
         if (user == null) return "-";
         int roster = user.getAllPlayers().size();
-        if (roster >= SimulationFacade.MIN_ROSTER_SIZE) return roster + " ready";
-        return roster + " / " + SimulationFacade.MIN_ROSTER_SIZE;
+        if (roster >= RosterRules.MIN_DEPTH_PLAYERS) return roster + " ready";
+        return roster + " / " + RosterRules.MIN_DEPTH_PLAYERS;
     }
 
     private JPanel makeStatCard(String label, String value, Color bg, Color fg) {

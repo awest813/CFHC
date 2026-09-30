@@ -135,7 +135,7 @@ public class DesktopNewCoachSystemsTest {
     private int androidStyleRecruitingBudget() {
         RecruitingSessionData session = RecruitingSessionData.fromUserTeamInfo(
                 SimulationFacade.buildRecruitingPayload(userTeam));
-        session.applyBudgetBonuses(SimulationFacade.MIN_ROSTER_SIZE);
+        session.applyBudgetBonuses(simulation.RosterRules.MIN_PLAYERS);
         return session.recruitingBudget;
     }
 

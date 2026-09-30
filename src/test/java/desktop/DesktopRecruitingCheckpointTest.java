@@ -56,6 +56,38 @@ public class DesktopRecruitingCheckpointTest {
     }
 
     @Test
+    public void checkpoint_keepsScoutingAcrossAReload() throws Exception {
+        DesktopResourceProvider resources = new DesktopResourceProvider(System.getProperty("user.dir"));
+        League league = new League(
+                resources.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
+                resources.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES),
+                resources.getString(PlatformResourceProvider.KEY_CONFERENCES),
+                resources.getString(PlatformResourceProvider.KEY_TEAMS),
+                resources.getString(PlatformResourceProvider.KEY_BOWLS),
+                false,
+                false
+        );
+        league.setPlatformResourceProvider(resources);
+        league.userTeam = league.getTeamList().get(0);
+        league.userTeam.setUserControlled(true);
+
+        String payload = SimulationFacade.buildRecruitingPayload(league.userTeam);
+        RecruitingSessionData session = SimulationFacade.prepareRecruitingSessionFromPayload(payload);
+        recruiting.RecruitingPlayerRecord scouted = session.availAll.get(1);
+        assertTrue(session.scoutPlayer(scouted));
+        int budgetAfterScouting = session.recruitingBudget;
+
+        File tmp = Files.createTempFile("cfhc-recruiting", ".chk").toFile();
+        tmp.deleteOnExit();
+        DesktopRecruitingCheckpoint.write(tmp, DesktopRecruitingCheckpoint.capture(league, payload, session));
+        RecruitingSessionData restored = DesktopRecruitingCheckpoint.read(tmp).restoreSession();
+
+        assertTrue("paid scouting survives the reload", restored.isScouted(scouted));
+        assertFalse(restored.isScouted(restored.availAll.get(2)));
+        assertEquals("restoring scouting charges nothing", budgetAfterScouting, restored.recruitingBudget);
+    }
+
+    @Test
     public void applyCheckpoint_setsBudgetWhenNoRecruits() {
         RecruitingSessionData session = RecruitingSessionData.fromUserTeamInfo(
                 "SEC,Test U,TST,5,80,0,0%\nEND_TEAM_INFO%\nEND_RECRUITS%\n");
