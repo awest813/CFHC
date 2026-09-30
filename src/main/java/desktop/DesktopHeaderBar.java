@@ -214,7 +214,8 @@ public class DesktopHeaderBar extends JPanel {
             });
         }
 
-        JLabel notifIcon = new JLabel("\u2709 " + newsCount);
+        JLabel notifIcon = new JLabel(String.valueOf(newsCount), UiIcons.of(UiIcons.Glyph.MAIL, 13), JLabel.LEADING);
+        notifIcon.setIconTextGap(5);
         notifIcon.setFont(new Font("SansSerif", Font.BOLD, 11));
         notifIcon.setForeground(newsCount > 0
                 ? DesktopTheme.gold() : DesktopTheme.headerTextMuted());

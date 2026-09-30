@@ -115,9 +115,9 @@ public class TeamOverallCard extends CustomCardPanel {
         JPanel subCol = new JPanel(new GridLayout(3, 1, 0, 3));
         subCol.setOpaque(false);
 
-        subCol.add(buildSubItem("\u2694", "OFFENSE", off > 0 ? String.valueOf(off) : "N/A"));
-        subCol.add(buildSubItem("\u26E8", "DEFENSE", def > 0 ? String.valueOf(def) : "N/A"));
-        subCol.add(buildSubItem("\u26BD", "SPECIAL TEAMS", st > 0 ? String.valueOf(st) : "N/A"));
+        subCol.add(buildSubItem(UiIcons.Glyph.OFFENSE, "OFFENSE", off > 0 ? String.valueOf(off) : "N/A"));
+        subCol.add(buildSubItem(UiIcons.Glyph.DEFENSE, "DEFENSE", def > 0 ? String.valueOf(def) : "N/A"));
+        subCol.add(buildSubItem(UiIcons.Glyph.SPECIAL_TEAMS, "SPECIAL TEAMS", st > 0 ? String.valueOf(st) : "N/A"));
 
         body.add(subCol, BorderLayout.CENTER);
 
@@ -157,7 +157,7 @@ public class TeamOverallCard extends CustomCardPanel {
         content.add(body, BorderLayout.CENTER);
     }
 
-    private JPanel buildSubItem(String icon, String label, String val) {
+    private JPanel buildSubItem(UiIcons.Glyph icon, String label, String val) {
         JPanel p = new JPanel(new BorderLayout(6, 0));
         p.setOpaque(true);
         p.setBackground(DesktopTheme.tableStripe());
@@ -165,7 +165,8 @@ public class TeamOverallCard extends CustomCardPanel {
                 BorderFactory.createLineBorder(DesktopTheme.borderSubtle(), 1),
                 BorderFactory.createEmptyBorder(2, 8, 2, 8)));
 
-        JLabel lbl = new JLabel(icon + "  " + label);
+        JLabel lbl = new JLabel(label, UiIcons.of(icon, 12), JLabel.LEADING);
+        lbl.setIconTextGap(6);
         lbl.setFont(new Font("SansSerif", Font.BOLD, 10));
         lbl.setForeground(DesktopTheme.textPrimary());
 

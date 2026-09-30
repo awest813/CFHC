@@ -56,8 +56,7 @@ public class DesktopStatusFooter extends JPanel {
         JPanel audioTicker = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         audioTicker.setOpaque(false);
 
-        JLabel musicIcon = new JLabel("\u266B");
-        musicIcon.setFont(new Font("SansSerif", Font.BOLD, 12));
+        JLabel musicIcon = new JLabel(UiIcons.of(UiIcons.Glyph.MUSIC, 13));
         musicIcon.setForeground(DesktopTheme.textPrimary());
 
         trackTitle = new JLabel(updateTrackLabel());
@@ -87,8 +86,7 @@ public class DesktopStatusFooter extends JPanel {
         spectrumBar.setOpaque(false);
 
         // Clickable speaker icon — toggles mute.
-        volIcon = new JLabel(engine.isMuted() ? "\uD83D\uDD07" : "\uD83D\uDD0A", JLabel.CENTER);
-        volIcon.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        volIcon = new JLabel(volumeIcon(engine.isMuted()), JLabel.CENTER);
         volIcon.setForeground(DesktopTheme.textSecondary());
         volIcon.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         volIcon.setToolTipText("Click to toggle soundtrack");
@@ -97,7 +95,7 @@ public class DesktopStatusFooter extends JPanel {
             public void mouseClicked(MouseEvent e) {
                 boolean nowMuted = !engine.isMuted();
                 engine.setMuted(nowMuted);
-                volIcon.setText(nowMuted ? "\uD83D\uDD07" : "\uD83D\uDD0A");
+                volIcon.setIcon(volumeIcon(nowMuted));
                 if (!nowMuted && !eqTimer.isRunning()) {
                     eqTimer.start(); // unmuted while idle: wake the parked bars
                 }
@@ -121,12 +119,16 @@ public class DesktopStatusFooter extends JPanel {
             eqTimer.start();
         }
         trackTitle.setText(updateTrackLabel());
-        volIcon.setText(engine.isMuted() ? "\uD83D\uDD07" : "\uD83D\uDD0A");
+        volIcon.setIcon(volumeIcon(engine.isMuted()));
+    }
+
+    private static javax.swing.Icon volumeIcon(boolean muted) {
+        return UiIcons.of(muted ? UiIcons.Glyph.MUTED : UiIcons.Glyph.VOLUME, 14);
     }
 
     private String updateTrackLabel() {
         SoundtrackEngine.Track t = engine.getCurrentTrack();
-        if (t == null) return "\u266B  No soundtrack";
+        if (t == null) return "No soundtrack";
         return t.getDisplayName();
     }
 

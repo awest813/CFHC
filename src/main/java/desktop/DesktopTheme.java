@@ -894,8 +894,33 @@ public final class DesktopTheme {
             }
             if (_cachedWindowIcons != null && !_cachedWindowIcons.isEmpty()) {
                 window.setIconImages(_cachedWindowIcons);
+                applyTaskbarIcon(_cachedWindowIcons.get(0));
             }
         } catch (Exception ignored) {
+        }
+    }
+
+    private static volatile boolean taskbarIconSet;
+
+    /**
+     * macOS takes the Dock icon from {@link java.awt.Taskbar}, not from window
+     * icons, so the Dock showed Java's generic icon. Set once; unsupported
+     * platforms are skipped.
+     */
+    private static void applyTaskbarIcon(java.awt.Image icon) {
+        if (taskbarIconSet || icon == null) {
+            return;
+        }
+        taskbarIconSet = true;
+        try {
+            if (java.awt.Taskbar.isTaskbarSupported()) {
+                java.awt.Taskbar taskbar = java.awt.Taskbar.getTaskbar();
+                if (taskbar.isSupported(java.awt.Taskbar.Feature.ICON_IMAGE)) {
+                    taskbar.setIconImage(icon);
+                }
+            }
+        } catch (RuntimeException ignored) {
+            // SecurityException / UnsupportedOperationException: keep the default.
         }
     }
 

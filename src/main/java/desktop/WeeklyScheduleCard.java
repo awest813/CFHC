@@ -46,19 +46,19 @@ public class WeeklyScheduleCard extends CustomCardPanel {
         JPanel wrapper = new JPanel(new BorderLayout());
         wrapper.setOpaque(false);
 
-        list.add(buildScheduleItem("MON", "\uD83D\uDC9A", "Recovery Day", "", false, null, null));
-        list.add(buildScheduleItem("TUE", "\uD83C\uDFC8", "Practice", "3:30 PM", false, null, null));
-        list.add(buildScheduleItem("WED", "\uD83C\uDFC8", "Practice", "3:30 PM", false, null, null));
-        list.add(buildScheduleItem("THU", "\uD83D\uDCCB", "Walk-Through", "11:00 AM", false, null, null));
-        list.add(buildScheduleItem("FRI", "\uD83D\uDE8C", "Travel Day", "10:00 AM", false, null, null));
-        list.add(buildScheduleItem("SAT", "\uD83C\uDFC8", gameDesc, hasGame ? "Game Day" : "", hasGame, opp, onSelectTeam));
-        list.add(buildScheduleItem("SUN", "\u26C5", "Off Day", "", false, null, null));
+        list.add(buildScheduleItem("MON", UiIcons.Glyph.HEART, "Recovery Day", "", false, null, null));
+        list.add(buildScheduleItem("TUE", UiIcons.Glyph.FOOTBALL, "Practice", "3:30 PM", false, null, null));
+        list.add(buildScheduleItem("WED", UiIcons.Glyph.FOOTBALL, "Practice", "3:30 PM", false, null, null));
+        list.add(buildScheduleItem("THU", UiIcons.Glyph.CLIPBOARD, "Walk-Through", "11:00 AM", false, null, null));
+        list.add(buildScheduleItem("FRI", UiIcons.Glyph.BUS, "Travel Day", "10:00 AM", false, null, null));
+        list.add(buildScheduleItem("SAT", UiIcons.Glyph.FOOTBALL, gameDesc, hasGame ? "Game Day" : "", hasGame, opp, onSelectTeam));
+        list.add(buildScheduleItem("SUN", UiIcons.Glyph.SUN, "Off Day", "", false, null, null));
 
         wrapper.add(list, BorderLayout.CENTER);
         content.add(wrapper, BorderLayout.CENTER);
     }
 
-    private JPanel buildScheduleItem(String day, String icon, String desc, String time, boolean isGameDay, Team opp, Consumer<Team> onSelectTeam) {
+    private JPanel buildScheduleItem(String day, UiIcons.Glyph icon, String desc, String time, boolean isGameDay, Team opp, Consumer<Team> onSelectTeam) {
         JPanel item = new JPanel(new BorderLayout(6, 0));
         item.setOpaque(true);
         if (isGameDay) {
@@ -83,7 +83,8 @@ public class WeeklyScheduleCard extends CustomCardPanel {
         d.setFont(new Font("SansSerif", Font.BOLD, 9));
         d.setForeground(isGameDay ? DesktopTheme.dangerRed() : DesktopTheme.textSecondary());
 
-        JLabel center = new JLabel(icon + "  " + desc);
+        JLabel center = new JLabel(desc, UiIcons.of(icon, 11), JLabel.LEADING);
+        center.setIconTextGap(5);
         center.setFont(new Font("SansSerif", isGameDay ? Font.BOLD : Font.PLAIN, 9));
         center.setForeground(isGameDay ? DesktopTheme.dangerRed() : DesktopTheme.textSecondary());
 
