@@ -1497,8 +1497,11 @@ public class Game implements Serializable {
             if (!pos.equals("RB")) {
                 double intChance = (pressureOnQB + defense.getS(0).ratOvr - (2 * selQB.getRatPassAcc() + selQB.ratIntelligence + 100) / 4.0) / 18.0
                         - offense.getPlaybookOffense().getPassProtection() + defense.getPlaybookDefense().getPassRush();
-                intChance += getArchetypeIntBonus(defense.getS(0), intChance);
-                if (SimRandom.nextDouble() < interceptionChance(intChance)) {
+                double pickChance = interceptionChance(intChance);
+                // Ball hawks add their 20% to the pick odds themselves (on the raw
+                // risk score, the flattened curve would shrink it to ~7%).
+                pickChance += getArchetypeIntBonus(defense.getS(0), pickChance);
+                if (SimRandom.nextDouble() < pickChance) {
                     //Interception
                     if (pos.equals("WR")) {
                         selDL.gameSim = selDL.getRatPassRush() * SimRandom.nextDouble() * 15;
@@ -1914,9 +1917,9 @@ public class Game implements Serializable {
         return 0;
     }
 
-    private double getArchetypeIntBonus(PlayerS s, double intChance) {
+    private double getArchetypeIntBonus(PlayerS s, double pickChance) {
         if (s == null) return 0;
-        if (s.hasArchetype(Archetypes.S_BALL_HAWK)) return intChance * 0.20;
+        if (s.hasArchetype(Archetypes.S_BALL_HAWK)) return pickChance * 0.20;
         return 0;
     }
 
