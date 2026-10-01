@@ -87,7 +87,7 @@ class GameBoxScore {
         }
 
         for (int i = 0; i < allHomePlayers.size(); ++i) {
-            if (allHomePlayers.get(i).gameTackles > 0) {
+            if (madeADefensivePlay(allHomePlayers.get(i))) {
                 player = allHomePlayers.get(i);
                 game.homeDefenseStats.add(player.getInitialName() + "," + player.team.getName() + "," + player.position + "," + player.gameTackles + "," + player.gameSacks + "," + player.gameFumbles + "," + player.gameInterceptions + "," + player.gameTargets + "," + player.gameDefended);
             }
@@ -95,7 +95,7 @@ class GameBoxScore {
         }
 
         for (int i = 0; i < allAwayPlayers.size(); ++i) {
-            if (allAwayPlayers.get(i).gameTackles > 0) {
+            if (madeADefensivePlay(allAwayPlayers.get(i))) {
                 player = allAwayPlayers.get(i);
                 game.awayDefenseStats.add(player.getInitialName() + "," + player.team.getName() + "," + player.position + "," + player.gameTackles + "," + player.gameSacks + "," + player.gameFumbles + "," + player.gameInterceptions + "," + player.gameTargets + "," + player.gameDefended);
             }
@@ -655,5 +655,16 @@ class GameBoxScore {
             return 0;
         }
         return yards / carries;
+    }
+
+    /**
+     * Defenders with a tackle, sack, pick, recovery or breakup. Only tacklers were
+     * listed, so a corner whose one play was an interception (about 1 pick in 20)
+     * was missing from the box score.
+     */
+    private static boolean madeADefensivePlay(Player p) {
+        if (!Player.defensePos.contains(p.position)) return p.gameTackles > 0;
+        return p.gameTackles > 0 || p.gameSacks > 0 || p.gameInterceptions > 0
+                || p.gameFumbles > 0 || p.gameDefended > 0;
     }
 }

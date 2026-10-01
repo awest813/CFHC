@@ -130,7 +130,7 @@ public class PlayerCB extends Player {
 
     @Override
     public int getHeismanScore() {
-        return getTackles() * 25 + getSacks() * 425 + getFumblesRec() * 425 + getInterceptions() * 425 + getDefended() * 100 + getKOYards() + getKOTDs() * 150 + getPuntYards() + getPuntTDs() * 150 + ratOvr * 10 + getConfPrestigeBonus();
+        return defensiveAwardScore();
     }
 
     @Override

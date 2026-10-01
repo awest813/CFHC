@@ -308,24 +308,32 @@ class GameStatRecorder {
         }
     }
 
-    void recordDefendedCB(PlayerWR selWR, PlayerCB selCB) {
+    /** Share of breakups on throws to wideouts and tight ends made by the safety over the top. */
+    static final double SAFETY_BREAKUP_SHARE = 0.3;
+
+    void recordDefendedCB(PlayerWR selWR, PlayerCB selCB, PlayerS selS) {
 
         if ((selCB.getRatJump() * SimRandom.nextDouble() + selCB.getRatCoverage() * SimRandom.nextDouble()) > (selWR.getRatJump() * SimRandom.nextDouble() + selWR.getRatCatch() * SimRandom.nextDouble()) * 2) {
-            selCB.recordDefended(1);
-            selCB.gameDefended++;
+            creditBreakup(selCB, selS);
         }
         selCB.recordDefIncompleted(1);
         selCB.gameIncomplete++;
     }
 
-    void recordDefendedLB(PlayerTE selTE, PlayerLB selLB) {
+    void recordDefendedLB(PlayerTE selTE, PlayerLB selLB, PlayerS selS) {
 
         if ((selLB.getRatSpeed() * SimRandom.nextDouble() + selLB.getRatCoverage() * SimRandom.nextDouble()) > (selTE.getRatSpeed() * SimRandom.nextDouble() + selTE.getRatCatch() * SimRandom.nextDouble()) * 2) {
-            selLB.recordDefended(1);
-            selLB.gameDefended++;
+            creditBreakup(selLB, selS);
         }
         selLB.recordDefIncompleted(1);
         selLB.gameIncomplete++;
+    }
+
+    /** The cover man or, about a third of the time, the safety helping over the top (safeties never had one). */
+    private static void creditBreakup(Player coverMan, PlayerS selS) {
+        Player p = selS != null && SimRandom.nextDouble() < SAFETY_BREAKUP_SHARE ? selS : coverMan;
+        p.recordDefended(1);
+        p.gameDefended++;
     }
 
     void recordDefendedLB2(PlayerRB selRB, PlayerLB selLB) {
@@ -336,8 +344,10 @@ class GameStatRecorder {
         }
     }
 
-    void recordInterception(Team offense, PlayerQB selQB, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS, String position) {
+    /** Records a pick and returns the defender who made it. */
+    Player recordInterception(Team offense, PlayerQB selQB, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS, String position) {
         String defender;
+        Player interceptor;
         ArrayList<Player> def = new ArrayList<>();
         def.add(selDL);
         def.add(selCB);
@@ -361,18 +371,22 @@ class GameStatRecorder {
             selDL.gameInterceptions++;
             selDL.recordInterceptions(1);
             defender = ("DL " + selDL.name);
+            interceptor = selDL;
         } else if (pos.equals("CB")) {
             selCB.gameInterceptions++;
             selCB.recordInterceptions(1);
             defender = ("CB " + selCB.name);
+            interceptor = selCB;
         } else if (pos.equals("S")) {
             selS.gameInterceptions++;
             selS.recordInterceptions(1);
             defender = ("S " + selS.name);
+            interceptor = selS;
         } else {
             selLB.gameInterceptions++;
             selLB.recordInterceptions(1);
             defender = ("LB " + selLB.name);
+            interceptor = selLB;
         }
 
         if (game.gamePoss) {
@@ -385,7 +399,7 @@ class GameStatRecorder {
         selQB.gamePassInts++;
 
         game.gameEventLog.append(game.getEventLog()).append("INTERCEPTED!\n").append(offense.getAbbr()).append(" QB ").append(selQB.name).append(" was intercepted by ").append(defender).append(".");
-
+        return interceptor;
     }
 
     /** Recorded sack outcome: yards lost and the defender credited (rule engine consumes both). */

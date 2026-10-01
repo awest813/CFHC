@@ -42,15 +42,15 @@ public class PassRushTest {
     @Test
     public void interceptionsFollowTheQuarterback() {
         int p = Game.LEAGUE_PRESSURE;
-        assertEquals(Game.INT_BASE_CHANCE, Game.interceptionChance(Game.INT_QB_PIVOT, p, Game.INT_SAFETY_PIVOT, 0), 1e-9);
-        double accurate = Game.interceptionChance(95, p, 78, 0);
-        double erratic = Game.interceptionChance(62, p, 78, 0);
+        assertEquals(Game.INT_BASE_CHANCE, Game.interceptionChance(Game.INT_QB_PIVOT, p, Game.INT_SAFETY_PIVOT, Game.INT_COVERAGE_PIVOT, 0), 1e-9);
+        double accurate = Game.interceptionChance(95, p, 78, Game.INT_COVERAGE_PIVOT, 0);
+        double erratic = Game.interceptionChance(62, p, 78, Game.INT_COVERAGE_PIVOT, 0);
         assertTrue("95-skill QB " + accurate, accurate > 0.009 && accurate < 0.015);
         assertTrue("62-skill QB " + erratic, erratic > 0.03 && erratic < 0.04);
-        assertTrue("pressure adds picks", Game.interceptionChance(84, 100, 78, 0) > Game.interceptionChance(84, 60, 78, 0));
-        assertTrue("a better safety adds picks", Game.interceptionChance(84, p, 90, 0) > Game.interceptionChance(84, p, 70, 0));
-        assertEquals(Game.INT_MIN_CHANCE, Game.interceptionChance(200, 0, 0, -10), 1e-9);
-        assertEquals(Game.INT_MAX_CHANCE, Game.interceptionChance(0, 200, 200, 10), 1e-9);
+        assertTrue("pressure adds picks", Game.interceptionChance(84, 100, 78, Game.INT_COVERAGE_PIVOT, 0) > Game.interceptionChance(84, 60, 78, Game.INT_COVERAGE_PIVOT, 0));
+        assertTrue("a better safety adds picks", Game.interceptionChance(84, p, 90, Game.INT_COVERAGE_PIVOT, 0) > Game.interceptionChance(84, p, 70, Game.INT_COVERAGE_PIVOT, 0));
+        assertEquals(Game.INT_MIN_CHANCE, Game.interceptionChance(200, 0, 0, Game.INT_COVERAGE_PIVOT, -10), 1e-9);
+        assertEquals(Game.INT_MAX_CHANCE, Game.interceptionChance(0, 200, 200, Game.INT_COVERAGE_PIVOT, 10), 1e-9);
     }
 
     @Test

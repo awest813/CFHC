@@ -38,12 +38,12 @@ public class BalanceTuningTest {
         // League ~2.2% a throw (FBS ~2.3%); the QB's accuracy and IQ set most of
         // the spread: ~1.3% for the most accurate, ~3.5% for the least.
         int p = Game.LEAGUE_PRESSURE;
-        assertEquals(0.0205, Game.interceptionChance(84, p, 78, 0), 0.001);
-        assertEquals(0.0134, Game.interceptionChance(95, p, 78, 0), 0.001);
-        assertEquals(0.0348, Game.interceptionChance(62, p, 78, 0), 0.001);
+        assertEquals(0.0205, Game.interceptionChance(84, p, 78, Game.INT_COVERAGE_PIVOT, 0), 0.001);
+        assertEquals(0.0134, Game.interceptionChance(95, p, 78, Game.INT_COVERAGE_PIVOT, 0), 0.001);
+        assertEquals(0.0348, Game.interceptionChance(62, p, 78, Game.INT_COVERAGE_PIVOT, 0), 0.001);
         assertTrue("riskier throws are picked more often",
-                Game.interceptionChance(84, 95, 78, 1) > Game.interceptionChance(84, 70, 78, 0));
-        assertEquals(0.06, Game.interceptionChance(0, 300, 300, 10), 1e-9);
+                Game.interceptionChance(84, 95, 78, Game.INT_COVERAGE_PIVOT, 1) > Game.interceptionChance(84, 70, 78, Game.INT_COVERAGE_PIVOT, 0));
+        assertEquals(0.06, Game.interceptionChance(0, 300, 300, Game.INT_COVERAGE_PIVOT, 10), 1e-9);
     }
 
     @Test

@@ -944,6 +944,24 @@ public class Player {
         return ratOvr * adjGames + (team != null ? team.getConfPrestige() : 0) * 5;
     }
 
+    /**
+     * Award score for defenders (Defensive Player of the Year, all-conference and
+     * All-American ballots): the same weights at every position. Each position
+     * had its own, worth 425 a sack against 25-35 a tackle, so a lineman won
+     * Defensive Player of the Year every season; corners also scored their kick
+     * and punt return yards.
+     */
+    protected int defensiveAwardScore() {
+        return getTackles() * DEF_AWARD_TACKLE + getSacks() * DEF_AWARD_SACK + getInterceptions() * DEF_AWARD_INT
+                + getFumblesRec() * DEF_AWARD_FUMBLE_REC + getDefended() * DEF_AWARD_BREAKUP + ratOvr * 10 + getConfPrestigeBonus();
+    }
+
+    public static final int DEF_AWARD_TACKLE = 30;
+    public static final int DEF_AWARD_SACK = 350;
+    public static final int DEF_AWARD_INT = 500;
+    public static final int DEF_AWARD_FUMBLE_REC = 350;
+    public static final int DEF_AWARD_BREAKUP = 100;
+
     int getConfPrestigeBonus() {
         if (team == null) return 0;
         return team.getTeamPrestige() * 3 + team.getConfPrestige() * 7 + ((120 - team.getRankTeamPollScore()) * 3);

@@ -136,7 +136,7 @@ public class PlayerDL extends Player {
 
     @Override
     public int getHeismanScore() {
-        return getTackles() * 35 + getSacks() * 425 + getFumblesRec() * 425 + getInterceptions() * 425 + ratOvr * 10 + getConfPrestigeBonus();
+        return defensiveAwardScore();
     }
     
     @Override

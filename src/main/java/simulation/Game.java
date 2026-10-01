@@ -160,6 +160,11 @@ public class Game implements Serializable {
     static final int INT_SAFETY_PIVOT = 78;
     static final double INT_SAFETY_SLOPE = 0.00015;
     static final double INT_SCHEME_SLOPE = 0.0026;
+    /** Chance an interception return breaks into the open field. */
+    static final double PICK_RETURN_BREAKAWAY = 0.15;
+    /** Coverage rating of the defender on the target (corner on a wideout, linebacker on a tight end). */
+    static final int INT_COVERAGE_PIVOT = 82;
+    static final double INT_COVERAGE_SLOPE = 0.0002;
     static final double INT_MIN_CHANCE = 0.005;
     static final double INT_MAX_CHANCE = 0.06;
     /** Sack chance per dropback at league-average pressure. */
@@ -1523,6 +1528,9 @@ public class Game implements Serializable {
                 selDL.gameSim = selDL.getRatTackle() * SimRandom.nextDouble() * 100;
                 selLB2.gameSim = selLB2.getRatTackle() * SimRandom.nextDouble() * 60;
                 selS2.gameSim = selS2.getRatTackle() * SimRandom.nextDouble() * 25;
+                // The corner's roll was never set here, so a stale one from an earlier
+                // play won about 8% of sacks for corners (FBS ~3%).
+                selCB.gameSim = selCB.getRatTackle() * SimRandom.nextDouble() * 28;
 
                 recordSack(offense, defense, selQB, selDL, selLB2, selCB, selS2);
 
@@ -1538,19 +1546,23 @@ public class Game implements Serializable {
             if (!pos.equals("RB")) {
                 int qbSkill = (2 * selQB.getRatPassAcc() + selQB.ratIntelligence) / 3;
                 int schemeEdge = defense.getPlaybookDefense().getPassRush() - offense.getPlaybookOffense().getPassProtection();
-                double pickChance = interceptionChance(qbSkill, pressureOnQB, defense.getS(0).ratOvr, schemeEdge);
+                int coverage = pos.equals("WR") ? selCB.getRatCoverage() : selLB.getRatCoverage();
+                double pickChance = interceptionChance(qbSkill, pressureOnQB, defense.getS(0).ratOvr, coverage, schemeEdge);
                 pickChance += getArchetypeIntBonus(defense.getS(0), pickChance);
                 if (SimRandom.nextDouble() < pickChance) {
                     //Interception
+                    // Who comes down with it. Safeties took ~17% of picks (FBS ~35%), and on
+                    // throws to the tight end the safety's roll went to the other safety, so
+                    // the one in the running kept a stale number.
                     if (pos.equals("WR")) {
                         selDL.gameSim = selDL.getRatPassRush() * SimRandom.nextDouble() * 15;
                         selCB.gameSim = selCB.getRatCoverage() * SimRandom.nextDouble() * 100;
-                        selS.gameSim = selS.getRatCoverage() * SimRandom.nextDouble() * 50;
-                        selLB.gameSim = selLB.getRatCoverage() * SimRandom.nextDouble() * 30;
+                        selS.gameSim = selS.getRatCoverage() * SimRandom.nextDouble() * 80;
+                        selLB.gameSim = selLB.getRatCoverage() * SimRandom.nextDouble() * 25;
                     } else if (pos.equals("TE")) {
                         selDL.gameSim = selDL.getRatPassRush() * SimRandom.nextDouble() * 15;
-                        selCB.gameSim = selCB.getRatCoverage() * SimRandom.nextDouble() * 50;
-                        selS2.gameSim = selS2.getRatCoverage() * SimRandom.nextDouble() * 45;
+                        selCB.gameSim = selCB.getRatCoverage() * SimRandom.nextDouble() * 35;
+                        selS.gameSim = selS.getRatCoverage() * SimRandom.nextDouble() * 60;
                         selLB.gameSim = selLB.getRatCoverage() * SimRandom.nextDouble() * 65;
                     } else {
                         selDL.gameSim = selDL.getRatPassRush() * SimRandom.nextDouble() * 15;
@@ -1644,9 +1656,9 @@ public class Game implements Serializable {
 
                 gameTime -= timePerPlay * SimRandom.nextDouble();
                 if (pos.equals("WR")) {
-                    recordDefendedCB(selWR, selCB);
+                    recordDefendedCB(selWR, selCB, selS);
                 } else if (pos.equals("TE")) {
-                    recordDefendedLB(selTE, selLB2);
+                    recordDefendedLB(selTE, selLB, selS);
                 } else if (pos.equals("RB")) {
                     recordDefendedLB2(selRB, selLB2);
                 }
@@ -2104,14 +2116,17 @@ public class Game implements Serializable {
     /**
      * Chance a pass attempt is intercepted. The QB's skill ((2 x accuracy + football
      * IQ) / 3) moves it most: about 1.3% for a 95, 2.1% at 84, 3.5% at 62. Pressure,
-     * the safety and the playbooks' pass rush against protection add to it. The old
-     * risk score let QB skill move it by ~0.2%, so every QB threw picks at 2.0-2.2%.
+     * the safety, the defender in coverage and the playbooks' pass rush against
+     * protection add to it. The old risk score let QB skill move it by ~0.2%, so
+     * every QB threw picks at 2.0-2.2%, and a corner's coverage never made a pick
+     * more likely (~1.5 a season at any rating).
      */
-    static double interceptionChance(int qbSkill, int pressure, int safety, int schemeEdge) {
+    static double interceptionChance(int qbSkill, int pressure, int safety, int coverage, int schemeEdge) {
         double p = INT_BASE_CHANCE
                 + INT_QB_SLOPE * (INT_QB_PIVOT - qbSkill)
                 + INT_PRESSURE_SLOPE * (pressure - LEAGUE_PRESSURE)
                 + INT_SAFETY_SLOPE * (safety - INT_SAFETY_PIVOT)
+                + INT_COVERAGE_SLOPE * (coverage - INT_COVERAGE_PIVOT)
                 + INT_SCHEME_SLOPE * schemeEdge;
         return Math.max(INT_MIN_CHANCE, Math.min(INT_MAX_CHANCE, p));
     }
@@ -2138,6 +2153,20 @@ public class Game implements Serializable {
     /** Extra yards once a ball carrier is in the open field: 18, plus up to ~70 for the fastest. */
     static int openFieldYards(int speed) {
         return 18 + (int) (SimRandom.nextDouble() * Math.max(10, speed - 28));
+    }
+
+    /** Interception return: a few yards, and now and then a breakaway (about 1 pick in 10 is a pick-six). */
+    static int interceptionReturnYards(int speed) {
+        int yards = (int) (SimRandom.nextDouble() * speed / 6.0);
+        if (SimRandom.nextDouble() < PICK_RETURN_BREAKAWAY) yards += openFieldYards(speed);
+        return yards;
+    }
+
+    private static int returnSpeed(Player p) {
+        if (p instanceof PlayerCB) return ((PlayerCB) p).getRatSpeed();
+        if (p instanceof PlayerS) return ((PlayerS) p).getRatSpeed();
+        if (p instanceof PlayerLB) return ((PlayerLB) p).getRatSpeed();
+        return 50;
     }
 
     private static int receiverSpeed(String pos, PlayerRB rb, PlayerWR wr, PlayerTE te) {
@@ -2790,12 +2819,12 @@ public class Game implements Serializable {
         statRecorder.recordDrop(selRB, selTE, selWR, selCB, selLB, pos);
     }
 
-    private void recordDefendedCB(PlayerWR selWR, PlayerCB selCB) {
-        statRecorder.recordDefendedCB(selWR, selCB);
+    private void recordDefendedCB(PlayerWR selWR, PlayerCB selCB, PlayerS selS) {
+        statRecorder.recordDefendedCB(selWR, selCB, selS);
     }
 
-    private void recordDefendedLB(PlayerTE selTE, PlayerLB selLB) {
-        statRecorder.recordDefendedLB(selTE, selLB);
+    private void recordDefendedLB(PlayerTE selTE, PlayerLB selLB, PlayerS selS) {
+        statRecorder.recordDefendedLB(selTE, selLB, selS);
     }
 
     private void recordDefendedLB2(PlayerRB selRB, PlayerLB selLB) {
@@ -2803,17 +2832,46 @@ public class Game implements Serializable {
     }
 
     private void recordInterception(Team offense, PlayerQB selQB, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS, String position) {
-        statRecorder.recordInterception(offense, selQB, selDL, selLB, selCB, selS, position);
+        Player interceptor = statRecorder.recordInterception(offense, selQB, selDL, selLB, selCB, selS, position);
         // Rule-engine state change (kept out of the stat recorder)
         momentum.turnover(gamePoss);
         gameTime -= timePerPlay * SimRandom.nextDouble();
-        if (!playingOT) {
-            gameDown = 1;
-            gameYardsNeed = 10;
-            gamePoss = !gamePoss;
-            gameYardLine = 100 - gameYardLine;
-        } else {
+        if (playingOT) {
             resetForOT();
+            return;
+        }
+        // The pick is made downfield and run back. Picks used to be spotted at the
+        // line of scrimmage with no return, so the defense never scored.
+        int depth = 5 + (int) (SimRandom.nextDouble() * 15);
+        boolean inEndZone = gameYardLine + depth >= 100;
+        int pickedAt = Math.min(99, gameYardLine + depth);
+        int returnYards = interceptionReturnYards(returnSpeed(interceptor));
+        gameDown = 1;
+        gameYardsNeed = 10;
+        gamePoss = !gamePoss;
+        gameYardLine = 100 - pickedAt + returnYards;
+        if (inEndZone && gameYardLine < 20) {
+            // Picked in the end zone and not brought out past the 20: a touchback.
+            gameYardLine = 20;
+            returnYards = 0;
+        }
+        if (gameYardLine >= 100) {
+            returnYards -= gameYardLine - 100;
+            Team defense = offense == homeTeam ? awayTeam : homeTeam;
+            addPointsQuarter(6);
+            if (gamePoss) {
+                homeScore += 6;
+            } else {
+                awayScore += 6;
+            }
+            tdInfo = defense.getAbbr() + " " + interceptor.position + " " + interceptor.name + " returned the interception "
+                    + returnYards + " yards for a TOUCHDOWN!";
+            kickXP(defense, offense);
+            kickOff(defense, offense);
+            return;
+        }
+        if (returnYards > 0) {
+            gameEventLog.append(" Returned ").append(returnYards).append(" yards.");
         }
     }
 
