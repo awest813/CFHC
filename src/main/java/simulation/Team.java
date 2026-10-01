@@ -5,6 +5,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -1561,8 +1562,11 @@ public class Team {
      */
     public void advanceTeamPlayers() {
         advanceSeasonPlayers();
-        trainingCamp();
-        assignMentors();
+        String camp = trainingCampFocusReport(trainingCamp());
+        if (userControlled && !camp.isEmpty()) {
+            league.addNewsStory(league.currentWeek + 1, "Training Camp Standouts>" + name
+                    + "'s staff singled out its top young prospects for extra work in camp. " + camp);
+        }
         checkHallofFame();
         checkCareerRecords(league.leagueRecords);
         checkCareerTeamRecords(teamRecords);
@@ -1819,6 +1823,12 @@ public class Team {
         identifyTransferCandidates();
     }
 
+    /**
+     * Each position's veteran leaders (up to two) each take up to two of its
+     * youngest players, highest potential first. Mentees used to be taken in
+     * roster order from every class, so the bonus mostly went to upperclassmen
+     * about to leave, and it was set before the incoming class arrived.
+     */
     public void assignMentors() {
         for (Player p : getAllPlayers()) {
             p.mentorName = "";
@@ -1831,10 +1841,11 @@ public class Team {
                 if (!p.position.equals(pos)) continue;
                 if (p.isEligibleMentor()) {
                     candidates.add(p);
-                } else if (p.year >= 1 && p.mentorName.isEmpty()) {
+                } else if (p.year <= MENTEE_MAX_YEAR) {
                     mentees.add(p);
                 }
             }
+            mentees.sort(Comparator.comparingInt((Player p) -> p.year).thenComparing((Player p) -> -p.ratPot));
             int mentorsUsed = 0;
             for (Player mentor : candidates) {
                 if (mentorsUsed >= 2) break;
@@ -1867,12 +1878,15 @@ public class Team {
 
         for (Player p : getAllPlayers()) {
             p.applyWeeklyPractice(focus, posGroup, intensity);
-            if (intensity == PracticeFocus.FocusIntensity.INTENSE && SimRandom.nextDouble() < 0.10 && p.injury == null) {
+            if (p.injury == null && SimRandom.nextDouble() < intensity.injuryModifier()) {
                 int dur = 1 + (int)(SimRandom.nextDouble() * 3);
                 p.injury = new Injury(dur, "Practice (intense)", p);
             }
         }
     }
+
+    /** Mentees come from the freshman and sophomore classes (redshirts included). */
+    static final int MENTEE_MAX_YEAR = 2;
 
     public void selectTrainingCampFocusPlayers() {
         trainingCampFocusNames.clear();
@@ -1889,8 +1903,13 @@ public class Team {
         }
     }
 
+    /**
+     * Camp work for every player, with extra for three focus prospects. The user's
+     * staff picks them the same way CPU staffs do; nothing ever picked them, so
+     * the user's program missed the bonus every year.
+     */
     public String trainingCamp() {
-        if (!userControlled) {
+        if (trainingCampFocusNames.isEmpty()) {
             selectTrainingCampFocusPlayers();
         }
         StringBuilder report = new StringBuilder();
@@ -1909,6 +1928,18 @@ public class Team {
         trainingCampFocusNames.clear();
         sortPlayers();
         return report.toString();
+    }
+
+    /** The focus prospects' lines from a {@link #trainingCamp()} report, joined for a news story. */
+    static String trainingCampFocusReport(String report) {
+        StringBuilder sb = new StringBuilder();
+        for (String line : report.split("\n")) {
+            if (line.contains("(FOCUS)")) {
+                if (sb.length() > 0) sb.append(", ");
+                sb.append(line.replace(" (FOCUS)", "").replace(": +", " +"));
+            }
+        }
+        return sb.length() == 0 ? "" : sb.append(".").toString();
     }
 
     public void cpuCutPlayers() {
@@ -3900,11 +3931,23 @@ public class Team {
     }
 
 
+    /**
+     * Players' rating changes are shown the week after mid-season growth and
+     * once the offseason growth has run. The old check (week == R/2 or week > 21)
+     * showed last offseason's numbers the week before mid-season growth, and
+     * depended on a 13-week season. Coaches' changes show once staff advance.
+     */
+    boolean showsPlayerRatingChanges() {
+        int r = league.regSeasonWeeks;
+        return league.currentWeek == SeasonFlowOrder.midseasonWeek(r) + 1
+                || league.currentWeek > SeasonFlowOrder.graduationWeek(r);
+    }
+
     //Get Rating Improvements for Mid-Season and End of Season Display
     public String getRatImprovement(Player p) {
         String imp = " ";
 
-        if(league.currentWeek == league.regSeasonWeeks/2 || league.currentWeek > 21) {
+        if (showsPlayerRatingChanges()) {
             if (p.ratImprovement > 0) imp = " (+" + p.ratImprovement + ")";
             if (p.ratImprovement < 0) imp = " (" + p.ratImprovement + ")";
         } else if(league.showPotential && HC != null && !p.position.equals("HC")) {
@@ -3917,7 +3960,7 @@ public class Team {
     public String getHeadCoachRatImprovement(Staff p) {
         String imp = " ";
 
-        if(league.currentWeek == league.regSeasonWeeks/2 || league.currentWeek > 21) {
+        if (league.currentWeek > SeasonFlowOrder.contractsWeek(league.regSeasonWeeks)) {
             if (p.ratImprovement > 0) imp = " (+" + p.ratImprovement + ")";
             if (p.ratImprovement < 0) imp = " (" + p.ratImprovement + ")";
         }

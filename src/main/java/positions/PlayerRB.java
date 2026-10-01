@@ -202,8 +202,8 @@ public class PlayerRB extends Player {
     @Override
     public String getInfoForLineup() {
         if (injury != null)
-            return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.getHeadCoach() != null ? team.getHeadCoach().ratTalent : 0) + " " + injury.toString();
-        return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.getHeadCoach() != null ? team.getHeadCoach().ratTalent : 0) + " (" +
+            return getInitialName() + " [" + getYrStr() + "] " + ovrAndPotential() + " " + injury.toString();
+        return getInitialName() + " [" + getYrStr() + "] " + ovrAndPotential() + " (" +
                 getRatRushPower() + ", " + getRatSpeed() + ", " + getRatEvasion() + ", " + getRatCatch() + ")";
     }
 

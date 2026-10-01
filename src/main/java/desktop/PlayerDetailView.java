@@ -175,7 +175,7 @@ public class PlayerDetailView extends JDialog {
         attrList.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         addAttrProgressRow(attrList, "Overall Rating", player.ratOvr);
-        addAttrProgressRow(attrList, "Potential", player.ratPot);
+        if (potentialShown(player)) addAttrProgressRow(attrList, "Potential", player.ratPot);
         addAttrProgressRow(attrList, "Intelligence", player.ratIntelligence);
         addAttrProgressRow(attrList, "Durability", player.ratDurability);
 
@@ -238,7 +238,7 @@ public class PlayerDetailView extends JDialog {
         grid.setOpaque(false);
 
         addRatingBadge(grid, "Overall (OVR)", player.ratOvr);
-        addRatingBadge(grid, "Potential (POT)", player.ratPot);
+        if (potentialShown(player)) addRatingBadge(grid, "Potential (POT)", player.ratPot);
         addRatingBadge(grid, "Awareness", player.ratIntelligence);
         addRatingBadge(grid, "Durability", player.ratDurability);
 
@@ -497,6 +497,11 @@ public class PlayerDetailView extends JDialog {
         label.setOpaque(false);
         label.setBorder(new EmptyBorder(3, 8, 3, 8));
         return label;
+    }
+
+    /** Potential follows the league's "Show player potential" setting. */
+    static boolean potentialShown(Player player) {
+        return player.team == null || player.team.league == null || player.team.league.showPotential;
     }
 
     private static Color getTierColor(int val) {

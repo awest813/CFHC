@@ -443,6 +443,7 @@ public class League {
         checkIndyConfExists();
 
         setupSeason();
+        assignMentors();
         prepareSeasonBaselines();
     }
 
@@ -639,6 +640,7 @@ public class League {
         checkIndyConfExists();
 
         setupSeason();
+        assignMentors();
         prepareSeasonBaselines();
     }
 
@@ -3725,6 +3727,16 @@ public class League {
         for (int t = 0; t < teamList.size(); ++t) {
             teamList.get(t).advanceHC(leagueRecords, teamList.get(t).getTeamRecords());
             teamList.get(t).advanceCoordinator();
+        }
+    }
+
+    /**
+     * Pairs each team's veteran leaders with its young players for the coming
+     * season, once the incoming class is on the roster (see Team.assignMentors).
+     */
+    void assignMentors() {
+        for (Team t : teamList) {
+            t.assignMentors();
         }
     }
 
@@ -7069,6 +7081,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         // Rebuild the schedule for the new season
         setupSeason();
         normalizeLeaguePrestige();
+        assignMentors();
         prepareSeasonBaselines();
     }
 

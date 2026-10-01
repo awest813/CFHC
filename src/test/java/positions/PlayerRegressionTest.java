@@ -84,6 +84,7 @@ public class PlayerRegressionTest {
     public void getInfoLineupInjury_worksWithValidHeadCoach() {
         PlayerQB player = new PlayerQB("Test QB Valid HC", 2, 4, team);
         assertNotNull(team.HC);
+        team.league.showPotential = true;
         String info = player.getInfoLineupInjury();
         assertNotNull(info);
         assertTrue(info.contains("Ovr:"));

@@ -128,13 +128,15 @@ public class PlayerSearchPanel implements LeagueScreen {
             else if ("SR".equals(yearFilter)) yearInt = 4;
 
             model.setRowCount(0);
+            boolean showPot = ctx.league().showPotential;
             for (Team t : ctx.league().getTeamList()) {
                 for (Player p : t.getAllPlayers()) {
                     if (!query.isEmpty() && !p.name.toLowerCase(Locale.ROOT).contains(query)) continue;
                     if (!"ALL".equals(posFilter) && !p.position.equals(posFilter)) continue;
                     if (yearInt != -1 && p.year != yearInt) continue;
                     model.addRow(new Object[]{
-                            p.name, p.position, t.getName(), DesktopTheme.yearAbbreviation(p.year), p.ratOvr, p.ratPot
+                            p.name, p.position, t.getName(), DesktopTheme.yearAbbreviation(p.year), p.ratOvr,
+                            showPot ? p.ratPot : null
                     });
                 }
             }

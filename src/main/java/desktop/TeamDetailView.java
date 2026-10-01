@@ -164,6 +164,8 @@ public class TeamDetailView extends JDialog {
             }
         };
 
+        // Potential follows the league setting (a saved roster without a live team shows it).
+        boolean showPot = liveTeam == null || liveTeam.league == null || liveTeam.league.showPotential;
         team.roster().stream()
                 .sorted(Comparator.comparingInt(PlayerRecord::ratOvr).reversed())
                 .forEach(p -> model.addRow(new Object[]{
@@ -171,7 +173,7 @@ public class TeamDetailView extends JDialog {
                         p.name(),
                         DesktopTheme.yearAbbreviation(p.year()),
                         p.ratOvr(),
-                        p.ratPot(),
+                        showPot ? p.ratPot() : null,
                         p.ratIntelligence()
                 }));
 

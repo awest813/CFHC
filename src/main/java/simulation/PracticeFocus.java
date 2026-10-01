@@ -112,28 +112,34 @@ public enum PracticeFocus {
         public String displayName() {
             return switch (this) {
                 case NORMAL -> "Normal";
-                case INTENSE -> "Intense (+20% growth, +10% injury risk)";
+                case INTENSE -> "Intense (+50% focus growth, more practice injuries)";
             };
         }
 
         public String shortDescription() {
             return switch (this) {
                 case NORMAL -> "Standard practice intensity.";
-                case INTENSE -> "Players grow faster but have a 10% higher chance of injury each week.";
+                case INTENSE -> "Focused traits grow half again as fast, but about one player in a hundred gets hurt in practice each week.";
             };
         }
 
+        /** Scales the practice-focus growth (weekly, midseason and offseason focus bonuses). */
         public double growthMultiplier() {
             return switch (this) {
                 case NORMAL -> 1.0;
-                case INTENSE -> 1.2;
+                case INTENSE -> 1.5;
             };
         }
 
+        /**
+         * Weekly chance each player is hurt in practice. Intense used to hurt 10% of
+         * the roster every week (about ten players out at a time, nine times a
+         * normal week) for a growth edge too small to measure.
+         */
         public double injuryModifier() {
             return switch (this) {
                 case NORMAL -> 0.0;
-                case INTENSE -> 0.10;
+                case INTENSE -> 0.01;
             };
         }
     }
