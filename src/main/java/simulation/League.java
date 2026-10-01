@@ -1482,10 +1482,19 @@ public class League {
         }
 
         
-        // Finalize setup
+        // Finalize setup: the saved schemes (the user's pick included), or for saves
+        // that predate them the books the coordinators run.
+        java.util.Map<String, LeagueRecord.TeamRecord> savedTeams = new java.util.HashMap<>();
+        for (LeagueRecord.ConferenceRecord cr : record.conferences()) {
+            for (LeagueRecord.TeamRecord tr : cr.teams()) {
+                savedTeams.put(tr.name(), tr);
+            }
+        }
         for (Team t : teamList) {
-            t.setPlaybookOffNum(t.getCPUOffense());
-            t.setPlaybookDefNum(t.getCPUDefense());
+            t.useCpuPlaybooks();
+            LeagueRecord.TeamRecord saved = savedTeams.get(t.name);
+            if (saved != null && saved.playbookOffense() >= 0) t.setPlaybookOffNum(saved.playbookOffense());
+            if (saved != null && saved.playbookDefense() >= 0) t.setPlaybookDefNum(saved.playbookDefense());
         }
 
         linkUserTeamFromLoadedCoaches();
@@ -7046,6 +7055,11 @@ Then conferences can see if they want to add them to their list if the teams mee
         }
         for (Team t : teamList) {
             t.resetSeasonStats();
+            // CPU staffs call their own books with this year's coordinators and QB;
+            // they used to keep the book they were created with for the whole career.
+            if (!t.isUserControlled()) {
+                t.useCpuPlaybooks();
+            }
         }
 
         currentWeek = 0;

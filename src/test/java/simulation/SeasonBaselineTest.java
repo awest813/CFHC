@@ -84,13 +84,14 @@ public class SeasonBaselineTest {
         List<String> depth = qbNames(user);
 
         File save = save(league);
-        // Strip the six trailing baseline fields from every T: line: a pre-baseline save.
+        // Strip the six baseline fields (and the two scheme fields after them) from
+        // every T: line: a pre-baseline save.
         List<String> lines = Files.readAllLines(save.toPath(), StandardCharsets.UTF_8);
         List<String> legacy = new ArrayList<>();
         for (String line : lines) {
             if (line.startsWith("T:")) {
                 String[] p = line.split("\t", -1);
-                assertEquals("current T: lines carry 23 fields", 23, p.length);
+                assertEquals("current T: lines carry 25 fields", 25, p.length);
                 line = String.join("\t", java.util.Arrays.copyOf(p, 17));
             }
             legacy.add(line);

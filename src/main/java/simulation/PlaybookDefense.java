@@ -1,5 +1,10 @@
 package simulation;
 
+/**
+ * A defensive scheme, balanced like {@link PlaybookOffense} (Zero Pressure used to
+ * win 56%; Cover 3 Match's pass focus of 7 pushed every opponent into running at
+ * its weak front, and it won 46%). runSpy and passSpy are not used by the game.
+ */
 public class PlaybookDefense {
     public Team team;
     private int runPref;
@@ -14,6 +19,13 @@ public class PlaybookDefense {
 
     private String stratName;
     private String stratDescription;
+    /** 0-based position in the book list (Team.playbook*Num, staff *Strat); -1 for a custom book. */
+    private int index = -1;
+
+    /** The book at a 0-based index, as Team and the staff scheme fields number them. */
+    public static PlaybookDefense forIndex(int index) {
+        return new PlaybookDefense(index + 1);
+    }
 
     public PlaybookDefense(String name, String descrip, int rPref, int rProtection, int rPotential, int rUsage, int pPref, int pProtection, int pPotential, int pUsage) {
         stratName = name;
@@ -28,8 +40,14 @@ public class PlaybookDefense {
         passSpy = pUsage; //Use LB/S to Blitz
     }
 
+    /**
+     * Playbook number {@code playbook}, 1-5. Anything else is the balanced
+     * default (Multiple 4-2-5); it used to be a random book, so a team built with a
+     * placeholder (or a caller passing a 0-based index) played a random scheme.
+     */
     public PlaybookDefense(int playbook) {
-        if (playbook < 1 || playbook > 5) playbook = (int) (SimRandom.nextDouble() * 5) + 1;
+        if (playbook < 1 || playbook > 5) playbook = 1;
+        index = playbook - 1;
 
         if (playbook == 1) playBook1();
         else if (playbook == 2) playBook2();
@@ -60,7 +78,7 @@ public class PlaybookDefense {
         runCoverage = 2;
         runSpy = 1;
         passPref = 1;
-        passRush = -1;
+        passRush = 0;
         passCoverage = -2;
         passSpy = 0;
     }
@@ -74,7 +92,7 @@ public class PlaybookDefense {
         runSpy = 1;
         passPref = 1;
         passRush = 1;
-        passCoverage = -1;
+        passCoverage = -2;
         passSpy = 1;
     }
 
@@ -86,7 +104,7 @@ public class PlaybookDefense {
         runCoverage = 0;
         runSpy = 1;
         passPref = 3;
-        passRush = 1;
+        passRush = 0;
         passCoverage = 1;
         passSpy = 0;
     }
@@ -98,10 +116,14 @@ public class PlaybookDefense {
         runStop = -1;
         runCoverage = -2;
         runSpy = 1;
-        passPref = 7;
+        passPref = 3;
         passRush = -1;
         passCoverage = 2;
         passSpy = 1;
+    }
+
+    public int getIndex() {
+        return index;
     }
 
     public String getStratName() {

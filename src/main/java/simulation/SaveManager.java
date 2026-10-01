@@ -52,6 +52,30 @@ public class SaveManager {
                 + "\t" + b.projectedPollRank() + "\t" + b.startOffTal() + "\t" + b.startDefTal();
     }
 
+    /**
+     * T: fields 24-25: the offensive and defensive scheme numbers. Written after the
+     * six baseline fields, which are left empty when there is no baseline so the
+     * scheme fields keep their place.
+     */
+    static String playbookFields(LeagueRecord.TeamRecord t) {
+        if (t.playbookOffense() < 0 && t.playbookDefense() < 0) {
+            return "";
+        }
+        String baselinePlaceholder = t.seasonBaseline() == null ? "\t\t\t\t\t\t" : "";
+        return baselinePlaceholder + "\t" + t.playbookOffense() + "\t" + t.playbookDefense();
+    }
+
+    private static int parsePlaybook(String[] p, int at) {
+        if (p.length <= at) {
+            return -1;
+        }
+        try {
+            return Integer.parseInt(p[at].trim());
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+
     /** L: field 7: 1/0 once the recruiting gate state is known; empty when unknown. */
     private static String recruitingStartedField(Boolean started) {
         return started == null ? "" : (started ? "1" : "0");
@@ -129,7 +153,8 @@ public class SaveManager {
                         + t.rivalryWins() + "\t"
                         + (t.holdsRivalryTrophy() ? 1 : 0) + "\t"
                         + t.teamStadium()
-                        + seasonBaselineFields(t.seasonBaseline()) + "\n");
+                        + seasonBaselineFields(t.seasonBaseline())
+                        + playbookFields(t) + "\n");
                 
                 // Coaches
                 writer.write(COACH_PREFIX + "HC," + Persistence.toCsv(t.headCoach()) + "\n");
@@ -237,6 +262,8 @@ public class SaveManager {
         boolean teamHoldsRivalryTrophy = false;
         int teamStadiumLevel = 1;
         LeagueRecord.SeasonBaseline teamSeasonBaseline = null;
+        int teamPlaybookOffense = -1;
+        int teamPlaybookDefense = -1;
         List<LeagueRecord.GameRecord> gameRecords = new ArrayList<>();
         LeagueRecord.Settings settings = null;
         String schemaVersion = null;
@@ -306,6 +333,8 @@ public class SaveManager {
                 teamFocusIntensity = "";
                 teamNilCollectiveLevel = 0;
                 teamSeasonBaseline = null;
+                teamPlaybookOffense = -1;
+                teamPlaybookDefense = -1;
                 String[] p = line.substring(2).split("\t", -1);
                 teamName = p[0];
                 teamAbbr = p[1];
@@ -355,6 +384,8 @@ public class SaveManager {
                 if (p.length >= 23) {
                     teamSeasonBaseline = parseSeasonBaseline(p, 17);
                 }
+                teamPlaybookOffense = parsePlaybook(p, 23);
+                teamPlaybookDefense = parsePlaybook(p, 24);
                 roster = new ArrayList<>();
                 history = new ArrayList<>();
                 tRecords = new ArrayList<>();
@@ -398,7 +429,7 @@ public class SaveManager {
                         teamPracticePositionGroup, teamFocusIntensity,
                         teamNilCollectiveLevel, "", teamPrevRankTeamPollScore,
                         teamRivalName, teamRivalryTrophyName, teamRivalryWins, teamHoldsRivalryTrophy,
-                        teamStadiumLevel, teamSeasonBaseline));
+                        teamStadiumLevel, teamSeasonBaseline, teamPlaybookOffense, teamPlaybookDefense));
             } else if (line.startsWith(GAME_PREFIX)) {
                 gameRecords.add(LeagueRecord.GameRecord.fromSaveLine(line.substring(GAME_PREFIX.length())));
             }

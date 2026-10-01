@@ -24,13 +24,13 @@ public class PlaybookDefenseTest {
         assertNotNull(pb5.getStratName());
 
         PlaybookDefense pb0 = new PlaybookDefense(0);
-        assertNotNull("Playbook 0 should fallback to random valid", pb0.getStratName());
+        assertEquals("Playbook 0 falls back to the default", "Multiple 4-2-5", pb0.getStratName());
 
         PlaybookDefense pb6 = new PlaybookDefense(6);
-        assertNotNull("Playbook 6 should fallback to random valid", pb6.getStratName());
+        assertEquals("Playbook 6 falls back to the default", "Multiple 4-2-5", pb6.getStratName());
 
         PlaybookDefense pbNeg = new PlaybookDefense(-1);
-        assertNotNull("Playbook -1 should fallback to random valid", pbNeg.getStratName());
+        assertEquals("Playbook -1 falls back to the default", "Multiple 4-2-5", pbNeg.getStratName());
     }
 
     @Test
@@ -62,7 +62,7 @@ public class PlaybookDefenseTest {
         assertEquals(-1, pb.getRunStop());
         assertEquals(-2, pb.getRunCoverage());
         assertEquals(1, pb.getRunSpy());
-        assertEquals(7, pb.getPassPref());
+        assertEquals(3, pb.getPassPref());
         assertEquals(-1, pb.getPassRush());
         assertEquals(2, pb.getPassCoverage());
         assertEquals(1, pb.getPassSpy());

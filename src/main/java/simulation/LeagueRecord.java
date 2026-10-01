@@ -156,6 +156,11 @@ public record LeagueRecord(
         List<TeamRecord> teams
     ) {}
 
+    /**
+     * {@code playbookOffense} / {@code playbookDefense}: the team's scheme numbers
+     * (0-based), or -1 when the save predates them; League then gives the team the
+     * books its coordinators run.
+     */
     public record TeamRecord(
         String name,
         String abbr,
@@ -183,7 +188,9 @@ public record LeagueRecord(
         int rivalryWins,
         boolean holdsRivalryTrophy,
         int teamStadium,
-        SeasonBaseline seasonBaseline
+        SeasonBaseline seasonBaseline,
+        int playbookOffense,
+        int playbookDefense
     ) {
         /** Pre-baseline call shape: saves and callers without a {@link SeasonBaseline}. */
         public TeamRecord(String name, String abbr, int prestige, int wins, int losses,
@@ -199,7 +206,7 @@ public record LeagueRecord(
                     rankTeamPollScore, headCoach, offenseCoach, defenseCoach, roster, history, records,
                     practiceFocus, practicePositionGroup, focusIntensity, nilCollectiveLevel, nickname,
                     prevRankTeamPollScore, rivalName, rivalryTrophyName, rivalryWins, holdsRivalryTrophy,
-                    teamStadium, null);
+                    teamStadium, null, -1, -1);
         }
 
         public TeamRecord {
@@ -232,6 +239,12 @@ public record LeagueRecord(
             }
             if (teamStadium < 0) {
                 teamStadium = 0;
+            }
+            if (playbookOffense < 0 || playbookOffense >= Team.OFFENSE_PLAYBOOKS) {
+                playbookOffense = -1;
+            }
+            if (playbookDefense < 0 || playbookDefense >= Team.DEFENSE_PLAYBOOKS) {
+                playbookDefense = -1;
             }
         }
     }

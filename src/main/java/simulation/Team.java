@@ -65,6 +65,9 @@ public class Team {
     public PlaybookDefense playbookDef;
     public int playbookOffNum;
     public int playbookDefNum;
+    /** Number of offensive / defensive books (PlaybookOffense / PlaybookDefense). */
+    public static final int OFFENSE_PLAYBOOKS = 6;
+    public static final int DEFENSE_PLAYBOOKS = 5;
 
     /** User-team practice emphasis; CPU teams use {@link PracticeFocus#BALANCED}. */
     public PracticeFocus practiceFocus;
@@ -357,10 +360,7 @@ public class Team {
 
         teamPollScore = teamPrestige + getOffTalent() + getDefTalent();
 
-        playbookOffNum = getCPUOffense();
-        playbookDefNum = getCPUDefense();
-        playbookOff = getPlaybookOff()[playbookOffNum];
-        playbookDef = getPlaybookDef()[playbookDefNum];
+        useCpuPlaybooks();
 
 
         teamBudget = 0;
@@ -426,10 +426,7 @@ public class Team {
 
         teamPollScore = teamPrestige + getOffTalent() + getDefTalent();
 
-        playbookOffNum = getCPUOffense();
-        playbookDefNum = getCPUDefense();
-        playbookOff = getPlaybookOff()[playbookOffNum];
-        playbookDef = getPlaybookDef()[playbookDefNum];
+        useCpuPlaybooks();
 
 
         teamBudget = 0;
@@ -624,8 +621,8 @@ public class Team {
         teamCBs = new ArrayList<>();
         teamSs = new ArrayList<>();
 
-        playbookOff = new PlaybookOffense(0);
-        playbookDef = new PlaybookDefense(0);
+        playbookOff = PlaybookOffense.forIndex(0);
+        playbookDef = PlaybookDefense.forIndex(0);
         practiceFocus = PracticeFocus.BALANCED;
         practicePositionGroup = PracticeFocus.PositionGroup.ALL;
         focusIntensity = PracticeFocus.FocusIntensity.NORMAL;
@@ -704,7 +701,9 @@ public class Team {
                 rivalryWins,
                 holdsRivalryTrophy,
                 teamStadium,
-                seasonBaseline()
+                seasonBaseline(),
+                playbookOffNum,
+                playbookDefNum
         );
     }
 
@@ -4351,22 +4350,23 @@ public class Team {
     }
 
 
+    /** Starting-QB speed a read-option book needs; without it CPU staffs run Multiple Pro. */
+    public static final int READ_OPTION_QB_SPEED = 75;
+
+    /** Speed of the starting quarterback, 0 without one. */
+    public int starterQbSpeed() {
+        return teamQBs.isEmpty() ? 0 : teamQBs.get(0).getRatSpeed();
+    }
+
     // Generate CPU Strategy
     public int getCPUOffense() {
         if (OC == null || teamQBs.size() < 1) return 0;
         if (OC.offStrat < 0 || OC.offStrat > 5) OC.offStrat = 0;
 
-        if (teamQBs.get(0).getRatSpeed() >= 75 && OC.offStrat == 4) {
-            return 4;
-        } else if (teamQBs.get(0).getRatSpeed() < 75 && OC.offStrat == 4) {
+        if (PlaybookOffense.forIndex(OC.offStrat).featuresQbRuns() && starterQbSpeed() < READ_OPTION_QB_SPEED) {
             return 0;
-        }else if (teamQBs.get(0).getRatSpeed() >= 75 && OC.offStrat == 5) {
-            return 5;
-        } else if (teamQBs.get(0).getRatSpeed() < 75 && OC.offStrat == 5) {
-            return 0;
-        } else {
-            return OC.offStrat;
         }
+        return OC.offStrat;
     }
 
     public int getCPUDefense() {
@@ -4374,6 +4374,48 @@ public class Team {
         if (DC.defStrat < 0) DC.defStrat = 0;
         if (DC.defStrat > 4) DC.defStrat = 0;
         return DC.defStrat;
+    }
+
+    /** How a scheme sits with this staff; each step down costs coaching edge in Game.getCoachAdv. */
+    public enum SchemeFit { COORDINATOR, HEAD_COACH_ONLY, NEITHER, NO_COORDINATOR }
+
+    public SchemeFit schemeFit(boolean offense, int index) {
+        staff.Staff coordinator = offense ? OC : DC;
+        if (coordinator == null) return SchemeFit.NO_COORDINATOR;
+        if (index == (offense ? coordinator.offStrat : coordinator.defStrat)) return SchemeFit.COORDINATOR;
+        if (HC != null && index == (offense ? HC.offStrat : HC.defStrat)) return SchemeFit.HEAD_COACH_ONLY;
+        return SchemeFit.NEITHER;
+    }
+
+    /** One line on how the scheme fits the staff (and, for read-option books, the quarterback). */
+    public String schemeFitNote(boolean offense, int index) {
+        staff.Staff coordinator = offense ? OC : DC;
+        String role = offense ? "OC" : "DC";
+        String note;
+        switch (schemeFit(offense, index)) {
+            case NO_COORDINATOR -> note = "No " + role + " on staff";
+            case COORDINATOR -> note = "\u2713 Your " + role + "'s scheme"
+                    + (HC != null && index == (offense ? HC.offStrat : HC.defStrat) ? " and your head coach's" : "");
+            case HEAD_COACH_ONLY -> note = "Your head coach's scheme; your " + role + " runs "
+                    + schemeName(offense, offense ? coordinator.offStrat : coordinator.defStrat) + " (small coaching penalty)";
+            default -> note = "Your " + role + " runs " + schemeName(offense, offense ? coordinator.offStrat : coordinator.defStrat)
+                    + "; neither coach runs this (coaching penalty)";
+        }
+        if (offense && PlaybookOffense.forIndex(index).featuresQbRuns() && starterQbSpeed() < READ_OPTION_QB_SPEED) {
+            note += ". Built on QB runs: your starter's speed is " + starterQbSpeed()
+                    + " (CPU staffs want " + READ_OPTION_QB_SPEED + "+)";
+        }
+        return note;
+    }
+
+    private static String schemeName(boolean offense, int index) {
+        return offense ? PlaybookOffense.forIndex(index).getStratName() : PlaybookDefense.forIndex(index).getStratName();
+    }
+
+    /** Runs the books the coordinators would call (see getCPUOffense / getCPUDefense). */
+    public void useCpuPlaybooks() {
+        setPlaybookOffNum(getCPUOffense());
+        setPlaybookDefNum(getCPUDefense());
     }
 
     //Pulls available playbooks
@@ -5415,15 +5457,50 @@ public class Team {
     public boolean isSuspension() { return suspension; }
     public void setSuspension(boolean suspension) { this.suspension = suspension; }
 
-    // Playbook
-    public PlaybookOffense getPlaybookOffense() { return playbookOff; }
-    public void setPlaybookOffense(PlaybookOffense pb) { this.playbookOff = pb; }
-    public PlaybookDefense getPlaybookDefense() { return playbookDef; }
-    public void setPlaybookDefense(PlaybookDefense pb) { this.playbookDef = pb; }
+    // Playbook. The number is the team's scheme; the book the game plays is kept
+    // in step with it. Game-day counters, coaching decisions and loads set only the
+    // number, so the sim went on calling plays from whatever book object was there
+    // (after a load, a random one).
+    public PlaybookOffense getPlaybookOffense() {
+        if (playbookOff == null || playbookOff.getIndex() != playbookOffNum) {
+            setPlaybookOffNum(playbookOffNum);
+        }
+        return playbookOff;
+    }
+    public void setPlaybookOffense(PlaybookOffense pb) {
+        if (pb != null && pb.getIndex() >= 0) {
+            setPlaybookOffNum(pb.getIndex());
+        } else if (pb != null) {
+            this.playbookOff = pb;
+        }
+    }
+    public PlaybookDefense getPlaybookDefense() {
+        if (playbookDef == null || playbookDef.getIndex() != playbookDefNum) {
+            setPlaybookDefNum(playbookDefNum);
+        }
+        return playbookDef;
+    }
+    public void setPlaybookDefense(PlaybookDefense pb) {
+        if (pb != null && pb.getIndex() >= 0) {
+            setPlaybookDefNum(pb.getIndex());
+        } else if (pb != null) {
+            this.playbookDef = pb;
+        }
+    }
     public int getPlaybookOffNum() { return playbookOffNum; }
-    public void setPlaybookOffNum(int n) { this.playbookOffNum = n; }
+    public void setPlaybookOffNum(int n) {
+        this.playbookOffNum = n >= 0 && n < OFFENSE_PLAYBOOKS ? n : 0;
+        if (playbookOff == null || playbookOff.getIndex() != playbookOffNum) {
+            playbookOff = PlaybookOffense.forIndex(playbookOffNum);
+        }
+    }
     public int getPlaybookDefNum() { return playbookDefNum; }
-    public void setPlaybookDefNum(int n) { this.playbookDefNum = n; }
+    public void setPlaybookDefNum(int n) {
+        this.playbookDefNum = n >= 0 && n < DEFENSE_PLAYBOOKS ? n : 0;
+        if (playbookDef == null || playbookDef.getIndex() != playbookDefNum) {
+            playbookDef = PlaybookDefense.forIndex(playbookDefNum);
+        }
+    }
 
     // Budget/facilities
     public int getTeamBudget() { return teamBudget; }

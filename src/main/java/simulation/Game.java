@@ -1333,7 +1333,7 @@ public class Game implements Serializable {
             }
         }
 
-        if (offense.getPlaybookOffNum() == 4 || offense.getPlaybookOffNum() == 5)
+        if (offense.getPlaybookOffense().featuresQbRuns())
             offense.getQB(0 + x).gameSim = Math.pow(offense.getQB(0 + x).getRatSpeed(), 1.485) * SimRandom.nextDouble();
         else
             offense.getQB(0 + x).gameSim = 0.25 * Math.pow(offense.getQB(0 + x).getRatSpeed(), 1.485) * SimRandom.nextDouble();

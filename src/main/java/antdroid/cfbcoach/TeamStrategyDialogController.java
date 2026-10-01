@@ -56,9 +56,9 @@ final class TeamStrategyDialogController {
         stratOffSelectionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                offStratDescription.setText(tsOff[position].getStratDescription());
-                userTeam.playbookOff = tsOff[position];
-                userTeam.playbookOffNum = position;
+                offStratDescription.setText(tsOff[position].getStratDescription()
+                        + "\n\n" + userTeam.schemeFitNote(true, position));
+                userTeam.setPlaybookOffNum(position);
             }
 
             @Override
@@ -77,9 +77,9 @@ final class TeamStrategyDialogController {
         stratDefSelectionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                defStratDescription.setText(tsDef[position].getStratDescription());
-                userTeam.playbookDef = tsDef[position];
-                userTeam.playbookDefNum = position;
+                defStratDescription.setText(tsDef[position].getStratDescription()
+                        + "\n\n" + userTeam.schemeFitNote(false, position));
+                userTeam.setPlaybookDefNum(position);
             }
 
             @Override
