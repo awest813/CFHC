@@ -561,10 +561,10 @@ public class StatsTracker {
                     data.append(g.gameName + " Game\n");
                     if (g.awayTeam.name != team.name) {
                         data.append("vs #" + g.awayTeam.rankTeamPollScore + " " + g.awayTeam.name + "\n" + "Rec: (" + g.awayTeam.wins + " - " + g.awayTeam.losses + ")\nOff: " + team.df2.format(g.awayTeam.getOffTalent()) + " | Def: " + team.df2.format(g.awayTeam.getDefTalent()) + "\n");
-                        data.append(g.awayTeam.playbookOff.getStratName() + " | " + g.awayTeam.playbookDef.getStratName() + "\n&");
+                        data.append(g.awayTeam.getPlaybookOffense().getStratName() + " | " + g.awayTeam.getPlaybookDefense().getStratName() + "\n&");
                     } else {
                         data.append("at #" + g.homeTeam.rankTeamPollScore + " " + g.homeTeam.name + "\n" + "Rec: (" + g.homeTeam.wins + " - " + g.homeTeam.losses + ")\nOff: " + team.df2.format(g.homeTeam.getOffTalent()) + " | Def: " + team.df2.format(g.homeTeam.getDefTalent()) + "\n");
-                        data.append(g.homeTeam.playbookOff.getStratName() + " | " + g.homeTeam.playbookDef.getStratName() + "\n&");
+                        data.append(g.homeTeam.getPlaybookOffense().getStratName() + " | " + g.homeTeam.getPlaybookDefense().getStratName() + "\n&");
                     }
                     break;
                 }

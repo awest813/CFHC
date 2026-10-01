@@ -5467,11 +5467,10 @@ public class Team {
         }
         return playbookOff;
     }
+    /** Selects that book's scheme (books are identified by their index). */
     public void setPlaybookOffense(PlaybookOffense pb) {
-        if (pb != null && pb.getIndex() >= 0) {
+        if (pb != null) {
             setPlaybookOffNum(pb.getIndex());
-        } else if (pb != null) {
-            this.playbookOff = pb;
         }
     }
     public PlaybookDefense getPlaybookDefense() {
@@ -5480,11 +5479,10 @@ public class Team {
         }
         return playbookDef;
     }
+    /** Selects that book's scheme (books are identified by their index). */
     public void setPlaybookDefense(PlaybookDefense pb) {
-        if (pb != null && pb.getIndex() >= 0) {
+        if (pb != null) {
             setPlaybookDefNum(pb.getIndex());
-        } else if (pb != null) {
-            this.playbookDef = pb;
         }
     }
     public int getPlaybookOffNum() { return playbookOffNum; }

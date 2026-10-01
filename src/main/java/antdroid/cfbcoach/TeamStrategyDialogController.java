@@ -52,7 +52,7 @@ final class TeamStrategyDialogController {
                 android.R.layout.simple_spinner_item, stratOffSelection);
         stratOffSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         stratOffSelectionSpinner.setAdapter(stratOffSpinnerAdapter);
-        stratOffSelectionSpinner.setSelection(userTeam.playbookOffNum);
+        stratOffSelectionSpinner.setSelection(userTeam.getPlaybookOffNum());
         stratOffSelectionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -73,7 +73,7 @@ final class TeamStrategyDialogController {
                 android.R.layout.simple_spinner_item, stratDefSelection);
         stratDefSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         stratDefSelectionSpinner.setAdapter(stratDefSpinnerAdapter);
-        stratDefSelectionSpinner.setSelection(userTeam.playbookDefNum);
+        stratDefSelectionSpinner.setSelection(userTeam.getPlaybookDefNum());
         stratDefSelectionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {

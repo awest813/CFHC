@@ -801,8 +801,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         coach.offStrat = i;
                         if(userTeam.OC != null) userTeam.OC.offStrat = i;
                         if(userTeam.DC != null) userTeam.DC.offStrat = i;
-                        userTeam.playbookOffNum = i;
-                        userTeam.playbookOff = userTeam.getPlaybookOff()[i];
+                        userTeam.setPlaybookOffNum(i);
                         dialogInterface.dismiss();
                         setupPlaybooksDef();
                     }
@@ -832,8 +831,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         coach.defStrat = i;
                         if(userTeam.OC != null) userTeam.OC.defStrat = i;
                         if(userTeam.DC != null) userTeam.DC.defStrat = i;
-                        userTeam.playbookDefNum = i;
-                        userTeam.playbookDef = userTeam.getPlaybookDef()[i];
+                        userTeam.setPlaybookDefNum(i);
                         dialogInterface.dismiss();
                         if(simLeague.currentWeek == 0) seasonGoals();
                         defaultScreen();
