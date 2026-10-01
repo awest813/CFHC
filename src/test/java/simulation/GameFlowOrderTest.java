@@ -114,7 +114,13 @@ public class GameFlowOrderTest {
 
         assertTrue(dialogs.contains(SeasonAdvanceResult.DialogType.SEASON_SUMMARY));
         assertTrue(dialogs.contains(SeasonAdvanceResult.DialogType.CONTRACT));
-        assertTrue(dialogs.contains(SeasonAdvanceResult.DialogType.PROMOTIONS));
+        // A fired coach sees job offers in place of promotions (the season is not
+        // seeded, so either can happen); exactly one of the two appears.
+        boolean fired = dialogs.contains(SeasonAdvanceResult.DialogType.JOB_OFFERS);
+        SeasonAdvanceResult.DialogType coachingStep = fired
+                ? SeasonAdvanceResult.DialogType.JOB_OFFERS : SeasonAdvanceResult.DialogType.PROMOTIONS;
+        assertTrue(dialogs.contains(coachingStep));
+        assertFalse(fired && dialogs.contains(SeasonAdvanceResult.DialogType.PROMOTIONS));
         assertTrue(dialogs.contains(SeasonAdvanceResult.DialogType.REDSHIRT_LIST));
         assertTrue(dialogs.contains(SeasonAdvanceResult.DialogType.TRANSFER_LIST));
         assertTrue(dialogs.contains(SeasonAdvanceResult.DialogType.REALIGNMENT_SUMMARY));
@@ -124,12 +130,12 @@ public class GameFlowOrderTest {
                 dialogs.indexOf(SeasonAdvanceResult.DialogType.SEASON_SUMMARY)
                         < dialogs.indexOf(SeasonAdvanceResult.DialogType.CONTRACT));
         assertTrue(
-                "contracts must precede promotions",
+                "contracts must precede promotions or job offers",
                 dialogs.indexOf(SeasonAdvanceResult.DialogType.CONTRACT)
-                        < dialogs.indexOf(SeasonAdvanceResult.DialogType.PROMOTIONS));
+                        < dialogs.indexOf(coachingStep));
         assertTrue(
-                "promotions must precede redshirts",
-                dialogs.indexOf(SeasonAdvanceResult.DialogType.PROMOTIONS)
+                "promotions or job offers must precede redshirts",
+                dialogs.indexOf(coachingStep)
                         < dialogs.indexOf(SeasonAdvanceResult.DialogType.REDSHIRT_LIST));
         assertTrue(
                 "redshirts must precede transfer list",

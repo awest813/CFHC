@@ -35,14 +35,15 @@ public class BalanceTuningTest {
 
     @Test
     public void interceptionCurve_keepsTheLeagueNearFbsRates() {
-        // Risk score ~4.2 was the league-average throw (3.1% under the old
-        // straight risk/135 roll); ~10.8 the riskiest QBs (8%).
-        assertEquals(0.011, Game.interceptionChance(0), 0.001);
-        assertEquals(0.022, Game.interceptionChance(4.2), 0.002);
-        assertEquals(0.039, Game.interceptionChance(10.8), 0.003);
+        // League ~2.2% a throw (FBS ~2.3%); the QB's accuracy and IQ set most of
+        // the spread: ~1.3% for the most accurate, ~3.5% for the least.
+        int p = Game.LEAGUE_PRESSURE;
+        assertEquals(0.0205, Game.interceptionChance(84, p, 78, 0), 0.001);
+        assertEquals(0.0134, Game.interceptionChance(95, p, 78, 0), 0.001);
+        assertEquals(0.0348, Game.interceptionChance(62, p, 78, 0), 0.001);
         assertTrue("riskier throws are picked more often",
-                Game.interceptionChance(6) > Game.interceptionChance(3));
-        assertEquals(0.06, Game.interceptionChance(1000), 1e-9);
+                Game.interceptionChance(84, 95, 78, 1) > Game.interceptionChance(84, 70, 78, 0));
+        assertEquals(0.06, Game.interceptionChance(0, 300, 300, 10), 1e-9);
     }
 
     @Test

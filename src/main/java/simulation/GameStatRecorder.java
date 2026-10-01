@@ -23,7 +23,8 @@ class GameStatRecorder {
         this.game = game;
     }
 
-    void recordRushAttempt(Team offense, PlayerQB selQB, PlayerRB selRB, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS, int yardsGain, boolean gotTD) {
+    /** Records a run and returns the tackler ("" on a touchdown). */
+    String recordRushAttempt(Team offense, PlayerQB selQB, PlayerRB selRB, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS, int yardsGain, boolean gotTD) {
         String defender = "";
         if (selRB.gameSim >= selQB.gameSim) {
             selRB.recordRushAtt(1);
@@ -87,11 +88,7 @@ class GameStatRecorder {
             }
         }
 
-        if (game.gamePoss) {
-            game.homeTeam.addTeamRushYards(yardsGain);
-        } else {
-            game.awayTeam.addTeamRushYards(yardsGain);
-        }
+        offense.addTeamRushYards(yardsGain);
 
         if (gotTD) {
             if (selRB.gameSim >= selQB.gameSim) {
@@ -118,6 +115,7 @@ class GameStatRecorder {
                 }
 
         }
+        return defender;
     }
 
     void recordRushFumble(Team offense, PlayerQB selQB, PlayerRB selRB, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS) {
@@ -185,12 +183,10 @@ class GameStatRecorder {
             game.awayScore += 6;
         }
 
+        // The completion and its yards are recorded by recordPassCompletion; they
+        // used to be counted here as well, crediting every TD pass twice.
         selQB.gamePassTDs++;
         selQB.recordPassTD(1);
-        selQB.recordPassComp(1);
-        selQB.recordPassYards(yardsGain);
-        selQB.gamePassComplete++;
-        selQB.gamePassYards += yardsGain;
 
         if (pos.equals("WR")) {
             selWR.gameRecTDs++;
@@ -209,8 +205,9 @@ class GameStatRecorder {
 
     }
 
-    void recordPassCompletion(Team offense, PlayerQB selQB, PlayerRB selRB, PlayerWR selWR, PlayerTE selTE, PlayerLB selLB, PlayerCB selCB, PlayerS selS, int yardsGain, String pos, boolean gotTD) {
-        String defender;
+    /** Records a completion and returns the tackler ("" on a touchdown). */
+    String recordPassCompletion(Team offense, PlayerQB selQB, PlayerRB selRB, PlayerWR selWR, PlayerTE selTE, PlayerLB selLB, PlayerCB selCB, PlayerS selS, int yardsGain, String pos, boolean gotTD) {
+        String defender = "";
         ArrayList<Player> def = new ArrayList<>();
         def.add(selCB);
         def.add(selLB);
@@ -250,19 +247,20 @@ class GameStatRecorder {
             if (tackler.equals("CB")) {
                 selCB.gameTackles++;
                 selCB.recordTackles(1);
-
+                defender = "CB " + selCB.name;
             } else if (tackler.equals("S")) {
                 selS.gameTackles++;
                 selS.recordTackles(1);
-
+                defender = "S " + selS.name;
             } else {
                 selLB.gameTackles++;
                 selLB.recordTackles(1);
-
+                defender = "LB " + selLB.name;
             }
         }
 
         offense.addTeamPassYards(yardsGain);
+        return defender;
     }
 
     void recordPassAttempt(PlayerQB selQB, PlayerRB selRB, PlayerWR selWR, PlayerTE selTE, PlayerLB selLB, PlayerCB selCB, String pos) {
@@ -386,7 +384,7 @@ class GameStatRecorder {
         selQB.recordPassInt(1);
         selQB.gamePassInts++;
 
-        game.gameEventLog.append(game.getEventLog()).append("INTERCEPTED!\n").append(offense.getAbbr()).append(" QB ").append(offense.getQB(0).name).append(" was intercepted by ").append(defender).append(".");
+        game.gameEventLog.append(game.getEventLog()).append("INTERCEPTED!\n").append(offense.getAbbr()).append(" QB ").append(selQB.name).append(" was intercepted by ").append(defender).append(".");
 
     }
 
@@ -406,10 +404,16 @@ class GameStatRecorder {
         Collections.sort(def, new CompGamePlayerPicker());
         String pos = def.get(0).position;
 
+        // College scoring: a sack is a rush for the loss. The QB was charged the
+        // yards but not the attempt, and the offense's season rushing total left
+        // the loss out while its opponents' totals (from the box score) kept it.
         selQB.recordSacked(1);
         selQB.gameSacks++;
+        selQB.recordRushAtt(1);
+        selQB.gameRushAttempts++;
         selQB.recordRushYards(-sackloss);
         selQB.gameRushYards -= sackloss;
+        offense.addTeamRushYards(-sackloss);
 
 
         if (pos.equals("DL")) {
@@ -443,7 +447,7 @@ class GameStatRecorder {
         }
 
         if (game.homeTeam.league.fullGameLog)
-            game.gameEventLog.append(game.getEventLog()).append("SACK!\n").append(" QB ").append(offense.getQB(0).name).append(
+            game.gameEventLog.append(game.getEventLog()).append("SACK!\n").append(offense.getAbbr()).append(" QB ").append(selQB.name).append(
                     " was sacked for a loss of ").append(sackloss).append(" by ").append(defender).append(".");
 
         return new SackResult(sackloss, defender);

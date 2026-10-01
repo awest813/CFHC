@@ -70,8 +70,9 @@ public class ArchetypeGameplayBonusTest {
     public void bonus_pocketPasserCompletion() throws Exception {
         PlayerQB qb = homeTeam.getQB(0);
         qb.archetypeTag = Archetypes.QB_POCKET;
-        assertEquals(10, intBonus("getArchetypeCompletionBonus", qb, 10));
-        assertEquals(0, intBonus("getArchetypeCompletionBonus", qb, 25));
+        // Clean pocket: pressure below Game.CLEAN_POCKET_PRESSURE (league average ~80).
+        assertEquals(10, intBonus("getArchetypeCompletionBonus", qb, 60));
+        assertEquals(0, intBonus("getArchetypeCompletionBonus", qb, Game.LEAGUE_PRESSURE));
     }
 
     @Test
