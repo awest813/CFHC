@@ -258,7 +258,19 @@ public class League {
     public int seasonStart = DEFAULT_NEW_SAVE_YEAR;
     int countTeam = 130; //default roster automatically calculates this number when using custom data or loaded saves
     public final int seasonWeeks = 30;
-    public int regSeasonWeeks = 13; //original = 13 will change dynamically based on team/conference structure
+    /**
+     * Season length in weeks before the postseason: 12 game weeks (1-12), then
+     * conference championships in week {@code regSeasonWeeks - 1}. Teams play
+     * 12-game schedules; with the old value of 13 only weeks 1-11 played games
+     * (week 0 became a preseason step), so every game sitting in a team's 12th
+     * slot was never played and about half the league finished 11 games.
+     */
+    public static final int STANDARD_REG_SEASON_WEEKS = 14;
+    /** Schedule slots per team (games, plus a bye for odd-sized conferences). */
+    public static final int REGULAR_SEASON_GAMES = 12;
+    /** Pre-fix value; saves without a stored season length keep it until the next season. */
+    public static final int LEGACY_REG_SEASON_WEEKS = 13;
+    public int regSeasonWeeks = STANDARD_REG_SEASON_WEEKS;
     public final double confRealignmentChance = .25; //chance of event .25
     public final double realignmentChance = .25; //chance of invite .33
     public boolean heismanDecided;
@@ -1257,7 +1269,8 @@ public class League {
                 heismanWinnerStrFull != null ? heismanWinnerStrFull : "",
                 nationalChampionNameForRecord(),
                 java.util.List.copyOf(buildGameRecordsForSave()),
-                rngSeed
+                rngSeed,
+                regSeasonWeeks
         );
     }
 
@@ -1353,6 +1366,10 @@ public class League {
         this.rngSeed = record.rngSeed() != 0 ? record.rngSeed() : SimRandom.freshSeed();
         SimRandom.bind(this.rngSeed);
 
+        // Saves from before the season-length fix carry no value: finish that
+        // season on the old 13-week calendar (phase boundaries depend on it),
+        // then startNextSeason() moves the league to the standard length.
+        this.regSeasonWeeks = record.regSeasonWeeks() > 0 ? record.regSeasonWeeks() : LEGACY_REG_SEASON_WEEKS;
         this.currentWeek = record.currentWeek();
         this.recruitingPhaseActive = SeasonFlowOrder.isRecruitingGate(record.currentWeek(), regSeasonWeeks);
         this.heismanWinnerStrFull = record.heismanWinnerName();
@@ -2497,7 +2514,8 @@ public class League {
             int idx = week - 1;
             return idx < sched.size() ? sched.get(idx) : null;
         }
-        int minIdx = Math.max(0, regSeasonWeeks - 1);
+        // Postseason games are appended after the regular-season slots.
+        int minIdx = REGULAR_SEASON_GAMES;
         for (int i = sched.size() - 1; i >= minIdx; i--) {
             Game g = sched.get(i);
             if (g != null && !g.isByeWeek()) {
@@ -6795,6 +6813,9 @@ Then conferences can see if they want to add them to their list if the teams mee
         currentWeek = 0;
         recruitingPhaseActive = false;
         newsHeadlines.clear();
+        // Legacy leagues (13-week calendar) move to the standard length at a
+        // season boundary, where no phase is in flight.
+        regSeasonWeeks = STANDARD_REG_SEASON_WEEKS;
 
         // Rebuild the schedule for the new season
         setupSeason();

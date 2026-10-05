@@ -41,7 +41,7 @@ final class DesktopWeekResult {
 
         // CCG / bowls / playoffs: show the newest played non-BYE at or after the
         // championship slot so we do not re-show an earlier regular-season game.
-        int minIdx = Math.max(0, regSeasonWeeks - 1);
+        int minIdx = simulation.League.REGULAR_SEASON_GAMES;
         for (int i = schedule.size() - 1; i >= minIdx; i--) {
             Game g = usableResult(schedule.get(i));
             if (g != null) {

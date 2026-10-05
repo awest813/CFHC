@@ -318,7 +318,10 @@ public class Conference {
             setUpDivisionSchedule();
         } else  setUpEvenOddSchedule();*/
 
-        if (league.regSeasonWeeks == 13) {
+        // 12-game round-robin + OOC schedule for both the standard (14-week)
+        // and legacy (13-week) calendars.
+        if (league.regSeasonWeeks == League.STANDARD_REG_SEASON_WEEKS
+                || league.regSeasonWeeks == League.LEGACY_REG_SEASON_WEEKS) {
             setUpOriginalSchedule();
         } else {
             setUpEvenOddSchedule();
@@ -331,8 +334,8 @@ public class Conference {
         int confSize = confTeams.size() - 1;
         oocGames = getOOCGames();
 
-        int confWeeks = 12 - oocGames;
-        if(league.enableUnivProRel) confWeeks = 12;
+        int confWeeks = League.REGULAR_SEASON_GAMES - oocGames;
+        if(league.enableUnivProRel) confWeeks = League.REGULAR_SEASON_GAMES;
 
         for (int r = 0; r < confWeeks; ++r) {
             for (int g = 0; g < (confTeams.size()/ 2); ++g) {
@@ -496,8 +499,8 @@ public class Conference {
         int confSize = confTeams.size() - 1;
         oocGames = getOOCGames();
 
-        int confWeeks = 12 - oocGames;
-        if(league.enableUnivProRel) confWeeks = 12;
+        int confWeeks = League.REGULAR_SEASON_GAMES - oocGames;
+        if(league.enableUnivProRel) confWeeks = League.REGULAR_SEASON_GAMES;
 
         Team bye = new Team("BYE", "BYE", "BYE", 0, "BYE", 0, league);
         for (int t = 0; t < confTeams.size(); ++t) {

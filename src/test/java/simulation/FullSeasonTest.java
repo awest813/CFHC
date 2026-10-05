@@ -117,10 +117,10 @@ public class FullSeasonTest {
                 league.getTeamList().size() >= initialTeamCount);
 
         // Every team should have played almost all of the regular season.
-        // Nominal length is regWeeks - 1 (12 games when regWeeks == 13). The
-        // scheduler can still leave one slot unfilled for a few teams (see e.g.
-        // Pacific / OOC edge cases) — allow one game of slack until that is fixed.
-        int minGames = regWeeks - 2;
+        // Nominal length is League.REGULAR_SEASON_GAMES (12). Odd-sized
+        // conferences give one team a round-robin bye each round, so those teams
+        // play 11 — allow one game of slack.
+        int minGames = League.REGULAR_SEASON_GAMES - 1;
         for (Team t : league.getTeamList()) {
             int totalGames = t.wins + t.losses;
             if (totalGames == 0) {

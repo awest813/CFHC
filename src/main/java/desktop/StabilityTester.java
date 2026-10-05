@@ -136,9 +136,9 @@ public class StabilityTester {
         validateRosterHealth(league);
         for (Team team : league.getTeamList()) {
             int scheduleSize = team.getGameSchedule().size();
-            require(scheduleSize == league.regSeasonWeeks - 1,
+            require(scheduleSize == simulation.League.REGULAR_SEASON_GAMES,
                     "Team " + team.getName() + " should start with "
-                            + (league.regSeasonWeeks - 1) + " scheduled games but has " + scheduleSize);
+                            + simulation.League.REGULAR_SEASON_GAMES + " scheduled games but has " + scheduleSize);
             require(team.getWins() == 0 && team.getLosses() == 0,
                     "Team " + team.getName() + " did not reset W-L record for year "
                             + expectedYear + ": " + team.getWins() + "-" + team.getLosses());
@@ -159,7 +159,8 @@ public class StabilityTester {
                 "User-controlled team was lost during season " + seasonYear);
         validateRosterHealth(league);
 
-        int minGames = league.regSeasonWeeks - 2;
+        // 12 games nominal; odd-sized conferences give some teams a bye.
+        int minGames = simulation.League.REGULAR_SEASON_GAMES - 1;
         for (Team team : league.getTeamList()) {
             int gamesPlayed = team.getWins() + team.getLosses();
             require(gamesPlayed >= minGames,

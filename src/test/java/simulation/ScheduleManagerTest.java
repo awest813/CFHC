@@ -32,7 +32,7 @@ public class ScheduleManagerTest {
     public void newLeague_hasRegularSeasonSchedulesFromScheduleManager() {
         assertFalse(league.getTeamList().isEmpty());
         assertTrue(league.getTeamsFCSList() != null);
-        int target = league.regSeasonWeeks - 1;
+        int target = League.REGULAR_SEASON_GAMES;
         for (Team t : league.getTeamList()) {
             assertTrue(t.getName() + " schedule too short: " + t.getGameSchedule().size(),
                     t.getGameSchedule().size() >= target);

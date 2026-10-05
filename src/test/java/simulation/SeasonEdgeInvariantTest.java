@@ -33,8 +33,9 @@ public class SeasonEdgeInvariantTest {
 
     @Test
     public void schedules_arePaddedToRegularSeasonLength() {
-        int target = league.regSeasonWeeks - 1;
-        assertTrue("regSeasonWeeks should be > 1", target > 0);
+        int target = League.REGULAR_SEASON_GAMES;
+        assertTrue("Regular-season slots must fit before the CCG week",
+                target <= league.regSeasonWeeks - 2);
 
         for (Team t : league.getTeamList()) {
             assertTrue(

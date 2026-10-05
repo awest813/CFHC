@@ -328,7 +328,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //Simulate Week
         final Button simGameButton = findViewById(R.id.simGameButton);
-        simGameButton.setText("Start Season");
+        // Shared label rule (desktop + controller): a mid-season load shows its
+        // real next action instead of "Start Season".
+        simGameButton.setText(simLeague != null
+                ? simulation.SeasonPresentation.getPlayWeekLabel(simLeague)
+                : "Begin Season");
         simGameButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 // CONFIRM-style tick on the primary action; performHapticFeedback

@@ -825,7 +825,7 @@ public class LeagueHomeView extends JFrame {
 
 
     private String playWeekLabel() {
-        return SeasonPresentation.getPlayWeekLabel(leagueCore.currentWeek, leagueCore.regSeasonWeeks);
+        return SeasonPresentation.getPlayWeekLabel(leagueCore);
     }
 
     private String bulkAdvanceLabel() {

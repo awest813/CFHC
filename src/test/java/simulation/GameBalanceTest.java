@@ -40,10 +40,11 @@ public class GameBalanceTest {
     }
 
     private double[] playRegularSeason(League league) {
+        // playWeek() advances currentWeek itself; incrementing here as well
+        // played only every other week (and skipped CCG scheduling).
         league.currentWeek = 1;
-        for (int w = 1; w < league.regSeasonWeeks; w++) {
+        while (league.currentWeek < league.regSeasonWeeks) {
             league.playWeek();
-            league.currentWeek = Math.min(league.currentWeek + 1, league.regSeasonWeeks - 1);
         }
 
         long totalPoints = 0;

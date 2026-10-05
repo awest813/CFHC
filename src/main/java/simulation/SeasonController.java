@@ -18,8 +18,9 @@ public final class SeasonController {
     private final League league;
     private final GameUiBridge bridge;
 
-    // Configuration
-    private final int regSeasonWeeks;
+    // Re-read from the league on every call: a legacy (13-week) league moves to
+    // the standard length at season rollover while this controller is reused.
+    private int regSeasonWeeks;
     private boolean redshirtComplete = false;
 
     public SeasonController(League league, GameUiBridge bridge) {
@@ -32,6 +33,7 @@ public final class SeasonController {
     }
 
     public SeasonAdvanceResult advanceWeek() {
+        this.regSeasonWeeks = league.regSeasonWeeks;
         SeasonAdvanceResult.Builder result = new SeasonAdvanceResult.Builder(league.currentWeek);
         league.clearNewsHeadlines();
         if (league.currentWeek == 0 && redshirtComplete) {
@@ -59,7 +61,7 @@ public final class SeasonController {
         }
         league.preseasonNews();
         league.currentWeek++; // Advance to Week 1
-        updateSimStatus(result, "Preseason", "Play Week 1", true);
+        updateSimStatus(result, "Preseason", nextLabel(), true);
         result.audioEvent(AudioEvent.WHISTLE);
         result.weekAdvanced();
     }
@@ -116,12 +118,7 @@ public final class SeasonController {
     }
 
     private void updateInSeasonStatus(SeasonAdvanceResult.Builder result) {
-        String buttonText;
-        if (league.currentWeek < SeasonFlowOrder.conferenceChampionshipWeek(regSeasonWeeks)) {
-            buttonText = "Play Week " + (league.currentWeek + 1);
-        } else if (league.currentWeek == SeasonFlowOrder.conferenceChampionshipWeek(regSeasonWeeks)) {
-            buttonText = "Play Conf Championships";
-        } else if (league.currentWeek == SeasonFlowOrder.bowlWeek1(regSeasonWeeks)) {
+        if (league.currentWeek == SeasonFlowOrder.bowlWeek1(regSeasonWeeks)) {
             String awards = league.getHeismanCeremonyStr();
             String linemanAwards = league.getLinemanPOTYStr();
             Player heismanWinner = league.getHeismanWinner();
@@ -130,19 +127,13 @@ public final class SeasonController {
             awardsSummary = awardsSummary + "\n\n" + linemanAwards;
             bridge.showAwardsSummary(awardsSummary);
             result.needsDialog(SeasonAdvanceResult.DialogType.AWARDS_SUMMARY, awardsSummary);
-
-            buttonText = league.expPlayoffs ? "Play First Round" : "Play Bowl Week 1";
-
-        } else if (league.currentWeek == SeasonFlowOrder.bowlWeek2(regSeasonWeeks)) {
-            buttonText = league.expPlayoffs ? "Play Quarterfinals" : "Play Bowl Week 2";
-        } else if (league.currentWeek == SeasonFlowOrder.bowlWeek3(regSeasonWeeks)) {
-            buttonText = league.expPlayoffs ? "Play Semifinals" : "Play Bowl Week 3";
-        } else if (league.currentWeek == SeasonFlowOrder.nationalChampionshipWeek(regSeasonWeeks)) {
-            buttonText = "Play National Championship";
-        } else {
-            buttonText = "Season Summary";
         }
-        updateSimStatus(result, "In Season", buttonText, false);
+        updateSimStatus(result, "In Season", nextLabel(), false);
+    }
+
+    /** Label for the next advance, from the shared presentation rule. */
+    private String nextLabel() {
+        return SeasonPresentation.getPlayWeekLabel(league);
     }
 
     private void handleOffseasonWeek(SeasonAdvanceResult.Builder result) {
@@ -175,7 +166,7 @@ public final class SeasonController {
                 result.recruitingStarted();
             } else {
                 // Hard gate: do not advance past recruiting until finishRecruiting / startNextSeason.
-                updateSimStatus(result, "Recruiting", "Complete Recruiting", true);
+                updateSimStatus(result, "Recruiting", nextLabel(), true);
                 result.awaitingRecruiting();
             }
         }
@@ -190,6 +181,7 @@ public final class SeasonController {
      * @return true when the gate was active and the year rolled over
      */
     public boolean autoCompleteRecruiting() {
+        this.regSeasonWeeks = league.regSeasonWeeks;
         if (!SeasonFlowOrder.isRecruitingGate(league.currentWeek, regSeasonWeeks)) {
             return false;
         }
@@ -207,14 +199,14 @@ public final class SeasonController {
         league.updateLeagueHistory();
         league.currentWeek++;
         result.weekAdvanced();
-        updateSimStatus(result, "Offseason", "Offseason: Contracts", true);
+        updateSimStatus(result, "Offseason", nextLabel(), true);
     }
 
     private void handleContracts(SeasonAdvanceResult.Builder result) {
         league.advanceStaff();
         league.currentWeek++;
         result.weekAdvanced();
-        updateSimStatus(result, "Offseason", "Offseason: Job Offers", true);
+        updateSimStatus(result, "Offseason", nextLabel(), true);
         bridge.showContractDialog();
         result.needsDialog(SeasonAdvanceResult.DialogType.CONTRACT, null);
     }
@@ -224,7 +216,7 @@ public final class SeasonController {
         league.currentWeek++;
         result.weekAdvanced();
         league.jobInterestNews();
-        updateSimStatus(result, "Offseason", "Offseason: Coaching Changes", true);
+        updateSimStatus(result, "Offseason", nextLabel(), true);
         if (league.userTeam != null && league.userTeam.fired) {
             bridge.showJobOffersDialog();
             result.needsDialog(SeasonAdvanceResult.DialogType.JOB_OFFERS, null);
@@ -235,7 +227,7 @@ public final class SeasonController {
         league.coachCarousel();
         league.currentWeek++;
         result.weekAdvanced();
-        updateSimStatus(result, "Offseason", "Offseason: Coordinator Changes", true);
+        updateSimStatus(result, "Offseason", nextLabel(), true);
         bridge.showPromotionsDialog();
         result.needsDialog(SeasonAdvanceResult.DialogType.PROMOTIONS, null);
     }
@@ -247,7 +239,7 @@ public final class SeasonController {
         }
         league.currentWeek++;
         result.weekAdvanced();
-        updateSimStatus(result, "Offseason", "Offseason: Graduation", true);
+        updateSimStatus(result, "Offseason", nextLabel(), true);
     }
 
 
@@ -255,7 +247,7 @@ public final class SeasonController {
         league.advanceSeason();
         league.currentWeek++;
         result.weekAdvanced();
-        updateSimStatus(result, "Offseason", "Offseason: Transfer List", true);
+        updateSimStatus(result, "Offseason", nextLabel(), true);
         bridge.showRedshirtList();
         result.needsDialog(SeasonAdvanceResult.DialogType.REDSHIRT_LIST, null);
     }
@@ -265,14 +257,14 @@ public final class SeasonController {
         league.transferPlayers(bridge);
         league.currentWeek++;
         result.weekAdvanced();
-        updateSimStatus(result, "Offseason", "Offseason: Complete Transfers", true);
+        updateSimStatus(result, "Offseason", nextLabel(), true);
     }
 
     private void handleTransferList(SeasonAdvanceResult.Builder result) {
         league.currentWeek++;
         result.weekAdvanced();
         league.portalNeedsNews();
-        updateSimStatus(result, "Offseason", "Offseason: Continue", true);
+        updateSimStatus(result, "Offseason", nextLabel(), true);
         bridge.showTransferList();
         result.needsDialog(SeasonAdvanceResult.DialogType.TRANSFER_LIST, null);
     }
@@ -282,7 +274,7 @@ public final class SeasonController {
         league.hireMissingCoaches();
         league.currentWeek++;
         result.weekAdvanced();
-        updateSimStatus(result, "Offseason", "Begin Recruiting", true);
+        updateSimStatus(result, "Offseason", nextLabel(), true);
         bridge.showRealignmentSummary();
         result.needsDialog(SeasonAdvanceResult.DialogType.REALIGNMENT_SUMMARY, null);
     }

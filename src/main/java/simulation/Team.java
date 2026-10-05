@@ -3151,7 +3151,7 @@ public class Team {
             histYear = league.getYear() + ": #" + rankTeamPollScore + " " + name + " (" + wins + "-" + losses + ") "
                     + confChampion + " " + semiFinalWL + natChampWL + " Prs: " + teamPrestige + " (" + (teamPrestige - teamPrestigeStart) + ")";
         histYear += ">Head Coach: " + (HC != null ? HC.name : "Vacant");
-        for (int i = league.regSeasonWeeks-1; i < gameSchedule.size(); ++i) {
+        for (int i = League.REGULAR_SEASON_GAMES; i < gameSchedule.size(); ++i) {
             Game g = gameSchedule.get(i);
             histYear += ">" + g.gameName + ": ";
             String[] gameSum = getGameSummaryStr(i);
@@ -3177,7 +3177,7 @@ public class Team {
             histYear = league.getYear() + ": [" + c.position + "] #" + rankTeamPollScore + " " + name + " (" + wins + "-" + losses + ") "
                     + confChampion + " " + semiFinalWL + natChampWL + " Prs: " + teamPrestige + " (" + (teamPrestige - teamPrestigeStart) + ")";
 
-        for (int i = league.regSeasonWeeks-1; i < gameSchedule.size(); ++i) {
+        for (int i = League.REGULAR_SEASON_GAMES; i < gameSchedule.size(); ++i) {
             Game g = gameSchedule.get(i);
             histYear += ">" + g.gameName + ": ";
             String[] gameSum = getGameSummaryStr(i);
@@ -4157,8 +4157,17 @@ public class Team {
      */
     public String weekSummaryStr(int week) {
         int i = week - 1;
-        if (week > league.regSeasonWeeks) {
-            i = wins + losses + (league.regSeasonWeeks - 13) - 1;
+        if (week > league.regSeasonWeeks && gameSchedule != null) {
+            // Postseason: the most recent played game (the old wins+losses
+            // arithmetic assumed a 13-week calendar and no byes).
+            i = 0;
+            for (int k = gameSchedule.size() - 1; k >= 0; k--) {
+                Game g = gameSchedule.get(k);
+                if (g != null && g.hasPlayed && !g.isByeWeek()) {
+                    i = k;
+                    break;
+                }
+            }
         }
         if (gameSchedule == null || gameSchedule.isEmpty()) {
             return name + " — no games scheduled\nNew poll rank: #" + rankTeamPollScore

@@ -40,7 +40,7 @@ public final class ScheduleManager {
                     boolean scheduled = false;
                     k = k + (int) (SimRandom.nextDouble() * 4);
                     while (!scheduled) {
-                        int week = (j + r + k) % (league.regSeasonWeeks - 1);
+                        int week = (j + r + k) % League.REGULAR_SEASON_GAMES;
                         if (!league.conferences.get(c).oocWeeks.contains(week)) {
                             league.conferences.get(c).oocWeeks.add(week);
                             for (int t = 0; t < league.conferences.get(c).confTeams.size(); t++) {
@@ -77,7 +77,7 @@ public final class ScheduleManager {
 
         // OOC pairing (skipped under universal promotion/relegation)
         if (!league.enableUnivProRel) {
-            for (int week = 0; week < (league.regSeasonWeeks - 1); week++) {
+            for (int week = 0; week < League.REGULAR_SEASON_GAMES; week++) {
 
                 ArrayList<Team> availTeams = new ArrayList<>();
                 for (int t = 0; t < league.teamList.size(); t++) {
@@ -150,10 +150,10 @@ public final class ScheduleManager {
             // game) and homecoming (home game nearest mid-season).
             tagMarqueeGames(league);
 
-            // Ensure every team has at least regSeasonWeeks-1 games
+            // Pad every schedule to the full regular-season slot count (byes)
             Team bye = new Team("BYE", "BYE", "BYE", 0, "BYE", 0, league);
             bye.setRankTeamPollScore(league.teamList.size());
-            int targetGames = league.regSeasonWeeks - 1;
+            int targetGames = League.REGULAR_SEASON_GAMES;
             for (Team t : league.teamList) {
                 while (t.getGameSchedule().size() < targetGames) {
                     t.addGameToSchedule(new Game(t, bye, "BYE WEEK"));

@@ -175,7 +175,7 @@ public class DesktopNewCoachSystemsTest {
         validateRosterHealth();
         for (Team team : league.getTeamList()) {
             assertEquals("Unexpected schedule size for " + team.getName(),
-                    league.regSeasonWeeks - 1, team.getGameSchedule().size());
+                    simulation.League.REGULAR_SEASON_GAMES, team.getGameSchedule().size());
             assertEquals("Wins should reset for " + team.getName(), 0, team.getWins());
             assertEquals("Losses should reset for " + team.getName(), 0, team.getLosses());
         }
@@ -194,7 +194,8 @@ public class DesktopNewCoachSystemsTest {
         assertTrue(league.userTeam.isUserControlled());
         validateRosterHealth();
 
-        int minGames = league.regSeasonWeeks - 2;
+        // 12 games nominal; odd-sized conferences give some teams a bye (11).
+        int minGames = simulation.League.REGULAR_SEASON_GAMES - 1;
         for (Team team : league.getTeamList()) {
             if (team.getGameSchedule().isEmpty()) {
                 continue;

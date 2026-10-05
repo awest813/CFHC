@@ -17,11 +17,16 @@ public record LeagueRecord(
     String heismanWinnerName,
     String nationalChampName,
     List<GameRecord> scheduledGames,
-    long rngSeed
+    long rngSeed,
+    /** Weeks before the postseason; 0 = not stored (pre-fix save, treated as legacy 13). */
+    int regSeasonWeeks
 ) {
     public LeagueRecord {
         if (rngSeed < 0) {
             rngSeed = 0;
+        }
+        if (regSeasonWeeks < 0) {
+            regSeasonWeeks = 0;
         }
     }
     // Nested records for structured hierarchy

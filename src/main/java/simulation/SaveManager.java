@@ -42,11 +42,12 @@ public class SaveManager {
         writer.write(SaveSchema.VERSION_PREFIX + SaveSchema.current() + "\n");
 
         // Save League Base (tab-separated so names may contain commas).
-        // Field 6 (rng seed) is optional on load; older builds simply ignore it.
+        // Field 6 (rng seed) and field 7 (regular-season weeks) are optional on
+        // load; older builds simply ignore them.
         writer.write(LEAGUE_PREFIX + sanitizeInlineValue(league.leagueName()) + "\t" + league.year() + "\t"
                 + league.currentWeek() + "\t" + sanitizeInlineValue(league.heismanWinnerName()) + "\t"
                 + sanitizeInlineValue(league.nationalChampName()) + "\t"
-                + league.rngSeed() + "\n");
+                + league.rngSeed() + "\t" + league.regSeasonWeeks() + "\n");
 
         // Global Hall of Fame
         for (PlayerRecord p : league.leagueHoF()) {
@@ -159,6 +160,7 @@ public class SaveManager {
         int year = 0, week = 0;
         String heisman = "", champ = "";
         long rngSeed = 0;
+        int seasonWeeks = 0;
         List<PlayerRecord> hof = new ArrayList<>();
         List<DataRecord> lRecords = new ArrayList<>();
         List<LeagueRecord.ConferenceRecord> conferences = new ArrayList<>();
@@ -211,6 +213,7 @@ public class SaveManager {
                 heisman = h.heisman();
                 champ = h.champ();
                 rngSeed = h.rngSeed();
+                seasonWeeks = h.regSeasonWeeks();
             } else if (line.startsWith("HOF:")) {
                 hof.add(PlayerRecord.fromCsv(line.substring(4)));
             } else if (line.startsWith("LR:")) {
@@ -354,7 +357,7 @@ public class SaveManager {
             schemaVersion = SaveSchema.unversionedNewFormatDefault();
         }
         LeagueRecord raw = new LeagueRecord(leagueName, year, week, conferences, hof, lRecords, heisman, champ,
-                List.copyOf(gameRecords), rngSeed);
+                List.copyOf(gameRecords), rngSeed, seasonWeeks);
         LeagueRecord migrated = SaveSchema.migrate(schemaVersion, raw);
         return new LoadResult(migrated, schemaVersion);
     }
@@ -363,7 +366,8 @@ public class SaveManager {
      * Parsed {@code L:} header: league name, season year, current week, heisman string,
      * national champ string, and (from field 6) the RNG seed — 0 when absent (legacy saves).
      */
-    private record ParsedLeagueHeader(String leagueName, int year, int week, String heisman, String champ, long rngSeed) {}
+    private record ParsedLeagueHeader(String leagueName, int year, int week, String heisman, String champ, long rngSeed,
+                                      int regSeasonWeeks) {}
 
     private static ParsedLeagueHeader parseLeagueHeaderTabSeparated(String body) throws IOException {
         String[] p = body.split("\t", -1);
@@ -375,13 +379,18 @@ public class SaveManager {
             if (p.length >= 6 && !p[5].trim().isEmpty()) {
                 seed = Long.parseLong(p[5].trim());
             }
+            int seasonWeeks = 0;
+            if (p.length >= 7 && !p[6].trim().isEmpty()) {
+                seasonWeeks = Integer.parseInt(p[6].trim());
+            }
             return new ParsedLeagueHeader(
                     p[0],
                     Integer.parseInt(p[1].trim()),
                     Integer.parseInt(p[2].trim()),
                     p[3],
                     p[4],
-                    seed);
+                    seed,
+                    seasonWeeks);
         } catch (NumberFormatException e) {
             throw new IOException("L: tab line bad year/week/seed: " + body, e);
         }
@@ -423,7 +432,7 @@ public class SaveManager {
             }
             int year = Integer.parseInt(s.substring(i + 1).trim());
             String leagueName = s.substring(0, i);
-            return new ParsedLeagueHeader(leagueName, year, week, heisman, champ, 0);
+            return new ParsedLeagueHeader(leagueName, year, week, heisman, champ, 0, 0);
         } catch (NumberFormatException e) {
             throw new IOException("L: line has non-numeric year or week: " + body, e);
         }

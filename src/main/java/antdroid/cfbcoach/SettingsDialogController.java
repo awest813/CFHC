@@ -195,7 +195,6 @@ public final class SettingsDialogController {
                     checkboxProRelegation.setChecked(false);
                     checkboxRealignment.setChecked(true);
                 }
-                if(simLeague.regSeasonWeeks > 13) checkboxAdvRealignment.setChecked(true);
             }
         });
 

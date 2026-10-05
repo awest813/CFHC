@@ -200,7 +200,7 @@ public class DashboardPanel implements LeagueScreen {
     }
 
     private String playWeekLabel() {
-        return SeasonPresentation.getPlayWeekLabel(league.currentWeek, league.regSeasonWeeks);
+        return SeasonPresentation.getPlayWeekLabel(league);
     }
 
     private String buildNextActionContext() {

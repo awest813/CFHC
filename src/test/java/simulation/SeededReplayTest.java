@@ -125,9 +125,9 @@ public class SeededReplayTest {
         }
 
         league.currentWeek = 1; // playWeek is an in-season step (week 0 is the preseason transition)
-        for (int w = 0; w < league.regSeasonWeeks / 2; w++) {
+        // playWeek() advances currentWeek itself.
+        while (league.currentWeek < league.regSeasonWeeks / 2) {
             league.playWeek();
-            league.currentWeek = Math.min(league.currentWeek + 1, league.regSeasonWeeks - 1);
         }
 
         for (Team t : league.getTeamList()) {

@@ -118,18 +118,41 @@ public final class SeasonPresentation {
         }
     }
 
-    public static String getPlayWeekLabel(int week, int regSeasonWeeks) {
-        if (SeasonFlowOrder.isRecruitingGate(week, regSeasonWeeks)) return "Recruiting\u2026";
-        if (week >= SeasonFlowOrder.firstOffseasonWeek(regSeasonWeeks)) {
-            return "Offseason: Step " + (SeasonFlowOrder.clampWeek(week) - regSeasonWeeks - 3);
+    /**
+     * Label for the main "advance" action at {@code week}: what the next press
+     * will do. Single source for the controller status, desktop menu/dashboard
+     * and Android button so they never disagree. At week {@code w} in the
+     * regular season the next press plays Week {@code w} (schedule slot w-1).
+     */
+    public static String getPlayWeekLabel(int week, int regSeasonWeeks, boolean expandedPlayoffs,
+                                          boolean recruitingActive) {
+        int r = Math.max(1, regSeasonWeeks);
+        if (SeasonFlowOrder.isRecruitingGate(week, r)) {
+            return recruitingActive ? "Complete Recruiting" : "Begin Recruiting";
         }
-        if (week == regSeasonWeeks + 3)  return "Play National Championship";
-        if (week == regSeasonWeeks + 2)  return "Play Semifinals / Bowl Week 3";
-        if (week == regSeasonWeeks + 1)  return "Play Quarterfinals / Bowl Week 2";
-        if (week == regSeasonWeeks)      return "Play First Round / Bowl Week 1";
-        if (week == regSeasonWeeks - 1)  return "Play Conf. Championships";
-        if (week <= 0)                   return "Begin Season";
-        return "Play Week " + (week + 1);
+        int step = SeasonFlowOrder.offseasonStepIndex(week, r);
+        if (step >= 0) {
+            return "Offseason: " + SeasonFlowOrder.offseasonSteps()[step];
+        }
+        if (week <= 0) return "Begin Season";
+        if (week == SeasonFlowOrder.nationalChampionshipWeek(r)) return "Play National Championship";
+        if (week == SeasonFlowOrder.bowlWeek3(r)) return expandedPlayoffs ? "Play Semifinals" : "Play Bowl Week 3";
+        if (week == SeasonFlowOrder.bowlWeek2(r)) return expandedPlayoffs ? "Play Quarterfinals" : "Play Bowl Week 2";
+        if (week == SeasonFlowOrder.bowlWeek1(r)) return expandedPlayoffs ? "Play First Round" : "Play Bowl Week 1";
+        if (week == SeasonFlowOrder.conferenceChampionshipWeek(r)) return "Play Conf Championships";
+        return "Play Week " + week;
+    }
+
+    /** {@link #getPlayWeekLabel(int, int, boolean, boolean)} for the league's current state. */
+    public static String getPlayWeekLabel(League league) {
+        if (league == null) return "Begin Season";
+        return getPlayWeekLabel(league.currentWeek, league.regSeasonWeeks, league.expPlayoffs,
+                league.recruitingPhaseActive);
+    }
+
+    /** Format-agnostic overload kept for callers without a league (bowl wording). */
+    public static String getPlayWeekLabel(int week, int regSeasonWeeks) {
+        return getPlayWeekLabel(week, regSeasonWeeks, false, false);
     }
 
     /**
