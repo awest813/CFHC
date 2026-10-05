@@ -20,6 +20,7 @@
         android:orientation="horizontal">
 
         <ImageView
+            android:id="@+id/recruitAvatar"
             android:layout_width="@dimen/cf_sprite_avatar_width"
             android:layout_height="@dimen/cf_sprite_avatar_height"
             android:layout_marginEnd="@dimen/cf_space_md"

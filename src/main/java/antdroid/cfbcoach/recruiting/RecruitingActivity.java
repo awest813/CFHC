@@ -357,6 +357,10 @@ public class RecruitingActivity extends AppCompatActivity {
 
             details.setText(playerDetail);
             potential.setText(RecruitingPresentation.buildPotentialDetails(recruit));
+            final android.widget.ImageView avatar = convertView.findViewById(R.id.recruitAvatar);
+            if (avatar != null) {
+                avatar.setImageResource(antdroid.cfbcoach.PlayerSprites.avatarFor(recruit.position()));
+            }
 
             Button scoutPlayerButton = convertView.findViewById(R.id.buttonScoutPlayer);
             scoutPlayerButton.setText(context.getString(R.string.recruiting_button_scout));

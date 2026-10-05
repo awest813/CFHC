@@ -209,7 +209,12 @@ screens + commit. No wave mixes re-skinning with engine changes.
 - Acceptance: full recruiting cycle played end-to-end on the emulator (scout →
   recruit → finish → handoff back to MainActivity).
 
-### Wave 6 — Polish, theming, regression (~2 days)
+### Wave 6 — Polish, theming, regression (~2 days) — 🔄 in progress
+- Done (Oct 2026): emerald ripple press feedback on every card row
+  (`bg_cf_ripple`), 160ms cross-fade on list-page switches (honours the system
+  animator scale), position-aware avatars (`PlayerSprites`) on the player profile
+  and recruiting cards, progress dialog copy in resources. Open: light-theme
+  audit per screen, vector icon pass, snapshot re-baseline (needs an emulator).
 - Light theme audit: every screen in both themes via the snapshot script.
 - Animations: row press ripples, card state transitions, screen-change fade
   (respect `Settings.Global.ANIMATOR_DURATION_SCALE`).

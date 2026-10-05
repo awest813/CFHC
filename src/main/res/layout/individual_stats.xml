@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_cf_card"
+    android:foreground="@drawable/bg_cf_ripple"
     android:orientation="vertical"
     android:paddingStart="@dimen/cf_card_padding_h"
     android:paddingTop="@dimen/cf_space_md"

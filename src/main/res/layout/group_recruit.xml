@@ -6,6 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_marginBottom="@dimen/cf_space_sm"
     android:background="@drawable/bg_rec_group_bar"
+    android:foreground="@drawable/bg_cf_ripple"
     android:baselineAligned="false"
     android:gravity="center_vertical"
     android:minHeight="48dp"

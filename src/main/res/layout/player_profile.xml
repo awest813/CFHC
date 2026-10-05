@@ -43,6 +43,7 @@
                 android:orientation="horizontal">
 
                 <ImageView
+                    android:id="@+id/ppAvatar"
                     android:layout_width="@dimen/cf_sprite_avatar_width"
                     android:layout_height="@dimen/cf_sprite_avatar_height"
                     android:background="@drawable/bg_cf_card_canvas"

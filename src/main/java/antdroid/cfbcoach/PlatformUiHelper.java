@@ -78,7 +78,7 @@ public final class PlatformUiHelper {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setMessage(message)
                 .setTitle(title)
-                .setPositiveButton("OK", null);
+                .setPositiveButton(android.R.string.ok, null);
         AlertDialog dialog = builder.create();
         showImmersive(dialog);
     }

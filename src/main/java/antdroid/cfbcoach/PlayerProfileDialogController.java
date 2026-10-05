@@ -96,6 +96,10 @@ public final class PlayerProfileDialogController {
         ppPlayerName.setText(playerName);
         String[] a = snapshot.basics;
         ppPosition.setText(PlatformUiHelper.valueAt(a, 0));
+        final android.widget.ImageView ppAvatar = dialog.findViewById(R.id.ppAvatar);
+        if (ppAvatar != null) {
+            ppAvatar.setImageResource(PlayerSprites.avatarFor(PlatformUiHelper.valueAt(a, 0)));
+        }
         ppClass.setText(PlatformUiHelper.valueAt(a, 1));
         ppTeam.setText(PlatformUiHelper.valueAt(a, 2));
         ppHome.setText(PlatformUiHelper.valueAt(a, 3));

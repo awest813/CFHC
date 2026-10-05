@@ -478,8 +478,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     /** Records which list page is showing and mirrors it in the drawer. */
     private void showPage(int page) {
+        boolean changed = gameState.getCurrPage() != page;
         gameState.setCurrPage(page);
         syncDrawerSelection();
+        if (changed && mainList != null) {
+            // Short cross-fade on page switches only (not on the weekly
+            // re-render of the same page). ViewPropertyAnimator honours the
+            // system animator duration scale, so "animations off" disables it.
+            mainList.animate().cancel();
+            mainList.setAlpha(0f);
+            mainList.animate().alpha(1f).setDuration(160).start();
+        }
     }
 
     public void openHomeView(View view) {
@@ -1385,9 +1394,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         audioManager.play(AudioEvent.ADVANCE);
 
         final androidx.appcompat.app.AlertDialog progress = new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("Simulating")
-                .setMessage("Week " + simLeague.currentWeek)
-                .setNegativeButton("Stop", (d, w) -> cancelBulk = true)
+                .setTitle(R.string.sim_progress_title)
+                .setMessage(getString(R.string.sim_progress_week, simLeague.currentWeek))
+                .setNegativeButton(R.string.sim_progress_stop, (d, w) -> cancelBulk = true)
                 .show();
 
         final String[] bulkError = new String[1];
@@ -1428,7 +1437,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     if (simLeague.currentWeek >= targetWeek) break;
                     final int weekNow = simLeague.currentWeek;
                     runOnUiThread(() -> {
-                        if (progress.isShowing()) progress.setMessage("Week " + weekNow);
+                        if (progress.isShowing()) progress.setMessage(getString(R.string.sim_progress_week, weekNow));
                     });
                 }
             } catch (InterruptedException e) {

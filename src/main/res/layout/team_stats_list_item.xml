@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_cf_card"
+    android:foreground="@drawable/bg_cf_ripple"
     android:gravity="center_vertical"
     android:minHeight="52dp"
     android:orientation="horizontal"
