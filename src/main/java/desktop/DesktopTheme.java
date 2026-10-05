@@ -311,6 +311,36 @@ public final class DesktopTheme {
 
     public static Color headerBackground() { return _headerBg; }
 
+    /*
+     * The broadcast header stays dark in every theme (black / navy / charcoal),
+     * so its secondary text, accents and chips must be tuned for a dark
+     * backdrop rather than following the light theme's dark-on-white values.
+     */
+
+    /** Muted text on the always-dark header bar. */
+    public static Color headerSubtleText() {
+        return highContrast ? new Color(230, 230, 230) : new Color(148, 163, 184);
+    }
+
+    /** Gold accent (status chip, unread count) on the always-dark header bar. */
+    public static Color headerAccentGold() {
+        return highContrast ? new Color(255, 220, 80) : new Color(245, 158, 11);
+    }
+
+    /** Positive accent on the always-dark header bar. */
+    public static Color headerAccentGreen() {
+        return highContrast ? new Color(120, 255, 160) : new Color(0, 230, 118);
+    }
+
+    /** Pill fill and border on the always-dark header bar. */
+    public static Color headerChipFill() {
+        return highContrast ? new Color(28, 28, 28) : new Color(17, 28, 46);
+    }
+
+    public static Color headerChipBorder() {
+        return highContrast ? new Color(200, 200, 200) : new Color(42, 58, 82);
+    }
+
     public static Color conferenceHeaderBackground() { return _confHeaderBg; }
 
     public static Color statusBackground() { return _statusBg; }
@@ -350,26 +380,67 @@ public final class DesktopTheme {
     public static Color launcherFooter() { return _launcherFooter; }
 
     /** Primary actions on the desktop launcher hub (contrasts in light vs dark). */
+    /**
+     * Launcher "hub tile": slate card with a 1px border and left-aligned
+     * title + caption (HTML). The primary tile (client property
+     * {@code cfhc.primary=true}) uses the primary-action fill instead.
+     */
     public static void styleLauncherHubButton(JButton btn) {
         if (btn == null) {
             return;
         }
-        btn.setBackground(dark ? new Color(72, 124, 204) : _selectionAccent);
-        btn.setForeground(Color.WHITE);
+        boolean primary = Boolean.TRUE.equals(btn.getClientProperty("cfhc.primary"));
+        if (primary) {
+            btn.setBackground(primaryActionFill());
+            btn.setForeground(primaryActionText());
+        } else {
+            btn.setBackground(dark ? new Color(13, 23, 38) : new Color(246, 248, 251));
+            btn.setForeground(textPrimary());
+        }
+        btn.setOpaque(true);
+        btn.setContentAreaFilled(true);
         btn.setFocusPainted(false);
-        btn.setBorder(BorderFactory.createEmptyBorder(10, 28, 10, 28));
-        btn.setFont(btn.getFont().deriveFont(Font.BOLD, 14f));
+        btn.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        btn.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(primary ? primaryActionFill() : borderSubtle(), 1),
+                BorderFactory.createEmptyBorder(10, 20, 10, 20)));
+        btn.setFont(btn.getFont().deriveFont(Font.PLAIN, 14f));
         btn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
     }
 
+    /** Hover fill for launcher tiles. */
+    public static Color launcherHubHover(boolean primary) {
+        if (primary) {
+            return dark ? (highContrast ? new Color(80, 160, 255) : new Color(0, 200, 102))
+                    : new Color(40, 85, 160);
+        }
+        return dark ? new Color(22, 36, 59) : new Color(235, 238, 244);
+    }
+
     /**
-     * Styles a primary action button consistently across all dialogs.
-     * Uses the accent blue with white text, rounded appearance.
+     * Fill for the one primary action on a screen: neon emerald on the dark
+     * HUD (style_guide accent), the existing selection blue on light, and the
+     * high-contrast blue in HC modes.
+     */
+    public static Color primaryActionFill() {
+        if (highContrast) return _selectionAccent;
+        return dark ? new Color(0, 230, 118) : _selectionAccent;
+    }
+
+    /** Text on {@link #primaryActionFill()}. */
+    public static Color primaryActionText() {
+        return dark && !highContrast ? new Color(6, 16, 24) : Color.WHITE;
+    }
+
+    /**
+     * Styles a primary action button consistently across all dialogs:
+     * emerald with dark text on the dark HUD, accent blue with white text on
+     * light / high-contrast.
      */
     public static void stylePrimaryButton(JButton btn) {
         if (btn == null) return;
-        btn.setBackground(_selectionAccent);
-        btn.setForeground(Color.WHITE);
+        btn.setBackground(primaryActionFill());
+        btn.setForeground(primaryActionText());
         btn.setFont(btn.getFont().deriveFont(Font.BOLD, 12f));
         btn.setFocusPainted(false);
         btn.setBorder(BorderFactory.createEmptyBorder(10, 24, 10, 24));
@@ -925,8 +996,12 @@ public final class DesktopTheme {
         JLabel subtitleLabel = new JLabel(subtitle);
         subtitleLabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
         subtitleLabel.setForeground(textSecondary());
+        subtitleLabel.setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 0, 0, 0));
         header.add(titleLabel, BorderLayout.NORTH);
         header.add(subtitleLabel, BorderLayout.SOUTH);
+        // Breathing room between the header and the table/content below it
+        // (the subtitle used to sit flush against table headers).
+        header.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 8, 0));
         return header;
     }
 

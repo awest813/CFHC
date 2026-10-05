@@ -94,6 +94,17 @@ public final class UiSnapshotTool {
 
         view.setVisible(false);
         view.dispose();
+
+        // Launcher (Career Hub / front office), the first window players see.
+        LauncherFrame launcher = new LauncherFrame();
+        launcher.setLocationRelativeTo(null);
+        launcher.setVisible(true);
+        Thread.sleep(600);
+        capture(launcher, outDir + "/_launcher.png");
+        System.out.println("captured: Launcher");
+        launcher.setVisible(false);
+        launcher.dispose();
+
         System.out.println("done -> " + outDir);
         System.exit(0);
     }

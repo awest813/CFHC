@@ -22,7 +22,6 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
@@ -152,26 +151,30 @@ public class LauncherFrame extends JFrame {
         headerBlock.add(headerSeparator, BorderLayout.SOUTH);
         main.add(headerBlock, BorderLayout.NORTH);
 
-        JPanel buttonGrid = new JPanel(new GridLayout(0, 1, 0, 15));
+        JPanel buttonGrid = new JPanel(new GridLayout(0, 1, 0, 12));
         buttonGrid.setOpaque(false);
 
-        JButton newBtn = createStyledButton("New Career", "Start a fresh league with standard rosters.");
+        JButton newBtn = createStyledButton("New Career", "Start a fresh league with standard rosters.", true);
         newBtn.setMnemonic('N');
         newBtn.addActionListener(e -> { audioManager.play(AudioEvent.UI_CLICK); launchNewLeague(); });
         buttonGrid.add(newBtn);
         defaultLaunchButton = newBtn;
 
-        JButton loadBtn = createStyledButton("Load Save", "Continue an existing simulation (.cfb or .sav).");
+        JButton loadBtn = createStyledButton("Load Save", "Continue an existing simulation (.cfb or .sav).", false);
         loadBtn.setMnemonic('L');
         loadBtn.addActionListener(e -> { audioManager.play(AudioEvent.UI_CLICK); launchLoadGame(); });
         buttonGrid.add(loadBtn);
 
-        JButton helpBtn = createStyledButton("How to Play", "Basics of college football management.");
+        JButton helpBtn = createStyledButton("How to Play", "Basics of college football management.", false);
         helpBtn.setMnemonic('H');
         helpBtn.addActionListener(e -> { audioManager.play(AudioEvent.UI_CLICK); showHelp(); });
         buttonGrid.add(helpBtn);
 
-        JButton exitBtn = createStyledButton("Exit", "Close the application.");
+        // Exit is a quiet text action under the hub tiles, not a fourth slab
+        // as loud as New Career.
+        JButton exitBtn = new JButton("Exit");
+        exitBtn.setToolTipText("Close the application.");
+        DesktopTheme.styleSecondaryButton(exitBtn);
         exitBtn.setMnemonic('E');
         exitBtn.addActionListener(e -> {
             if (audioManager != null) {
@@ -179,7 +182,6 @@ public class LauncherFrame extends JFrame {
             }
             System.exit(0);
         });
-        buttonGrid.add(exitBtn);
 
         JPanel centerWrap = new JPanel(new BorderLayout(0, 14));
         centerWrap.setOpaque(false);
@@ -189,9 +191,10 @@ public class LauncherFrame extends JFrame {
         darkToggle.setOpaque(false);
         darkToggle.setForeground(DesktopTheme.textPrimary());
         darkToggle.setMnemonic('D');
-        JPanel toggleRow = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel toggleRow = new JPanel(new BorderLayout());
         toggleRow.setOpaque(false);
-        toggleRow.add(darkToggle);
+        toggleRow.add(darkToggle, BorderLayout.WEST);
+        toggleRow.add(exitBtn, BorderLayout.EAST);
         darkToggle.addActionListener(e -> {
             DesktopTheme.setDark(darkToggle.isSelected());
             SwingUtilities.updateComponentTreeUI(this);
@@ -239,21 +242,31 @@ public class LauncherFrame extends JFrame {
         }
         for (JButton b : launcherHubButtons) {
             DesktopTheme.styleLauncherHubButton(b);
+            // Caption colour is baked into the HTML; rebuild it for the new theme.
+            Object title = b.getClientProperty("cfhc.title");
+            Object caption = b.getClientProperty("cfhc.caption");
+            if (title != null && caption != null) {
+                b.setText(hubTileHtml(title.toString(), caption.toString(),
+                        Boolean.TRUE.equals(b.getClientProperty("cfhc.primary"))));
+            }
         }
         if (headerSeparator != null) {
             headerSeparator.setForeground(DesktopTheme.isDark() ? new Color(72, 76, 84) : new Color(210, 210, 210));
         }
     }
 
-    private JButton createStyledButton(String text, String tooltip) {
-        JButton btn = new JButton(text);
-        btn.setPreferredSize(new Dimension(300, 46));
-        btn.setFont(new Font("SansSerif", Font.BOLD, 14));
-        btn.setToolTipText(tooltip);
+    private JButton createStyledButton(String text, String caption, boolean primary) {
+        JButton btn = new JButton(hubTileHtml(text, caption, primary));
+        btn.setPreferredSize(new Dimension(300, 64));
+        btn.setToolTipText(caption);
+        btn.getAccessibleContext().setAccessibleName(text);
+        btn.putClientProperty("cfhc.primary", primary);
+        btn.putClientProperty("cfhc.title", text);
+        btn.putClientProperty("cfhc.caption", caption);
         DesktopTheme.styleLauncherHubButton(btn);
         btn.addMouseListener(new MouseAdapter() {
             @Override public void mouseEntered(MouseEvent e) {
-                btn.setBackground(DesktopTheme.isDark() ? new Color(92, 144, 224) : new Color(60, 120, 210));
+                btn.setBackground(DesktopTheme.launcherHubHover(primary));
             }
             @Override public void mouseExited(MouseEvent e) {
                 DesktopTheme.styleLauncherHubButton(btn);
@@ -261,6 +274,17 @@ public class LauncherFrame extends JFrame {
         });
         launcherHubButtons.add(btn);
         return btn;
+    }
+
+    /** Two-line tile label: bold title over a smaller caption, in theme colours. */
+    private static String hubTileHtml(String title, String caption, boolean primary) {
+        java.awt.Color captionColor = primary
+                ? DesktopTheme.primaryActionText()
+                : DesktopTheme.textSecondary();
+        String hex = String.format("#%02x%02x%02x",
+                captionColor.getRed(), captionColor.getGreen(), captionColor.getBlue());
+        return "<html><b style='font-size:13pt;'>" + title + "</b><br>"
+                + "<span style='font-size:9pt; color:" + hex + ";'>" + caption + "</span></html>";
     }
 
     private DesktopResourceProvider createResourceProvider() {
