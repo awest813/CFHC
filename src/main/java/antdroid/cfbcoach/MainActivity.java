@@ -1803,6 +1803,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
 
         goals += "Based on your schedule, your team is projected to finish with a record of " + userTeam.projectedWins + " - " + (games - userTeam.projectedWins) + ".\n\n";
+        goalsProjectedRecord = userTeam.projectedWins + "-" + Math.max(0, games - userTeam.projectedWins);
+        goalsConferenceFinish = userTeam.getRankStr(confPos) + " \u00b7 " + userTeam.getConference();
 
         if (simLeague.isCareerMode() && coach != null) {
             int yearsLeft = coach.contractLength - coach.contractYear;
@@ -1830,8 +1832,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     }
 
+    /** Headline projections for the Season Goals tiles (set by seasonGoals()). */
+    private String goalsProjectedRecord = "";
+    private String goalsConferenceFinish = "";
+
     private void showSeasonGoalsDialog() {
-        CareerDialogController.showSeasonGoalsDialog(this, goals, this::saveLeague);
+        CareerDialogController.showSeasonGoalsDialog(this, goals,
+                userTeam != null ? userTeam.projectedPollRank : 0,
+                goalsProjectedRecord, goalsConferenceFinish, this::saveLeague);
     }
 
     //Pre-Season Options

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="goals_title">Season Goals</string>
+    <string name="goals_pill">%1$d Season</string>
+    <string name="goals_projected_rank">Projected rank</string>
+    <string name="goals_projected_record">Projected record</string>
+    <string name="goals_conference_finish">Conference finish</string>
+    <string name="goals_briefing">AD briefing</string>
+    <string name="goals_footnote">You can reread these goals any time in the preseason news.</string>
+    <string name="goals_continue">Start Season</string>
+    <string name="goals_save">Save Progress</string>
+</resources>

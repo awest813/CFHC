@@ -145,19 +145,32 @@ public final class CareerDialogController {
         });
     }
 
-    public static void showSeasonGoalsDialog(MainActivity activity, String goals, Runnable onSave) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setMessage(goals + "\nNote: You can always review your season goals in the Preseason News.")
-                .setTitle(activity.simLeague.getYear() + " Season Goals")
-                .setPositiveButton("OK", (dialog, which) -> {})
-                .setNegativeButton("SAVE PROGRESS", (dialog, which) -> {
+    public static void showSeasonGoalsDialog(MainActivity activity, String goals, int projectedRank,
+                                             String projectedRecord, String conferenceFinish,
+                                             Runnable onSave) {
+        android.view.View content = android.view.LayoutInflater.from(activity)
+                .inflate(R.layout.season_goals_dialog, null, false);
+        ((android.widget.TextView) content.findViewById(R.id.goalsPill))
+                .setText(activity.getString(R.string.goals_pill, activity.simLeague.getYear()));
+        ((android.widget.TextView) content.findViewById(R.id.goalsRank))
+                .setText(projectedRank > 0 ? "#" + projectedRank : "\u2014");
+        ((android.widget.TextView) content.findViewById(R.id.goalsRecord))
+                .setText(projectedRecord == null || projectedRecord.isEmpty() ? "\u2014" : projectedRecord);
+        ((android.widget.TextView) content.findViewById(R.id.goalsConference))
+                .setText(conferenceFinish == null ? "" : conferenceFinish);
+        ((android.widget.TextView) content.findViewById(R.id.goalsBody))
+                .setText(goals == null ? "" : goals.trim());
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity)
+                .setView(content)
+                .setPositiveButton(R.string.goals_continue, (dialog, which) -> {})
+                .setNegativeButton(R.string.goals_save, (dialog, which) -> {
                     if (onSave != null) onSave.run();
                 });
         builder.setCancelable(false);
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
         activity.showImmersive(dialog);
-        setDialogMessageTextSize(dialog);
     }
 
     public static void showJobOffersDialog(MainActivity activity, String title, String message,
