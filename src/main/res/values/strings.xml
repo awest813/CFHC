@@ -164,6 +164,15 @@
     <string name="sim_progress_title">Simulating Season</string>
     <string name="sim_progress_week">Playing week %1$d…</string>
     <string name="sim_progress_stop">Stop</string>
+    <string name="save_slot_title">Save Dynasty</string>
+    <string name="save_overwrite_title">Overwrite this save?</string>
+    <string name="save_overwrite_confirm">Overwrite</string>
+    <string name="exit_title">Leave this dynasty?</string>
+    <string name="exit_message_unsaved">You have progress since your last save. Save now, or leave and lose it.</string>
+    <string name="exit_message_saved">Your dynasty is saved at this week. You can pick it up from Load Save.</string>
+    <string name="exit_confirm">Exit to Main Menu</string>
+    <string name="exit_save_and_exit">Save &amp; Exit</string>
+    <string name="exit_without_saving">Exit Without Saving</string>
     <string name="settings_sfx">Sound effects</string>
 
     <!-- Player Search strings -->

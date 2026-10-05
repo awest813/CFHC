@@ -72,6 +72,30 @@ public final class PlatformUiHelper {
     }
 
     /**
+     * In-app confirmation (save done, export done, blocked action) as a HUD-styled
+     * Snackbar above the bottom action bar. Falls back to a Toast when the
+     * activity has no content view yet. Use a Toast instead while a dialog stays
+     * open on top, since a Snackbar draws in the activity window beneath it.
+     */
+    public static void snack(android.app.Activity activity, CharSequence message) {
+        if (activity == null || message == null) return;
+        android.view.View root = activity.findViewById(android.R.id.content);
+        if (root == null) {
+            android.widget.Toast.makeText(activity, message, android.widget.Toast.LENGTH_SHORT).show();
+            return;
+        }
+        com.google.android.material.snackbar.Snackbar bar =
+                com.google.android.material.snackbar.Snackbar.make(root, message,
+                        com.google.android.material.snackbar.Snackbar.LENGTH_SHORT);
+        bar.setBackgroundTint(androidx.core.content.ContextCompat.getColor(activity, R.color.cf_card_elevated));
+        bar.setTextColor(androidx.core.content.ContextCompat.getColor(activity, R.color.cf_text_primary));
+        bar.setActionTextColor(androidx.core.content.ContextCompat.getColor(activity, R.color.cf_emerald));
+        android.view.View anchor = activity.findViewById(R.id.simGameButton);
+        if (anchor != null && anchor.isShown()) bar.setAnchorView(anchor);
+        bar.show();
+    }
+
+    /**
      * Show a simple notification dialog with an OK button.
      */
     public static void showNotification(android.content.Context context, String title, String message) {

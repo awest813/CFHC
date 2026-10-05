@@ -457,7 +457,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      */
     private void saveLeagueFromMenu() {
         if (bulkRunning) {
-            Toast.makeText(this, R.string.toast_sim_running, Toast.LENGTH_SHORT).show();
+            PlatformUiHelper.snack(this, getString(R.string.toast_sim_running));
         } else {
             saveLeague();
         }
@@ -549,6 +549,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             seasonController = new simulation.SeasonController(simLeague, this);
 
             gameState.setLoadedLeague(result.loadedLeague);
+            if (result.loadedLeague && simLeague != null) {
+                // Freshly loaded from a slot: nothing to lose until the next week plays.
+                savedYear = simLeague.getYear();
+                savedWeek = simLeague.currentWeek;
+            }
             gameState.setNewGame(result.newGame);
 
             if (result.userTeam != null) {
@@ -1649,8 +1654,36 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Save File Dialog
     private void saveLeague() {
+        saveLeague(null);
+    }
+
+    /** Season position at the last successful save ({year, week}); -1 = never saved this session. */
+    private int savedYear = -1;
+    private int savedWeek = -1;
+
+    private boolean isSavedAtCurrentWeek() {
+        return simLeague != null && savedYear == simLeague.getYear() && savedWeek == simLeague.currentWeek;
+    }
+
+    private void onSaveFinished(boolean saved, Runnable afterSave) {
+        if (saved) {
+            audioManager.play(AudioEvent.CONFIRM);
+            savedYear = simLeague.getYear();
+            savedWeek = simLeague.currentWeek;
+            PlatformUiHelper.snack(this, simulation.SaveLoadMessages.SAVE_OK);
+            if (afterSave != null) afterSave.run();
+        } else {
+            PlatformUiHelper.snack(this, simulation.SaveLoadMessages.SAVE_FAILED);
+        }
+    }
+
+    /**
+     * Slot picker; {@code afterSave} (may be null) runs only after a successful
+     * write, which is how "Save &amp; Exit" chains into leaving the dynasty.
+     */
+    private void saveLeague(final Runnable afterSave) {
         AlertDialog.Builder save = new AlertDialog.Builder(this);
-        save.setTitle("Choose Save Slot to Overwrite");
+        save.setTitle(R.string.save_slot_title);
         final String[] fileInfos = saveLoadService.getSaveFileSummaries();
         SaveFilesList saveFilesAdapter = new SaveFilesList(this, fileInfos);
         save.setAdapter(saveFilesAdapter, new DialogInterface.OnClickListener() {
@@ -1660,27 +1693,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 if (saveLoadService.isSlotEmpty(itemy)) {
                     // Empty file, don't show dialog confirmation
                     boolean saved = saveLoadService.saveToSlot(simLeague, itemy);
-                    if (saved) audioManager.play(AudioEvent.CONFIRM);
-                    Toast.makeText(MainActivity.this,
-                            saved ? simulation.SaveLoadMessages.SAVE_OK : simulation.SaveLoadMessages.SAVE_FAILED,
-                            saved ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG).show();
                     dialog.dismiss();
+                    onSaveFinished(saved, afterSave);
                 } else {
                     // Ask for confirmation to overwrite file
                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-                    builder.setMessage("Are you sure you want to overwrite this save file?\n\n" + fileInfos[itemy])
-                            .setPositiveButton("Yes, Overwrite", new DialogInterface.OnClickListener() {
+                    builder.setTitle(R.string.save_overwrite_title)
+                            .setMessage(fileInfos[itemy])
+                            .setPositiveButton(R.string.save_overwrite_confirm, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     boolean saved = saveLoadService.saveToSlot(simLeague, itemy);
-                                    if (saved) audioManager.play(AudioEvent.CONFIRM);
-                                    Toast.makeText(MainActivity.this,
-                                            saved ? simulation.SaveLoadMessages.SAVE_OK : simulation.SaveLoadMessages.SAVE_FAILED,
-                                            saved ? Toast.LENGTH_SHORT : Toast.LENGTH_LONG).show();
                                     dialog.dismiss();
+                                    onSaveFinished(saved, afterSave);
                                 }
                             })
-                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     // Do nothing
@@ -1695,12 +1723,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
         });
 
-        save.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                // Do nothing
-            }
-        });
+        save.setNegativeButton(android.R.string.cancel, null);
         AlertDialog popup = save.create();
         popup.show();
     }
@@ -1717,32 +1740,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //WORK IN PROGRESS
         if(simLeague.currentWeek < 1) exportSave();
         else {
-            Toast.makeText(MainActivity.this, R.string.toast_export_preseason_only,
-                    Toast.LENGTH_SHORT).show();
+            PlatformUiHelper.snack(this, getString(R.string.toast_export_preseason_only));
         }
     }
 
 
     //Exit Current Game
     public void exitMainActivity() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage("Are you sure you want to return to main menu? Any progress from the beginning of the season will be lost.")
-                .setPositiveButton("Yes, Exit", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Actually go back to main menu
-                        flowManager.returnToMainHub();
-                        finish();
-                    }
-                })
-                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        // Do nothing
-                    }
-                })
-                .setCancelable(false);
-        AlertDialog dialog = builder.create(); dialog.setCancelable(false);
+        final Runnable leave = () -> {
+            flowManager.returnToMainHub();
+            finish();
+        };
+        if (bulkRunning) {
+            PlatformUiHelper.snack(this, getString(R.string.toast_sim_running));
+            return;
+        }
+        boolean saved = isSavedAtCurrentWeek();
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this)
+                .setTitle(R.string.exit_title)
+                .setMessage(saved ? R.string.exit_message_saved : R.string.exit_message_unsaved)
+                .setNegativeButton(android.R.string.cancel, null);
+        if (saved) {
+            builder.setPositiveButton(R.string.exit_confirm, (d, w) -> leave.run());
+        } else {
+            builder.setPositiveButton(R.string.exit_save_and_exit, (d, w) -> saveLeague(leave))
+                    .setNeutralButton(R.string.exit_without_saving, (d, w) -> leave.run());
+        }
+        AlertDialog dialog = builder.create();
+        dialog.setCancelable(true);
         showImmersive(dialog);
     }
 
@@ -2233,7 +2258,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         isExternalStorageReadable();
         isExternalStorageWritable();
         LeagueExportController.exportPrimarySave(getExportSaveDir(), simLeague);
-        Toast.makeText(MainActivity.this, R.string.toast_export_done, Toast.LENGTH_SHORT).show();
+        PlatformUiHelper.snack(this, getString(R.string.toast_export_done));
     }
 
     private File getExportSaveDir() {
