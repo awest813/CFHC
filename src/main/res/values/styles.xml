@@ -1,6 +1,6 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Material 3 base; palette + status/nav bar; dynamic color layered in CfhcApplication on API 31+. -->
+    <!-- Material 3 base on the broadcast-HUD tokens; dynamic colour is intentionally off (see CfhcApplication). -->
     <style name="AppTheme" parent="Theme.Material3.Dark.NoActionBar">
         <item name="colorPrimary">@color/cf_emerald</item>
         <item name="colorOnPrimary">@color/cf_on_emerald</item>
@@ -31,6 +31,10 @@
         <item name="alertDialogTheme">@style/ThemeOverlay.Cfhc.Dialog</item>
         <item name="android:progressBarStyleHorizontal">@style/Widget.Cfhc.ProgressBar</item>
         <item name="materialButtonStyle">@style/Widget.Cfhc.Button</item>
+        <!-- Android 12+ system splash: obsidian canvas behind the adaptive icon
+             (ignored on older releases) so launch flows straight into the HUD. -->
+        <item name="android:windowSplashScreenBackground" tools:targetApi="31">@color/cf_canvas</item>
+        <item name="android:windowSplashScreenIconBackgroundColor" tools:targetApi="31">@color/ic_launcher_background</item>
     </style>
 
     <!-- Plain <Button>s inflate as MaterialButton under Material3; drop its 6dp
