@@ -1,63 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="@drawable/bg_dialog_surface"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="@dimen/cf_space_lg">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_dialog_section"
         android:orientation="vertical"
-        android:padding="14dp">
+        android:paddingStart="@dimen/cf_card_padding_h"
+        android:paddingTop="@dimen/cf_card_padding_v"
+        android:paddingEnd="@dimen/cf_card_padding_h"
+        android:paddingBottom="@dimen/cf_card_padding_h">
+
+        <TextView
+            android:id="@+id/homeUsernameLabel"
+            style="@style/Widget.Cfhc.CardTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:labelFor="@+id/editTextChangeHC"
+            android:text="@string/home_username_title"
+            android:textColor="@color/cf_gold" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Coach Name"
-            android:textColor="@color/accentGold"
-            android:textStyle="bold" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="Use a first and last name. This is the identity that will appear in headlines, records, and career history."
-            android:textColor="@color/textSecondary"
-            android:textSize="13sp" />
+            android:layout_marginTop="@dimen/cf_space_sm"
+            android:lineSpacingExtra="2dp"
+            android:text="@string/home_username_body"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" />
 
         <EditText
             android:id="@+id/editTextChangeHC"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_mobile_chip"
-            android:hint="First Last"
+            android:layout_marginTop="@dimen/cf_space_md"
+            android:background="@drawable/bg_cf_input"
+            android:fontFamily="@font/inter"
+            android:hint="@string/home_username_hint"
             android:imeOptions="actionDone"
+            android:importantForAutofill="no"
             android:inputType="textPersonName"
             android:maxLines="1"
-            android:padding="10dp" />
+            android:minHeight="48dp"
+            android:paddingStart="@dimen/cf_space_md"
+            android:paddingTop="@dimen/cf_space_sm"
+            android:paddingEnd="@dimen/cf_space_md"
+            android:paddingBottom="@dimen/cf_space_sm"
+            android:textColor="@color/cf_text_primary"
+            android:textColorHint="@color/cf_text_muted"
+            android:textSize="@dimen/cf_text_title" />
 
         <TextView
             android:id="@+id/textViewChangeHC"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="A unique name helps your coach stand out in the league history."
-            android:textColor="@color/textSecondary"
-            android:textSize="12sp" />
+            android:layout_marginTop="@dimen/cf_space_sm"
+            android:text="@string/home_username_helper"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" />
     </LinearLayout>
 
     <Button
         android:id="@+id/buttonOkChangeName"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginTop="12dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/cf_space_md"
         android:background="@drawable/bg_action_primary"
-        android:text="Continue"
+        android:fontFamily="@font/inter"
+        android:minHeight="52dp"
+        android:text="@string/home_username_continue"
         android:textAllCaps="false"
-        android:textColor="@color/colorPrimaryDark"
+        android:textColor="@color/cf_on_gold"
+        android:textSize="@dimen/cf_text_title"
         android:textStyle="bold" />
 </LinearLayout>

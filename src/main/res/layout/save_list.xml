@@ -1,35 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<!-- List row shared by SaveFilesList (save slots), StatsRowAdapter and MockDraft.
+     Keep the three ids and their default visibility: the adapters toggle them.
+     Save slots: line 1 = league / team (Inter), line 2 = mode | playoff (caption),
+     line 3 = version / compatibility (mono). -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_mobile_row"
-    android:minHeight="84dp"
-    android:orientation="vertical"
-    android:padding="12dp">
+    android:paddingStart="@dimen/cf_space_sm"
+    android:paddingTop="@dimen/cf_space_xs"
+    android:paddingEnd="@dimen/cf_space_sm"
+    android:paddingBottom="@dimen/cf_space_xs">
 
-    <TextView
-        android:id="@+id/textPlayerStatsLeftChild"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/textPrimary"
-        android:textSize="14sp"
-        android:textStyle="bold" />
+        android:background="@drawable/bg_cf_card"
+        android:minHeight="56dp"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/cf_card_padding_h"
+        android:paddingTop="@dimen/cf_card_padding_v"
+        android:paddingEnd="@dimen/cf_card_padding_h"
+        android:paddingBottom="@dimen/cf_card_padding_v">
 
-    <TextView
-        android:id="@+id/textPlayerStatsCenter"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:textColor="@color/textSecondary"
-        android:textSize="12sp"
-        android:visibility="gone" />
+        <TextView
+            android:id="@+id/textPlayerStatsLeftChild"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title"
+            android:textSize="15sp"
+            tools:text="Dynasty save title" />
 
-    <TextView
-        android:id="@+id/textPlayerStatsRightChild"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:textColor="@color/accentGold"
-        android:textSize="12sp"
-        android:visibility="gone" />
-</LinearLayout>
+        <TextView
+            android:id="@+id/textPlayerStatsCenter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_xs"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption"
+            android:visibility="gone"
+            tools:text="Open Dynasty  |  12-Team Playoff"
+            tools:visibility="visible" />
+
+        <TextView
+            android:id="@+id/textPlayerStatsRightChild"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_xs"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatAccent"
+            android:textSize="@dimen/cf_text_caption"
+            android:visibility="gone"
+            tools:text="Version: 1.5"
+            tools:visibility="visible" />
+    </LinearLayout>
+</FrameLayout>

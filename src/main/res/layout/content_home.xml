@@ -8,10 +8,11 @@
     android:background="@drawable/bg_home_menu"
     android:clipToPadding="false"
     android:fillViewport="true"
-    android:paddingStart="16dp"
-    android:paddingTop="12dp"
-    android:paddingEnd="16dp"
-    android:paddingBottom="20dp"
+    android:paddingStart="@dimen/cf_space_lg"
+    android:paddingTop="@dimen/cf_space_md"
+    android:paddingEnd="@dimen/cf_space_lg"
+    android:paddingBottom="@dimen/cf_space_xl"
+    android:scrollbars="none"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="antdroid.cfbcoach.Home"
     tools:showIn="@layout/activity_home">
@@ -21,170 +22,207 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <!-- ============================================================ -->
+        <!-- HERO: broadcast title card + the single gold primary CTA      -->
+        <!-- ============================================================ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/bg_mobile_panel_strong"
-            android:gravity="center_horizontal"
+            android:layout_marginBottom="@dimen/cf_space_sm"
+            android:background="@drawable/bg_home_hero"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_space_lg"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_card_padding_h">
 
-            <TextView
-                android:id="@+id/homeEyebrow"
-                android:layout_width="wrap_content"
+            <!-- Eyebrow row: live pill on the left, crest sprite on the right -->
+            <LinearLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_mobile_chip"
-                android:letterSpacing="0.06"
-                android:paddingStart="12dp"
-                android:paddingTop="6dp"
-                android:paddingEnd="12dp"
-                android:paddingBottom="6dp"
-                android:text="@string/home_hero_eyebrow"
-                android:textAllCaps="true"
-                android:textColor="@color/textPrimary"
-                android:textSize="11sp"
-                android:textStyle="bold" />
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/homeEyebrow"
+                    style="@style/Widget.Cfhc.Pill.Emerald"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="start|center_vertical"
+                    android:paddingTop="@dimen/cf_space_xs"
+                    android:paddingBottom="@dimen/cf_space_xs"
+                    android:text="@string/home_hero_eyebrow"
+                    android:textAllCaps="true" />
+
+                <ImageView
+                    android:id="@+id/homeHeroCrest"
+                    android:layout_width="@dimen/cf_sprite_avatar_width"
+                    android:layout_height="@dimen/cf_sprite_avatar_height"
+                    android:layout_marginStart="@dimen/cf_space_md"
+                    android:background="@drawable/bg_cf_card_canvas"
+                    android:contentDescription="@string/home_hero_crest_desc"
+                    android:importantForAccessibility="no"
+                    android:padding="@dimen/cf_space_xs"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/sprite_crest_eagles" />
+            </LinearLayout>
 
             <ImageView
                 android:id="@+id/imageLogo"
                 android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:layout_marginTop="16dp"
+                android:layout_height="120dp"
+                android:layout_marginTop="@dimen/cf_space_lg"
                 android:adjustViewBounds="true"
                 android:contentDescription="@string/home_logo_desc"
                 android:maxWidth="320dp"
-                android:padding="4dp"
                 android:scaleType="fitCenter" />
+
+            <TextView
+                android:id="@+id/homeHeroKicker"
+                style="@style/Widget.Cfhc.CardTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/cf_space_lg"
+                android:text="@string/home_hero_kicker" />
 
             <TextView
                 android:id="@+id/homeHeroTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:gravity="center"
+                android:layout_marginTop="@dimen/cf_space_xs"
                 android:text="@string/home_hero_title"
-                android:textAppearance="@style/TextAppearance.Cfhc.HeroTitle" />
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Display" />
 
             <TextView
                 android:id="@+id/homeHeroSubtitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:gravity="center"
+                android:layout_marginTop="@dimen/cf_space_sm"
+                android:lineSpacingExtra="2dp"
                 android:text="@string/home_hero_subtitle"
-                android:textAppearance="@style/TextAppearance.Cfhc.HeroBody" />
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" />
 
+            <!-- Status chips (text set from Home.applyHomeThemeUi) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:gravity="center"
+                android:layout_marginTop="@dimen/cf_space_md"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <TextView
                     android:id="@+id/homeThemeStatus"
+                    style="@style/Widget.Cfhc.Pill"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="@dimen/cf_space_sm"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_mobile_chip"
-                    android:gravity="center"
                     android:maxLines="2"
-                    android:paddingStart="12dp"
-                    android:paddingTop="6dp"
-                    android:paddingEnd="12dp"
-                    android:paddingBottom="6dp"
-                    android:text="@string/home_badge_theme_light"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="11sp" />
+                    android:paddingTop="@dimen/cf_space_xs"
+                    android:paddingBottom="@dimen/cf_space_xs"
+                    android:text="@string/home_badge_theme_dark" />
 
                 <TextView
                     android:id="@+id/homePlayoffStatus"
+                    style="@style/Widget.Cfhc.Pill.Gold"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@drawable/bg_mobile_chip"
-                    android:gravity="center"
                     android:maxLines="2"
-                    android:paddingStart="12dp"
-                    android:paddingTop="6dp"
-                    android:paddingEnd="12dp"
-                    android:paddingBottom="6dp"
-                    android:text="@string/home_badge_playoff"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="11sp" />
+                    android:paddingTop="@dimen/cf_space_xs"
+                    android:paddingBottom="@dimen/cf_space_xs"
+                    android:text="@string/home_badge_playoff" />
             </LinearLayout>
-        </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="14dp"
-            android:background="@drawable/bg_mobile_panel_strong"
-            android:orientation="vertical"
-            android:padding="20dp">
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/cf_stroke"
+                android:layout_marginTop="@dimen/cf_space_lg"
+                android:background="@color/cf_divider" />
 
             <TextView
+                style="@style/Widget.Cfhc.CardTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/home_primary_title"
-                android:textAppearance="@style/TextAppearance.Cfhc.SectionTitle" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="@string/home_primary_subtitle"
-                android:textAppearance="@style/TextAppearance.Cfhc.SectionBody" />
+                android:layout_marginTop="@dimen/cf_space_md"
+                android:text="@string/home_hero_season_label" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonNewGame"
                 style="@style/Widget.Cfhc.Button.Primary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="@dimen/cf_space_sm"
                 android:text="@string/home_button_new"
-                android:textSize="17sp" />
+                android:textSize="@dimen/cf_text_title" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/buttonCustom"
                 style="@style/Widget.Cfhc.Button.Secondary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="@dimen/cf_space_sm"
                 android:text="@string/home_button_custom"
-                android:textSize="16sp" />
+                android:textSize="@dimen/cf_text_body" />
         </LinearLayout>
 
+        <!-- ============================================================ -->
+        <!-- YOUR DYNASTIES: load / import / delete                        -->
+        <!-- ============================================================ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="14dp"
-            android:background="@drawable/bg_mobile_panel_strong"
+            android:layout_marginBottom="@dimen/cf_space_sm"
+            android:background="@drawable/bg_cf_card"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_card_padding_h">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/homeDynastiesTrophy"
+                    android:layout_width="24dp"
+                    android:layout_height="28dp"
+                    android:layout_marginEnd="@dimen/cf_space_sm"
+                    android:contentDescription="@string/home_card_dynasties_trophy_desc"
+                    android:importantForAccessibility="no"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/sprite_trophy_crystal" />
+
+                <TextView
+                    style="@style/Widget.Cfhc.CardTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/home_card_dynasties" />
+            </LinearLayout>
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/home_save_title"
-                android:textAppearance="@style/TextAppearance.Cfhc.SectionTitle" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="@string/home_save_subtitle"
-                android:textAppearance="@style/TextAppearance.Cfhc.SectionBody" />
+                android:layout_marginTop="@dimen/cf_space_sm"
+                android:text="@string/home_card_dynasties_body"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" />
 
             <TextView
                 android:id="@+id/home_save_hint"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:textAppearance="@style/TextAppearance.Cfhc.SectionBody"
-                android:textColor="@color/textSecondary"
+                android:layout_marginTop="@dimen/cf_space_sm"
+                android:background="@drawable/bg_cf_card_canvas"
+                android:paddingStart="@dimen/cf_space_md"
+                android:paddingTop="@dimen/cf_space_sm"
+                android:paddingEnd="@dimen/cf_space_md"
+                android:paddingBottom="@dimen/cf_space_sm"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption"
                 android:visibility="gone"
                 tools:text="@string/home_save_hint_empty"
                 tools:visibility="visible" />
@@ -192,28 +230,29 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="@dimen/cf_space_md"
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonLoadGame"
-                    style="@style/Widget.Cfhc.Button.Secondary"
+                    style="@style/Widget.Cfhc.Button.Emerald"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="@dimen/cf_space_xs"
                     android:layout_weight="1"
                     android:text="@string/home_button_load"
-                    android:textSize="15sp" />
+                    android:textSize="@dimen/cf_text_body" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonImportSave"
                     style="@style/Widget.Cfhc.Button.Secondary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="@dimen/cf_space_xs"
                     android:layout_weight="1"
+                    android:minHeight="52dp"
                     android:text="@string/home_button_import"
-                    android:textSize="15sp" />
+                    android:textSize="@dimen/cf_text_body" />
             </LinearLayout>
 
             <com.google.android.material.button.MaterialButton
@@ -221,36 +260,43 @@
                 style="@style/Widget.Cfhc.Button.Secondary"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="@dimen/cf_space_sm"
                 android:text="@string/home_button_delete"
-                android:textSize="15sp" />
+                android:textColor="@color/cf_negative"
+                android:textSize="@dimen/cf_text_body" />
         </LinearLayout>
 
+        <!-- ============================================================ -->
+        <!-- TOOLS: theme / patch notes / manual / credits                 -->
+        <!-- ============================================================ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="14dp"
-            android:background="@drawable/bg_mobile_panel"
+            android:layout_marginBottom="@dimen/cf_space_sm"
+            android:background="@drawable/bg_cf_card"
             android:orientation="vertical"
-            android:padding="18dp">
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_card_padding_h">
+
+            <TextView
+                style="@style/Widget.Cfhc.CardTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/home_card_tools" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/home_tools_title"
-                android:textAppearance="@style/TextAppearance.Cfhc.SectionTitle" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="@string/home_tools_subtitle"
-                android:textAppearance="@style/TextAppearance.Cfhc.SectionBody" />
+                android:layout_marginTop="@dimen/cf_space_sm"
+                android:text="@string/home_card_tools_body"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="@dimen/cf_space_md"
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
@@ -258,26 +304,26 @@
                     style="@style/Widget.Cfhc.Button.Secondary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="@dimen/cf_space_xs"
                     android:layout_weight="1"
                     android:text="@string/home_button_theme"
-                    android:textSize="14sp" />
+                    android:textSize="@dimen/cf_text_stat" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonUpdates"
                     style="@style/Widget.Cfhc.Button.Secondary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="@dimen/cf_space_xs"
                     android:layout_weight="1"
                     android:text="@string/home_button_changes"
-                    android:textSize="14sp" />
+                    android:textSize="@dimen/cf_text_stat" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="@dimen/cf_space_sm"
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
@@ -285,48 +331,68 @@
                     style="@style/Widget.Cfhc.Button.Secondary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="@dimen/cf_space_xs"
                     android:layout_weight="1"
                     android:text="@string/home_button_manual"
-                    android:textSize="14sp" />
+                    android:textSize="@dimen/cf_text_stat" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonCredits"
                     style="@style/Widget.Cfhc.Button.Secondary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="@dimen/cf_space_xs"
                     android:layout_weight="1"
                     android:text="@string/home_button_credits"
-                    android:textSize="14sp" />
+                    android:textSize="@dimen/cf_text_stat" />
             </LinearLayout>
         </LinearLayout>
 
+        <!-- ============================================================ -->
+        <!-- COMMUNITY: external links                                     -->
+        <!-- ============================================================ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="14dp"
-            android:background="@drawable/bg_mobile_panel"
+            android:layout_marginBottom="@dimen/cf_space_sm"
+            android:background="@drawable/bg_cf_card"
             android:orientation="vertical"
-            android:padding="18dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/home_external_title"
-                android:textAppearance="@style/TextAppearance.Cfhc.SectionTitle" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="@string/home_external_subtitle"
-                android:textAppearance="@style/TextAppearance.Cfhc.SectionBody" />
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_card_padding_h">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/Widget.Cfhc.CardTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/home_card_community" />
+
+                <TextView
+                    style="@style/Widget.Cfhc.Pill"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/home_card_community_hint" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/cf_space_sm"
+                android:text="@string/home_card_community_body"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/cf_space_md"
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
@@ -334,26 +400,26 @@
                     style="@style/Widget.Cfhc.Button.Secondary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="@dimen/cf_space_xs"
                     android:layout_weight="1"
                     android:text="@string/home_button_rosters"
-                    android:textSize="13sp" />
+                    android:textSize="@dimen/cf_text_stat" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonSubreddit"
                     style="@style/Widget.Cfhc.Button.Secondary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="@dimen/cf_space_xs"
                     android:layout_weight="1"
                     android:text="@string/home_button_reddit"
-                    android:textSize="13sp" />
+                    android:textSize="@dimen/cf_text_stat" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="@dimen/cf_space_sm"
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
@@ -361,42 +427,56 @@
                     style="@style/Widget.Cfhc.Button.Secondary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginEnd="@dimen/cf_space_xs"
                     android:layout_weight="1"
                     android:text="@string/home_button_site"
-                    android:textSize="13sp" />
+                    android:textSize="@dimen/cf_text_stat" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/buttonGitHub"
                     style="@style/Widget.Cfhc.Button.Secondary"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="@dimen/cf_space_xs"
                     android:layout_weight="1"
                     android:text="@string/home_button_github"
-                    android:textSize="13sp" />
+                    android:textSize="@dimen/cf_text_stat" />
             </LinearLayout>
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/versionText"
+        <!-- Footer: build number in mono, copyright in micro -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="@dimen/cf_space_sm"
             android:gravity="center"
-            android:text="@string/versionName"
-            android:textColor="@color/textSecondary"
-            android:textSize="12sp" />
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Widget.Cfhc.CardTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/cf_space_sm"
+                android:text="@string/home_footer_build_label" />
+
+            <TextView
+                android:id="@+id/versionText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/versionName"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
+                android:textColor="@color/cf_text_secondary" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/textView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="@dimen/cf_space_xs"
             android:gravity="center"
             android:text="@string/home_footer_copy"
-            android:textColor="@color/textMuted"
-            android:textSize="11sp" />
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Micro"
+            android:textAllCaps="false" />
 
     </LinearLayout>
 </ScrollView>

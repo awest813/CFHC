@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home / launcher, save dialogs and Tutorial copy (broadcast-HUD restyle). -->
+<resources>
+    <!-- Hero -->
+    <string name="home_hero_kicker">Head Coach</string>
+    <string name="home_hero_crest_desc">Program crest</string>
+    <string name="home_hero_season_label">Season control</string>
+
+    <!-- Section cards -->
+    <string name="home_card_dynasties">Your Dynasties</string>
+    <string name="home_card_dynasties_body">Twenty slots. Load a career, import an exported file, or clear a slot.</string>
+    <string name="home_card_dynasties_trophy_desc">Championship trophy</string>
+    <string name="home_card_tools">Tools</string>
+    <string name="home_card_tools_body">Theme, patch notes, the in-app manual and credits.</string>
+    <string name="home_card_community">Community</string>
+    <string name="home_card_community_body">Roster packs, the subreddit, dev blog and source code. Opens your browser.</string>
+    <string name="home_card_community_hint">External links</string>
+
+    <!-- Footer -->
+    <string name="home_footer_build_label">Build</string>
+
+    <!-- Save slot row -->
+    <string name="home_save_slot_label">Save slot</string>
+
+    <!-- Coach name dialog -->
+    <string name="home_username_title">Coach Name</string>
+    <string name="home_username_body">Use a first and last name. This is the identity that will appear in headlines, records, and career history.</string>
+    <string name="home_username_hint">First Last</string>
+    <string name="home_username_helper">A unique name helps your coach stand out in the league history.</string>
+    <string name="home_username_continue">Continue</string>
+
+    <!-- Tutorial / in-app manual -->
+    <string name="home_tutorial_section">Game manual</string>
+    <string name="home_tutorial_topic_label">Topic</string>
+    <string name="home_tutorial_title_default">CFHC Basics</string>
+    <string name="home_tutorial_content_default">Choose a topic to review coaching, recruiting, and game-day fundamentals.</string>
+</resources>

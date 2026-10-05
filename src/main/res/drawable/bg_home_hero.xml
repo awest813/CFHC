@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Launcher hero: slate card with a soft elevated-to-base gradient, highlight border
+     and a thin emerald "on air" bar along the top edge. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="270"
+                android:endColor="@color/cf_card"
+                android:startColor="@color/cf_card_elevated"
+                android:type="linear" />
+            <corners android:radius="@dimen/cf_radius_md" />
+            <stroke
+                android:width="@dimen/cf_stroke"
+                android:color="@color/cf_border_highlight" />
+        </shape>
+    </item>
+    <item
+        android:gravity="top|fill_horizontal"
+        android:height="@dimen/cf_stroke_thick"
+        android:left="@dimen/cf_radius_md"
+        android:right="@dimen/cf_radius_md">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/cf_emerald" />
+        </shape>
+    </item>
+</layer-list>
