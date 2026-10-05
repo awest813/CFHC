@@ -28,11 +28,11 @@ public class ProgramFinancesCard extends CustomCardPanel {
         JPanel list = new JPanel(new GridLayout(5, 1, 0, 4));
         list.setOpaque(false);
 
-        list.add(buildFinRow("Annual Budget", formatMoney(budget), Color.WHITE));
+        list.add(buildFinRow("Annual Budget", formatMoney(budget), DesktopTheme.textPrimary()));
         list.add(buildFinRow("Recruiting Budget", formatMoney(recruitBudget), DesktopTheme.successGreen()));
         list.add(buildFinRow("NIL Collective", "Tier " + nilTier, DesktopTheme.warningText()));
-        list.add(buildFinRow("Facilities", "Level " + facilities, Color.WHITE));
-        list.add(buildFinRow("Discipline", team != null ? team.teamDisciplineScore + "%" : "\u2014", Color.WHITE));
+        list.add(buildFinRow("Facilities", "Level " + facilities, DesktopTheme.textPrimary()));
+        list.add(buildFinRow("Discipline", team != null ? team.teamDisciplineScore + "%" : "\u2014", DesktopTheme.textPrimary()));
 
         content.add(list, BorderLayout.CENTER);
     }

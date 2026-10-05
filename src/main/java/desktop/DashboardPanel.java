@@ -11,9 +11,7 @@ import simulation.TeamColors;
 import staff.HeadCoach;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JList;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -279,33 +277,25 @@ public class DashboardPanel implements LeagueScreen {
     }
 
     private JPanel buildProgramHealthPanel() {
-        JPanel health = new JPanel(new BorderLayout(0, 8));
-        health.setOpaque(false);
-        health.setBorder(DesktopTheme.titledBorder("Program Health"));
-        // 2 columns: three across a ~325px card left ~100px per stat card,
-        // which truncated every label ("Recruiting Bu...").
-        JPanel cards = new JPanel(new GridLayout(0, 2, 8, 8));
+        CustomCardPanel health = new CustomCardPanel("Program Health");
+        // 2x2 HUD stat tiles. "Current Period" / "Next Action" were dropped —
+        // they duplicated the Coach Command Center hero directly above.
+        JPanel cards = new JPanel(new GridLayout(2, 2, 8, 8));
         cards.setOpaque(false);
 
-        Color cardBg = DesktopTheme.pollLeaderCard();
-        Color cardFg = DesktopTheme.textPrimary();
-        // 2x2 cards: "Current Period" / "Next Action" were dropped — they
-        // duplicated the Coach Command Center hero directly above, and 6
-        // cards could not fit the panel's height (rows crushed to ~28px,
-        // overlapping label and value).
         Team user = league.userTeam;
         if (user != null) {
-            cards.add(makeStatCard("Recruiting Budget", buildRecruitingBudgetLabel(user), cardBg, cardFg));
-            cards.add(makeStatCard("NIL Collective", "Tier " + user.getNilCollectiveLevel(), cardBg, cardFg));
-            cards.add(makeStatCard("Skill Progress", buildCoachSkillLabel(user), cardBg, cardFg));
-            cards.add(makeStatCard("Roster Health", buildRosterHealthLabel(user), cardBg, cardFg));
+            cards.add(makeStatCard("Recruiting Budget", buildRecruitingBudgetLabel(user), DesktopTheme.successGreen()));
+            cards.add(makeStatCard("NIL Collective", "Tier " + user.getNilCollectiveLevel(), DesktopTheme.warningText()));
+            cards.add(makeStatCard("Skill Progress", buildCoachSkillLabel(user), DesktopTheme.textPrimary()));
+            cards.add(makeStatCard("Roster Health", buildRosterHealthLabel(user), DesktopTheme.textPrimary()));
         } else {
-            cards.add(makeStatCard("Recruiting Budget", "-", cardBg, cardFg));
-            cards.add(makeStatCard("NIL Collective", "-", cardBg, cardFg));
-            cards.add(makeStatCard("Skill Progress", "-", cardBg, cardFg));
-            cards.add(makeStatCard("Roster Health", "-", cardBg, cardFg));
+            cards.add(makeStatCard("Recruiting Budget", "-", DesktopTheme.textPrimary()));
+            cards.add(makeStatCard("NIL Collective", "-", DesktopTheme.textPrimary()));
+            cards.add(makeStatCard("Skill Progress", "-", DesktopTheme.textPrimary()));
+            cards.add(makeStatCard("Roster Health", "-", DesktopTheme.textPrimary()));
         }
-        health.add(cards, BorderLayout.CENTER);
+        health.getContentArea().add(cards, BorderLayout.CENTER);
         return health;
     }
 
@@ -326,7 +316,7 @@ public class DashboardPanel implements LeagueScreen {
         for (int b = 0; b < CoachSkills.BRANCH_COUNT; b++) {
             totalRanks += CoachSkills.getRank(hc.coachSkillRanksBits, b);
         }
-        return hc.coachSkillXp + " XP / " + totalRanks + " ranks";
+        return hc.coachSkillXp + " XP \u2022 " + totalRanks + " RK";
     }
 
     private String buildRosterHealthLabel(Team user) {
@@ -336,20 +326,39 @@ public class DashboardPanel implements LeagueScreen {
         return roster + " / " + SimulationFacade.MIN_ROSTER_SIZE;
     }
 
-    private JPanel makeStatCard(String label, String value, Color bg, Color fg) {
-        JPanel card = new JPanel(new BorderLayout());
-        card.setOpaque(true);
-        card.setBackground(bg);
-        card.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        // Single HTML label (small caption over bold value): these cards live
-        // in ~34px grid rows — two BorderLayout regions get crushed into each
-        // other there, one label can't.
-        JLabel combined = new JLabel("<html><span style=\"font-size:9px;color:"
-                + DesktopTheme.cssRgb(DesktopTheme.textSecondary()) + "\">"
-                + DesktopTheme.escapeForHtml(label)
-                + "</span><br><b style=\"font-size:12px;color:" + DesktopTheme.cssRgb(fg)
-                + "\">" + DesktopTheme.escapeForHtml(value) + "</b></html>");
-        card.add(combined, BorderLayout.CENTER);
+    /** Rounded inset tile (stripe fill + 1px subtle border) used for HUD stats and list rows. */
+    private static JPanel hudTile(java.awt.LayoutManager layout) {
+        JPanel tile = new JPanel(layout) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
+                        java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(DesktopTheme.tableStripe());
+                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 6, 6);
+                g2.setColor(DesktopTheme.borderSubtle());
+                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 6, 6);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
+        tile.setOpaque(false);
+        return tile;
+    }
+
+    /** HUD stat tile: small muted uppercase label over a monospaced value. */
+    private JPanel makeStatCard(String label, String value, Color valueColor) {
+        JPanel card = hudTile(new GridLayout(2, 1, 0, 2));
+        card.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10));
+        card.setToolTipText(label + ": " + value);
+        JLabel caption = new JLabel(label.toUpperCase(Locale.ROOT));
+        caption.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 9));
+        caption.setForeground(DesktopTheme.textSecondary());
+        JLabel val = new JLabel(value);
+        val.setFont(new Font(Font.MONOSPACED, Font.BOLD, 13));
+        val.setForeground(valueColor);
+        card.add(caption);
+        card.add(val);
         return card;
     }
 
@@ -425,79 +434,124 @@ public class DashboardPanel implements LeagueScreen {
     }
 
     private JPanel buildLatestHeadlinesPanel() {
-        JPanel news = new JPanel(new BorderLayout());
-        news.setOpaque(true);
-        news.setBackground(DesktopTheme.windowBackground());
-        news.setBorder(DesktopTheme.titledBorder("Latest Headlines"));
-        DefaultListModel<String> newsModel = new DefaultListModel<>();
+        CustomCardPanel news = new CustomCardPanel("Latest Headlines");
+        List<String> headlines = new ArrayList<>();
         if (league.getNewsHeadlines() != null) {
-            league.getNewsHeadlines().stream().limit(8).forEach(newsModel::addElement);
+            league.getNewsHeadlines().stream().limit(8).forEach(headlines::add);
         }
-        if (newsModel.isEmpty()) {
-            newsModel.addElement("No headlines yet. Advance the week to generate league news.");
+
+        // Word-wrapped rows in a panel that tracks the viewport width, so each
+        // headline wraps to the card instead of being clipped at the right edge.
+        WidthTrackingPanel list = new WidthTrackingPanel();
+        list.setLayout(new javax.swing.BoxLayout(list, javax.swing.BoxLayout.Y_AXIS));
+        list.setOpaque(false);
+        if (headlines.isEmpty()) {
+            list.add(mutedCaption("No headlines yet. Advance the week to generate league news."));
         }
-        JList<String> newsList = new JList<>(newsModel);
-        newsList.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        newsList.setVisibleRowCount(4);
-        DesktopTheme.styleListShell(newsList);
-        newsList.setCellRenderer(new javax.swing.DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-                JLabel l = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                l.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-                String fg = isSelected ? "rgb(255,255,255)" : DesktopTheme.cssRgb(DesktopTheme.textPrimary());
-                l.setText("<html><body style='width:230px;color:" + fg + ";'>- "
-                        + DesktopTheme.escapeForHtml(value.toString()) + "</body></html>");
-                DesktopTheme.decorateListCellLabel(l, index, isSelected, null);
-                return l;
-            }
-        });
-        JScrollPane dashNewsScroll = new JScrollPane(newsList);
-        dashNewsScroll.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        dashNewsScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
-        dashNewsScroll.setOpaque(true);
-        news.add(dashNewsScroll, BorderLayout.CENTER);
+        for (int i = 0; i < headlines.size(); i++) {
+            JTextArea row = new JTextArea(headlines.get(i));
+            row.setEditable(false);
+            row.setFocusable(false);
+            row.setLineWrap(true);
+            row.setWrapStyleWord(true);
+            row.setOpaque(false);
+            row.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 11));
+            row.setForeground(DesktopTheme.textPrimary());
+            row.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createMatteBorder(0, 0, i < headlines.size() - 1 ? 1 : 0, 0,
+                            DesktopTheme.borderSubtle()),
+                    BorderFactory.createEmptyBorder(4, 2, 4, 2)));
+            row.setAlignmentX(Component.LEFT_ALIGNMENT);
+            list.add(row);
+        }
+
+        JScrollPane scroll = new JScrollPane(list);
+        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scroll.setBorder(BorderFactory.createEmptyBorder());
+        scroll.setOpaque(false);
+        scroll.getViewport().setOpaque(false);
+        scroll.getVerticalScrollBar().setUnitIncrement(12);
+        news.getContentArea().add(scroll, BorderLayout.CENTER);
         return news;
     }
 
+    /** Vertical list container that always matches the scroll viewport width (enables word-wrap). */
+    private static final class WidthTrackingPanel extends JPanel implements javax.swing.Scrollable {
+        @Override public java.awt.Dimension getPreferredScrollableViewportSize() { return getPreferredSize(); }
+        @Override public int getScrollableUnitIncrement(java.awt.Rectangle r, int o, int d) { return 12; }
+        @Override public int getScrollableBlockIncrement(java.awt.Rectangle r, int o, int d) { return Math.max(12, r.height - 12); }
+        @Override public boolean getScrollableTracksViewportWidth() { return true; }
+        @Override public boolean getScrollableTracksViewportHeight() { return false; }
+    }
+
+    private static JLabel mutedCaption(String text) {
+        JLabel l = new JLabel("<html><div style='text-align:center'>"
+                + DesktopTheme.escapeForHtml(text) + "</div></html>", JLabel.CENTER);
+        l.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 11));
+        l.setForeground(DesktopTheme.textSecondary());
+        l.setAlignmentX(Component.CENTER_ALIGNMENT);
+        return l;
+    }
+
     private JPanel buildPollLeadersPanel() {
-        JPanel top5 = new JPanel(new GridLayout(0, 1, 4, 2));
-        top5.setOpaque(true);
-        top5.setBackground(DesktopTheme.windowBackground());
-        top5.setBorder(DesktopTheme.titledBorder("Poll Leaders"));
+        CustomCardPanel card = new CustomCardPanel("Poll Leaders");
+        JPanel rows = new JPanel(new GridLayout(5, 1, 0, 3));
+        rows.setOpaque(false);
         league.getTeamList().stream()
                 .sorted(Comparator.comparingInt(Team::getRankTeamPollScore))
                 .limit(5)
                 .forEach(t -> {
-                    JLabel l = new JLabel(String.format(Locale.ROOT, " #%-2d %-18s  (%d-%d)",
-                            t.getRankTeamPollScore(), t.getName(), t.getWins(), t.getLosses()));
-                    l.setFont(new Font("SansSerif", Font.BOLD, 12));
-                    l.setOpaque(true);
-                    l.setBackground(DesktopTheme.pollLeaderCard());
-                    l.setForeground(DesktopTheme.textPrimary());
-                    l.setBorder(BorderFactory.createEmptyBorder(4, 10, 4, 10));
-                    top5.add(l);
+                    // Three aligned columns: gold rank | team | mono record (right).
+                    JPanel r = hudTile(new BorderLayout(8, 0));
+                    r.setBorder(BorderFactory.createEmptyBorder(0, 8, 0, 8));
+                    boolean isUser = t == league.userTeam;
+                    JLabel rank = new JLabel("#" + t.getRankTeamPollScore());
+                    rank.setFont(new Font(Font.MONOSPACED, Font.BOLD, 12));
+                    rank.setForeground(DesktopTheme.warningText());
+                    rank.setPreferredSize(new java.awt.Dimension(32, 16));
+                    JLabel name = new JLabel(t.getName());
+                    name.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 12));
+                    name.setForeground(isUser ? DesktopTheme.successGreen() : DesktopTheme.textPrimary());
+                    JLabel rec = new JLabel(t.getWins() + "-" + t.getLosses(), JLabel.RIGHT);
+                    rec.setFont(new Font(Font.MONOSPACED, Font.BOLD, 12));
+                    rec.setForeground(DesktopTheme.textSecondary());
+                    r.add(rank, BorderLayout.WEST);
+                    r.add(name, BorderLayout.CENTER);
+                    r.add(rec, BorderLayout.EAST);
+                    rows.add(r);
                 });
-        return top5;
+        card.getContentArea().add(rows, BorderLayout.CENTER);
+        return card;
     }
 
     private JPanel buildAwardsPanel() {
-        JPanel awards = new JPanel(new BorderLayout());
-        awards.setOpaque(true);
-        awards.setBackground(DesktopTheme.windowBackground());
-        awards.setBorder(DesktopTheme.titledBorder("Awards Race"));
-        JTextArea awardsArea = new JTextArea();
-        awardsArea.setEditable(false);
+        CustomCardPanel card = new CustomCardPanel("Awards Race");
         String awardsText = league.getHeismanWinnerStrFull();
-        if (awardsText == null || awardsText.trim().isEmpty()) {
-            awardsText = "Awards tracking appears once the season has enough statistics.";
+        boolean empty = awardsText == null || awardsText.trim().isEmpty()
+                || "No winner decided yet.".equals(awardsText.trim());
+        if (empty) {
+            String caption = awardsText == null || awardsText.trim().isEmpty()
+                    ? "Awards tracking appears once the season has enough statistics."
+                    : awardsText.trim();
+            card.getContentArea().add(mutedCaption(caption), BorderLayout.CENTER);
+            return card;
         }
-        awardsArea.setText(awardsText);
-        DesktopTheme.styleTextContent(awardsArea);
+        JTextArea awardsArea = new JTextArea(awardsText);
+        awardsArea.setEditable(false);
+        awardsArea.setLineWrap(true);
+        awardsArea.setWrapStyleWord(true);
+        awardsArea.setOpaque(false);
+        awardsArea.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 11));
+        awardsArea.setForeground(DesktopTheme.textPrimary());
+        awardsArea.setCaretPosition(0);
         JScrollPane awardsScroll = new JScrollPane(awardsArea);
-        awardsScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
-        awards.add(awardsScroll, BorderLayout.CENTER);
-        return awards;
+        awardsScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        awardsScroll.setBorder(BorderFactory.createEmptyBorder());
+        awardsScroll.setOpaque(false);
+        awardsScroll.getViewport().setOpaque(false);
+        card.getContentArea().add(awardsScroll, BorderLayout.CENTER);
+        return card;
     }
 
     private JButton mkNavButton(String tabTitle, Runnable action, boolean isAccent) {
