@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Team Home dashboard (layout/team_home.xml) — broadcast HUD card labels. -->
+<resources>
+    <!-- Card titles (Widget.Cfhc.CardTitle, rendered upper-case) -->
+    <string name="dash_title_team_overall">Team overall</string>
+    <string name="dash_title_next_game">Next game</string>
+    <string name="dash_title_last_game">Last game</string>
+    <string name="dash_title_news">Team news</string>
+    <string name="dash_title_health">Health</string>
+
+    <!-- Health stat-tile labels -->
+    <string name="dash_label_injuries">Injuries</string>
+    <string name="dash_label_suspensions">Suspensions</string>
+
+    <!-- "Tap for details" affordances (Cf.Micro) -->
+    <string name="dash_tap_rankings">Tap rank for polls · record for standings</string>
+    <string name="dash_tap_team_stats">Tap for team stats</string>
+    <string name="dash_tap_matchup">Tap for matchup details</string>
+    <string name="dash_tap_last_game">Tap for box score</string>
+    <string name="dash_tap_news">Tap for all stories</string>
+    <string name="dash_tap_roster">Tap to open roster</string>
+
+    <!-- Accessibility -->
+    <string name="dash_cd_opponent_sprite">Opponent avatar</string>
+    <string name="dash_cd_team_crest">Team crest</string>
+</resources>

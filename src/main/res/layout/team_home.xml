@@ -1,261 +1,415 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<!--
+    Team Home dashboard row (ui/TeamHome.java). Stacked broadcast-HUD cards; every
+    android:id below is looked up by TeamHome.java and must stay. The engine string is
+    split by index in Java, so each TextView here only receives its own field.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/team_home_panel"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingBottom="8dp">
+    android:orientation="vertical"
+    android:paddingStart="@dimen/cf_space_sm"
+    android:paddingEnd="@dimen/cf_space_sm"
+    android:paddingTop="@dimen/cf_space_sm"
+    android:paddingBottom="@dimen/cf_space_sm">
 
+    <!-- ============================================================ -->
+    <!-- 1. TEAM OVERALL / identity card                               -->
+    <!-- ============================================================ -->
     <LinearLayout
-        android:id="@+id/team_home_panel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_mobile_panel_strong"
+        android:background="@drawable/bg_cf_card"
         android:orientation="vertical"
-        android:padding="18dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:paddingStart="@dimen/cf_card_padding_h"
+        android:paddingEnd="@dimen/cf_card_padding_h"
+        android:paddingTop="@dimen/cf_card_padding_v"
+        android:paddingBottom="@dimen/cf_card_padding_v">
+
+        <TextView
+            style="@style/Widget.Cfhc.CardTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/dash_title_team_overall" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_sm"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
+            <!-- National rank: gold mono pill, taps to rankings -->
             <TextView
                 android:id="@+id/home_rank"
+                style="@style/Widget.Cfhc.Pill.Gold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_mobile_chip"
-                android:paddingBottom="6dp"
-                android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                android:paddingTop="6dp"
-                android:text="# XX"
-                android:textColor="@color/accentGold"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:minHeight="44dp"
+                android:minWidth="44dp"
+                android:paddingStart="@dimen/cf_space_md"
+                android:paddingEnd="@dimen/cf_space_md"
+                android:clickable="true"
+                android:focusable="true"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatAccent"
+                tools:text="#12 Ranked" />
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:orientation="vertical"
-                android:paddingStart="14dp"
+                android:paddingStart="@dimen/cf_space_md"
                 android:paddingEnd="0dp">
 
                 <TextView
                     android:id="@+id/home_teamname"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="team name"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="28sp"
-                    android:textStyle="bold" />
+                    android:textAppearance="@style/TextAppearance.Cfhc.Cf.Display"
+                    tools:text="Pine Valley State" />
 
+                <!-- Record: mono, taps to standings -->
                 <TextView
                     android:id="@+id/home_record"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
-                    android:text="W - L"
-                    android:textColor="@color/textSecondary"
-                    android:textSize="20sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/home_teamRatings"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="Team Ratings"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="14sp" />
+                    android:layout_marginTop="@dimen/cf_space_xs"
+                    android:background="@drawable/bg_cf_list_selector"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="44dp"
+                    android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
+                    tools:text="7 wins and 2 losses" />
             </LinearLayout>
         </LinearLayout>
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_xs"
+            android:text="@string/dash_tap_rankings"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Micro" />
+
+        <!-- Season / week / phase pills -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:orientation="vertical">
+            android:layout_marginTop="@dimen/cf_space_md"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/home_season_chip"
+                style="@style/Widget.Cfhc.Pill"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
+                tools:text="Year 2026" />
 
-                <TextView
-                    android:id="@+id/home_season_chip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_mobile_chip"
-                    android:paddingBottom="6dp"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="10dp"
-                    android:paddingTop="6dp"
-                    android:text="Year 2026"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/home_week_chip"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:background="@drawable/bg_mobile_chip"
-                    android:paddingBottom="6dp"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="10dp"
-                    android:paddingTop="6dp"
-                    android:text="Week 0"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-            </LinearLayout>
+            <TextView
+                android:id="@+id/home_week_chip"
+                style="@style/Widget.Cfhc.Pill"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/cf_space_sm"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
+                tools:text="Week 7" />
 
             <TextView
                 android:id="@+id/home_phase_chip"
-                android:layout_width="wrap_content"
+                style="@style/Widget.Cfhc.Pill.Gold"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_mobile_chip"
-                android:paddingBottom="6dp"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:paddingTop="6dp"
-                android:text="Phase"
-                android:textColor="@color/accentGold"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:layout_marginStart="@dimen/cf_space_sm"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="1"
+                tools:text="Regular season" />
         </LinearLayout>
+
+        <!-- Team ratings tile: taps to team stats -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_md"
+            android:background="@drawable/bg_cf_card_canvas"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/cf_space_md"
+            android:paddingEnd="@dimen/cf_space_md"
+            android:paddingTop="@dimen/cf_space_sm"
+            android:paddingBottom="@dimen/cf_space_sm">
+
+            <TextView
+                android:id="@+id/home_teamRatings"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_cf_list_selector"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:lineSpacingExtra="2sp"
+                android:minHeight="44dp"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
+                tools:text="Offense: 78.4 (#20) | Defense: 74.1 (#31)\nPrestige: #24 | Discipline: 92% | Facilities: L3" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/cf_space_xs"
+                android:text="@string/dash_tap_team_stats"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Micro" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- ============================================================ -->
+    <!-- 2. NEXT GAME — opponent card (crimson)                         -->
+    <!-- ============================================================ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/cf_space_sm"
+        android:background="@drawable/bg_cf_card_crimson"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/cf_card_padding_h"
+        android:paddingEnd="@dimen/cf_card_padding_h"
+        android:paddingTop="@dimen/cf_card_padding_v"
+        android:paddingBottom="@dimen/cf_card_padding_v">
+
+        <TextView
+            style="@style/Widget.Cfhc.CardTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/dash_title_next_game"
+            android:textColor="@color/cf_text_secondary" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="18dp"
-            android:orientation="vertical">
+            android:layout_marginTop="@dimen/cf_space_sm"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
-            <LinearLayout
-                android:layout_width="match_parent"
+            <ImageView
+                android:layout_width="@dimen/cf_sprite_avatar_width"
+                android:layout_height="@dimen/cf_sprite_avatar_height"
+                android:background="@drawable/bg_cf_card_canvas"
+                android:contentDescription="@string/dash_cd_opponent_sprite"
+                android:scaleType="fitCenter"
+                android:src="@drawable/sprite_avatar_opponent_crimson" />
+
+            <TextView
+                android:id="@+id/home_nextgame"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_home_stat_alert"
+                android:layout_marginStart="@dimen/cf_space_md"
+                android:layout_weight="1"
+                android:background="@drawable/bg_cf_list_selector"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="44dp"
+                android:paddingStart="@dimen/cf_space_xs"
+                android:paddingEnd="@dimen/cf_space_xs"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title"
+                tools:text="@ Redwood University Game" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_xs"
+            android:text="@string/dash_tap_matchup"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Micro" />
+    </LinearLayout>
+
+    <!-- ============================================================ -->
+    <!-- 3. LAST GAME — emerald leading bar                             -->
+    <!-- ============================================================ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/cf_space_sm"
+        android:background="@drawable/bg_cf_card_accent"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/cf_space_lg"
+        android:paddingEnd="@dimen/cf_card_padding_h"
+        android:paddingTop="@dimen/cf_card_padding_v"
+        android:paddingBottom="@dimen/cf_card_padding_v">
+
+        <TextView
+            style="@style/Widget.Cfhc.CardTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/dash_title_last_game" />
+
+        <TextView
+            android:id="@+id/home_lastgame"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_xs"
+            android:background="@drawable/bg_cf_list_selector"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:minHeight="44dp"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
+            tools:text="W 31-21 vs Blue Ridge Tech" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/dash_tap_last_game"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Micro" />
+    </LinearLayout>
+
+    <!-- ============================================================ -->
+    <!-- 4. TEAM NEWS                                                   -->
+    <!-- ============================================================ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/cf_space_sm"
+        android:background="@drawable/bg_cf_card"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/cf_card_padding_h"
+        android:paddingEnd="@dimen/cf_card_padding_h"
+        android:paddingTop="@dimen/cf_card_padding_v"
+        android:paddingBottom="@dimen/cf_card_padding_v">
+
+        <TextView
+            android:id="@+id/home_headlines"
+            style="@style/Widget.Cfhc.CardTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/dash_title_news" />
+
+        <TextView
+            android:id="@+id/home_news"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_xs"
+            android:background="@drawable/bg_cf_list_selector"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:lineSpacingExtra="2sp"
+            android:minHeight="44dp"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption"
+            tools:text="Owls climb to #24 in latest poll after back-to-back road wins." />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/dash_tap_news"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Micro" />
+    </LinearLayout>
+
+    <!-- ============================================================ -->
+    <!-- 5. HEALTH — injuries / suspensions stat tiles                  -->
+    <!-- ============================================================ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/cf_space_sm"
+        android:background="@drawable/bg_cf_card"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/cf_card_padding_h"
+        android:paddingEnd="@dimen/cf_card_padding_h"
+        android:paddingTop="@dimen/cf_card_padding_v"
+        android:paddingBottom="@dimen/cf_card_padding_v">
+
+        <TextView
+            style="@style/Widget.Cfhc.CardTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/dash_title_health" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_sm"
+            android:orientation="horizontal">
+
+            <!-- Injuries tile -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/bg_cf_card_canvas"
                 android:orientation="vertical"
-                android:padding="12dp">
+                android:paddingStart="@dimen/cf_space_md"
+                android:paddingEnd="@dimen/cf_space_md"
+                android:paddingTop="@dimen/cf_space_sm"
+                android:paddingBottom="@dimen/cf_space_sm">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="INJURY REPORT"
-                    android:textColor="@color/accentGold"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
+                    android:text="@string/dash_label_injuries"
+                    android:textAllCaps="true"
+                    android:textAppearance="@style/TextAppearance.Cfhc.Cf.Micro"
+                    android:textColor="@color/cf_crimson_bright" />
 
                 <TextView
                     android:id="@+id/home_injuries"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="@dimen/cf_space_xs"
+                    android:background="@drawable/bg_cf_list_selector"
                     android:clickable="true"
-                    android:text="Injury Report"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="13sp" />
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="44dp"
+                    android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
+                    tools:text="QB J. Carter [84] 2wk\nNo further injuries" />
+            </LinearLayout>
+
+            <!-- Suspensions tile -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/cf_space_sm"
+                android:layout_weight="1"
+                android:background="@drawable/bg_cf_card_canvas"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/cf_space_md"
+                android:paddingEnd="@dimen/cf_space_md"
+                android:paddingTop="@dimen/cf_space_sm"
+                android:paddingBottom="@dimen/cf_space_sm">
 
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="SUSPENSIONS"
-                    android:textColor="@color/accentGold"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
+                    android:text="@string/dash_label_suspensions"
+                    android:textAllCaps="true"
+                    android:textAppearance="@style/TextAppearance.Cfhc.Cf.Micro"
+                    android:textColor="@color/cf_warning" />
 
                 <TextView
                     android:id="@+id/home_suspensions"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:text="Suspensions"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="13sp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_home_stat"
-                android:orientation="vertical"
-                android:padding="12dp">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="NEXT GAME"
-                    android:textColor="@color/textSecondary"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/home_nextgame"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginTop="@dimen/cf_space_xs"
+                    android:background="@drawable/bg_cf_list_selector"
                     android:clickable="true"
-                    android:text="Next Game"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="13sp" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:text="LAST GAME"
-                    android:textColor="@color/textSecondary"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/home_lastgame"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:clickable="true"
-                    android:text="Last Game"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="13sp" />
+                    android:focusable="true"
+                    android:gravity="center_vertical"
+                    android:minHeight="44dp"
+                    android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
+                    tools:text="No Suspensions" />
             </LinearLayout>
         </LinearLayout>
 
-        <LinearLayout
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:background="@drawable/bg_home_stat"
-            android:orientation="vertical"
-            android:padding="14dp">
-
-            <TextView
-                android:id="@+id/home_headlines"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="TOP HEADLINES"
-                android:textColor="@color/textSecondary"
-                android:textSize="12sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/home_news"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="News"
-                android:textColor="@color/textPrimary"
-                android:textSize="13sp" />
-        </LinearLayout>
+            android:layout_marginTop="@dimen/cf_space_xs"
+            android:text="@string/dash_tap_roster"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Micro" />
     </LinearLayout>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
