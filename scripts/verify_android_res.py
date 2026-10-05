@@ -159,10 +159,54 @@ def check_java():
                     problems.append(f"{rel}: unresolved R.{t}.{name}")
 
 
+SCROLLERS = {"ScrollView", "androidx.core.widget.NestedScrollView", "HorizontalScrollView"}
+LISTS = {"ListView", "ExpandableListView", "GridView", "androidx.recyclerview.widget.RecyclerView"}
+NON_VIEW_TAGS = {"include", "merge", "requestFocus", "tag", "fragment", "view"}
+
+
+def check_layout_structure():
+    """Structural rules the aapt/lint pass would catch on a real build."""
+    for path in sorted(glob.glob(os.path.join(RES, "layout*", "*.xml"))):
+        rel = os.path.relpath(path, ROOT)
+        try:
+            root = ET.parse(path).getroot()
+        except ET.ParseError:
+            continue  # reported elsewhere
+
+        def walk(el, ancestors):
+            tag = el.tag
+            if tag in NON_VIEW_TAGS:
+                for child in el:
+                    walk(child, ancestors + [tag])
+                return
+            w = el.get(ANDROID_NS + "layout_width")
+            h = el.get(ANDROID_NS + "layout_height")
+            parent = ancestors[-1] if ancestors else None
+            # TableLayout/TableRow children get their size from the table.
+            table_child = parent in ("TableLayout", "TableRow")
+            if parent is not None and parent != "merge" and not table_child and (w is None or h is None):
+                # Root inside <merge>/<include>-less layouts still needs both;
+                # a style may provide them, so flag only when no style is set.
+                if el.get("style") is None:
+                    problems.append(f"{rel}: <{tag}> missing layout_width/layout_height")
+            weight = el.get(ANDROID_NS + "layout_weight")
+            if (w == "0dp" or h == "0dp") and weight is None:
+                problems.append(f"{rel}: <{tag}> has a 0dp size but no layout_weight")
+            if tag in LISTS and any(a in SCROLLERS for a in ancestors):
+                problems.append(f"{rel}: <{tag}> nested inside a ScrollView")
+            if tag in SCROLLERS and len(list(el)) > 1:
+                problems.append(f"{rel}: <{tag}> must have exactly one child")
+            for child in el:
+                walk(child, ancestors + [tag])
+
+        walk(root, [])
+
+
 def main():
     collect_declarations()
     check_references()
     check_java()
+    check_layout_structure()
     if problems:
         print("\n".join(problems))
         print(f"\n{len(problems)} problem(s)")
