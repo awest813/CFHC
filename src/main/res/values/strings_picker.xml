@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="picker_pill">New Dynasty</string>
+    <string name="picker_title">Choose Your Program</string>
+    <string name="picker_subtitle">Pick a conference, then the school you want to lead. Prestige sets expectations and recruiting pull.</string>
+    <string name="picker_conference_label">Conference</string>
+    <string name="picker_all_conferences">All conferences</string>
+    <string name="picker_list_desc">Programs available to coach</string>
+    <string name="picker_prestige_label">Prestige</string>
+    <string name="picker_count">%1$d programs</string>
+    <string name="picker_preparing_title">Preparing Program</string>
+    <string name="picker_preparing_message">Setting up your staff, rankings, and season outlook…</string>
+</resources>

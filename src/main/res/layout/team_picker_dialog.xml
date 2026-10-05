@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- First-run "Choose Your Program" picker: conference spinner over a team list. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialog_surface"
+    android:orientation="vertical"
+    android:padding="@dimen/cf_space_lg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_dialog_section"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/cf_card_padding_h"
+        android:paddingTop="@dimen/cf_card_padding_v"
+        android:paddingEnd="@dimen/cf_card_padding_h"
+        android:paddingBottom="@dimen/cf_card_padding_v">
+
+        <TextView
+            style="@style/Widget.Cfhc.Pill.Gold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/picker_pill" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_sm"
+            android:text="@string/picker_title"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Display" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_xs"
+            android:text="@string/picker_subtitle"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" />
+
+        <TextView
+            android:id="@+id/pickerConferenceLabel"
+            style="@style/Widget.Cfhc.CardTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_md"
+            android:labelFor="@+id/pickerConferenceSpinner"
+            android:text="@string/picker_conference_label" />
+
+        <Spinner
+            android:id="@+id/pickerConferenceSpinner"
+            style="@style/Widget.Cfhc.Spinner"
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:layout_marginTop="@dimen/cf_space_xs"
+            android:contentDescription="@string/picker_conference_label" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/pickerCount"
+        style="@style/Widget.Cfhc.CardTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/cf_space_md"
+        android:layout_marginBottom="@dimen/cf_space_xs"
+        tools:text="12 programs" />
+
+    <ListView
+        android:id="@+id/pickerTeamList"
+        android:layout_width="match_parent"
+        android:layout_height="320dp"
+        android:background="@android:color/transparent"
+        android:cacheColorHint="@android:color/transparent"
+        android:contentDescription="@string/picker_list_desc"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="@dimen/cf_space_sm"
+        android:listSelector="@android:color/transparent"
+        android:scrollbarStyle="outsideOverlay" />
+</LinearLayout>

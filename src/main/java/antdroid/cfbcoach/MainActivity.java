@@ -596,25 +596,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     void selectTeam() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Choose Your Program");
-        final String[] teams = simLeague.getTeamListStr();
-        builder.setItems(teams, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int item) {
-                dialog.dismiss();
-                prepareSelectedTeam(item);
-            }
-        });
-        builder.setCancelable(false);
-        AlertDialog alert = builder.create();
-        alert.setCancelable(false);
-        showImmersive(alert);
+        TeamPickerDialogController.show(this, simLeague, this::prepareSelectedTeam);
     }
 
     private void prepareSelectedTeam(final int item) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Preparing Program");
-        builder.setMessage("Setting up your staff, rankings, and season outlook...");
+        builder.setTitle(R.string.picker_preparing_title);
+        builder.setMessage(R.string.picker_preparing_message);
         builder.setCancelable(false);
         final AlertDialog preparingDialog = builder.create();
         preparingDialog.setCancelable(false);
