@@ -32,6 +32,12 @@ public class SaveFilesList extends ArrayAdapter<String> {
         TextView itemC = rowView.findViewById(R.id.textPlayerStatsCenter);
         TextView itemR = rowView.findViewById(R.id.textPlayerStatsRightChild);
 
+        TextView slot = rowView.findViewById(R.id.homeSaveSlotNumber);
+        if (slot != null) {
+            slot.setVisibility(View.VISIBLE);
+            slot.setText(String.valueOf(position + 1));
+        }
+
         String[] lines = values[position].split("\\n");
         itemL.setText(lines[0]);
 
