@@ -1,64 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Simple list shell: header card (pill, title, subtitle via bindSimpleListDialogShell)
+     over a list card. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_dialog_surface"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:paddingStart="@dimen/cf_space_lg"
+    android:paddingTop="@dimen/cf_space_lg"
+    android:paddingEnd="@dimen/cf_space_lg"
+    android:paddingBottom="@dimen/cf_space_lg">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
         android:background="@drawable/bg_dialog_section"
         android:orientation="vertical"
-        android:padding="14dp">
+        android:paddingStart="@dimen/cf_card_padding_h"
+        android:paddingTop="@dimen/cf_card_padding_v"
+        android:paddingEnd="@dimen/cf_card_padding_h"
+        android:paddingBottom="@dimen/cf_card_padding_v">
 
         <TextView
             android:id="@+id/textSimpleDialogShellLabel"
+            style="@style/Widget.Cfhc.Pill.Emerald"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_mobile_chip"
-            android:paddingStart="10dp"
-            android:paddingTop="5dp"
-            android:paddingEnd="10dp"
-            android:paddingBottom="5dp"
-            android:text="@string/dialog_shell_label"
-            android:textAllCaps="true"
-            android:textColor="@color/textPrimary"
-            android:textSize="10sp"
-            android:textStyle="bold" />
+            android:text="@string/dialog_shell_label" />
 
         <TextView
             android:id="@+id/textSimpleDialogShellTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="@dimen/cf_space_sm"
             android:text="@string/dialog_shell_list_title"
-            android:textColor="@color/textPrimary"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Display" />
 
         <TextView
             android:id="@+id/textSimpleDialogShellSubtitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="2dp"
             android:lineSpacingExtra="2dp"
             android:text="@string/dialog_shell_list_subtitle"
-            android:textColor="@color/textSecondary"
-            android:textSize="12sp" />
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" />
     </LinearLayout>
 
     <ListView
         android:id="@+id/listViewDialog"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="@dimen/cf_space_sm"
         android:layout_weight="1"
         android:background="@drawable/bg_dialog_section"
         android:cacheColorHint="@android:color/transparent"
         android:divider="@android:color/transparent"
-        android:dividerHeight="8dp"
-        android:listSelector="@android:color/transparent"
-        android:padding="8dp" />
+        android:dividerHeight="@dimen/cf_space_sm"
+        android:listSelector="@drawable/bg_cf_list_selector"
+        android:padding="@dimen/cf_space_sm" />
 </LinearLayout>

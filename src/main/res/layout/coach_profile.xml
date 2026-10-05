@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Coach profile shell: header (role pill, team, age) with an emerald rating tile,
+     then record / contract / coaching ratings / featured cards. cp* ids are bound by
+     CoachProfileDialogController. -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_dialog_surface"
@@ -9,171 +13,230 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingStart="@dimen/cf_space_lg"
+        android:paddingTop="@dimen/cf_space_lg"
+        android:paddingEnd="@dimen/cf_space_lg"
+        android:paddingBottom="@dimen/cf_space_lg">
 
+        <!-- Header card -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_dialog_section"
             android:orientation="vertical"
-            android:padding="16dp">
-
-            <TextView
-                android:id="@+id/cpPosition"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="HC"
-                android:textAlignment="center"
-                android:textColor="@color/accentGold"
-                android:textSize="24sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/cpClass"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Age: 50"
-                android:textAlignment="center"
-                android:textColor="@color/textSecondary"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/cpTeam"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="Washington"
-                android:textAlignment="center"
-                android:textColor="@color/textPrimary"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_card_padding_v">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/textView44"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Overall Rating"
-                    android:textColor="@color/textSecondary" />
-
-                <TextView
-                    android:id="@+id/cpOverall"
+                    style="@style/Widget.Cfhc.Pill.Emerald"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bg_mobile_chip"
-                    android:padding="8dp"
-                    android:text="86"
-                    android:textColor="@color/textPrimary"
-                    android:textStyle="bold" />
+                    android:text="@string/dlg_pill_staff" />
+
+                <TextView
+                    android:id="@+id/cpPosition"
+                    style="@style/Widget.Cfhc.Pill.Gold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/cf_space_sm"
+                    tools:text="HC" />
+
+                <TextView
+                    android:id="@+id/cpClass"
+                    style="@style/Widget.Cfhc.Pill"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/cf_space_sm"
+                    tools:text="Age: 50" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/cf_space_md"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="@dimen/cf_sprite_avatar_width"
+                    android:layout_height="@dimen/cf_sprite_avatar_height"
+                    android:background="@drawable/bg_cf_card_canvas"
+                    android:contentDescription="@string/dlg_cd_coach_avatar"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/sprite_avatar_lb_green" />
+
+                <TextView
+                    android:id="@+id/cpTeam"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/cf_space_md"
+                    android:layout_weight="1"
+                    android:maxLines="2"
+                    android:textAppearance="@style/TextAppearance.Cfhc.Cf.Display"
+                    tools:text="Washington" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/cf_space_sm"
+                    android:background="@drawable/bg_cf_rating_tile"
+                    android:gravity="center"
+                    android:minWidth="72dp"
+                    android:orientation="vertical"
+                    android:paddingStart="@dimen/cf_space_sm"
+                    android:paddingTop="@dimen/cf_space_xs"
+                    android:paddingEnd="@dimen/cf_space_sm"
+                    android:paddingBottom="@dimen/cf_space_xs">
+
+                    <TextView
+                        android:id="@+id/cpOverall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/jetbrains_mono"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:textAppearance="@style/TextAppearance.Cfhc.Cf.Rating"
+                        android:textSize="34sp"
+                        tools:text="86" />
+
+                    <TextView
+                        android:id="@+id/textView44"
+                        style="@style/Widget.Cfhc.CardTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dlg_coach_overall" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Record + contract, side by side -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="vertical">
+            android:layout_marginTop="@dimen/cf_space_sm"
+            android:orientation="horizontal">
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="@dimen/cf_space_xs"
+                android:layout_weight="1"
                 android:background="@drawable/bg_dialog_section"
                 android:orientation="vertical"
-                android:padding="12dp">
+                android:paddingStart="@dimen/cf_card_padding_h"
+                android:paddingTop="@dimen/cf_card_padding_v"
+                android:paddingEnd="@dimen/cf_card_padding_h"
+                android:paddingBottom="@dimen/cf_card_padding_v">
 
-                <TextView android:id="@+id/cpWinsName" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Career Wins" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/cpWins" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="60" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" />
-                <TextView android:id="@+id/cpContractName" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Contract" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/cpContract" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="3 of 7 years left" android:textColor="@color/textPrimary" />
+                <TextView style="@style/Widget.Cfhc.CardTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/dlg_coach_record" />
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:gravity="center_vertical" android:orientation="horizontal">
+                    <TextView android:id="@+id/cpWinsName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Career Wins" />
+                    <TextView android:id="@+id/cpWins" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" android:textColor="@color/cf_win" tools:text="60" />
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:gravity="center_vertical" android:orientation="horizontal">
+                    <TextView android:id="@+id/cpLossesName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Career Losses" />
+                    <TextView android:id="@+id/cpLosses" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" android:textColor="@color/cf_loss" tools:text="24" />
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/cf_space_xs"
+                android:layout_weight="1"
                 android:background="@drawable/bg_dialog_section"
                 android:orientation="vertical"
-                android:padding="12dp">
+                android:paddingStart="@dimen/cf_card_padding_h"
+                android:paddingTop="@dimen/cf_card_padding_v"
+                android:paddingEnd="@dimen/cf_card_padding_h"
+                android:paddingBottom="@dimen/cf_card_padding_v">
 
-                <TextView android:id="@+id/cpLossesName" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Career Losses" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/cpLosses" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Active" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" />
-                <TextView android:id="@+id/cpStatusName" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Status" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/cpStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Hot Seat" android:textColor="@color/textPrimary" />
+                <TextView style="@style/Widget.Cfhc.CardTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/dlg_coach_contract" />
+
+                <TextView android:id="@+id/cpContractName" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Contract" />
+                <TextView android:id="@+id/cpContract" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" tools:text="3 of 7 years left" />
+
+                <TextView android:id="@+id/cpStatusName" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Status" />
+                <TextView android:id="@+id/cpStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="2dp" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" android:textStyle="bold" tools:text="Hot Seat" />
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Coaching ratings grid -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="vertical">
+            android:layout_marginTop="@dimen/cf_space_sm"
+            android:background="@drawable/bg_dialog_section"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_card_padding_v">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_dialog_section"
-                android:orientation="vertical"
-                android:padding="12dp">
+            <TextView style="@style/Widget.Cfhc.CardTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/dlg_coach_ratings" />
 
-                <TextView android:id="@+id/cpAttr1Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Offense" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/cpAttr1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="60" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" />
-                <TextView android:id="@+id/cpAttr2Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Talent" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/cpAttr2" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="77" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:orientation="horizontal">
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginEnd="@dimen/cf_space_xs" android:layout_weight="1" android:background="@drawable/bg_cf_card_canvas" android:orientation="vertical" android:padding="@dimen/cf_space_sm">
+                    <TextView android:id="@+id/cpAttr1Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Micro" tools:text="Offense" />
+                    <TextView android:id="@+id/cpAttr1" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" android:textSize="@dimen/cf_text_title" tools:text="60" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/cf_space_xs" android:layout_weight="1" android:background="@drawable/bg_cf_card_canvas" android:orientation="vertical" android:padding="@dimen/cf_space_sm">
+                    <TextView android:id="@+id/cpAttr2Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Micro" tools:text="Talent" />
+                    <TextView android:id="@+id/cpAttr2" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" android:textSize="@dimen/cf_text_title" tools:text="77" />
+                </LinearLayout>
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_dialog_section"
-                android:orientation="vertical"
-                android:padding="12dp">
-
-                <TextView android:id="@+id/cpAttr3Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Defense" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/cpAttr3" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="76" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" />
-                <TextView android:id="@+id/cpAttr4Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Discipline" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/cpAttr4" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="93" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:orientation="horizontal">
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginEnd="@dimen/cf_space_xs" android:layout_weight="1" android:background="@drawable/bg_cf_card_canvas" android:orientation="vertical" android:padding="@dimen/cf_space_sm">
+                    <TextView android:id="@+id/cpAttr3Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Micro" tools:text="Defense" />
+                    <TextView android:id="@+id/cpAttr3" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" android:textSize="@dimen/cf_text_title" tools:text="76" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/cf_space_xs" android:layout_weight="1" android:background="@drawable/bg_cf_card_canvas" android:orientation="vertical" android:padding="@dimen/cf_space_sm">
+                    <TextView android:id="@+id/cpAttr4Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Micro" tools:text="Discipline" />
+                    <TextView android:id="@+id/cpAttr4" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" android:textSize="@dimen/cf_text_title" tools:text="93" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Featured numbers -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="vertical">
+            android:layout_marginTop="@dimen/cf_space_sm"
+            android:background="@drawable/bg_dialog_section"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_card_padding_v">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_dialog_section"
-                android:orientation="vertical"
-                android:padding="12dp">
+            <TextView style="@style/Widget.Cfhc.CardTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/dlg_profile_featured" />
 
-                <TextView android:id="@+id/cpFeatStat1Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Attr1" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/cpFeatStat1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="15.2 YPP" android:textColor="@color/textPrimary" />
-                <TextView android:id="@+id/cpFeatStat2Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Attr2" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/cpFeatStat2" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="377 PYPG" android:textColor="@color/textPrimary" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:gravity="center_vertical" android:minHeight="32dp" android:orientation="horizontal">
+                <TextView android:id="@+id/cpFeatStat1Name" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Points per game" />
+                <TextView android:id="@+id/cpFeatStat1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" tools:text="15.2 YPP" />
             </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_dialog_section"
-                android:orientation="vertical"
-                android:padding="12dp">
-
-                <TextView android:id="@+id/cpFeatStat3Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Attr3" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/cpFeatStat3" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="76 YPG" android:textColor="@color/textPrimary" />
-                <TextView android:id="@+id/cpFeatStat4Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Attr4" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/cpFeatStat4" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="5.6 YPC" android:textColor="@color/textPrimary" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="32dp" android:orientation="horizontal">
+                <TextView android:id="@+id/cpFeatStat2Name" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Passing yards per game" />
+                <TextView android:id="@+id/cpFeatStat2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" tools:text="377 PYPG" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="32dp" android:orientation="horizontal">
+                <TextView android:id="@+id/cpFeatStat3Name" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Rushing yards per game" />
+                <TextView android:id="@+id/cpFeatStat3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" tools:text="76 YPG" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="32dp" android:orientation="horizontal">
+                <TextView android:id="@+id/cpFeatStat4Name" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Yards per carry" />
+                <TextView android:id="@+id/cpFeatStat4" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" tools:text="5.6 YPC" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

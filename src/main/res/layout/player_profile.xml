@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Player profile shell: sprite avatar + name header, rating tile (Cf.Rating emerald),
+     pill row, then sectioned cards (intangibles, status, position ratings in a mono grid,
+     career stat columns, featured numbers). All pp* ids are bound by PlayerProfileDialogController. -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_dialog_surface"
@@ -9,229 +13,343 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingStart="@dimen/cf_space_lg"
+        android:paddingTop="@dimen/cf_space_lg"
+        android:paddingEnd="@dimen/cf_space_lg"
+        android:paddingBottom="@dimen/cf_space_lg">
 
+        <!-- Header card -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/bg_dialog_section"
-            android:gravity="center"
             android:orientation="vertical"
-            android:padding="20dp">
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_card_padding_v">
 
             <TextView
-                android:id="@+id/ppPlayerName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:maxLines="2"
-                android:text="Player Name"
-                android:textColor="@color/textPrimary"
-                android:textSize="26sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/ppTeam"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:gravity="center"
-                android:text="Washington"
-                android:textColor="@color/textSecondary"
-                android:textSize="14sp"
-                android:textStyle="bold" />
-
-            <LinearLayout
+                style="@style/Widget.Cfhc.Pill.Emerald"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:gravity="center"
+                android:text="@string/dlg_pill_profile" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/cf_space_md"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="@dimen/cf_sprite_avatar_width"
+                    android:layout_height="@dimen/cf_sprite_avatar_height"
+                    android:background="@drawable/bg_cf_card_canvas"
+                    android:contentDescription="@string/dlg_cd_player_avatar"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/sprite_avatar_qb_green" />
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/cf_space_md"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/ppPlayerName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:maxLines="2"
+                        android:textAppearance="@style/TextAppearance.Cfhc.Cf.Display"
+                        tools:text="Player Name" />
+
+                    <TextView
+                        android:id="@+id/ppTeam"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
+                        tools:text="Washington" />
+
+                    <TextView
+                        android:id="@+id/ppHome"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption"
+                        android:textColor="@color/cf_text_muted"
+                        tools:text="Boise, Idaho" />
+                </LinearLayout>
+
+                <!-- Rating tile -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/cf_space_sm"
+                    android:background="@drawable/bg_cf_rating_tile"
+                    android:gravity="center"
+                    android:minWidth="72dp"
+                    android:orientation="vertical"
+                    android:paddingStart="@dimen/cf_space_sm"
+                    android:paddingTop="@dimen/cf_space_xs"
+                    android:paddingEnd="@dimen/cf_space_sm"
+                    android:paddingBottom="@dimen/cf_space_xs">
+
+                    <TextView
+                        android:id="@+id/ppOverall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/jetbrains_mono"
+                        android:gravity="center"
+                        android:includeFontPadding="false"
+                        android:textAppearance="@style/TextAppearance.Cfhc.Cf.Rating"
+                        android:textSize="34sp"
+                        tools:text="86" />
+
+                    <TextView
+                        style="@style/Widget.Cfhc.CardTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/dlg_profile_overall" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- Pill row -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/cf_space_md"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/ppOverall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/bg_mobile_chip"
-                    android:padding="8dp"
-                    android:text="86 OVR"
-                    android:textColor="@color/textPrimary"
-                    android:textStyle="bold" />
-
-                <TextView
                     android:id="@+id/ppPosition"
+                    style="@style/Widget.Cfhc.Pill.Gold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:background="@drawable/bg_mobile_chip"
-                    android:padding="8dp"
-                    android:text="QB"
-                    android:textColor="@color/accentGold"
-                    android:textStyle="bold" />
+                    tools:text="QB" />
 
                 <TextView
                     android:id="@+id/ppClass"
+                    style="@style/Widget.Cfhc.Pill"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:background="@drawable/bg_mobile_chip"
-                    android:padding="8dp"
-                    android:text="Senior"
-                    android:textColor="@color/textPrimary"
-                    android:textStyle="bold" />
+                    android:layout_marginStart="@dimen/cf_space_sm"
+                    tools:text="Senior" />
+
+                <TextView
+                    android:id="@+id/ppStars"
+                    style="@style/Widget.Cfhc.Pill.Gold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/cf_space_sm"
+                    tools:text="4 Star" />
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/ppHeight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
+                    android:textColor="@color/cf_text_secondary"
+                    tools:text="6&apos; 3&quot;" />
+
+                <TextView
+                    android:id="@+id/ppWeight"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/cf_space_sm"
+                    android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
+                    android:textColor="@color/cf_text_secondary"
+                    tools:text="240lbs" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Intangibles + status: two cards side by side -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_sm"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginEnd="@dimen/cf_space_xs"
+                android:layout_weight="1"
+                android:background="@drawable/bg_dialog_section"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/cf_card_padding_h"
+                android:paddingTop="@dimen/cf_card_padding_v"
+                android:paddingEnd="@dimen/cf_card_padding_h"
+                android:paddingBottom="@dimen/cf_card_padding_v">
+
+                <TextView style="@style/Widget.Cfhc.CardTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/dlg_profile_intangibles" />
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:gravity="center_vertical" android:orientation="horizontal">
+                    <TextView android:id="@+id/ppCharacterName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Character" />
+                    <TextView android:id="@+id/ppCharacter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" tools:text="60" />
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:gravity="center_vertical" android:orientation="horizontal">
+                    <TextView android:id="@+id/ppAwarenessName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Intelligence" />
+                    <TextView android:id="@+id/ppAwarness" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" tools:text="77" />
+                </LinearLayout>
             </LinearLayout>
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:orientation="vertical">
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginStart="@dimen/cf_space_xs"
+                android:layout_weight="1"
+                android:background="@drawable/bg_dialog_section"
+                android:orientation="vertical"
+                android:paddingStart="@dimen/cf_card_padding_h"
+                android:paddingTop="@dimen/cf_card_padding_v"
+                android:paddingEnd="@dimen/cf_card_padding_h"
+                android:paddingBottom="@dimen/cf_card_padding_v">
 
-                <TextView android:id="@+id/ppHome" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Idaho" android:gravity="center" android:textColor="@color/textSecondary" />
-                
-                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:gravity="center" android:orientation="horizontal">
-                    <TextView android:id="@+id/ppStars" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="4 Star" android:layout_marginEnd="12dp" android:textColor="@color/accentGoldDark" android:textStyle="bold" />
-                    <TextView android:id="@+id/ppHeight" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="6' 3&quot;" android:textColor="@color/textSecondary" />
-                    <TextView android:id="@+id/ppWeight" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:text="240lbs" android:textColor="@color/textSecondary" />
+                <TextView style="@style/Widget.Cfhc.CardTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/dlg_profile_status" />
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:gravity="center_vertical" android:orientation="horizontal">
+                    <TextView android:id="@+id/ppStatusName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Status" />
+                    <TextView android:id="@+id/ppStatus" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" android:textColor="@color/cf_emerald" android:textStyle="bold" tools:text="Active" />
+                </LinearLayout>
+
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:gravity="center_vertical" android:orientation="horizontal">
+                    <TextView android:id="@+id/ppDurabilityName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Durability" />
+                    <TextView android:id="@+id/ppDurability" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" tools:text="93" />
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Development plan -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="vertical">
+            android:layout_marginTop="@dimen/cf_space_sm"
+            android:background="@drawable/bg_dialog_section"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_card_padding_v">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_dialog_section"
-                android:orientation="vertical"
-                android:padding="12dp">
+            <TextView android:id="@+id/ppDevPlanName" style="@style/Widget.Cfhc.CardTitle" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="@string/dlg_profile_development" />
+            <TextView android:id="@+id/ppDevPlan" style="@style/Widget.Cfhc.Pill.Gold" android:layout_width="wrap_content" android:layout_height="wrap_content" tools:text="Pocket Passer" />
+        </LinearLayout>
 
-                <TextView android:id="@+id/ppCharacterName" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Character" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/ppCharacter" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="60" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" />
-                <TextView android:id="@+id/ppAwarenessName" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Intelligence" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/ppAwarness" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="77" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" />
+        <!-- Position ratings grid (2 x 2, mono values) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_sm"
+            android:background="@drawable/bg_dialog_section"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_card_padding_v">
+
+            <TextView style="@style/Widget.Cfhc.CardTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/dlg_profile_ratings" />
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:orientation="horizontal">
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginEnd="@dimen/cf_space_xs" android:layout_weight="1" android:background="@drawable/bg_cf_card_canvas" android:orientation="vertical" android:padding="@dimen/cf_space_sm">
+                    <TextView android:id="@+id/ppAttr1Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Micro" tools:text="Pass Pow" />
+                    <TextView android:id="@+id/ppAttr1" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" android:textSize="@dimen/cf_text_title" tools:text="60" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/cf_space_xs" android:layout_weight="1" android:background="@drawable/bg_cf_card_canvas" android:orientation="vertical" android:padding="@dimen/cf_space_sm">
+                    <TextView android:id="@+id/ppAttr2Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Micro" tools:text="Pass Acc" />
+                    <TextView android:id="@+id/ppAttr2" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" android:textSize="@dimen/cf_text_title" tools:text="77" />
+                </LinearLayout>
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_dialog_section"
-                android:orientation="vertical"
-                android:padding="12dp">
-
-                <TextView android:id="@+id/ppStatusName" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Status" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/ppStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Active" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" />
-                <TextView android:id="@+id/ppDurabilityName" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Durability" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/ppDurability" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="93" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_dialog_section"
-                android:orientation="vertical"
-                android:padding="12dp">
-
-                <TextView android:id="@+id/ppDevPlanName" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Development Plan" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/ppDevPlan" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="Pocket Passer" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:orientation="horizontal">
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginEnd="@dimen/cf_space_xs" android:layout_weight="1" android:background="@drawable/bg_cf_card_canvas" android:orientation="vertical" android:padding="@dimen/cf_space_sm">
+                    <TextView android:id="@+id/ppAttr3Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Micro" tools:text="Evasion" />
+                    <TextView android:id="@+id/ppAttr3" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" android:textSize="@dimen/cf_text_title" tools:text="76" />
+                </LinearLayout>
+                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="@dimen/cf_space_xs" android:layout_weight="1" android:background="@drawable/bg_cf_card_canvas" android:orientation="vertical" android:padding="@dimen/cf_space_sm">
+                    <TextView android:id="@+id/ppAttr4Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Micro" tools:text="Speed" />
+                    <TextView android:id="@+id/ppAttr4" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" android:textSize="@dimen/cf_text_title" tools:text="93" />
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Career stat columns (multi-line per column, mono) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="vertical">
+            android:layout_marginTop="@dimen/cf_space_sm"
+            android:background="@drawable/bg_dialog_section"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_card_padding_v">
 
-            <LinearLayout
+            <TextView style="@style/Widget.Cfhc.CardTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/dlg_profile_career" />
+
+            <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_dialog_section"
-                android:orientation="vertical"
-                android:padding="12dp">
+                android:layout_marginTop="@dimen/cf_space_sm"
+                android:scrollbars="none">
 
-                <TextView android:id="@+id/ppAttr1Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Attr1" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/ppAttr1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="60" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" />
-                <TextView android:id="@+id/ppAttr2Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Attr2" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/ppAttr2" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="77" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" />
-            </LinearLayout>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_dialog_section"
-                android:orientation="vertical"
-                android:padding="12dp">
-
-                <TextView android:id="@+id/ppAttr3Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Attr3" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/ppAttr3" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="76" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" />
-                <TextView android:id="@+id/ppAttr4Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Attr4" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/ppAttr4" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="93" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" />
-            </LinearLayout>
+                    <TextView android:id="@+id/ppYear" android:layout_width="64dp" android:layout_height="wrap_content" android:gravity="start" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatAccent" tools:text="Year\n2024\n2025" />
+                    <TextView android:id="@+id/ppStat0" android:layout_width="48dp" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="G\n12\n13" />
+                    <TextView android:id="@+id/ppStat1" android:layout_width="48dp" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="GS\n12\n13" />
+                    <TextView android:id="@+id/ppStat2" android:layout_width="60dp" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="Yds\n3104\n3450" />
+                    <TextView android:id="@+id/ppStat3" android:layout_width="48dp" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="TD\n28\n31" />
+                    <TextView android:id="@+id/ppStat4" android:layout_width="48dp" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="Int\n6\n4" />
+                    <TextView android:id="@+id/ppStat5" android:layout_width="52dp" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="Sack\n12\n9" />
+                    <TextView android:id="@+id/ppStat6" android:layout_width="64dp" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="Comp\n64%\n67%" />
+                    <TextView android:id="@+id/ppStat7" android:layout_width="64dp" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="QBR\n158.2\n166.0" />
+                </LinearLayout>
+            </HorizontalScrollView>
         </LinearLayout>
 
-        <HorizontalScrollView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="12dp">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_dialog_section"
-                android:orientation="horizontal"
-                android:padding="10dp">
-
-                <TextView android:id="@+id/ppYear" android:layout_width="72dp" android:layout_height="wrap_content" android:gravity="center" android:text="Year" android:textColor="@color/accentGold" android:textSize="10sp" android:textStyle="bold" />
-                <TextView android:id="@+id/ppStat0" android:layout_width="56dp" android:layout_height="wrap_content" android:gravity="center" android:text="G" android:textColor="@color/textSecondary" android:textSize="10sp" />
-                <TextView android:id="@+id/ppStat1" android:layout_width="56dp" android:layout_height="wrap_content" android:gravity="center" android:text="GS" android:textColor="@color/textSecondary" android:textSize="10sp" />
-                <TextView android:id="@+id/ppStat2" android:layout_width="56dp" android:layout_height="wrap_content" android:gravity="center" android:text="Yds" android:textColor="@color/textSecondary" android:textSize="10sp" />
-                <TextView android:id="@+id/ppStat3" android:layout_width="56dp" android:layout_height="wrap_content" android:gravity="center" android:text="TD" android:textColor="@color/textSecondary" android:textSize="10sp" />
-                <TextView android:id="@+id/ppStat4" android:layout_width="56dp" android:layout_height="wrap_content" android:gravity="center" android:text="Int" android:textColor="@color/textSecondary" android:textSize="10sp" />
-                <TextView android:id="@+id/ppStat5" android:layout_width="56dp" android:layout_height="wrap_content" android:gravity="center" android:text="Sack" android:textColor="@color/textSecondary" android:textSize="10sp" />
-                <TextView android:id="@+id/ppStat6" android:layout_width="64dp" android:layout_height="wrap_content" android:gravity="center" android:text="Comp" android:textColor="@color/textSecondary" android:textSize="10sp" />
-                <TextView android:id="@+id/ppStat7" android:layout_width="64dp" android:layout_height="wrap_content" android:gravity="center" android:text="QBR" android:textColor="@color/textSecondary" android:textSize="10sp" />
-            </LinearLayout>
-        </HorizontalScrollView>
-
+        <!-- Featured numbers -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
-            android:orientation="vertical">
+            android:layout_marginTop="@dimen/cf_space_sm"
+            android:background="@drawable/bg_dialog_section"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_card_padding_v">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_dialog_section"
-                android:orientation="vertical"
-                android:padding="12dp">
+            <TextView style="@style/Widget.Cfhc.CardTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/dlg_profile_featured" />
 
-                <TextView android:id="@+id/ppFeatStat1Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Attr1" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/ppFeatStat1" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="15.2 YPP" android:textColor="@color/textPrimary" />
-                <TextView android:id="@+id/ppFeatStat2Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Attr2" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/ppFeatStat2" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="377 PYPG" android:textColor="@color/textPrimary" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:gravity="center_vertical" android:minHeight="32dp" android:orientation="horizontal">
+                <TextView android:id="@+id/ppFeatStat1Name" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Yards per pass" />
+                <TextView android:id="@+id/ppFeatStat1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" tools:text="15.2 YPP" />
             </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:background="@drawable/bg_dialog_section"
-                android:orientation="vertical"
-                android:padding="12dp">
-
-                <TextView android:id="@+id/ppFeatStat3Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Attr3" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/ppFeatStat3" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="76 YPG" android:textColor="@color/textPrimary" />
-                <TextView android:id="@+id/ppFeatStat4Name" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Attr4" android:textColor="@color/accentGold" android:textStyle="bold" />
-                <TextView android:id="@+id/ppFeatStat4" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="6dp" android:text="5.6 YPC" android:textColor="@color/textPrimary" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="32dp" android:orientation="horizontal">
+                <TextView android:id="@+id/ppFeatStat2Name" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Passing yards per game" />
+                <TextView android:id="@+id/ppFeatStat2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" tools:text="377 PYPG" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="32dp" android:orientation="horizontal">
+                <TextView android:id="@+id/ppFeatStat3Name" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Rushing yards per game" />
+                <TextView android:id="@+id/ppFeatStat3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" tools:text="76 YPG" />
+            </LinearLayout>
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="32dp" android:orientation="horizontal">
+                <TextView android:id="@+id/ppFeatStat4Name" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Yards per carry" />
+                <TextView android:id="@+id/ppFeatStat4" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" tools:text="5.6 YPC" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

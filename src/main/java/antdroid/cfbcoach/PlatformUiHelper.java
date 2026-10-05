@@ -20,43 +20,46 @@ public final class PlatformUiHelper {
     }
 
     /**
-     * Set the title and subtitle for a standard rankings-style dialog layout.
+     * Set the title and subtitle for the shared rankings/list shell (team_rankings_dialog).
      */
     public static void bindRankingsDialogShell(AlertDialog dialog, String title, String subtitle) {
-        TextView shellTitle = dialog.findViewById(R.id.textDialogShellTitle);
-        TextView shellSubtitle = dialog.findViewById(R.id.textDialogShellSubtitle);
-        if (shellTitle != null) shellTitle.setText(title);
-        if (shellSubtitle != null) shellSubtitle.setText(subtitle);
+        bindShell(dialog, R.id.textDialogShellTitle, R.id.textDialogShellSubtitle, title, subtitle);
     }
 
     /**
-     * Set title and subtitle for a simple list dialog shell.
+     * Set title and subtitle for the simple list shell (simple_list_dialog).
      */
     public static void bindSimpleListDialogShell(AlertDialog dialog, String title, String subtitle) {
-        TextView shellTitle = dialog.findViewById(R.id.textSimpleDialogShellTitle);
-        TextView shellSubtitle = dialog.findViewById(R.id.textSimpleDialogShellSubtitle);
-        if (shellTitle != null) shellTitle.setText(title);
-        if (shellSubtitle != null) shellSubtitle.setText(subtitle);
+        bindShell(dialog, R.id.textSimpleDialogShellTitle, R.id.textSimpleDialogShellSubtitle, title, subtitle);
     }
 
     /**
-     * Set title and subtitle for an archive dialog shell.
+     * Set title and subtitle for the archive / postseason shell (bowl_ccg_dialog).
      */
     public static void bindArchiveDialogShell(AlertDialog dialog, String title, String subtitle) {
-        TextView shellTitle = dialog.findViewById(R.id.textArchiveShellTitle);
-        TextView shellSubtitle = dialog.findViewById(R.id.textArchiveShellSubtitle);
-        if (shellTitle != null) shellTitle.setText(title);
-        if (shellSubtitle != null) shellSubtitle.setText(subtitle);
+        bindShell(dialog, R.id.textArchiveShellTitle, R.id.textArchiveShellSubtitle, title, subtitle);
     }
 
     /**
-     * Set title and subtitle for a graph dialog shell.
+     * Set title and subtitle for the graph shell (graphview).
      */
     public static void bindGraphDialogShell(AlertDialog dialog, String title, String subtitle) {
-        TextView shellTitle = dialog.findViewById(R.id.textGraphShellTitle);
-        TextView shellSubtitle = dialog.findViewById(R.id.textGraphShellSubtitle);
+        bindShell(dialog, R.id.textGraphShellTitle, R.id.textGraphShellSubtitle, title, subtitle);
+    }
+
+    /**
+     * Shared binder behind the bind*DialogShell helpers: every custom dialog shell exposes a
+     * Cf.Display title and a Cf.Caption subtitle; an empty subtitle collapses its row so the
+     * header card keeps a tight rhythm. Null views (layout without a shell) are ignored.
+     */
+    private static void bindShell(AlertDialog dialog, int titleId, int subtitleId, String title, String subtitle) {
+        TextView shellTitle = dialog.findViewById(titleId);
+        TextView shellSubtitle = dialog.findViewById(subtitleId);
         if (shellTitle != null) shellTitle.setText(title);
-        if (shellSubtitle != null) shellSubtitle.setText(subtitle);
+        if (shellSubtitle != null) {
+            shellSubtitle.setText(subtitle);
+            shellSubtitle.setVisibility(subtitle == null || subtitle.trim().isEmpty() ? View.GONE : View.VISIBLE);
+        }
     }
 
     /**
@@ -80,10 +83,16 @@ public final class PlatformUiHelper {
         showImmersive(dialog);
     }
 
+    /**
+     * Align a plain-message AlertDialog body with the dialog shells: body size from the
+     * cf_text_body token (14sp) plus the same 2dp line spacing as TextAppearance.Cfhc.DialogBody.
+     */
     public static void setDialogMessageTextSize(AlertDialog dialog) {
         TextView textView = dialog.findViewById(android.R.id.message);
         if (textView != null) {
-            textView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 14);
+            android.content.res.Resources res = textView.getResources();
+            textView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_PX, res.getDimension(R.dimen.cf_text_body));
+            textView.setLineSpacing(res.getDisplayMetrics().density * 2f, 1f);
         }
     }
 

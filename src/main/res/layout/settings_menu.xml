@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Settings shell: lead card, then one bg_dialog_section card per settings_section_* group
+     (Gameplay, Sound, Your program, Universe Rules), footer hint, gold Apply + secondary Cancel,
+     league tools as secondary buttons and Resign as the single danger action.
+     Every id is bound by SettingsDialogController; several are toggled INVISIBLE at runtime. -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_dialog_surface"
@@ -9,414 +14,244 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingStart="@dimen/cf_space_lg"
+        android:paddingTop="@dimen/cf_space_lg"
+        android:paddingEnd="@dimen/cf_space_lg"
+        android:paddingBottom="@dimen/cf_space_lg">
 
+        <!-- Lead card -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
             android:background="@drawable/bg_dialog_section"
             android:orientation="vertical"
-            android:padding="14dp">
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_card_padding_v">
+
+            <TextView
+                style="@style/Widget.Cfhc.Pill.Emerald"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/dlg_pill_front_office" />
 
             <TextView
                 android:id="@+id/textSettingsLead"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Head Coach Career"
-                android:textColor="@color/textPrimary"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="@dimen/cf_space_sm"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Display"
+                tools:text="Head Coach Career" />
 
             <TextView
                 android:id="@+id/textSettingsSublead"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Shape the rules of your new coaching run before you choose a program."
-                android:textColor="@color/textSecondary"
-                android:textSize="13sp" />
+                android:layout_marginTop="@dimen/cf_space_xs"
+                android:lineSpacingExtra="2dp"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
+                tools:text="Shape the rules of your new coaching run before you choose a program." />
         </LinearLayout>
 
         <!-- Gameplay (matches desktop SettingsDialog order before universe rules) -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_sm"
             android:background="@drawable/bg_dialog_section"
             android:orientation="vertical"
-            android:padding="14dp">
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_space_xs">
 
             <TextView
+                style="@style/Widget.Cfhc.CardTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/settings_section_gameplay"
-                android:textColor="@color/textSecondary"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:text="@string/settings_section_gameplay" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/settings_show_potential"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <CheckBox
-                    android:id="@+id/checkboxShowPotential"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_xs" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/checkboxShowPotential" android:text="@string/settings_show_potential" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
+                <CheckBox android:id="@+id/checkboxShowPotential" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="44dp" android:minHeight="44dp" />
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/settings_full_game_log"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <CheckBox
-                    android:id="@+id/checkboxShowFullGameLog"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/checkboxShowFullGameLog" android:text="@string/settings_full_game_log" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
+                <CheckBox android:id="@+id/checkboxShowFullGameLog" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="44dp" android:minHeight="44dp" />
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/settings_career_mode"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <CheckBox
-                    android:id="@+id/checkboxCareerMode"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/checkboxCareerMode" android:text="@string/settings_career_mode" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
+                <CheckBox android:id="@+id/checkboxCareerMode" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="44dp" android:minHeight="44dp" />
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/settings_never_retire"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <CheckBox
-                    android:id="@+id/checkboxNeverRetire"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/checkboxNeverRetire" android:text="@string/settings_never_retire" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
+                <CheckBox android:id="@+id/checkboxNeverRetire" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="44dp" android:minHeight="44dp" />
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/settings_tv_contracts"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <CheckBox
-                    android:id="@+id/checkboxTV"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/checkboxTV" android:text="@string/settings_tv_contracts" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
+                <CheckBox android:id="@+id/checkboxTV" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="44dp" android:minHeight="44dp" />
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Sound -->
         <LinearLayout
             android:id="@+id/sectionSound"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="@dimen/cf_space_sm"
             android:background="@drawable/bg_dialog_section"
             android:orientation="vertical"
-            android:padding="14dp">
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_space_xs">
 
             <TextView
+                style="@style/Widget.Cfhc.CardTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Sound"
-                android:textColor="@color/textSecondary"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:text="@string/dlg_settings_section_sound" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Background music"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <CheckBox
-                    android:id="@+id/checkboxMusic"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_xs" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/checkboxMusic" android:text="@string/dlg_settings_music" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
+                <CheckBox android:id="@+id/checkboxMusic" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="44dp" android:minHeight="44dp" />
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/settings_sfx"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <CheckBox
-                    android:id="@+id/checkboxSfx"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
+                <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/checkboxSfx" android:text="@string/settings_sfx" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
+                <CheckBox android:id="@+id/checkboxSfx" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="44dp" android:minHeight="44dp" />
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Your program (practice focus) — shown by the controller for an active save -->
         <LinearLayout
             android:id="@+id/sectionPracticeFocus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="@dimen/cf_space_sm"
             android:background="@drawable/bg_dialog_section"
             android:orientation="vertical"
-            android:padding="14dp"
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_card_padding_v"
             android:visibility="gone">
 
             <TextView
+                style="@style/Widget.Cfhc.CardTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Your program"
-                android:textColor="@color/textSecondary"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:text="@string/dlg_settings_section_program" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="Practice focus"
-                android:textColor="@color/textPrimary"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="@dimen/cf_space_sm"
+                android:labelFor="@+id/spinnerPracticeFocus"
+                android:text="@string/dlg_settings_practice_focus"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
+                android:textColor="@color/cf_text_primary" />
 
             <Spinner
                 android:id="@+id/spinnerPracticeFocus"
+                style="@style/Widget.Cfhc.Spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:minHeight="48dp" />
+                android:layout_marginTop="@dimen/cf_space_xs"
+                android:minHeight="44dp" />
 
             <TextView
                 android:id="@+id/textPracticeFocusDesc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textColor="@color/textSecondary"
-                android:textSize="12sp" />
+                android:layout_marginTop="@dimen/cf_space_xs"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption"
+                tools:text="Balanced reps across every unit." />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Position group focus"
-                android:textColor="@color/textPrimary"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="@dimen/cf_space_md"
+                android:labelFor="@+id/spinnerPositionGroup"
+                android:text="@string/dlg_settings_position_group"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
+                android:textColor="@color/cf_text_primary" />
 
             <Spinner
                 android:id="@+id/spinnerPositionGroup"
+                style="@style/Widget.Cfhc.Spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:minHeight="48dp" />
+                android:layout_marginTop="@dimen/cf_space_xs"
+                android:minHeight="44dp" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="Practice intensity"
-                android:textColor="@color/textPrimary"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="@dimen/cf_space_md"
+                android:labelFor="@+id/spinnerFocusIntensity"
+                android:text="@string/dlg_settings_intensity"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
+                android:textColor="@color/cf_text_primary" />
 
             <Spinner
                 android:id="@+id/spinnerFocusIntensity"
+                style="@style/Widget.Cfhc.Spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:minHeight="48dp" />
+                android:layout_marginTop="@dimen/cf_space_xs"
+                android:minHeight="44dp" />
 
             <TextView
                 android:id="@+id/textFocusIntensityDesc"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:textColor="@color/textSecondary"
-                android:textSize="12sp" />
+                android:layout_marginTop="@dimen/cf_space_xs"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption"
+                tools:text="Standard practice load." />
         </LinearLayout>
 
         <!-- Universe rules -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="@dimen/cf_space_sm"
             android:background="@drawable/bg_dialog_section"
             android:orientation="vertical"
-            android:padding="14dp">
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_space_xs">
 
             <TextView
+                style="@style/Widget.Cfhc.CardTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/settings_section_universe_rules"
-                android:textColor="@color/textSecondary"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:text="@string/settings_section_universe_rules" />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/textPlayoffs"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/settings_expanded_playoffs"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <CheckBox
-                    android:id="@+id/checkboxPlayoffs"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_xs" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
+                <TextView android:id="@+id/textPlayoffs" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/checkboxPlayoffs" android:text="@string/settings_expanded_playoffs" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
+                <CheckBox android:id="@+id/checkboxPlayoffs" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="44dp" android:minHeight="44dp" />
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/textConfRealignment"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/settings_conf_realignment"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <CheckBox
-                    android:id="@+id/checkboxConfRealignment"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
+                <TextView android:id="@+id/textConfRealignment" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/checkboxConfRealignment" android:text="@string/settings_conf_realignment" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
+                <CheckBox android:id="@+id/checkboxConfRealignment" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="44dp" android:minHeight="44dp" />
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/textAdvConfRealignment"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/settings_adv_realignment"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <CheckBox
-                    android:id="@+id/checkboxAdvConfRealignment"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
+                <TextView android:id="@+id/textAdvConfRealignment" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/checkboxAdvConfRealignment" android:text="@string/settings_adv_realignment" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
+                <CheckBox android:id="@+id/checkboxAdvConfRealignment" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="44dp" android:minHeight="44dp" />
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:id="@+id/textEnableProRel"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/settings_universal_pro_rel"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
-
-                <CheckBox
-                    android:id="@+id/checkboxProRelegation"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
+                <TextView android:id="@+id/textEnableProRel" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/checkboxProRelegation" android:text="@string/settings_universal_pro_rel" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
+                <CheckBox android:id="@+id/checkboxProRelegation" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="44dp" android:minHeight="44dp" />
             </LinearLayout>
         </LinearLayout>
 
@@ -424,15 +259,16 @@
             android:id="@+id/textSettingsFooterHint"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
+            android:layout_marginTop="@dimen/cf_space_md"
+            android:lineSpacingExtra="2dp"
             android:text="@string/settings_footer_hint"
-            android:textColor="@color/textSecondary"
-            android:textSize="12sp" />
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" />
 
+        <!-- Primary action row: one gold CTA + secondary cancel -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="@dimen/cf_space_md"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -440,69 +276,76 @@
                 android:id="@+id/buttonCancelSettings"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
-                android:layout_marginEnd="6dp"
+                android:layout_marginEnd="@dimen/cf_space_xs"
                 android:layout_weight="1"
                 android:background="@drawable/bg_action_secondary"
-                android:text="Cancel"
+                android:fontFamily="@font/inter"
+                android:text="@string/dlg_cancel"
                 android:textAllCaps="false"
-                android:textColor="@color/textPrimary"
+                android:textColor="@color/cf_text_primary"
                 android:textStyle="bold" />
 
             <Button
                 android:id="@+id/buttonOkSettings"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
-                android:layout_marginStart="6dp"
+                android:layout_marginStart="@dimen/cf_space_xs"
                 android:layout_weight="1"
                 android:background="@drawable/bg_action_primary"
+                android:fontFamily="@font/inter"
                 android:text="@string/league_settings_apply"
                 android:textAllCaps="false"
-                android:textColor="@color/colorPrimaryDark"
+                android:textColor="@color/cf_on_gold"
                 android:textStyle="bold" />
         </LinearLayout>
 
+        <!-- League tools (hidden by the controller during new-game setup) -->
         <Button
             android:id="@+id/buttonGameEditor"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="@dimen/cf_space_md"
             android:background="@drawable/bg_action_secondary"
-            android:text="Game Editor (Beta)"
+            android:fontFamily="@font/inter"
+            android:text="@string/dlg_settings_game_editor"
             android:textAllCaps="false"
-            android:textColor="@color/textPrimary"
+            android:textColor="@color/cf_text_primary"
             android:textStyle="bold" />
 
         <Button
             android:id="@+id/buttonFixBowls"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="@dimen/cf_space_sm"
             android:background="@drawable/bg_action_secondary"
-            android:text="Fix Bowl Names"
+            android:fontFamily="@font/inter"
+            android:text="@string/dlg_settings_fix_bowls"
             android:textAllCaps="false"
-            android:textColor="@color/textPrimary"
+            android:textColor="@color/cf_text_primary"
             android:textStyle="bold" />
 
         <Button
             android:id="@+id/buttonProRel"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="@dimen/cf_space_sm"
             android:background="@drawable/bg_action_secondary"
-            android:text="Convert to Pro-Rel"
+            android:fontFamily="@font/inter"
+            android:text="@string/dlg_settings_convert_pro_rel"
             android:textAllCaps="false"
-            android:textColor="@color/textPrimary"
+            android:textColor="@color/cf_text_primary"
             android:textStyle="bold" />
 
         <Button
             android:id="@+id/buttonChangeTeams"
             android:layout_width="match_parent"
             android:layout_height="48dp"
-            android:layout_marginTop="18dp"
-            android:background="@drawable/bg_action_secondary"
-            android:text="Resign from Job"
+            android:layout_marginTop="@dimen/cf_space_lg"
+            android:background="@drawable/bg_action_danger"
+            android:fontFamily="@font/inter"
+            android:text="@string/dlg_settings_resign"
             android:textAllCaps="false"
-            android:textColor="@color/textPrimary"
+            android:textColor="@color/cf_on_crimson"
             android:textStyle="bold" />
     </LinearLayout>
 </ScrollView>

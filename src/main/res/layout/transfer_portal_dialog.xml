@@ -1,57 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Transfer portal shell: header card (pill, title, subtitle, mode + position spinners),
+     status row (count in mono), registry list / summary card, secondary close.
+     ids bound by TransferDialogController. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_dialog_surface"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:paddingStart="@dimen/cf_space_lg"
+    android:paddingTop="@dimen/cf_space_lg"
+    android:paddingEnd="@dimen/cf_space_lg"
+    android:paddingBottom="@dimen/cf_space_lg">
 
     <!-- Header Panel -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
         android:background="@drawable/bg_dialog_section"
         android:orientation="vertical"
-        android:padding="14dp">
+        android:paddingStart="@dimen/cf_card_padding_h"
+        android:paddingTop="@dimen/cf_card_padding_v"
+        android:paddingEnd="@dimen/cf_card_padding_h"
+        android:paddingBottom="@dimen/cf_card_padding_v">
+
+        <TextView
+            style="@style/Widget.Cfhc.Pill.Emerald"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dlg_pill_portal" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_sm"
             android:text="@string/transfer_portal_title"
-            android:textColor="@color/textPrimary"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Display" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="2dp"
             android:text="@string/transfer_portal_subtitle"
-            android:textColor="@color/textSecondary"
-            android:textSize="12sp" />
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" />
+
+        <TextView
+            style="@style/Widget.Cfhc.CardTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_md"
+            android:labelFor="@+id/spinnerTransferMode"
+            android:text="@string/dlg_portal_mode" />
 
         <!-- Mode Selector Spinner -->
         <Spinner
             android:id="@+id/spinnerTransferMode"
+            style="@style/Widget.Cfhc.Spinner"
             android:layout_width="match_parent"
             android:layout_height="44dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_mobile_chip"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:popupBackground="@color/surfacePrimary" />
+            android:layout_marginTop="@dimen/cf_space_xs" />
 
         <!-- Position Filter (visible only in Registry mode) -->
         <Spinner
             android:id="@+id/spinnerTransferPos"
+            style="@style/Widget.Cfhc.Spinner"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginTop="8dp"
-            android:background="@drawable/bg_mobile_chip"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:popupBackground="@color/surfacePrimary" />
+            android:layout_height="44dp"
+            android:layout_marginTop="@dimen/cf_space_sm" />
     </LinearLayout>
 
     <!-- Registry Status / Summary Header -->
@@ -59,20 +74,20 @@
         android:id="@+id/layoutTransferStatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="6dp"
+        android:layout_marginTop="@dimen/cf_space_sm"
+        android:layout_marginBottom="@dimen/cf_space_xs"
         android:gravity="center_vertical"
+        android:minHeight="28dp"
         android:orientation="horizontal"
-        android:paddingStart="4dp"
-        android:paddingEnd="4dp">
+        android:paddingStart="@dimen/cf_space_xs"
+        android:paddingEnd="@dimen/cf_space_xs">
 
         <TextView
             android:id="@+id/textTransferCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0 transfers in portal"
-            android:textColor="@color/accentGold"
-            android:textSize="12sp"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatAccent"
+            tools:text="24 transfers in portal" />
 
         <Space
             android:layout_width="0dp"
@@ -84,8 +99,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/player_search_tap_hint"
-            android:textColor="@color/textMuted"
-            android:textSize="11sp" />
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Micro" />
     </LinearLayout>
 
     <!-- Registry List Container -->
@@ -99,8 +113,10 @@
             android:id="@+id/listTransferPlayers"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:cacheColorHint="@android:color/transparent"
             android:divider="@android:color/transparent"
-            android:dividerHeight="6dp"
+            android:dividerHeight="@dimen/cf_space_sm"
+            android:listSelector="@drawable/bg_cf_list_selector"
             android:scrollbarStyle="insideInset" />
 
         <TextView
@@ -108,10 +124,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:background="@drawable/bg_dialog_section"
             android:gravity="center"
-            android:text="No transfers currently in the portal."
-            android:textColor="@color/textSecondary"
-            android:textSize="14sp"
+            android:padding="@dimen/cf_space_lg"
+            android:text="@string/dlg_portal_empty"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
             android:visibility="gone" />
     </FrameLayout>
 
@@ -122,7 +139,10 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:background="@drawable/bg_dialog_section"
-        android:padding="12dp"
+        android:paddingStart="@dimen/cf_card_padding_h"
+        android:paddingTop="@dimen/cf_card_padding_v"
+        android:paddingEnd="@dimen/cf_card_padding_h"
+        android:paddingBottom="@dimen/cf_card_padding_v"
         android:visibility="gone">
 
         <TextView
@@ -130,8 +150,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:lineSpacingExtra="3dp"
-            android:textColor="@color/textPrimary"
-            android:textSize="13sp" />
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
+            android:textColor="@color/cf_text_primary"
+            tools:text="Program summary" />
     </ScrollView>
 
     <!-- Close Button -->
@@ -139,10 +160,12 @@
         android:id="@+id/buttonCloseTransfer"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/cf_space_sm"
         android:background="@drawable/bg_action_secondary"
-        android:text="Close"
-        android:textColor="@color/textPrimary"
-        android:textSize="14sp"
+        android:fontFamily="@font/inter"
+        android:text="@string/dlg_close"
+        android:textAllCaps="false"
+        android:textColor="@color/cf_text_primary"
+        android:textSize="@dimen/cf_text_body"
         android:textStyle="bold" />
 </LinearLayout>

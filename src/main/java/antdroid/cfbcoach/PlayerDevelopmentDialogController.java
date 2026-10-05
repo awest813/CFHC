@@ -1,6 +1,9 @@
 package antdroid.cfbcoach;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
+import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -43,6 +46,18 @@ public final class PlayerDevelopmentDialogController {
         String[] attrNames = getAttrNames(p.position);
         String[] tags = Archetypes.getArchetypesForPosition(p.position);
 
+        // Token palette (style_guide: gold = active/selected, mono for every number).
+        final int colorActive = ContextCompat.getColor(activity, R.color.cf_gold);
+        final int colorPrimary = ContextCompat.getColor(activity, R.color.cf_text_primary);
+        final int colorSecondary = ContextCompat.getColor(activity, R.color.cf_text_secondary);
+        final int colorMuted = ContextCompat.getColor(activity, R.color.cf_text_muted);
+        final Typeface mono = ResourcesCompat.getFont(activity, R.font.jetbrains_mono);
+        final Resources res = activity.getResources();
+        final int padH = res.getDimensionPixelSize(R.dimen.cf_card_padding_h);
+        final int padV = res.getDimensionPixelSize(R.dimen.cf_card_padding_v);
+        final int gap = res.getDimensionPixelSize(R.dimen.cf_space_sm);
+        final int gapXs = res.getDimensionPixelSize(R.dimen.cf_space_xs);
+
         for (int i = 0; i < tags.length; i++) {
             String tag = tags[i];
             double[] mults = Archetypes.getMultipliers(p.position, tag);
@@ -51,19 +66,19 @@ public final class PlayerDevelopmentDialogController {
 
             LinearLayout rowLayout = new LinearLayout(activity);
             rowLayout.setOrientation(LinearLayout.VERTICAL);
-            rowLayout.setPadding(16, 14, 16, 14);
-            rowLayout.setBackgroundResource(R.drawable.bg_dialog_section);
+            rowLayout.setPadding(padH, padV, padH, padV);
+            rowLayout.setBackgroundResource(isActive ? R.drawable.bg_cf_card_accent : R.drawable.bg_cf_card_canvas);
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT);
-            lp.setMargins(0, 0, 0, 8);
+            lp.setMargins(0, 0, 0, gap);
             rowLayout.setLayoutParams(lp);
 
             String displayName = Archetypes.displayName(tag);
             TextView nameView = new TextView(activity);
             nameView.setText(displayName + (isActive ? "  \u2713 Active" : ""));
-            nameView.setTextColor(isActive ? 0xFFF4C95D : 0xFFF5F7FA);
-            nameView.setTextSize(15);
+            nameView.setTextColor(isActive ? colorActive : colorPrimary);
+            nameView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 15);
             nameView.setTypeface(nameView.getTypeface(), Typeface.BOLD);
             rowLayout.addView(nameView);
 
@@ -74,9 +89,10 @@ public final class PlayerDevelopmentDialogController {
             }
             TextView multView = new TextView(activity);
             multView.setText(multLine.toString());
-            multView.setTextColor(0xFFB7C6D1);
-            multView.setTextSize(12);
-            multView.setPadding(0, 6, 0, 0);
+            multView.setTextColor(colorSecondary);
+            multView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 12);
+            if (mono != null) multView.setTypeface(mono);
+            multView.setPadding(0, gap, 0, 0);
             rowLayout.addView(multView);
 
             StringBuilder capLine = new StringBuilder("Caps: ");
@@ -86,9 +102,10 @@ public final class PlayerDevelopmentDialogController {
             }
             TextView capView = new TextView(activity);
             capView.setText(capLine.toString());
-            capView.setTextColor(0xFF8EA3B3);
-            capView.setTextSize(11);
-            capView.setPadding(0, 2, 0, 0);
+            capView.setTextColor(colorMuted);
+            capView.setTextSize(android.util.TypedValue.COMPLEX_UNIT_SP, 11);
+            if (mono != null) capView.setTypeface(mono);
+            capView.setPadding(0, gapXs, 0, 0);
             rowLayout.addView(capView);
 
             if (!isActive) {

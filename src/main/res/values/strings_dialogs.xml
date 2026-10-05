@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dialog shells (custom AlertDialog content views). Section labels, pills and
+     accessibility text only; live data arrives from the controllers at runtime. -->
+<resources>
+    <!-- Shared chrome -->
+    <string name="dlg_close">Close</string>
+    <string name="dlg_cancel">Cancel</string>
+    <string name="dlg_score_separator">–</string>
+    <string name="dlg_pill_live">Box Score</string>
+    <string name="dlg_pill_profile">Player File</string>
+    <string name="dlg_pill_staff">Staff File</string>
+    <string name="dlg_pill_front_office">Front Office</string>
+    <string name="dlg_pill_portal">Portal</string>
+    <string name="dlg_pill_postseason">Postseason</string>
+    <string name="dlg_pill_scout">Scouting</string>
+    <string name="dlg_pill_depth">Depth Chart</string>
+    <string name="dlg_pill_program">Program</string>
+    <string name="dlg_pill_search">League Wide</string>
+    <string name="dlg_pill_editor">Beta</string>
+    <string name="dlg_pill_plan">Development</string>
+
+    <!-- Box score -->
+    <string name="dlg_box_view">View</string>
+    <string name="dlg_box_scoring">Scoring by quarter</string>
+    <string name="dlg_box_summary">Game summary</string>
+    <string name="dlg_box_play_log">Play by play</string>
+    <string name="dlg_box_col_team">Team</string>
+    <string name="dlg_box_col_q1">1</string>
+    <string name="dlg_box_col_q2">2</string>
+    <string name="dlg_box_col_q3">3</string>
+    <string name="dlg_box_col_q4">4</string>
+    <string name="dlg_box_col_ot">OT</string>
+
+    <!-- Player / coach profile -->
+    <string name="dlg_cd_player_avatar">Player sprite</string>
+    <string name="dlg_cd_coach_avatar">Head coach sprite</string>
+    <string name="dlg_cd_trophy">Championship trophy</string>
+    <string name="dlg_profile_overall">Overall</string>
+    <string name="dlg_profile_intangibles">Intangibles</string>
+    <string name="dlg_profile_status">Status</string>
+    <string name="dlg_profile_ratings">Position ratings</string>
+    <string name="dlg_profile_career">Career statistics</string>
+    <string name="dlg_profile_featured">Featured numbers</string>
+    <string name="dlg_profile_development">Development plan</string>
+    <string name="dlg_coach_record">Career record</string>
+    <string name="dlg_coach_contract">Contract &amp; status</string>
+    <string name="dlg_coach_ratings">Coaching ratings</string>
+    <string name="dlg_coach_overall">Overall rating</string>
+
+    <!-- Settings -->
+    <string name="dlg_settings_section_sound">Sound</string>
+    <string name="dlg_settings_music">Background music</string>
+    <string name="dlg_settings_section_program">Your program</string>
+    <string name="dlg_settings_practice_focus">Practice focus</string>
+    <string name="dlg_settings_position_group">Position group focus</string>
+    <string name="dlg_settings_intensity">Practice intensity</string>
+    <string name="dlg_settings_section_tools">League tools</string>
+    <string name="dlg_settings_game_editor">Game Editor (Beta)</string>
+    <string name="dlg_settings_fix_bowls">Fix Bowl Names</string>
+    <string name="dlg_settings_convert_pro_rel">Convert to Pro-Rel</string>
+    <string name="dlg_settings_resign">Resign from Job</string>
+
+    <!-- Team strategy -->
+    <string name="dlg_strategy_identity">Program identity</string>
+    <string name="dlg_strategy_identity_body">Set the foundation for how your team wants to attack and defend. These schemes shape your weekly gameplan.</string>
+    <string name="dlg_strategy_offense">Offensive identity</string>
+    <string name="dlg_strategy_defense">Defensive identity</string>
+
+    <!-- Transfer portal / player search -->
+    <string name="dlg_portal_mode">Mode</string>
+    <string name="dlg_portal_empty">No transfers currently in the portal.</string>
+    <string name="dlg_search_filters">Filters</string>
+
+    <!-- Postseason / archive -->
+    <string name="dlg_bowl_select">Select bracket</string>
+    <string name="dlg_bowl_results">Results</string>
+
+    <!-- Rankings / list shells -->
+    <string name="dlg_rankings_view">View</string>
+
+    <!-- Development plan -->
+    <string name="dlg_plan_current">Current plan</string>
+    <string name="dlg_plan_available">Available plans</string>
+    <string name="dlg_plan_available_body">Select a development plan to change how this player trains and performs.</string>
+
+    <!-- Depth chart -->
+    <string name="dlg_lineup_position">Position</string>
+    <string name="dlg_lineup_format">Format: [Year] OVR/POT (key position ratings)</string>
+    <string name="dlg_lineup_hint">Players higher on the depth chart get more snaps and development chances.</string>
+    <string name="dlg_lineup_save">Save Depth Chart</string>
+
+    <!-- Scouting -->
+    <string name="dlg_scout_matchup">Matchup</string>
+    <string name="dlg_scout_gameplan">Gameplan</string>
+    <string name="dlg_scout_report">Scouting report</string>
+
+    <!-- Coach program -->
+    <string name="dlg_program_overview">Program overview</string>
+    <string name="dlg_program_upgrades">Coaching upgrades</string>
+    <string name="dlg_program_branch">Upgrade branch</string>
+
+    <!-- Editor -->
+    <string name="dlg_editor_target">Target program</string>
+    <string name="dlg_editor_identity">School identity</string>
+</resources>

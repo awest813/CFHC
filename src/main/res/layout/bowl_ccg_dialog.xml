@@ -1,78 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Postseason / archive shell: trophy sprite header with pill + title + subtitle
+     (title/subtitle rebound via PlatformUiHelper.bindArchiveDialogShell), bracket spinner,
+     then the bracket rows in a mono results card (textViewBowlCCGDialog). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_dialog_surface"
-    android:padding="16dp">
+    android:orientation="vertical"
+    android:paddingStart="@dimen/cf_space_lg"
+    android:paddingTop="@dimen/cf_space_lg"
+    android:paddingEnd="@dimen/cf_space_lg"
+    android:paddingBottom="@dimen/cf_space_lg">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
         android:background="@drawable/bg_dialog_section"
-        android:orientation="vertical"
-        android:padding="14dp">
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/cf_card_padding_h"
+        android:paddingTop="@dimen/cf_card_padding_v"
+        android:paddingEnd="@dimen/cf_card_padding_h"
+        android:paddingBottom="@dimen/cf_card_padding_v">
 
-        <TextView
-            android:id="@+id/textArchiveShellLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_mobile_chip"
-            android:paddingStart="10dp"
-            android:paddingTop="5dp"
-            android:paddingEnd="10dp"
-            android:paddingBottom="5dp"
-            android:text="@string/dialog_shell_label"
-            android:textAllCaps="true"
-            android:textColor="@color/textPrimary"
-            android:textSize="10sp"
-            android:textStyle="bold" />
+        <ImageView
+            android:layout_width="@dimen/cf_sprite_avatar_width"
+            android:layout_height="@dimen/cf_sprite_avatar_height"
+            android:background="@drawable/bg_cf_card_canvas"
+            android:contentDescription="@string/dlg_cd_trophy"
+            android:scaleType="fitCenter"
+            android:src="@drawable/sprite_trophy_crystal" />
 
-        <TextView
-            android:id="@+id/textArchiveShellTitle"
-            android:layout_width="match_parent"
+        <LinearLayout
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="@string/dialog_shell_archive_title"
-            android:textColor="@color/textPrimary"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:layout_marginStart="@dimen/cf_space_md"
+            android:layout_weight="1"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/textArchiveShellSubtitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:lineSpacingExtra="2dp"
-            android:text="@string/dialog_shell_archive_subtitle"
-            android:textColor="@color/textSecondary"
-            android:textSize="12sp" />
+            <TextView
+                android:id="@+id/textArchiveShellLabel"
+                style="@style/Widget.Cfhc.Pill.Gold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/dialog_shell_label" />
+
+            <TextView
+                android:id="@+id/textArchiveShellTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/cf_space_xs"
+                android:text="@string/dialog_shell_archive_title"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Display" />
+
+            <TextView
+                android:id="@+id/textArchiveShellSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:lineSpacingExtra="2dp"
+                android:text="@string/dialog_shell_archive_subtitle"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" />
+        </LinearLayout>
     </LinearLayout>
 
-    <Spinner
+    <TextView
+        style="@style/Widget.Cfhc.CardTitle"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:id="@+id/spinnerBowlCCG"
-        android:layout_gravity="center_horizontal"
-        android:background="@drawable/bg_mobile_chip"
-        android:padding="8dp" />
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/cf_space_md"
+        android:labelFor="@+id/spinnerBowlCCG"
+        android:text="@string/dlg_bowl_select" />
 
-    <ScrollView
-        android:layout_width="fill_parent"
+    <Spinner
+        android:id="@+id/spinnerBowlCCG"
+        style="@style/Widget.Cfhc.Spinner"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:layout_marginTop="@dimen/cf_space_xs" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="@dimen/cf_space_sm"
         android:layout_weight="1"
         android:background="@drawable/bg_dialog_section"
-        android:padding="10dp">
+        android:orientation="vertical"
+        android:paddingStart="@dimen/cf_card_padding_h"
+        android:paddingTop="@dimen/cf_card_padding_v"
+        android:paddingEnd="@dimen/cf_card_padding_h"
+        android:paddingBottom="@dimen/cf_card_padding_v">
 
         <TextView
+            style="@style/Widget.Cfhc.CardTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/textViewBowlCCGDialog"
-            android:textColor="@color/textPrimary"
-            android:textSize="13sp" />
-    </ScrollView>
+            android:text="@string/dlg_bowl_results" />
 
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginTop="@dimen/cf_space_sm"
+            android:layout_weight="1"
+            android:scrollbars="vertical">
 
+            <TextView
+                android:id="@+id/textViewBowlCCGDialog"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:lineSpacingExtra="3dp"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
+                android:textColor="@color/cf_text_primary"
+                tools:text="Rose Bowl\n#3 Team A 31 — #6 Team B 27" />
+        </ScrollView>
+    </LinearLayout>
 </LinearLayout>

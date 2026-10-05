@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Team strategy shell: identity header card, then one card per unit with a styled
+     scheme spinner and its description. Spinner/text ids bound by TeamStrategyDialogController. -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/bg_dialog_surface"
@@ -9,98 +12,113 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingStart="@dimen/cf_space_lg"
+        android:paddingTop="@dimen/cf_space_lg"
+        android:paddingEnd="@dimen/cf_space_lg"
+        android:paddingBottom="@dimen/cf_space_lg">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
             android:background="@drawable/bg_dialog_section"
             android:orientation="vertical"
-            android:padding="14dp">
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_card_padding_v">
+
+            <TextView
+                style="@style/Widget.Cfhc.Pill.Emerald"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/dlg_pill_program" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="PROGRAM IDENTITY"
-                android:textColor="@color/accentGold"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:layout_marginTop="@dimen/cf_space_sm"
+                android:text="@string/dlg_strategy_identity"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Display" />
 
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="Set the foundation for how your team wants to attack and defend. These schemes shape your weekly gameplan."
-                android:textColor="@color/textSecondary"
-                android:textSize="13sp" />
+                android:layout_marginTop="@dimen/cf_space_xs"
+                android:lineSpacingExtra="2dp"
+                android:text="@string/dlg_strategy_identity_body"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_sm"
             android:background="@drawable/bg_dialog_section"
             android:orientation="vertical"
-            android:padding="14dp">
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_card_padding_v">
 
             <TextView
+                style="@style/Widget.Cfhc.CardTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="OFFENSIVE IDENTITY"
-                android:textColor="@color/accentGold"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:labelFor="@+id/spinnerOffenseStrategy"
+                android:text="@string/dlg_strategy_offense" />
 
             <Spinner
                 android:id="@+id/spinnerOffenseStrategy"
+                style="@style/Widget.Cfhc.Spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/bg_mobile_chip"
-                android:padding="8dp" />
+                android:layout_marginTop="@dimen/cf_space_sm"
+                android:minHeight="44dp" />
 
             <TextView
                 android:id="@+id/textOffenseStrategy"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="Choose the offensive scheme that best matches the kind of team you want to build."
-                android:textColor="@color/textSecondary"
-                android:textSize="13sp" />
+                android:layout_marginTop="@dimen/cf_space_sm"
+                android:lineSpacingExtra="2dp"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
+                tools:text="Choose the offensive scheme that best matches the kind of team you want to build." />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="@dimen/cf_space_sm"
             android:background="@drawable/bg_dialog_section"
             android:orientation="vertical"
-            android:padding="14dp">
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_card_padding_v">
 
             <TextView
+                style="@style/Widget.Cfhc.CardTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="DEFENSIVE IDENTITY"
-                android:textColor="@color/accentGold"
-                android:textSize="12sp"
-                android:textStyle="bold" />
+                android:labelFor="@+id/spinnerDefenseStrategy"
+                android:text="@string/dlg_strategy_defense" />
 
             <Spinner
                 android:id="@+id/spinnerDefenseStrategy"
+                style="@style/Widget.Cfhc.Spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/bg_mobile_chip"
-                android:padding="8dp" />
+                android:layout_marginTop="@dimen/cf_space_sm"
+                android:minHeight="44dp" />
 
             <TextView
                 android:id="@+id/textDefenseStrategy"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="Choose the defensive scheme that will define your unit in big moments."
-                android:textColor="@color/textSecondary"
-                android:textSize="13sp" />
+                android:layout_marginTop="@dimen/cf_space_sm"
+                android:lineSpacingExtra="2dp"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
+                tools:text="Choose the defensive scheme that will define your unit in big moments." />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

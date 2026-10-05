@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Scouting shell: matchup card (opponent headline + two mono team columns), gameplan card
+     with scheme spinners, scouting-report card. ids bound by GameDialogController.showScout. -->
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/scrollerGameScoutDialog"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,28 +14,56 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:paddingStart="@dimen/cf_space_lg"
+        android:paddingTop="@dimen/cf_space_lg"
+        android:paddingEnd="@dimen/cf_space_lg"
+        android:paddingBottom="@dimen/cf_space_lg">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_dialog_section"
+            android:background="@drawable/bg_cf_card_crimson"
             android:orientation="vertical"
-            android:padding="12dp">
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_card_padding_v">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/Widget.Cfhc.Pill.Crimson"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/dlg_pill_scout" />
+
+                <TextView
+                    style="@style/Widget.Cfhc.CardTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/cf_space_md"
+                    android:layout_weight="1"
+                    android:gravity="end"
+                    android:text="@string/dlg_scout_matchup" />
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/gameScoutDialogLeft"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/cf_space_sm"
                 android:gravity="center"
-                android:text="ha1"
-                android:textColor="@color/accentGold"
-                android:textStyle="bold" />
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title"
+                tools:text="Week 7 vs #12 Opponent" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="@dimen/cf_space_sm"
                 android:orientation="horizontal">
 
                 <TextView
@@ -40,76 +71,105 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="center"
+                    android:gravity="start"
                     android:paddingStart="0dp"
-                    android:paddingEnd="8dp"
-                    android:text="ha3"
-                    android:textColor="@color/textPrimary" />
+                    android:paddingEnd="@dimen/cf_space_sm"
+                    android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
+                    tools:text="Home column" />
 
                 <TextView
                     android:id="@+id/gameScoutDialogRight"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:gravity="center"
-                    android:paddingStart="8dp"
+                    android:gravity="end"
+                    android:paddingStart="@dimen/cf_space_sm"
                     android:paddingEnd="0dp"
-                    android:text="ha3"
-                    android:textColor="@color/textPrimary" />
+                    android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
+                    tools:text="Away column" />
             </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="@dimen/cf_space_sm"
             android:background="@drawable/bg_dialog_section"
             android:orientation="vertical"
-            android:padding="14dp">
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_card_padding_v">
+
+            <TextView
+                style="@style/Widget.Cfhc.CardTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/dlg_scout_gameplan" />
 
             <TextView
                 android:id="@+id/textScoutOffenseStrategy"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Offensive Scheme:"
-                android:textColor="@color/accentGold"
-                android:textStyle="bold" />
+                android:layout_marginTop="@dimen/cf_space_sm"
+                android:labelFor="@+id/spinnerScoutOffenseStrategy"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
+                android:textColor="@color/cf_text_primary"
+                tools:text="Offensive Scheme:" />
 
             <Spinner
                 android:id="@+id/spinnerScoutOffenseStrategy"
+                style="@style/Widget.Cfhc.Spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/bg_mobile_chip"
-                android:padding="8dp" />
+                android:layout_marginTop="@dimen/cf_space_xs"
+                android:minHeight="44dp" />
 
             <TextView
                 android:id="@+id/textScoutDefenseStrategy"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:text="Defensive Scheme:"
-                android:textColor="@color/accentGold"
-                android:textStyle="bold" />
+                android:layout_marginTop="@dimen/cf_space_md"
+                android:labelFor="@+id/spinnerScoutDefenseStrategy"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
+                android:textColor="@color/cf_text_primary"
+                tools:text="Defensive Scheme:" />
 
             <Spinner
                 android:id="@+id/spinnerScoutDefenseStrategy"
+                style="@style/Widget.Cfhc.Spinner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/bg_mobile_chip"
-                android:padding="8dp" />
+                android:layout_marginTop="@dimen/cf_space_xs"
+                android:minHeight="44dp" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/gameScoutDialogBottom"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="@dimen/cf_space_sm"
             android:background="@drawable/bg_dialog_section"
-            android:lineSpacingExtra="2dp"
-            android:padding="12dp"
-            android:text="ha3"
-            android:textColor="@color/textPrimary" />
+            android:orientation="vertical"
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_card_padding_v">
+
+            <TextView
+                style="@style/Widget.Cfhc.CardTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/dlg_scout_report" />
+
+            <TextView
+                android:id="@+id/gameScoutDialogBottom"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/cf_space_sm"
+                android:lineSpacingExtra="2dp"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
+                android:textColor="@color/cf_text_primary"
+                tools:text="Scouting report" />
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

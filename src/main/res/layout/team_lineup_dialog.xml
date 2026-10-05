@@ -1,66 +1,102 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Depth chart shell: position spinner + minimum-players line in a header card, format hint,
+     lineup list card, secondary Save and gold Close. ids bound by DepthChartDialogController. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_dialog_surface"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:paddingStart="@dimen/cf_space_lg"
+    android:paddingTop="@dimen/cf_space_lg"
+    android:paddingEnd="@dimen/cf_space_lg"
+    android:paddingBottom="@dimen/cf_space_lg">
 
-    <Spinner
-        android:id="@+id/spinnerTeamLineupPosition"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_mobile_chip"
-        android:padding="8dp" />
-
-    <TextView
-        android:id="@+id/textMinPlayers"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="Minimum Active Players"
-        android:textAlignment="center"
-        android:textColor="@color/textPrimary"
-        android:textSize="14sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/textViewLineupPositionDescription"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
         android:background="@drawable/bg_dialog_section"
-        android:padding="12dp"
-        android:text="Format: [Year] OVR/POT (key position ratings)"
-        android:textColor="@color/textSecondary"
-        android:textSize="12sp" />
+        android:orientation="vertical"
+        android:paddingStart="@dimen/cf_card_padding_h"
+        android:paddingTop="@dimen/cf_card_padding_v"
+        android:paddingEnd="@dimen/cf_card_padding_h"
+        android:paddingBottom="@dimen/cf_card_padding_v">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/Widget.Cfhc.Pill.Emerald"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/dlg_pill_depth" />
+
+            <TextView
+                style="@style/Widget.Cfhc.CardTitle"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/cf_space_md"
+                android:layout_weight="1"
+                android:gravity="end"
+                android:labelFor="@+id/spinnerTeamLineupPosition"
+                android:text="@string/dlg_lineup_position" />
+        </LinearLayout>
+
+        <Spinner
+            android:id="@+id/spinnerTeamLineupPosition"
+            style="@style/Widget.Cfhc.Spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_sm"
+            android:minHeight="44dp" />
+
+        <TextView
+            android:id="@+id/textMinPlayers"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_sm"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
+            android:textColor="@color/cf_gold"
+            tools:text="Minimum Active Players: 2" />
+
+        <TextView
+            android:id="@+id/textViewLineupPositionDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_xs"
+            android:text="@string/dlg_lineup_format"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" />
+    </LinearLayout>
 
     <ListView
         android:id="@+id/listViewTeamLineup"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="@dimen/cf_space_sm"
         android:layout_weight="1"
         android:background="@drawable/bg_dialog_section"
         android:cacheColorHint="@android:color/transparent"
         android:divider="@android:color/transparent"
-        android:dividerHeight="8dp"
-        android:listSelector="@android:color/transparent"
-        android:padding="8dp" />
+        android:dividerHeight="@dimen/cf_space_sm"
+        android:listSelector="@drawable/bg_cf_list_selector"
+        android:padding="@dimen/cf_space_sm" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="Players higher on the depth chart get more snaps and development chances."
-        android:textAlignment="center"
-        android:textColor="@color/textMuted"
-        android:textSize="12sp" />
+        android:layout_marginTop="@dimen/cf_space_sm"
+        android:gravity="center"
+        android:text="@string/dlg_lineup_hint"
+        android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption"
+        android:textColor="@color/cf_text_muted" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="@dimen/cf_space_md"
         android:gravity="center"
         android:orientation="horizontal">
 
@@ -68,24 +104,26 @@
             android:id="@+id/buttonSaveLineups"
             android:layout_width="0dp"
             android:layout_height="48dp"
-            android:layout_marginEnd="6dp"
+            android:layout_marginEnd="@dimen/cf_space_xs"
             android:layout_weight="1"
             android:background="@drawable/bg_action_secondary"
-            android:text="Save Depth Chart"
+            android:fontFamily="@font/inter"
+            android:text="@string/dlg_lineup_save"
             android:textAllCaps="false"
-            android:textColor="@color/textPrimary"
+            android:textColor="@color/cf_text_primary"
             android:textStyle="bold" />
 
         <Button
             android:id="@+id/buttonDoneWithLineups"
             android:layout_width="0dp"
             android:layout_height="48dp"
-            android:layout_marginStart="6dp"
+            android:layout_marginStart="@dimen/cf_space_xs"
             android:layout_weight="1"
             android:background="@drawable/bg_action_primary"
-            android:text="Close"
+            android:fontFamily="@font/inter"
+            android:text="@string/dlg_close"
             android:textAllCaps="false"
-            android:textColor="@color/colorPrimaryDark"
+            android:textColor="@color/cf_on_gold"
             android:textStyle="bold" />
     </LinearLayout>
 </LinearLayout>

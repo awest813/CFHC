@@ -1,125 +1,142 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Player search shell: header card (pill, title, subtitle, bg_cf_input search field,
+     filter spinners), result status row (count in mono), results list, secondary close.
+     ids bound by PlayerSearchDialogController. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_dialog_surface"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:paddingStart="@dimen/cf_space_lg"
+    android:paddingTop="@dimen/cf_space_lg"
+    android:paddingEnd="@dimen/cf_space_lg"
+    android:paddingBottom="@dimen/cf_space_lg">
 
     <!-- Header Panel -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
         android:background="@drawable/bg_dialog_section"
         android:orientation="vertical"
-        android:padding="14dp">
+        android:paddingStart="@dimen/cf_card_padding_h"
+        android:paddingTop="@dimen/cf_card_padding_v"
+        android:paddingEnd="@dimen/cf_card_padding_h"
+        android:paddingBottom="@dimen/cf_card_padding_v">
+
+        <TextView
+            style="@style/Widget.Cfhc.Pill.Emerald"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/dlg_pill_search" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_sm"
             android:text="@string/player_search_title"
-            android:textColor="@color/textPrimary"
-            android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Display" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="2dp"
             android:text="@string/player_search_subtitle"
-            android:textColor="@color/textSecondary"
-            android:textSize="12sp" />
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" />
 
         <!-- Search Bar -->
         <EditText
             android:id="@+id/editPlayerSearchName"
             android:layout_width="match_parent"
-            android:layout_height="46dp"
-            android:layout_marginTop="10dp"
-            android:background="@drawable/bg_mobile_chip"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_md"
+            android:background="@drawable/bg_cf_input"
+            android:fontFamily="@font/inter"
             android:hint="@string/player_search_hint"
             android:imeOptions="actionDone"
+            android:importantForAutofill="no"
             android:inputType="textPersonName"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
-            android:textColor="@color/textPrimary"
-            android:textColorHint="@color/textMuted"
-            android:textSize="14sp" />
+            android:minHeight="44dp"
+            android:paddingStart="@dimen/cf_space_md"
+            android:paddingEnd="@dimen/cf_space_md"
+            android:textColor="@color/cf_text_primary"
+            android:textColorHint="@color/cf_text_muted"
+            android:textSize="@dimen/cf_text_body" />
+
+        <TextView
+            style="@style/Widget.Cfhc.CardTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_md"
+            android:text="@string/dlg_search_filters" />
 
         <!-- Filter Spinners Row 1 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/cf_space_xs"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <Spinner
                 android:id="@+id/spinnerSearchPos"
+                style="@style/Widget.Cfhc.Spinner"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_marginEnd="4dp"
+                android:layout_height="44dp"
+                android:layout_marginEnd="@dimen/cf_space_xs"
                 android:layout_weight="1"
-                android:background="@drawable/bg_mobile_chip"
-                android:paddingStart="6dp"
-                android:paddingEnd="6dp"
-                android:popupBackground="@color/surfacePrimary" />
+                android:paddingStart="@dimen/cf_space_sm"
+                android:paddingEnd="@dimen/cf_space_sm" />
 
             <Spinner
                 android:id="@+id/spinnerSearchClass"
+                style="@style/Widget.Cfhc.Spinner"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="4dp"
-                android:layout_marginEnd="4dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="@dimen/cf_space_xs"
+                android:layout_marginEnd="@dimen/cf_space_xs"
                 android:layout_weight="1"
-                android:background="@drawable/bg_mobile_chip"
-                android:paddingStart="6dp"
-                android:paddingEnd="6dp"
-                android:popupBackground="@color/surfacePrimary" />
+                android:paddingStart="@dimen/cf_space_sm"
+                android:paddingEnd="@dimen/cf_space_sm" />
 
             <Spinner
                 android:id="@+id/spinnerSearchOvr"
+                style="@style/Widget.Cfhc.Spinner"
                 android:layout_width="0dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="4dp"
+                android:layout_height="44dp"
+                android:layout_marginStart="@dimen/cf_space_xs"
                 android:layout_weight="1"
-                android:background="@drawable/bg_mobile_chip"
-                android:paddingStart="6dp"
-                android:paddingEnd="6dp"
-                android:popupBackground="@color/surfacePrimary" />
+                android:paddingStart="@dimen/cf_space_sm"
+                android:paddingEnd="@dimen/cf_space_sm" />
         </LinearLayout>
 
         <!-- Team Filter Spinner -->
         <Spinner
             android:id="@+id/spinnerSearchTeam"
+            style="@style/Widget.Cfhc.Spinner"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:layout_marginTop="6dp"
-            android:background="@drawable/bg_mobile_chip"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:popupBackground="@color/surfacePrimary" />
+            android:layout_height="44dp"
+            android:layout_marginTop="@dimen/cf_space_sm" />
     </LinearLayout>
 
     <!-- Results Status Bar -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="6dp"
+        android:layout_marginTop="@dimen/cf_space_sm"
+        android:layout_marginBottom="@dimen/cf_space_xs"
         android:gravity="center_vertical"
+        android:minHeight="28dp"
         android:orientation="horizontal"
-        android:paddingStart="4dp"
-        android:paddingEnd="4dp">
+        android:paddingStart="@dimen/cf_space_xs"
+        android:paddingEnd="@dimen/cf_space_xs">
 
         <TextView
             android:id="@+id/textSearchResultCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0 players found"
-            android:textColor="@color/accentGold"
-            android:textSize="12sp"
-            android:textStyle="bold" />
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatAccent"
+            tools:text="128 players found" />
 
         <Space
             android:layout_width="0dp"
@@ -130,8 +147,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/player_search_tap_hint"
-            android:textColor="@color/textMuted"
-            android:textSize="11sp" />
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Micro" />
     </LinearLayout>
 
     <!-- Results List & Empty State -->
@@ -144,8 +160,10 @@
             android:id="@+id/listSearchResults"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:cacheColorHint="@android:color/transparent"
             android:divider="@android:color/transparent"
-            android:dividerHeight="6dp"
+            android:dividerHeight="@dimen/cf_space_sm"
+            android:listSelector="@drawable/bg_cf_list_selector"
             android:scrollbarStyle="insideInset" />
 
         <TextView
@@ -153,10 +171,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:background="@drawable/bg_dialog_section"
             android:gravity="center"
+            android:padding="@dimen/cf_space_lg"
             android:text="@string/player_search_no_results"
-            android:textColor="@color/textSecondary"
-            android:textSize="14sp"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
             android:visibility="gone" />
     </FrameLayout>
 
@@ -165,10 +184,12 @@
         android:id="@+id/buttonCloseSearch"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/cf_space_sm"
         android:background="@drawable/bg_action_secondary"
-        android:text="Close"
-        android:textColor="@color/textPrimary"
-        android:textSize="14sp"
+        android:fontFamily="@font/inter"
+        android:text="@string/dlg_close"
+        android:textAllCaps="false"
+        android:textColor="@color/cf_text_primary"
+        android:textSize="@dimen/cf_text_body"
         android:textStyle="bold" />
 </LinearLayout>
