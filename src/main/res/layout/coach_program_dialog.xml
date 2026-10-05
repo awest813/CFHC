@@ -106,7 +106,8 @@
             <Button
                 android:id="@+id/buttonCoachSkillUpgrade"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
                 android:layout_marginTop="@dimen/cf_space_md"
                 android:background="@drawable/bg_action_primary"
                 android:fontFamily="@font/inter"
@@ -128,7 +129,8 @@
         <Button
             android:id="@+id/buttonCoachProgramClose"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="wrap_content"
+            android:minHeight="48dp"
             android:layout_marginTop="@dimen/cf_space_md"
             android:background="@drawable/bg_action_secondary"
             android:fontFamily="@font/inter"

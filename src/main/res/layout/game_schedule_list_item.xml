@@ -28,7 +28,8 @@
     <Button
         android:id="@+id/gameScheduleButtonList"
         android:layout_width="0dp"
-        android:layout_height="48dp"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:layout_marginStart="@dimen/cf_space_xs"
         android:layout_marginEnd="@dimen/cf_space_xs"
         android:layout_weight="1.4"
@@ -48,7 +49,8 @@
     <Button
         android:id="@+id/gameScheduleRight"
         android:layout_width="0dp"
-        android:layout_height="48dp"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:layout_marginStart="@dimen/cf_space_xs"
         android:layout_weight="0.85"
         android:background="@android:color/transparent"

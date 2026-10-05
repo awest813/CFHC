@@ -159,7 +159,8 @@
     <Button
         android:id="@+id/buttonCloseTransfer"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:layout_marginTop="@dimen/cf_space_sm"
         android:background="@drawable/bg_action_secondary"
         android:fontFamily="@font/inter"

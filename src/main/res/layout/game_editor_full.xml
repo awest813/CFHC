@@ -158,7 +158,8 @@
             <Button
                 android:id="@+id/buttonCancelChangeName"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
                 android:layout_marginEnd="@dimen/cf_space_xs"
                 android:layout_weight="1"
                 android:background="@drawable/bg_action_secondary"
@@ -171,7 +172,8 @@
             <Button
                 android:id="@+id/buttonOkChangeName"
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp"
                 android:layout_marginStart="@dimen/cf_space_xs"
                 android:layout_weight="1"
                 android:background="@drawable/bg_action_primary"
