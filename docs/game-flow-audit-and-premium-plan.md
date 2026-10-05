@@ -14,8 +14,8 @@
 ### 1.1 How the loop actually works
 
 `SeasonController.advanceWeek()` (`simulation/SeasonController.java:34`) is the single entry point.
-It dispatches on `League.currentWeek` against `regSeasonWeeks` (R, default 13, documented as
-dynamic), pushes UI prompts through `GameUiBridge`, and mirrors every event into a structured
+It dispatches on `League.currentWeek` against `regSeasonWeeks` (R; 13 when this audit was written, now
+`League.STANDARD_REG_SEASON_WEEKS` = 14 so all 12 scheduled games are played), pushes UI prompts through `GameUiBridge`, and mirrors every event into a structured
 `SeasonAdvanceResult`. `SeasonFlowOrder` (`simulation/SeasonFlowOrder.java`) is the canonical week
 map. Callers: Android `MainActivity.simulateWeek()`
 (`antdroid/cfbcoach/MainActivity.java:1254`), desktop `LeagueHomeView.playWeek()`

@@ -49,11 +49,11 @@ public class NextGameMatchupCard extends CustomCardPanel {
         Team awayTeam = opp;
 
         String homeName = homeTeam != null ? homeTeam.getName().toUpperCase() : "\u2014";
-        String homeMascot = homeTeam != null && homeTeam.nickname != null ? homeTeam.nickname.toUpperCase() : "";
+        String homeMascot = mascotLine(homeTeam);
         String homeRecord = homeTeam != null ? homeTeam.getWins() + "-" + homeTeam.getLosses() : "\u2014";
 
         String awayName = awayTeam != null ? awayTeam.getName().toUpperCase() : "TBD";
-        String awayMascot = awayTeam != null && awayTeam.nickname != null ? awayTeam.nickname.toUpperCase() : "";
+        String awayMascot = mascotLine(awayTeam);
         String awayRecord = awayTeam != null ? awayTeam.getWins() + "-" + awayTeam.getLosses() : "\u2014";
         String atBadge = awayTeam == null ? "\u2014" : (userIsHome ? "VS" : "AT");
 
@@ -208,5 +208,12 @@ public class NextGameMatchupCard extends CustomCardPanel {
 
         body.add(details, BorderLayout.SOUTH);
         content.add(body, BorderLayout.CENTER);
+    }
+
+    /** Nickname, or the conference for teams without one (FCS opponents), so the line is never blank. */
+    private static String mascotLine(Team t) {
+        if (t == null) return "";
+        if (t.nickname != null && !t.nickname.isBlank()) return t.nickname.toUpperCase();
+        return t.conference != null ? t.conference.toUpperCase() : "";
     }
 }

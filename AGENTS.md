@@ -25,10 +25,11 @@ Standard commands live in `README.md` and `build.gradle`; this section only cove
   For headless work use the jar CLI: `help`, `inspect <save>`, and especially `stability`
   (runs a new game + 3 full seasons headlessly — good end-to-end sim smoke test).
 
-### Known pre-existing issues (NOT environment problems)
-- `./gradlew test` / `:app:testDebugUnitTest` **fails to compile** on `master`: desktop-only Swing tests under
-  `src/test/java/desktop/**` (e.g. `PlayerSearchPanelTest`) are pulled into the Android `test` source set, which
-  excludes desktop classes and has no JDK Swing. This also fails on CI's `android` job. Run engine unit tests via
-  the `desktop-standalone` gate instead (that path compiles/runs the shared engine + desktop tests correctly).
-- `simulation.GameBoxScoreTest.boxScore_overtimeScoreIsRecorded` is **flaky** (unseeded random game sim; a team can
-  legitimately score 0 in OT). Re-run the test class if it fails in isolation.
+### Notes
+- The Android `test` source set excludes `src/test/java/desktop/**` (Swing tests run only through the
+  `desktop-standalone` gate), so `./gradlew test` / `:app:testDebugUnitTest` compile engine tests only.
+- The regular season is 12 games over `League.STANDARD_REG_SEASON_WEEKS` (14) weeks: week 0 preseason, weeks 1-12
+  games, week 13 conference championships. Week math goes through `SeasonFlowOrder`; play-button text comes from
+  `SeasonPresentation.getPlayWeekLabel`. Saves store the season length in `L:` header field 8; saves without it
+  load as the legacy 13-week calendar and switch to 14 weeks at the next season rollover.
+- Without the Android SDK, `python3 scripts/verify_android_res.py` checks resources and every `R.*` reference.

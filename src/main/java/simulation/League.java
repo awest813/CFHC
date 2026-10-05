@@ -3016,46 +3016,46 @@ public class League {
         if (currentWeek < 5 || currentWeek > Math.min(11, regSeasonWeeks - 2)) return;
         if (QB.isEmpty() || RB.isEmpty() || WR.isEmpty() || DL.isEmpty() || LB.isEmpty() || CB.isEmpty() || S.isEmpty()) return;
         if (currentWeek == 5) {
-            newsStories.get(currentWeek + 1).add("Player Spotlight>" + S.get(0).getYrStr() + " safety, " + S.get(0).name + ", has been cleaning up in the back this year helping " + S.get(0).team.getName() +
-                    " to a record of " + S.get(0).team.strTeamRecord() + ". The safety has made " + S.get(0).getTackles() + " tackles and sacked the QB " + S.get(0).getSacks() + " times this year. In coverage, he's recovered " +
-                    S.get(0).getFumblesRec() + " fumbles and intercepted opposing QBs " + S.get(0).getInterceptions() + " times this year. Look for him to be in the year end running for Player of the Year.");
+            newsStories.get(currentWeek + 1).add("Player Spotlight>" + S.get(0).getYrStr() + " safety, " + S.get(0).name + ", has been cleaning up in the back this year, helping " + S.get(0).team.getName() +
+                    " to " + AwardText.recordOf(S.get(0).team) + ". The safety has made " + S.get(0).getTackles() + " tackles and sacked the QB " + AwardText.times(S.get(0).getSacks()) + " this year. In coverage, he's recovered " +
+                    AwardText.count(S.get(0).getFumblesRec(), "fumble") + " and intercepted opposing QBs " + AwardText.times(S.get(0).getInterceptions()) + " this year. Look for him in the year-end running for Player of the Year.");
             newsHeadlines.add("Player Spotlight: " + S.get(0).team.getName() + " " + S.get(0).getYrStr() + " Safety, " + S.get(0).name);
 
         } else if (currentWeek == 6) {
             newsStories.get(currentWeek + 1).add("Player Spotlight>" + QB.get(0).getYrStr() + " quarterback, " + QB.get(0).name + ", is one of the top players at his position in the nation this year. He has led " + QB.get(0).team.getName() +
-                    " to a record of " + QB.get(0).team.strTeamRecord() + ". He has passed for " + QB.get(0).getPassYards() + " yards this season, and thrown " + QB.get(0).getPassTD() + " touchdowns. " +
-                    "He's also carried the ball for " + QB.get(0).getRushYards() + " yards this season. Look for him to be in the year end running for Player of the Year.");
+                    " to " + AwardText.recordOf(QB.get(0).team) + ". He has passed for " + QB.get(0).getPassYards() + " yards this season, and thrown " + AwardText.count(QB.get(0).getPassTD(), "touchdown") + ". " +
+                    "He's also carried the ball for " + QB.get(0).getRushYards() + " yards this season. Look for him in the year-end running for Player of the Year.");
             newsHeadlines.add("Player Spotlight: " + QB.get(0).team.getName() + " " + QB.get(0).getYrStr() + " QB, " + QB.get(0).name);
             
         } else if (currentWeek == 7) {
-            newsStories.get(currentWeek + 1).add("Player Spotlight>" + WR.get(0).getYrStr() + " wide receiver, " + WR.get(0).name + ", has been flying pass defensive coverages this year helping " + WR.get(0).team.getName() +
-                    " to a record of " + WR.get(0).team.strTeamRecord() + ". The receiver has caught " + WR.get(0).getReceptions() + " for " + WR.get(0).getRecYards() + " yards this year. He's found the end zone " + WR.get(0).getRecTDs() +
-                    " times. Look for him to be in the year end running for Player of the Year.");
+            newsStories.get(currentWeek + 1).add("Player Spotlight>" + WR.get(0).getYrStr() + " wide receiver, " + WR.get(0).name + ", has been flying past defensive coverages this year, helping " + WR.get(0).team.getName() +
+                    " to " + AwardText.recordOf(WR.get(0).team) + ". The receiver has caught " + AwardText.count(WR.get(0).getReceptions(), "pass", "passes") + " for " + WR.get(0).getRecYards() + " yards this year. He's found the end zone " + AwardText.times(WR.get(0).getRecTDs()) +
+                    ". Look for him in the year-end running for Player of the Year.");
             newsHeadlines.add("Player Spotlight: " + WR.get(0).team.getName() + " " + WR.get(0).getYrStr() + " WR, " + WR.get(0).name);
             
         } else if (currentWeek == 8) {
-            newsStories.get(currentWeek + 1).add("Player Spotlight>" + LB.get(0).getYrStr() + " linebacker, " + LB.get(0).name + ", has been blowing up offenses this year helping " + LB.get(0).team.getName() +
-                    " to a record of " + LB.get(0).team.strTeamRecord() + ". The linebacker has made " + LB.get(0).getTackles() + " tackles and sacked the QB " + LB.get(0).getSacks() + " times this year. In coverage, he's recovered " +
-                    LB.get(0).getFumblesRec() + " fumbles and intercepted opposing QBs " + LB.get(0).getInterceptions() + " times this year. Look for him to be in the year end running for Player of the Year.");
+            newsStories.get(currentWeek + 1).add("Player Spotlight>" + LB.get(0).getYrStr() + " linebacker, " + LB.get(0).name + ", has been blowing up offenses this year, helping " + LB.get(0).team.getName() +
+                    " to " + AwardText.recordOf(LB.get(0).team) + ". The linebacker has made " + LB.get(0).getTackles() + " tackles and sacked the QB " + AwardText.times(LB.get(0).getSacks()) + " this year. In coverage, he's recovered " +
+                    AwardText.count(LB.get(0).getFumblesRec(), "fumble") + " and intercepted opposing QBs " + AwardText.times(LB.get(0).getInterceptions()) + " this year. Look for him in the year-end running for Player of the Year.");
             newsHeadlines.add("Player Spotlight: " + LB.get(0).team.getName() + " " + LB.get(0).getYrStr() + " LB, " + LB.get(0).name);
 
         } else if (currentWeek == 9) {
-            newsStories.get(currentWeek + 1).add("Player Spotlight>" + DL.get(0).getYrStr() + " defensive lineman, " + DL.get(0).name + ", has been disrupting offensive lines this year helping " + DL.get(0).team.getName() +
-                    " to a record of " + DL.get(0).team.strTeamRecord() + ". The lineman has made " + DL.get(0).getTackles() + " tackles and sacked the QB " + DL.get(0).getSacks() + " times this year.He's also recovered " +
-                    DL.get(0).getFumblesRec() + " fumbles this year. Look for him to be in the year end running for Player of the Year.");
+            newsStories.get(currentWeek + 1).add("Player Spotlight>" + DL.get(0).getYrStr() + " defensive lineman, " + DL.get(0).name + ", has been disrupting offensive lines this year, helping " + DL.get(0).team.getName() +
+                    " to " + AwardText.recordOf(DL.get(0).team) + ". The lineman has made " + DL.get(0).getTackles() + " tackles and sacked the QB " + AwardText.times(DL.get(0).getSacks()) + " this year. He's also recovered " +
+                    AwardText.count(DL.get(0).getFumblesRec(), "fumble") + " this year. Look for him in the year-end running for Player of the Year.");
             newsHeadlines.add("Player Spotlight: " + DL.get(0).team.getName() + " " + DL.get(0).getYrStr() + " Defensive Lineman, " + DL.get(0).name);
 
         } else if (currentWeek == 10) {
             newsStories.get(currentWeek + 1).add("Player Spotlight>" + RB.get(0).getYrStr() + " running back, " + RB.get(0).name + ", has been finding holes in opposing defenses this season for " + RB.get(0).team.getName() +
-                    " as they compiled a record of " + RB.get(0).team.strTeamRecord() + ". The running back has rushed for " + RB.get(0).getRushYards() + " yards and scored " + RB.get(0).getRushTDs() + " times this year. " +
-                    "In the passing game, he's caught " + RB.get(0).getReceptions() + " for " + RB.get(0).getRecYards() + " and scored " + RB.get(0).getRecTDs() + " touchdowns in the air this year. " +
-                    "Look for him to be in the year end running for Player of the Year.");
+                    " as they compiled " + AwardText.recordOf(RB.get(0).team) + ". The running back has rushed for " + RB.get(0).getRushYards() + " yards and scored " + AwardText.times(RB.get(0).getRushTDs()) + " this year. " +
+                    "In the passing game, he's caught " + AwardText.count(RB.get(0).getReceptions(), "pass", "passes") + " for " + RB.get(0).getRecYards() + " yards and " + AwardText.count(RB.get(0).getRecTDs(), "touchdown") + " this year. " +
+                    "Look for him in the year-end running for Player of the Year.");
             newsHeadlines.add("Player Spotlight: " + RB.get(0).team.getName() + " " + RB.get(0).getYrStr() + " RB, " + RB.get(0).name);
 
         } else if (currentWeek == 11) {
-            newsStories.get(currentWeek + 1).add("Player Spotlight>" + CB.get(0).getYrStr() + " cornerback, " + CB.get(0).name + ", has been shutting down opposing receivers this year helping " + CB.get(0).team.getName() +
-                    " to a record of " + CB.get(0).team.strTeamRecord() + ". The corner has made " + CB.get(0).getTackles() + " tackles and sacked the QB " + CB.get(0).getSacks() + " times this year. In coverage, he's recovered " +
-                    CB.get(0).getFumblesRec() + " fumbles and intercepted opposing QBs " + CB.get(0).getInterceptions() + " times this year. Look for him to be in the year end running for Player of the Year.");
+            newsStories.get(currentWeek + 1).add("Player Spotlight>" + CB.get(0).getYrStr() + " cornerback, " + CB.get(0).name + ", has been shutting down opposing receivers this year, helping " + CB.get(0).team.getName() +
+                    " to " + AwardText.recordOf(CB.get(0).team) + ". The corner has made " + CB.get(0).getTackles() + " tackles and sacked the QB " + AwardText.times(CB.get(0).getSacks()) + " this year. In coverage, he's recovered " +
+                    AwardText.count(CB.get(0).getFumblesRec(), "fumble") + " and intercepted opposing QBs " + AwardText.times(CB.get(0).getInterceptions()) + " this year. Look for him in the year-end running for Player of the Year.");
             newsHeadlines.add("Player Spotlight: " + CB.get(0).team.getName() + " " + CB.get(0).getYrStr() + " CB, " + CB.get(0).name);
         }
     }
@@ -3450,8 +3450,7 @@ public class League {
             String coachStats = "";
             String coachWinnerStr = "";
             coachWinnerStr = "Congratulations to the Head Coach of the Year, " + coachWinner.name + "!\n\nHe led " + coachWinner.team.getName() +
-                    " to a " + coachWinner.team.getWins() + "-" + coachWinner.team.getLosses() + " record and a #" + coachWinner.team.getRankTeamPollScore() +
-                    " poll ranking.";
+                    AwardText.recordClause(coachWinner.team);
             coachStats = coachWinnerStr + "\n\nFull Results:\n\n" + coachAwardTopList;
 
             newsStories.get(currentWeek + 1).add("Head Coach of the Year Announced>This year's top head coach award was given to " + coachWinner.name +
