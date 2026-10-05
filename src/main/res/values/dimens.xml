@@ -6,7 +6,6 @@
     <dimen name="app_bar_height">180dp</dimen>
     <dimen name="text_margin">16dp</dimen>
     <dimen name="nav_header_vertical_spacing">8dp</dimen>
-    <dimen name="nav_header_height">270dp</dimen>
 
     <!-- ================================================================== -->
     <!-- Broadcast-HUD design tokens (style_guide.md). cf_ = component      -->

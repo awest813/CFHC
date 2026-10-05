@@ -11,7 +11,6 @@
     <string name="dlg_pill_staff">Staff File</string>
     <string name="dlg_pill_front_office">Front Office</string>
     <string name="dlg_pill_portal">Portal</string>
-    <string name="dlg_pill_postseason">Postseason</string>
     <string name="dlg_pill_scout">Scouting</string>
     <string name="dlg_pill_depth">Depth Chart</string>
     <string name="dlg_pill_program">Program</string>
@@ -54,7 +53,6 @@
     <string name="dlg_settings_practice_focus">Practice focus</string>
     <string name="dlg_settings_position_group">Position group focus</string>
     <string name="dlg_settings_intensity">Practice intensity</string>
-    <string name="dlg_settings_section_tools">League tools</string>
     <string name="dlg_settings_game_editor">Game Editor (Beta)</string>
     <string name="dlg_settings_fix_bowls">Fix Bowl Names</string>
     <string name="dlg_settings_convert_pro_rel">Convert to Pro-Rel</string>

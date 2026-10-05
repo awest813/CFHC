@@ -19,7 +19,6 @@
     <string name="action_save_league">Save Dynasty</string>
     <string name="action_export_league">Export Dynasty</string>
     <string name="action_return_main_menu">Exit to Main Menu</string>
-    <string name="action_change_team_name">Program Tools</string>
     <string name="action_coach_program">Coach Program &amp; NIL</string>
     <string name="settings_section_gameplay">Gameplay</string>
     <string name="settings_section_universe_rules">Universe Rules</string>
@@ -41,8 +40,6 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">College Football Head Coach</string>
-    <string name="nav_header_subtitle">CFHC</string>
-    <string name="nav_header_desc">College Football Head Coach (CFHC) logo</string>
     <string name="main_depth_chart">Depth Chart</string>
     <string name="main_play_week">Play Week</string>
     <string name="main_playbook">Schemes</string>
@@ -61,10 +58,6 @@
     <string name="menu_leagueplayerstats">Player Stats</string>
     <string name="menu_leagueawards">Awards</string>
     <string name="menu_postseason">Postseason</string>
-    <string name="main_hub_label">Program Hub</string>
-    <string name="main_hub_title">Run the season from one thumb-friendly dashboard.</string>
-    <string name="main_hub_subtitle">Jump between your team, the schedule, and league intel without leaving the main screen.</string>
-    <string name="main_filter_label">Scout Any Team</string>
     <string name="main_filter_conference">Conference</string>
     <string name="main_filter_team">Team</string>
     <string name="main_a11y_conference_spinner">Conference filter. Double tap to choose a conference.</string>
@@ -73,8 +66,6 @@
     <string name="quick_roster">Roster</string>
     <string name="quick_schedule">Schedule</string>
     <string name="quick_league">League</string>
-    <string name="quick_actions">Quick Actions</string>
-    <string name="quick_browse">Quick Browse</string>
     <string name="editor_panel_title">Program Editor</string>
     <string name="editor_panel_subtitle">Tune school identity details carefully. Changes apply directly to your active universe.</string>
     <string name="editor_warning">Edit carefully. Location codes: 0 West, 1 Mountain, 2 Central, 3 East Coast, 4 South.</string>
@@ -88,8 +79,6 @@
     <string name="editor_prestige">Prestige</string>
     <string name="editor_back">Back</string>
     <string name="editor_save">Save Changes</string>
-    <string name="coach_name_prompt">Choose Coach Name</string>
-    <string name="coach_name_help">Pick the name your career will use across the league.</string>
     <string name="home_logo_desc">College Football Head Coach logo</string>
     <string name="home_hero_eyebrow">College Football - Dynasty Career</string>
     <string name="home_hero_title">Run your program. Own recruiting. Chase the playoff.</string>
@@ -99,10 +88,6 @@
     <string name="home_badge_theme_dark">Dark Theme Active</string>
     <string name="home_switch_theme_light">Switch to Light Theme</string>
     <string name="home_switch_theme_dark">Switch to Dark Theme</string>
-    <string name="home_primary_title">Start Coaching</string>
-    <string name="home_primary_subtitle">Fresh careers or your custom league setup.</string>
-    <string name="home_save_title">Manage Dynasties</string>
-    <string name="home_save_subtitle">Load, import, or delete saves from one hub.</string>
     <string name="home_save_hint_empty">No saves in your slots yet - start a new career or import an exported file.</string>
     <string name="home_welcome_title">Welcome to CFHC</string>
     <string name="home_welcome_message">Here is how to get moving:\n\n- Start New Career - pick a team and begin your dynasty.\n- Load Save - continue when a slot has a game saved.\n- Game Manual - quick in-app topics or the full guide on the web.\n\nYou can change light or dark theme anytime. Good luck this season.</string>
@@ -110,10 +95,6 @@
     <string name="home_manual_dialog_title">Game Manual</string>
     <string name="home_manual_option_in_app">In-app guide (offline)</string>
     <string name="home_manual_option_web">Full manual (website)</string>
-    <string name="home_tools_title">Resources and Tools</string>
-    <string name="home_tools_subtitle">Theme, patch notes, manual (in-app or web), and shortcuts.</string>
-    <string name="home_external_title">Community and Files</string>
-    <string name="home_external_subtitle">Rosters, Reddit, dev updates, and source links.</string>
     <string name="home_button_new">Start New Career</string>
     <string name="home_button_custom">Start Custom Universe</string>
     <string name="home_button_load">Load Save</string>
@@ -131,9 +112,7 @@
     <string name="recruiting_hub_label">Recruiting Command</string>
     <string name="recruiting_hub_subtitle">Track your roster gaps, scout the board, and close recruits without losing your mobile rhythm.</string>
     <string name="recruiting_controls_title">Board Controls</string>
-    <string name="recruiting_controls_subtitle">Choose a recruiting lane, toggle affordability filters, and expand or sort the board from one panel.</string>
     <string name="recruiting_board_title">Recruiting Board</string>
-    <string name="recruiting_board_subtitle">Open a prospect to review traits, cost, and potential before you spend budget.</string>
     <string name="recruiting_button_options">Board Options</string>
     <string name="recruiting_filter_label">Auto-hide unaffordable recruits</string>
     <string name="recruiting_button_roster">Roster Needs</string>
@@ -175,7 +154,6 @@
     <string name="menu_sim_postseason">Sim Through Postseason</string>
     <string name="nav_header_no_team">No team selected</string>
     <string name="action_export_league_locked">Export Dynasty (Preseason Only)</string>
-    <string name="main_filter_hint">Switch between conferences and programs to scout the league without leaving the main dashboard.</string>
     <string name="main_a11y_drawer_menu">Open the Dynasty Hub menu</string>
     <string name="toast_sim_running">Finish the current simulation first.</string>
     <string name="toast_invalid_team_name">That name or abbreviation is already taken or empty. Nothing was changed.</string>
@@ -186,7 +164,6 @@
     <string name="sim_progress_title">Simulating Season</string>
     <string name="sim_progress_week">Playing week %1$d…</string>
     <string name="sim_progress_stop">Stop</string>
-    <string name="quick_team_stats">Team Stats</string>
     <string name="settings_sfx">Sound effects</string>
 
     <!-- Player Search strings -->

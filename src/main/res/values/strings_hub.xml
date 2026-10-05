@@ -3,6 +3,5 @@
 <resources>
     <string name="hub_nav_crest_desc">Program crest</string>
     <string name="hub_quick_stats">Stats</string>
-    <string name="hub_scout_label">Scout</string>
     <string name="hub_a11y_nickname">Team nickname</string>
 </resources>
