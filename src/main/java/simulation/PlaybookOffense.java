@@ -80,7 +80,7 @@ public class PlaybookOffense {
         stratDescription = "Play a run-first spread built around physical blocking, tempo control, and play-action shots.";
         runPref = 2;
         runProtection = 1;
-        runPotential = -1;
+        runPotential = 0;
         runUsage = 1;
         passPref = 1;
         passProtection = 2;
@@ -118,12 +118,12 @@ public class PlaybookOffense {
         stratName = "Zone Read";
         stratDescription = "Feature QB run reads and option looks that stress linebackers and create rushing lanes.";
         runPref = 3;
-        runProtection = -1;
+        runProtection = 0;
         runPotential = 1;
         runUsage = 1;
         passPref = 2;
         passProtection = -1;
-        passPotential = -2;
+        passPotential = -1;
         passUsage = 0;
     }
 
