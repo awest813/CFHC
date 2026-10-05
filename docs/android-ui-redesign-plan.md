@@ -117,7 +117,17 @@ screens + commit. No wave mixes re-skinning with engine changes.
   occurrence-aware matching, captures `adb exec-out screencap` PNGs.
   Baseline committed under `preview/android-snapshots/before/` (22 screens).
 
-### Wave 1 — Component library (~2–3 days)
+### Wave 1 — Component library (~2–3 days) — 🔄 token/theme layer done
+- Done (Oct 2026): legacy semantic colours remapped onto the HUD palette; every
+  `bg_*` drawable rebuilt on tokens; component drawables (`bg_cf_card*`, pills,
+  rating tile, progress, input, selector, divider); `AppTheme` Material3 colour
+  roles → tokens, `ThemeOverlay.Cfhc.Dialog` applied to every AlertDialog (all
+  controllers moved from `android.app.AlertDialog` to the AppCompat class so the
+  theme attribute actually applies), widget styles for buttons/pills/card titles/
+  progress/spinner. Offline gate `scripts/verify_android_res.py` (resource refs,
+  R.id coverage, raw-hex rule). Brief for screen work: `docs/android-ui-brief.md`.
+  Custom `View` subclasses (§4) are still open; the XML+style layer carries the
+  look for now.
 - Build the 8 components in §4 with unit-tested binding logic where practical and a
   `component_gallery.xml` debug screen reachable via the Home "About" tap (a living
   showcase, like `preview/index.html`).

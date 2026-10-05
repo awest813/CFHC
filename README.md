@@ -34,7 +34,7 @@
 | **`:app`** | `com.android.application` — `antdroid.*`, `ui.*`, resources, manifest; depends on `:engine`. |
 | **(root)** | Desktop jar tasks (`desktopJar`, `compileDesktopJava`, `desktopVerify`) and project-wide checks; sources still live under `src/main/java` in the repo root. |
 
-`./gradlew assembleDebug` and `./gradlew test` run the Android app module; the debug APK is under `app/build/outputs/apk/debug/`. Run `./gradlew :app:lintDebug` before large UI changes (CI runs it on the **android** job).
+`./gradlew assembleDebug` and `./gradlew test` run the Android app module; the debug APK is under `app/build/outputs/apk/debug/`. Run `./gradlew :app:lintDebug` before large UI changes (CI runs it on the **android** job). Without an Android SDK, `python3 scripts/verify_android_res.py` is a fast offline gate for resource edits (XML parse, `@type/name` and `R.id` resolution, no raw hex in layouts); the design tokens and component drawables it enforces are documented in [`docs/android-ui-brief.md`](docs/android-ui-brief.md).
 
 ---
 

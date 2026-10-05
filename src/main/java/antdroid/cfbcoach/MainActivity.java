@@ -729,7 +729,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     dialog.dismiss();
                     setupCoachStyle();
                 } else {
-                    Toast.makeText(MainActivity.this, "Invalid name/abbr! Name not changed.",
+                    Toast.makeText(MainActivity.this, R.string.toast_invalid_team_name,
                                 Toast.LENGTH_SHORT).show();
                 }
             }
@@ -1717,7 +1717,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //WORK IN PROGRESS
         if(simLeague.currentWeek < 1) exportSave();
         else {
-            Toast.makeText(MainActivity.this, "Export Function Disabled. Export is only allowed during Preseason.",
+            Toast.makeText(MainActivity.this, R.string.toast_export_preseason_only,
                     Toast.LENGTH_SHORT).show();
         }
     }
@@ -2167,7 +2167,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return CustomUniverseParser.parse(inputStream, conferences, teams, bowls);
             }
         } catch (Exception e) {
-            Toast.makeText(MainActivity.this, "Error! Bad URL or unable to read file.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, R.string.toast_import_unreadable, Toast.LENGTH_SHORT).show();
             throw new IOException("Unable to import custom universe", e);
         }
     }
@@ -2222,7 +2222,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             importCustomData(uri.toString());
         } catch (IOException e) {
             PlatformLog.e("MainActivity", "Import from document failed", e);
-            Toast.makeText(this, "Unable to import file.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.toast_import_failed, Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -2233,7 +2233,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         isExternalStorageReadable();
         isExternalStorageWritable();
         LeagueExportController.exportPrimarySave(getExportSaveDir(), simLeague);
-        Toast.makeText(MainActivity.this, "Exported Save to Storage", Toast.LENGTH_SHORT).show();
+        Toast.makeText(MainActivity.this, R.string.toast_export_done, Toast.LENGTH_SHORT).show();
     }
 
     private File getExportSaveDir() {
