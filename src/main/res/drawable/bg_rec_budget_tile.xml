@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Budget stat tile: canvas inset with a gold border glow for the primary dollar figure. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/cf_canvas" />
+    <corners android:radius="@dimen/cf_radius_md" />
+    <stroke
+        android:width="@dimen/cf_stroke"
+        android:color="@color/cf_gold" />
+</shape>

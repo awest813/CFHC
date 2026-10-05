@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Recruiting board (broadcast-HUD restyle). Legacy recruiting_* strings stay in strings.xml. -->
+<resources>
+    <string name="rec_label_budget">Signing budget</string>
+    <string name="rec_label_board">Board</string>
+    <string name="rec_label_lane">Recruiting lane</string>
+    <string name="rec_label_prospect">Prospect</string>
+    <string name="rec_label_grade">Grade</string>
+    <string name="rec_label_scouting_report">Scouting report</string>
+    <string name="rec_label_measurables">Measurables</string>
+    <string name="rec_label_actions">Actions</string>
+    <string name="rec_cd_prospect_avatar">Prospect avatar</string>
+    <string name="rec_cd_board_list">Recruiting board, grouped by prospect</string>
+</resources>

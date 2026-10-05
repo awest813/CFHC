@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/cf_canvas"
     android:fitsSystemWindows="true"
     tools:context="antdroid.cfbcoach.recruiting.RecruitingActivity">
 
@@ -18,7 +19,7 @@
             android:layout_height="?attr/actionBarSize"
             android:background="@drawable/bg_toolbar"
             app:popupTheme="@style/AppTheme.PopupOverlay"
-            app:titleTextColor="@color/textPrimary" />
+            app:titleTextColor="@color/cf_text_primary" />
 
     </com.google.android.material.appbar.AppBarLayout>
 

@@ -1,72 +1,120 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Expanded recruit card: avatar + scouting report, measurables tile (mono), scout / recruit actions. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="10dp"
-    android:background="@drawable/bg_dialog_section"
+    android:layout_marginBottom="@dimen/cf_space_sm"
+    android:background="@drawable/bg_cf_card"
     android:orientation="vertical"
-    android:padding="14dp">
+    android:paddingStart="@dimen/cf_card_padding_h"
+    android:paddingTop="@dimen/cf_card_padding_v"
+    android:paddingEnd="@dimen/cf_card_padding_h"
+    android:paddingBottom="@dimen/cf_card_padding_v">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:baselineAligned="false"
+        android:orientation="horizontal">
 
-        <TextView
-            android:id="@+id/textRecruitDetails"
+        <ImageView
+            android:layout_width="@dimen/cf_sprite_avatar_width"
+            android:layout_height="@dimen/cf_sprite_avatar_height"
+            android:layout_marginEnd="@dimen/cf_space_md"
+            android:background="@drawable/bg_cf_card_canvas"
+            android:contentDescription="@string/rec_cd_prospect_avatar"
+            android:padding="2dp"
+            android:scaleType="fitCenter"
+            android:src="@drawable/sprite_avatar_qb_green" />
+
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:paddingStart="0dp"
-            android:paddingEnd="12dp"
-            android:textAppearance="@style/TextAppearance.Cfhc.ListRowExpandedPrimary" />
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/textRecruitPotential"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:paddingStart="12dp"
-            android:paddingEnd="0dp"
-            android:textAppearance="@style/TextAppearance.Cfhc.ListRowExpandedSecondary" />
+            <TextView
+                style="@style/Widget.Cfhc.CardTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/rec_label_scouting_report" />
+
+            <TextView
+                android:id="@+id/textRecruitDetails"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:lineSpacingExtra="2dp"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
+                android:textColor="@color/cf_text_primary"
+                tools:text="Marcus Reed  Fr  Ovr: 58 (+9)\nHometown: Dayton, OH" />
+        </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="14dp"
-        android:gravity="end"
+        android:layout_marginTop="@dimen/cf_space_md"
+        android:background="@drawable/bg_cf_card_canvas"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/cf_space_md"
+        android:paddingTop="@dimen/cf_space_sm"
+        android:paddingEnd="@dimen/cf_space_md"
+        android:paddingBottom="@dimen/cf_space_sm">
+
+        <TextView
+            style="@style/Widget.Cfhc.CardTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/rec_label_measurables" />
+
+        <TextView
+            android:id="@+id/textRecruitPotential"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_xs"
+            android:lineSpacingExtra="2dp"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
+            tools:text="Height: 6&apos;2&quot;\nWeight: 205 lbs\nIntelligence: B+\nCharacter: A\nDurability: B" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/cf_space_md"
+        android:baselineAligned="false"
+        android:gravity="end|center_vertical"
         android:orientation="horizontal">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonScoutPlayer"
+            style="@style/Widget.Cfhc.Button.Secondary"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/bg_action_secondary"
+            android:layout_marginEnd="@dimen/cf_space_sm"
             android:ellipsize="end"
-            android:maxLines="2"
-            android:paddingStart="16dp"
-            android:paddingTop="10dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="10dp"
+            android:maxLines="1"
+            android:minHeight="44dp"
             android:text="@string/recruiting_button_scout"
-            android:textAllCaps="false"
-            android:textAppearance="@style/TextAppearance.Cfhc.ButtonCompactSecondary" />
+            android:textSize="@dimen/cf_text_stat"
+            app:insetBottom="0dp"
+            app:insetTop="0dp" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonRecruitPlayer"
+            style="@style/Widget.Cfhc.Button.Emerald"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_action_primary"
             android:ellipsize="end"
-            android:maxLines="2"
-            android:paddingStart="16dp"
-            android:paddingTop="10dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="10dp"
+            android:maxLines="1"
+            android:minHeight="44dp"
             android:text="@string/recruiting_button_recruit_default"
-            android:textAllCaps="false"
-            android:textAppearance="@style/TextAppearance.Cfhc.ButtonCompactPrimary" />
+            android:textSize="@dimen/cf_text_stat"
+            app:insetBottom="0dp"
+            app:insetTop="0dp"
+            tools:text="Recruit: $320" />
     </LinearLayout>
 
 </LinearLayout>

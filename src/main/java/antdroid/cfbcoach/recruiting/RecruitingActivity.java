@@ -430,10 +430,10 @@ public class RecruitingActivity extends AppCompatActivity {
                         null);
             }
             TextView itemL = convertView.findViewById(R.id.textRecruitLeft);
-            itemL.setTypeface(null, Typeface.BOLD);
+            itemL.setTypeface(itemL.getTypeface(), Typeface.BOLD);
             itemL.setText(playerLeft);
             TextView itemR = convertView.findViewById(R.id.textRecruitRight);
-            itemR.setTypeface(null, Typeface.BOLD);
+            itemR.setTypeface(itemR.getTypeface(), Typeface.BOLD);
             itemR.setText(playerRight);
             return convertView;
         }
