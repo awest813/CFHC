@@ -41,11 +41,11 @@ public class PlayerStatsPanel implements LeagueScreen {
 
     @Override
     public JPanel build(LeagueScreenContext ctx) {
-        JPanel panel = new JPanel(new BorderLayout());
+        JPanel panel = new JPanel(new BorderLayout(0, 6));
         DesktopTheme.styleTabRoot(panel);
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JPanel topPanel = new JPanel(new BorderLayout());
+        JPanel topPanel = new JPanel(new BorderLayout(0, 4));
         topPanel.setOpaque(false);
         topPanel.add(DesktopTheme.buildScreenHeader("Player Statistics",
                 "League-wide individual stat leaderboards by category."), BorderLayout.NORTH);
@@ -68,6 +68,7 @@ public class PlayerStatsPanel implements LeagueScreen {
         table.getColumnModel().getColumn(2).setPreferredWidth(100);
         table.getColumnModel().getColumn(3).setPreferredWidth(120);
         StripedRowRenderer.install(table);
+        StripedRowRenderer.setNumericColumns(table, 0, 3);
 
         table.addMouseListener(new MouseAdapter() {
             @Override
@@ -111,6 +112,7 @@ public class PlayerStatsPanel implements LeagueScreen {
                             });
                         }
                     }
+                    StripedRowRenderer.alignDecimals(model, 3);
                 }
             } catch (Exception ex) {
                 PlatformLog.e(TAG, "Error loading player rankings", ex);

@@ -24,7 +24,7 @@ public class NewsPanel implements LeagueScreen {
 
     @Override
     public JPanel build(LeagueScreenContext ctx) {
-        JPanel panel = new JPanel(new BorderLayout());
+        JPanel panel = new JPanel(new BorderLayout(0, 6));
         DesktopTheme.styleTabRoot(panel);
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -37,7 +37,14 @@ public class NewsPanel implements LeagueScreen {
         storyArea.setFont(new Font("SansSerif", Font.PLAIN, 13));
         DesktopTheme.styleTextContent(storyArea);
 
-        JList<String> headlineList = new JList<>(headlineModel);
+        // Track the viewport width so long headlines wrap instead of forcing a
+        // horizontal scrollbar.
+        JList<String> headlineList = new JList<>(headlineModel) {
+            @Override
+            public boolean getScrollableTracksViewportWidth() {
+                return true;
+            }
+        };
         headlineList.setFont(new Font("SansSerif", Font.PLAIN, 13));
         DesktopTheme.styleListShell(headlineList);
         headlineList.setCellRenderer(new javax.swing.DefaultListCellRenderer() {
@@ -47,14 +54,15 @@ public class NewsPanel implements LeagueScreen {
                 JLabel l = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 l.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
                 String fg = isSelected ? "rgb(255,255,255)" : DesktopTheme.cssRgb(DesktopTheme.textPrimary());
-                l.setText("<html><body style='color:" + fg + ";'>"
-                        + DesktopTheme.escapeForHtml(value.toString()) + "</body></html>");
+                int wrapWidth = Math.max(120, list.getWidth() - 24);
+                l.setText("<html><div style='width:" + wrapWidth + "px;color:" + fg + ";'>"
+                        + DesktopTheme.escapeForHtml(value.toString()) + "</div></html>");
                 DesktopTheme.decorateListCellLabel(l, index, isSelected, null);
                 return l;
             }
         });
 
-        JPanel topPanel = new JPanel(new BorderLayout());
+        JPanel topPanel = new JPanel(new BorderLayout(0, 4));
         topPanel.setOpaque(false);
         topPanel.add(DesktopTheme.buildScreenHeader("News", "Review weekly headlines and league storylines."), BorderLayout.NORTH);
 
@@ -121,7 +129,8 @@ public class NewsPanel implements LeagueScreen {
             }
         });
 
-        JScrollPane headScroll = new JScrollPane(headlineList);
+        JScrollPane headScroll = new JScrollPane(headlineList,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         headScroll.setBorder(DesktopTheme.titledBorder("Headlines"));
         headScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
         headScroll.setOpaque(true);
@@ -130,7 +139,29 @@ public class NewsPanel implements LeagueScreen {
         storyScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
         storyScroll.setOpaque(true);
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, headScroll, storyScroll);
-        split.setDividerLocation(320);
+        // ~40% for headlines; the old fixed 320px clipped most headlines.
+        split.setResizeWeight(0.4);
+        split.setDividerLocation(560);
+        split.addComponentListener(new java.awt.event.ComponentAdapter() {
+            private boolean placed;
+
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                if (!placed && split.getWidth() > 0) {
+                    placed = true;
+                    split.setDividerLocation(0.4);
+                }
+            }
+        });
+        // Wrapped rows change height with the width: drop the cached cell
+        // sizes whenever the headlines pane is resized.
+        headScroll.getViewport().addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                headlineList.setFixedCellHeight(10);
+                headlineList.setFixedCellHeight(-1);
+            }
+        });
         split.setOpaque(true);
         split.setBackground(DesktopTheme.windowBackground());
         panel.add(split, BorderLayout.CENTER);

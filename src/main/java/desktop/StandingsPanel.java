@@ -2,13 +2,9 @@ package desktop;
 
 import simulation.Conference;
 import simulation.Team;
-import simulation.TeamColors;
 
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.DefaultListModel;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
@@ -16,16 +12,13 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Font;
-import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 
 public class StandingsPanel implements LeagueScreen {
 
@@ -46,7 +39,7 @@ public class StandingsPanel implements LeagueScreen {
         gridScroll.setOpaque(true);
         splitPane.setRightComponent(gridScroll);
 
-        JPanel wrapper = new JPanel(new BorderLayout());
+        JPanel wrapper = new JPanel(new BorderLayout(0, 10));
         DesktopTheme.styleTabRoot(wrapper);
         wrapper.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         wrapper.add(DesktopTheme.buildScreenHeader("Standings",
@@ -60,50 +53,63 @@ public class StandingsPanel implements LeagueScreen {
         DesktopTheme.styleTabRoot(sidebar);
         sidebar.setBorder(DesktopTheme.titledBorder("Top 25 (Poll)"));
 
-        DefaultListModel<Team> teamModel = new DefaultListModel<>();
+        // A real table (same renderer as every other grid) instead of a JList of
+        // space-padded strings: a proportional font made those columns zig-zag.
+        DefaultTableModel pollModel = new DefaultTableModel(new String[]{"#", "Team", "W-L", "Pres"}, 0) {
+            @Override public boolean isCellEditable(int r, int c) { return false; }
+            @Override public Class<?> getColumnClass(int col) {
+                return switch (col) {
+                    case 0, 3 -> Integer.class;
+                    default -> String.class;
+                };
+            }
+        };
+        List<Team> top = new ArrayList<>();
         ctx.league().getTeamList().stream()
                 .sorted(Comparator.comparingInt(Team::getRankTeamPollScore))
                 .limit(25)
-                .forEach(teamModel::addElement);
+                .forEach(t -> {
+                    top.add(t);
+                    pollModel.addRow(new Object[]{
+                            t.getRankTeamPollScore(),
+                            t.getName(),
+                            t.getWins() + "-" + t.getLosses(),
+                            t.getTeamPrestige()
+                    });
+                });
 
-        JList<Team> teamList = new JList<>(teamModel);
-        teamList.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        DesktopTheme.styleListShell(teamList);
-        teamList.setCellRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                                                          boolean isSelected, boolean cellHasFocus) {
-                Team t = (Team) value;
-                String label = String.format(Locale.ROOT, "#%-3d %-22s (%d-%d)  Pres %d",
-                        t.getRankTeamPollScore(), t.getName(), t.getWins(), t.getLosses(), t.getTeamPrestige());
-                Component c = super.getListCellRendererComponent(list, label, index, isSelected, cellHasFocus);
-                if (!(c instanceof JLabel jl)) {
-                    return c;
-                }
-                jl.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
-                if (isSelected) {
-                    DesktopTheme.decorateListCellLabel(jl, index, true, null);
-                } else if (t == ctx.league().userTeam) {
-                    DesktopTheme.decorateListCellLabel(jl, index, false, DesktopTheme.userTeamRowTint());
-                } else {
-                    DesktopTheme.decorateListCellLabel(jl, index, false, null);
-                }
-                return jl;
-            }
-        });
-        teamList.addMouseListener(new MouseAdapter() {
+        JTable pollTable = new JTable(pollModel);
+        pollTable.setRowHeight(22);
+        pollTable.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        pollTable.setFillsViewportHeight(true);
+        pollTable.setShowVerticalLines(false);
+        pollTable.getTableHeader().setReorderingAllowed(false);
+        pollTable.getColumnModel().getColumn(0).setPreferredWidth(36);
+        pollTable.getColumnModel().getColumn(0).setMaxWidth(44);
+        pollTable.getColumnModel().getColumn(1).setPreferredWidth(170);
+        pollTable.getColumnModel().getColumn(2).setPreferredWidth(52);
+        pollTable.getColumnModel().getColumn(2).setMaxWidth(64);
+        pollTable.getColumnModel().getColumn(3).setPreferredWidth(48);
+        pollTable.getColumnModel().getColumn(3).setMaxWidth(56);
+        StripedRowRenderer.installWithTeamColors(pollTable, ctx.teamMap(), 1);
+        StripedRowRenderer.setNumericColumns(pollTable, 2);
+        Team userTeam = ctx.league().userTeam;
+        StripedRowRenderer.setRowEmphasis(pollTable, modelRow -> top.get(modelRow) == userTeam);
+        pollTable.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    Team sel = teamList.getSelectedValue();
-                    if (sel != null) ctx.nav().openTeamDetail(sel);
+                    int row = pollTable.rowAtPoint(e.getPoint());
+                    if (row >= 0) {
+                        Team t = top.get(pollTable.convertRowIndexToModel(row));
+                        ctx.nav().openTeamDetail(t);
+                    }
                 }
             }
         });
 
-        JScrollPane teamScroll = new JScrollPane(teamList);
-        teamScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
-        teamScroll.setOpaque(true);
+        JScrollPane teamScroll = new JScrollPane(pollTable);
+        DesktopTheme.styleDataTableInScroll(teamScroll, pollTable, "Top 25 poll");
         sidebar.add(teamScroll, BorderLayout.CENTER);
         return sidebar;
     }
@@ -125,7 +131,7 @@ public class StandingsPanel implements LeagueScreen {
         DesktopTheme.styleTabRoot(panel);
         panel.setBorder(BorderFactory.createLineBorder(DesktopTheme.borderSubtle()));
 
-        String headerText = " " + conf.confName;
+        String headerText = conf.confName;
         if (conf.confTV) {
             headerText += "  (" + conf.getTVName() + ")";
         }
@@ -133,7 +139,8 @@ public class StandingsPanel implements LeagueScreen {
         label.setOpaque(true);
         label.setBackground(DesktopTheme.conferenceHeaderBackground());
         label.setForeground(Color.WHITE);
-        label.setFont(new Font("SansSerif", Font.BOLD, 15));
+        label.setFont(new Font("SansSerif", Font.BOLD, 14));
+        label.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
         panel.add(label, BorderLayout.NORTH);
 
         List<Team> sorted = new ArrayList<>(conf.getTeams());
@@ -176,46 +183,11 @@ public class StandingsPanel implements LeagueScreen {
         confTable.getColumnModel().getColumn(3).setPreferredWidth(50);
         confTable.getColumnModel().getColumn(4).setPreferredWidth(40);
 
-        javax.swing.table.TableCellRenderer confRenderer = new javax.swing.table.DefaultTableCellRenderer() {
-            private boolean _selected;
-
-            @Override
-            public Component getTableCellRendererComponent(JTable tbl, Object value,
-                                                           boolean isSelected, boolean hasFocus,
-                                                           int row, int column) {
-                this._selected = isSelected;
-                Component c = super.getTableCellRendererComponent(tbl, value, isSelected, hasFocus, row, column);
-                if (!(c instanceof JLabel jl)) {
-                    return c;
-                }
-                jl.setOpaque(false);
-                jl.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
-                c.setForeground(DesktopTheme.textPrimary());
-                if (isSelected) {
-                    c.setForeground(Color.WHITE);
-                }
-                return c;
-            }
-
-            @Override
-            protected void paintComponent(Graphics g) {
-                String name = getText();
-                if (name != null) {
-                    Team team = ctx.teamMap().get(name);
-                    if (team != null) {
-                        Color accent = TeamColors.primary(team.getAbbr());
-                        if (_selected) {
-                            DesktopTheme.paintTableRowGradient(g, getWidth(), getHeight(), accent, true);
-                        } else {
-                            DesktopTheme.paintTableRowGradient(g, getWidth(), getHeight(), accent, false);
-                        }
-                    }
-                }
-                super.paintComponent(g);
-            }
-        };
-        confTable.setDefaultRenderer(Object.class, confRenderer);
-        confTable.setDefaultRenderer(Integer.class, confRenderer);
+        StripedRowRenderer.installWithTeamColors(confTable, ctx.teamMap(), 1);
+        StripedRowRenderer.setNumericColumns(confTable, 2, 3);
+        Team userTeam = ctx.league().userTeam;
+        StripedRowRenderer.setRowEmphasis(confTable, modelRow -> userTeam != null
+                && userTeam.getName().equals(confModel.getValueAt(modelRow, 1)));
 
         confTable.addMouseListener(new MouseAdapter() {
             @Override

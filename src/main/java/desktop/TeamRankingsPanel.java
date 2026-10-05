@@ -36,11 +36,11 @@ public class TeamRankingsPanel implements LeagueScreen {
 
     @Override
     public JPanel build(LeagueScreenContext ctx) {
-        JPanel panel = new JPanel(new BorderLayout());
+        JPanel panel = new JPanel(new BorderLayout(0, 6));
         DesktopTheme.styleTabRoot(panel);
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JPanel topPanel = new JPanel(new BorderLayout());
+        JPanel topPanel = new JPanel(new BorderLayout(0, 4));
         topPanel.setOpaque(false);
         topPanel.add(DesktopTheme.buildScreenHeader("Team Rankings",
                 "Compare programs by advanced team metrics and sortable categories."), BorderLayout.NORTH);
@@ -62,6 +62,7 @@ public class TeamRankingsPanel implements LeagueScreen {
         table.getColumnModel().getColumn(1).setPreferredWidth(280);
         table.getColumnModel().getColumn(2).setPreferredWidth(120);
         StripedRowRenderer.installWithTeamColors(table, ctx.teamMap(), 1);
+        StripedRowRenderer.setNumericColumns(table, 0, 2);
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
@@ -89,6 +90,7 @@ public class TeamRankingsPanel implements LeagueScreen {
                             model.addRow(new Object[]{parts[0].trim(), parts[1].trim(), parts[2].trim()});
                         }
                     }
+                    StripedRowRenderer.alignDecimals(model, 2);
                 }
             } catch (Exception ex) {
                 PlatformLog.e(TAG, "Error loading team rankings", ex);

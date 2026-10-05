@@ -13,7 +13,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.KeyAdapter;
@@ -43,7 +42,7 @@ public class ScoreboardPanel implements LeagueScreen {
     }
 
     private JPanel buildContent(LeagueScreenContext ctx) {
-        JPanel panel = new JPanel(new BorderLayout());
+        JPanel panel = new JPanel(new BorderLayout(0, 6));
         DesktopTheme.styleTabRoot(panel);
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
@@ -56,26 +55,15 @@ public class ScoreboardPanel implements LeagueScreen {
         table.getColumnModel().getColumn(0).setPreferredWidth(340);
         table.getColumnModel().getColumn(1).setPreferredWidth(140);
         table.getColumnModel().getColumn(2).setPreferredWidth(160);
-        StripedRowRenderer.install(table);
+        StripedRowRenderer.installWithHover(table);
 
+        // Emphasise the user's game with the shared highlight treatment (bold,
+        // user-team tint, accent bar) instead of a one-off renderer.
         final String userTeamName = ctx.league().userTeam != null ? ctx.league().userTeam.getName() : null;
-        final Color userTeamTint = DesktopTheme.userTeamRowTint();
-        table.setDefaultRenderer(Object.class, new javax.swing.table.DefaultTableCellRenderer() {
-            @Override
-            public java.awt.Component getTableCellRendererComponent(JTable t, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
-                java.awt.Component c = super.getTableCellRendererComponent(t, value, isSelected, hasFocus, row, col);
-                if (!isSelected && c instanceof javax.swing.JLabel jl && userTeamName != null && col == 0 && value != null) {
-                    String matchup = value.toString();
-                    if (matchup.contains(userTeamName)) {
-                        c.setBackground(userTeamTint);
-                        jl.setFont(jl.getFont().deriveFont(Font.BOLD));
-                    }
-                }
-                return c;
-            }
-        });
+        StripedRowRenderer.setRowEmphasis(table, modelRow ->
+                isUserGame(String.valueOf(model.getValueAt(modelRow, 0)), userTeamName));
 
-        JPanel topPanel = new JPanel(new BorderLayout());
+        JPanel topPanel = new JPanel(new BorderLayout(0, 6));
         topPanel.setOpaque(false);
         topPanel.add(DesktopTheme.buildScreenHeader("Scoreboard", "Browse completed weeks and open box scores."), BorderLayout.NORTH);
 
@@ -165,6 +153,23 @@ public class ScoreboardPanel implements LeagueScreen {
         scoreHint.setForeground(DesktopTheme.textSecondary());
         panel.add(scoreHint, BorderLayout.SOUTH);
         return panel;
+    }
+
+    /** True when one side of an "Away at Home" matchup is exactly the user's team. */
+    static boolean isUserGame(String matchup, String userTeamName) {
+        if (matchup == null || userTeamName == null || userTeamName.isEmpty()) {
+            return false;
+        }
+        int atIdx = matchup.lastIndexOf(" at ");
+        if (atIdx < 0) {
+            return false;
+        }
+        return userTeamName.equals(stripRank(matchup.substring(0, atIdx)))
+                || userTeamName.equals(stripRank(matchup.substring(atIdx + 4)));
+    }
+
+    private static String stripRank(String side) {
+        return side.replaceAll("^#\\d+\\s*", "").trim();
     }
 
     private static String getWeekType(int week, League league) {
