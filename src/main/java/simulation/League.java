@@ -2376,12 +2376,35 @@ public class League {
         snapshotPollRanks();
         setTeamRanks();
         releaseWeeklyPoll();
+        applyQueuedPostseasonRest();
 
         updateLongestActiveWinStreak();
 
         applyWeeklyEconomyPulse();
 
         currentWeek++;
+    }
+
+    /** Injury rest earned at postseason selection, applied after that week's poll. */
+    private final java.util.Map<Team, Integer> queuedPostseasonRest = new java.util.LinkedHashMap<>();
+
+    /**
+     * Queue rest (injury healing) for a team selected to the playoff or a bowl.
+     * Healing on the spot raised those teams' ratings mid-week, so the poll
+     * released at the end of selection week no longer matched the bracket just
+     * announced (e.g. a "1v4" semifinal shown as #1 vs #2). The rest now lands
+     * after that week's poll is published.
+     */
+    void queuePostseasonRest(Team team, int weeks) {
+        if (team == null || weeks <= 0) return;
+        queuedPostseasonRest.merge(team, weeks, Math::max);
+    }
+
+    private void applyQueuedPostseasonRest() {
+        for (java.util.Map.Entry<Team, Integer> e : queuedPostseasonRest.entrySet()) {
+            e.getKey().healInjury(e.getValue());
+        }
+        queuedPostseasonRest.clear();
     }
 
     /** Copies current poll ranks to prevRank so the weekly release can show movement. */
@@ -5407,18 +5430,50 @@ Then conferences can see if they want to add them to their list if the teams mee
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////
 
+    /** Upper bound on poll re-ranking passes per update (see setTeamRanks). */
+    static final int POLL_RANK_MAX_PASSES = 4;
+
     /**
      * Updates poll scores for each team and updates their ranking.
      */
     public void setTeamRanks() {
         //get team ranks for PPG, YPG, etc
-        for (int i = 0; i < teamList.size(); ++i) {
-            teamList.get(i).updatePollScore();
+        // Poll score includes strength of wins/losses, which reads opponents'
+        // current rank, so one pass ranks against last week's order and the
+        // playoff field could be seeded from a stale top four (e.g. a "1v4"
+        // semifinal that was really #3 v #4). Re-rank until the order settles.
+        // Offense/defense poll ratings read the points and yards ranks, so set
+        // those from this week's results before ranking the poll (they used to
+        // be refreshed afterwards, so each poll lagged one update behind and
+        // the order shifted again at the end of selection week).
+        Collections.sort(teamList, new CompTeamPPG());
+        for (int t = 0; t < teamList.size(); ++t) {
+            teamList.get(t).setRankTeamPoints(t + 1);
+        }
+        Collections.sort(teamList, new CompTeamOPPG());
+        for (int t = 0; t < teamList.size(); ++t) {
+            teamList.get(t).setRankTeamOppPoints(t + 1);
+        }
+        Collections.sort(teamList, new CompTeamYPG());
+        for (int t = 0; t < teamList.size(); ++t) {
+            teamList.get(t).setRankTeamYards(t + 1);
+        }
+        Collections.sort(teamList, new CompTeamOYPG());
+        for (int t = 0; t < teamList.size(); ++t) {
+            teamList.get(t).setRankTeamOppYards(t + 1);
         }
 
-        Collections.sort(teamList, new CompTeamPoll());
-        for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).setRankTeamPollScore(t + 1);
+        for (int pass = 0; pass < POLL_RANK_MAX_PASSES; pass++) {
+            for (int i = 0; i < teamList.size(); ++i) {
+                teamList.get(i).updatePollScore();
+            }
+            Collections.sort(teamList, new CompTeamPoll());
+            boolean changed = false;
+            for (int t = 0; t < teamList.size(); ++t) {
+                if (teamList.get(t).getRankTeamPollScore() != t + 1) changed = true;
+                teamList.get(t).setRankTeamPollScore(t + 1);
+            }
+            if (!changed) break;
         }
 
         for (int i = 0; i < teamList.size(); ++i) {
@@ -5442,26 +5497,6 @@ Then conferences can see if they want to add them to their list if the teams mee
         Collections.sort(teamList, new CompTeamSoW());
         for (int t = 0; t < teamList.size(); ++t) {
             teamList.get(t).setRankTeamStrengthOfWins(t + 1);
-        }
-
-        Collections.sort(teamList, new CompTeamPPG());
-        for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).setRankTeamPoints(t + 1);
-        }
-
-        Collections.sort(teamList, new CompTeamOPPG());
-        for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).setRankTeamOppPoints(t + 1);
-        }
-
-        Collections.sort(teamList, new CompTeamYPG());
-        for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).setRankTeamYards(t + 1);
-        }
-
-        Collections.sort(teamList, new CompTeamOYPG());
-        for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).setRankTeamOppYards(t + 1);
         }
 
         Collections.sort(teamList, new CompTeamPYPG());

@@ -21,8 +21,11 @@ public class BowlManager {
     public String getBowlGameWatchStr() {
         if (!league.hasScheduledBowls) {
             if (league.expPlayoffs) {
-                getExpPlayoffTeams();
-                return league.postseason;
+                // Read-only projection. This used to call getExpPlayoffTeams(),
+                // which also scheduled every bowl from mid-season standings and
+                // set hasScheduledBowls, so opening Bowl Watch before the season
+                // ended left the real postseason with no bowl games at all.
+                return expPlayoffFieldText(selectExpPlayoffField(getQualifiedTeams()), true);
             } else {
                 league.setTeamRanks();
                 for (int i = 0; i < league.teamList.size(); ++i) {
@@ -77,43 +80,58 @@ public class BowlManager {
         }
     }
 
-    public void getExpPlayoffTeams() {
-        league.playoffTeams.clear();
-
-        ArrayList<Team> qualifiedTeams = getQualifiedTeams();
-        ArrayList<Team> autoBids = getExpandedPlayoffAutoBids(qualifiedTeams);
-        league.playoffTeams.addAll(autoBids);
+    /**
+     * Picks the 12-team field from the qualified pool without touching league
+     * state: auto-bids first, then at-larges by poll, then (if the qualified
+     * pool is short) the best remaining teams; seeded by poll.
+     */
+    ArrayList<Team> selectExpPlayoffField(ArrayList<Team> qualifiedTeams) {
+        ArrayList<Team> field = new ArrayList<>(getExpandedPlayoffAutoBids(qualifiedTeams));
         for (Team qualifiedTeam : qualifiedTeams) {
-            if (!league.playoffTeams.contains(qualifiedTeam)) {
-                league.playoffTeams.add(qualifiedTeam);
-                if (league.playoffTeams.size() >= League.EXPANDED_PLAYOFF_TEAM_COUNT) break;
+            if (field.size() >= League.EXPANDED_PLAYOFF_TEAM_COUNT) break;
+            if (!field.contains(qualifiedTeam)) field.add(qualifiedTeam);
+        }
+        if (field.size() < League.EXPANDED_PLAYOFF_TEAM_COUNT) {
+            ArrayList<Team> byPoll = new ArrayList<>(league.teamList);
+            Collections.sort(byPoll, new CompTeamPoll());
+            for (Team team : byPoll) {
+                if (field.size() >= League.EXPANDED_PLAYOFF_TEAM_COUNT) break;
+                if (!field.contains(team)) field.add(team);
             }
         }
+        Collections.sort(field, new CompTeamPoll());
+        return field;
+    }
 
-        if (league.playoffTeams.size() < League.EXPANDED_PLAYOFF_TEAM_COUNT) {
-            Collections.sort(league.teamList, new CompTeamPoll());
-            for (Team team : league.teamList) {
-                if (!league.playoffTeams.contains(team)) {
-                    league.playoffTeams.add(team);
-                    if (league.playoffTeams.size() >= League.EXPANDED_PLAYOFF_TEAM_COUNT) break;
-                }
-            }
-        }
-
-        Collections.sort(league.playoffTeams, new CompTeamPoll());
-
+    private String expPlayoffFieldText(ArrayList<Team> field, boolean projected) {
         StringBuilder sb = new StringBuilder();
-        sb.append("The following teams are expected to make it to the Football Playoffs!\n\n");
+        sb.append(projected
+                ? "Projected College Football Playoff field if the season ended today:\n\n"
+                : "The following teams are in the College Football Playoff!\n\n");
         int i = 1;
-        for (Team t : league.playoffTeams) {
-            sb.append(i + ". " + t.strRankTeamRecord() + "   [" + t.getConference() + "]\n");
+        for (Team t : field) {
+            sb.append(i).append(". ").append(t.strRankTeamRecord())
+                    .append("   [").append(t.getConference()).append("]");
+            if (i <= 4) sb.append("  (first-round bye)");
+            sb.append("\n");
             i++;
         }
-        league.postseason = sb.toString();
+        return sb.toString();
+    }
 
-        for (int x = 0; x < league.playoffTeams.size(); x++)
-            qualifiedTeams.remove(league.playoffTeams.get(x));
+    /**
+     * Championship-week selection: sets the field, publishes it, and schedules
+     * the bowls for everyone else. Must only run from the real postseason
+     * schedule path; previews use {@link #selectExpPlayoffField}.
+     */
+    public void getExpPlayoffTeams() {
+        ArrayList<Team> qualifiedTeams = getQualifiedTeams();
+        ArrayList<Team> field = selectExpPlayoffField(qualifiedTeams);
+        league.playoffTeams.clear();
+        league.playoffTeams.addAll(field);
+        league.postseason = expPlayoffFieldText(field, false);
 
+        qualifiedTeams.removeAll(field);
         if (!league.hasScheduledBowls) bowlScheduleLogic(qualifiedTeams);
     }
 
@@ -121,31 +139,42 @@ public class BowlManager {
         ArrayList<Team> autoBids = new ArrayList<>();
         ArrayList<Team> conferenceLeaders = new ArrayList<>();
 
-        if (league.currentWeek > league.regSeasonWeeks) {
-            for (Team qt : qualifiedTeams) {
-                if ("CC".equals(qt.getConfChampion())
-                        && !qt.getConference().equals("Independent")
-                        && !qt.getConference().equals("FCS Division")) {
-                    conferenceLeaders.add(qt);
+        // One leader per conference: the actual champion ("CC") once the title
+        // games are decided, otherwise the projected leader by conference wins.
+        // The field is built in the same pass that plays the championship games
+        // (currentWeek == regSeasonWeeks - 1), and the old week-based switch
+        // only trusted "CC" after regSeasonWeeks, so auto-bids went to projected
+        // leaders even when they had lost the title game.
+        for (Conference c : league.conferences) {
+            if (c.confName.equals("Independent") || c.confName.equals("FCS Division") || c.confTeams.isEmpty()) {
+                continue;
+            }
+            Team leader = null;
+            for (Team t : c.confTeams) {
+                if ("CC".equals(t.getConfChampion())) {
+                    leader = t;
+                    break;
                 }
             }
-        } else {
-            for (Conference c : league.conferences) {
-                if (!c.confName.equals("Independent") && !c.confName.equals("FCS Division") && c.confTeams.size() > 0) {
-                    Collections.sort(c.confTeams, new CompTeamConfWins());
-                    Team projectedChampion = c.confTeams.get(0);
-                    if (qualifiedTeams.contains(projectedChampion))
-                        conferenceLeaders.add(projectedChampion);
-                }
+            if (leader == null) {
+                ArrayList<Team> byConfWins = new ArrayList<>(c.confTeams);
+                Collections.sort(byConfWins, new CompTeamConfWins());
+                leader = byConfWins.get(0);
+            }
+            if (qualifiedTeams.contains(leader)) {
+                conferenceLeaders.add(leader);
             }
         }
 
         Collections.sort(conferenceLeaders, new CompTeamPoll());
-        for (int i = 0; i < conferenceLeaders.size() && i < 5; i++)
+        for (int i = 0; i < conferenceLeaders.size() && i < EXPANDED_PLAYOFF_AUTO_BIDS; i++)
             autoBids.add(conferenceLeaders.get(i));
 
         return autoBids;
     }
+
+    /** 12-team format: the five highest-ranked conference champions get automatic bids. */
+    static final int EXPANDED_PLAYOFF_AUTO_BIDS = 5;
 
     /** Bowls are played in three tiers: top 6 (New Year's Six style), next 10, then the rest. */
     static final int TIER1_CUTOFF = 6;
@@ -174,7 +203,7 @@ public class BowlManager {
         }
 
         for (int i = 0; i < league.teamList.size(); i++)
-            league.teamList.get(i).healInjury(1);
+            league.queuePostseasonRest(league.teamList.get(i), 1);
     }
 
     public void expPlayoffSchdQT() {
@@ -385,7 +414,7 @@ public class BowlManager {
                 + league.semiG23.awayTeam.strRankTeamRecord() + "\n" + league.semiG23.homeTeam.strRankTeamRecord());
 
         for (int i = 0; i < 4; i++)
-            bowlTeams.get(i).healInjury(3);
+            league.queuePostseasonRest(bowlTeams.get(i), 3);
 
         bowlTeams.remove(league.semiG23.awayTeam);
         bowlTeams.remove(league.semiG23.homeTeam);
@@ -439,14 +468,14 @@ public class BowlManager {
 
         int tmCount = bowlTeams.size();
         if (tmCount > 32) {
-            for (int i = 0; i < 12; i++) bowlTeams.get(i).healInjury(3);
-            for (int i = 12; i < 32; i++) bowlTeams.get(i).healInjury(2);
-            for (int i = 32; i < bowlTeams.size(); i++) bowlTeams.get(i).healInjury(1);
+            for (int i = 0; i < 12; i++) league.queuePostseasonRest(bowlTeams.get(i), 3);
+            for (int i = 12; i < 32; i++) league.queuePostseasonRest(bowlTeams.get(i), 2);
+            for (int i = 32; i < bowlTeams.size(); i++) league.queuePostseasonRest(bowlTeams.get(i), 1);
         } else if (tmCount > 12) {
-            for (int i = 0; i < 12; i++) bowlTeams.get(i).healInjury(3);
-            for (int i = 12; i < tmCount; i++) bowlTeams.get(i).healInjury(2);
+            for (int i = 0; i < 12; i++) league.queuePostseasonRest(bowlTeams.get(i), 3);
+            for (int i = 12; i < tmCount; i++) league.queuePostseasonRest(bowlTeams.get(i), 2);
         } else {
-            for (int i = 0; i < tmCount; i++) bowlTeams.get(i).healInjury(3);
+            for (int i = 0; i < tmCount; i++) league.queuePostseasonRest(bowlTeams.get(i), 3);
         }
     }
 
@@ -515,8 +544,8 @@ public class BowlManager {
 
             pool.remove(teamA);
             pool.remove(teamB);
-            teamA.healInjury(3);
-            teamB.healInjury(3);
+            league.queuePostseasonRest(teamA, 3);
+            league.queuePostseasonRest(teamB, 3);
             g++;
         }
         return g;
