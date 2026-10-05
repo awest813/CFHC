@@ -111,15 +111,19 @@ public final class Archetypes {
     };
     private static final String[] OL_TAGS = {OL_RUN_BLOCKER, OL_PASS_PROTECTOR, OL_MAULER};
 
+    // Run stoppers / noses develop pass rush at 0.85-0.9x (cap 86). At 0.7-0.8x
+    // (cap 80-82) they out-grew pass rushers on OVR, took the starting DL spots,
+    // and the league's on-field pass rush eroded every season, feeding a steady
+    // rise in passing efficiency and scoring.
     private static final double[][] DL_MULTS = {
-        {1.3, 1.1, 0.7, 1.2},
+        {1.3, 1.1, 0.85, 1.2},
         {0.7, 0.9, 1.3, 1.0},
-        {1.2, 0.8, 0.8, 1.3}
+        {1.2, 0.8, 0.9, 1.3}
     };
     private static final int[][] DL_CAPS = {
-        {99, 95, 80, 99},
+        {99, 95, 86, 99},
         {80, 88, 99, 92},
-        {99, 85, 82, 99}
+        {99, 85, 86, 99}
     };
     private static final String[] DL_TAGS = {DL_RUN_STOPPER, DL_PASS_RUSHER, DL_NOSE};
 

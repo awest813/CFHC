@@ -23,6 +23,9 @@ import java.awt.RenderingHints;
  */
 public class DesktopHeaderBar extends JPanel {
 
+    /** Hot-seat red that stays readable on the always-dark header. */
+    private static final Color HEADER_RED = new Color(248, 113, 113);
+
     private final League league;
     private final Runnable onOpenNews;
 
@@ -91,7 +94,7 @@ public class DesktopHeaderBar extends JPanel {
 
         JLabel schoolLabel = new JLabel(schoolName + "  " + mascotName);
         schoolLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
-        schoolLabel.setForeground(Color.WHITE);
+        schoolLabel.setForeground(DesktopTheme.headerText());
 
         int currentYear = league != null ? league.getYear() : 2026;
         String seasonText = league != null
@@ -127,8 +130,10 @@ public class DesktopHeaderBar extends JPanel {
             coachName = "HC " + hc.name.toUpperCase();
             coachRecord = "Career: " + hc.getWins() + "-" + hc.getLosses() + "  \u2022  Yr " + hc.year;
             // Job-security state from real contract/firing data.
+            // Brand-constant accents: the header is dark in every theme, and the
+            // light-theme warning/success tokens are tuned for white surfaces.
             if (userTeam.fired) {
-                chipColor = DesktopTheme.dangerRed();
+                chipColor = HEADER_RED;
                 chipLabel = "HOT SEAT";
             } else if (hc.contractLength - hc.contractYear <= 2) {
                 chipColor = DesktopTheme.headerAccentGold();
@@ -146,7 +151,7 @@ public class DesktopHeaderBar extends JPanel {
 
         JLabel hcLabel = new JLabel(coachName, JLabel.RIGHT);
         hcLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
-        hcLabel.setForeground(Color.WHITE);
+        hcLabel.setForeground(DesktopTheme.headerText());
 
         JLabel recordLabel = new JLabel(coachRecord, JLabel.RIGHT);
         recordLabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
@@ -163,7 +168,7 @@ public class DesktopHeaderBar extends JPanel {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(DesktopTheme.tableStripe());
+                g2.setColor(DesktopTheme.headerChipFill());
                 g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 12, 12);
                 g2.setColor(pillColor);
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 12, 12);
@@ -211,7 +216,8 @@ public class DesktopHeaderBar extends JPanel {
             });
         }
 
-        JLabel notifIcon = new JLabel("\u2709 " + newsCount);
+        JLabel notifIcon = new JLabel(String.valueOf(newsCount), UiIcons.of(UiIcons.Glyph.MAIL, 13), JLabel.LEADING);
+        notifIcon.setIconTextGap(5);
         notifIcon.setFont(new Font("SansSerif", Font.BOLD, 11));
         notifIcon.setForeground(newsCount > 0
                 ? DesktopTheme.headerAccentGold() : DesktopTheme.headerSubtleText());

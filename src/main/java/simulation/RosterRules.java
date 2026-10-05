@@ -38,6 +38,11 @@ public final class RosterRules {
     public static final int MIN_CBS = 7;
     public static final int MIN_SS = 5;
 
+    /** Every position at its minimum: the depth chart can be filled (walk-ons guarantee this). */
+    public static final int MIN_DEPTH_PLAYERS = MIN_QBS + MIN_RBS + MIN_WRS + MIN_TES + MIN_OLS + MIN_KS
+            + MIN_DLS + MIN_LBS + MIN_CBS + MIN_SS;
+
+    /** Recruiting target: CPU classes and the user budget's roster-need bonus fill toward this. */
     public static final int MIN_PLAYERS = 65;
     public static final int MAX_PLAYERS = 75;
 }

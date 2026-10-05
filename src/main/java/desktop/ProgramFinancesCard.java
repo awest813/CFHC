@@ -16,14 +16,22 @@ import java.awt.GridLayout;
  */
 public class ProgramFinancesCard extends CustomCardPanel {
 
+    private JLabel recruitValue;
+
     public ProgramFinancesCard(Team team) {
+        this(team, DesktopRecruitingBudget.forTeam(team, null));
+    }
+
+    /**
+     * @param recruitBudget from {@link DesktopRecruitingBudget#forTeam}; the
+     *                      dashboard resolves it once so Program Health shows
+     *                      the same number
+     */
+    public ProgramFinancesCard(Team team, int recruitBudget) {
         super("Program Finances");
         JPanel content = getContentArea();
 
         int budget = team != null ? team.getTeamBudget() : 0;
-        // teamRecruitBudget is a legacy field that is never populated (always
-        // $0); show the spendable budget the Recruiting screen uses instead.
-        int recruitBudget = DashboardPanel.spendableRecruitingBudget(team);
         int nilTier = team != null ? team.getNilCollectiveLevel() : 0;
         int facilities = team != null ? team.teamFacilities : 0;
 
@@ -31,13 +39,21 @@ public class ProgramFinancesCard extends CustomCardPanel {
         list.setOpaque(false);
 
         list.add(buildFinRow("Annual Budget", formatMoney(budget), DesktopTheme.textPrimary()));
-        list.add(buildFinRow("Recruiting Budget", formatMoney(recruitBudget), DesktopTheme.successGreen()));
+        JPanel recruitRow = buildFinRow("Recruiting Budget", "", DesktopTheme.successGreen());
+        recruitValue = (JLabel) recruitRow.getComponent(1);
+        setRecruitingBudget(recruitBudget);
+        list.add(recruitRow);
         list.add(buildFinRow("NIL Collective", "Tier " + nilTier + " / " + simulation.League.NIL_MAX_TIER,
                 DesktopTheme.warningText()));
         list.add(buildFinRow("Facilities", "Level " + facilities, DesktopTheme.textPrimary()));
         list.add(buildFinRow("Discipline", team != null ? team.teamDisciplineScore + "%" : "\u2014", DesktopTheme.textPrimary()));
 
         content.add(list, BorderLayout.CENTER);
+    }
+
+    /** Updates the recruiting row in place (budget is spent on the board between rebuilds). */
+    void setRecruitingBudget(int recruitBudget) {
+        recruitValue.setText(recruitBudget < 0 ? "\u2014" : formatMoney(recruitBudget));
     }
 
     /** Format an integer budget as $X.XM or $XK depending on magnitude. */

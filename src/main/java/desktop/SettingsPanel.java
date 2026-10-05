@@ -6,7 +6,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
 
 public class SettingsPanel implements LeagueScreen {
 
@@ -71,6 +74,7 @@ public class SettingsPanel implements LeagueScreen {
         addOptionRow(rows, "Expanded playoffs", enabledLabel(ctx.league().expPlayoffs));
         addOptionRow(rows, "Conference realignment", enabledLabel(ctx.league().confRealignment));
         addOptionRow(rows, "Advanced realignment", enabledLabel(ctx.league().advancedRealignment));
+        addOptionRow(rows, "FCS promotions", ctx.league().fcsPromotionSummary());
         addOptionRow(rows, "Promotion/relegation", enabledLabel(ctx.league().enableUnivProRel));
 
         JPanel summary = new JPanel(new BorderLayout(0, 8));

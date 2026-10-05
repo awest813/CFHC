@@ -101,7 +101,8 @@ public class TopNewsCarouselCard extends CustomCardPanel {
         JLabel pill = new JLabel("\u25CF HEADLINE STORY");
         pill.setFont(new Font("SansSerif", Font.BOLD, 9));
         pill.setForeground(DesktopTheme.successGreen());
-        JLabel wire = new JLabel("\uD83D\uDCF0 WIRE");
+        JLabel wire = new JLabel("WIRE", UiIcons.of(UiIcons.Glyph.NEWS, 10), JLabel.LEADING);
+        wire.setIconTextGap(4);
         wire.setFont(new Font("SansSerif", Font.BOLD, 9));
         wire.setForeground(DesktopTheme.textSecondary());
         heroTop.add(pill, BorderLayout.WEST);

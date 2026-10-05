@@ -8,6 +8,7 @@ import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -74,7 +75,7 @@ public class SeasonLengthTest {
     public void legacySaveWithoutSeasonLength_keepsThirteenWeekCalendar_untilRollover() throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         SaveManager.save(league.toRecord(), out);
-        // Strip field 7 from the L: header to mimic a save written before the fix.
+        // Strip field 8 (season length) from the L: header to mimic a save written before the fix.
         String text = out.toString(StandardCharsets.UTF_8.name());
         StringBuilder legacy = new StringBuilder();
         for (String line : text.split("\n", -1)) {
@@ -93,6 +94,26 @@ public class SeasonLengthTest {
         league.startNextSeason();
         assertEquals("rollover upgrades to the standard calendar",
                 League.STANDARD_REG_SEASON_WEEKS, league.regSeasonWeeks);
+    }
+
+    @Test
+    public void earlyFormatWithSeasonLengthInField7_stillLoadsTheCalendar() throws Exception {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        SaveManager.save(league.toRecord(), out);
+        // A short-lived build wrote the season length as field 7 (no gate flag).
+        String text = out.toString(StandardCharsets.UTF_8.name());
+        StringBuilder early = new StringBuilder();
+        for (String line : text.split("\n", -1)) {
+            if (line.startsWith("L:")) {
+                String[] p = line.split("\t", -1);
+                line = String.join("\t", java.util.Arrays.copyOf(p, 6)) + "\t" + p[7];
+            }
+            early.append(line).append('\n');
+        }
+        LeagueRecord record = SaveManager.load(new ByteArrayInputStream(
+                early.toString().getBytes(StandardCharsets.UTF_8)));
+        assertEquals(League.STANDARD_REG_SEASON_WEEKS, record.regSeasonWeeks());
+        assertNull("no gate flag in that format", record.recruitingStarted());
     }
 
     @Test

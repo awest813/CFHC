@@ -66,7 +66,7 @@ import java.util.Locale;
  * <p>The view uses {@link SeasonController} for all week advancement so the full
  * season/offseason/new-season loop works correctly without any Android dependencies.
  */
-public class LeagueHomeView extends JFrame {
+public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.LiveBoard {
 
     private static final String TAG = "LeagueHomeView";
     private static final int HEADER_HEIGHT = 96;
@@ -101,10 +101,13 @@ public class LeagueHomeView extends JFrame {
             "League History", "News", "Coaches", "Hall of Fame", "Records", "Settings"
     };
 
-    private static final String[] NAV_ICONS = {
-            "\u2302", "\u2666", "\u2630", "\u25A0", "\u2605",
-            "\u2191", "\u2261", "\u2637", "\u2318", "\u2609",
-            "\u263C", "\u265A", "\u2606", "\u25C9", "\u2699"
+    /** Drawn icons, one per {@link #NAV_TITLES} entry (were font-dependent Unicode symbols). */
+    private static final UiIcons.Glyph[] NAV_ICONS = {
+            UiIcons.Glyph.HOME, UiIcons.Glyph.RECRUITING, UiIcons.Glyph.STANDINGS,
+            UiIcons.Glyph.SCOREBOARD, UiIcons.Glyph.WHISTLE, UiIcons.Glyph.PODIUM,
+            UiIcons.Glyph.BAR_CHART, UiIcons.Glyph.LINE_CHART, UiIcons.Glyph.SEARCH,
+            UiIcons.Glyph.HISTORY, UiIcons.Glyph.NEWS, UiIcons.Glyph.COACHES,
+            UiIcons.Glyph.TROPHY, UiIcons.Glyph.MEDAL, UiIcons.Glyph.GEAR
     };
 
     private String selectedScreen = "Home";
@@ -1922,6 +1925,12 @@ public class LeagueHomeView extends JFrame {
 
     private void rebuildContentCards() {
         screenContext.updateRecord(currentRecord);
+        // Load (or restore) the recruiting board before the screens are built,
+        // so the dashboard's recruiting budget reflects money already spent.
+        // buildRecruitingTab() below needs it loaded anyway.
+        if (leagueCore.userTeam != null && leagueCore.userTeam.isUserControlled()) {
+            ensureRecruitingSessionLoaded();
+        }
         // Weekly refresh rebuilds every screen; without capturing scroll
         // positions first, the user's place in long lists (standings, stats,
         // records) jumps back to the top every single week.
@@ -2047,7 +2056,7 @@ public class LeagueHomeView extends JFrame {
     private JList<String> buildNavigationList() {
         DefaultListModel<String> model = new DefaultListModel<>();
         for (int i = 0; i < NAV_TITLES.length; i++) {
-            model.addElement(NAV_ICONS[i] + "  " + NAV_TITLES[i]);
+            model.addElement(NAV_TITLES[i]);
         }
         JList<String> list = new JList<>(model);
         list.setFixedCellHeight(36);
@@ -2064,6 +2073,10 @@ public class LeagueHomeView extends JFrame {
                                                           boolean isSelected, boolean cellHasFocus) {
                 JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 label.setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 10));
+                if (index >= 0 && index < NAV_ICONS.length) {
+                    label.setIcon(UiIcons.of(NAV_ICONS[index], 16));
+                    label.setIconTextGap(10);
+                }
                 label.setOpaque(true);
                 label.setBackground(isSelected ? DesktopTheme.sidebarSelectionBackground() : DesktopTheme.sidebarBackground());
                 label.setForeground(isSelected ? Color.WHITE : DesktopTheme.sidebarText());
@@ -2125,9 +2138,9 @@ public class LeagueHomeView extends JFrame {
                 }
             }
             if (idx >= 0) {
-                String prefixed = NAV_ICONS[idx] + "  " + NAV_TITLES[idx];
-                if (!prefixed.equals(navigationList.getSelectedValue())) {
-                    navigationList.setSelectedValue(prefixed, true);
+                if (navigationList.getSelectedIndex() != idx) {
+                    navigationList.setSelectedIndex(idx);
+                    navigationList.ensureIndexIsVisible(idx);
                 }
             }
         }
@@ -2240,6 +2253,14 @@ public class LeagueHomeView extends JFrame {
         info.setForeground(DesktopTheme.textPrimary());
         outer.add(info, BorderLayout.NORTH);
         return outer;
+    }
+
+    @Override
+    public int remainingRecruitingBudget(Team team) {
+        if (team == null || team != leagueCore.userTeam || !recruitingStore.hasSession()) {
+            return -1;
+        }
+        return recruitingStore.session().recruitingBudget;
     }
 
     private void ensureRecruitingSessionLoaded() {

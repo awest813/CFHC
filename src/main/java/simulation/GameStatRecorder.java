@@ -23,7 +23,8 @@ class GameStatRecorder {
         this.game = game;
     }
 
-    void recordRushAttempt(Team offense, PlayerQB selQB, PlayerRB selRB, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS, int yardsGain, boolean gotTD) {
+    /** Records a run and returns the tackler ("" on a touchdown). */
+    String recordRushAttempt(Team offense, PlayerQB selQB, PlayerRB selRB, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS, int yardsGain, boolean gotTD) {
         String defender = "";
         if (selRB.gameSim >= selQB.gameSim) {
             selRB.recordRushAtt(1);
@@ -42,14 +43,39 @@ class GameStatRecorder {
             game.teamOLs.get(i).recordRunSnaps(1);
         }
 
+        // Spread run-stop credit across the defenders on the field. Always
+        // crediting the top-ranked LB for every 2-12 yard run gave one
+        // linebacker ~19% of his team's tackles (200-240 a season; real
+        // leaders post ~130-150).
+        double who = SimRandom.nextDouble();
         if (yardsGain < 2 && !gotTD) {
-            selDL.gameTackles++;
-            selDL.recordTackles(1);
-            defender = "DL " + selDL.name;
+            if (who < 0.60) {
+                selDL.gameTackles++;
+                selDL.recordTackles(1);
+                defender = "DL " + selDL.name;
+            } else {
+                selLB.gameTackles++;
+                selLB.recordTackles(1);
+                defender = "LB " + selLB.name;
+            }
         } else if (yardsGain >= 2 && yardsGain < 12 && !gotTD) {
-            selLB.gameTackles++;
-            selLB.recordTackles(1);
-            defender = "LB " + selLB.name;
+            if (who < 0.55) {
+                selLB.gameTackles++;
+                selLB.recordTackles(1);
+                defender = "LB " + selLB.name;
+            } else if (who < 0.75) {
+                selS.gameTackles++;
+                selS.recordTackles(1);
+                defender = "S " + selS.name;
+            } else if (who < 0.90) {
+                selDL.gameTackles++;
+                selDL.recordTackles(1);
+                defender = "DL " + selDL.name;
+            } else {
+                selCB.gameTackles++;
+                selCB.recordTackles(1);
+                defender = "CB " + selCB.name;
+            }
         } else if (yardsGain >= 12 && !gotTD) {
             if (selCB.getRatTackle() * SimRandom.nextDouble() * 50 >= selS.getRatTackle() * SimRandom.nextDouble() * 100) {
                 selCB.gameTackles++;
@@ -62,11 +88,7 @@ class GameStatRecorder {
             }
         }
 
-        if (game.gamePoss) {
-            game.homeTeam.addTeamRushYards(yardsGain);
-        } else {
-            game.awayTeam.addTeamRushYards(yardsGain);
-        }
+        offense.addTeamRushYards(yardsGain);
 
         if (gotTD) {
             if (selRB.gameSim >= selQB.gameSim) {
@@ -93,6 +115,7 @@ class GameStatRecorder {
                 }
 
         }
+        return defender;
     }
 
     void recordRushFumble(Team offense, PlayerQB selQB, PlayerRB selRB, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS) {
@@ -160,12 +183,10 @@ class GameStatRecorder {
             game.awayScore += 6;
         }
 
+        // The completion and its yards are recorded by recordPassCompletion; they
+        // used to be counted here as well, crediting every TD pass twice.
         selQB.gamePassTDs++;
         selQB.recordPassTD(1);
-        selQB.recordPassComp(1);
-        selQB.recordPassYards(yardsGain);
-        selQB.gamePassComplete++;
-        selQB.gamePassYards += yardsGain;
 
         if (pos.equals("WR")) {
             selWR.gameRecTDs++;
@@ -184,8 +205,9 @@ class GameStatRecorder {
 
     }
 
-    void recordPassCompletion(Team offense, PlayerQB selQB, PlayerRB selRB, PlayerWR selWR, PlayerTE selTE, PlayerLB selLB, PlayerCB selCB, PlayerS selS, int yardsGain, String pos, boolean gotTD) {
-        String defender;
+    /** Records a completion and returns the tackler ("" on a touchdown). */
+    String recordPassCompletion(Team offense, PlayerQB selQB, PlayerRB selRB, PlayerWR selWR, PlayerTE selTE, PlayerLB selLB, PlayerCB selCB, PlayerS selS, int yardsGain, String pos, boolean gotTD) {
+        String defender = "";
         ArrayList<Player> def = new ArrayList<>();
         def.add(selCB);
         def.add(selLB);
@@ -225,19 +247,20 @@ class GameStatRecorder {
             if (tackler.equals("CB")) {
                 selCB.gameTackles++;
                 selCB.recordTackles(1);
-
+                defender = "CB " + selCB.name;
             } else if (tackler.equals("S")) {
                 selS.gameTackles++;
                 selS.recordTackles(1);
-
+                defender = "S " + selS.name;
             } else {
                 selLB.gameTackles++;
                 selLB.recordTackles(1);
-
+                defender = "LB " + selLB.name;
             }
         }
 
         offense.addTeamPassYards(yardsGain);
+        return defender;
     }
 
     void recordPassAttempt(PlayerQB selQB, PlayerRB selRB, PlayerWR selWR, PlayerTE selTE, PlayerLB selLB, PlayerCB selCB, String pos) {
@@ -285,24 +308,32 @@ class GameStatRecorder {
         }
     }
 
-    void recordDefendedCB(PlayerWR selWR, PlayerCB selCB) {
+    /** Share of breakups on throws to wideouts and tight ends made by the safety over the top. */
+    static final double SAFETY_BREAKUP_SHARE = 0.3;
+
+    void recordDefendedCB(PlayerWR selWR, PlayerCB selCB, PlayerS selS) {
 
         if ((selCB.getRatJump() * SimRandom.nextDouble() + selCB.getRatCoverage() * SimRandom.nextDouble()) > (selWR.getRatJump() * SimRandom.nextDouble() + selWR.getRatCatch() * SimRandom.nextDouble()) * 2) {
-            selCB.recordDefended(1);
-            selCB.gameDefended++;
+            creditBreakup(selCB, selS);
         }
         selCB.recordDefIncompleted(1);
         selCB.gameIncomplete++;
     }
 
-    void recordDefendedLB(PlayerTE selTE, PlayerLB selLB) {
+    void recordDefendedLB(PlayerTE selTE, PlayerLB selLB, PlayerS selS) {
 
         if ((selLB.getRatSpeed() * SimRandom.nextDouble() + selLB.getRatCoverage() * SimRandom.nextDouble()) > (selTE.getRatSpeed() * SimRandom.nextDouble() + selTE.getRatCatch() * SimRandom.nextDouble()) * 2) {
-            selLB.recordDefended(1);
-            selLB.gameDefended++;
+            creditBreakup(selLB, selS);
         }
         selLB.recordDefIncompleted(1);
         selLB.gameIncomplete++;
+    }
+
+    /** The cover man or, about a third of the time, the safety helping over the top (safeties never had one). */
+    private static void creditBreakup(Player coverMan, PlayerS selS) {
+        Player p = selS != null && SimRandom.nextDouble() < SAFETY_BREAKUP_SHARE ? selS : coverMan;
+        p.recordDefended(1);
+        p.gameDefended++;
     }
 
     void recordDefendedLB2(PlayerRB selRB, PlayerLB selLB) {
@@ -313,8 +344,10 @@ class GameStatRecorder {
         }
     }
 
-    void recordInterception(Team offense, PlayerQB selQB, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS, String position) {
+    /** Records a pick and returns the defender who made it. */
+    Player recordInterception(Team offense, PlayerQB selQB, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS, String position) {
         String defender;
+        Player interceptor;
         ArrayList<Player> def = new ArrayList<>();
         def.add(selDL);
         def.add(selCB);
@@ -338,18 +371,22 @@ class GameStatRecorder {
             selDL.gameInterceptions++;
             selDL.recordInterceptions(1);
             defender = ("DL " + selDL.name);
+            interceptor = selDL;
         } else if (pos.equals("CB")) {
             selCB.gameInterceptions++;
             selCB.recordInterceptions(1);
             defender = ("CB " + selCB.name);
+            interceptor = selCB;
         } else if (pos.equals("S")) {
             selS.gameInterceptions++;
             selS.recordInterceptions(1);
             defender = ("S " + selS.name);
+            interceptor = selS;
         } else {
             selLB.gameInterceptions++;
             selLB.recordInterceptions(1);
             defender = ("LB " + selLB.name);
+            interceptor = selLB;
         }
 
         if (game.gamePoss) {
@@ -361,8 +398,8 @@ class GameStatRecorder {
         selQB.recordPassInt(1);
         selQB.gamePassInts++;
 
-        game.gameEventLog.append(game.getEventLog()).append("INTERCEPTED!\n").append(offense.getAbbr()).append(" QB ").append(offense.getQB(0).name).append(" was intercepted by ").append(defender).append(".");
-
+        game.gameEventLog.append(game.getEventLog()).append("INTERCEPTED!\n").append(offense.getAbbr()).append(" QB ").append(selQB.name).append(" was intercepted by ").append(defender).append(".");
+        return interceptor;
     }
 
     /** Recorded sack outcome: yards lost and the defender credited (rule engine consumes both). */
@@ -381,10 +418,16 @@ class GameStatRecorder {
         Collections.sort(def, new CompGamePlayerPicker());
         String pos = def.get(0).position;
 
+        // College scoring: a sack is a rush for the loss. The QB was charged the
+        // yards but not the attempt, and the offense's season rushing total left
+        // the loss out while its opponents' totals (from the box score) kept it.
         selQB.recordSacked(1);
         selQB.gameSacks++;
+        selQB.recordRushAtt(1);
+        selQB.gameRushAttempts++;
         selQB.recordRushYards(-sackloss);
         selQB.gameRushYards -= sackloss;
+        offense.addTeamRushYards(-sackloss);
 
 
         if (pos.equals("DL")) {
@@ -418,7 +461,7 @@ class GameStatRecorder {
         }
 
         if (game.homeTeam.league.fullGameLog)
-            game.gameEventLog.append(game.getEventLog()).append("SACK!\n").append(" QB ").append(offense.getQB(0).name).append(
+            game.gameEventLog.append(game.getEventLog()).append("SACK!\n").append(offense.getAbbr()).append(" QB ").append(selQB.name).append(
                     " was sacked for a loss of ").append(sackloss).append(" by ").append(defender).append(".");
 
         return new SackResult(sackloss, defender);

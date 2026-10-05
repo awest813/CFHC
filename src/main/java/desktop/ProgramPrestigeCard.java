@@ -20,6 +20,9 @@ import java.awt.RenderingHints;
  * Binds to real team prestige + trend (was hardcoded shield "78" / "RISING").
  */
 public class ProgramPrestigeCard extends CustomCardPanel {
+    private static final int BADGE_W = 52;
+    private static final int BADGE_H = 58;
+
 
     public ProgramPrestigeCard(Team team) {
         super("Program Prestige");
@@ -50,11 +53,16 @@ public class ProgramPrestigeCard extends CustomCardPanel {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-                int w = getWidth();
-                int h = getHeight();
+                // Fixed-size badge centred vertically: BorderLayout.WEST stretches
+                // this panel to the card height, which used to put the number on
+                // the shield's narrow tip.
+                int w = Math.min(getWidth(), BADGE_W);
+                int h = Math.min(getHeight(), BADGE_H);
+                int x0 = (getWidth() - w) / 2;
+                int y0 = (getHeight() - h) / 2;
 
-                int[] px = {w / 2, w - 2, w - 2, w / 2, 2, 2};
-                int[] py = {2, h / 4, (h * 3) / 4, h - 2, (h * 3) / 4, h / 4};
+                int[] px = {x0 + w / 2, x0 + w - 2, x0 + w - 2, x0 + w / 2, x0 + 2, x0 + 2};
+                int[] py = {y0 + 2, y0 + h / 4, y0 + (h * 3) / 4, y0 + h - 2, y0 + (h * 3) / 4, y0 + h / 4};
 
                 g2.setColor(new Color(217, 119, 6));
                 g2.fillPolygon(px, py, px.length);
@@ -63,18 +71,23 @@ public class ProgramPrestigeCard extends CustomCardPanel {
 
                 g2.setColor(Color.WHITE);
                 g2.setFont(new Font("SansSerif", Font.BOLD, 18));
-                g2.drawString(String.valueOf(prestige), 12, 28);
+                java.awt.FontMetrics fm = g2.getFontMetrics();
+                String num = String.valueOf(prestige);
+                int numBase = y0 + h / 2 + fm.getAscent() / 2 - 3;
+                g2.drawString(num, x0 + (w - fm.stringWidth(num)) / 2, numBase);
 
-                g2.setFont(new Font("SansSerif", Font.PLAIN, 8));
+                g2.setFont(new Font("SansSerif", Font.PLAIN, 7));
+                fm = g2.getFontMetrics();
                 int starCount = prestige >= 90 ? 5 : prestige >= 75 ? 4 : prestige >= 60 ? 3 : prestige >= 45 ? 2 : prestige > 0 ? 1 : 0;
                 StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < 3; i++) sb.append(i < starCount ? '\u2605' : '\u2606');
-                g2.drawString(sb.toString(), 14, 38);
+                for (int i = 0; i < 5; i++) sb.append(i < starCount ? '\u2605' : '\u2606');
+                String stars = sb.toString();
+                g2.drawString(stars, x0 + (w - fm.stringWidth(stars)) / 2, numBase + fm.getAscent() + 2);
 
                 g2.dispose();
             }
         };
-        shield.setPreferredSize(new Dimension(46, 50));
+        shield.setPreferredSize(new Dimension(BADGE_W, BADGE_H));
         shield.setOpaque(false);
 
         body.add(shield, BorderLayout.WEST);

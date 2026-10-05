@@ -184,9 +184,12 @@ public class Player {
 
     final int endseason = 40;
     final int endseasonFactor = 15;
-    final int endseasonBonus = 30;
 
-    final double breakthroughChance = 5.0;
+    /** League-average potential: growth at this potential is unscaled. */
+    static final int POT_GROWTH_PIVOT = 74;
+    /** Offseason growth change per point of potential away from the pivot. */
+    static final double POT_GROWTH_SLOPE = 0.016;
+
     final double bustChance = 3.0;
     final double lateBloomerThreshold = 0.5;
     final int lateBloomerMinPot = 80;
@@ -256,10 +259,18 @@ public class Player {
         character = (int) (attrBase + 50 * SimRandom.nextDouble());
         homeState = (int) (SimRandom.nextDouble() * 50);
 
-        ratAttr1 = (int) (ratBase + year * yearFactor + stars * starFactor - ratTolerance * SimRandom.nextDouble()) - (int) (SimRandom.nextDouble() * attrDropper1);
-        ratAttr2 = (int) (ratBase + year * yearFactor + stars * starFactor - ratTolerance * SimRandom.nextDouble()) - (int) (SimRandom.nextDouble() * attrDropper2);
-        ratAttr3 = (int) (ratBase + year * yearFactor + stars * starFactor - ratTolerance * SimRandom.nextDouble()) - (int) (SimRandom.nextDouble() * attrDropper3);
-        ratAttr4 = (int) (ratBase + year * yearFactor + stars * starFactor - ratTolerance * SimRandom.nextDouble()) - (int) (SimRandom.nextDouble() * attrDropper4);
+        // A redshirted upperclassman has had an extra year in the program. The
+        // season sim develops redshirts for that year, so a generated roster
+        // that ignored it started ~6 OVR below where careers settle, and the
+        // whole league (and scoring) climbed for five seasons to catch up.
+        // Plus a point per class above freshman for the in-season (midseason)
+        // development careers also bank.
+        int devYears = year + (wasRedshirt ? 1 : 0);
+        int inSeasonGrowth = Math.max(0, year - 1);
+        ratAttr1 = (int) (ratBase + devYears * yearFactor + inSeasonGrowth + stars * starFactor - ratTolerance * SimRandom.nextDouble()) - (int) (SimRandom.nextDouble() * attrDropper1);
+        ratAttr2 = (int) (ratBase + devYears * yearFactor + inSeasonGrowth + stars * starFactor - ratTolerance * SimRandom.nextDouble()) - (int) (SimRandom.nextDouble() * attrDropper2);
+        ratAttr3 = (int) (ratBase + devYears * yearFactor + inSeasonGrowth + stars * starFactor - ratTolerance * SimRandom.nextDouble()) - (int) (SimRandom.nextDouble() * attrDropper3);
+        ratAttr4 = (int) (ratBase + devYears * yearFactor + inSeasonGrowth + stars * starFactor - ratTolerance * SimRandom.nextDouble()) - (int) (SimRandom.nextDouble() * attrDropper4);
 
         ratOvr = getOverall();
 
@@ -500,13 +511,8 @@ public class Player {
         midSeasonProgression(PracticeFocus.BALANCED);
     }
 
+    /** In-season growth from the reps a player gets (games and starts so far). */
     public void midSeasonProgression(PracticeFocus practiceFocus) {
-        final int ratOvrStart = ratOvr;
-
-        if (offensePos.contains(position)) progression = getProgressionOff();
-        else if (defensePos.contains(position)) progression = getProgressionDef();
-        else progression = getProgression();
-
         double games = getMidSeasonBonus();
         this.ratOvrStart = ratOvr;
 
@@ -559,20 +565,21 @@ public class Player {
             if (year > 2 && games < minGamesPot) ratPot -= (int) (SimRandom.nextDouble() * 15);
 
             double[] mult = getArchetypeMultipliers();
+            double pf = potentialGrowthFactor();
 
-            ratIntelligence += (int) ((SimRandom.nextDouble() * (progression + games - endseason)) / (endseasonFactor * 1.5));
-            ratAttr1 += (int) (((SimRandom.nextDouble() * (progression + games - endseason)) / endseasonFactor) * mult[0]);
-            ratAttr2 += (int) (((SimRandom.nextDouble() * (progression + games - endseason)) / endseasonFactor) * mult[1]);
-            ratAttr3 += (int) (((SimRandom.nextDouble() * (progression + games - endseason)) / endseasonFactor) * mult[2]);
-            ratAttr4 += (int) (((SimRandom.nextDouble() * (progression + games - endseason)) / (endseasonFactor * 1.5)) * mult[3]);
+            ratIntelligence += (int) ((SimRandom.nextDouble() * (progression + games - endseason)) / (endseasonFactor * 1.5) * pf);
+            ratAttr1 += (int) (((SimRandom.nextDouble() * (progression + games - endseason)) / endseasonFactor) * mult[0] * pf);
+            ratAttr2 += (int) (((SimRandom.nextDouble() * (progression + games - endseason)) / endseasonFactor) * mult[1] * pf);
+            ratAttr3 += (int) (((SimRandom.nextDouble() * (progression + games - endseason)) / endseasonFactor) * mult[2] * pf);
+            ratAttr4 += (int) (((SimRandom.nextDouble() * (progression + games - endseason)) / (endseasonFactor * 1.5)) * mult[3] * pf);
 
+            // The yearly development jump, most of a player's offseason growth.
             if (SimRandom.nextDouble() * 100 < progression) {
-                double btScale = (progression + games - endseasonBonus) / (endseasonFactor * 1.2);
-                int primaryBoost = (int) (8 + SimRandom.nextDouble() * 8);
-                ratAttr1 += (int) (primaryBoost * mult[0] / 2);
-                ratAttr2 += (int) (primaryBoost * mult[1] / 2);
-                ratAttr3 += (int) (primaryBoost * mult[2] / 2);
-                ratAttr4 += (int) (primaryBoost * mult[3] / 2);
+                double jump = (8 + SimRandom.nextDouble() * 8) * pf;
+                ratAttr1 += (int) (jump * mult[0] / 2);
+                ratAttr2 += (int) (jump * mult[1] / 2);
+                ratAttr3 += (int) (jump * mult[2] / 2);
+                ratAttr4 += (int) (jump * mult[3] / 2);
             }
 
             if (SimRandom.nextDouble() * 100 < bustChance && character < 50 && games < 15) {
@@ -726,52 +733,45 @@ public class Player {
         }
     }
 
+    /** Weekly chance a focused trait gains a point (in the focus position group; elsewhere two thirds of it). */
+    static final double WEEKLY_PRACTICE_CHANCE = 0.06;
+
     /**
      * Small weekly practice outcome. Called each week of the regular season for user teams.
+     * Each focused trait has a small chance to gain a point; the old fractional
+     * gain was truncated to an int and never changed a rating.
      */
     public void applyWeeklyPractice(PracticeFocus focus, PracticeFocus.PositionGroup posGroup,
                                     PracticeFocus.FocusIntensity intensity) {
         if (focus == null || focus == PracticeFocus.BALANCED) return;
         double mult = intensity != null ? intensity.growthMultiplier() : 1.0;
         boolean matchesGroup = posGroup != null && posGroup.matches(position);
+        double chance = WEEKLY_PRACTICE_CHANCE * mult * (matchesGroup ? 1.0 : 2.0 / 3.0);
 
-        double scale = mult * 0.15;
         switch (focus) {
             case FOOTBALL_IQ:
-                ratIntelligence += matchesGroup ? (int)(SimRandom.nextDouble() * scale * 1.5) : (int)(SimRandom.nextDouble() * scale);
+                ratIntelligence += weeklyGain(chance);
                 break;
             case FUNDAMENTALS:
-                if (matchesGroup) {
-                    ratAttr1 += (int)(SimRandom.nextDouble() * scale * 1.5);
-                    ratAttr2 += (int)(SimRandom.nextDouble() * scale * 1.5);
-                } else {
-                    ratAttr1 += (int)(SimRandom.nextDouble() * scale);
-                    ratAttr2 += (int)(SimRandom.nextDouble() * scale);
-                }
+                ratAttr1 += weeklyGain(chance);
+                ratAttr2 += weeklyGain(chance);
                 break;
             case ATHLETICISM:
-                if (matchesGroup) {
-                    ratAttr3 += (int)(SimRandom.nextDouble() * scale * 1.5);
-                    ratAttr4 += (int)(SimRandom.nextDouble() * scale / 1.2 * 1.5);
-                } else {
-                    ratAttr3 += (int)(SimRandom.nextDouble() * scale);
-                    ratAttr4 += (int)(SimRandom.nextDouble() * scale / 1.2);
-                }
+                ratAttr3 += weeklyGain(chance);
+                ratAttr4 += weeklyGain(chance);
                 break;
             case PHYSICAL:
-                if (matchesGroup) {
-                    ratDurability += (int)(SimRandom.nextDouble() * scale * 0.55 * 1.5);
-                    ratAttr3 += (int)(SimRandom.nextDouble() * scale * 0.35 * 1.5);
-                    ratAttr4 += (int)(SimRandom.nextDouble() * scale * 0.35 * 1.5);
-                } else {
-                    ratDurability += (int)(SimRandom.nextDouble() * scale * 0.55);
-                    ratAttr3 += (int)(SimRandom.nextDouble() * scale * 0.35);
-                    ratAttr4 += (int)(SimRandom.nextDouble() * scale * 0.35);
-                }
+                ratDurability += weeklyGain(chance);
                 break;
             default:
                 break;
         }
+        clampCoreRatings();
+        ratOvr = getOverall();
+    }
+
+    private static int weeklyGain(double chance) {
+        return SimRandom.nextDouble() < chance ? 1 : 0;
     }
 
     private void applyRegression(double[] mult) {
@@ -818,21 +818,28 @@ public class Player {
         };
     }
 
-    private void clampCoreRatings() {
+    /** @return true when a core attribute was out of range and changed */
+    private boolean clampCoreRatings() {
         int[] caps = Archetypes.getCaps(position, archetypeTag);
+        int a1 = ratAttr1, a2 = ratAttr2, a3 = ratAttr3, a4 = ratAttr4;
         ratIntelligence = Math.min(100, Math.max(0, ratIntelligence));
         ratDurability = Math.min(100, Math.max(0, ratDurability));
         ratAttr1 = Math.min(caps[0], Math.max(0, ratAttr1));
         ratAttr2 = Math.min(caps[1], Math.max(0, ratAttr2));
         ratAttr3 = Math.min(caps[2], Math.max(0, ratAttr3));
         ratAttr4 = Math.min(caps[3], Math.max(0, ratAttr4));
+        return a1 != ratAttr1 || a2 != ratAttr2 || a3 != ratAttr3 || a4 != ratAttr4;
     }
 
     public void assignArchetype() {
         if (archetypeTag == null || archetypeTag.isEmpty()) {
             archetypeTag = Archetypes.assignArchetype(position, ratAttr1, ratAttr2, ratAttr3, ratAttr4);
         }
-        clampCoreRatings();
+        if (clampCoreRatings()) {
+            // Generation computes OVR before the archetype caps apply; an elite
+            // redshirt senior could otherwise start at 101-105 OVR.
+            ratOvr = getOverall();
+        }
     }
 
     public String getArchetypeDisplayName() {
@@ -937,6 +944,24 @@ public class Player {
         return ratOvr * adjGames + (team != null ? team.getConfPrestige() : 0) * 5;
     }
 
+    /**
+     * Award score for defenders (Defensive Player of the Year, all-conference and
+     * All-American ballots): the same weights at every position. Each position
+     * had its own, worth 425 a sack against 25-35 a tackle, so a lineman won
+     * Defensive Player of the Year every season; corners also scored their kick
+     * and punt return yards.
+     */
+    protected int defensiveAwardScore() {
+        return getTackles() * DEF_AWARD_TACKLE + getSacks() * DEF_AWARD_SACK + getInterceptions() * DEF_AWARD_INT
+                + getFumblesRec() * DEF_AWARD_FUMBLE_REC + getDefended() * DEF_AWARD_BREAKUP + ratOvr * 10 + getConfPrestigeBonus();
+    }
+
+    public static final int DEF_AWARD_TACKLE = 30;
+    public static final int DEF_AWARD_SACK = 350;
+    public static final int DEF_AWARD_INT = 500;
+    public static final int DEF_AWARD_FUMBLE_REC = 350;
+    public static final int DEF_AWARD_BREAKUP = 100;
+
     int getConfPrestigeBonus() {
         if (team == null) return 0;
         return team.getTeamPrestige() * 3 + team.getConfPrestige() * 7 + ((120 - team.getRankTeamPollScore()) * 3);
@@ -965,11 +990,23 @@ public class Player {
     }
 
 
+    /**
+     * How fast potential makes a player develop: 1 at the league-average
+     * potential, higher above it, lower below (0.5-1.5). The yearly jump used to
+     * be a flat 8-16, so players with 90+ potential grew about 6.5 OVR a year
+     * and those under 60 about 4.4.
+     */
+    public double potentialGrowthFactor() {
+        return Math.max(0.5, Math.min(1.5, 1 + POT_GROWTH_SLOPE * (ratPot - POT_GROWTH_PIVOT)));
+    }
+
     //Potential Overall Score
     public int getPotRating(int hc) {
         if (!team.league.showPotential) return 0;
         int potential;
-        potential = ratOvr + ((3 * ratPot + 2 * hc) / 50) * (4 - year);
+        // No growth left to project in a player's last year (a fifth-year player
+        // used to project below their current rating).
+        potential = ratOvr + ((3 * ratPot + 2 * hc) / 50) * Math.max(0, 4 - year);
         return potential;
     }
 
@@ -1213,7 +1250,24 @@ public class Player {
         if (injury != null) {
             return getInitialName() + " [" + getYrStr() + "] " + injury.toString();
         }
-        return getInitialName() + " [" + getYrStr() + "] " + "Ovr: " + ratOvr + ", Pot: " + getPotRating(team.getHeadCoach() != null ? team.getHeadCoach().ratTalent : 0);
+        String info = getInitialName() + " [" + getYrStr() + "] " + "Ovr: " + ratOvr;
+        return potentialShown() ? info + ", Pot: " + getPotRating(headCoachTalent()) : info;
+    }
+
+    /**
+     * "OVR/projected" for lineup rows, or just OVR when the league hides
+     * potential (rows used to read "75/0").
+     */
+    protected String ovrAndPotential() {
+        return potentialShown() ? ratOvr + "/" + getPotRating(headCoachTalent()) : Integer.toString(ratOvr);
+    }
+
+    private boolean potentialShown() {
+        return team != null && team.league != null && team.league.showPotential;
+    }
+
+    private int headCoachTalent() {
+        return team != null && team.getHeadCoach() != null ? team.getHeadCoach().ratTalent : 0;
     }
 
     public String getInfoLineupTransfer() {

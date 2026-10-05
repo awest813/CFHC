@@ -1,6 +1,7 @@
 package desktop;
 
 import simulation.Conference;
+import simulation.FcsPromotionMode;
 import simulation.League;
 import simulation.LeagueLaunchCoordinator.LaunchRequest.PrestigeMode;
 import simulation.LeagueSettingsOptions;
@@ -168,6 +169,8 @@ public class NewGameWizard extends JDialog {
         JCheckBox confRealignment = createOptionCheckBox("Conference realignment", true);
         JCheckBox advancedRealignment = createOptionCheckBox("Advanced transfers and realignment", false);
         JCheckBox universalProRel = createOptionCheckBox("Universal promotion/relegation", false);
+        FcsPromotionControl fcsPromotion = new FcsPromotionControl(FcsPromotionMode.UNLIMITED,
+                League.DEFAULT_FCS_PROMOTION_CAP, 0, new Font(Font.SANS_SERIF, Font.PLAIN, 14));
 
         wireMutuallyExclusiveLeagueModes(confRealignment, advancedRealignment, universalProRel);
         optionsPanel.add(showPotential);
@@ -177,6 +180,7 @@ public class NewGameWizard extends JDialog {
         optionsPanel.add(enableTv);
         optionsPanel.add(confRealignment);
         optionsPanel.add(advancedRealignment);
+        optionsPanel.add(fcsPromotion);
         optionsPanel.add(universalProRel);
 
         JScrollPane optScroll = new JScrollPane(optionsPanel);
@@ -209,6 +213,8 @@ public class NewGameWizard extends JDialog {
             options.conferenceRealignment = confRealignment.isSelected();
             options.advancedRealignment = advancedRealignment.isSelected();
             options.universalProRel = universalProRel.isSelected();
+            options.fcsPromotionMode = fcsPromotion.selectedMode();
+            options.fcsPromotionCap = fcsPromotion.selectedCap();
             createLeagueAndShowTeamPicker(options);
         });
         buttons.add(cancelBtn);

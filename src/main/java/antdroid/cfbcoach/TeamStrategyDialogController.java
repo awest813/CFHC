@@ -52,13 +52,13 @@ final class TeamStrategyDialogController {
                 android.R.layout.simple_spinner_item, stratOffSelection);
         stratOffSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         stratOffSelectionSpinner.setAdapter(stratOffSpinnerAdapter);
-        stratOffSelectionSpinner.setSelection(userTeam.playbookOffNum);
+        stratOffSelectionSpinner.setSelection(userTeam.getPlaybookOffNum());
         stratOffSelectionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                offStratDescription.setText(tsOff[position].getStratDescription());
-                userTeam.playbookOff = tsOff[position];
-                userTeam.playbookOffNum = position;
+                offStratDescription.setText(tsOff[position].getStratDescription()
+                        + "\n\n" + userTeam.schemeFitNote(true, position));
+                userTeam.setPlaybookOffNum(position);
             }
 
             @Override
@@ -73,13 +73,13 @@ final class TeamStrategyDialogController {
                 android.R.layout.simple_spinner_item, stratDefSelection);
         stratDefSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         stratDefSelectionSpinner.setAdapter(stratDefSpinnerAdapter);
-        stratDefSelectionSpinner.setSelection(userTeam.playbookDefNum);
+        stratDefSelectionSpinner.setSelection(userTeam.getPlaybookDefNum());
         stratDefSelectionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                defStratDescription.setText(tsDef[position].getStratDescription());
-                userTeam.playbookDef = tsDef[position];
-                userTeam.playbookDefNum = position;
+                defStratDescription.setText(tsDef[position].getStratDescription()
+                        + "\n\n" + userTeam.schemeFitNote(false, position));
+                userTeam.setPlaybookDefNum(position);
             }
 
             @Override

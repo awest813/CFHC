@@ -845,8 +845,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     coach.offStrat = i;
                     if (userTeam.OC != null) userTeam.OC.offStrat = i;
                     if (userTeam.DC != null) userTeam.DC.offStrat = i;
-                    userTeam.playbookOffNum = i;
-                    userTeam.playbookOff = userTeam.getPlaybookOff()[i];
+                    userTeam.setPlaybookOffNum(i);
                     setupPlaybooksDef();
                 });
     }
@@ -865,8 +864,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     coach.defStrat = i;
                     if (userTeam.OC != null) userTeam.OC.defStrat = i;
                     if (userTeam.DC != null) userTeam.DC.defStrat = i;
-                    userTeam.playbookDefNum = i;
-                    userTeam.playbookDef = userTeam.getPlaybookDef()[i];
+                    userTeam.setPlaybookDefNum(i);
                     if (simLeague.currentWeek == 0) seasonGoals();
                     defaultScreen();
                 });
@@ -2003,14 +2001,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 () -> {
                     userHC.promotionCandidate = false;
                     changeTeams(jobList, item);
-                    if (gameState.getJobType() == 2) simLeague.coachCarousel();
                 });
     }
 
 
     //Method to actually switch teams
     private void changeTeams(ArrayList<Team> teamList, int item) {
-        userTeam.newCoachTeamChanges();
+        if (!userTeam.fired) {
+            // A firing already took the coaching-change prestige hit at contracts.
+            userTeam.newCoachTeamChanges();
+        }
         userTeam.setUserControlled(false);
         userTeam.setHeadCoach(null);
         simLeague.coachHiringSingleTeam(userTeam);

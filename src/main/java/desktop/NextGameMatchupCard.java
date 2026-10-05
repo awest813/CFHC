@@ -191,13 +191,15 @@ public class NextGameMatchupCard extends CustomCardPanel {
         details.setOpaque(false);
         details.setBorder(BorderFactory.createEmptyBorder(6, 4, 0, 4));
 
-        JLabel dateTime = new JLabel("\uD83D\uDCC5  " + weekInfo);
+        JLabel dateTime = new JLabel(weekInfo, UiIcons.of(UiIcons.Glyph.CALENDAR, 12), JLabel.LEADING);
+        dateTime.setIconTextGap(6);
         dateTime.setFont(new Font("SansSerif", Font.BOLD, 11));
         dateTime.setForeground(DesktopTheme.textSecondary());
 
         JLabel stadium = new JLabel(awayTeam != null
-                ? "\uD83D\uDCCD  " + (userIsHome ? "HOME" : "AT " + awayTeam.getName())
-                : "\uD83D\uDCCD  Schedule TBD");
+                ? (userIsHome ? "HOME" : "AT " + awayTeam.getName())
+                : "Schedule TBD", UiIcons.of(UiIcons.Glyph.PIN, 12), JLabel.LEADING);
+        stadium.setIconTextGap(6);
         stadium.setFont(new Font("SansSerif", Font.PLAIN, 11));
         stadium.setForeground(DesktopTheme.textSecondary());
 

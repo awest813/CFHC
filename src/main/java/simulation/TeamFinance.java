@@ -79,13 +79,6 @@ public class TeamFinance {
         return stars;
     }
 
-    public void checkFacilitiesUpgradeBonus() {
-        if(team.facilityUpgrade) {
-            team.teamPrestige += team.teamFacilities;
-            if(team.HC != null) team.HC.baselinePrestige += team.teamFacilities*.5;
-        }
-    }
-
     public int getMinCoachHireReq() {
         int req = (team.league.getTeamList().size() - team.rankTeamPrestige) / 2 + (int)Math.round(team.league.getTeamList().size()/3.6);
         if (req >= 87) req = 87;
@@ -174,7 +167,9 @@ public class TeamFinance {
             team.league.addCoachFreeAgent(new HeadCoach(team.HC, team));
             String oldCoach = team.HC.name;
             team.fired = true;
-            team.newCoachTeamChanges();
+            // The retirement knockdown above is the prestige hit; newCoachTeamChanges()
+            // used to apply the firing one on top of it.
+            team.resetDisciplineForNewCoach();
             team.league.addNewsStory(team.league.currentWeek + 1,team.name + " Coaching Retirement>" + oldCoach + " has announced his retirement at the age of " + age +
                     ". His former team, " + team.name + " have not announced a new successor to replace the retired coach. Head Coach " + oldCoach + " had a career record of " + wins + "-" + losses + ".");
             team.league.addNewsHeadline(team.name + " coach " + oldCoach + " has announced his retirement at age " + age + ".");
@@ -311,16 +306,8 @@ public class TeamFinance {
             if(pos.equals("DC")) team.DC = null;
         } else if (!coord.retired) {
             int[] ovr = {1,1,1,1};
-
-            if (coord.getStaffOverall(ovr) >= 75 || coord.baselinePrestige >= 5 || coord.baselinePrestige >= 2 && coord.getCumulativeCoord() >= 10) {
-                if (SimRandom.nextDouble() > 0.50) {
-                    team.league.coachStarList.add(coord);
-                    if(coord.getStaffOverall(ovr) >= 80) {
-                        team.league.addNewsStory(team.league.currentWeek + 1,"Coordinator Advancement Rumor>After another successful season at " + team.name + ", " + age + " year " + coord.position + " " + coord.name + " has sparked interest at many of the schools looking for a replacement at Head Coach. He has a career record of " + team.wins + "-" + team.losses + ". ");
-                        team.league.addNewsHeadline(team.name + " " + coord.position + " " + coord.name + " heading for a possible HC job?");
-                    }
-                }
-            }
+            // Graded before the contract review below (which resets baselinePrestige).
+            boolean risingStar = coord.getStaffOverall(ovr) >= 75 || coord.baselinePrestige >= 5 || coord.baselinePrestige >= 2 && coord.getCumulativeCoord() >= 10;
 
             if(team.userControlled) {
                 //SKIP TO DIALOG
@@ -362,6 +349,17 @@ public class TeamFinance {
                         coord.contractYear = 0;
                         coord.baselinePrestige = 0;
                     }
+                }
+            }
+
+            // Only a coordinator still on staff can be a rising star: one fired above
+            // is already in the fired pool, and listing him too put him on two staffs.
+            boolean stillOnStaff = pos.equals("OC") ? team.OC == coord : team.DC == coord;
+            if (risingStar && stillOnStaff && SimRandom.nextDouble() > 0.50) {
+                team.league.coachStarList.add(coord);
+                if(coord.getStaffOverall(ovr) >= 80) {
+                    team.league.addNewsStory(team.league.currentWeek + 1,"Coordinator Advancement Rumor>After another successful season at " + team.name + ", " + age + " year " + coord.position + " " + coord.name + " has sparked interest at many of the schools looking for a replacement at Head Coach. He has a career record of " + team.wins + "-" + team.losses + ". ");
+                    team.league.addNewsHeadline(team.name + " " + coord.position + " " + coord.name + " heading for a possible HC job?");
                 }
             }
         }

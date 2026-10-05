@@ -54,7 +54,7 @@ public class NewsPanel implements LeagueScreen {
                 JLabel l = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 l.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
                 String fg = isSelected ? "rgb(255,255,255)" : DesktopTheme.cssRgb(DesktopTheme.textPrimary());
-                int wrapWidth = Math.max(120, list.getWidth() - 24);
+                int wrapWidth = DesktopTheme.htmlWrapWidth(Math.max(120, list.getWidth() - 24));
                 l.setText("<html><div style='width:" + wrapWidth + "px;color:" + fg + ";'>"
                         + DesktopTheme.escapeForHtml(value.toString()) + "</div></html>");
                 DesktopTheme.decorateListCellLabel(l, index, isSelected, null);

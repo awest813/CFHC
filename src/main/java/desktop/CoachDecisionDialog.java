@@ -187,24 +187,27 @@ final class CoachDecisionDialog {
         return game.homeTeam.isUserControlled() ? game.getHomeTimeouts() : game.getAwayTimeouts();
     }
 
-    private static String[] planOffNames(Game game) {
+    // Option i + 1 selects scheme index i (plan.offScheme / plan.defScheme). The
+    // names used to come from the 1-based constructor with 0-based numbers: every
+    // label was one scheme off, the first was a random book and the last was missing.
+    static String[] planOffNames(Game game) {
         boolean userHome = game.homeTeam.isUserControlled();
         int current = userHome ? game.homeTeam.getPlaybookOffNum() : game.awayTeam.getPlaybookOffNum();
-        String[] names = new String[7];
-        names[0] = "Keep current (" + new simulation.PlaybookOffense(current).getStratName() + ")";
-        for (int i = 0; i < 6; i++) {
-            names[i + 1] = new simulation.PlaybookOffense(i).getStratName();
+        String[] names = new String[simulation.Team.OFFENSE_PLAYBOOKS + 1];
+        names[0] = "Keep current (" + simulation.PlaybookOffense.forIndex(current).getStratName() + ")";
+        for (int i = 0; i < simulation.Team.OFFENSE_PLAYBOOKS; i++) {
+            names[i + 1] = simulation.PlaybookOffense.forIndex(i).getStratName();
         }
         return names;
     }
 
-    private static String[] planDefNames(Game game) {
+    static String[] planDefNames(Game game) {
         boolean userHome = game.homeTeam.isUserControlled();
         int current = userHome ? game.homeTeam.getPlaybookDefNum() : game.awayTeam.getPlaybookDefNum();
-        String[] names = new String[6];
-        names[0] = "Keep current (" + new simulation.PlaybookDefense(current).getStratName() + ")";
-        for (int i = 0; i < 5; i++) {
-            names[i + 1] = new simulation.PlaybookDefense(i).getStratName();
+        String[] names = new String[simulation.Team.DEFENSE_PLAYBOOKS + 1];
+        names[0] = "Keep current (" + simulation.PlaybookDefense.forIndex(current).getStratName() + ")";
+        for (int i = 0; i < simulation.Team.DEFENSE_PLAYBOOKS; i++) {
+            names[i + 1] = simulation.PlaybookDefense.forIndex(i).getStratName();
         }
         return names;
     }

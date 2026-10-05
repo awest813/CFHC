@@ -39,7 +39,11 @@ public class PlayerQB extends Player {
         wasRedshirt = getWasRedshirtStatus();
 
         createGenericAttributes(stars, attrDropper1, attDropper2, attDropper3, attDropper4, overallWt);
-        ratAttr4 = (int)(SimRandom.nextDouble()*45)+45;
+        // Speed keeps a wide spread (pocket passers vs runners) but now scales
+        // with class and stars like every other attribute; a flat 45-90 roll
+        // left veteran QBs under-rated at league creation, and they climbed for
+        // years as progression caught the attribute up.
+        ratAttr4 = Math.max(40, Math.min(99, ratAttr4 + (int) (SimRandom.nextDouble() * 40) - 20));
         assignArchetype();
         ratOvr = getOverall();
 
@@ -190,8 +194,8 @@ public class PlayerQB extends Player {
     @Override
     public String getInfoForLineup() {
         if (injury != null)
-            return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.getHeadCoach() != null ? team.getHeadCoach().ratTalent : 0) + " " + injury.toString();
-        return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.getHeadCoach() != null ? team.getHeadCoach().ratTalent : 0) + " (" +
+            return getInitialName() + " [" + getYrStr() + "] " + ovrAndPotential() + " " + injury.toString();
+        return getInitialName() + " [" + getYrStr() + "] " + ovrAndPotential() + " (" +
                 getRatPassPow() + ", " + getRatPassAcc() + ", " + getRatEvasion() + ", " + getRatSpeed() + ")";
 }
 }

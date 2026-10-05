@@ -164,6 +164,8 @@ public class TeamDetailView extends JDialog {
             }
         };
 
+        // Potential follows the league setting (a saved roster without a live team shows it).
+        boolean showPot = liveTeam == null || liveTeam.league == null || liveTeam.league.showPotential;
         team.roster().stream()
                 .sorted(Comparator.comparingInt(PlayerRecord::ratOvr).reversed())
                 .forEach(p -> model.addRow(new Object[]{
@@ -171,7 +173,7 @@ public class TeamDetailView extends JDialog {
                         p.name(),
                         DesktopTheme.yearAbbreviation(p.year()),
                         p.ratOvr(),
-                        p.ratPot(),
+                        showPot ? p.ratPot() : null,
                         p.ratIntelligence()
                 }));
 
@@ -467,7 +469,8 @@ public class TeamDetailView extends JDialog {
         };
 
         model.addRow(new Object[]{"Team Budget", "$" + String.format(Locale.ROOT, "%,d", team.getTeamBudget())});
-        model.addRow(new Object[]{"Recruiting Budget", "$" + String.format(Locale.ROOT, "%,d", team.getTeamRecruitBudget())});
+        model.addRow(new Object[]{"Recruiting Budget",
+                DesktopRecruitingBudget.format(DesktopRecruitingBudget.forTeam(team, ownerFrame))});
         model.addRow(new Object[]{"Discipline Budget", "$" + String.format(Locale.ROOT, "%,d", team.getTeamDisciplineBudget())});
         model.addRow(new Object[]{"", ""});
         model.addRow(new Object[]{"Facilities Level", team.getTeamFacilities()});

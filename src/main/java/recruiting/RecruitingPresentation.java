@@ -149,7 +149,19 @@ public final class RecruitingPresentation {
     }
 
     public static String buildPotentialDetails(RecruitingPlayerRecord recruit) {
-        return "Height: " + getHeight(recruit.heightInches()) +
+        return buildPotentialDetails(recruit, false);
+    }
+
+    /**
+     * Measurables plus the recruit's potential, which only scouting reveals
+     * (scouting used to cost budget without showing anything new).
+     */
+    public static String buildPotentialDetails(RecruitingPlayerRecord recruit, boolean scouted) {
+        String potential = scouted
+                ? getGrade(Integer.toString(recruit.potential()))
+                : " ? (scout to reveal)";
+        return "Potential: " + potential +
+                "\nHeight: " + getHeight(recruit.heightInches()) +
                 "\nWeight: " + getWeight(recruit.weightPounds()) +
                 "\nIntelligence: " + getGrade(Integer.toString(recruit.intelligence())) +
                 "\nCharacter: " + getGrade(Integer.toString(recruit.character())) +

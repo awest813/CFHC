@@ -260,32 +260,32 @@ public final class CareerDialogController {
                                                   java.util.ArrayList<Staff> list,
                                                   Team userTeam, League simLeague,
                                                   Runnable onComplete) {
-        String[] items = new String[list.size()];
-        int num = 0;
+        // Row 0 renews the current coordinator when there is one; the candidates
+        // follow it. (They used to share indexes with it, hiding the top candidate.)
+        final int num = (isOffense ? userTeam.OC : userTeam.DC) != null ? 1 : 0;
+        String[] items = new String[list.size() + num];
 
         if (isOffense) {
             final simulation.PlaybookOffense[] playbook = userTeam.getPlaybookOff();
             if (userTeam.OC != null) {
-                num = 1;
                 items[0] = userTeam.OC.getName() + " [current]\nAge: " + userTeam.OC.age
                         + "  Off: " + userTeam.OC.ratOff + "  Tal: " + userTeam.OC.ratTalent
                         + "  " + playbook[userTeam.OC.offStrat].getStratName() + "\n";
             }
-            for (int i = num; i < list.size(); i++) {
-                items[i] = list.get(i).name + "\nAge: " + list.get(i).age
+            for (int i = 0; i < list.size(); i++) {
+                items[i + num] = list.get(i).name + "\nAge: " + list.get(i).age
                         + "  Off: " + list.get(i).ratOff + "  Tal: " + list.get(i).ratTalent
                         + "  " + playbook[list.get(i).offStrat].getStratName() + "\n";
             }
         } else {
             final simulation.PlaybookDefense[] playbook = userTeam.getPlaybookDef();
             if (userTeam.DC != null) {
-                num = 1;
                 items[0] = userTeam.DC.getName() + " [current]\nAge: " + userTeam.DC.age
                         + "  Def: " + userTeam.DC.ratDef + "  Tal: " + userTeam.DC.ratTalent
                         + "  " + playbook[userTeam.DC.defStrat].getStratName() + "\n";
             }
-            for (int i = num; i < list.size(); i++) {
-                items[i] = list.get(i).name + "\nAge: " + list.get(i).age
+            for (int i = 0; i < list.size(); i++) {
+                items[i + num] = list.get(i).name + "\nAge: " + list.get(i).age
                         + "  Def: " + list.get(i).ratDef + "  Tal: " + list.get(i).ratTalent
                         + "  " + playbook[list.get(i).defStrat].getStratName() + "\n";
             }
@@ -302,14 +302,16 @@ public final class CareerDialogController {
                     userTeam.OC.contractYear = 0;
                     userTeam.OC.baselinePrestige = 0;
                 } else {
-                    userTeam.OC = new staff.OC(list.get(item), userTeam);
+                    final Staff hired = list.get(item - num);
+                    simLeague.releaseCoordinator(userTeam.OC, userTeam);
+                    userTeam.OC = new staff.OC(hired, userTeam);
                     simLeague.addNewsHeadline(userTeam.getName() + " adds new Off Coord " + userTeam.OC.getName());
                     simLeague.addNewsStory(simLeague.currentWeek, "Off Coord Change: " + userTeam.getName()
                             + ">After an extensive search for a new coordinator, " + userTeam.getName()
                             + " has hired " + userTeam.OC.getName() + " to lead the offense.");
                     userTeam.OC.contractLength = 3;
                     userTeam.OC.contractYear = 0;
-                    simLeague.removeCoachFreeAgent(list.get(item));
+                    simLeague.removeCoachFreeAgent(hired);
 
                     if (isNewTeam) {
                         dialog.dismiss();
@@ -330,14 +332,16 @@ public final class CareerDialogController {
                     userTeam.DC.contractYear = 0;
                     userTeam.DC.baselinePrestige = 0;
                 } else {
-                    userTeam.DC = new staff.DC(list.get(item), userTeam);
+                    final Staff hired = list.get(item - num);
+                    simLeague.releaseCoordinator(userTeam.DC, userTeam);
+                    userTeam.DC = new staff.DC(hired, userTeam);
                     simLeague.addNewsHeadline(userTeam.getName() + " adds new Def Coord " + userTeam.DC.getName());
                     simLeague.addNewsStory(simLeague.currentWeek, "Def Coord Change: " + userTeam.getName()
                             + ">After an extensive search for a new coordinator, " + userTeam.getName()
                             + " has hired " + userTeam.DC.getName() + " to lead the defense.");
                     userTeam.DC.contractLength = 3;
                     userTeam.DC.contractYear = 0;
-                    simLeague.removeCoachFreeAgent(list.get(item));
+                    simLeague.removeCoachFreeAgent(hired);
                     simLeague.coordinatorCarousel();
                 }
             }

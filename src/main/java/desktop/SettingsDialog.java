@@ -41,6 +41,9 @@ public class SettingsDialog extends JDialog {
         this(owner, league, null);
     }
 
+    /** Wrapped description/hint labels: 430 real px fits the 560px dialog's content column. */
+    private static final int HTML_TEXT_WIDTH = DesktopTheme.htmlWrapWidth(430);
+
     public SettingsDialog(JFrame owner, League league, simulation.AudioManager sounds) {
         super(owner, "League Settings", true);
         this.uiSounds = sounds;
@@ -146,14 +149,14 @@ public class SettingsDialog extends JDialog {
                     return this;
                 }
             });
-            JLabel practiceFocusDesc = new JLabel("<html><body style='width: 420px;'>" + curPf.shortDescription() + "</body></html>");
+            JLabel practiceFocusDesc = new JLabel("<html><body style='width: " + HTML_TEXT_WIDTH + "px;'>" + curPf.shortDescription() + "</body></html>");
             practiceFocusDescRef[0] = practiceFocusDesc;
             practiceFocusDesc.setFont(new Font("SansSerif", Font.PLAIN, 11));
             practiceFocusDesc.setForeground(DesktopTheme.textSecondary());
             practiceFocusCombo.addActionListener(e -> {
                 Object sel = practiceFocusComboRef[0].getSelectedItem();
                 if (sel instanceof PracticeFocus pf && practiceFocusDescRef[0] != null) {
-                    practiceFocusDescRef[0].setText("<html><body style='width: 420px;'>" + pf.shortDescription() + "</body></html>");
+                    practiceFocusDescRef[0].setText("<html><body style='width: " + HTML_TEXT_WIDTH + "px;'>" + pf.shortDescription() + "</body></html>");
                 }
             });
             content.add(practiceFocusCombo);
@@ -235,6 +238,10 @@ public class SettingsDialog extends JDialog {
         content.add(Box.createVerticalStrut(15));
         JCheckBox advRealign = createStyledCheckBox("Advanced transfers and realignment", league.advancedRealignment, content);
         content.add(Box.createVerticalStrut(15));
+        FcsPromotionControl fcsPromotion = new FcsPromotionControl(league.fcsPromotionMode,
+                league.fcsPromotionCap, league.fcsPromotionsUsed, new Font("SansSerif", Font.BOLD, 13));
+        content.add(fcsPromotion);
+        content.add(Box.createVerticalStrut(15));
         JCheckBox universalProRel = createStyledCheckBox("Universal promotion / relegation", league.enableUnivProRel, content);
         universalProRel.setEnabled(league.currentWeek == 0);
         if (!universalProRel.isEnabled()) {
@@ -244,11 +251,20 @@ public class SettingsDialog extends JDialog {
 
         content.add(Box.createVerticalGlue());
 
-        JLabel hint = new JLabel("<html><body style='width: 390px;'><i>Settings are applied immediately to the active universe. Expanded playoffs and promotion/relegation can only be changed before the regular season starts. Save your league to persist these changes.</i></body></html>");
+        JLabel hint = new JLabel("<html><body style='width: " + HTML_TEXT_WIDTH + "px;'><i>Settings are applied immediately to the active universe. Expanded playoffs and promotion/relegation can only be changed before the regular season starts. Save your league to persist these changes.</i></body></html>");
         hint.setFont(new Font("SansSerif", Font.PLAIN, 12));
         hint.setForeground(DesktopTheme.textSecondary());
         hint.setBorder(BorderFactory.createEmptyBorder(20, 0, 0, 0));
         content.add(hint);
+
+        // BoxLayout lines children up by alignmentX, and combo boxes default to
+        // centered while checkboxes and labels are left-aligned. The mix pushed
+        // every left-aligned row right and forced a horizontal scrollbar.
+        for (Component child : content.getComponents()) {
+            if (child instanceof javax.swing.JComponent jc) {
+                jc.setAlignmentX(Component.LEFT_ALIGNMENT);
+            }
+        }
 
         JScrollPane scroll = new JScrollPane(content);
         scroll.setBorder(null);
@@ -267,9 +283,9 @@ public class SettingsDialog extends JDialog {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                if (DesktopTheme.isDark()) {
-                    g2.setColor(new Color(255, 255, 255, 10));
-                }
+                // Faint fill in both themes; light mode used to fill with the
+                // (gray) text color and hide the label.
+                g2.setColor(DesktopTheme.isDark() ? new Color(255, 255, 255, 10) : new Color(0, 0, 0, 12));
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
                 super.paintComponent(g);
                 g2.dispose();
@@ -319,6 +335,8 @@ public class SettingsDialog extends JDialog {
             options.conferenceRealignment = confRealign.isSelected();
             options.advancedRealignment = advRealign.isSelected();
             options.universalProRel = universalProRel.isSelected();
+            options.fcsPromotionMode = fcsPromotion.selectedMode();
+            options.fcsPromotionCap = fcsPromotion.selectedCap();
             options.applyTo(league, expandedPlayoffs.isEnabled(), universalProRel.isEnabled(), true);
             if (practiceFocusComboRef[0] != null && league.userTeam != null) {
                 Object sel = practiceFocusComboRef[0].getSelectedItem();

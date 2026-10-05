@@ -16,6 +16,11 @@ public class LeagueSettingsOptions {
     public boolean conferenceRealignment;
     public boolean advancedRealignment;
     public boolean universalProRel;
+    public FcsPromotionMode fcsPromotionMode = FcsPromotionMode.UNLIMITED;
+    public int fcsPromotionCap = League.DEFAULT_FCS_PROMOTION_CAP;
+
+    /** Largest sensible cap: the size of the FCS name pool. */
+    public static final int MAX_FCS_PROMOTION_CAP = 33;
 
     public static LeagueSettingsOptions fromLeague(League league) {
         LeagueSettingsOptions options = new LeagueSettingsOptions();
@@ -28,6 +33,8 @@ public class LeagueSettingsOptions {
         options.conferenceRealignment = league.confRealignment;
         options.advancedRealignment = league.advancedRealignment;
         options.universalProRel = league.enableUnivProRel;
+        options.fcsPromotionMode = league.fcsPromotionMode;
+        options.fcsPromotionCap = league.fcsPromotionCap;
         return options;
     }
 
@@ -38,6 +45,10 @@ public class LeagueSettingsOptions {
         } else if (advancedRealignment) {
             conferenceRealignment = true;
         }
+        if (fcsPromotionMode == null) {
+            fcsPromotionMode = FcsPromotionMode.UNLIMITED;
+        }
+        fcsPromotionCap = Math.max(1, Math.min(MAX_FCS_PROMOTION_CAP, fcsPromotionCap));
     }
 
     public void applyTo(League league, boolean allowExpandedPlayoffChange,
@@ -49,6 +60,8 @@ public class LeagueSettingsOptions {
         league.careerMode = careerMode;
         league.neverRetire = neverRetire;
         league.enableTV = enableTv;
+        league.fcsPromotionMode = fcsPromotionMode;
+        league.fcsPromotionCap = fcsPromotionCap;
         if (allowExpandedPlayoffChange) {
             league.expPlayoffs = expandedPlayoffs;
         }

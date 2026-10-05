@@ -176,7 +176,7 @@ This makes roster management more strategic: decide when to replace aging stars.
 Current `PracticeFocus` enum (BALANCED, FOOTBALL_IQ, FUNDAMENTALS, ATHLETICISM, PHYSICAL) is a good foundation. Expand it:
 
 - **Add position-group targeting**: PracticeFocus includes a sub-focus on a specific position group (e.g., "Fundamentals — QB" or "Speed — WR/CB")
-- **Add risk/reward**: "Intense" focus gives +20% growth but +10% injury chance for that week
+- **Add risk/reward**: "Intense" focus gives +50% focus growth, but each player has a 1% chance a week of a practice injury (a first cut of +20% growth / 10% injury chance hurt about ten players a week for no measurable gain)
 - **Weekly practice outcomes**: Each week of the season, the practice focus produces small rating changes (not just mid-season and end-of-season). Currently, mid-season only runs once. Add weekly fluctuations.
 
 ---

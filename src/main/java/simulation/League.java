@@ -238,6 +238,14 @@ public class League {
     public boolean expPlayoffs;
     public boolean advancedRealignment;
 
+    public static final int DEFAULT_FCS_PROMOTION_CAP = 6;
+    /** Whether (and how many) FCS schools realignment may promote into the league. */
+    public FcsPromotionMode fcsPromotionMode = FcsPromotionMode.UNLIMITED;
+    /** Career-wide limit on FCS promotions when {@link #fcsPromotionMode} is CAPPED. */
+    public int fcsPromotionCap = DEFAULT_FCS_PROMOTION_CAP;
+    /** FCS schools promoted into this league so far (counts against the cap). */
+    public int fcsPromotionsUsed;
+
     /** Coach skill XP for the user head coach each simulated week (parity-tuned). */
     private static final int WEEKLY_USER_COACH_SKILL_XP = 3;
     public int countRealignment;
@@ -447,6 +455,8 @@ public class League {
         checkIndyConfExists();
 
         setupSeason();
+        assignMentors();
+        prepareSeasonBaselines();
     }
 
     public static String normalizeSeedText(String value) {
@@ -642,6 +652,8 @@ public class League {
         checkIndyConfExists();
 
         setupSeason();
+        assignMentors();
+        prepareSeasonBaselines();
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1270,8 +1282,100 @@ public class League {
                 nationalChampionNameForRecord(),
                 java.util.List.copyOf(buildGameRecordsForSave()),
                 rngSeed,
+                settingsRecord(),
+                recruitingPhaseActive,
+                coachPoolRecords(),
                 regSeasonWeeks
         );
+    }
+
+    /**
+     * The coaches without a job, for the save. Fired coaches the carousel has not
+     * placed yet are saved with the pool: the fired list is rebuilt each offseason.
+     */
+    private java.util.List<StaffRecord> coachPoolRecords() {
+        java.util.List<StaffRecord> pool = new ArrayList<>();
+        java.util.Set<Staff> seen = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+        for (Staff c : coachFreeAgents) {
+            if (seen.add(c)) pool.add(c.toRecord());
+        }
+        for (Staff c : coachList) {
+            if (seen.add(c)) pool.add(c.toRecord());
+        }
+        return pool;
+    }
+
+    /** The persisted league options (see {@link LeagueRecord.Settings}). */
+    LeagueRecord.Settings settingsRecord() {
+        return new LeagueRecord.Settings(careerMode, showPotential, fullGameLog, neverRetire, enableTV,
+                expPlayoffs, confRealignment, advancedRealignment, enableUnivProRel,
+                fcsPromotionMode, fcsPromotionCap, fcsPromotionsUsed);
+    }
+
+    /**
+     * Restores the league options. Saves from before they were persisted get the
+     * new-league defaults (they used to reload with every option off), except that a
+     * league already converted to promotion/relegation stays in that mode.
+     */
+    private void applySettingsRecord(LeagueRecord.Settings settings) {
+        boolean legacy = settings == null;
+        if (legacy) {
+            settings = LeagueRecord.Settings.defaults();
+        }
+        careerMode = settings.careerMode();
+        showPotential = settings.showPotential();
+        fullGameLog = settings.fullGameLog();
+        neverRetire = settings.neverRetire();
+        enableTV = settings.enableTv();
+        expPlayoffs = settings.expandedPlayoffs();
+        confRealignment = settings.confRealignment();
+        advancedRealignment = settings.advancedRealignment();
+        enableUnivProRel = settings.universalProRel();
+        fcsPromotionMode = settings.fcsPromotionMode();
+        fcsPromotionCap = settings.fcsPromotionCap();
+        fcsPromotionsUsed = settings.fcsPromotionsUsed();
+        if (legacy) {
+            if (looksLikeUniversalProRel()) {
+                enableUnivProRel = true;
+                confRealignment = false;
+                advancedRealignment = false;
+            }
+            // Pro/rel's odd-count filler school isn't a realignment promotion.
+            fcsPromotionsUsed = enableUnivProRel ? 0 : countPromotedFcsSchools();
+        }
+    }
+
+    /**
+     * Whether this offseason's CPU recruiting already ran, for saves that don't
+     * record it. Recruiting fills every CPU roster to {@link RosterRules#MIN_PLAYERS};
+     * before it, graduation leaves them well short. Assuming "ran" at the gate
+     * (the old rule) skipped CPU recruiting for a save made just before it.
+     */
+    private boolean cpuClassesSigned() {
+        boolean anyCpu = false;
+        for (Team t : teamList) {
+            if (t.isUserControlled()) {
+                continue;
+            }
+            anyCpu = true;
+            if (t.getAllPlayers().size() < RosterRules.MIN_PLAYERS) {
+                return false;
+            }
+        }
+        return anyCpu;
+    }
+
+    /** {@link #convertUnivProRel()} renames every conference to "1st Tier", "2nd Tier", ... */
+    private boolean looksLikeUniversalProRel() {
+        if (conferences.isEmpty()) {
+            return false;
+        }
+        for (Conference c : conferences) {
+            if (!c.confName.endsWith(" Tier") && !c.confName.equals("Independent")) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -1371,7 +1475,6 @@ public class League {
         // then startNextSeason() moves the league to the standard length.
         this.regSeasonWeeks = record.regSeasonWeeks() > 0 ? record.regSeasonWeeks() : LEGACY_REG_SEASON_WEEKS;
         this.currentWeek = record.currentWeek();
-        this.recruitingPhaseActive = SeasonFlowOrder.isRecruitingGate(record.currentWeek(), regSeasonWeeks);
         this.heismanWinnerStrFull = record.heismanWinnerName();
         this.nationalChampionName = record.nationalChampName() != null ? record.nationalChampName() : "";
 
@@ -1385,21 +1488,41 @@ public class League {
         linkOocOpponentsFromRecord(record);
         
         this.leagueHoF = new ArrayList<>(record.leagueHoF());
+
+        coachList.clear();
+        coachStarList.clear();
+        coachFreeAgents.clear();
+        for (StaffRecord coach : record.coachFreeAgents()) {
+            coachFreeAgents.add(new HeadCoach(coach, null));
+        }
         
         for (DataRecord dr : record.leagueRecords()) {
             this.leagueRecords.addRecord(dr);
         }
 
         
-        // Finalize setup
+        // Finalize setup: the saved schemes (the user's pick included), or for saves
+        // that predate them the books the coordinators run.
+        java.util.Map<String, LeagueRecord.TeamRecord> savedTeams = new java.util.HashMap<>();
+        for (LeagueRecord.ConferenceRecord cr : record.conferences()) {
+            for (LeagueRecord.TeamRecord tr : cr.teams()) {
+                savedTeams.put(tr.name(), tr);
+            }
+        }
         for (Team t : teamList) {
-            t.setPlaybookOffNum(t.getCPUOffense());
-            t.setPlaybookDefNum(t.getCPUDefense());
+            t.useCpuPlaybooks();
+            LeagueRecord.TeamRecord saved = savedTeams.get(t.name);
+            if (saved != null && saved.playbookOffense() >= 0) t.setPlaybookOffNum(saved.playbookOffense());
+            if (saved != null && saved.playbookDefense() >= 0) t.setPlaybookDefNum(saved.playbookDefense());
         }
 
         linkUserTeamFromLoadedCoaches();
+        applySettingsRecord(record.settings());
+        this.recruitingPhaseActive = SeasonFlowOrder.isRecruitingGate(currentWeek, regSeasonWeeks)
+                && (record.recruitingStarted() != null ? record.recruitingStarted() : cpuClassesSigned());
 
         restoreScheduledGames(record.scheduledGames());
+        restoreSeasonBaselines();
 
         // New-format loads skip setupSeason(), which normally allocates weekly news/score
         // buckets. Without this, preseasonNews/topRecruits NPEs on newsStories.
@@ -1613,6 +1736,82 @@ public class League {
         return name;
     }
     
+    /**
+     * Season baselines every team is graded against at season end: projected
+     * wins/poll rank (prestige change), starting prestige and talent (staff
+     * evaluation), and the league talent averages. The engine owns this now;
+     * it used to run only from Android's season-goals dialog, so desktop and
+     * headless careers had every team "projected #0" (a ~5-point prestige loss
+     * per team per season) and a zero league talent average that divided to
+     * NaN in {@code Team.advanceHC}, crushing coach OFF/DEF ratings to the floor.
+     * Keeps {@link #teamList} and conference order intact (setTeamBenchMarks
+     * re-sorts the list; updateTeamTalentRatings would re-sort every
+     * conference, which also reorders the save file).
+     */
+    public void prepareSeasonBaselines() {
+        List<Team> order = new ArrayList<>(teamList);
+        for (Team t : teamList) {
+            t.updateTalentRatings();
+        }
+        setTeamBenchMarks();
+        teamList.clear();
+        teamList.addAll(order);
+    }
+
+    /**
+     * After a record load: saves written before {@link LeagueRecord.SeasonBaseline}
+     * carry none, so measure them from the current state. Rosters are left alone
+     * (no re-sort) so a customised depth chart survives the load.
+     */
+    void restoreSeasonBaselines() {
+        if (teamList.isEmpty()) {
+            return;
+        }
+        boolean missing = false;
+        for (Team t : teamList) {
+            if (!t.hasSeasonBaseline()) {
+                missing = true;
+                break;
+            }
+        }
+        List<Team> order = new ArrayList<>(teamList);
+        if (missing) {
+            for (Team t : teamList) {
+                t.updateTalentRatings();
+            }
+            setTeamRanks();
+            for (Team t : teamList) {
+                t.captureSeasonBaselineWithoutRosterChanges();
+            }
+            for (Team t : teamList) {
+                t.projectTeamWins();
+                t.projectPollRank();
+            }
+            List<Team> byProjection = new ArrayList<>(teamList);
+            byProjection.sort(new CompTeamProjPoll());
+            for (int i = 0; i < byProjection.size(); ++i) {
+                byProjection.get(i).setProjectedPollRank(i + 1);
+            }
+        }
+        // League averages over the teams' starting talent, with the same
+        // per-step int truncation (and projected-rank iteration order) as
+        // getAverageOffTalent()/getAverageDefTalent() inside setTeamBenchMarks(),
+        // so a reload reproduces the values set when the baselines were taken.
+        List<Team> byRank = new ArrayList<>(teamList);
+        byRank.sort(java.util.Comparator.comparingInt(Team::getProjectedPollRank));
+        int off = 0;
+        int def = 0;
+        for (Team t : byRank) {
+            off += t.teamStartOffTal;
+            def += t.teamStartDefTal;
+        }
+        leagueOffTal = off / teamList.size();
+        leagueDefTal = def / teamList.size();
+        leagueChemistry = getAverageTeamChemistry();
+        teamList.clear();
+        teamList.addAll(order);
+    }
+
     //Set Up Team Benchmarks for Goals
     public void setTeamBenchMarks() {
         setTeamRanks();
@@ -2635,17 +2834,20 @@ public class League {
                         + userTeam.getWins() + "-" + userTeam.getLosses() + " campaign.");
             }
         }
-        int rumors = 0;
-        for (Team t : teamsRankedByPoll()) {
-            if (rumors >= 2) break;
-            if (t.isUserControlled() || t.getHeadCoach() == null) continue;
-            if (t.getTeamPrestige() >= 85) {
-                newsHeadlines.add("Carousel Watch: " + t.getName() + " expected to be active in the coaching search season.");
-                rumors++;
-            }
+        // The schools actually searching: head jobs left open by this offseason's
+        // firings and retirements, the most prestigious first.
+        List<Team> openings = new ArrayList<>();
+        for (Team t : teamList) {
+            if (!t.isUserControlled() && t.getHeadCoach() == null) openings.add(t);
         }
-        if (rumors == 0) {
-            newsHeadlines.add("Coaching Carousel: the league braces for a busy search season.");
+        openings.sort(new CompTeamPrestige());
+        for (int i = 0; i < Math.min(2, openings.size()); i++) {
+            newsHeadlines.add("Carousel Watch: " + openings.get(i).getName() + " is searching for a new head coach.");
+        }
+        if (openings.isEmpty()) {
+            newsHeadlines.add("Coaching Carousel: every head coaching job is filled heading into the offseason.");
+        } else if (openings.size() > 2) {
+            newsHeadlines.add("Coaching Carousel: " + openings.size() + " programs are searching for a new head coach.");
         }
     }
 
@@ -3593,13 +3795,132 @@ public class League {
 
 
     public void advanceStaff() {
-        coachList.clear();
-        coachStarList.clear();
+        advanceCoachFreeAgents();
         Collections.sort(teamList, new CompTeamPrestige());
+        // Staff are graded against this season's league average, so an average
+        // year leaves ratings where they were (a raw grade let the whole coaching
+        // pool creep toward the 95 cap). The facility-upgrade prestige used to be
+        // re-applied here as well (checkFacilitiesUpgradeBonus), double-counting
+        // the bonus upgradeFacilities() already gave.
+        double prestigeSum = 0;
+        double recordSum = 0;
+        for (Team t : teamList) {
+            prestigeSum += t.getTeamPrestige() - t.getTeamPrestigeStart() - t.getDisciplinePts();
+            recordSum += t.getWins() - t.getLosses();
+        }
+        staffEvalPrestigeMean = prestigeSum / teamList.size();
+        staffEvalRecordMean = recordSum / teamList.size();
         for (int t = 0; t < teamList.size(); ++t) {
             teamList.get(t).advanceHC(leagueRecords, teamList.get(t).getTeamRecords());
             teamList.get(t).advanceCoordinator();
-            teamList.get(t).checkFacilitiesUpgradeBonus();
+        }
+    }
+
+    /**
+     * Pairs each team's veteran leaders with its young players for the coming
+     * season, once the incoming class is on the roster (see Team.assignMentors).
+     */
+    void assignMentors() {
+        for (Team t : teamList) {
+            t.assignMentors();
+        }
+    }
+
+    /** League-average season prestige change / (W-L), set by {@link #advanceStaff()}. */
+    public double staffEvalPrestigeMean;
+    public double staffEvalRecordMean;
+
+    /** Share of unemployed coaches who leave the profession each offseason. */
+    static final double FREE_AGENT_EXIT_CHANCE = 0.25;
+
+    /**
+     * Yearly upkeep of the unemployed-coach pool, run before this year's contract
+     * decisions refill the fired and rising-star lists. Fired coaches nobody hired
+     * last offseason join the pool (they used to be dropped with the list, so the
+     * pool never had anyone to bring back). Everyone in it ages a year and retires
+     * at the same random 60-78 age employed coaches do, or leaves coaching.
+     * Retirees stay listed only if they were head coaches, for the coach database.
+     */
+    void advanceCoachFreeAgents() {
+        for (Staff c : coachList) {
+            addCoachFreeAgent(c);
+        }
+        coachList.clear();
+        coachStarList.clear();
+        java.util.Iterator<Staff> it = coachFreeAgents.iterator();
+        while (it.hasNext()) {
+            Staff c = it.next();
+            if (c.retired || c.user) {
+                continue;
+            }
+            c.age++;
+            if (c.age > 60 + SimRandom.nextInt(19) || SimRandom.nextDouble() < FREE_AGENT_EXIT_CHANCE) {
+                c.retired = true;
+                if (!hasHeadCoachingRecord(c)) {
+                    it.remove();
+                }
+            }
+        }
+    }
+
+    /** Whether the coach has coached games as a head coach (only head coaches record wins/losses). */
+    static boolean hasHeadCoachingRecord(Staff c) {
+        return c.stats != null && c.stats.length > 1 && c.getWins() + c.getLosses() > 0;
+    }
+
+    /**
+     * Whether a listed coach still holds the job they were listed from. Rising
+     * stars are listed during contract decisions and may since have been fired,
+     * let go by a new head coach or promoted; hiring them anyway put one coach on
+     * two staffs.
+     */
+    static boolean holdsPost(Staff c) {
+        Team t = c == null ? null : c.team;
+        return t != null && (t.getHeadCoach() == c || t.getOC() == c || t.getDC() == c);
+    }
+
+    /**
+     * Keeps program prestige relative. Season results, facility / NIL / stadium
+     * upgrades, and coaching changes all add or remove prestige; with most teams
+     * upgrading every offseason the whole league inflated (~1.5 pts/team/year).
+     * Shifts every team by the league-average change since the season began,
+     * so over- and under-performers still move against each other. Staff
+     * prestige baselines move with it so "prestige gained since hired"
+     * (contracts, firing, promotion) is unaffected.
+     */
+    void normalizeLeaguePrestige() {
+        long start = 0;
+        long now = 0;
+        int n = 0;
+        for (Team t : teamList) {
+            if (!t.hasSeasonBaseline()) {
+                continue; // promoted this offseason: nothing to compare against
+            }
+            start += t.teamPrestigeStart;
+            now += t.teamPrestige;
+            n++;
+        }
+        if (n == 0) {
+            return;
+        }
+        // Remove the exact league-wide total (the per-team mean rounded away
+        // ~0.3 pts/season): everyone moves by the floor of the mean and a
+        // random handful by one more point to cover the remainder.
+        long excess = (now - start) * teamList.size() / n;
+        int base = (int) Math.floorDiv(excess, (long) teamList.size());
+        int extra = (int) (excess - (long) base * teamList.size());
+        if (base == 0 && extra == 0) {
+            return;
+        }
+        List<Team> order = new ArrayList<>(teamList);
+        SimRandom.shuffle(order);
+        for (int i = 0; i < order.size(); i++) {
+            Team t = order.get(i);
+            int shift = base + (i < extra ? 1 : 0);
+            t.teamPrestige = Math.max(0, Math.min(Team.PRESTIGE_SOFT_MAX, t.teamPrestige - shift));
+            if (t.getHeadCoach() != null) t.getHeadCoach().baselinePrestige -= shift;
+            if (t.getOC() != null) t.getOC().baselinePrestige -= shift;
+            if (t.getDC() != null) t.getDC().baselinePrestige -= shift;
         }
     }
 
@@ -3629,7 +3950,11 @@ public class League {
         }
 
         if (teamVacancies.isEmpty()) {
-            teamVacancies = getCoachVacancies();
+            for (Team t : getCoachVacancies()) {
+                if (!t.getName().equals(oldTeam)) {
+                    teamVacancies.add(t);
+                }
+            }
         }
         return teamVacancies;
     }
@@ -3659,12 +3984,24 @@ public class League {
         return teamVacancies;
     }
 
-    //Transferring Jobs
+    /**
+     * Makes {@code coachTeam} the user's program. When no job is open the offers
+     * include occupied ones ({@link #getCoachVacancies()}); that school lets its
+     * coach go, who joins the fired pool instead of silently vanishing.
+     */
     public void newJobtransfer(String coachTeam) {
         for (int i = 0; i < teamList.size(); ++i) {
             if (teamList.get(i).getName().equals(coachTeam)) {
-                teamList.get(i).setUserControlled(true);
-                userTeam = teamList.get(i);
+                Team t = teamList.get(i);
+                HeadCoach sitting = t.getHeadCoach();
+                if (sitting != null && !sitting.user) {
+                    addCoach(new HeadCoach(sitting, t));
+                    t.setHeadCoach(null);
+                    addNewsStory(currentWeek + 1, "Coaching Change: " + t.getName() + ">" + t.getName()
+                            + " has parted ways with head coach " + sitting.name + " to make room for a new hire.");
+                }
+                t.setUserControlled(true);
+                userTeam = t;
             }
         }
     }
@@ -3674,81 +4011,37 @@ public class League {
     public void coachCarousel() {
         int[] ovr = {1,1,1,1};
         Collections.sort(teamList, new CompTeamPrestige());
+        // The candidate loops walk copies: a hire removes the coach from its list,
+        // which used to skip the next candidate in line.
         //Rising Star Coaches
-        for (int i = 0; i < coachStarList.size(); ++i) {
-            Staff coach = coachStarList.get(i);
-            if (coach.team == null) continue;
-            
-            final String tmName = coach.team.getName();
-            final String pos = coach.position;
-            int tmPres = coach.team.getTeamPrestige();
-            int cPres = coach.team.getConfPrestige();
-
-            for (int t = 0; t < teamList.size(); ++t) {
-                if (teamList.get(t).getHeadCoach() == null && coachStarList.get(i).getStaffOverall(ovr) >= teamList.get(t).getMinCoachHireReq() && !teamList.get(t).getName().equals(tmName) && SimRandom.nextDouble() > 0.66) {
-                    if (!coachStarList.get(i).position.equals("HC") || teamList.get(t).getTeamPrestige() > tmPres && teamList.get(t).getConfPrestige() > cPres || teamList.get(t).getTeamPrestige() > tmPres + 5 || teamList.get(t).getConfPrestige() + 10 > cPres) {
-                        final Staff hiredHC = coachStarList.get(i);
-                        teamList.get(t).setHeadCoach(new HeadCoach(hiredHC, teamList.get(t)));
-                        teamList.get(t).getHeadCoach().contractLength = 6;
-                        teamList.get(t).getHeadCoach().contractYear = 0;
-                        teamList.get(t).getHeadCoach().baselinePrestige = teamList.get(t).getTeamPrestige();
-                        teamList.get(t).getHeadCoach().team = teamList.get(t);
-                        coachStarList.remove(hiredHC);
-                        newsStories.get(currentWeek + 1).add("Rising Star Head Coach Hired: " + teamList.get(t).getName() + ">Coach " + teamList.get(t).getHeadCoach().name + " has announced his departure from " +
-                                tmName + " after being selected by " + teamList.get(t).strRankTeamRecord() + " as their new head coach. His previous track record has had him on the top list of many schools.");
-                        newsHeadlines.add(teamList.get(t).getHeadCoach().name + " has announced his departure from " + tmName + " after being selected by " + teamList.get(t).strRankTeamRecord());
-                        for (int j = 0; j < teamList.size(); ++j) {
-                            if (teamList.get(j).getName().equals(tmName)) {
-                                if(pos.equals("HC")) {
-                                    teamList.get(j).setHeadCoach(null);
-                                    if (SimRandom.nextDouble() > 0.20) {
-                                        teamList.get(j).promoteCoach();
-                                        teamList.get(j).getHeadCoach().history.add("");
-                                        newsStories.get(currentWeek + 1).add("Replacement Promoted: " + teamList.get(j).getName() + ">" + teamList.get(j).strRankTeamRecord() +
-                                                " hopes to continue their recent success, despite the recent loss of coach " + teamList.get(t).getHeadCoach().name + ". The team has promoted his Coordinator " + teamList.get(j).getHeadCoach().name + " to the head coaching job at the school.");
-                                        newsHeadlines.add(teamList.get(j).getName() + " has promoted coordinator " + teamList.get(t).getHeadCoach().name + " to Head Coach position.");
-                                    }
-                                } else if (pos.equals("OC")) {
-                                    teamList.get(j).setOC(null);
-                                    if(!teamList.get(j).isUserControlled()) {
-                                        teamList.get(j).setOC(new OC(getRandName(), teamList.get(j).getRankTeamPrestige() / (teamList.size() / 8)));
-                                        newsStories.get(currentWeek + 1).add("Replacement Promoted: " + teamList.get(j).getName() + ">" + teamList.get(j).strRankTeamRecord() +
-                                                " hopes to continue their recent success, despite the recent loss of OC " + teamList.get(t).getHeadCoach().name + ". The team has promoted his assistant coach " + teamList.get(j).getOC().name + " to the Off Coordinator job at the school.");
-                                    }
-                                } else if (pos.equals("DC")) {
-                                    teamList.get(j).setDC(null);
-                                    if (!teamList.get(j).isUserControlled()) {
-                                        teamList.get(j).setDC(new DC(getRandName(), teamList.get(j).getRankTeamPrestige() / (teamList.size() / 8)));
-                                        newsStories.get(currentWeek + 1).add("Replacement Promoted: " + teamList.get(j).getName() + ">" + teamList.get(j).strRankTeamRecord() +
-                                                " hopes to continue their recent success, despite the recent loss of DC " + teamList.get(t).getHeadCoach().name + ". The team has promoted his assistant coach " + teamList.get(j).getDC().name + " to the Def Coordinator job at the school.");
-                                    }
-                                }
-                            }
-                        }
-                        teamList.get(t).newCoachDecisions();
-                        break;
-                    }
+        for (Staff star : new ArrayList<>(coachStarList)) {
+            if (!holdsPost(star)) continue;
+            for (Team t : teamList) {
+                if (t.getHeadCoach() == null && star.getStaffOverall(ovr) >= t.getMinCoachHireReq() && t != star.team
+                        && SimRandom.nextDouble() > 0.66 && isRisingStarMove(star, t)) {
+                    hireRisingStar(t, star, false);
+                    break;
                 }
             }
         }
 
         //Coaches who were fired previous years
         Collections.sort(coachFreeAgents, new CompCoachOvr());
-        for (int i = 0; i < coachFreeAgents.size(); ++i) {
-            final Staff c = coachFreeAgents.get(i);
-            for (int t = 0; t < teamList.size(); ++t) {
-                if (teamList.get(t).getHeadCoach() == null && coachFreeAgents.get(i).getStaffOverall(ovr) >= teamList.get(t).getMinCoachHireReq() && SimRandom.nextDouble() < 0.60 && !coachFreeAgents.get(i).retired) {
-                    teamList.get(t).setHeadCoach(new HeadCoach(c, teamList.get(t)));
-                    teamList.get(t).getHeadCoach().contractLength = 6;
-                    teamList.get(t).getHeadCoach().contractYear = 0;
-                    teamList.get(t).getHeadCoach().baselinePrestige = teamList.get(t).getTeamPrestige();
-                    teamList.get(t).getHeadCoach().team = teamList.get(t);
+        for (Staff c : new ArrayList<>(coachFreeAgents)) {
+            if (c.retired || !hasHeadCoachingRecord(c)) continue;
+            for (Team t : teamList) {
+                if (t.getHeadCoach() == null && c.getStaffOverall(ovr) >= t.getMinCoachHireReq() && SimRandom.nextDouble() < 0.60) {
+                    t.setHeadCoach(new HeadCoach(c, t));
+                    t.getHeadCoach().contractLength = 6;
+                    t.getHeadCoach().contractYear = 0;
+                    t.getHeadCoach().baselinePrestige = t.getTeamPrestige();
+                    t.getHeadCoach().team = t;
                     coachFreeAgents.remove(c);
-                    newsStories.get(currentWeek + 1).add("Return to the Sidelines: " + teamList.get(t).getName() + ">After an extensive search for a new head coach, " + teamList.get(t).strRankTeamRecord() + " has hired " + teamList.get(t).getHeadCoach().name +
-                            " to lead the team. Head Coach " + teamList.get(t).getHeadCoach().name + " has been out of football, but is returning this season!");
-                    newsHeadlines.add(teamList.get(t).strRankTeamRecord() + " has hired unemployed " + teamList.get(t).getHeadCoach().name + " to lead the team.");
+                    newsStories.get(currentWeek + 1).add("Return to the Sidelines: " + t.getName() + ">After an extensive search for a new head coach, " + t.strRankTeamRecord() + " has hired " + t.getHeadCoach().name +
+                            " to lead the team. Head Coach " + t.getHeadCoach().name + " has been out of football, but is returning this season!");
+                    newsHeadlines.add(t.strRankTeamRecord() + " has hired unemployed " + t.getHeadCoach().name + " to lead the team.");
 
-                    teamList.get(t).newCoachDecisions();
+                    t.newCoachDecisions();
                     break;
                 }
             }
@@ -3767,27 +4060,26 @@ public class League {
 
         //Coaches who were fired
         Collections.sort(coachList, new CompCoachOvr());
-        for (int i = 0; i < coachList.size(); ++i) {
-            final Staff c = coachList.get(i);
+        for (Staff c : new ArrayList<>(coachList)) {
             if (c == null) {
                 continue;
             }
             String prevTeam = c.team != null && c.team.getName() != null ? c.team.getName() : "N/A";
-            for (int t = 0; t < teamList.size(); ++t) {
-                if (teamList.get(t).getHeadCoach() == null && c.getStaffOverall(ovr) >= teamList.get(t).getMinCoachHireReq()
-                        && !teamList.get(t).getName().equals(prevTeam) && SimRandom.nextDouble() > 0.60) {
+            for (Team t : teamList) {
+                if (t.getHeadCoach() == null && c.getStaffOverall(ovr) >= t.getMinCoachHireReq()
+                        && !t.getName().equals(prevTeam) && SimRandom.nextDouble() > 0.60) {
 
-                    newsStories.get(currentWeek + 1).add("Coaching Switch: " + teamList.get(t).getName() + ">After an extensive search for a new head coach, " + teamList.get(t).strRankTeamRecord() + " has hired " + c.name +
+                    newsStories.get(currentWeek + 1).add("Coaching Switch: " + t.getName() + ">After an extensive search for a new head coach, " + t.strRankTeamRecord() + " has hired " + c.name +
                             " to lead the team. Head Coach " + c.name + " previously coached at " + prevTeam + ", before being let go this past season.");
-                    newsHeadlines.add(teamList.get(t).strRankTeamRecord() + " has hired recently fired " + c.name + ".");
-                    teamList.get(t).setHeadCoach(new HeadCoach(c, teamList.get(t)));
-                    teamList.get(t).getHeadCoach().contractLength = 6;
-                    teamList.get(t).getHeadCoach().contractYear = 0;
-                    teamList.get(t).getHeadCoach().baselinePrestige = teamList.get(t).getTeamPrestige();
-                    teamList.get(t).getHeadCoach().team = teamList.get(t);
+                    newsHeadlines.add(t.strRankTeamRecord() + " has hired recently fired " + c.name + ".");
+                    t.setHeadCoach(new HeadCoach(c, t));
+                    t.getHeadCoach().contractLength = 6;
+                    t.getHeadCoach().contractYear = 0;
+                    t.getHeadCoach().baselinePrestige = t.getTeamPrestige();
+                    t.getHeadCoach().team = t;
                     coachList.remove(c);
 
-                    teamList.get(t).newCoachDecisions();
+                    t.newCoachDecisions();
                     break;
                 }
             }
@@ -3807,6 +4099,74 @@ public class League {
 
     }
 
+    /**
+     * Whether a rising star takes this head job. Coordinators take any; a head
+     * coach only moves up: to a better program, or to a clearly stronger
+     * conference at a school not far below his own. (The conference test used to
+     * be {@code newConf + 10 > oldConf}, true for almost any school, so most
+     * rising head coaches moved sideways or down.)
+     */
+    static boolean isRisingStarMove(Staff star, Team to) {
+        if (!"HC".equals(star.position) || star.team == null) {
+            return true;
+        }
+        int tmPres = star.team.getTeamPrestige();
+        int cPres = star.team.getConfPrestige();
+        return to.getTeamPrestige() > tmPres && to.getConfPrestige() > cPres
+                || to.getTeamPrestige() > tmPres + 5
+                || to.getConfPrestige() > cPres + 10 && to.getTeamPrestige() >= tmPres - 10;
+    }
+
+    /**
+     * Hires a rising star away from their current job and backfills it. A head
+     * coach's old school usually promotes a coordinator; otherwise the job stays
+     * open for the rest of the carousel or, outside it ({@code fillVacancyNow}),
+     * is filled right away. A coordinator is replaced by an assistant of the
+     * program's calibre; the user's staff is left for the user to fill.
+     */
+    private void hireRisingStar(Team school, Staff star, boolean fillVacancyNow) {
+        final Team from = star.team;
+        final String pos = star.position;
+        HeadCoach hired = new HeadCoach(star, school);
+        school.setHeadCoach(hired);
+        hired.contractLength = 6;
+        hired.contractYear = 0;
+        hired.baselinePrestige = school.getTeamPrestige();
+        hired.team = school;
+        coachStarList.remove(star);
+        newsStories.get(currentWeek + 1).add("Rising Star Head Coach Hired: " + school.getName() + ">Coach " + hired.name + " has announced his departure from " +
+                from.getName() + " after being selected by " + school.strRankTeamRecord() + " as their new head coach. His previous track record has had him on the top list of many schools.");
+        newsHeadlines.add(hired.name + " has announced his departure from " + from.getName() + " after being selected by " + school.strRankTeamRecord());
+
+        if (pos.equals("HC")) {
+            from.setHeadCoach(null);
+            if (SimRandom.nextDouble() > (fillVacancyNow ? 0.25 : 0.20)) {
+                from.promoteCoach();
+                from.getHeadCoach().history.add("");
+                newsStories.get(currentWeek + 1).add("Replacement Promoted: " + from.getName() + ">" + from.strRankTeamRecord() +
+                        " hopes to continue their recent success, despite the recent loss of coach " + hired.name + ". The team has promoted his Coordinator " + from.getHeadCoach().name + " to the head coaching job at the school.");
+                newsHeadlines.add(from.getName() + " has promoted coordinator " + from.getHeadCoach().name + " to Head Coach position.");
+            } else if (fillVacancyNow) {
+                coachHiringSingleTeam(from);
+            }
+        } else if (pos.equals("OC")) {
+            from.setOC(null);
+            if (!from.isUserControlled()) {
+                from.setOC(new OC(getRandName(), from.assistantCoachStars(), 0, from));
+                newsStories.get(currentWeek + 1).add("Replacement Promoted: " + from.getName() + ">" + from.strRankTeamRecord() +
+                        " hopes to continue their recent success, despite the recent loss of OC " + hired.name + ". The team has promoted his assistant coach " + from.getOC().name + " to the Off Coordinator job at the school.");
+            }
+        } else if (pos.equals("DC")) {
+            from.setDC(null);
+            if (!from.isUserControlled()) {
+                from.setDC(new DC(getRandName(), from.assistantCoachStars(), 0, from));
+                newsStories.get(currentWeek + 1).add("Replacement Promoted: " + from.getName() + ">" + from.strRankTeamRecord() +
+                        " hopes to continue their recent success, despite the recent loss of DC " + hired.name + ". The team has promoted his assistant coach " + from.getDC().name + " to the Def Coordinator job at the school.");
+            }
+        }
+        school.newCoachDecisions();
+    }
+
     //Hiring method for teams that get poached
     public void coachHiringSingleTeam(Team school) {
         if (school == null) {
@@ -3814,80 +4174,21 @@ public class League {
         }
         int[] ovr = {1,1,1,1};
         //Rising Star Coaches
-        for (int i = 0; i < coachStarList.size(); ++i) {
-            final Staff c = coachStarList.get(i);
-            if (c == null) {
+        for (Staff c : new ArrayList<>(coachStarList)) {
+            if (!holdsPost(c) || c.team == school) {
                 continue;
             }
-
-            // Free-agent / unattached rising stars may have a null team reference.
-            String tmName = "N/A";
-            int tmPres = 0;
-            int cPres = 0;
-            if (c.team != null) {
-                if (c.team.getName() != null) {
-                    tmName = c.team.getName();
-                }
-                tmPres = c.team.getTeamPrestige();
-                cPres = c.team.getConfPrestige();
-            }
-            final String pos = c.position == null ? "" : c.position;
-
-            if (c.getStaffOverall(ovr) >= school.getMinCoachHireReq() && !school.getName().equals(tmName) && SimRandom.nextDouble() > 0.60) {
-                if (school.getTeamPrestige() > tmPres && school.getConfPrestige() > cPres || school.getTeamPrestige() > tmPres + 5 || school.getConfPrestige() + 10 > cPres) {
-                    school.setHeadCoach(new HeadCoach(c, school));
-                    school.getHeadCoach().contractLength = 6;
-                    school.getHeadCoach().contractYear = 0;
-                    school.getHeadCoach().baselinePrestige = school.getTeamPrestige();
-                    school.getHeadCoach().team = school;
-                    coachStarList.remove(c);
-                    newsStories.get(currentWeek + 1).add("Rising Star Head Coach Hired: " + school.getName() + ">Rising star head coach " + school.getHeadCoach().name + " has announced his departure from " +
-                            tmName + " after being selected by " + school.getName() + " as their new head coach. His previous track record has had him on the top list of many schools.");
-                    newsHeadlines.add(school.getHeadCoach().name + " has announced his departure from " + tmName + " after being selected by " + school.getName());
-
-                    for (int j = 0; j < teamList.size(); ++j) {
-                        if (teamList.get(j).getName().equals(tmName)) {
-                            if (pos.equals("HC")) {
-                                teamList.get(j).setHeadCoach(null);
-                                if (SimRandom.nextDouble() > 0.25) {
-                                    teamList.get(j).promoteCoach();
-                                    teamList.get(j).getHeadCoach().history.add("");
-                                    newsStories.get(currentWeek + 1).add("Replacement Promoted: " + teamList.get(j).getName() + ">" + teamList.get(j).strRankTeamRecord() +
-                                            " hopes to continue their recent success, despite the recent loss of coach " + school.getHeadCoach().name + ". The team has promoted his Coordinator " + teamList.get(j).getHeadCoach().name + " to the head coaching job at the school.");
-                                    newsHeadlines.add(teamList.get(j).getName() + " has promoted coordinator " + school.getHeadCoach().name + " to Head Coach position.");
-                                } else {
-                                    coachHiringSingleTeam(teamList.get(j));
-                                }
-                            } else if (pos.equals("OC")) {
-                                teamList.get(j).setOC(null);
-                                if(!teamList.get(j).isUserControlled()) {
-                                    teamList.get(j).setOC(new OC(getRandName(), teamList.get(j).getRankTeamPrestige() / (teamList.size() / 8), 0, teamList.get(j)));
-                                    newsStories.get(currentWeek + 1).add("Replacement Promoted: " + teamList.get(j).getName() + ">" + teamList.get(j).strRankTeamRecord() +
-                                            " hopes to continue their recent success, despite the recent loss of OC " + school.getHeadCoach().name + ". The team has promoted his assistant coach " + teamList.get(j).getOC().name + " to the Off Coordinator job at the school.");
-                                }
-                            } else if (pos.equals("DC")) {
-                                teamList.get(j).setDC(null);
-                                if (!teamList.get(j).isUserControlled()) {
-                                    teamList.get(j).setDC(new DC(getRandName(), teamList.get(j).getRankTeamPrestige() / (teamList.size() / 8), 0, teamList.get(j)));
-                                    newsStories.get(currentWeek + 1).add("Replacement Promoted: " + teamList.get(j).getName() + ">" + teamList.get(j).strRankTeamRecord() +
-                                            " hopes to continue their recent success, despite the recent loss of DC " + school.getHeadCoach().name + ". The team has promoted his assistant coach " + teamList.get(j).getDC().name + " to the Def Coordinator job at the school.");
-                                }
-                            }
-                        }
-                    }
-
-                    school.newCoachDecisions();
-                    break;
-                }
+            if (c.getStaffOverall(ovr) >= school.getMinCoachHireReq() && SimRandom.nextDouble() > 0.60 && isRisingStarMove(c, school)) {
+                hireRisingStar(school, c, true);
+                break;
             }
         }
 
         if (school.getHeadCoach() == null) {
             //Coaches who were fired previous years
             Collections.sort(coachFreeAgents, new CompCoachOvr());
-            for (int i = 0; i < coachFreeAgents.size(); ++i) {
-                final Staff c = coachFreeAgents.get(i);
-                if (school.getHeadCoach() == null && coachFreeAgents.get(i).getStaffOverall(ovr) >= school.getMinCoachHireReq() && SimRandom.nextDouble() < 0.65 && !coachFreeAgents.get(i).retired) {
+            for (Staff c : new ArrayList<>(coachFreeAgents)) {
+                if (!c.retired && hasHeadCoachingRecord(c) && c.getStaffOverall(ovr) >= school.getMinCoachHireReq() && SimRandom.nextDouble() < 0.65) {
                     school.setHeadCoach(new HeadCoach(c, school));
                     school.getHeadCoach().contractLength = 6;
                     school.getHeadCoach().contractYear = 0;
@@ -3906,13 +4207,12 @@ public class League {
         if (school.getHeadCoach() == null) {
             //Coaches who were fired
             Collections.sort(coachList, new CompCoachOvr());
-            for (int i = 0; i < coachList.size(); ++i) {
-                final Staff c = coachList.get(i);
+            for (Staff c : new ArrayList<>(coachList)) {
                 if (c == null) {
                     continue;
                 }
                 String prevTeam = c.team != null && c.team.getName() != null ? c.team.getName() : "N/A";
-                if (school.getHeadCoach() == null && c.getStaffOverall(ovr) + 5 >= school.getMinCoachHireReq()
+                if (c.getStaffOverall(ovr) + 5 >= school.getMinCoachHireReq()
                         && !school.getName().equals(prevTeam) && SimRandom.nextDouble() > 0.45) {
                     school.setHeadCoach(new HeadCoach(c, school));
                     school.getHeadCoach().contractLength = 6;
@@ -3939,46 +4239,66 @@ public class League {
     }
 
 
+    /**
+     * On the hot seat: in the last year of his contract with the program below
+     * where it stood when he was hired or extended (the contract review fires on
+     * that gap). Contracts renew or end the season they run out, so the old
+     * {@code contractYear == contractLength} test never held, and it flagged
+     * coaches who had raised prestige.
+     */
+    static boolean onHotSeat(Team t) {
+        HeadCoach hc = t.getHeadCoach();
+        return hc != null && hc.contractYear + 1 >= hc.contractLength && t.getTeamPrestige() < hc.baselinePrestige;
+    }
+
     //Coaching Hot Seat News
     public void coachingHotSeat() {
         if (currentWeek == 0) {
             newsHeadlines.add("Coaching Hot Seat: The Names with Something to Prove");
-            for (int i = 0; i < teamList.size(); ++i) {
-                if (teamList.get(i).getHeadCoach().baselinePrestige < teamList.get(i).getTeamPrestige() && teamList.get(i).getHeadCoach().contractYear == teamList.get(i).getHeadCoach().contractLength) {
-                    newsStories.get(0).add("Coaching Hot Seat: " + teamList.get(i).getName() + ">Head Head Coach " + teamList.get(i).getHeadCoach().name + " has struggled over the course of his current contract with " +
-                            teamList.get(i).strRankTeamRecord() + " and has failed to raise the team prestige. Because this is his final contract year, the team will be evaluating whether to continue with the coach at the end of " +
+            for (Team t : teamList) {
+                HeadCoach hc = t.getHeadCoach();
+                if (hc == null) continue;
+                if (onHotSeat(t)) {
+                    newsStories.get(0).add("Coaching Hot Seat: " + t.getName() + ">Head Coach " + hc.name + " has struggled over the course of his current contract with " +
+                            t.strRankTeamRecord() + " and has failed to raise the team prestige. Because this is his final contract year, the team will be evaluating whether to continue with the coach at the end of " +
                             "this season. He'll remain on the hot seat throughout this year.");
-                } else if (teamList.get(i).getTeamPrestige() > (teamList.get(i).getHeadCoach().baselinePrestige + 10) && teamList.get(i).getTeamPrestige() < teamList.get((int) (teamList.size() * 0.35)).getTeamPrestige()) {
-                    newsStories.get(0).add("Coaching Rising Star: " + teamList.get(i).getHeadCoach().name + ">" + teamList.get(i).strRankTeamRecord() + " head coach " + teamList.get(i).getHeadCoach().name +
+                } else if (t.getTeamPrestige() > hc.baselinePrestige + 10 && t.getRankTeamPrestige() > (int) (teamList.size() * 0.35)) {
+                    newsStories.get(0).add("Coaching Rising Star: " + hc.name + ">" + t.strRankTeamRecord() + " head coach " + hc.name +
                             " has been building a strong program and if he continues this path, he'll be on the top of the wishlist at a major program in the future.");
                 }
             }
         } else if (currentWeek == 7) {
             newsHeadlines.add("Coaching Hot Seat: Who's On the Brink of Being Fired?");
-            for (int i = 0; i < teamList.size(); ++i) {
-                if (teamList.get(i).getHeadCoach().baselinePrestige < teamList.get(i).getTeamPrestige() && teamList.get(i).getHeadCoach().contractYear == teamList.get(i).getHeadCoach().contractLength && teamList.get(i).getRankTeamPollScore() > (100 - teamList.get(i).getHeadCoach().baselinePrestige)) {
-                    newsStories.get(currentWeek + 1).add("Coaching Hot Seat: " + teamList.get(i).getName() + ">Head Head Coach " + teamList.get(i).getHeadCoach().name + " future is in jeopardy at  " +
-                            teamList.get(i).strRankTeamRecord() + ". The coach has failed to get out of the hot seat this season with disappointing losses and failing to live up to the school's standards.");
+            for (Team t : teamList) {
+                HeadCoach hc = t.getHeadCoach();
+                if (onHotSeat(t) && t.getRankTeamPollScore() > (100 - hc.baselinePrestige)) {
+                    newsStories.get(currentWeek + 1).add("Coaching Hot Seat: " + t.getName() + ">Head Coach " + hc.name + "'s future is in jeopardy at " +
+                            t.strRankTeamRecord() + ". The coach has failed to get out of the hot seat this season with disappointing losses and failing to live up to the school's standards.");
                 }
             }
         }
     }
 
+    /** Most free agents a coordinator search shows; fresh names fill a thin list. */
+    private static final int COORDINATOR_LIST_MAX = 8;
+
+    /** Offensive coordinator candidates for the user: the best scheme fits in the pool, topped up with assistants of the program's calibre. */
     public ArrayList<Staff> getOCList(HeadCoach hc) {
         ArrayList<Staff> list = new ArrayList<>();
-        int num = 0;
-
-        for(Staff c : coachFreeAgents) {
-            if(c.ratOff >= c.ratDef && hc.offStrat == c.offStrat && !c.retired) {
+        for (Staff c : coachFreeAgents) {
+            if (c.ratOff >= c.ratDef && hc.offStrat == c.offStrat && !c.retired) {
                 list.add(c);
-                num++;
-                if (num > 10) break;
             }
+        }
+        Collections.sort(list, new CompCoachOff());
+        if (list.size() > COORDINATOR_LIST_MAX) {
+            list = new ArrayList<>(list.subList(0, COORDINATOR_LIST_MAX));
         }
 
         if (list.size() < 5) {
-            for(int i = list.size(); i < 6; i++) {
-                list.add(new OC(getRandName(), 6));
+            int stars = hc.team != null ? hc.team.assistantCoachStars() : 6;
+            for (int i = list.size(); i < 6; i++) {
+                list.add(new OC(getRandName(), Math.max(1, Math.min(9, stars - 1 + i % 3))));
             }
         }
 
@@ -3986,21 +4306,23 @@ public class League {
         return list;
     }
 
+    /** Defensive coordinator candidates for the user; see {@link #getOCList(HeadCoach)}. */
     public ArrayList<Staff> getDCList(HeadCoach hc) {
         ArrayList<Staff> list = new ArrayList<>();
-        int num = 0;
-
-        for(Staff c : coachFreeAgents) {
-            if(c.ratDef > c.ratOff && hc.defStrat == c.defStrat && !c.retired) {
+        for (Staff c : coachFreeAgents) {
+            if (c.ratDef > c.ratOff && hc.defStrat == c.defStrat && !c.retired) {
                 list.add(c);
-                num++;
-                if (num > 10) break;
             }
+        }
+        Collections.sort(list, new CompCoachDef());
+        if (list.size() > COORDINATOR_LIST_MAX) {
+            list = new ArrayList<>(list.subList(0, COORDINATOR_LIST_MAX));
         }
 
         if (list.size() < 5) {
-            for(int i = list.size(); i < 6; i++) {
-                list.add(new DC(getRandName(), 6));
+            int stars = hc.team != null ? hc.team.assistantCoachStars() : 6;
+            for (int i = list.size(); i < 6; i++) {
+                list.add(new DC(getRandName(), Math.max(1, Math.min(9, stars - 1 + i % 3))));
             }
         }
         Collections.sort(list, new CompCoachDef());
@@ -4014,19 +4336,39 @@ public class League {
         OCCarousel();
     }
 
+    /**
+     * Average rating on a coordinator's side of the ball for a fresh hire at this
+     * star level ({@code 50 + 5*stars - 15*U}, truncated, in Staff.createStaff).
+     */
+    static int freshCoordinatorRating(int stars) {
+        return 50 + 5 * stars - 8;
+    }
+
+    /**
+     * Fills open OC jobs, best programs first. Each school takes the best unemployed
+     * scheme fit if he is at least as good as the assistant it could hire instead;
+     * otherwise it hires that assistant, pitched at the program's level (every
+     * school used to get the same 6-star hire, which flattened the gap between
+     * top and bottom staffs within a few seasons).
+     */
     public void OCCarousel() {
         Collections.sort(teamList, new CompTeamPrestige());
         for (Team t : teamList) {
             if (t.getOC() == null) {
+                int stars = t.assistantCoachStars();
+                Staff best = null;
                 for (Staff c : coachFreeAgents) {
-                    if(c.offStrat == t.getHeadCoach().offStrat && c.ratOff >= c.ratDef && !c.retired) {
-                        final Staff hire = c;
-                        t.setOC(new OC(hire, t));
-                        coachFreeAgents.remove(hire);
-                        break;
+                    if (!c.retired && t.getHeadCoach() != null && c.offStrat == t.getHeadCoach().offStrat && c.ratOff >= c.ratDef
+                            && (best == null || c.ratOff > best.ratOff)) {
+                        best = c;
                     }
                 }
-                if(t.getOC() == null) t.setOC(new OC(getRandName(), 6));
+                if (best != null && best.ratOff >= freshCoordinatorRating(stars)) {
+                    t.setOC(new OC(best, t));
+                    coachFreeAgents.remove(best);
+                } else {
+                    t.setOC(new OC(getRandName(), stars, 0, t));
+                }
                 newsStories.get(currentWeek).add("Off Coord Change: " + t.getName() + ">After an extensive search for a new coordinator, " + t.getName() + " has hired " + t.getOC().name +
                         " to lead the offense.");
                 newsHeadlines.add(t.getName() + " adds new Off Coord " + t.getOC().name);
@@ -4037,19 +4379,25 @@ public class League {
         DCCarousel();
     }
 
+    /** Fills open DC jobs; see {@link #OCCarousel()}. */
     public void DCCarousel() {
         Collections.sort(teamList, new CompTeamPrestige());
         for(Team t : teamList) {
             if (t.getDC() == null) {
+                int stars = t.assistantCoachStars();
+                Staff best = null;
                 for (Staff c : coachFreeAgents) {
-                    if(c.defStrat == t.getHeadCoach().defStrat && c.ratDef >= c.ratOff && !c.retired) {
-                        final Staff hire = c;
-                        t.setDC(new DC(hire, t));
-                        coachFreeAgents.remove(hire);
-                        break;
+                    if (!c.retired && t.getHeadCoach() != null && c.defStrat == t.getHeadCoach().defStrat && c.ratDef >= c.ratOff
+                            && (best == null || c.ratDef > best.ratDef)) {
+                        best = c;
                     }
                 }
-                if(t.getDC() == null) t.setDC(new DC(getRandName(), 6));
+                if (best != null && best.ratDef >= freshCoordinatorRating(stars)) {
+                    t.setDC(new DC(best, t));
+                    coachFreeAgents.remove(best);
+                } else {
+                    t.setDC(new DC(getRandName(), stars, 0, t));
+                }
                 newsStories.get(currentWeek).add("Def Coord Change: " + t.getName() + ">After an extensive search for a new coordinator, " + t.getName() + " has hired " + t.getDC().name +
                         " to lead the defense.");
                 newsHeadlines.add(t.getName() + " adds new Def Coord " + t.getDC().name);
@@ -4814,7 +5162,9 @@ Then conferences can see if they want to add them to their list if the teams mee
 
 
         //Promote FCS School
-        if (advancedRealignment && SimRandom.nextDouble() < confRealignmentChance && SimRandom.nextDouble() < realignmentChance) {
+        if (advancedRealignment && remainingFcsPromotions() >= 1
+                && SimRandom.nextDouble() < confRealignmentChance && SimRandom.nextDouble() < realignmentChance) {
+            ensureFcsNamePool();
             int matches = 0;
             for (int t = 0; t < teamsFCSList.size(); t++) {
                 for (int x = 0; x < teamList.size(); x++) {
@@ -4856,6 +5206,7 @@ Then conferences can see if they want to add them to their list if the teams mee
                     FCS.setRankTeamPollScore(teamList.size());
                     teamList.add(FCS);
                     indy.confTeams.add(FCS);
+                    fcsPromotionsUsed++;
 
                     //break the news
                     newsStories.get(currentWeek + 1).add("Lower Division School Promoted!>Today is a special day at " + FCS.getName() + ". They have been promoted to Division I College Football today, and will be listed as an Independent team!");
@@ -4869,13 +5220,27 @@ Then conferences can see if they want to add them to their list if the teams mee
 
         //Create New Conference
         if (advancedRealignment && SimRandom.nextDouble() < confRealignmentChance && SimRandom.nextDouble() < realignmentChance && SimRandom.nextDouble() < 0.35) {
+            ensureFcsNamePool();
             int matches = 0;
             for (Conference c : conferences) {
                 if (c.confName.equals("Antdroid")) {
                     matches++;
                 }
             }
-            if (matches <= 0) {
+
+            //Find Independent Conf
+            int indConf = 0;
+            for (Conference c : conferences) {
+                if (c.confName.equals("Independent") && c.confTeams.size() < c.minConfTeams) {
+                    indConf = getConfNumber(c.confName);
+                }
+            }
+            Conference indy = conferences.get(indConf);
+            // The new conference is filled to 10 with promoted FCS schools; skip it when
+            // the FCS promotion setting can't supply that many.
+            int promotionsNeeded = Math.max(0, 10 - indy.confTeams.size());
+
+            if (matches <= 0 && promotionsNeeded <= remainingFcsPromotions()) {
                 matches = 0;
                 for (int t = 0; t < teamsFCSList.size(); t++) {
                     for (int x = 0; x < teamList.size(); x++) {
@@ -4890,15 +5255,6 @@ Then conferences can see if they want to add them to their list if the teams mee
                     //Create new Conference
                     Conference antdroid = new Conference("Antdroid", this, false, 0, 0);
                     conferences.add(antdroid);
-
-                    //Find Independent Conf
-                    int indConf = 0;
-                    for (Conference c : conferences) {
-                        if (c.confName.equals("Independent") && c.confTeams.size() < c.minConfTeams) {
-                            indConf = getConfNumber(c.confName);
-                        }
-                    }
-                    Conference indy = conferences.get(indConf);
 
                     //Move Independent Teams to new Conf & remove from independents
                     for (int i = 0; i < indy.confTeams.size(); i++) {
@@ -4933,6 +5289,7 @@ Then conferences can see if they want to add them to their list if the teams mee
                         FCS.setRankTeamPollScore(teamList.size());
                         teamList.add(FCS);
                         antdroid.confTeams.add(FCS);
+                        fcsPromotionsUsed++;
                         count++;
                     }
 
@@ -6808,6 +7165,11 @@ Then conferences can see if they want to add them to their list if the teams mee
         }
         for (Team t : teamList) {
             t.resetSeasonStats();
+            // CPU staffs call their own books with this year's coordinators and QB;
+            // they used to keep the book they were created with for the whole career.
+            if (!t.isUserControlled()) {
+                t.useCpuPlaybooks();
+            }
         }
 
         currentWeek = 0;
@@ -6819,6 +7181,9 @@ Then conferences can see if they want to add them to their list if the teams mee
 
         // Rebuild the schedule for the new season
         setupSeason();
+        normalizeLeaguePrestige();
+        assignMentors();
+        prepareSeasonBaselines();
     }
 
     /**
@@ -7160,11 +7525,22 @@ Then conferences can see if they want to add them to their list if the teams mee
         coachStarList.remove(coach);
     }
 
+    /** A coordinator the user replaces joins the free-agent pool rather than vanishing. */
+    public void releaseCoordinator(Staff coordinator, Team team) {
+        if (coordinator != null && team != null) {
+            coachStarList.remove(coordinator);
+            addCoachFreeAgent(new HeadCoach(coordinator, team));
+        }
+    }
+
     /**
-     * Add a coach to free agency.
+     * Add a coach to free agency. Pool members have no team, so profiles and the
+     * coach database show them as unemployed (or retired) rather than still at
+     * their last school.
      */
     public void addCoachFreeAgent(Staff coach) {
-        if (coach != null) {
+        if (coach != null && !coachFreeAgents.contains(coach)) {
+            coach.team = null;
             coachFreeAgents.add(coach);
         }
     }
@@ -7336,7 +7712,75 @@ Then conferences can see if they want to add them to their list if the teams mee
      * Get an unmodifiable view of FCS teams list.
      */
     public java.util.List<String> getTeamsFCSList() {
+        ensureFcsNamePool();
         return java.util.Collections.unmodifiableList(teamsFCSList);
+    }
+
+    /** FCS names not already used by a league team (rebuilt every season by the scheduler). */
+    void rebuildFcsNamePool() {
+        ArrayList<String> leagueTeams = new ArrayList<>();
+        for (Team t : teamList) {
+            leagueTeams.add(t.getName());
+        }
+        teamsFCSList = new ArrayList<>();
+        for (String name : teamsFCS) {
+            if (!leagueTeams.contains(name)) {
+                teamsFCSList.add(name);
+            }
+        }
+    }
+
+    /** Loaded saves skip scheduling, which is what normally builds the FCS name pool. */
+    void ensureFcsNamePool() {
+        if (teamsFCSList == null) {
+            rebuildFcsNamePool();
+        }
+    }
+
+    /**
+     * How many more FCS schools realignment may promote under the current
+     * {@link #fcsPromotionMode}: none, what's left of the cap, or unbounded.
+     */
+    public int remainingFcsPromotions() {
+        if (fcsPromotionMode == null) {
+            return Integer.MAX_VALUE;
+        }
+        switch (fcsPromotionMode) {
+            case NONE:
+                return 0;
+            case CAPPED:
+                return Math.max(0, fcsPromotionCap - fcsPromotionsUsed);
+            default:
+                return Integer.MAX_VALUE;
+        }
+    }
+
+    /** One-line description for settings summaries, e.g. "Capped at 6 (2 used)". */
+    public String fcsPromotionSummary() {
+        FcsPromotionMode mode = fcsPromotionMode != null ? fcsPromotionMode : FcsPromotionMode.UNLIMITED;
+        switch (mode) {
+            case NONE:
+                return "None";
+            case CAPPED:
+                return "Capped at " + fcsPromotionCap + " (" + fcsPromotionsUsed + " used)";
+            default:
+                return "Unlimited";
+        }
+    }
+
+    /**
+     * Best estimate of past FCS promotions for saves that predate the counter: FCS-pool
+     * schools in the league outside the pro/rel "FCS Division" filler.
+     */
+    int countPromotedFcsSchools() {
+        java.util.Set<String> fcsNames = new java.util.HashSet<>(java.util.Arrays.asList(teamsFCS));
+        int count = 0;
+        for (Team t : teamList) {
+            if (fcsNames.contains(t.getName()) && !"FCS Division".equals(t.getConference())) {
+                count++;
+            }
+        }
+        return count;
     }
 
 

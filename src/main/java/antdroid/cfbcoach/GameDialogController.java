@@ -198,18 +198,16 @@ final class GameDialogController {
 
             final PlaybookOffense[] tsOff = userTeam.getPlaybookOff();
             final PlaybookDefense[] tsDef = userTeam.getPlaybookDef();
-            int offStratNum = 0, defStratNum = 0;
+            int offStratNum = userTeam.getPlaybookOffNum(), defStratNum = userTeam.getPlaybookDefNum();
 
             String[] stratOffSelection = new String[tsOff.length];
             for (int i = 0; i < tsOff.length; ++i) {
                 stratOffSelection[i] = tsOff[i].getStratName();
-                if (stratOffSelection[i].equals(userTeam.playbookOff.getStratName())) offStratNum = i;
             }
 
             String[] stratDefSelection = new String[tsDef.length];
             for (int i = 0; i < tsDef.length; ++i) {
                 stratDefSelection[i] = tsDef[i].getStratName();
-                if (stratDefSelection[i].equals(userTeam.playbookDef.getStratName())) defStratNum = i;
             }
 
             Spinner offSpinner = dialog.findViewById(R.id.spinnerScoutOffenseStrategy);
@@ -221,8 +219,7 @@ final class GameDialogController {
             offSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    userTeam.playbookOff = tsOff[position];
-                    userTeam.playbookOffNum = position;
+                    userTeam.setPlaybookOffNum(position);
                 }
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {}
@@ -237,8 +234,7 @@ final class GameDialogController {
             defSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    userTeam.playbookDef = tsDef[position];
-                    userTeam.playbookDefNum = position;
+                    userTeam.setPlaybookDefNum(position);
                 }
                 @Override
                 public void onNothingSelected(AdapterView<?> parent) {}

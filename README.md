@@ -179,7 +179,7 @@ More detail: [docs/platform-expansion.md](docs/platform-expansion.md).
 - **Career:** hiring, staff, facilities, contracts, promotions and pressure
 - **Recruiting:** full cycle, large name pools, scholarships, transfers, redshirt options
 - **Simulation:** play-by-play, multiple schemes, stats, news, awards, progression; weather, penalties, momentum and timeouts; interactive coaching (opt-in gameplan / halftime / crunch-time decisions)
-- **League:** conferences, bowls (with tie-ins), playoff options, AP/Coaches polls, prestige, infractions, rivalries and trophies, senior day / homecoming, realignment, history; offseason coaching carousel, transfer portal, draft night and signing day
+- **League:** conferences, bowls (with tie-ins), playoff options, AP/Coaches polls, prestige, infractions, rivalries and trophies, senior day / homecoming, realignment (with optional limits on FCS schools moving up), history; offseason coaching carousel, transfer portal, draft night and signing day
 - **Customization:** CSV import for universes/rosters/coaches; in-game renames; light/dark themes
 - **Desktop:** Career Hub launcher, league shell, docked recruiting, dark/high-contrast themes, CSV import/export — Java 17 jar (`CFHC-desktop-1.4e.jar`)
 

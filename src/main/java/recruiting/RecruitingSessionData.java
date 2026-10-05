@@ -175,9 +175,22 @@ public final class RecruitingSessionData {
     }
 
     public void applyBudgetBonuses(int minPlayers) {
-        int recBonus = (int) ((minPlayers - teamPlayers.size()) * 27.5);
+        applyBudgetBonuses(minPlayers, teamPlayers.size());
+    }
+
+    /** As {@link #applyBudgetBonuses(int)} with an explicit roster size (budget previews carry no roster). */
+    public void applyBudgetBonuses(int minPlayers, int rosterSize) {
+        int recBonus = (int) ((minPlayers - rosterSize) * 27.5);
         int coachBonus = (int) (coachTalent * 3.5);
         recruitingBudget += Math.max(0, recBonus + coachBonus);
+    }
+
+    /** Needs against {@link simulation.RosterRules}, the minimums CPU teams recruit to. */
+    public PositionNeeds calculateNeeds() {
+        return calculateNeeds(simulation.RosterRules.MIN_QBS, simulation.RosterRules.MIN_RBS,
+                simulation.RosterRules.MIN_WRS, simulation.RosterRules.MIN_TES, simulation.RosterRules.MIN_OLS,
+                simulation.RosterRules.MIN_KS, simulation.RosterRules.MIN_DLS, simulation.RosterRules.MIN_LBS,
+                simulation.RosterRules.MIN_CBS, simulation.RosterRules.MIN_SS);
     }
 
     public PositionNeeds calculateNeeds(int minQBs, int minRBs, int minWRs, int minTEs, int minOLs, int minKs, int minDLs, int minLBs, int minCBs, int minSs) {
@@ -345,6 +358,36 @@ public final class RecruitingSessionData {
         recruitingBudget -= scoutCost;
         markScoutedEverywhere(recruit);
         return true;
+    }
+
+    /** Raw lines of the scouted prospects still on the board (for checkpoints). */
+    public List<String> scoutedRaws() {
+        List<String> raws = new ArrayList<>();
+        for (RecruitingPlayerRecord recruit : availAll) {
+            if (recruit != null && isScouted(recruit)) {
+                raws.add(recruit.raw());
+            }
+        }
+        return raws;
+    }
+
+    /** Marks prospects from a restored checkpoint as scouted again, without charging. */
+    public void restoreScouted(Iterable<String> raws) {
+        if (raws == null) {
+            return;
+        }
+        for (String raw : raws) {
+            if (raw == null || raw.trim().isEmpty()) {
+                continue;
+            }
+            RecruitingPlayerRecord key = RecruitingPlayerRecord.fromRecruitCsv(raw.trim());
+            for (RecruitingPlayerRecord recruit : new ArrayList<>(availAll)) {
+                if (recruit.equals(key)) {
+                    markScoutedEverywhere(recruit);
+                    break;
+                }
+            }
+        }
     }
 
     public boolean isScouted(RecruitingPlayerRecord recruit) {

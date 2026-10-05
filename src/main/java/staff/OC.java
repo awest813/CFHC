@@ -35,7 +35,7 @@ public class OC extends Staff {
     public OC(Team t, String data) {
         team = t;
 
-        String[] parts = data.split("&");
+        String[] parts = data.split("&", 4); // history (last) may name "Texas A&M"
         String x = parts[0];
         String y = parts[1];
         String z = parts[2];
@@ -53,7 +53,6 @@ public class OC extends Staff {
 
     public OC(Team t, simulation.StaffRecord record) {
         super(t, record);
-        history = new ArrayList<>();
     }
 
 

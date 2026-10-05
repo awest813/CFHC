@@ -160,6 +160,12 @@ final class DepthChartDialogController {
         });
     }
 
+    /** Column legend for the lineup rows; potential is shown only when the league shows it. */
+    private static String lineupHeader(Team userTeam) {
+        return userTeam.league != null && userTeam.league.showPotential
+                ? "Name [Yr] Overall/Potential\n" : "Name [Yr] Overall\n";
+    }
+
     private static void updateLineupList(Team userTeam, int position, DepthChart teamLineupAdapter, int[] positionNumberRequired,
                                          ArrayList<Player> positionPlayers, TextView textLineupPositionDescription) {
         teamLineupAdapter.playersRequired = positionNumberRequired[position];
@@ -168,43 +174,43 @@ final class DepthChartDialogController {
         positionPlayers.clear();
         switch (position) {
             case 0:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Pass Strength, Pass Accuracy, Evasion, Speed)");
+                textLineupPositionDescription.setText(lineupHeader(userTeam) + "(Pass Strength, Pass Accuracy, Evasion, Speed)");
                 positionPlayers.addAll(userTeam.getTeamQBs());
                 break;
             case 1:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Speed, Evasion, Power, Catch)");
+                textLineupPositionDescription.setText(lineupHeader(userTeam) + "(Speed, Evasion, Power, Catch)");
                 positionPlayers.addAll(userTeam.getTeamRBs());
                 break;
             case 2:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Speed, Catch, Evasion, Jump)");
+                textLineupPositionDescription.setText(lineupHeader(userTeam) + "(Speed, Catch, Evasion, Jump)");
                 positionPlayers.addAll(userTeam.getTeamWRs());
                 break;
             case 3:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Block, Catch, Evasion, Speed)");
+                textLineupPositionDescription.setText(lineupHeader(userTeam) + "(Block, Catch, Evasion, Speed)");
                 positionPlayers.addAll(userTeam.getTeamTEs());
                 break;
             case 4:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Run Block, Pass Block, Vision, Strength)");
+                textLineupPositionDescription.setText(lineupHeader(userTeam) + "(Run Block, Pass Block, Vision, Strength)");
                 positionPlayers.addAll(userTeam.getTeamOLs());
                 break;
             case 5:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Kick Strength, Kick Accuracy, Pressure, Form)");
+                textLineupPositionDescription.setText(lineupHeader(userTeam) + "(Kick Strength, Kick Accuracy, Pressure, Form)");
                 positionPlayers.addAll(userTeam.getTeamKs());
                 break;
             case 6:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Run Stop, Tackle, Pass Rush, Strength)");
+                textLineupPositionDescription.setText(lineupHeader(userTeam) + "(Run Stop, Tackle, Pass Rush, Strength)");
                 positionPlayers.addAll(userTeam.getTeamDLs());
                 break;
             case 7:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Tackle, Run Stop, Cover, Speed)");
+                textLineupPositionDescription.setText(lineupHeader(userTeam) + "(Tackle, Run Stop, Cover, Speed)");
                 positionPlayers.addAll(userTeam.getTeamLBs());
                 break;
             case 8:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Cover, Speed, Tackle, Jump)");
+                textLineupPositionDescription.setText(lineupHeader(userTeam) + "(Cover, Speed, Tackle, Jump)");
                 positionPlayers.addAll(userTeam.getTeamCBs());
                 break;
             case 9:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Tackle, Cover, Speed, Run Stop)");
+                textLineupPositionDescription.setText(lineupHeader(userTeam) + "(Tackle, Cover, Speed, Run Stop)");
                 positionPlayers.addAll(userTeam.getTeamSs());
                 break;
         }
@@ -223,43 +229,43 @@ final class DepthChartDialogController {
         positionPlayers.clear();
         switch (position) {
             case 0:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Pass Strength, Pass Accuracy, Evasion, Speed)");
+                textLineupPositionDescription.setText(lineupHeader(userTeam) + "(Pass Strength, Pass Accuracy, Evasion, Speed)");
                 positionPlayers.addAll(userTeam.getTeamQBs());
                 break;
             case 1:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Power, Speed, Evasion, Catch)");
+                textLineupPositionDescription.setText(lineupHeader(userTeam) + "(Power, Speed, Evasion, Catch)");
                 positionPlayers.addAll(userTeam.getTeamRBs());
                 break;
             case 2:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Catch, Speed, Evasion, Jump)");
+                textLineupPositionDescription.setText(lineupHeader(userTeam) + "(Catch, Speed, Evasion, Jump)");
                 positionPlayers.addAll(userTeam.getTeamWRs());
                 break;
             case 3:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Catch, Run Block, Evasion, Speed)");
+                textLineupPositionDescription.setText(lineupHeader(userTeam) + "(Catch, Run Block, Evasion, Speed)");
                 positionPlayers.addAll(userTeam.getTeamTEs());
                 break;
             case 4:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Strength, Run Block, Pass Block, Awareness)");
+                textLineupPositionDescription.setText(lineupHeader(userTeam) + "(Strength, Run Block, Pass Block, Awareness)");
                 positionPlayers.addAll(userTeam.getTeamOLs());
                 break;
             case 5:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Kick Strength, Kick Accuracy, Clumsiness, Pressure)");
+                textLineupPositionDescription.setText(lineupHeader(userTeam) + "(Kick Strength, Kick Accuracy, Clumsiness, Pressure)");
                 positionPlayers.addAll(userTeam.getTeamKs());
                 break;
             case 6:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Strength, Run Def, Pass Def, Tackle)");
+                textLineupPositionDescription.setText(lineupHeader(userTeam) + "(Strength, Run Def, Pass Def, Tackle)");
                 positionPlayers.addAll(userTeam.getTeamDLs());
                 break;
             case 7:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Cover, Run Def, Tackle, Run Stop)");
+                textLineupPositionDescription.setText(lineupHeader(userTeam) + "(Cover, Run Def, Tackle, Run Stop)");
                 positionPlayers.addAll(userTeam.getTeamLBs());
                 break;
             case 8:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Cover, Speed, Tackle, Jump)");
+                textLineupPositionDescription.setText(lineupHeader(userTeam) + "(Cover, Speed, Tackle, Jump)");
                 positionPlayers.addAll(userTeam.getTeamCBs());
                 break;
             case 9:
-                textLineupPositionDescription.setText("Name [Yr] Overall/Potential\n(Cover, Speed, Tackle, Run Stop)");
+                textLineupPositionDescription.setText(lineupHeader(userTeam) + "(Cover, Speed, Tackle, Run Stop)");
                 positionPlayers.addAll(userTeam.getTeamSs());
                 break;
         }

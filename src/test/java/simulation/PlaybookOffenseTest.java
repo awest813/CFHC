@@ -13,9 +13,9 @@ public class PlaybookOffenseTest {
             assertNotNull(new PlaybookOffense(i).getStratName());
         }
 
-        assertNotNull("Playbook 0 should fallback to random valid", new PlaybookOffense(0).getStratName());
-        assertNotNull("Playbook 7 should fallback to random valid", new PlaybookOffense(7).getStratName());
-        assertNotNull("Playbook -1 should fallback to random valid", new PlaybookOffense(-1).getStratName());
+        assertEquals("Playbook 0 falls back to the default", "Multiple Pro", new PlaybookOffense(0).getStratName());
+        assertEquals("Playbook 7 falls back to the default", "Multiple Pro", new PlaybookOffense(7).getStratName());
+        assertEquals("Playbook -1 falls back to the default", "Multiple Pro", new PlaybookOffense(-1).getStratName());
     }
 
     @Test
@@ -50,7 +50,7 @@ public class PlaybookOffenseTest {
         assertEquals(1, pb.getRunUsage());
         assertEquals(3, pb.getPassPref());
         assertEquals(-1, pb.getPassProtection());
-        assertEquals(-1, pb.getPassPotential());
+        assertEquals(0, pb.getPassPotential());
         assertEquals(1, pb.getPassUsage());
     }
 

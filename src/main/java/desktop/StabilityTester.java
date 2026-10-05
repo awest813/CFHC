@@ -6,6 +6,9 @@ import simulation.PlatformResourceProvider;
 import simulation.SeasonController;
 import simulation.Team;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Headless stability tester that runs three full consecutive seasons
  * to verify long-term engine stability and roster health.
@@ -46,6 +49,9 @@ public class StabilityTester {
                 int seasonYear = league.getYear();
                 int historyBefore = league.getLeagueHistory().size();
                 int championsBefore = countNationalChampionships(league);
+                // Teams that play this season; a school promoted from FCS in the
+                // offseason joins teamList before validation with no games yet.
+                List<Team> seasonTeams = new ArrayList<>(league.getTeamList());
 
                 validateNewSeasonState(league, expectedTeamCount, seasonYear);
 
@@ -96,8 +102,15 @@ public class StabilityTester {
                             + MAX_STEPS_PER_SEASON + " steps.");
                 }
 
-                validateCompletedSeason(league, expectedTeamCount, seasonYear,
+                validateCompletedSeason(league, seasonTeams, seasonYear,
                         historyBefore, championsBefore, steps);
+                // Realignment may promote FCS schools (it never removes a
+                // team), so the count can only grow.
+                int promoted = league.getTeamList().size() - seasonTeams.size();
+                if (promoted > 0) {
+                    System.out.println("Realignment promoted " + promoted + " FCS school(s).");
+                }
+                expectedTeamCount = league.getTeamList().size();
 
                 System.out.println("Season " + seasonYear + " complete in " + steps + " steps.");
                 System.out.println("User Team Record: " + userTeam.getWins() + "-" + userTeam.getLosses());
@@ -124,8 +137,8 @@ public class StabilityTester {
     }
 
     private static void validateNewSeasonState(League league, int expectedTeamCount, int expectedYear) {
-        require(league.getTeamList().size() == expectedTeamCount,
-                "Team count changed at new-season boundary: expected " + expectedTeamCount
+        require(league.getTeamList().size() >= expectedTeamCount,
+                "Team count shrank at new-season boundary: expected at least " + expectedTeamCount
                         + " but got " + league.getTeamList().size());
         require(league.getYear() == expectedYear,
                 "Unexpected league year at new-season boundary: expected " + expectedYear
@@ -145,12 +158,12 @@ public class StabilityTester {
         }
     }
 
-    private static void validateCompletedSeason(League league, int expectedTeamCount, int seasonYear,
+    private static void validateCompletedSeason(League league, List<Team> seasonTeams, int seasonYear,
                                                 int historyBefore, int championsBefore, int steps) {
         require(steps > league.regSeasonWeeks,
                 "Season " + seasonYear + " completed suspiciously quickly in " + steps + " steps.");
-        require(league.getTeamList().size() == expectedTeamCount,
-                "Team count changed during season " + seasonYear);
+        require(league.getTeamList().containsAll(seasonTeams),
+                "A team left the league during season " + seasonYear);
         require(league.getLeagueHistory().size() > historyBefore,
                 "League history did not record season " + seasonYear);
         require(countNationalChampionships(league) > championsBefore,
@@ -161,7 +174,7 @@ public class StabilityTester {
 
         // 12 games nominal; odd-sized conferences give some teams a bye.
         int minGames = simulation.League.REGULAR_SEASON_GAMES - 1;
-        for (Team team : league.getTeamList()) {
+        for (Team team : seasonTeams) {
             int gamesPlayed = team.getWins() + team.getLosses();
             require(gamesPlayed >= minGames,
                     "Team " + team.getName() + " played only " + gamesPlayed

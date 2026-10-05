@@ -47,7 +47,10 @@ public record StaffRecord(
     }
 
     public static StaffRecord fromCsv(String csv) {
-        String[] parts = csv.split("&");
+        // History is the last section and its lines name teams ("Texas A&M"), so
+        // only the first three '&' separate sections; splitting on every one cut a
+        // coach's history off at the first such name.
+        String[] parts = csv.split("&", 4);
         String[] basic = parts[0].split(",", -1);
 
         int[] statsList = new int[0];
@@ -70,7 +73,7 @@ public record StaffRecord(
 
         List<String> historyList = new ArrayList<>();
         if (parts.length > 3 && !parts[3].isEmpty()) {
-            String[] h = parts[3].split("\\^");
+            String[] h = parts[3].split("\\^", -1);
             for (String s : h) historyList.add(s);
         }
 

@@ -341,6 +341,9 @@ public final class DesktopTheme {
         return highContrast ? new Color(200, 200, 200) : new Color(42, 58, 82);
     }
 
+    /** Primary text on the always-dark header bar. */
+    public static Color headerText() { return Color.WHITE; }
+
     public static Color conferenceHeaderBackground() { return _confHeaderBg; }
 
     public static Color statusBackground() { return _statusBg; }
@@ -797,6 +800,15 @@ public final class DesktopTheme {
      * Escapes text embedded in minimal {@code <html>} fragments so engine copy cannot
      * break markup (e.g. accidental {@code <b>} or stray ampersands).
      */
+    /**
+     * CSS width that makes a Swing HTML body fill {@code pixels} real pixels.
+     * Swing's HTML renderer draws CSS {@code px} at 1.3x, so a body sized to a
+     * component's pixel width wraps 30% wider than the component and clips.
+     */
+    public static int htmlWrapWidth(int pixels) {
+        return Math.max(1, Math.round(pixels / 1.3f));
+    }
+
     public static String escapeForHtml(String s) {
         if (s == null || s.isEmpty()) {
             return s == null ? "" : s;
@@ -945,8 +957,33 @@ public final class DesktopTheme {
             }
             if (_cachedWindowIcons != null && !_cachedWindowIcons.isEmpty()) {
                 window.setIconImages(_cachedWindowIcons);
+                applyTaskbarIcon(_cachedWindowIcons.get(0));
             }
         } catch (Exception ignored) {
+        }
+    }
+
+    private static volatile boolean taskbarIconSet;
+
+    /**
+     * macOS takes the Dock icon from {@link java.awt.Taskbar}, not from window
+     * icons, so the Dock showed Java's generic icon. Set once; unsupported
+     * platforms are skipped.
+     */
+    private static void applyTaskbarIcon(java.awt.Image icon) {
+        if (taskbarIconSet || icon == null) {
+            return;
+        }
+        taskbarIconSet = true;
+        try {
+            if (java.awt.Taskbar.isTaskbarSupported()) {
+                java.awt.Taskbar taskbar = java.awt.Taskbar.getTaskbar();
+                if (taskbar.isSupported(java.awt.Taskbar.Feature.ICON_IMAGE)) {
+                    taskbar.setIconImage(icon);
+                }
+            }
+        } catch (RuntimeException ignored) {
+            // SecurityException / UnsupportedOperationException: keep the default.
         }
     }
 

@@ -1,11 +1,10 @@
 package desktop;
 
-import recruiting.RecruitingSessionData;
 import simulation.CoachSkills;
 import simulation.League;
+import simulation.RosterRules;
 import simulation.SeasonFlowOrder;
 import simulation.SeasonPresentation;
-import simulation.SimulationFacade;
 import simulation.Team;
 import simulation.TeamColors;
 import staff.HeadCoach;
@@ -49,6 +48,10 @@ public class DashboardPanel implements LeagueScreen {
     private final Callbacks cb;
     private final DesktopUiBridge bridge;
     private final League league;
+    /** Resolved per build in {@link #buildPanel}; see {@link DesktopRecruitingBudget}. */
+    private int recruitingBudget = -1;
+    /** Program Health's budget tile, captured per build for in-place updates. */
+    private JLabel healthBudgetLabel;
 
     public DashboardPanel(League league, DesktopUiBridge bridge, Callbacks cb) {
         this.league = league;
@@ -74,12 +77,10 @@ public class DashboardPanel implements LeagueScreen {
 
         panel.add(buildCommandCenterHero(), BorderLayout.NORTH);
 
-        // 4-Column Grid for Modular Cards Suite.
-        // rows=0 (auto) is deliberate: 16 cards flow into 4 rows x 4 cols.
-        // A fixed rows>0 makes GridLayout recompute columns (16/3 -> 6 cols),
-        // which squeezed every card to ~210px and broke their layouts.
-        JPanel grid = new JPanel(new GridLayout(0, 4, 12, 12));
-        grid.setOpaque(false);
+        // Responsive card grid (2-4 columns, minimum row height) in a vertical
+        // scroll pane: a fixed 4x4 grid crushed every card at the default
+        // 1200x850 window size. See DashboardCardGrid.
+        DashboardCardGrid grid = new DashboardCardGrid();
 
         grid.add(new TeamOverallCard(league.userTeam, () -> {
             if (ctx != null) ctx.nav().openUserTeamDetail();
@@ -106,7 +107,12 @@ public class DashboardPanel implements LeagueScreen {
             if (ctx != null) ctx.nav().selectScreen("Recruiting");
             else cb.selectRecruitingTab().run();
         }));
-        grid.add(new ProgramFinancesCard(league.userTeam));
+        // One value for Program Finances and Program Health so they can't
+        // disagree; the host window supplies the live board's remaining budget.
+        recruitingBudget = DesktopRecruitingBudget.forTeam(league.userTeam,
+                ctx != null ? ctx.parent() : null);
+        ProgramFinancesCard finances = new ProgramFinancesCard(league.userTeam, recruitingBudget);
+        grid.add(finances);
         grid.add(new ProgramPrestigeCard(league.userTeam));
 
         grid.add(new TeamMoraleCard(league.userTeam));
@@ -128,7 +134,14 @@ public class DashboardPanel implements LeagueScreen {
         grid.add(buildAwardsPanel());
         grid.add(buildLatestHeadlinesPanel());
 
-        panel.add(grid, BorderLayout.CENTER);
+        JScrollPane gridScroll = new JScrollPane(grid,
+                JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+                JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        gridScroll.setBorder(BorderFactory.createEmptyBorder());
+        gridScroll.setOpaque(false);
+        gridScroll.getViewport().setOpaque(false);
+        gridScroll.getVerticalScrollBar().setUnitIncrement(24);
+        panel.add(gridScroll, BorderLayout.CENTER);
 
         JPanel bottom = new JPanel(new BorderLayout(0, 4));
         bottom.setOpaque(false);
@@ -154,11 +167,29 @@ public class DashboardPanel implements LeagueScreen {
         bottom.add(quick, BorderLayout.NORTH);
         panel.add(bottom, BorderLayout.SOUTH);
 
+        // Sidebar navigation only flips cards; it doesn't rebuild this screen.
+        // Re-read the budget whenever Home is shown so money spent on the
+        // recruiting board shows up immediately, not after the next week.
+        JLabel healthBudget = healthBudgetLabel;
+        panel.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentShown(java.awt.event.ComponentEvent e) {
+                int now = DesktopRecruitingBudget.forTeam(league.userTeam,
+                        ctx != null ? ctx.parent() : null);
+                finances.setRecruitingBudget(now);
+                if (healthBudget != null) {
+                    String text = DesktopRecruitingBudget.format(now);
+                    healthBudget.setText(text);
+                    ((JPanel) healthBudget.getParent()).setToolTipText("Recruiting Budget: " + text);
+                }
+            }
+        });
+
         return panel;
     }
 
     private JPanel buildCommandCenterHero() {
-        JPanel hero = new JPanel(new BorderLayout(16, 0)) {
+        JPanel hero = new JPanel(new BorderLayout(16, 8)) {
             @Override
             protected void paintComponent(Graphics g) {
                 DesktopTheme.paintCardGradient(g, getWidth(), getHeight(),
@@ -173,29 +204,33 @@ public class DashboardPanel implements LeagueScreen {
                 BorderFactory.createLineBorder(DesktopTheme.borderSubtle(), 1),
                 BorderFactory.createEmptyBorder(14, 16, 14, 16)));
 
-        JPanel actionBlock = new JPanel(new BorderLayout(0, 8));
-        actionBlock.setOpaque(false);
+        // Top row: eyebrow + season timeline. Keeping the 6-chip timeline out
+        // of the EAST column stops it from starving the action text of width
+        // ("Upcoming: vs Cincinnati (4-" was clipped at 1200px).
+        JPanel topRow = new JPanel(new BorderLayout(16, 0));
+        topRow.setOpaque(false);
         JLabel eyebrow = new JLabel("COACH COMMAND CENTER");
         eyebrow.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 11));
         eyebrow.setForeground(DesktopTheme.textSecondary());
+        topRow.add(eyebrow, BorderLayout.WEST);
+        topRow.add(buildSeasonTimelinePanel(), BorderLayout.EAST);
+        hero.add(topRow, BorderLayout.NORTH);
+
+        JPanel actionBlock = new JPanel(new BorderLayout(0, 4));
+        actionBlock.setOpaque(false);
         JLabel nextAction = new JLabel(playWeekLabel());
         nextAction.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 26));
         nextAction.setForeground(DesktopTheme.textPrimary());
-        JLabel context = new JLabel("<html><body style='width:420px; margin-top: 4px;'>"
+        JLabel context = new JLabel("<html><body style='width:400px;'>"
                 + "<span style='font-size:14px; font-weight:bold; color:" + DesktopTheme.cssRgb(DesktopTheme.textPrimary()) + "'>"
                 + DesktopTheme.escapeForHtml(buildUpcomingMatchupText()) + "</span><br>"
                 + "<span style='font-size:12px; color:" + DesktopTheme.cssRgb(DesktopTheme.textSecondary()) + "'>"
                 + DesktopTheme.escapeForHtml(buildNextActionContext()) + "</span></body></html>");
-        actionBlock.add(eyebrow, BorderLayout.NORTH);
-        actionBlock.add(nextAction, BorderLayout.CENTER);
-        actionBlock.add(context, BorderLayout.SOUTH);
+        actionBlock.add(nextAction, BorderLayout.NORTH);
+        actionBlock.add(context, BorderLayout.CENTER);
         hero.add(actionBlock, BorderLayout.CENTER);
 
-        JPanel right = new JPanel(new BorderLayout(0, 10));
-        right.setOpaque(false);
-        right.add(buildSeasonTimelinePanel(), BorderLayout.NORTH);
-        right.add(buildLastResultPanel(), BorderLayout.CENTER);
-        hero.add(right, BorderLayout.EAST);
+        hero.add(buildLastResultPanel(), BorderLayout.EAST);
         return hero;
     }
 
@@ -238,10 +273,11 @@ public class DashboardPanel implements LeagueScreen {
     private JPanel buildLastResultPanel() {
         JPanel result = new JPanel(new BorderLayout(0, 2));
         result.setOpaque(false);
-        JLabel label = new JLabel("Recent Outcome");
+        result.setBorder(BorderFactory.createEmptyBorder(6, 0, 0, 0));
+        JLabel label = new JLabel("RECENT OUTCOME");
         label.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 11));
         label.setForeground(DesktopTheme.textSecondary());
-        JLabel value = new JLabel("<html><body style='width:360px;'>"
+        JLabel value = new JLabel("<html><body style='width:240px;'>"
                 + DesktopTheme.escapeForHtml(buildRecentOutcomeText()) + "</body></html>");
         value.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 13));
         value.setForeground(DesktopTheme.textPrimary());
@@ -285,11 +321,14 @@ public class DashboardPanel implements LeagueScreen {
 
         Team user = league.userTeam;
         if (user != null) {
-            cards.add(makeStatCard("Recruiting Budget", buildRecruitingBudgetLabel(user), DesktopTheme.successGreen()));
+            JPanel budgetCard = makeStatCard("Recruiting Budget", buildRecruitingBudgetLabel(user), DesktopTheme.successGreen());
+            healthBudgetLabel = (JLabel) budgetCard.getComponent(1);
+            cards.add(budgetCard);
             cards.add(makeStatCard("NIL Collective", "Tier " + user.getNilCollectiveLevel() + " / " + simulation.League.NIL_MAX_TIER, DesktopTheme.warningText()));
             cards.add(makeStatCard("Skill Progress", buildCoachSkillLabel(user), DesktopTheme.textPrimary()));
             cards.add(makeStatCard("Roster Health", buildRosterHealthLabel(user), DesktopTheme.textPrimary()));
         } else {
+            healthBudgetLabel = null;
             cards.add(makeStatCard("Recruiting Budget", "-", DesktopTheme.textPrimary()));
             cards.add(makeStatCard("NIL Collective", "-", DesktopTheme.textPrimary()));
             cards.add(makeStatCard("Skill Progress", "-", DesktopTheme.textPrimary()));
@@ -300,23 +339,7 @@ public class DashboardPanel implements LeagueScreen {
     }
 
     private String buildRecruitingBudgetLabel(Team user) {
-        if (user == null) return "-";
-        return "$" + spendableRecruitingBudget(user);
-    }
-
-    /**
-     * The recruiting money the user can actually spend (same figure the
-     * Recruiting screen starts from). Shared by Program Health and Program
-     * Finances so the dashboard never shows two different budgets.
-     */
-    static int spendableRecruitingBudget(Team user) {
-        if (user == null) return 0;
-        try {
-            RecruitingSessionData session = SimulationFacade.prepareRecruitingSession(user);
-            return session.recruitingBudget;
-        } catch (RuntimeException ex) {
-            return user.getUserRecruitBudget();
-        }
+        return user == null ? "-" : DesktopRecruitingBudget.format(recruitingBudget);
     }
 
     private String buildCoachSkillLabel(Team user) {
@@ -332,8 +355,8 @@ public class DashboardPanel implements LeagueScreen {
     private String buildRosterHealthLabel(Team user) {
         if (user == null) return "-";
         int roster = user.getAllPlayers().size();
-        if (roster >= SimulationFacade.MIN_ROSTER_SIZE) return roster + " ready";
-        return roster + " / " + SimulationFacade.MIN_ROSTER_SIZE;
+        if (roster >= RosterRules.MIN_DEPTH_PLAYERS) return roster + " ready";
+        return roster + " / " + RosterRules.MIN_DEPTH_PLAYERS;
     }
 
     /** Rounded inset tile (stripe fill + 1px subtle border) used for HUD stats and list rows. */
@@ -371,6 +394,7 @@ public class DashboardPanel implements LeagueScreen {
         card.add(val);
         return card;
     }
+
 
     private JPanel buildNextMovesPanel() {
         JPanel panel = new JPanel(new BorderLayout());
@@ -447,7 +471,7 @@ public class DashboardPanel implements LeagueScreen {
         CustomCardPanel news = new CustomCardPanel("Latest Headlines");
         List<String> headlines = new ArrayList<>();
         if (league.getNewsHeadlines() != null) {
-            league.getNewsHeadlines().stream().limit(8).forEach(headlines::add);
+            league.getNewsHeadlines().stream().limit(8).map(DashboardPanel::headlineTitle).forEach(headlines::add);
         }
 
         // Word-wrapped rows in a panel that tracks the viewport width, so each
@@ -502,6 +526,13 @@ public class DashboardPanel implements LeagueScreen {
         l.setForeground(DesktopTheme.textSecondary());
         l.setAlignmentX(Component.CENTER_ALIGNMENT);
         return l;
+    }
+
+    /** Engine news entries may be "headline>story"; the card shows the headline. */
+    private static String headlineTitle(String entry) {
+        if (entry == null) return "";
+        int gt = entry.indexOf('>');
+        return gt > 0 ? entry.substring(0, gt).trim() : entry.trim();
     }
 
     private JPanel buildPollLeadersPanel() {

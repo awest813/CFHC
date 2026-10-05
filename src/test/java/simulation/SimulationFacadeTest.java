@@ -108,6 +108,39 @@ public class SimulationFacadeTest {
     }
 
     @Test
+    public void previewRecruitingBudget_matchesPreparedSessionStartingBudget() throws Exception {
+        SimulationFacade facade = new SimulationFacade(tmp.getRoot(), resources);
+        facade.loadDefaultLeague();
+        Team userTeam = facade.getLeague().getTeamList().get(0);
+        facade.selectUserTeam(userTeam);
+
+        int preview = SimulationFacade.previewRecruitingBudget(userTeam);
+
+        assertTrue(preview > 0);
+        assertEquals(SimulationFacade.prepareRecruitingSession(userTeam).recruitingBudget, preview);
+    }
+
+    @Test
+    public void previewRecruitingBudget_leavesDepthChartAndRngUntouched() throws Exception {
+        SimulationFacade facade = new SimulationFacade(tmp.getRoot(), resources);
+        facade.loadDefaultLeague();
+        Team userTeam = facade.getLeague().getTeamList().get(0);
+        facade.selectUserTeam(userTeam);
+        // A hand-edited depth chart: backup QB promoted over the (higher OVR) starter.
+        assertTrue(userTeam.swapDepthChartOrder("QB", 0, 1));
+        java.util.List<positions.PlayerQB> depthBefore = new java.util.ArrayList<>(userTeam.getTeamQBs());
+
+        SimRandom.bind(4242L);
+        SimulationFacade.previewRecruitingBudget(userTeam);
+        double afterPreview = SimRandom.nextDouble();
+        SimRandom.bind(4242L);
+        double untouched = SimRandom.nextDouble();
+
+        assertEquals(depthBefore, userTeam.getTeamQBs());
+        assertEquals(untouched, afterPreview, 0.0);
+    }
+
+    @Test
     public void facadeImportsRosterThroughSharedImporter() throws Exception {
         SimulationFacade facade = new SimulationFacade(tmp.getRoot(), resources);
         facade.loadDefaultLeague();

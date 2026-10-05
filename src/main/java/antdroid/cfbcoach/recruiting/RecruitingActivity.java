@@ -311,7 +311,7 @@ public class RecruitingActivity extends AppCompatActivity {
     }
 
     private RecruitingSessionData.PositionNeeds buildPositionNeeds() {
-        return sessionData.calculateNeeds(RosterRules.MIN_QBS, RosterRules.MIN_RBS, RosterRules.MIN_WRS, RosterRules.MIN_TES, RosterRules.MIN_OLS, RosterRules.MIN_KS, RosterRules.MIN_DLS, RosterRules.MIN_LBS, RosterRules.MIN_CBS, RosterRules.MIN_SS);
+        return sessionData.calculateNeeds();
     }
 
     public void setShowPopUp(boolean tf) {
@@ -356,7 +356,7 @@ public class RecruitingActivity extends AppCompatActivity {
             final TextView potential = convertView.findViewById(R.id.textRecruitPotential);
 
             details.setText(playerDetail);
-            potential.setText(RecruitingPresentation.buildPotentialDetails(recruit));
+            potential.setText(RecruitingPresentation.buildPotentialDetails(recruit, sessionData.isScouted(recruit)));
             final android.widget.ImageView avatar = convertView.findViewById(R.id.recruitAvatar);
             if (avatar != null) {
                 avatar.setImageResource(antdroid.cfbcoach.PlayerSprites.avatarFor(recruit.position()));

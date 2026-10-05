@@ -19,17 +19,20 @@ public final class SimulationFacade {
 
     public static final int SEASON_START = 2022;
 
-    public static final int MIN_QBS = 2;
-    public static final int MIN_RBS = 3;
-    public static final int MIN_WRS = 4;
-    public static final int MIN_TES = 2;
-    public static final int MIN_OLS = 6;
-    public static final int MIN_KS = 1;
-    public static final int MIN_DLS = 4;
-    public static final int MIN_LBS = 4;
-    public static final int MIN_CBS = 4;
-    public static final int MIN_SS = 2;
-    public static final int MIN_ROSTER_SIZE = 55;
+    // Roster targets are RosterRules', shared with CPU recruiting and the Android
+    // board. The desktop board used smaller copies (QB 2 ... 55 players), which
+    // understated position needs and cut about $275 from the recruiting budget.
+    public static final int MIN_QBS = RosterRules.MIN_QBS;
+    public static final int MIN_RBS = RosterRules.MIN_RBS;
+    public static final int MIN_WRS = RosterRules.MIN_WRS;
+    public static final int MIN_TES = RosterRules.MIN_TES;
+    public static final int MIN_OLS = RosterRules.MIN_OLS;
+    public static final int MIN_KS = RosterRules.MIN_KS;
+    public static final int MIN_DLS = RosterRules.MIN_DLS;
+    public static final int MIN_LBS = RosterRules.MIN_LBS;
+    public static final int MIN_CBS = RosterRules.MIN_CBS;
+    public static final int MIN_SS = RosterRules.MIN_SS;
+    public static final int MIN_ROSTER_SIZE = RosterRules.MIN_PLAYERS;
 
     public static final GameFlowManager NO_OP_FLOW_MANAGER = new GameFlowManager() {
         @Override
@@ -374,6 +377,23 @@ public final class SimulationFacade {
         return prepareRecruitingSessionFromPayload(buildRecruitingPayload(userTeam));
     }
 
+    /**
+     * The starting recruiting budget {@link #prepareRecruitingSession} would give
+     * {@code team} (base + NIL tier + coach bonus + roster-need bonus), computed
+     * without its side effects: no roster sort (which would reset a hand-edited
+     * depth chart) and no freshly generated recruit class (which consumes the
+     * simulation RNG). Safe to call from read-only views.
+     */
+    public static int previewRecruitingBudget(Team team) {
+        if (team == null) {
+            throw new IllegalArgumentException("team is required");
+        }
+        RecruitingSessionData session = RecruitingSessionData.fromUserTeamInfo(
+                buildRecruitingHeader(team) + "END_TEAM_INFO%\n");
+        session.applyBudgetBonuses(MIN_ROSTER_SIZE, team.getAllPlayers().size());
+        return session.recruitingBudget;
+    }
+
     /** Builds a session from a frozen board payload (used for desktop recruiting checkpoints). */
     public static RecruitingSessionData prepareRecruitingSessionFromPayload(String payload) {
         if (payload == null || payload.isEmpty()) {
@@ -388,24 +408,28 @@ public final class SimulationFacade {
         if (userTeam == null) {
             throw new IllegalArgumentException("userTeam is required");
         }
-        StringBuilder sb = new StringBuilder();
         userTeam.sortPlayers();
-        HeadCoach hc = userTeam.getHeadCoach();
-        int recruitSkill = hc != null ? Math.min(95, hc.ratTalent + hc.recruitingPitchBonus()) : 70;
-        int coachBudgetBonus = hc != null ? hc.recruitingBudgetBonus() : 0;
-        sb.append(userTeam.getConference()).append(",")
-                .append(userTeam.getName()).append(",")
-                .append(userTeam.getAbbr()).append(",")
-                .append(userTeam.getUserRecruitBudget()).append(",")
-                .append(recruitSkill).append(",")
-                .append(userTeam.getNilCollectiveLevel()).append(",")
-                .append(coachBudgetBonus).append("%\n");
+        StringBuilder sb = new StringBuilder(buildRecruitingHeader(userTeam));
         for (Player player : userTeam.getAllPlayers()) {
             sb.append(Persistence.toCsv(player.toRecord())).append("%\n");
         }
         sb.append("END_TEAM_INFO%\n");
         sb.append(userTeam.getRecruitsInfoSaveFile());
         return sb.toString();
+    }
+
+    /** First payload line: conference, name, abbr, budget units, coach skill, NIL tier, coach bonus. */
+    private static String buildRecruitingHeader(Team team) {
+        HeadCoach hc = team.getHeadCoach();
+        int recruitSkill = hc != null ? Math.min(95, hc.ratTalent + hc.recruitingPitchBonus()) : 70;
+        int coachBudgetBonus = hc != null ? hc.recruitingBudgetBonus() : 0;
+        return team.getConference() + ","
+                + team.getName() + ","
+                + team.getAbbr() + ","
+                + team.getUserRecruitBudget() + ","
+                + recruitSkill + ","
+                + team.getNilCollectiveLevel() + ","
+                + coachBudgetBonus + "%\n";
     }
 
     private void requireLeague() {

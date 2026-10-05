@@ -148,11 +148,69 @@ public class Game implements Serializable {
     boolean playingOT;
     private boolean bottomOT;
 
-    final int timePerPlay = 18;
-    private final int intValue = 135; //higher less ints
-    private final int sackValue = 200; //higher less sacks
+    /**
+     * Seconds a snap takes (a play burns this to twice this; an incompletion up to
+     * this). At 18 teams ran ~66 plays a game once they ran as often as college
+     * offenses do (FBS ~70).
+     */
+    final int timePerPlay = 17;
+    /** League-average pressure on a dropback (2 x pass rush - protection). */
+    static final int LEAGUE_PRESSURE = 80;
+    /** Pick chance for a QB of {@link #INT_QB_PIVOT} skill under league-average pressure. */
+    static final double INT_BASE_CHANCE = 0.0205;
+    /** QB skill ((2 x accuracy + football IQ) / 3) at which the base pick chance applies. */
+    static final int INT_QB_PIVOT = 84;
+    static final double INT_QB_SLOPE = 0.00065;
+    static final double INT_PRESSURE_SLOPE = 0.00015;
+    static final int INT_SAFETY_PIVOT = 78;
+    static final double INT_SAFETY_SLOPE = 0.00015;
+    /**
+     * Per point of the defense's pass-rush book against the offense's protection
+     * book. At 0.0026 (carried over from the old risk score) Air Raid's -2
+     * protection added ~0.6% to every throw, and its QBs were 8 of the top 10 in
+     * interceptions with 20-29 a season.
+     */
+    static final double INT_SCHEME_SLOPE = 0.0013;
+    /** Chance an interception return breaks into the open field. */
+    static final double PICK_RETURN_BREAKAWAY = 0.15;
+    /** Coverage rating of the defender on the target (corner on a wideout, linebacker on a tight end). */
+    static final int INT_COVERAGE_PIVOT = 82;
+    static final double INT_COVERAGE_SLOPE = 0.0002;
+    static final double INT_MIN_CHANCE = 0.005;
+    static final double INT_MAX_CHANCE = 0.06;
+    /** Sack chance per dropback at league-average pressure. */
+    static final double SACK_RATE = 0.050;
+    /** Pressure points that multiply the sack chance by e. */
+    static final double SACK_PRESSURE_SCALE = 28;
+    /** Below this pressure the pocket is clean (the pocket passer's completion bonus). */
+    static final int CLEAN_POCKET_PRESSURE = 72;
+    /** Share of runs stuffed at or behind the line when blocking and the front are even. */
+    static final double RUN_STUFF_CHANCE = 0.11;
+    /** Change in that share per point of blocking advantage. */
+    static final double RUN_STUFF_PER_BLOCK = 0.005;
+    /** Added to the run preference on first and second down. */
+    static final double EARLY_DOWN_RUN_LEAN = 0.12;
+    /**
+     * How strongly a book's run/pass preference sets its early-down calls. At full
+     * strength a 2-to-1 preference made Power Spread run 82% of early downs and
+     * Air Raid pass 75%; at half, run-first books run 72-77% (with the down,
+     * distance and score leans) and Air Raid passes ~57%.
+     */
+    static final double BOOK_LEAN_SCALE = 0.5;
+
+    static double bookWeight(int pref) {
+        return 1 + BOOK_LEAN_SCALE * (pref - 1);
+    }
+    /** Divides the fumble score into a per-play chance (was 50: ~0.85 lost a team-game). */
+    static final double FUMBLE_DIVISOR = 75;
     private final int escapeValue = 150;
-    private final int compValue = 250; //higher more completions
+    private static final double RB_CARRY_SCALE = 9.2;
+    /** Divides passing depth (arm + receiver speed - defender speed) into air yards. */
+    static final double PASS_DEPTH_DIVISOR = 4.6;
+    /** Chance a receiver who shakes free after the catch reaches the open field. */
+    static final double PASS_BREAKAWAY_CHANCE = 0.20;
+    /** Divides the carrier's speed plus blocking into yards before contact. */
+    static final double RUN_BASE_DIVISOR = 10;
     private final int fatigueDropSuper = 13;
     private final int fatigueDropHigh = 9;
     private final int fatigueDropMed = 6;
@@ -160,6 +218,22 @@ public class Game implements Serializable {
     private final int fatigueGain = 3;
     private int snapCount = 0;
     private final int touchback = 25;
+    /** Punts that reach the end zone come out to the 20 (kickoffs to the 25). */
+    static final int PUNT_TOUCHBACK = 20;
+    /** Share of punts landing past the 10 that are run back (the rest are fair caught or downed). */
+    static final double PUNT_RETURN_CHANCE = 0.5;
+    /** Share of punts that would reach the end zone from plus territory that are downed inside the 15 instead. */
+    static final double PUNT_PIN_CHANCE = 0.6;
+    /** Share of kickoffs fielded short of the 10 that are fair caught (spotted at the 25). */
+    static final double KICKOFF_FAIR_CATCH = 0.3;
+    /** Head start for the kickoff coverage over the returner. */
+    static final int KICK_COVERAGE_EDGE = 2;
+    /** Kickoff returns start at 13-22 yards, plus a yard per 4 points the returner beats the coverage by. */
+    static final int KICK_RETURN_BASE = 13;
+    /** About 1 punt in 140 is blocked (FBS ~0.7%; it was 1 in 100). */
+    static final double BLOCKED_PUNT_CHANCE = 0.007;
+    /** Whether the last kick handled by returnPlay was run back (false: fair catch, downed or touchback). */
+    private boolean kickReturned;
 
     double hkReturnAvg = 0, akReturnAvg = 0, hpReturnAvg = 0, apReturnAvg = 0;
 
@@ -397,36 +471,45 @@ public class Game implements Serializable {
         return null;
     }
 
+    /**
+     * Enforces a pre-snap flag, at most half the distance to the goal line. Flags
+     * near a goal line used to put the ball behind it (snaps from the -5 or the
+     * 102), and a defensive flag without a first down moved the ball without
+     * shortening the distance to gain.
+     */
     private void applyPreSnapPenalty(PenaltyCall call, Team offense, Team defense) {
         if (call.onOffense()) {
+            int yards = Math.min(call.yards(), gameYardLine / 2);
             if (gamePoss) {
                 homePenalties++;
-                homePenaltyYards += call.yards();
+                homePenaltyYards += yards;
             } else {
                 awayPenalties++;
-                awayPenaltyYards += call.yards();
+                awayPenaltyYards += yards;
             }
-            gameYardLine -= call.yards();
-            gameYardsNeed += call.yards();
+            gameYardLine -= yards;
+            gameYardsNeed += yards;
             gameEventLog.append(getEventLog()).append("PENALTY! ").append(offense.getAbbr()).append(" ")
-                    .append(call.name()).append(", ").append(call.yards()).append(" yard penalty. Replay the down.");
+                    .append(call.name()).append(", ").append(yards).append(" yard penalty. Replay the down.");
         } else {
+            int yards = Math.min(call.yards(), (100 - gameYardLine) / 2);
             if (gamePoss) {
                 awayPenalties++;
-                awayPenaltyYards += call.yards();
+                awayPenaltyYards += yards;
             } else {
                 homePenalties++;
-                homePenaltyYards += call.yards();
+                homePenaltyYards += yards;
             }
-            gameYardLine += call.yards();
-            if (SimRandom.nextDouble() < 0.5) {
+            gameYardLine += yards;
+            gameYardsNeed -= yards;
+            if (SimRandom.nextDouble() < 0.5 || gameYardsNeed <= 0) {
                 gameDown = 1;
-                gameYardsNeed = 10;
+                gameYardsNeed = Math.min(10, 100 - gameYardLine);
                 gameEventLog.append(getEventLog()).append("PENALTY! ").append(defense.getAbbr()).append(" ")
-                        .append(call.name()).append(", ").append(call.yards()).append(" yards. Automatic first down!");
+                        .append(call.name()).append(", ").append(yards).append(" yards. Automatic first down!");
             } else {
                 gameEventLog.append(getEventLog()).append("PENALTY! ").append(defense.getAbbr()).append(" ")
-                        .append(call.name()).append(", ").append(call.yards()).append(" yards. Replay the down.");
+                        .append(call.name()).append(", ").append(yards).append(" yards. Replay the down.");
             }
         }
         gameTime -= timePerPlay * SimRandom.nextDouble();
@@ -935,7 +1018,14 @@ public class Game implements Serializable {
     // PRE-SNAP DECISIONS
 
     private void runPlay(Team offense, Team defense) {
+        boolean possessionBefore = gamePoss;
         quarterCheck();
+        if (gamePoss != possessionBefore) {
+            // The second-half kickoff changed hands. The caller picked this offense
+            // before it, so the team that ended the half used to run the first snap
+            // of the third quarter from the receiving team's spot.
+            return;
+        }
         momentum.decay();
         recoup(false, 0);
         snapCount++;
@@ -961,8 +1051,8 @@ public class Game implements Serializable {
 
             }
         } else {
-            double preferPass = (offense.getPassProf() - defense.getPassDef()) / 100 + SimRandom.nextDouble() * offense.getPlaybookOffense().getPassPref();       //STRATEGIES
-            double preferRush = (offense.getRushProf() - defense.getRushDef()) / 90 + SimRandom.nextDouble() * offense.getPlaybookOffense().getRunPref();
+            double preferPass = (offense.getPassProf() - defense.getPassDef()) / 100 + SimRandom.nextDouble() * bookWeight(offense.getPlaybookOffense().getPassPref());       //STRATEGIES
+            double preferRush = (offense.getRushProf() - defense.getRushDef()) / 90 + SimRandom.nextDouble() * bookWeight(offense.getPlaybookOffense().getRunPref());
 
             // Weather: wet fields lean on the ground game.
             preferRush += weather.runLean();
@@ -993,6 +1083,14 @@ public class Game implements Serializable {
                 preferRush += 0.35 + 0.15 * SimRandom.nextDouble();
                 preferPass -= 0.12;
             }
+            // Second half with a three-score lead: start leaning on the run. Elite
+            // offenses kept throwing through blowouts, which is where 6,000+ yard
+            // passing seasons (real record ~5,800) came from almost every year.
+            int offenseLead = offenseIsHome ? homeScore - awayScore : awayScore - homeScore;
+            if (!playingOT && gameTime <= 1800 && gameTime > 480 && offenseLead >= 17 && gameDown < 4) {
+                preferRush += 0.25;
+                preferPass -= 0.10;
+            }
             if (hurryUpPass) {
                 preferPass += 0.45 + 0.15 * SimRandom.nextDouble();
                 preferRush -= 0.15;
@@ -1001,6 +1099,17 @@ public class Game implements Serializable {
             // If it's 1st and Goal to go, adjust yards needed to reflect distance for a TD so that play selection reflects actual yards to go
             // If we don't do this, gameYardsNeed may be higher than the actually distance for a TD and suboptimal plays may be chosen
             if (gameDown == 1 && gameYardLine >= 91) gameYardsNeed = 100 - gameYardLine;
+
+            // Early downs: college offenses run about 56% of the time on first down,
+            // more on short yardage and near the goal line, less on second and long.
+            // The playbook coin flip alone ran 45% of all plays (FBS ~53%).
+            if (gameDown <= 2) {
+                preferRush += EARLY_DOWN_RUN_LEAN;
+                if (gameYardsNeed <= 2) preferRush += 0.35;
+                else if (gameYardsNeed <= 4) preferRush += 0.10;
+                else if (gameDown == 2 && gameYardsNeed >= 8) preferRush -= 0.15;
+                if (gameYardLine >= 90) preferRush += 0.15;
+            }
 
             //Under 20 seconds to play: winning team kneels, trailing team goes for it
             if (gameTime <= 20 && !playingOT) {
@@ -1011,7 +1120,8 @@ public class Game implements Serializable {
                     return;
                 }
                 //Down by 3 or less, or tied, and you have the ball
-                if (((gamePoss && (awayScore - homeScore) <= 3) || (!gamePoss && (homeScore - awayScore) <= 3)) && gameYardLine > 60) {
+                if (((gamePoss && (awayScore - homeScore) <= 3) || (!gamePoss && (homeScore - awayScore) <= 3)) && gameYardLine > 60
+                        && fgInRange(offense)) {
                     //last second FGA
                     fieldGoalAtt(offense, defense);
                 } else {
@@ -1048,28 +1158,43 @@ public class Game implements Serializable {
                 } else {
                     //4th down
                     if (gameYardsNeed < 3 + Math.max(0, bias)) {
-                        if (gameYardLine > 65 - Math.max(0, bias) * 2) {
+                        if (gameYardLine > 65 - Math.max(0, bias) * 2 && fgInRange(offense)) {
                             //fga
                             fieldGoalAtt(offense, defense);
                         } else if (gameYardLine > 55) {
-                            // run play, go for it!
-                            rushingPlay(offense, defense);
+                            // go for it: usually a run, sometimes a quick throw
+                            if (SimRandom.nextDouble() < shortYardageRunChance(gameYardsNeed, offense.getPlaybookOffense())) {
+                                rushingPlay(offense, defense);
+                            } else {
+                                passingPlay(offense, defense);
+                            }
                         } else {
                             //punt
                             puntPlay(offense, defense);
                         }
-                    } else if (gameYardLine > 60) {
+                    } else if (gameYardLine > 60 && fgInRange(offense)) {
                         //fga
                         fieldGoalAtt(offense, defense);
+                    } else if (gameYardLine > 65 && gameYardsNeed <= 6) {
+                        // Out of field goal range but too close to punt (it would
+                        // just be a touchback): go for it, as college coaches do.
+                        passingPlay(offense, defense);
                     } else {
                         //punt
                         puntPlay(offense, defense);
                     }
                 }
-            } else if (gameDown == 3 && gameYardsNeed <= 2 && (!hurryUpPass || gameYardsNeed == 1)) {
-                // Short-yardage: prefer power run unless late hurry-up on third-and-two (still allow run on third-and-one).
-                rushingPlay(offense, defense);
-            } else if ((gameDown == 3 && gameYardsNeed > 4) || ((gameDown == 1 || gameDown == 2) && (preferPass >= preferRush))) {
+            } else if (gameDown == 3) {
+                // Third down by distance. It used to be all runs at 1-4 yards and all
+                // passes from 5 on (FBS: ~70% runs on 3rd and 1-2, ~35% at 3-6, ~10% beyond).
+                double runChance = hurryUpPass && gameYardsNeed > 1 ? 0.03
+                        : shortYardageRunChance(gameYardsNeed, offense.getPlaybookOffense());
+                if (SimRandom.nextDouble() < runChance) {
+                    rushingPlay(offense, defense);
+                } else {
+                    passingPlay(offense, defense);
+                }
+            } else if (preferPass >= preferRush) {
                 // pass play
                 passingPlay(offense, defense);
             } else {
@@ -1082,12 +1207,7 @@ public class Game implements Serializable {
     }
 
     private void passingPlay(Team offense, Team defense) {
-        int x = 0;
-        if (gameTime < 900 && gamePoss && (homeScore - awayScore) >= 20 + gameTime / 60) {
-            x = 1;
-        } else if (gameTime < 900 && !gamePoss && (awayScore - homeScore) >= 20 + gameTime / 60) {
-            x = 1;
-        }
+        int x = benchStarters() ? 1 : 0;
 
         PlayerQB selQB;
         PlayerRB selRB;
@@ -1132,7 +1252,7 @@ public class Game implements Serializable {
         for (int i = 0 + x; i < offense.startersTE + x; ++i) {
             if (offense.getTE(i).gameFatigue > 0) {
                 if (gameYardLine > 80) {
-                    offense.getTE(i).gameSim = Math.pow(((offense.getTE(i).getRatCatch() + offense.getTE(0).getRatSpeed()) / 2), 1) * SimRandom.nextDouble() * 1.25;
+                    offense.getTE(i).gameSim = Math.pow(((offense.getTE(i).getRatCatch() + offense.getTE(i).getRatSpeed()) / 2), 1) * SimRandom.nextDouble() * 1.25;
                 } else {
                     offense.getTE(i).gameSim = Math.pow(((offense.getTE(i).getRatCatch() + offense.getTE(i).getRatSpeed()) / 2), 1) * SimRandom.nextDouble() * (.70 + TEBonus);
                 }
@@ -1154,7 +1274,7 @@ public class Game implements Serializable {
         RBBonus = offense.getPlaybookOffense().getPassUsage() * 0.10;
         for (int i = 0 + x; i < offense.startersRB + x; ++i) {
             if (offense.getRB(i).gameFatigue > 0) {
-                offense.getRB(i).gameSim = Math.pow(((offense.getRB(0).getRatCatch() + offense.getRB(i).getRatSpeed()) / 2), 1) * SimRandom.nextDouble() * (.70 + RBBonus);
+                offense.getRB(i).gameSim = Math.pow(((offense.getRB(i).getRatCatch() + offense.getRB(i).getRatSpeed()) / 2), 1) * SimRandom.nextDouble() * (.70 + RBBonus);
                 offense.getRB(i).gameSnaps++;
                 receiver.add(offense.getRB(i));
                 RunningBack.add(offense.getRB(i));
@@ -1256,7 +1376,7 @@ public class Game implements Serializable {
         //Fatigue selected Action Players
         selRB.gameFatigue -= Math.round((100 - selRB.ratDurability) / 10);
         selWR.gameFatigue -= fatigueDropHigh + Math.round((100 - selWR.ratDurability) / 10);
-        selWR2.gameFatigue -= fatigueDropMed + Math.round((100 - selWR.ratDurability) / 10);
+        selWR2.gameFatigue -= fatigueDropMed + Math.round((100 - selWR2.ratDurability) / 10);
         selTE.gameFatigue -= fatigueDropHigh + Math.round((100 - selTE.ratDurability) / 10);
         selDL.gameFatigue -= fatigueDropHigh + Math.round((100 - selDL.ratDurability) / 10);
         selLB.gameFatigue -= fatigueDropSuper + Math.round((100 - selLB.ratDurability) / 10);
@@ -1283,12 +1403,7 @@ public class Game implements Serializable {
     }
 
     private void rushingPlay(Team offense, Team defense) {
-        int x = 0;
-        if (gameTime < 900 && gamePoss && (homeScore - awayScore) >= 20 + gameTime / 60) {
-            x = 1;
-        } else if (gameTime < 900 && !gamePoss && (awayScore - homeScore) >= 20 + gameTime / 60) {
-            x = 1;
-        }
+        int x = benchStarters() ? 1 : 0;
 
         PlayerQB selQB;
         PlayerRB selRB;
@@ -1309,21 +1424,24 @@ public class Game implements Serializable {
 
         //Action Players
 
+        // Linear in OVR (was ^1.5) so RB1 takes ~55-60% of the backs' carries
+        // instead of 65-75%. Scaled by ~sqrt(85) to keep the same magnitude as
+        // the QB's speed^1.485 draw in the shared rusher pool below.
         for (int i = 0 + x; i < offense.startersRB + x; ++i) {
             if (offense.getRB(i).gameFatigue > 0) {
-                offense.getRB(i).gameSim = Math.pow(offense.getRB(i).ratOvr, 1.5) * SimRandom.nextDouble();
+                offense.getRB(i).gameSim = RB_CARRY_SCALE * offense.getRB(i).ratOvr * SimRandom.nextDouble();
                 offense.getRB(i).gameSnaps++;
                 rusher.add(offense.getRB(i));
                 RunningBack.add(offense.getRB(i));
             } else {
-                offense.getRB(offense.startersRB).gameSim = Math.pow(offense.getRB(offense.startersRB).ratOvr, 1.5) * SimRandom.nextDouble();
+                offense.getRB(offense.startersRB).gameSim = RB_CARRY_SCALE * offense.getRB(offense.startersRB).ratOvr * SimRandom.nextDouble();
                 offense.getRB(offense.startersRB).gameSnaps++;
                 rusher.add(offense.getRB(offense.startersRB));
                 RunningBack.add(offense.getRB(offense.startersRB));
             }
         }
 
-        if (offense.getPlaybookOffNum() == 4 || offense.getPlaybookOffNum() == 5)
+        if (offense.getPlaybookOffense().featuresQbRuns())
             offense.getQB(0 + x).gameSim = Math.pow(offense.getQB(0 + x).getRatSpeed(), 1.485) * SimRandom.nextDouble();
         else
             offense.getQB(0 + x).gameSim = 0.25 * Math.pow(offense.getQB(0 + x).getRatSpeed(), 1.485) * SimRandom.nextDouble();
@@ -1460,7 +1578,7 @@ public class Game implements Serializable {
         //get how much pressure there is on qb, check if sack
         int pressureOnQB = 2 * defPressure - offProtection + getHFadv() + getCoachAdv();
         // SACK OUTCOME
-        if (SimRandom.nextDouble() * sackValue < pressureOnQB / 8) {
+        if (SimRandom.nextDouble() < sackChance(pressureOnQB)) {
 
             if (SimRandom.nextDouble() * escapeValue < pressureOnQB / 8 && selQB.getRatSpeed() > selDL.getRatPassRush()) {
                 //ESCAPE SACK
@@ -1472,6 +1590,9 @@ public class Game implements Serializable {
                 selDL.gameSim = selDL.getRatTackle() * SimRandom.nextDouble() * 100;
                 selLB2.gameSim = selLB2.getRatTackle() * SimRandom.nextDouble() * 60;
                 selS2.gameSim = selS2.getRatTackle() * SimRandom.nextDouble() * 25;
+                // The corner's roll was never set here, so a stale one from an earlier
+                // play won about 8% of sacks for corners (FBS ~3%).
+                selCB.gameSim = selCB.getRatTackle() * SimRandom.nextDouble() * 28;
 
                 recordSack(offense, defense, selQB, selDL, selLB2, selCB, selS2);
 
@@ -1485,21 +1606,25 @@ public class Game implements Serializable {
 
             //check for int
             if (!pos.equals("RB")) {
-                double intChance = (pressureOnQB + defense.getS(0).ratOvr - (2 * selQB.getRatPassAcc() + selQB.ratIntelligence + 100) / 4.0) / 18.0
-                        - offense.getPlaybookOffense().getPassProtection() + defense.getPlaybookDefense().getPassRush();
-                intChance += getArchetypeIntBonus(defense.getS(0), intChance);
-                if (intChance < 0.015) intChance = 0.015;
-                if (intValue * SimRandom.nextDouble() < intChance) {
+                int qbSkill = (2 * selQB.getRatPassAcc() + selQB.ratIntelligence) / 3;
+                int schemeEdge = defense.getPlaybookDefense().getPassRush() - offense.getPlaybookOffense().getPassProtection();
+                int coverage = pos.equals("WR") ? selCB.getRatCoverage() : selLB.getRatCoverage();
+                double pickChance = interceptionChance(qbSkill, pressureOnQB, defense.getS(0).ratOvr, coverage, schemeEdge);
+                pickChance += getArchetypeIntBonus(defense.getS(0), pickChance);
+                if (SimRandom.nextDouble() < pickChance) {
                     //Interception
+                    // Who comes down with it. Safeties took ~17% of picks (FBS ~35%), and on
+                    // throws to the tight end the safety's roll went to the other safety, so
+                    // the one in the running kept a stale number.
                     if (pos.equals("WR")) {
                         selDL.gameSim = selDL.getRatPassRush() * SimRandom.nextDouble() * 15;
                         selCB.gameSim = selCB.getRatCoverage() * SimRandom.nextDouble() * 100;
-                        selS.gameSim = selS.getRatCoverage() * SimRandom.nextDouble() * 50;
-                        selLB.gameSim = selLB.getRatCoverage() * SimRandom.nextDouble() * 30;
+                        selS.gameSim = selS.getRatCoverage() * SimRandom.nextDouble() * 80;
+                        selLB.gameSim = selLB.getRatCoverage() * SimRandom.nextDouble() * 25;
                     } else if (pos.equals("TE")) {
                         selDL.gameSim = selDL.getRatPassRush() * SimRandom.nextDouble() * 15;
-                        selCB.gameSim = selCB.getRatCoverage() * SimRandom.nextDouble() * 50;
-                        selS2.gameSim = selS2.getRatCoverage() * SimRandom.nextDouble() * 45;
+                        selCB.gameSim = selCB.getRatCoverage() * SimRandom.nextDouble() * 35;
+                        selS.gameSim = selS.getRatCoverage() * SimRandom.nextDouble() * 60;
                         selLB.gameSim = selLB.getRatCoverage() * SimRandom.nextDouble() * 65;
                     } else {
                         selDL.gameSim = selDL.getRatPassRush() * SimRandom.nextDouble() * 15;
@@ -1558,7 +1683,7 @@ public class Game implements Serializable {
                     if (100 * SimRandom.nextDouble() < (100 - selTE.getRatCatch() - getArchetypeDropReduction(selTE)) / 3) {
                         //drop
                         if (homeTeam.league.fullGameLog)
-                            gameEventLog.append(getEventLog()).append(offense.getAbbr()).append("TE ").append(selTE.name).append(" dropped the catch.");
+                            gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" TE ").append(selTE.name).append(" dropped the catch.");
 
                         gameDown++;
                         recordDrop(selRB, selTE, selWR, selCB, selLB, pos);
@@ -1593,9 +1718,9 @@ public class Game implements Serializable {
 
                 gameTime -= timePerPlay * SimRandom.nextDouble();
                 if (pos.equals("WR")) {
-                    recordDefendedCB(selWR, selCB);
+                    recordDefendedCB(selWR, selCB, selS);
                 } else if (pos.equals("TE")) {
-                    recordDefendedLB(selTE, selLB2);
+                    recordDefendedLB(selTE, selLB, selS);
                 } else if (pos.equals("RB")) {
                     recordDefendedLB2(selRB, selLB2);
                 }
@@ -1609,7 +1734,7 @@ public class Game implements Serializable {
 
                 if (pos.equals("WR")) {
 
-                    yardsGain = (int) (((selQB.getRatPassPow()) + (selWR.getRatSpeed()) - (selCB.getRatSpeed())) * SimRandom.nextDouble() / 4.8 //STRATEGIES
+                    yardsGain = (int) (((selQB.getRatPassPow()) + (selWR.getRatSpeed()) - (selCB.getRatSpeed())) * SimRandom.nextDouble() / PASS_DEPTH_DIVISOR //STRATEGIES
                             + offense.getPlaybookOffense().getPassPotential() - defense.getPlaybookDefense().getPassCoverage());
                     //see if receiver can get yards after catch
                     int wrYacBonus = getArchetypeYacBonus(selWR) + (selWR.hasArchetype(Archetypes.WR_DEEP_THREAT) ? 10 : 0);
@@ -1618,7 +1743,7 @@ public class Game implements Serializable {
                             + wrYacBonus - getArchetypeDeepRecoveryBonus(selCB);
                 } else if (pos.equals("TE")) {
 
-                    yardsGain = (int) (((selQB.getRatPassPow()) + (selTE.getRatSpeed()) - (selLB.getRatSpeed())) * SimRandom.nextDouble() / 4.8 //STRATEGIES
+                    yardsGain = (int) (((selQB.getRatPassPow()) + (selTE.getRatSpeed()) - (selLB.getRatSpeed())) * SimRandom.nextDouble() / PASS_DEPTH_DIVISOR //STRATEGIES
                             + offense.getPlaybookOffense().getPassPotential() - defense.getPlaybookDefense().getPassCoverage());
                     //see if receiver can get yards after catch
                     escapeChance = ((selTE.getRatEvasion()) * 3 - selLB.getRatTackle() - defense.getS(0).ratOvr) * SimRandom.nextDouble()  //STRATEGIES
@@ -1626,7 +1751,7 @@ public class Game implements Serializable {
                             + getArchetypeYacBonus(selTE);
                 } else {
 
-                    yardsGain = (int) (((selQB.getRatPassPow()) + (selRB.getRatSpeed()) - (selLB.getRatSpeed())) * SimRandom.nextDouble() / 4.8 //STRATEGIES
+                    yardsGain = (int) (((selQB.getRatPassPow()) + (selRB.getRatSpeed()) - (selLB.getRatSpeed())) * SimRandom.nextDouble() / PASS_DEPTH_DIVISOR //STRATEGIES
                             + offense.getPlaybookOffense().getPassPotential() - defense.getPlaybookDefense().getPassCoverage()) - 2;  //subtract 2 for screen pass behind line of scrimmage
                     //see if receiver can get yards after catch
                     escapeChance = ((selRB.getRatEvasion()) * 3 - selLB2.getRatTackle() - defense.getS(0).ratOvr) * SimRandom.nextDouble()  //STRATEGIES
@@ -1645,26 +1770,39 @@ public class Game implements Serializable {
                     }
                 }
 
-                //BREAK AWAY FOR TD
-                if (escapeChance > 80 && SimRandom.nextDouble() < (0.1 + (offense.getPlaybookOffense().getPassPotential() - defense.getPlaybookDefense().getPassCoverage()) / 200)) {
-                    yardsGain += 100;
+                // Breaks into the open field. This used to add 100 yards, so every
+                // breakaway was a touchdown from anywhere and catches of 40-59 yards
+                // almost never happened.
+                if (escapeChance > 80 && SimRandom.nextDouble() < (PASS_BREAKAWAY_CHANCE + (offense.getPlaybookOffense().getPassPotential() - defense.getPlaybookDefense().getPassCoverage()) / 200)) {
+                    yardsGain += openFieldYards(receiverSpeed(pos, selRB, selWR, selTE));
                 }
 
                 //add yardage
                 gameYardLine += yardsGain;
+                boolean safety = false;
                 if (gameYardLine >= 100) { //TD!
                     yardsGain -= gameYardLine - 100;
                     gameYardLine = 100 - yardsGain;
                     addPointsQuarter(6);
                     recordPassingTD(offense, selQB, selRB, selWR, selTE, yardsGain, pos);
                     gotTD = true;
+                } else if (gameYardLine <= 0) {
+                    // Caught behind the line and downed in the offense's own end zone.
+                    safety = true;
                 } else {
                     //check for fumble (wet weather increases the odds)
                     double fumChance = (selS.getRatTackle() + selCB.getRatTackle() + selLB.getRatTackle()) / 3;
-                    if (100 * SimRandom.nextDouble() < fumChance * weather.fumbleMultiplier() / 50) {
+                    if (100 * SimRandom.nextDouble() < fumChance * weather.fumbleMultiplier() / FUMBLE_DIVISOR) {
                         //Fumble!
                         gotFumble = true;
                     }
+                }
+
+                if (safety) {
+                    String tackler = recordPassCompletion(offense, selQB, selRB, selWR, selTE, selLB, selCB, selS, yardsGain, pos, false);
+                    gameTime -= timePerPlay * SimRandom.nextDouble();
+                    awardSafety(offense.getAbbr() + " " + pos + " " + receiverName(pos, selRB, selWR, selTE), tackler);
+                    return;
                 }
 
                 if (!gotTD && !gotFumble) {
@@ -1770,34 +1908,53 @@ public class Game implements Serializable {
         int yardsGain;
         int blockAdv = getOffRunProtection(offense, selTE) - getDefRunStop(defense, selLB, selS) + (offense.getPlaybookOffense().getRunProtection() - defense.getPlaybookDefense().getRunStop());
 
-        //Start Rush Play
-        if (selRB.gameSim >= selQB.gameSim) {
-            yardsGain = (int) ((selRB.getRatSpeed() + blockAdv + getHFadv() + environmentAdj(offense, false) + (int) (SimRandom.nextDouble() * getCoachAdv())) * SimRandom.nextDouble() / 10 + (double) offense.getPlaybookOffense().getRunPotential() / 2 - (double) defense.getPlaybookDefense().getRunCoverage() / 2)
-                    + getArchetypeRushBonus(selRB);
-        } else {
-            yardsGain = (int) ((selQB.getRatSpeed() + blockAdv + getHFadv() + environmentAdj(offense, false) + (int) (SimRandom.nextDouble() * getCoachAdv())) * SimRandom.nextDouble() / 10 + (double) offense.getPlaybookOffense().getRunPotential() / 2 - (double) defense.getPlaybookDefense().getRunCoverage() / 2)
-                    + getArchetypeScrambleBonus(selQB);
-        }
+        boolean rbCarries = selRB.gameSim >= selQB.gameSim;
+        int carrierSpeed = rbCarries ? selRB.getRatSpeed() : selQB.getRatSpeed();
+        boolean brokeTackle = false;
 
-        //Break past neutral zone
-        if (selRB.gameSim >= selQB.gameSim) {
-            if (yardsGain < 2) {
-                yardsGain += selRB.getRatRushPower() / 20 - 3 - (double) defense.getPlaybookDefense().getRunCoverage() / 2;
+        if (SimRandom.nextDouble() < runStuffChance(blockAdv)) {
+            // The front wins the snap: no gain or a loss of up to 3. Runs used to
+            // be stuffed only by a lopsided blocking edge (~1% lost yards).
+            yardsGain = -(int) (SimRandom.nextDouble() * 4);
+        } else {
+            //Start Rush Play
+            if (rbCarries) {
+                yardsGain = (int) ((selRB.getRatSpeed() + blockAdv + getHFadv() + environmentAdj(offense, false) + (int) (SimRandom.nextDouble() * getCoachAdv())) * SimRandom.nextDouble() / RUN_BASE_DIVISOR + (double) offense.getPlaybookOffense().getRunPotential() / 2 - (double) defense.getPlaybookDefense().getRunCoverage() / 2)
+                        + getArchetypeRushBonus(selRB);
             } else {
-                //break free from tackles
-                if (SimRandom.nextDouble() < (0.28 + (offense.getPlaybookOffense().getRunPotential() - (double) defense.getPlaybookDefense().getRunCoverage() / 2) / 50)) {
-                    yardsGain += (selRB.getRatEvasion() - blockAdv) / 5 * SimRandom.nextDouble()
-                            + getArchetypeBrokenTackleBonus(selRB);
+                yardsGain = (int) ((selQB.getRatSpeed() + blockAdv + getHFadv() + environmentAdj(offense, false) + (int) (SimRandom.nextDouble() * getCoachAdv())) * SimRandom.nextDouble() / RUN_BASE_DIVISOR + (double) offense.getPlaybookOffense().getRunPotential() / 2 - (double) defense.getPlaybookDefense().getRunCoverage() / 2)
+                        + getArchetypeScrambleBonus(selQB);
+            }
+
+            //Break past neutral zone
+            if (rbCarries) {
+                if (yardsGain < 2) {
+                    yardsGain += selRB.getRatRushPower() / 20 - 3 - (double) defense.getPlaybookDefense().getRunCoverage() / 2;
+                } else {
+                    //break free from tackles (0.22, was 0.28: league YPC ran ~5.7 and
+                    // the long-run tail produced 2,700-2,900 yd rushing leaders)
+                    if (SimRandom.nextDouble() < (0.22 + (offense.getPlaybookOffense().getRunPotential() - (double) defense.getPlaybookDefense().getRunCoverage() / 2) / 50)) {
+                        yardsGain += (selRB.getRatEvasion() - blockAdv) / 5 * SimRandom.nextDouble()
+                                + getArchetypeBrokenTackleBonus(selRB);
+                        brokeTackle = true;
+                    }
+                }
+            } else {
+                if (yardsGain < 2) {
+                    yardsGain += selQB.getRatEvasion()/ 20 - 3 - (double) defense.getPlaybookDefense().getRunCoverage() / 2;
+                } else {
+                    //break free from tackles
+                    if (SimRandom.nextDouble() < (0.16 + (offense.getPlaybookOffense().getRunPotential() - (double) defense.getPlaybookDefense().getRunCoverage() / 2) / 50)) {
+                        yardsGain += (selQB.getRatEvasion()- blockAdv) / 5 * SimRandom.nextDouble();
+                        brokeTackle = true;
+                    }
                 }
             }
-        } else {
-            if (yardsGain < 2) {
-                yardsGain += selQB.getRatEvasion()/ 20 - 3 - (double) defense.getPlaybookDefense().getRunCoverage() / 2;
-            } else {
-                //break free from tackles
-                if (SimRandom.nextDouble() < (0.20 + (offense.getPlaybookOffense().getRunPotential() - (double) defense.getPlaybookDefense().getRunCoverage() / 2) / 50)) {
-                    yardsGain += (selQB.getRatEvasion()- blockAdv) / 5 * SimRandom.nextDouble();
-                }
+
+            // Past the last defender. Runs topped out around 30 yards; the long
+            // runs (40+, about 1 in 100 carries) never happened.
+            if (brokeTackle && SimRandom.nextDouble() < breakawayChance(carrierSpeed)) {
+                yardsGain += openFieldYards(carrierSpeed);
             }
         }
 
@@ -1812,7 +1969,15 @@ public class Game implements Serializable {
         }
 
         //stats management
-        recordRushAttempt(offense, selQB, selRB, selDL, selLB, selCB, selS, yardsGain, gotTD);
+        String tackler = recordRushAttempt(offense, selQB, selRB, selDL, selLB, selCB, selS, yardsGain, gotTD);
+
+        if (!gotTD && gameYardLine <= 0) {
+            // Tackled in the offense's own end zone. Runs from the 1 or 2 used to
+            // leave the ball behind the goal line, and the next snap came from there.
+            gameTime -= timePerPlay * SimRandom.nextDouble();
+            awardSafety(offense.getAbbr() + (rbCarries ? " RB " + selRB.name : " QB " + selQB.name), tackler);
+            return;
+        }
 
         //check downs if there wasn't TD
         if (!gotTD) {
@@ -1836,7 +2001,7 @@ public class Game implements Serializable {
             gameTime -= timePerPlay + timePerPlay * SimRandom.nextDouble();
             //check for fumble (wet weather increases the odds)
             double fumChance = ((defense.getS(0).getRatTackle() + selLB.getRatTackle()) / 2 + defense.getCompositeDLRush() - getHFadv()) / 2 + offense.getPlaybookOffense().getRunProtection();  //STRATEGIES
-            if (100 * SimRandom.nextDouble() < fumChance * weather.fumbleMultiplier() / 50) {
+            if (100 * SimRandom.nextDouble() < fumChance * weather.fumbleMultiplier() / FUMBLE_DIVISOR) {
                 //Fumble!
 
                 if (yardsGain < 5) {
@@ -1868,7 +2033,8 @@ public class Game implements Serializable {
 
     private int getArchetypeCompletionBonus(PlayerQB qb, int pressureOnQB) {
         if (qb == null) return 0;
-        if (qb.hasArchetype(Archetypes.QB_POCKET) && pressureOnQB < 20) return 10;
+        // Pressure runs ~60-100 (league ~80); the old "< 20" never happened.
+        if (qb.hasArchetype(Archetypes.QB_POCKET) && pressureOnQB < CLEAN_POCKET_PRESSURE) return 10;
         return 0;
     }
 
@@ -1904,9 +2070,9 @@ public class Game implements Serializable {
         return 0;
     }
 
-    private double getArchetypeIntBonus(PlayerS s, double intChance) {
+    private double getArchetypeIntBonus(PlayerS s, double pickChance) {
         if (s == null) return 0;
-        if (s.hasArchetype(Archetypes.S_BALL_HAWK)) return intChance * 0.20;
+        if (s.hasArchetype(Archetypes.S_BALL_HAWK)) return pickChance * 0.20;
         return 0;
     }
 
@@ -1969,6 +2135,120 @@ public class Game implements Serializable {
         if (cb == null) return 0;
         if (cb.hasArchetype(Archetypes.CB_PHYSICAL)) return 3;
         return 0;
+    }
+
+    /**
+     * Garbage time: the leading offense plays its backups. Fourth quarter at a
+     * lead of 14 + minutes left (29 at the start of the quarter, 22 with 8:00
+     * to go); third quarter only in a 38-point rout. The old rule (20 + minutes
+     * left, fourth quarter only) kept stars padding stats through blowouts,
+     * producing 6,500-7,000 yard passing seasons.
+     */
+    private boolean benchStarters() {
+        int lead = gamePoss ? homeScore - awayScore : awayScore - homeScore;
+        if (playingOT) return false;
+        if (gameTime < 900) return lead >= 14 + gameTime / 60;
+        if (gameTime < 1800) return lead >= 38;
+        return false;
+    }
+
+    /**
+     * Longest field goal (yards) this kicker can reach today: leg power plus the
+     * power archetype, home field and weather. ~48 yds for a 75-power leg, ~56 for 95.
+     */
+    private int fgMaxRange(PlayerK k) {
+        if (k == null) return 0;
+        double leg = k.getRatKickPow() + getArchetypeFgRangeBonus(k) + getHFadv() + weather.fgAdj() - 20;
+        if (leg <= 0) return 0;
+        return (int) (50 * Math.sqrt(leg / 60.0));
+    }
+
+    /**
+     * Chance an in-range field goal is good. Calibrated to FBS splits for an
+     * average (80 accuracy) kicker: ~96% at 25 yds, ~83% at 35, ~63% at 44,
+     * ~45% at 50 (league ~77% given where teams attempt); each accuracy
+     * point is worth 0.6%.
+     */
+    static double fgMakeChance(int distance, int accuracy) {
+        int past = Math.max(0, distance - 17);
+        double p = 0.99 - 0.00050 * past * past + (accuracy - 80) * 0.006;
+        return Math.max(0.05, Math.min(0.99, p));
+    }
+
+    /**
+     * Chance a pass attempt is intercepted. The QB's skill ((2 x accuracy + football
+     * IQ) / 3) moves it most: about 1.3% for a 95, 2.1% at 84, 3.5% at 62. Pressure,
+     * the safety, the defender in coverage and the playbooks' pass rush against
+     * protection add to it. The old risk score let QB skill move it by ~0.2%, so
+     * every QB threw picks at 2.0-2.2%, and a corner's coverage never made a pick
+     * more likely (~1.5 a season at any rating).
+     */
+    static double interceptionChance(int qbSkill, int pressure, int safety, int coverage, int schemeEdge) {
+        double p = INT_BASE_CHANCE
+                + INT_QB_SLOPE * (INT_QB_PIVOT - qbSkill)
+                + INT_PRESSURE_SLOPE * (pressure - LEAGUE_PRESSURE)
+                + INT_SAFETY_SLOPE * (safety - INT_SAFETY_PIVOT)
+                + INT_COVERAGE_SLOPE * (coverage - INT_COVERAGE_PIVOT)
+                + INT_SCHEME_SLOPE * schemeEdge;
+        return Math.max(INT_MIN_CHANCE, Math.min(INT_MAX_CHANCE, p));
+    }
+
+    /**
+     * Chance a dropback ends in a sack: 5% at league-average pressure (about 6%
+     * of dropbacks league-wide), about half that against a clearly better line and
+     * double against a clearly worse one. The old roll ran 3-6% whatever the matchup.
+     */
+    static double sackChance(int pressure) {
+        return Math.max(0.01, Math.min(0.16, SACK_RATE * Math.exp((pressure - LEAGUE_PRESSURE) / SACK_PRESSURE_SCALE)));
+    }
+
+    /**
+     * Chance of a run on third (or fourth) down by yards to go: ~75% at 1, 50% at 3,
+     * 30% at 5, 12% at 7-10, 6% beyond; run-first books a little more, pass-first less.
+     */
+    static double shortYardageRunChance(int yardsToGo, PlaybookOffense book) {
+        double base = yardsToGo <= 1 ? 0.75 : yardsToGo == 2 ? 0.62 : yardsToGo == 3 ? 0.50 : yardsToGo == 4 ? 0.40
+                : yardsToGo == 5 ? 0.30 : yardsToGo == 6 ? 0.24 : yardsToGo <= 10 ? 0.12 : 0.06;
+        return Math.max(0.02, Math.min(0.90, base + 0.04 * (book.getRunPref() - book.getPassPref())));
+    }
+
+    /** Chance a run is stuffed for no gain or a loss; better blocking makes it rarer. */
+    static double runStuffChance(int blockAdv) {
+        return Math.max(0.04, Math.min(0.30, RUN_STUFF_CHANCE - RUN_STUFF_PER_BLOCK * blockAdv));
+    }
+
+    /** Chance a ball carrier who breaks a tackle also beats the last man: faster backs more often. */
+    static double breakawayChance(int speed) {
+        return Math.max(0, (speed - 55) / 300.0);
+    }
+
+    /** Extra yards once a ball carrier is in the open field: 18, plus up to ~70 for the fastest. */
+    static int openFieldYards(int speed) {
+        return 18 + (int) (SimRandom.nextDouble() * Math.max(10, speed - 28));
+    }
+
+    /** Interception return: a few yards, and now and then a breakaway (about 1 pick in 10 is a pick-six). */
+    static int interceptionReturnYards(int speed) {
+        int yards = (int) (SimRandom.nextDouble() * speed / 6.0);
+        if (SimRandom.nextDouble() < PICK_RETURN_BREAKAWAY) yards += openFieldYards(speed);
+        return yards;
+    }
+
+    private static int returnSpeed(Player p) {
+        if (p instanceof PlayerCB) return ((PlayerCB) p).getRatSpeed();
+        if (p instanceof PlayerS) return ((PlayerS) p).getRatSpeed();
+        if (p instanceof PlayerLB) return ((PlayerLB) p).getRatSpeed();
+        return 50;
+    }
+
+    private static int receiverSpeed(String pos, PlayerRB rb, PlayerWR wr, PlayerTE te) {
+        return pos.equals("WR") ? wr.getRatSpeed() : pos.equals("TE") ? te.getRatSpeed() : rb.getRatSpeed();
+    }
+
+    /** True when a field goal from the current spot is within the kicker's range. */
+    private boolean fgInRange(Team offense) {
+        PlayerK k = offense.getK(0);
+        return k != null && (117 - gameYardLine) <= fgMaxRange(k);
     }
 
     private int getArchetypeFgRangeBonus(PlayerK k) {
@@ -2156,13 +2436,13 @@ public class Game implements Serializable {
             return;
         }
 
-        double fgDistRatio = Math.pow((110 - gameYardLine) / 50, 2);
-        double fgAccRatio = Math.pow((110 - gameYardLine) / 50, 1.25);
-        double fgDistChance = (getHFadv() + weather.fgAdj() + selK.getRatKickPow() - fgDistRatio * 80) + getArchetypeFgRangeBonus(selK);
-        double fgAccChance = (getHFadv() + weather.fgAdj() + selK.getRatKickAcc() - fgAccRatio * 80) + getArchetypeFgAccBonus(selK, gameYardLine);
+        int fgDist = 110 - gameYardLine;
+        boolean inRange = fgDist <= fgMaxRange(selK);
+        double makeChance = fgMakeChance(fgDist,
+                selK.getRatKickAcc() + getHFadv() + weather.fgAdj() + getArchetypeFgAccBonus(selK, gameYardLine));
 
         if (gameTime > 120 && !playingOT) {
-            if (fgDistChance > 20 && fgAccChance * SimRandom.nextDouble() > 15) {
+            if (inRange && SimRandom.nextDouble() < makeChance) {
                 // made the fg
                 if (gamePoss) { // home possession
                     homeScore += 3;
@@ -2177,6 +2457,7 @@ public class Game implements Serializable {
                 selK.gameFGMade++;
                 selK.gameFGAttempts++;
 
+                gameTime -= 20; // made kicks used to skip the clock runoff below
                 if (!playingOT) { kickOff(offense, defense); return; }
                 else { resetForOT(); return; }
 
@@ -2195,7 +2476,10 @@ public class Game implements Serializable {
         } else {
             // Late kick: the defense can ice the kicker, raising the pressure bar.
             boolean iced = maybeIcingKick(defense);
-            if (fgDistChance > 20 && fgAccChance * SimRandom.nextDouble() > 15 && selK.getRatKickPressure() > SimRandom.nextDouble() * (iced ? 120 : 95)) {
+            // Pressure trims the make chance instead of being a second full roll
+            // (which made late kicks ~20% worse than the same kick earlier).
+            double pressureMiss = (1 - Math.min(100, selK.getRatKickPressure()) / 100.0) * (iced ? 0.45 : 0.30);
+            if (inRange && SimRandom.nextDouble() < makeChance * (1 - pressureMiss)) {
                 // made the fg
                 if (gamePoss) { // home possession
                     homeScore += 3;
@@ -2209,6 +2493,7 @@ public class Game implements Serializable {
                 selK.gameFGMade++;
                 selK.gameFGAttempts++;
 
+                gameTime -= 20;
                 if (!playingOT) { kickOff(offense, defense); return; }
                 else { resetForOT(); return; }
 
@@ -2335,7 +2620,7 @@ public class Game implements Serializable {
             if (kicker != null && gameTime < 180 && ((gamePoss && (awayScore - homeScore) <= 8 && (awayScore - homeScore) > 0)
                     || (!gamePoss && (homeScore - awayScore) <= 8 && (homeScore - awayScore) > 0))) {
                 // Yes, do onside
-                if (kicker.getRatKickFum() * SimRandom.nextDouble() > 60 || SimRandom.nextDouble() < 0.1) {
+                if (SimRandom.nextDouble() < onsideRecoveryChance(kicker.getRatKickFum())) {
                     //Success!
                     gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" K ").append(kicker.name).append(" successfully executes onside kick! ").append(offense.getAbbr()).append(" has possession!");
                 } else {
@@ -2375,6 +2660,9 @@ public class Game implements Serializable {
                         gameYardLine = touchback;
                         if (homeTeam.league.fullGameLog)
                             gameEventLog.append("\n\nKick-off!\n").append(returner.team).append(" ").append(returner.name).append(" lets it go for a touchback.");
+                    } else if (!kickReturned) {
+                        if (homeTeam.league.fullGameLog)
+                            gameEventLog.append("\n\nKick-off!\n").append(returner.team).append(" ").append(returner.name).append(" calls for a fair catch; ball at the ").append(gameYardLine).append(" yard line.");
                     } else {
                         if (homeTeam.league.fullGameLog)
                             gameEventLog.append("\n\nKick-off!\n").append(returner.team).append(" ").append(returner.name).append(" returns the kickoff to the ").append(gameYardLine).append(" yard line.");
@@ -2397,7 +2685,7 @@ public class Game implements Serializable {
             if (kicker != null && gameTime < 180 && ((gamePoss && (awayScore - homeScore) <= 8 && (awayScore - homeScore) > 0)
                     || (!gamePoss && (homeScore - awayScore) <= 8 && (homeScore - awayScore) > 0))) {
                 // Yes, do onside
-                if (kicker.getRatKickFum() * SimRandom.nextDouble() > 60 || SimRandom.nextDouble() < 0.1) {
+                if (SimRandom.nextDouble() < onsideRecoveryChance(kicker.getRatKickFum())) {
                     //Success!
                     gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" K ").append(kicker.name).append(" successfully executes onside kick! ").append(offense.getAbbr()).append(" has possession!");
                     gameYardLine = 35;
@@ -2439,6 +2727,9 @@ public class Game implements Serializable {
                         gameYardLine = touchback;
                         if (homeTeam.league.fullGameLog)
                             gameEventLog.append("\n\nFree-Kick!\n").append(returner.team).append(" ").append(returner.name).append(" lets it go for a touchback.");
+                    } else if (!kickReturned) {
+                        if (homeTeam.league.fullGameLog)
+                            gameEventLog.append("\n\nFree-Kick!\n").append(returner.team).append(" ").append(returner.name).append(" calls for a fair catch; ball at the ").append(gameYardLine).append(" yard line.");
                     } else {
                         if (homeTeam.league.fullGameLog)
                             gameEventLog.append("\n\nFree-Kick!\n").append(returner.team).append(" ").append(returner.name).append(" returns the free-kick to the ").append(gameYardLine).append(" yard line.");
@@ -2480,7 +2771,7 @@ public class Game implements Serializable {
         }
 
         // Rare blocked punt: the return team breaks through for great field position.
-        if (SimRandom.nextDouble() < 0.01) {
+        if (SimRandom.nextDouble() < BLOCKED_PUNT_CHANCE) {
             gameEventLog.append(getEventLog()).append("BLOCKED PUNT! ").append(defense.getAbbr())
                     .append(" gets a hand on it!");
             gamePoss = !gamePoss;
@@ -2495,7 +2786,12 @@ public class Game implements Serializable {
         PlayerReturner returner = selectReturner();
         int specialTeams = getSpecialTeamsD(offense);
 
-        gameYardLine = returnPlay(gameYardLine, offense.getK(0), returner, specialTeams, false);
+        // returnPlay works from the receiving team's side of the field (as it does for
+        // kickoffs, from their 65). Punts passed the punting team's own yard line, so
+        // the receiver started near its 25 whether the punt came from the punting
+        // team's 10 or from the opponent's 40.
+        String puntFrom = offense.getAbbr() + " punts from the " + gameYardLine + " yard line. ";
+        gameYardLine = returnPlay(100 - gameYardLine, offense.getK(0), returner, specialTeams, false);
         gamePoss = !gamePoss;
 
         //Touchdown...
@@ -2513,12 +2809,15 @@ public class Game implements Serializable {
             else resetForOT();
         } else {
             if (gameYardLine <= 0) {
-                gameYardLine = touchback;
+                gameYardLine = PUNT_TOUCHBACK;
                 if (homeTeam.league.fullGameLog)
-                    gameEventLog.append("\n\nPunt!\n").append(returner.team).append(" ").append(returner.name).append(" lets it go for a touchback.");
+                    gameEventLog.append("\n\nPunt!\n").append(puntFrom).append(returner.team).append(" ").append(returner.name).append(" lets it go for a touchback.");
+            } else if (!kickReturned) {
+                if (homeTeam.league.fullGameLog)
+                    gameEventLog.append("\n\nPunt!\n").append(puntFrom).append("No return; ").append(returner.team).append(" ball at the ").append(gameYardLine).append(" yard line.");
             } else {
                 if (homeTeam.league.fullGameLog)
-                    gameEventLog.append("\n\nPunt!\n").append(returner.team).append(" ").append(returner.name).append(" returns the punt to the ").append(gameYardLine).append(" yard line.");
+                    gameEventLog.append("\n\nPunt!\n").append(puntFrom).append(returner.team).append(" ").append(returner.name).append(" returns the punt to the ").append(gameYardLine).append(" yard line.");
             }
         }
 
@@ -2532,58 +2831,102 @@ public class Game implements Serializable {
         else return homeKickReturner;
     }
 
+    /**
+     * A kick and its return, from the receiving team's side of the field: startYards
+     * is where the kick is made from in their terms (65 on a kickoff from the 35, 100
+     * minus the line of scrimmage on a punt). Returns the receiving team's new yard
+     * line: 0 or less is a touchback, 100 or more a touchback the other way (a TD).
+     */
     private int returnPlay(int startYards, PlayerK kicker, PlayerReturner returner, int ST, boolean kickoff) {
-        int yards;
         returnYards = 0;
+        kickReturned = false;
 
         // Missing kicker — treat as a touchback rather than crashing.
         if (kicker == null) {
             return -4;
         }
 
-        //Kicker kicks the ball
-        if (kickoff) yards = startYards - (kicker.getRatKickPow() / 2) - (int) (25 * SimRandom.nextDouble());
-        else yards = startYards - (kicker.getRatKickPow() - (25 + (int) (20 * SimRandom.nextDouble())));
-
-        if (yards < -3) {
-            //touchback
-            return yards;
-        } else if (returner == null) {
-            // Depleted roster without a returner — treat as a touchback rather than crashing.
-            return -4;
-        } else if (!kickoff && yards < 12 && SimRandom.nextDouble() < 0.5) {
-            // Fair catch deep in own territory — no return, ball at the spot.
-            returnYards = 0;
-            return yards;
-        } else {
-            //Returner receives ball and runs at defense
-
-            int ret = (int) (returner.ratSpeed * SimRandom.nextDouble());
-            int def = (int) (ST * SimRandom.nextDouble());
-
-            //Returner tackled by playerST?
-            if (def >= ret) returnYards = (int) (SimRandom.nextDouble() * 10) + 1;
-            else if (ret > def + 80) returnYards += 100 - yards;
-            else if (ret > def + 50) returnYards = (int) (SimRandom.nextDouble() * 40) + 30;
-            else if (ret > def + 35) returnYards = (int) (SimRandom.nextDouble() * 20) + 20;
-            else returnYards = ret - def;
-
-            if (kickoff) {
-                returner.kYards += returnYards;
-                returner.kReturns++;
-            } else {
-                returner.pYards += returnYards;
-                returner.pReturns++;
+        int landing;
+        if (kickoff) {
+            // An average leg reaches 58-78 yards from the 35, so about half go deep
+            // enough for a touchback (FBS: about half of kickoffs). The old 42-66
+            // yards almost never reached the end zone (~5% touchbacks).
+            landing = startYards - kickoffDistance(kicker.getRatKickPow());
+            if (landing < -3) return landing;
+            if (returner == null) return -4;
+            if (landing <= 10 && SimRandom.nextDouble() < KICKOFF_FAIR_CATCH) {
+                // Fair catch inside the 25 is spotted at the 25.
+                return touchback;
             }
-            yards += returnYards;
-            return yards;
+        } else {
+            landing = startYards - puntDistance(kicker.getRatKickPow());
+            if (landing < 0) {
+                // Out-kicks the field. From plus territory the punter aims short and the
+                // coverage downs it inside the 15 more often than not.
+                if (startYards <= 60 && SimRandom.nextDouble() < PUNT_PIN_CHANCE) return 4 + (int) (SimRandom.nextDouble() * 12);
+                return -4;
+            }
+            if (returner == null) return landing;
+            if (landing < 10 || SimRandom.nextDouble() > PUNT_RETURN_CHANCE) {
+                // Fair catch, downed or out of bounds: no return (about 6 punts in 10).
+                return landing;
+            }
         }
+
+        kickReturned = true;
+        int ret = (int) (returner.ratSpeed * SimRandom.nextDouble());
+        int def = (int) (ST * SimRandom.nextDouble()) + (kickoff ? KICK_COVERAGE_EDGE : 0);
+        if (ret > def + 80) {
+            returnYards = 100 - landing;
+        } else if (kickoff) {
+            // Most kickoff returns run 15-30 yards. The old curve gave 1-10 yards whenever
+            // the coverage won the roll (about 4 returns in 10).
+            if (ret > def + 50) returnYards = (int) (SimRandom.nextDouble() * 40) + 30;
+            else returnYards = Math.max(2, KICK_RETURN_BASE + (int) (SimRandom.nextDouble() * 10) + (ret - def) / 4);
+        } else {
+            // Punt returns are short: the coverage arrives with the ball.
+            if (def >= ret) returnYards = (int) (SimRandom.nextDouble() * 4);
+            else if (ret > def + 50) returnYards = (int) (SimRandom.nextDouble() * 30) + 15;
+            else returnYards = (ret - def) / 3;
+        }
+        returnYards = Math.min(returnYards, 100 - landing);
+
+        if (kickoff) {
+            returner.kYards += returnYards;
+            returner.kReturns++;
+        } else {
+            returner.pYards += returnYards;
+            returner.pReturns++;
+        }
+        return landing + returnYards;
+    }
+
+    /**
+     * Punt distance: 34-53 yards for an 85-power leg (FBS gross ~43), a yard more per 2
+     * points of power. It was power minus 25-44, so the average punter kicked ~50 yards
+     * and a 95 kicked ~60.
+     */
+    static int puntDistance(int power) {
+        return 34 + (power - 85) / 2 + (int) (SimRandom.nextDouble() * 20);
+    }
+
+    /** Kickoff distance: 58-78 yards for an 80-power leg, a yard more per 4 points of power. */
+    static int kickoffDistance(int power) {
+        return 58 + (power - 80) / 4 + (int) (SimRandom.nextDouble() * 20);
+    }
+
+    /**
+     * Onside recovery: ~12% for a kicker with 80 form (FBS ~11% when the return team
+     * expects it), 8-14% for most kickers. It was 25-33%.
+     */
+    static double onsideRecoveryChance(int form) {
+        return Math.max(0.03, Math.min(0.20, 0.06 + 0.12 * (form - 60) / 40.0));
     }
 
     //STATISTICS MANAGEMENT
 
-    private void recordRushAttempt(Team offense, PlayerQB selQB, PlayerRB selRB, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS, int yardsGain, boolean gotTD) {
-        statRecorder.recordRushAttempt(offense, selQB, selRB, selDL, selLB, selCB, selS, yardsGain, gotTD);
+    private String recordRushAttempt(Team offense, PlayerQB selQB, PlayerRB selRB, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS, int yardsGain, boolean gotTD) {
+        return statRecorder.recordRushAttempt(offense, selQB, selRB, selDL, selLB, selCB, selS, yardsGain, gotTD);
     }
 
     private void recordRushFumble(Team offense, PlayerQB selQB, PlayerRB selRB, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS) {
@@ -2594,8 +2937,8 @@ public class Game implements Serializable {
         statRecorder.recordPassingTD(offense, selQB, selRB, selWR, selTE, yardsGain, pos);
     }
 
-    private void recordPassCompletion(Team offense, PlayerQB selQB, PlayerRB selRB, PlayerWR selWR, PlayerTE selTE, PlayerLB selLB, PlayerCB selCB, PlayerS selS, int yardsGain, String pos, boolean gotTD) {
-        statRecorder.recordPassCompletion(offense, selQB, selRB, selWR, selTE, selLB, selCB, selS, yardsGain, pos, gotTD);
+    private String recordPassCompletion(Team offense, PlayerQB selQB, PlayerRB selRB, PlayerWR selWR, PlayerTE selTE, PlayerLB selLB, PlayerCB selCB, PlayerS selS, int yardsGain, String pos, boolean gotTD) {
+        return statRecorder.recordPassCompletion(offense, selQB, selRB, selWR, selTE, selLB, selCB, selS, yardsGain, pos, gotTD);
     }
 
     private void recordPassAttempt(PlayerQB selQB, PlayerRB selRB, PlayerWR selWR, PlayerTE selTE, PlayerLB selLB, PlayerCB selCB, String pos) {
@@ -2606,12 +2949,12 @@ public class Game implements Serializable {
         statRecorder.recordDrop(selRB, selTE, selWR, selCB, selLB, pos);
     }
 
-    private void recordDefendedCB(PlayerWR selWR, PlayerCB selCB) {
-        statRecorder.recordDefendedCB(selWR, selCB);
+    private void recordDefendedCB(PlayerWR selWR, PlayerCB selCB, PlayerS selS) {
+        statRecorder.recordDefendedCB(selWR, selCB, selS);
     }
 
-    private void recordDefendedLB(PlayerTE selTE, PlayerLB selLB) {
-        statRecorder.recordDefendedLB(selTE, selLB);
+    private void recordDefendedLB(PlayerTE selTE, PlayerLB selLB, PlayerS selS) {
+        statRecorder.recordDefendedLB(selTE, selLB, selS);
     }
 
     private void recordDefendedLB2(PlayerRB selRB, PlayerLB selLB) {
@@ -2619,17 +2962,46 @@ public class Game implements Serializable {
     }
 
     private void recordInterception(Team offense, PlayerQB selQB, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS, String position) {
-        statRecorder.recordInterception(offense, selQB, selDL, selLB, selCB, selS, position);
+        Player interceptor = statRecorder.recordInterception(offense, selQB, selDL, selLB, selCB, selS, position);
         // Rule-engine state change (kept out of the stat recorder)
         momentum.turnover(gamePoss);
         gameTime -= timePerPlay * SimRandom.nextDouble();
-        if (!playingOT) {
-            gameDown = 1;
-            gameYardsNeed = 10;
-            gamePoss = !gamePoss;
-            gameYardLine = 100 - gameYardLine;
-        } else {
+        if (playingOT) {
             resetForOT();
+            return;
+        }
+        // The pick is made downfield and run back. Picks used to be spotted at the
+        // line of scrimmage with no return, so the defense never scored.
+        int depth = 5 + (int) (SimRandom.nextDouble() * 15);
+        boolean inEndZone = gameYardLine + depth >= 100;
+        int pickedAt = Math.min(99, gameYardLine + depth);
+        int returnYards = interceptionReturnYards(returnSpeed(interceptor));
+        gameDown = 1;
+        gameYardsNeed = 10;
+        gamePoss = !gamePoss;
+        gameYardLine = 100 - pickedAt + returnYards;
+        if (inEndZone && gameYardLine < 20) {
+            // Picked in the end zone and not brought out past the 20: a touchback.
+            gameYardLine = 20;
+            returnYards = 0;
+        }
+        if (gameYardLine >= 100) {
+            returnYards -= gameYardLine - 100;
+            Team defense = offense == homeTeam ? awayTeam : homeTeam;
+            addPointsQuarter(6);
+            if (gamePoss) {
+                homeScore += 6;
+            } else {
+                awayScore += 6;
+            }
+            tdInfo = defense.getAbbr() + " " + interceptor.position + " " + interceptor.name + " returned the interception "
+                    + returnYards + " yards for a TOUCHDOWN!";
+            kickXP(defense, offense);
+            kickOff(defense, offense);
+            return;
+        }
+        if (returnYards > 0) {
+            gameEventLog.append(" Returned ").append(returnYards).append(" yards.");
         }
     }
 
@@ -2639,9 +3011,9 @@ public class Game implements Serializable {
         gameDown++;
         gameYardsNeed += sack.loss();
         gameYardLine -= sack.loss();
-        if (gameYardLine < 0) {
+        if (gameYardLine <= 0) {
             gameTime -= 10 * SimRandom.nextDouble();
-            awardSafety(sack.defender());
+            awardSafety(offense.getAbbr() + " QB " + selQB.name, sack.defender());
             return;
         }
         gameTime -= timePerPlay + timePerPlay * SimRandom.nextDouble();
@@ -2688,18 +3060,33 @@ public class Game implements Serializable {
         league.addNewsHeadline(winner.getName() + (retained ? " retains " : " claims ") + trophy + "!");
     }
 
-    /** Safety: two points to the defense, scoring log, then the free kick changes possession. */
-    private void awardSafety(String defender) {        if (gamePoss) {
+    /**
+     * Two points for the defense; the offense free-kicks. The points now reach the
+     * defense's quarter-by-quarter line (they used to be missing from it), and the
+     * log names the player actually tackled rather than the starting QB.
+     */
+    private void awardSafety(String ballCarrier, String defender) {
+        gamePoss = !gamePoss;
+        addPointsQuarter(2);
+        gamePoss = !gamePoss;
+        Team scoring = gamePoss ? awayTeam : homeTeam;
+        if (gamePoss) {
             awayScore += 2;
-            gameEventLog.append(getEventLogScoring()).append("SAFETY!\n").append(homeTeam.getAbbr()).append(" QB ").append(homeTeam.getQB(0).name).append(
-                    " was tackled in the endzone by ").append(defender).append("! Result is a Safety and ").append(awayTeam.getAbbr()).append(" will get possession.");
-            freeKick(homeTeam, awayTeam);
         } else {
             homeScore += 2;
-            gameEventLog.append(getEventLogScoring()).append("SAFETY!\n").append(awayTeam.getAbbr()).append(" QB ").append(awayTeam.getQB(0).name)
-                    .append(" was tackled in the endzone by ").append(defender).append("! Result is a Safety and ").append(homeTeam.getAbbr()).append(" will get possession.");
+        }
+        gameEventLog.append(getEventLogScoring()).append("SAFETY!\n").append(ballCarrier)
+                .append(" was tackled in the endzone").append(defender.isEmpty() ? "" : " by " + defender)
+                .append("! Result is a Safety and ").append(scoring.getAbbr()).append(" will get possession.");
+        if (gamePoss) {
+            freeKick(homeTeam, awayTeam);
+        } else {
             freeKick(awayTeam, homeTeam);
         }
+    }
+
+    private static String receiverName(String pos, PlayerRB rb, PlayerWR wr, PlayerTE te) {
+        return pos.equals("WR") ? wr.name : pos.equals("TE") ? te.name : rb.name;
     }
 
     void recordReturnStats() {

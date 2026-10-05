@@ -5,6 +5,7 @@ import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -65,6 +66,9 @@ public class Team {
     public PlaybookDefense playbookDef;
     public int playbookOffNum;
     public int playbookDefNum;
+    /** Number of offensive / defensive books (PlaybookOffense / PlaybookDefense). */
+    public static final int OFFENSE_PLAYBOOKS = 6;
+    public static final int DEFENSE_PLAYBOOKS = 5;
 
     /** User-team practice emphasis; CPU teams use {@link PracticeFocus#BALANCED}. */
     public PracticeFocus practiceFocus;
@@ -357,10 +361,7 @@ public class Team {
 
         teamPollScore = teamPrestige + getOffTalent() + getDefTalent();
 
-        playbookOffNum = getCPUOffense();
-        playbookDefNum = getCPUDefense();
-        playbookOff = getPlaybookOff()[playbookOffNum];
-        playbookDef = getPlaybookDef()[playbookDefNum];
+        useCpuPlaybooks();
 
 
         teamBudget = 0;
@@ -426,10 +427,7 @@ public class Team {
 
         teamPollScore = teamPrestige + getOffTalent() + getDefTalent();
 
-        playbookOffNum = getCPUOffense();
-        playbookDefNum = getCPUDefense();
-        playbookOff = getPlaybookOff()[playbookOffNum];
-        playbookDef = getPlaybookDef()[playbookDefNum];
+        useCpuPlaybooks();
 
 
         teamBudget = 0;
@@ -558,6 +556,15 @@ public class Team {
         this.rivalryWins = Math.max(0, record.rivalryWins());
         this.holdsRivalryTrophy = record.holdsRivalryTrophy();
         this.teamStadium = Math.max(0, record.teamStadium());
+        LeagueRecord.SeasonBaseline baseline = record.seasonBaseline();
+        if (baseline != null) {
+            this.teamPrestigeStart = baseline.prestigeStart();
+            this.rankTeamPrestigeStart = baseline.rankPrestigeStart();
+            this.projectedWins = baseline.projectedWins();
+            this.projectedPollRank = baseline.projectedPollRank();
+            this.teamStartOffTal = baseline.startOffTal();
+            this.teamStartDefTal = baseline.startDefTal();
+        }
         this.practiceFocus = PracticeFocus.fromSave(record.practiceFocus());
         this.practicePositionGroup = PracticeFocus.PositionGroup.fromSave(
                 record.practicePositionGroup() != null ? record.practicePositionGroup() : "");
@@ -615,8 +622,8 @@ public class Team {
         teamCBs = new ArrayList<>();
         teamSs = new ArrayList<>();
 
-        playbookOff = new PlaybookOffense(0);
-        playbookDef = new PlaybookDefense(0);
+        playbookOff = PlaybookOffense.forIndex(0);
+        playbookDef = PlaybookDefense.forIndex(0);
         practiceFocus = PracticeFocus.BALANCED;
         practicePositionGroup = PracticeFocus.PositionGroup.ALL;
         focusIntensity = PracticeFocus.FocusIntensity.NORMAL;
@@ -694,8 +701,37 @@ public class Team {
                 rivalryTrophyName != null ? rivalryTrophyName : "",
                 rivalryWins,
                 holdsRivalryTrophy,
-                teamStadium
+                teamStadium,
+                seasonBaseline(),
+                playbookOffNum,
+                playbookDefNum
         );
+    }
+
+    /** This season's baselines for the save, or null before they were ever computed. */
+    LeagueRecord.SeasonBaseline seasonBaseline() {
+        if (projectedPollRank <= 0) {
+            return null;
+        }
+        return new LeagueRecord.SeasonBaseline(teamPrestigeStart, rankTeamPrestigeStart,
+                projectedWins, projectedPollRank, teamStartOffTal, teamStartDefTal);
+    }
+
+    boolean hasSeasonBaseline() {
+        return projectedPollRank > 0;
+    }
+
+    /**
+     * Load-time fallback for saves without a {@link LeagueRecord.SeasonBaseline}:
+     * measures the baselines from the current state. Unlike {@link #setupTeamBenchmark()}
+     * it leaves rosters alone (no re-sort, so a hand-edited depth chart survives the load).
+     */
+    void captureSeasonBaselineWithoutRosterChanges() {
+        teamPrestigeStart = teamPrestige;
+        rankTeamPrestigeStart = rankTeamPrestige;
+        teamStartOffTal = getOffTalent();
+        teamStartDefTal = getDefTalent();
+        projectedPollScore = getPreseasonBiasScore();
     }
 
     /**
@@ -835,6 +871,15 @@ public class Team {
 
         for (int i = 0; i < qbNeeds; ++i) {
             //make QBs
+            if (i == 0) {
+                // Every program starts with an established upperclass starter.
+                // A league is created mid-history: real starting QBs are mostly
+                // developed juniors/seniors or portal arrivals, and generating the
+                // QB room purely at random left QB1s ~5 OVR below where careers
+                // settle (scoring then climbed for five seasons as they caught up).
+                teamQBs.add(new PlayerQB(league.getRandName(), 3 + (int) (2 * SimRandom.nextDouble()), stars + 1, this));
+                continue;
+            }
             num = (int) (SimRandom.nextDouble() * 100);
             if (num < chance) {
                 teamQBs.add(new PlayerQB(league.getRandName(), (int) (4 * SimRandom.nextDouble() + 1), stars - 2, this));
@@ -849,7 +894,7 @@ public class Team {
             num = (int) (SimRandom.nextDouble() * 100);
             if (num < chance) {
                 teamKs.add(new PlayerK(league.getRandName(), (int) (4 * SimRandom.nextDouble() + 1), stars - 2, this));
-            } else if (num < (100 - chance)) {
+            } else if (num > (100 - chance)) {
                 teamKs.add(new PlayerK(league.getRandName(), (int) (4 * SimRandom.nextDouble() + 1), stars + 2, this));
             } else {
                 teamKs.add(new PlayerK(league.getRandName(), (int) (4 * SimRandom.nextDouble() + 1), stars, this));
@@ -1392,6 +1437,8 @@ public class Team {
                 }
             }
 
+            // These nudges are one-sided (+1 only); the league-wide inflation they
+            // cause is removed by League.normalizeLeaguePrestige() each offseason.
             if((postSeasonGames) > 0 && prestigeChange < 0) prestigeChange++;
             if (prestigeChange < (wins - projectedWins)) prestigeChange++;
             if(prestigeChange <= 0 && rankTeamPollScore < rankTeamPrestige) prestigeChange++;
@@ -1515,8 +1562,11 @@ public class Team {
      */
     public void advanceTeamPlayers() {
         advanceSeasonPlayers();
-        trainingCamp();
-        assignMentors();
+        String camp = trainingCampFocusReport(trainingCamp());
+        if (userControlled && !camp.isEmpty()) {
+            league.addNewsStory(league.currentWeek + 1, "Training Camp Standouts>" + name
+                    + "'s staff singled out its top young prospects for extra work in camp. " + camp);
+        }
         checkHallofFame();
         checkCareerRecords(league.leagueRecords);
         checkCareerTeamRecords(teamRecords);
@@ -1542,8 +1592,8 @@ public class Team {
         double offTal =  league.leagueOffTal - teamStartOffTal;
         double defTal = league.leagueDefTal - teamStartDefTal;
 
-        double offpts = ((offYards / avgOff) + (offTal / league.leagueOffTal)) * 4;
-        double defpts = ((defYards / avgOff) + (defTal / league.leagueDefTal)) * 4;
+        double offpts = ((offYards / avgOff) + talentShare(offTal, league.leagueOffTal)) * 4;
+        double defpts = ((defYards / avgOff) + talentShare(defTal, league.leagueDefTal)) * 4;
 
         HC.advanceSeason(offpts, defpts);
 
@@ -1576,6 +1626,15 @@ public class Team {
         }
     }
 
+    /**
+     * Talent gap as a share of the league average, 0 when the average is unknown.
+     * A zero average used to divide to NaN; {@code int += NaN} is 0, which then
+     * clamped every staff OFF/DEF rating to its floor.
+     */
+    static double talentShare(double talentGap, int leagueAverage) {
+        return leagueAverage > 0 ? talentGap / leagueAverage : 0;
+    }
+
     public void advanceCoordinator() {
         int avgOff = league.getAverageYards();
         double offYards = teamYards - avgOff;
@@ -1583,8 +1642,8 @@ public class Team {
         double offTal =  league.leagueOffTal - teamStartOffTal;
         double defTal = league.leagueDefTal - teamStartDefTal;
 
-        double offpts = ((offYards / avgOff) + (offTal / league.leagueOffTal)) * 4;
-        double defpts = ((defYards / avgOff) + (defTal / league.leagueDefTal)) * 4;
+        double offpts = ((offYards / avgOff) + talentShare(offTal, league.leagueOffTal)) * 4;
+        double defpts = ((defYards / avgOff) + talentShare(defTal, league.leagueDefTal)) * 4;
 
         if(OC != null) OC.advanceSeason(offpts, defpts);
         if(DC != null) DC.advanceSeason(offpts, defpts);
@@ -1592,10 +1651,6 @@ public class Team {
         if(OC != null) coordinatorContracts(OC);
         if(DC != null) coordinatorContracts(DC);
 
-    }
-
-    public void checkFacilitiesUpgradeBonus() {
-        teamFinance.checkFacilitiesUpgradeBonus();
     }
 
     public void coachContracts(int totalPDiff) {
@@ -1621,7 +1676,7 @@ public class Team {
         }
 
         league.addNewsStory(0, "FIRED! Acting Head Coach named at " + name + ">" + name + " has fired their head coach, " + hcName +
-                " and has promoted his assistant coach, " + HC.name + ", as Acting Head Coach for the remainder of the season. After the season ends, the team will determine what to do for the Head Head Coach vacancy.");
+                " and has promoted his assistant coach, " + HC.name + ", as Acting Head Coach for the remainder of the season. After the season ends, the team will determine what to do for the Head Coach vacancy.");
         league.addNewsHeadline(name + " has fired " + hcName + ".");
     }
 
@@ -1629,10 +1684,15 @@ public class Team {
 
         if(HC.contractLength != 1) teamPrestige = (int)(teamPrestige * knockdownFired);
 
+        resetDisciplineForNewCoach();
+
+    }
+
+    /** A new head coach starts with the locker room at least steady. */
+    void resetDisciplineForNewCoach() {
         if(teamDisciplineScore < 60) {
             teamDisciplineScore = 60;
         }
-
     }
 
     public void promoteCoach() {
@@ -1679,19 +1739,32 @@ public class Team {
     //If a new HC is hired, decide whether to keep staff or not
     public void newCoachDecisions() {
         if(OC != null && HC.offStrat != OC.offStrat && SimRandom.nextDouble() > 0.30) {
+            league.removeCoachStar(OC);
             league.addCoachFreeAgent(new HeadCoach(OC, this));
             league.addNewsStory(league.currentWeek+1, name + " New HC Lets OC Go>The " + name + " have let go of their OC " + OC.name + " after the hiring of new Head Coach " + HC.name);
             league.addNewsHeadline(name + "'s new HC has let go of OC " + OC.name);
             OC = null;
             if(league.currentWeek < league.regSeasonWeeks) league.OCCarousel();
         }
-        if(DC != null && HC.offStrat != DC.offStrat && SimRandom.nextDouble() > 0.30) {
+        if(DC != null && HC.defStrat != DC.defStrat && SimRandom.nextDouble() > 0.30) {
+            league.removeCoachStar(DC);
             league.addCoachFreeAgent(new HeadCoach(DC, this));
             league.addNewsStory(league.currentWeek+1, name + " New HC Lets DC Go>The " + name + " have let go of their DC " + DC.name + " after the hiring of new Head Coach " + HC.name);
             league.addNewsHeadline(name + "'s new HC has let go of DC " + DC.name);
             DC = null;
             if(league.currentWeek < league.regSeasonWeeks) league.DCCarousel();
         }
+    }
+
+    /**
+     * Star level of an assistant this program hires or promotes into a
+     * coordinator job: the level the league generated the program's staff at
+     * (prestige / 10; see Staff.createStaff for how stars map to ratings). Every
+     * school used to hire at 6 stars, so within a few seasons top and bottom
+     * programs had the same coordinators.
+     */
+    public int assistantCoachStars() {
+        return Math.max(1, Math.min(9, teamPrestige / 10));
     }
 
     //Provide the minimum overall rating for a new coach hire
@@ -1750,6 +1823,12 @@ public class Team {
         identifyTransferCandidates();
     }
 
+    /**
+     * Each position's veteran leaders (up to two) each take up to two of its
+     * youngest players, highest potential first. Mentees used to be taken in
+     * roster order from every class, so the bonus mostly went to upperclassmen
+     * about to leave, and it was set before the incoming class arrived.
+     */
     public void assignMentors() {
         for (Player p : getAllPlayers()) {
             p.mentorName = "";
@@ -1762,10 +1841,11 @@ public class Team {
                 if (!p.position.equals(pos)) continue;
                 if (p.isEligibleMentor()) {
                     candidates.add(p);
-                } else if (p.year >= 1 && p.mentorName.isEmpty()) {
+                } else if (p.year <= MENTEE_MAX_YEAR) {
                     mentees.add(p);
                 }
             }
+            mentees.sort(Comparator.comparingInt((Player p) -> p.year).thenComparing((Player p) -> -p.ratPot));
             int mentorsUsed = 0;
             for (Player mentor : candidates) {
                 if (mentorsUsed >= 2) break;
@@ -1798,12 +1878,15 @@ public class Team {
 
         for (Player p : getAllPlayers()) {
             p.applyWeeklyPractice(focus, posGroup, intensity);
-            if (intensity == PracticeFocus.FocusIntensity.INTENSE && SimRandom.nextDouble() < 0.10 && p.injury == null) {
+            if (p.injury == null && SimRandom.nextDouble() < intensity.injuryModifier()) {
                 int dur = 1 + (int)(SimRandom.nextDouble() * 3);
                 p.injury = new Injury(dur, "Practice (intense)", p);
             }
         }
     }
+
+    /** Mentees come from the freshman and sophomore classes (redshirts included). */
+    static final int MENTEE_MAX_YEAR = 2;
 
     public void selectTrainingCampFocusPlayers() {
         trainingCampFocusNames.clear();
@@ -1820,8 +1903,13 @@ public class Team {
         }
     }
 
+    /**
+     * Camp work for every player, with extra for three focus prospects. The user's
+     * staff picks them the same way CPU staffs do; nothing ever picked them, so
+     * the user's program missed the bonus every year.
+     */
     public String trainingCamp() {
-        if (!userControlled) {
+        if (trainingCampFocusNames.isEmpty()) {
             selectTrainingCampFocusPlayers();
         }
         StringBuilder report = new StringBuilder();
@@ -1840,6 +1928,18 @@ public class Team {
         trainingCampFocusNames.clear();
         sortPlayers();
         return report.toString();
+    }
+
+    /** The focus prospects' lines from a {@link #trainingCamp()} report, joined for a news story. */
+    static String trainingCampFocusReport(String report) {
+        StringBuilder sb = new StringBuilder();
+        for (String line : report.split("\n")) {
+            if (line.contains("(FOCUS)")) {
+                if (sb.length() > 0) sb.append(", ");
+                sb.append(line.replace(" (FOCUS)", "").replace(": +", " +"));
+            }
+        }
+        return sb.length() == 0 ? "" : sb.append(".").toString();
     }
 
     public void cpuCutPlayers() {
@@ -2368,7 +2468,22 @@ public class Team {
             }
             int s = minSs - (teamSs.size() - numTransfers);
 
-            int rosterSize = getTeamSize() + qb + rb + wr + te + ol + dl + lb + cb + s;
+            // A surplus position needs nobody. Negative needs used to be summed
+            // into the roster estimate (signing one extra random recruit per
+            // surplus player, 65 + surplus in all) and could swallow the top-up
+            // below, which only adds a player when the need ends up positive.
+            qb = Math.max(0, qb);
+            rb = Math.max(0, rb);
+            wr = Math.max(0, wr);
+            te = Math.max(0, te);
+            ol = Math.max(0, ol);
+            k = Math.max(0, k);
+            dl = Math.max(0, dl);
+            lb = Math.max(0, lb);
+            cb = Math.max(0, cb);
+            s = Math.max(0, s);
+
+            int rosterSize = getTeamSize() + qb + rb + wr + te + ol + k + dl + lb + cb + s;
 
             for (int i = rosterSize; i < minPlayers; i++) {
                 int x = (int) (SimRandom.nextDouble() * 9) + 1;
@@ -3816,11 +3931,23 @@ public class Team {
     }
 
 
+    /**
+     * Players' rating changes are shown the week after mid-season growth and
+     * once the offseason growth has run. The old check (week == R/2 or week > 21)
+     * showed last offseason's numbers the week before mid-season growth, and
+     * depended on a 13-week season. Coaches' changes show once staff advance.
+     */
+    boolean showsPlayerRatingChanges() {
+        int r = league.regSeasonWeeks;
+        return league.currentWeek == SeasonFlowOrder.midseasonWeek(r) + 1
+                || league.currentWeek > SeasonFlowOrder.graduationWeek(r);
+    }
+
     //Get Rating Improvements for Mid-Season and End of Season Display
     public String getRatImprovement(Player p) {
         String imp = " ";
 
-        if(league.currentWeek == league.regSeasonWeeks/2 || league.currentWeek > 21) {
+        if (showsPlayerRatingChanges()) {
             if (p.ratImprovement > 0) imp = " (+" + p.ratImprovement + ")";
             if (p.ratImprovement < 0) imp = " (" + p.ratImprovement + ")";
         } else if(league.showPotential && HC != null && !p.position.equals("HC")) {
@@ -3833,7 +3960,7 @@ public class Team {
     public String getHeadCoachRatImprovement(Staff p) {
         String imp = " ";
 
-        if(league.currentWeek == league.regSeasonWeeks/2 || league.currentWeek > 21) {
+        if (league.currentWeek > SeasonFlowOrder.contractsWeek(league.regSeasonWeeks)) {
             if (p.ratImprovement > 0) imp = " (+" + p.ratImprovement + ")";
             if (p.ratImprovement < 0) imp = " (" + p.ratImprovement + ")";
         }
@@ -4275,22 +4402,23 @@ public class Team {
     }
 
 
+    /** Starting-QB speed a read-option book needs; without it CPU staffs run Multiple Pro. */
+    public static final int READ_OPTION_QB_SPEED = 75;
+
+    /** Speed of the starting quarterback, 0 without one. */
+    public int starterQbSpeed() {
+        return teamQBs.isEmpty() ? 0 : teamQBs.get(0).getRatSpeed();
+    }
+
     // Generate CPU Strategy
     public int getCPUOffense() {
         if (OC == null || teamQBs.size() < 1) return 0;
         if (OC.offStrat < 0 || OC.offStrat > 5) OC.offStrat = 0;
 
-        if (teamQBs.get(0).getRatSpeed() >= 75 && OC.offStrat == 4) {
-            return 4;
-        } else if (teamQBs.get(0).getRatSpeed() < 75 && OC.offStrat == 4) {
+        if (PlaybookOffense.forIndex(OC.offStrat).featuresQbRuns() && starterQbSpeed() < READ_OPTION_QB_SPEED) {
             return 0;
-        }else if (teamQBs.get(0).getRatSpeed() >= 75 && OC.offStrat == 5) {
-            return 5;
-        } else if (teamQBs.get(0).getRatSpeed() < 75 && OC.offStrat == 5) {
-            return 0;
-        } else {
-            return OC.offStrat;
         }
+        return OC.offStrat;
     }
 
     public int getCPUDefense() {
@@ -4298,6 +4426,48 @@ public class Team {
         if (DC.defStrat < 0) DC.defStrat = 0;
         if (DC.defStrat > 4) DC.defStrat = 0;
         return DC.defStrat;
+    }
+
+    /** How a scheme sits with this staff; each step down costs coaching edge in Game.getCoachAdv. */
+    public enum SchemeFit { COORDINATOR, HEAD_COACH_ONLY, NEITHER, NO_COORDINATOR }
+
+    public SchemeFit schemeFit(boolean offense, int index) {
+        staff.Staff coordinator = offense ? OC : DC;
+        if (coordinator == null) return SchemeFit.NO_COORDINATOR;
+        if (index == (offense ? coordinator.offStrat : coordinator.defStrat)) return SchemeFit.COORDINATOR;
+        if (HC != null && index == (offense ? HC.offStrat : HC.defStrat)) return SchemeFit.HEAD_COACH_ONLY;
+        return SchemeFit.NEITHER;
+    }
+
+    /** One line on how the scheme fits the staff (and, for read-option books, the quarterback). */
+    public String schemeFitNote(boolean offense, int index) {
+        staff.Staff coordinator = offense ? OC : DC;
+        String role = offense ? "OC" : "DC";
+        String note;
+        switch (schemeFit(offense, index)) {
+            case NO_COORDINATOR -> note = "No " + role + " on staff";
+            case COORDINATOR -> note = "\u2713 Your " + role + "'s scheme"
+                    + (HC != null && index == (offense ? HC.offStrat : HC.defStrat) ? " and your head coach's" : "");
+            case HEAD_COACH_ONLY -> note = "Your head coach's scheme; your " + role + " runs "
+                    + schemeName(offense, offense ? coordinator.offStrat : coordinator.defStrat) + " (small coaching penalty)";
+            default -> note = "Your " + role + " runs " + schemeName(offense, offense ? coordinator.offStrat : coordinator.defStrat)
+                    + "; neither coach runs this (coaching penalty)";
+        }
+        if (offense && PlaybookOffense.forIndex(index).featuresQbRuns() && starterQbSpeed() < READ_OPTION_QB_SPEED) {
+            note += ". Built on QB runs: your starter's speed is " + starterQbSpeed()
+                    + " (CPU staffs want " + READ_OPTION_QB_SPEED + "+)";
+        }
+        return note;
+    }
+
+    private static String schemeName(boolean offense, int index) {
+        return offense ? PlaybookOffense.forIndex(index).getStratName() : PlaybookDefense.forIndex(index).getStratName();
+    }
+
+    /** Runs the books the coordinators would call (see getCPUOffense / getCPUDefense). */
+    public void useCpuPlaybooks() {
+        setPlaybookOffNum(getCPUOffense());
+        setPlaybookDefNum(getCPUDefense());
     }
 
     //Pulls available playbooks
@@ -5040,10 +5210,15 @@ public class Team {
     }
 
     /**
-     * Add a QB to the team.
+     * Add a QB to the team. All addPlayerXX methods also make this team the
+     * player's owner: transfer-portal moves used to add the player here while
+     * {@code player.team} still pointed at the old school, so stat leaders,
+     * awards and player cards credited the wrong program (and the stale
+     * references accumulated season after season).
      */
     public void addPlayerQB(PlayerQB player) {
         if (player != null) {
+            player.team = this;
             teamQBs.add(player);
         }
     }
@@ -5061,6 +5236,7 @@ public class Team {
      */
     public void addPlayerRB(PlayerRB player) {
         if (player != null) {
+            player.team = this;
             teamRBs.add(player);
         }
     }
@@ -5078,6 +5254,7 @@ public class Team {
      */
     public void addPlayerWR(PlayerWR player) {
         if (player != null) {
+            player.team = this;
             teamWRs.add(player);
         }
     }
@@ -5095,6 +5272,7 @@ public class Team {
      */
     public void addPlayerTE(PlayerTE player) {
         if (player != null) {
+            player.team = this;
             teamTEs.add(player);
         }
     }
@@ -5112,6 +5290,7 @@ public class Team {
      */
     public void addPlayerK(PlayerK player) {
         if (player != null) {
+            player.team = this;
             teamKs.add(player);
         }
     }
@@ -5129,6 +5308,7 @@ public class Team {
      */
     public void addPlayerOL(PlayerOL player) {
         if (player != null) {
+            player.team = this;
             teamOLs.add(player);
         }
     }
@@ -5146,6 +5326,7 @@ public class Team {
      */
     public void addPlayerDL(PlayerDL player) {
         if (player != null) {
+            player.team = this;
             teamDLs.add(player);
         }
     }
@@ -5163,6 +5344,7 @@ public class Team {
      */
     public void addPlayerLB(PlayerLB player) {
         if (player != null) {
+            player.team = this;
             teamLBs.add(player);
         }
     }
@@ -5180,6 +5362,7 @@ public class Team {
      */
     public void addPlayerCB(PlayerCB player) {
         if (player != null) {
+            player.team = this;
             teamCBs.add(player);
         }
     }
@@ -5197,6 +5380,7 @@ public class Team {
      */
     public void addPlayerS(PlayerS player) {
         if (player != null) {
+            player.team = this;
             teamSs.add(player);
         }
     }
@@ -5325,15 +5509,48 @@ public class Team {
     public boolean isSuspension() { return suspension; }
     public void setSuspension(boolean suspension) { this.suspension = suspension; }
 
-    // Playbook
-    public PlaybookOffense getPlaybookOffense() { return playbookOff; }
-    public void setPlaybookOffense(PlaybookOffense pb) { this.playbookOff = pb; }
-    public PlaybookDefense getPlaybookDefense() { return playbookDef; }
-    public void setPlaybookDefense(PlaybookDefense pb) { this.playbookDef = pb; }
+    // Playbook. The number is the team's scheme; the book the game plays is kept
+    // in step with it. Game-day counters, coaching decisions and loads set only the
+    // number, so the sim went on calling plays from whatever book object was there
+    // (after a load, a random one).
+    public PlaybookOffense getPlaybookOffense() {
+        if (playbookOff == null || playbookOff.getIndex() != playbookOffNum) {
+            setPlaybookOffNum(playbookOffNum);
+        }
+        return playbookOff;
+    }
+    /** Selects that book's scheme (books are identified by their index). */
+    public void setPlaybookOffense(PlaybookOffense pb) {
+        if (pb != null) {
+            setPlaybookOffNum(pb.getIndex());
+        }
+    }
+    public PlaybookDefense getPlaybookDefense() {
+        if (playbookDef == null || playbookDef.getIndex() != playbookDefNum) {
+            setPlaybookDefNum(playbookDefNum);
+        }
+        return playbookDef;
+    }
+    /** Selects that book's scheme (books are identified by their index). */
+    public void setPlaybookDefense(PlaybookDefense pb) {
+        if (pb != null) {
+            setPlaybookDefNum(pb.getIndex());
+        }
+    }
     public int getPlaybookOffNum() { return playbookOffNum; }
-    public void setPlaybookOffNum(int n) { this.playbookOffNum = n; }
+    public void setPlaybookOffNum(int n) {
+        this.playbookOffNum = n >= 0 && n < OFFENSE_PLAYBOOKS ? n : 0;
+        if (playbookOff == null || playbookOff.getIndex() != playbookOffNum) {
+            playbookOff = PlaybookOffense.forIndex(playbookOffNum);
+        }
+    }
     public int getPlaybookDefNum() { return playbookDefNum; }
-    public void setPlaybookDefNum(int n) { this.playbookDefNum = n; }
+    public void setPlaybookDefNum(int n) {
+        this.playbookDefNum = n >= 0 && n < DEFENSE_PLAYBOOKS ? n : 0;
+        if (playbookDef == null || playbookDef.getIndex() != playbookDefNum) {
+            playbookDef = PlaybookDefense.forIndex(playbookDefNum);
+        }
+    }
 
     // Budget/facilities
     public int getTeamBudget() { return teamBudget; }

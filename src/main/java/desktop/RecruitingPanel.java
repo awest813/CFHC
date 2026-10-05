@@ -56,6 +56,9 @@ public class RecruitingPanel extends JPanel {
     private JComboBox<String> filterBox;
     private DefaultTableModel boardModel;
     private JTable boardTable;
+    private static final String SCOUT_LABEL = "Scout (10% cost)";
+    /** Disabled for a recruit already scouted (mirrors the Android board). */
+    private JButton scoutButton;
     private JTextArea detailArea;
     private JLabel budgetLabel;
     private JLabel recruitedLabel;
@@ -91,9 +94,7 @@ public class RecruitingPanel extends JPanel {
             @Override public void returnToMainHub() {}
         };
         this.controller = new RecruitingController(sessionData, noOpFlow);
-        RecruitingSessionData.PositionNeeds needs = sessionData.calculateNeeds(SimulationFacade.MIN_QBS, SimulationFacade.MIN_RBS,
-                SimulationFacade.MIN_WRS, SimulationFacade.MIN_TES, SimulationFacade.MIN_OLS, SimulationFacade.MIN_KS,
-                SimulationFacade.MIN_DLS, SimulationFacade.MIN_LBS, SimulationFacade.MIN_CBS, SimulationFacade.MIN_SS);
+        RecruitingSessionData.PositionNeeds needs = sessionData.calculateNeeds();
         this.positionLabels = RecruitingPresentation.buildPositionLabels(sessionData, needs);
 
         setOpaque(true);
@@ -240,8 +241,17 @@ public class RecruitingPanel extends JPanel {
         JScrollPane rosterScroll = new JScrollPane(rosterArea);
         rosterScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
 
-        rightPanel.add(detailScroll, BorderLayout.NORTH);
-        rightPanel.add(rosterScroll, BorderLayout.CENTER);
+        // Resizable split: as BorderLayout.NORTH the detail pane kept the height
+        // of its one-line placeholder, cutting scouting (ratings, potential) off
+        // below the recruit's name.
+        detailScroll.setMinimumSize(new Dimension(0, 120));
+        rosterScroll.setMinimumSize(new Dimension(0, 120));
+        JSplitPane detailSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, detailScroll, rosterScroll);
+        detailSplit.setDividerLocation(320);
+        detailSplit.setResizeWeight(0.45);
+        detailSplit.setBorder(BorderFactory.createEmptyBorder());
+        detailSplit.setOpaque(false);
+        rightPanel.add(detailSplit, BorderLayout.CENTER);
 
         JPanel actionPanel = new JPanel(new GridLayout(1, 2, 6, 0));
         actionPanel.setOpaque(true);
@@ -250,7 +260,8 @@ public class RecruitingPanel extends JPanel {
 
         // One accent action (Recruit) next to a regular secondary (Scout), using
         // the HUD button treatment instead of the off-palette selection blue.
-        JButton scoutBtn = new JButton("Scout (10% cost)");
+        JButton scoutBtn = new JButton(SCOUT_LABEL);
+        scoutButton = scoutBtn;
         DesktopTheme.styleHudQuickButton(scoutBtn, false);
         scoutBtn.setFont(scoutBtn.getFont().deriveFont(Font.BOLD, 13f));
         scoutBtn.addActionListener(e -> scoutSelected());
@@ -320,10 +331,7 @@ public class RecruitingPanel extends JPanel {
         recruitedLabel.setForeground(DesktopTheme.textSecondary());
 
         RecruitingSessionData.PositionNeeds currentNeeds =
-                sessionData.calculateNeeds(SimulationFacade.MIN_QBS, SimulationFacade.MIN_RBS,
-                        SimulationFacade.MIN_WRS, SimulationFacade.MIN_TES, SimulationFacade.MIN_OLS,
-                        SimulationFacade.MIN_KS, SimulationFacade.MIN_DLS, SimulationFacade.MIN_LBS,
-                        SimulationFacade.MIN_CBS, SimulationFacade.MIN_SS);
+                sessionData.calculateNeeds();
         int sel = filterBox.getSelectedIndex();
         ArrayList<String> newLabels = RecruitingPresentation.buildPositionLabels(sessionData, currentNeeds);
         positionLabels.clear();
@@ -341,10 +349,7 @@ public class RecruitingPanel extends JPanel {
 
     private void updateRoster() {
         RecruitingSessionData.PositionNeeds currentNeeds =
-                sessionData.calculateNeeds(SimulationFacade.MIN_QBS, SimulationFacade.MIN_RBS,
-                        SimulationFacade.MIN_WRS, SimulationFacade.MIN_TES, SimulationFacade.MIN_OLS,
-                        SimulationFacade.MIN_KS, SimulationFacade.MIN_DLS, SimulationFacade.MIN_LBS,
-                        SimulationFacade.MIN_CBS, SimulationFacade.MIN_SS);
+                sessionData.calculateNeeds();
         rosterArea.setText(RecruitingPresentation.buildRosterText(sessionData, currentNeeds));
         rosterArea.setCaretPosition(0);
     }
@@ -353,6 +358,10 @@ public class RecruitingPanel extends JPanel {
         int viewRow = boardTable.getSelectedRow();
         if (viewRow < 0 || currentList == null) {
             detailArea.setText("Select a recruit to see scouting, cost, and roster fit.");
+            if (scoutButton != null) {
+                scoutButton.setEnabled(true);
+                scoutButton.setText(SCOUT_LABEL);
+            }
             return;
         }
         int modelRow = boardTable.convertRowIndexToModel(viewRow);
@@ -362,14 +371,19 @@ public class RecruitingPanel extends JPanel {
 
         RecruitingPlayerRecord recruit = currentList.get(modelRow);
         String pos = recruit.position();
+        boolean scouted = sessionData.isScouted(recruit);
+        if (scoutButton != null) {
+            scoutButton.setEnabled(!scouted);
+            scoutButton.setText(scouted ? "Scouted" : SCOUT_LABEL);
+        }
 
         StringBuilder sb = new StringBuilder();
         sb.append(recruit.name()).append("  (").append(pos).append(")\n");
-        sb.append("Stars: ").append(RecruitingPresentation.getPlayerListRightLabel(recruit)).append("\n");
+        sb.append(RecruitingPresentation.getPlayerListRightLabel(recruit)).append("\n");
         sb.append("Cost: $").append(recruit.cost()).append("\n");
         sb.append("Overall: ").append(recruit.recruitOverall()).append("\n\n");
         sb.append(RecruitingPresentation.buildRecruitBoardDetails(recruit, pos)).append("\n\n");
-        sb.append(RecruitingPresentation.buildPotentialDetails(recruit));
+        sb.append(RecruitingPresentation.buildPotentialDetails(recruit, scouted));
         if (recruit.isTransfer()) {
             sb.append("\n\n[TRANSFER]");
         }

@@ -137,7 +137,7 @@ public class PlayerLB extends Player {
 
     @Override
     public int getHeismanScore() {
-        return getTackles() * 25 + getSacks() * 425 + getFumblesRec() * 425 + getInterceptions() * 425 + ratOvr * 10 + getConfPrestigeBonus();
+        return defensiveAwardScore();
     }
 
     @Override
@@ -190,8 +190,8 @@ public class PlayerLB extends Player {
     @Override
     public String getInfoForLineup() {
         if (injury != null)
-            return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.getHeadCoach() != null ? team.getHeadCoach().ratTalent : 0) + " " + injury.toString();
-        return getInitialName() + " [" + getYrStr() + "] " + ratOvr + "/" + getPotRating(team.getHeadCoach() != null ? team.getHeadCoach().ratTalent : 0) + " (" +
+            return getInitialName() + " [" + getYrStr() + "] " + ovrAndPotential() + " " + injury.toString();
+        return getInitialName() + " [" + getYrStr() + "] " + ovrAndPotential() + " (" +
                 getRatCoverage() + ", " + getRatRunStop() + ", " + getRatTackle() + ", " + getRatSpeed() + ")";
     }
     

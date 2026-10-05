@@ -212,6 +212,11 @@ public final class SeasonController {
     }
 
 
+    /**
+     * Job offers (fired) or promotion offers (a coach on the rise) come while this
+     * offseason's openings are still open: the carousel on the next step fills every
+     * one, and promotions shown after it never had a job to offer.
+     */
     private void handleJobOffers(SeasonAdvanceResult.Builder result) {
         league.currentWeek++;
         result.weekAdvanced();
@@ -220,6 +225,9 @@ public final class SeasonController {
         if (league.userTeam != null && league.userTeam.fired) {
             bridge.showJobOffersDialog();
             result.needsDialog(SeasonAdvanceResult.DialogType.JOB_OFFERS, null);
+        } else {
+            bridge.showPromotionsDialog();
+            result.needsDialog(SeasonAdvanceResult.DialogType.PROMOTIONS, null);
         }
     }
 
@@ -228,8 +236,6 @@ public final class SeasonController {
         league.currentWeek++;
         result.weekAdvanced();
         updateSimStatus(result, "Offseason", nextLabel(), true);
-        bridge.showPromotionsDialog();
-        result.needsDialog(SeasonAdvanceResult.DialogType.PROMOTIONS, null);
     }
 
     private void handleHireAssistants(SeasonAdvanceResult.Builder result) {

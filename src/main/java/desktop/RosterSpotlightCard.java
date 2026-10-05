@@ -148,7 +148,7 @@ public class RosterSpotlightCard extends CustomCardPanel {
 
         JLabel ovrBadge = new JLabel(ovr + " OVR");
         ovrBadge.setFont(new Font("SansSerif", Font.BOLD, 10));
-        ovrBadge.setForeground(DesktopTheme.successGreen());
+        ovrBadge.setForeground(DesktopTheme.emerald());
 
         topRow.add(roleBadge, BorderLayout.WEST);
         topRow.add(ovrBadge, BorderLayout.EAST);
@@ -166,7 +166,9 @@ public class RosterSpotlightCard extends CustomCardPanel {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(DesktopTheme.tableStripe());
+                // Fixed slate: the player tile is dark in every theme, and the
+                // light-theme stripe token painted a white box inside it.
+                g2.setColor(new Color(17, 28, 46));
                 g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 6, 6);
 
                 // Jersey body
@@ -216,9 +218,9 @@ public class RosterSpotlightCard extends CustomCardPanel {
         String archText = archetype.isEmpty() ? (hasPlayer ? pos : "No data") : archetype;
         JLabel archLbl = new JLabel(archText);
         archLbl.setFont(new Font("SansSerif", Font.BOLD, 8));
-        archLbl.setForeground(DesktopTheme.warningText());
+        archLbl.setForeground(DesktopTheme.gold());
         archLbl.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(DesktopTheme.borderSubtle(), 1),
+                BorderFactory.createLineBorder(new Color(51, 65, 85), 1),
                 BorderFactory.createEmptyBorder(1, 4, 1, 4)));
         JPanel archRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         archRow.setOpaque(false);

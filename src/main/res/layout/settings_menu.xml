@@ -249,6 +249,16 @@
                 <CheckBox android:id="@+id/checkboxAdvConfRealignment" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="44dp" android:minHeight="44dp" />
             </LinearLayout>
 
+            <LinearLayout android:id="@+id/rowFcsPromotion" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
+                <TextView android:id="@+id/textFcsPromotion" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/spinnerFcsPromotion" android:text="@string/settings_fcs_promotion" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
+                <Spinner android:id="@+id/spinnerFcsPromotion" style="@style/Widget.Cfhc.Spinner" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minHeight="44dp" />
+            </LinearLayout>
+
+            <LinearLayout android:id="@+id/rowFcsPromotionCap" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal" android:paddingStart="@dimen/cf_space_md" android:visibility="gone">
+                <TextView android:id="@+id/textFcsPromotionCap" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/spinnerFcsPromotionCap" android:text="@string/settings_fcs_promotion_cap" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" android:textColor="@color/cf_text_secondary" />
+                <Spinner android:id="@+id/spinnerFcsPromotionCap" style="@style/Widget.Cfhc.Spinner" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minHeight="44dp" />
+            </LinearLayout>
+
             <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
                 <TextView android:id="@+id/textEnableProRel" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/checkboxProRelegation" android:text="@string/settings_universal_pro_rel" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
                 <CheckBox android:id="@+id/checkboxProRelegation" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="44dp" android:minHeight="44dp" />
