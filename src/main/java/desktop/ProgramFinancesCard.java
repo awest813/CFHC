@@ -21,7 +21,9 @@ public class ProgramFinancesCard extends CustomCardPanel {
         JPanel content = getContentArea();
 
         int budget = team != null ? team.getTeamBudget() : 0;
-        int recruitBudget = team != null ? team.getTeamRecruitBudget() : 0;
+        // teamRecruitBudget is a legacy field that is never populated (always
+        // $0); show the spendable budget the Recruiting screen uses instead.
+        int recruitBudget = DashboardPanel.spendableRecruitingBudget(team);
         int nilTier = team != null ? team.getNilCollectiveLevel() : 0;
         int facilities = team != null ? team.teamFacilities : 0;
 

@@ -311,11 +311,21 @@ public class DashboardPanel implements LeagueScreen {
 
     private String buildRecruitingBudgetLabel(Team user) {
         if (user == null) return "-";
+        return "$" + spendableRecruitingBudget(user);
+    }
+
+    /**
+     * The recruiting money the user can actually spend (same figure the
+     * Recruiting screen starts from). Shared by Program Health and Program
+     * Finances so the dashboard never shows two different budgets.
+     */
+    static int spendableRecruitingBudget(Team user) {
+        if (user == null) return 0;
         try {
             RecruitingSessionData session = SimulationFacade.prepareRecruitingSession(user);
-            return "$" + session.recruitingBudget;
+            return session.recruitingBudget;
         } catch (RuntimeException ex) {
-            return "$" + user.getUserRecruitBudget();
+            return user.getUserRecruitBudget();
         }
     }
 
