@@ -56,7 +56,7 @@ public final class HomeDialogController {
      */
     public static void showLoadLeagueDialog(final Home activity, final String[] fileInfos, final int theme) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("Choose File to Load:");
+        builder.setTitle("Choose Save to Load");
         SaveFilesList saveFilesAdapter = new SaveFilesList(activity, fileInfos);
         builder.setAdapter(saveFilesAdapter, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {
@@ -84,7 +84,7 @@ public final class HomeDialogController {
      */
     public static void showImportGameDialog(final Home activity, final Runnable onOkSelected) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("Choose File to Import:");
+        builder.setTitle("Choose Save to Import");
         builder.setMessage("This feature lets you import external Exported Saves from your device. Please locate and select the desired file after pressing OK.");
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
@@ -102,7 +102,7 @@ public final class HomeDialogController {
      */
     public static void showDeleteSaveDialog(final Home activity, final String[] fileInfos) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("Choose File to Delete:");
+        builder.setTitle("Choose Save to Delete");
         SaveFilesList saveFilesAdapter = new SaveFilesList(activity, fileInfos);
         builder.setAdapter(saveFilesAdapter, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {

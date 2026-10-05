@@ -68,7 +68,7 @@ public final class CareerDialogController {
 
     public static void showRetireSummary(MainActivity activity, Team currentTeam, Runnable onExit) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("A brief look back...")
+        builder.setTitle("A Brief Look Back")
                 .setPositiveButton("EXIT GAME", (dialog, which) -> {
                     if (onExit != null) onExit.run();
                 })
@@ -205,7 +205,7 @@ public final class CareerDialogController {
     public static void showSelectNewTeamDialog(MainActivity activity, String[] teams,
                                                 Consumer<Integer> onSelect) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("Choose your new team:");
+        builder.setTitle("Choose Your New Team");
         builder.setItems(teams, (dialog, item) -> {
             if (onSelect != null) onSelect.accept(item);
         });

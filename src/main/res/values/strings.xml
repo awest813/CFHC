@@ -71,7 +71,6 @@
     <string name="main_a11y_team_spinner">Team filter. Double tap to choose a program to scout.</string>
     <string name="quick_home">Home</string>
     <string name="quick_roster">Roster</string>
-    <string name="quick_stats">Stats</string>
     <string name="quick_schedule">Schedule</string>
     <string name="quick_league">League</string>
     <string name="quick_actions">Quick Actions</string>
@@ -167,6 +166,19 @@
     <string name="menu_history_records">History &amp; Records</string>
     <string name="menu_coach_database">Coach Database</string>
     <string name="menu_settings">Settings &amp; Rules</string>
+    <!-- Navigation drawer section headers and simulation shortcuts -->
+    <string name="menu_section_team">Team</string>
+    <string name="menu_section_league">League</string>
+    <string name="menu_section_simulation">Simulation</string>
+    <string name="menu_section_management">Management</string>
+    <string name="menu_sim_next_stop">Sim to Next Decision</string>
+    <string name="menu_sim_postseason">Sim Through Postseason</string>
+    <string name="nav_header_no_team">No team selected</string>
+    <string name="action_export_league_locked">Export Dynasty (Preseason Only)</string>
+    <string name="main_filter_hint">Switch between conferences and programs to scout the league without leaving the main dashboard.</string>
+    <string name="main_a11y_drawer_menu">Open the Dynasty Hub menu</string>
+    <string name="toast_sim_running">Finish the current simulation first.</string>
+    <string name="quick_team_stats">Team Stats</string>
     <string name="settings_sfx">Sound effects</string>
 
     <!-- Player Search strings -->

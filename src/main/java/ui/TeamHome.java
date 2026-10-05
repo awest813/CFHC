@@ -68,7 +68,6 @@ public class TeamHome extends ArrayAdapter<String> {
         textRank.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainAct.setCurrPage(5);
                 mainAct.updateRankings();
             }
         });
@@ -76,7 +75,6 @@ public class TeamHome extends ArrayAdapter<String> {
         textRecord.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainAct.setCurrPage(5);
                 mainAct.updateStandings();
             }
         });
@@ -84,7 +82,6 @@ public class TeamHome extends ArrayAdapter<String> {
         textTeamRatings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainAct.setCurrPage(3);
                 mainAct.updateTeamStats();
             }
         });
@@ -92,7 +89,6 @@ public class TeamHome extends ArrayAdapter<String> {
         textInjuries.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainAct.setCurrPage(1);
                 mainAct.viewRoster();
             }
         });
@@ -100,7 +96,6 @@ public class TeamHome extends ArrayAdapter<String> {
         textSuspensions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mainAct.setCurrPage(1);
                 mainAct.viewRoster();
             }
         });

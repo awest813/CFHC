@@ -47,7 +47,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:alpha="0.88"
-        android:text="My Team Info"
+        android:text="@string/nav_header_no_team"
         android:textAlignment="center"
         android:textColor="@color/textPrimary"
         android:textSize="15sp"

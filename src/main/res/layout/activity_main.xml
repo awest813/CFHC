@@ -19,9 +19,14 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
+        android:background="@color/cf_sidebar"
         android:maxWidth="280dp"
         app:headerLayout="@layout/nav_header_main"
         app:itemIconPadding="@dimen/activity_horizontal_margin"
-        app:menu="@menu/activity_main_drawer" />
+        app:itemIconTint="@color/nav_item_icon"
+        app:itemShapeFillColor="@color/nav_item_fill"
+        app:itemTextColor="@color/nav_item_text"
+        app:menu="@menu/activity_main_drawer"
+        app:subheaderColor="@color/accentGold" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

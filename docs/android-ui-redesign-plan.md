@@ -125,7 +125,19 @@ screens + commit. No wave mixes re-skinning with engine changes.
 - Acceptance: gallery screen shows every token/component; no existing screen changed
   except the 4 shell-bound dialog families.
 
-### Wave 2 — Home + MainActivity shell (~2–3 days)
+### Wave 2 — Home + MainActivity shell (~2–3 days) — 🔄 drawer/menu pass done
+- Done (menu + UX audit, Oct 2026): drawer items that render a list page are
+  single-choice groups and the checked item tracks `GameStateManager.currPage`
+  (page renderers own the page id; dialogs no longer clobber it, which also fixed
+  Back/`resetUI` landing on Home after closing News/Scores and Team Home's
+  rank/record taps recording the wrong page). Drawer styled with the HUD tokens
+  (`cf_sidebar`, emerald active text/icon/pill fill, gold section headers), icon
+  mismatches fixed (settings gear, sim play/fast-forward, bracket, program, exit),
+  section titles and sim labels moved to `strings.xml`, "Exit to Main Menu" added
+  to the drawer. Toolbar shows a season/week subtitle. Overflow menu re-ordered;
+  Export stays visible but disabled (and says why) outside the preseason; Save is
+  disabled while a bulk sim runs. Home's never-shown toolbar and empty options
+  menu removed.
 - `content_home.xml`: obsidian hero, gold primary button, crest + version chip;
   Manage Dynasties gets save-slot cards.
 - `content_main.xml`: broadcast header (crest, school + script nickname, season/week

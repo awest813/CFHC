@@ -343,7 +343,7 @@ public class LeagueHomeView extends JFrame {
         bar.add(file);
 
         JMenu season = new JMenu("Season");
-        season.setMnemonic(KeyEvent.VK_E);
+        season.setMnemonic(KeyEvent.VK_S);
 
         JMenuItem playWeek = new JMenuItem(playWeekLabel());
         playWeek.setMnemonic(KeyEvent.VK_P);
@@ -382,7 +382,7 @@ public class LeagueHomeView extends JFrame {
         });
         season.add(coachToggle);
 
-        JMenuItem offseasonHub = new JMenuItem("Offseason Hub");
+        JMenuItem offseasonHub = new JMenuItem("Offseason Hub\u2026");
         offseasonHub.setMnemonic(KeyEvent.VK_H);
         offseasonHub.addActionListener(e -> OffseasonHubDialog.show(this, leagueCore, this::playWeek));
         offseasonHub.setEnabled(SeasonFlowOrder.offseasonStepIndex(
@@ -411,7 +411,7 @@ public class LeagueHomeView extends JFrame {
         JMenu team = new JMenu("Team");
         team.setMnemonic(KeyEvent.VK_T);
 
-        JMenuItem playbookItem = new JMenuItem("Schemes...");
+        JMenuItem playbookItem = new JMenuItem("Schemes\u2026");
         playbookItem.setMnemonic(KeyEvent.VK_S);
         playbookItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, KeyEvent.CTRL_DOWN_MASK));
         playbookItem.addActionListener(e -> showPlaybookDialog());
@@ -475,17 +475,17 @@ public class LeagueHomeView extends JFrame {
         view.add(highContrastItem);
         view.addSeparator();
 
-        JMenuItem bowlWatch = new JMenuItem("Bowl Watch");
+        JMenuItem bowlWatch = new JMenuItem("Bowl Watch\u2026");
         bowlWatch.setMnemonic(KeyEvent.VK_B);
         bowlWatch.addActionListener(e -> showBowlWatch());
         view.add(bowlWatch);
 
-        JMenuItem ccg = new JMenuItem("Conference Championships");
+        JMenuItem ccg = new JMenuItem("Conference Championships\u2026");
         ccg.setMnemonic(KeyEvent.VK_C);
         ccg.addActionListener(e -> showConfChamps());
         view.add(ccg);
 
-        JMenuItem mockDraft = new JMenuItem("Mock Draft");
+        JMenuItem mockDraft = new JMenuItem("Mock Draft\u2026");
         mockDraft.setMnemonic(KeyEvent.VK_M);
         mockDraft.addActionListener(e -> showMockDraft());
         view.add(mockDraft);
@@ -646,7 +646,7 @@ public class LeagueHomeView extends JFrame {
         shortcutsItem.addActionListener(e -> showKeyboardShortcuts());
         help.add(shortcutsItem);
 
-        JMenuItem aboutItem = new JMenuItem("About");
+        JMenuItem aboutItem = new JMenuItem("About CFHC\u2026");
         aboutItem.setMnemonic(KeyEvent.VK_A);
         aboutItem.addActionListener(e -> showAbout());
         help.add(aboutItem);

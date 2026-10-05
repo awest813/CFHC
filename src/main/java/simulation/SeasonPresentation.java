@@ -37,6 +37,24 @@ public final class SeasonPresentation {
         );
     }
 
+    /**
+     * One-line team summary for the navigation drawer header, e.g.
+     * {@code "#4 Alabama (11-1) CC NCW"}. Empty honors are skipped so the
+     * line never carries stray double spaces.
+     */
+    public static String getDrawerTeamLine(Team team) {
+        StringBuilder sb = new StringBuilder();
+        sb.append('#').append(team.getRankTeamPollScore()).append(' ')
+                .append(team.getName())
+                .append(" (").append(team.getWins()).append('-').append(team.getLosses()).append(')');
+        for (String honor : new String[]{team.getConfChampion(), team.semiFinalWL, team.natChampWL}) {
+            if (honor != null && !honor.trim().isEmpty()) {
+                sb.append(' ').append(honor.trim());
+            }
+        }
+        return sb.toString();
+    }
+
     public static String getSeasonBadgeText(int season) {
         return season + " Season";
     }

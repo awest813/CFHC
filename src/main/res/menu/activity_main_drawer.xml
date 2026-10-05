@@ -1,133 +1,163 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Dynasty Hub navigation drawer.
+
+  Items that render a page into the main list live in single-choice groups so
+  the drawer highlights the page the user is on (MainActivity.syncDrawerSelection
+  keeps the checked item in step with GameStateManager.currPage). Items that
+  open a dialog, run a simulation or save are plain actions and never stay
+  highlighted.
+-->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single">
+    <group
+        android:id="@+id/nav_group_home"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/nav_home"
             android:icon="@drawable/ic_menu_home"
-            android:title="@string/menu_home"
-            android:visible="true" />
+            android:title="@string/menu_home" />
     </group>
 
-    <item android:title="Team">
+    <item android:title="@string/menu_section_team">
         <menu>
-            <item
-                android:id="@+id/nav_roster"
-                android:icon="@drawable/ic_menu_roster"
-                android:title="@string/menu_roster" />
-            <item
-                android:id="@+id/nav_depth_chart"
-                android:icon="@drawable/ic_menu_depth"
-                android:title="@string/main_depth_chart" />
-            <item
-                android:id="@+id/nav_redshirts"
-                android:icon="@drawable/ic_menu_redshirt"
-                android:title="@string/menu_redshirts" />
-            <item
-                android:id="@+id/nav_strategy"
-                android:icon="@drawable/ic_menu_schemes"
-                android:title="@string/main_playbook" />
-            <item
-                android:id="@+id/nav_my_coach"
-                android:icon="@drawable/ic_menu_coach"
-                android:title="@string/menu_my_coach" />
-            <item
-                android:id="@+id/nav_teamplayerstats"
-                android:icon="@drawable/ic_menu_playerstats"
-                android:title="@string/menu_teamplayerstats" />
-            <item
-                android:id="@+id/nav_teamstats"
-                android:icon="@drawable/ic_menu_teamstats"
-                android:title="@string/menu_teamstats" />
-            <item
-                android:id="@+id/nav_schedule"
-                android:icon="@drawable/ic_menu_schedule"
-                android:title="@string/menu_schedule" />
+            <group
+                android:id="@+id/nav_group_team_pages"
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_roster"
+                    android:icon="@drawable/ic_menu_roster"
+                    android:title="@string/menu_roster" />
+                <item
+                    android:id="@+id/nav_teamplayerstats"
+                    android:icon="@drawable/ic_menu_playerstats"
+                    android:title="@string/menu_teamplayerstats" />
+                <item
+                    android:id="@+id/nav_teamstats"
+                    android:icon="@drawable/ic_menu_teamstats"
+                    android:title="@string/menu_teamstats" />
+                <item
+                    android:id="@+id/nav_schedule"
+                    android:icon="@drawable/ic_menu_schedule"
+                    android:title="@string/menu_schedule" />
+            </group>
+            <group android:id="@+id/nav_group_team_actions">
+                <item
+                    android:id="@+id/nav_depth_chart"
+                    android:icon="@drawable/ic_menu_depth"
+                    android:title="@string/main_depth_chart" />
+                <item
+                    android:id="@+id/nav_strategy"
+                    android:icon="@drawable/ic_menu_schemes"
+                    android:title="@string/main_playbook" />
+                <item
+                    android:id="@+id/nav_redshirts"
+                    android:icon="@drawable/ic_menu_redshirt"
+                    android:title="@string/menu_redshirts" />
+                <item
+                    android:id="@+id/nav_my_coach"
+                    android:icon="@drawable/ic_menu_coach"
+                    android:title="@string/menu_my_coach" />
+            </group>
         </menu>
     </item>
 
-    <item android:title="League">
+    <item android:title="@string/menu_section_league">
         <menu>
-            <item
-                android:id="@+id/nav_standings"
-                android:icon="@drawable/ic_menu_standings"
-                android:title="@string/menu_standings" />
-            <item
-                android:id="@+id/nav_rankings"
-                android:icon="@drawable/ic_menu_rankings"
-                android:title="@string/menu_rankings" />
-            <item
-                android:id="@+id/nav_scores"
-                android:icon="@drawable/ic_menu_scores"
-                android:title="@string/menu_scores" />
-            <item
-                android:id="@+id/nav_player_search"
-                android:icon="@drawable/ic_menu_search"
-                android:title="@string/menu_player_search" />
-            <item
-                android:id="@+id/nav_transfers"
-                android:icon="@drawable/ic_menu_transfer"
-                android:title="@string/menu_transfer_portal" />
-            <item
-                android:id="@+id/nav_news"
-                android:icon="@drawable/ic_menu_news"
-                android:title="@string/menu_news" />
-            <item
-                android:id="@+id/nav_leagueteamstats"
-                android:icon="@drawable/ic_menu_teamstats"
-                android:title="@string/menu_leagueteamstats" />
-            <item
-                android:id="@+id/nav_leagueplayerstats"
-                android:icon="@drawable/ic_menu_playerstats"
-                android:title="@string/menu_leagueplayerstats" />
-            <item
-                android:id="@+id/nav_awards"
-                android:icon="@drawable/ic_menu_awards"
-                android:title="@string/menu_leagueawards" />
-            <item
-                android:id="@+id/nav_history_records"
-                android:icon="@drawable/ic_menu_history"
-                android:title="@string/menu_history_records" />
-            <item
-                android:id="@+id/nav_coach_db"
-                android:icon="@drawable/ic_menu_roster"
-                android:title="@string/menu_coach_database" />
-            <item
-                android:id="@+id/nav_postseason"
-                android:icon="@drawable/ic_menu_awards"
-                android:title="@string/menu_postseason" />
+            <group
+                android:id="@+id/nav_group_league_pages"
+                android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_standings"
+                    android:icon="@drawable/ic_menu_standings"
+                    android:title="@string/menu_standings" />
+                <item
+                    android:id="@+id/nav_rankings"
+                    android:icon="@drawable/ic_menu_rankings"
+                    android:title="@string/menu_rankings" />
+            </group>
+            <group android:id="@+id/nav_group_league_actions">
+                <item
+                    android:id="@+id/nav_scores"
+                    android:icon="@drawable/ic_menu_scores"
+                    android:title="@string/menu_scores" />
+                <item
+                    android:id="@+id/nav_news"
+                    android:icon="@drawable/ic_menu_news"
+                    android:title="@string/menu_news" />
+                <item
+                    android:id="@+id/nav_leagueteamstats"
+                    android:icon="@drawable/ic_menu_teamstats"
+                    android:title="@string/menu_leagueteamstats" />
+                <item
+                    android:id="@+id/nav_leagueplayerstats"
+                    android:icon="@drawable/ic_menu_playerstats"
+                    android:title="@string/menu_leagueplayerstats" />
+                <item
+                    android:id="@+id/nav_player_search"
+                    android:icon="@drawable/ic_menu_search"
+                    android:title="@string/menu_player_search" />
+                <item
+                    android:id="@+id/nav_transfers"
+                    android:icon="@drawable/ic_menu_transfer"
+                    android:title="@string/menu_transfer_portal" />
+                <item
+                    android:id="@+id/nav_postseason"
+                    android:icon="@drawable/ic_menu_postseason"
+                    android:title="@string/menu_postseason" />
+                <item
+                    android:id="@+id/nav_awards"
+                    android:icon="@drawable/ic_menu_awards"
+                    android:title="@string/menu_leagueawards" />
+                <item
+                    android:id="@+id/nav_history_records"
+                    android:icon="@drawable/ic_menu_history"
+                    android:title="@string/menu_history_records" />
+                <item
+                    android:id="@+id/nav_coach_db"
+                    android:icon="@drawable/ic_menu_coach"
+                    android:title="@string/menu_coach_database" />
+            </group>
         </menu>
     </item>
 
-    <item android:title="Simulation">
+    <item android:title="@string/menu_section_simulation">
         <menu>
-            <item
-                android:id="@+id/nav_sim_next_stop"
-                android:icon="@drawable/ic_menu_transfer"
-                android:title="Sim to Next Decision" />
-            <item
-                android:id="@+id/nav_sim_postseason"
-                android:icon="@drawable/ic_menu_schedule"
-                android:title="Sim Through Postseason" />
+            <group android:id="@+id/nav_group_simulation">
+                <item
+                    android:id="@+id/nav_sim_next_stop"
+                    android:icon="@drawable/ic_menu_sim_play"
+                    android:title="@string/menu_sim_next_stop" />
+                <item
+                    android:id="@+id/nav_sim_postseason"
+                    android:icon="@drawable/ic_menu_sim_fast"
+                    android:title="@string/menu_sim_postseason" />
+            </group>
         </menu>
     </item>
 
-    <item android:title="Management">
+    <item android:title="@string/menu_section_management">
         <menu>
-            <item
-                android:id="@+id/nav_coach_program"
-                android:icon="@drawable/ic_menu_coach"
-                android:title="@string/action_coach_program" />
-            <item
-                android:id="@+id/nav_settings"
-                android:icon="@drawable/ic_menu_schemes"
-                android:title="@string/menu_settings" />
-            <item
-                android:id="@+id/nav_save_game"
-                android:icon="@drawable/ic_menu_save"
-                android:title="@string/action_save_league" />
+            <group android:id="@+id/nav_group_management">
+                <item
+                    android:id="@+id/nav_coach_program"
+                    android:icon="@drawable/ic_menu_program"
+                    android:title="@string/action_coach_program" />
+                <item
+                    android:id="@+id/nav_settings"
+                    android:icon="@drawable/ic_menu_settings"
+                    android:title="@string/menu_settings" />
+                <item
+                    android:id="@+id/nav_save_game"
+                    android:icon="@drawable/ic_menu_save"
+                    android:title="@string/action_save_league" />
+                <item
+                    android:id="@+id/nav_exit_main_menu"
+                    android:icon="@drawable/ic_menu_exit"
+                    android:title="@string/action_return_main_menu" />
+            </group>
         </menu>
     </item>
 

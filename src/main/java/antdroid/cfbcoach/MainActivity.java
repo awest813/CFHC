@@ -191,15 +191,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 super.onDrawerOpened(drawerView);
                 View headerView = navigationView.getHeaderView(0);
                 TextView navTeam = headerView.findViewById(R.id.navTextTeam);
-                if (currentTeam != null) {
-                    navTeam.setText("#" + currentTeam.getRankTeamPollScore() +
-                            " " + currentTeam.getName() + " (" + currentTeam.getWins() + "-" + currentTeam.getLosses() + ") " +
-                            currentTeam.getConfChampion() + " " + currentTeam.semiFinalWL + currentTeam.natChampWL);
-                } else {
-                    navTeam.setText("No team selected");
-                }
+                navTeam.setText(currentTeam != null
+                        ? simulation.SeasonPresentation.getDrawerTeamLine(currentTeam)
+                        : getString(R.string.nav_header_no_team));
+                syncDrawerSelection();
             }
         };
+        toggle.getDrawerArrowDrawable().setColor(getColor(R.color.textPrimary));
+        toolbar.setNavigationContentDescription(R.string.main_a11y_drawer_menu);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
@@ -375,9 +374,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             currentTeam = userTeam;
             examineTeam(currentTeam.getName());
             showHome();
-            gameState.setCurrPage(0);
         } else if (id == R.id.nav_roster) {
-            gameState.setCurrPage(1);
             viewRoster();
         } else if (id == R.id.nav_depth_chart) {
             depthChartDialog();
@@ -395,45 +392,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 CoachProfileDialogController.showProfile(this, userTeam.getHeadCoach(), () -> showCoachHistoryDialog(userTeam.getHeadCoach()));
             }
         } else if (id == R.id.nav_teamplayerstats) {
-            gameState.setCurrPage(2);
             showTeamPlayerStats();
         } else if (id == R.id.nav_teamstats) {
-            gameState.setCurrPage(3);
             updateTeamStats();
         } else if (id == R.id.nav_schedule) {
-            gameState.setCurrPage(4);
             updateSchedule();
         } else if (id == R.id.nav_player_search) {
             PlayerSearchDialogController.show(this, simLeague, userTeam);
         } else if (id == R.id.nav_transfers) {
             TransferDialogController.showTransfers(this, simLeague, userTeam);
         } else if (id == R.id.nav_news) {
-            gameState.setCurrPage(5);
             showNewsStoriesDialog();
         } else if (id == R.id.nav_scores) {
-            gameState.setCurrPage(6);
             showWeeklyScores();
         } else if (id == R.id.nav_standings) {
-            gameState.setCurrPage(7);
             updateStandings();
         } else if (id == R.id.nav_rankings) {
-            gameState.setCurrPage(8);
             updateRankings();
         } else if (id == R.id.nav_leagueteamstats) {
-            gameState.setCurrPage(9);
             showTeamRankingsDialog();
         } else if (id == R.id.nav_leagueplayerstats) {
-            gameState.setCurrPage(10);
             showPlayerRankingsDialog();
         } else if (id == R.id.nav_awards) {
-            gameState.setCurrPage(11);
             showLeagueAwards();
         } else if (id == R.id.nav_history_records) {
             showLeagueHistoryDialog();
         } else if (id == R.id.nav_coach_db) {
             showCoachDatabase();
         } else if (id == R.id.nav_postseason) {
-            gameState.setCurrPage(12);
             showBowlCCGDialog();
         } else if (id == R.id.nav_coach_program) {
             CoachProgramDialogController.show(this, userTeam);
@@ -444,40 +430,73 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_sim_postseason) {
             startBulkSim(true);
         } else if (id == R.id.nav_save_game) {
-            if (bulkRunning) {
-                Toast.makeText(MainActivity.this, "Finish the current simulation first.",
-                        Toast.LENGTH_SHORT).show();
-            } else {
-                // Midseason saves are allowed: the structured save format
-                // round-trips any point in a season (recruiting checkpoints
-                // keep their dedicated slot path).
-                saveLeague();
-            }
+            saveLeagueFromMenu();
+        } else if (id == R.id.nav_exit_main_menu) {
+            exitMainActivity();
         }
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
+        // Action items (dialogs, sim, save) must not stay highlighted; only
+        // the page that is actually showing keeps the checked state.
+        syncDrawerSelection();
         return true;
+    }
+
+    /**
+     * Saves from a menu entry point. Shared by the drawer and the toolbar
+     * overflow so both refuse identically while a bulk sim is running.
+     * Midseason saves are allowed: the structured save format round-trips
+     * any point in a season (recruiting checkpoints keep their own slot).
+     */
+    private void saveLeagueFromMenu() {
+        if (bulkRunning) {
+            Toast.makeText(this, R.string.toast_sim_running, Toast.LENGTH_SHORT).show();
+        } else {
+            saveLeague();
+        }
+    }
+
+    /** Drawer item for each page rendered into {@code mainList}, by currPage. */
+    private static int drawerItemForPage(int page) {
+        switch (page) {
+            case 1: return R.id.nav_roster;
+            case 2: return R.id.nav_teamplayerstats;
+            case 3: return R.id.nav_teamstats;
+            case 4: return R.id.nav_schedule;
+            case 7: return R.id.nav_standings;
+            case 8: return R.id.nav_rankings;
+            default: return R.id.nav_home;
+        }
+    }
+
+    /** Highlights the drawer entry for the page currently on screen. */
+    private void syncDrawerSelection() {
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        if (navigationView == null || gameState == null) return;
+        navigationView.setCheckedItem(drawerItemForPage(gameState.getCurrPage()));
+    }
+
+    /** Records which list page is showing and mirrors it in the drawer. */
+    private void showPage(int page) {
+        gameState.setCurrPage(page);
+        syncDrawerSelection();
     }
 
     public void openHomeView(View view) {
         currentTeam = userTeam;
         examineTeam(currentTeam.getName());
         showHome();
-        gameState.setCurrPage(0);
     }
 
     public void openRosterView(View view) {
-        gameState.setCurrPage(1);
         viewRoster();
     }
 
     public void openTeamStatsView(View view) {
-        gameState.setCurrPage(3);
         updateTeamStats();
     }
 
     public void openScheduleView(View view) {
-        gameState.setCurrPage(4);
         updateSchedule();
     }
 
@@ -534,7 +553,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Update Header Bar
     void updateHeaderBar() {
-        if (getSupportActionBar() != null) getSupportActionBar().setTitle(currentTeam.getName());
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(currentTeam.getName());
+            getSupportActionBar().setSubtitle(simLeague != null
+                    ? getSeasonYearChipText() + " \u00b7 " + getSeasonWeekChipText()
+                    : null);
+        }
         SeasonPresentationController.update(this, currentTeam, simLeague, gameState.getSeason());
     }
 
@@ -871,27 +895,14 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void resetUI() {
-        if (gameState.getCurrPage() == 4) {
-            gameState.setCurrPage(4);
-            updateSchedule();
-        } else if (gameState.getCurrPage() == 3) {
-            gameState.setCurrPage(3);
-            updateTeamStats();
-        } else if (gameState.getCurrPage() == 2) {
-            gameState.setCurrPage(2);
-            showTeamPlayerStats();
-        } else if (gameState.getCurrPage() == 1) {
-            gameState.setCurrPage(1);
-            viewRoster();
-        } else if (gameState.getCurrPage() == 7) {
-            gameState.setCurrPage(7);
-            updateStandings();
-        } else if (gameState.getCurrPage() == 8) {
-            gameState.setCurrPage(8);
-            updateRankings();
-        } else {
-            gameState.setCurrPage(0);
-            showHome();
+        switch (gameState.getCurrPage()) {
+            case 1: viewRoster(); break;
+            case 2: showTeamPlayerStats(); break;
+            case 3: updateTeamStats(); break;
+            case 4: updateSchedule(); break;
+            case 7: updateStandings(); break;
+            case 8: updateRankings(); break;
+            default: showHome(); break;
         }
     }
 
@@ -948,7 +959,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public void showAwardsSummary(String summaryText) {
         if (bulkQueueDialog(() -> showAwardsSummary(summaryText))) return;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Awards ceremony")
+        builder.setTitle("Awards Ceremony")
                 .setMessage(summaryText)
                 .setPositiveButton("OK", null);
         showImmersive(builder.create());
@@ -1156,7 +1167,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Team Stats
     private void showHome() {
-        gameState.setCurrPage(0);
+        showPage(0);
         HomeScreenController.show(this, mainList, currentTeam, simLeague);
     }
 
@@ -1167,16 +1178,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Team Stats
     public void updateTeamStats() {
+        showPage(3);
         TeamStatsScreenController.show(this, mainList, currentTeam);
     }
 
     //Player Stats
     private void showTeamPlayerStats() {
+        showPage(2);
         PlayerStatsScreenController.show(this, mainList, currentTeam);
     }
 
     //Roster 2.0
     public void viewRoster() {
+        showPage(1);
         RosterScreenController.show(this, mainList, currentTeam, simLeague.currentWeek);
     }
 
@@ -1248,6 +1262,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Schedule
     public void updateSchedule() {
+        showPage(4);
         ScheduleScreenController.show(this, mainList, currentTeam);
     }
 
@@ -1277,11 +1292,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     // Shows Conference Standings
     public void updateStandings() {
+        showPage(7);
         StandingsScreenController.showStandings(this, mainList, simLeague, userTeam);
     }
 
     // Shows AP Polls
     public void updateRankings() {
+        showPage(8);
         StandingsScreenController.showRankings(this, mainList, simLeague, userTeam);
     }
 
@@ -1466,11 +1483,18 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
         // Export writes a full league snapshot and is only safe preseason
-        // (week 0); hide the item the rest of the year instead of refusing
-        // after the tap.
+        // (week 0). Keep the entry visible so players learn the feature
+        // exists, but disable it and say why in the label.
         MenuItem export = menu.findItem(R.id.action_export_league);
         if (export != null) {
-            export.setVisible(simLeague != null && simLeague.currentWeek < 1);
+            boolean preseason = simLeague != null && simLeague.currentWeek < 1;
+            export.setEnabled(preseason);
+            export.setTitle(preseason ? R.string.action_export_league
+                    : R.string.action_export_league_locked);
+        }
+        MenuItem save = menu.findItem(R.id.action_save_league);
+        if (save != null) {
+            save.setEnabled(!bulkRunning);
         }
         return super.onPrepareOptionsMenu(menu);
     }
@@ -1502,21 +1526,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
               //Clicked User Team History in drop down menu
             showCoachDatabase();
         } else if (id == R.id.action_save_league) {
-
-              //Clicked Save League in drop down menu
-            if (bulkRunning) {
-                Toast.makeText(MainActivity.this, "Finish the current simulation first.",
-                        Toast.LENGTH_SHORT).show();
-            } else {
-                // Midseason saves are allowed: the structured save format
-                // round-trips any point in a season (recruiting checkpoints
-                // keep their dedicated slot path).
-                saveLeague();
-            }
+            saveLeagueFromMenu();
         } else if (id == R.id.action_export_league) {
-
-              //Clicked Save League in drop down menu
-
             exportData();
 
         } else if (id == R.id.action_return_main_menu) {
@@ -1524,14 +1535,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
               //Let user confirm that they actually do want to go to main menu
             exitMainActivity();
         } else if (id == R.id.action_change_team_name) {
-
-              //Let user change their team name and abbr
             changeSettingsDialog();
-        } /*else if (id == R.id.action_show_FreeAgents) {
-
-             //Let user change their team name and abbr
-             showFreeAgents();
-         }*/
+        }
 
         return super.onOptionsItemSelected(item);
     }
@@ -1645,7 +1650,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Save File Dialog
     private void saveLeague() {
         AlertDialog.Builder save = new AlertDialog.Builder(this);
-        save.setTitle("Choose Save File to Overwrite:");
+        save.setTitle("Choose Save Slot to Overwrite");
         final String[] fileInfos = saveLoadService.getSaveFileSummaries();
         SaveFilesList saveFilesAdapter = new SaveFilesList(this, fileInfos);
         save.setAdapter(saveFilesAdapter, new DialogInterface.OnClickListener() {

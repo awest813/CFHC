@@ -79,7 +79,7 @@ public final class SeasonalDialogController {
     public static void showSuspensions(MainActivity activity, Team userTeam) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setMessage(userTeam.suspensionNews)
-                .setTitle("DISCIPLINARY ACTION")
+                .setTitle("Disciplinary Action")
                 .setPositiveButton("OK", (dialog, which) -> {});
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);

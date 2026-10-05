@@ -30,6 +30,29 @@ public class SeasonPresentationTest {
     }
 
     @Test
+    public void drawerTeamLine_skipsEmptyHonors() {
+        Team team = league.getTeamList().get(0);
+        team.setConfChampion("");
+        team.semiFinalWL = "";
+        team.natChampWL = "";
+        String line = SeasonPresentation.getDrawerTeamLine(team);
+        assertTrue(line, line.startsWith("#"));
+        assertTrue(line, line.contains(team.getName() + " ("));
+        assertTrue("no double spaces: " + line, !line.contains("  "));
+        assertTrue("no trailing space: " + line, !line.endsWith(" "));
+    }
+
+    @Test
+    public void drawerTeamLine_appendsHonorsInOrder() {
+        Team team = league.getTeamList().get(0);
+        team.setConfChampion("CC");
+        team.semiFinalWL = "SFW";
+        team.natChampWL = "NCW";
+        String line = SeasonPresentation.getDrawerTeamLine(team);
+        assertTrue(line, line.endsWith(") CC SFW NCW"));
+    }
+
+    @Test
     public void weekChip_preseason() {
         league.currentWeek = 0;
         assertEquals("Week 0", SeasonPresentation.getSeasonWeekChipText(league));
