@@ -410,7 +410,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_transfers) {
             TransferDialogController.showTransfers(this, simLeague, userTeam);
         } else if (id == R.id.nav_news) {
-            newsSeenKey = currentNewsKey();
             showNewsStoriesDialog();
         } else if (id == R.id.nav_scores) {
             showWeeklyScores();
@@ -1170,6 +1169,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //News Display
     public void showNewsStoriesDialog() {
+        // Any entry point (drawer, home News card, contract dialog) clears the drawer badge.
+        newsSeenKey = currentNewsKey();
         NewsDialogController.show(this, simLeague);
     }
 
@@ -1713,7 +1714,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         save.setNegativeButton(android.R.string.cancel, null);
         AlertDialog popup = save.create();
-        popup.show();
+        showImmersive(popup);
     }
 
     //Get Save Files from Storage
