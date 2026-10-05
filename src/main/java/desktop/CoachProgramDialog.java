@@ -45,7 +45,7 @@ public final class CoachProgramDialog {
         final Staff hc = userTeam.getHeadCoach();
 
         JDialog d = new JDialog(owner, CoachSkills.PROGRAM_DIALOG_TITLE, true);
-        d.setSize(520, 580);
+        d.setSize(560, 700);
         d.setLocationRelativeTo(owner);
         d.setLayout(new BorderLayout(0, 8));
         DesktopTheme.styleDialogContentPane(d.getContentPane());
@@ -58,6 +58,8 @@ public final class CoachProgramDialog {
         area.setFont(new Font("SansSerif", Font.PLAIN, 13));
         DesktopTheme.styleTextContent(area);
         area.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+
+        d.add(buildNilCard(userTeam), BorderLayout.NORTH);
 
         JScrollPane scroll = new JScrollPane(area);
         scroll.setBorder(BorderFactory.createLineBorder(DesktopTheme.borderSubtle(), 1));
@@ -125,13 +127,20 @@ public final class CoachProgramDialog {
         JLabel hint = new JLabel("<html><i>" + CoachSkills.PROGRAM_DIALOG_FOOTER_HINT + "</i></html>");
         hint.setFont(new Font("SansSerif", Font.PLAIN, 11));
         hint.setForeground(DesktopTheme.textSecondary());
-        south.add(hint, BorderLayout.SOUTH);
+        JPanel footer = new JPanel(new BorderLayout(12, 0));
+        footer.setOpaque(false);
+        footer.add(hint, BorderLayout.CENTER);
+        south.add(footer, BorderLayout.SOUTH);
 
-        JPanel row = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 4));
+        // BorderLayout, not FlowLayout: in a 560px dialog the flow row wrapped
+        // the upgrade button onto a clipped second line with no visible label.
+        JPanel row = new JPanel(new BorderLayout(8, 0));
         row.setOpaque(false);
-        row.add(new JLabel("Branch:"));
-        row.add(branchBox);
-        row.add(upgrade);
+        JLabel branchLabel = new JLabel("Branch:");
+        branchLabel.setForeground(DesktopTheme.textPrimary());
+        row.add(branchLabel, BorderLayout.WEST);
+        row.add(branchBox, BorderLayout.CENTER);
+        row.add(upgrade, BorderLayout.EAST);
         south.add(row, BorderLayout.CENTER);
 
         d.add(south, BorderLayout.SOUTH);
@@ -139,11 +148,62 @@ public final class CoachProgramDialog {
         JButton close = new JButton("Close");
         DesktopTheme.styleSecondaryButton(close);
         close.addActionListener(e -> d.dispose());
-        JPanel top = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        top.setOpaque(false);
-        top.add(close);
-        d.add(top, BorderLayout.NORTH);
+        footer.add(close, BorderLayout.EAST);
 
         d.setVisible(true);
+    }
+
+    /**
+     * NIL collective card: gold tier label, progress toward the next tier's
+     * cost, the effects the sim actually applies, and the offseason rule.
+     */
+    private static JPanel buildNilCard(simulation.Team team) {
+        simulation.NilCollectiveStatus nil = simulation.NilCollectiveStatus.of(team);
+        JPanel card = new JPanel(new BorderLayout(0, 6));
+        card.setOpaque(true);
+        card.setBackground(DesktopTheme.tableBase());
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(DesktopTheme.borderSubtle(), 1),
+                BorderFactory.createEmptyBorder(10, 12, 10, 12)));
+
+        JPanel top = new JPanel(new BorderLayout());
+        top.setOpaque(false);
+        JLabel title = new JLabel("NIL COLLECTIVE");
+        title.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 11));
+        title.setForeground(DesktopTheme.textSecondary());
+        JLabel tier = new JLabel(nil.tierLabel());
+        tier.setFont(new Font(Font.MONOSPACED, Font.BOLD, 14));
+        tier.setForeground(DesktopTheme.warningText());
+        top.add(title, BorderLayout.WEST);
+        top.add(tier, BorderLayout.EAST);
+        card.add(top, BorderLayout.NORTH);
+
+        javax.swing.JProgressBar bar = new javax.swing.JProgressBar(0, 100);
+        bar.setValue(nil.progressPercent());
+        bar.setStringPainted(false);
+        bar.setPreferredSize(new java.awt.Dimension(10, 8));
+        bar.setForeground(nil.canAffordNextTier() || nil.isMaxed()
+                ? DesktopTheme.successGreen() : DesktopTheme.warningText());
+        bar.setBackground(DesktopTheme.windowBackground());
+        bar.setBorderPainted(false);
+        bar.getAccessibleContext().setAccessibleName("Budget progress toward the next NIL tier");
+        card.add(bar, BorderLayout.CENTER);
+
+        JLabel text = new JLabel("<html>" + escape(nil.effectsLine()) + "<br><span style='font-size:9pt;'>"
+                + escape(nil.nextTierLine()) + "</span></html>");
+        text.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
+        text.setForeground(DesktopTheme.textPrimary());
+        card.add(text, BorderLayout.SOUTH);
+
+        // Transparent margin wrapper so the card's fill doesn't bleed into the gutter.
+        JPanel wrap = new JPanel(new BorderLayout());
+        wrap.setOpaque(false);
+        wrap.setBorder(BorderFactory.createEmptyBorder(12, 12, 0, 12));
+        wrap.add(card, BorderLayout.CENTER);
+        return wrap;
+    }
+
+    private static String escape(String s) {
+        return s == null ? "" : s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
     }
 }

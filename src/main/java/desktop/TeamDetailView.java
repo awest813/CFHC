@@ -471,7 +471,12 @@ public class TeamDetailView extends JDialog {
         model.addRow(new Object[]{"Discipline Budget", "$" + String.format(Locale.ROOT, "%,d", team.getTeamDisciplineBudget())});
         model.addRow(new Object[]{"", ""});
         model.addRow(new Object[]{"Facilities Level", team.getTeamFacilities()});
-        model.addRow(new Object[]{"NIL collective tier", team.nilCollectiveLevel});
+        simulation.NilCollectiveStatus nil = simulation.NilCollectiveStatus.of(team);
+        model.addRow(new Object[]{"NIL collective", nil.tierLabel()});
+        model.addRow(new Object[]{"NIL effects", nil.effectsLine()});
+        model.addRow(new Object[]{"NIL next tier", nil.isMaxed() ? "Maxed"
+                : String.format(java.util.Locale.ROOT, "Tier %d at $%,d (%d%% funded)",
+                        nil.nextTier, nil.nextTierCost, nil.progressPercent())});
         model.addRow(new Object[]{"Discipline Score", team.getTeamDisciplineScore() + "%"});
         model.addRow(new Object[]{"", ""});
         model.addRow(new Object[]{"Prestige", team.getTeamPrestige()});

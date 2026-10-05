@@ -32,7 +32,8 @@ public class ProgramFinancesCard extends CustomCardPanel {
 
         list.add(buildFinRow("Annual Budget", formatMoney(budget), DesktopTheme.textPrimary()));
         list.add(buildFinRow("Recruiting Budget", formatMoney(recruitBudget), DesktopTheme.successGreen()));
-        list.add(buildFinRow("NIL Collective", "Tier " + nilTier, DesktopTheme.warningText()));
+        list.add(buildFinRow("NIL Collective", "Tier " + nilTier + " / " + simulation.League.NIL_MAX_TIER,
+                DesktopTheme.warningText()));
         list.add(buildFinRow("Facilities", "Level " + facilities, DesktopTheme.textPrimary()));
         list.add(buildFinRow("Discipline", team != null ? team.teamDisciplineScore + "%" : "\u2014", DesktopTheme.textPrimary()));
 

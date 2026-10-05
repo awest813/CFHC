@@ -26,7 +26,7 @@ public final class CoachProgramDialogController {
         final Staff hc = userTeam.getHeadCoach();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle(CoachSkills.PROGRAM_DIALOG_TITLE);
+        // No builder title: the layout's header card already shows it.
         builder.setView(activity.getLayoutInflater().inflate(R.layout.coach_program_dialog, null, false));
         final AlertDialog dialog = builder.create();
         PlatformUiHelper.showImmersive(dialog);
@@ -49,10 +49,20 @@ public final class CoachProgramDialogController {
             upgrade.setText(CoachSkills.UPGRADE_BRANCH_BUTTON_LABEL);
         }
 
+        TextView nilTier = dialog.findViewById(R.id.textNilTier);
+        android.widget.ProgressBar nilProgress = dialog.findViewById(R.id.progressNilNextTier);
+        TextView nilEffects = dialog.findViewById(R.id.textNilEffects);
+        TextView nilNext = dialog.findViewById(R.id.textNilNext);
+
         Runnable refresh = () -> {
             if (summary != null) {
                 summary.setText(CoachSkills.buildProgramSummary(userTeam, hc));
             }
+            simulation.NilCollectiveStatus nil = simulation.NilCollectiveStatus.of(userTeam);
+            if (nilTier != null) nilTier.setText(nil.tierLabel());
+            if (nilProgress != null) nilProgress.setProgress(nil.progressPercent());
+            if (nilEffects != null) nilEffects.setText(nil.effectsLine());
+            if (nilNext != null) nilNext.setText(nil.nextTierLine());
             if (xpView != null) {
                 xpView.setText("Skill XP: " + hc.coachSkillXp);
             }

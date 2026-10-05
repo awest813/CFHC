@@ -1548,15 +1548,9 @@ public class League {
             newsHeadlines.add("Offseason Facilities Upgrades Boost Prestige!");
         }
 
-        sb = new StringBuilder();
-        for (int i = 0; i < teamList.size(); i++) {
-            if (teamList.get(i).nilCollectiveUpgrade) {
-                sb.append(teamList.get(i).getName() + " : NIL Tier " + teamList.get(i).nilCollectiveLevel + "\n");
-            }
-        }
-
-        if (sb.length() > 0) {
-            newsStories.get(0).add("NIL Collective Investments!>Booster-led collectives funded recruiting operations for:\n\n" + sb);
+        String nilStory = buildNilCollectiveStory();
+        if (nilStory != null) {
+            newsStories.get(0).add("NIL Collective Investments!>" + nilStory);
             newsHeadlines.add("NIL Collectives Expand!");
         }
 
@@ -1954,6 +1948,42 @@ public class League {
     public static int nilCollectiveUpgradeCost(int nextTier) {
         if (nextTier < 1 || nextTier > NIL_MAX_TIER) return 0;
         return NIL_TIER_COST_STEP * nextTier;
+    }
+
+    /** How many upgraded programs the NIL news story names before summarising. */
+    static final int NIL_STORY_MAX_LISTED = 10;
+
+    /**
+     * Offseason NIL news body: how many programs expanded, the highest tiers
+     * (capped, since cheaper tiers mean dozens of programs can expand in one
+     * offseason) and always the user's own program. Null when nobody expanded.
+     */
+    String buildNilCollectiveStory() {
+        java.util.List<Team> upgraded = new java.util.ArrayList<>();
+        for (Team t : teamList) {
+            if (t.nilCollectiveUpgrade) upgraded.add(t);
+        }
+        if (upgraded.isEmpty()) return null;
+        upgraded.sort((a, b) -> b.nilCollectiveLevel != a.nilCollectiveLevel
+                ? Integer.compare(b.nilCollectiveLevel, a.nilCollectiveLevel)
+                : a.getName().compareTo(b.getName()));
+        StringBuilder sb = new StringBuilder();
+        sb.append(upgraded.size()).append(upgraded.size() == 1 ? " program" : " programs")
+                .append(" expanded booster-led NIL collectives this offseason.\n\n");
+        int shown = Math.min(NIL_STORY_MAX_LISTED, upgraded.size());
+        sb.append(shown < upgraded.size() ? "Top collectives:\n" : "Expansions:\n");
+        for (int i = 0; i < shown; i++) {
+            Team t = upgraded.get(i);
+            sb.append(t.getName()).append(" : NIL Tier ").append(t.nilCollectiveLevel).append("\n");
+        }
+        if (userTeam != null && upgraded.indexOf(userTeam) >= shown) {
+            sb.append("\nYour program: ").append(userTeam.getName())
+                    .append(" reached NIL Tier ").append(userTeam.nilCollectiveLevel).append(".\n");
+        }
+        if (shown < upgraded.size()) {
+            sb.append("\n...and ").append(upgraded.size() - shown).append(" more.");
+        }
+        return sb.toString();
     }
 
     /** Booster / NIL collective tiers spent from athletic budgets each offseason. */

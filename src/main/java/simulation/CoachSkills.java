@@ -91,10 +91,9 @@ public final class CoachSkills {
         StringBuilder sb = new StringBuilder();
         sb.append("Training facilities: L").append(t.getTeamFacilities())
                 .append("  (drives base player development in the sim)\n");
-        NilCollectiveStatus nil = NilCollectiveStatus.of(t);
-        sb.append("NIL / booster collective: ").append(nil.tierLabel()).append("\n");
-        sb.append("  ").append(nil.effectsLine()).append("\n");
-        sb.append("  ").append(nil.nextTierLine()).append("\n\n");
+        // Effects and next-tier cost are shown on the dedicated NIL card in both
+        // shells (NilCollectiveStatus); the summary keeps a one-line reference.
+        sb.append("NIL / booster collective: ").append(NilCollectiveStatus.of(t).tierLabel()).append("\n\n");
         TeamMoraleSnapshot morale = t.getTeamMoraleSnapshot();
         sb.append("Team morale: Chemistry ").append(morale.chemistry())
                 .append(", Leadership ").append(morale.leadership())

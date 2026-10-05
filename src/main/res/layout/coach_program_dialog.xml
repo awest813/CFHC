@@ -60,6 +60,67 @@
                 tools:text="Program summary" />
         </LinearLayout>
 
+        <!-- NIL collective: tier pill, budget progress toward next tier, real effects. -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_sm"
+            android:background="@drawable/bg_dialog_section"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_card_padding_v">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    style="@style/Widget.Cfhc.CardTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/nil_card_title" />
+
+                <TextView
+                    android:id="@+id/textNilTier"
+                    style="@style/Widget.Cfhc.Pill.Gold"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatAccent"
+                    tools:text="Tier 2 / 12" />
+            </LinearLayout>
+
+            <ProgressBar
+                android:id="@+id/progressNilNextTier"
+                style="@style/Widget.Cfhc.ProgressBar.Gold"
+                android:layout_width="match_parent"
+                android:layout_height="6dp"
+                android:layout_marginTop="@dimen/cf_space_sm"
+                android:contentDescription="@string/nil_progress_desc"
+                android:max="100"
+                tools:progress="65" />
+
+            <TextView
+                android:id="@+id/textNilEffects"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/cf_space_sm"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
+                tools:text="+4.8% home gate · +$190/wk boosters · +$48 recruiting" />
+
+            <TextView
+                android:id="@+id/textNilNext"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/cf_space_xs"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption"
+                tools:text="Next: Tier 3 at $27,000 — budget $17,500 (65%)." />
+        </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

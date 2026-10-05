@@ -286,7 +286,7 @@ public class DashboardPanel implements LeagueScreen {
         Team user = league.userTeam;
         if (user != null) {
             cards.add(makeStatCard("Recruiting Budget", buildRecruitingBudgetLabel(user), DesktopTheme.successGreen()));
-            cards.add(makeStatCard("NIL Collective", "Tier " + user.getNilCollectiveLevel(), DesktopTheme.warningText()));
+            cards.add(makeStatCard("NIL Collective", "Tier " + user.getNilCollectiveLevel() + " / " + simulation.League.NIL_MAX_TIER, DesktopTheme.warningText()));
             cards.add(makeStatCard("Skill Progress", buildCoachSkillLabel(user), DesktopTheme.textPrimary()));
             cards.add(makeStatCard("Roster Health", buildRosterHealthLabel(user), DesktopTheme.textPrimary()));
         } else {

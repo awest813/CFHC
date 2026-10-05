@@ -112,4 +112,28 @@ public class NilCollectiveTest {
         assertEquals(0, s.tier);
         assertEquals(1, s.nextTier);
     }
+
+    @Test
+    public void newsStory_capsListAndAlwaysNamesUserProgram() {
+        java.util.List<Team> teams = league.getTeamList();
+        league.userTeam = teams.get(teams.size() - 1);
+        for (Team t : teams) {
+            t.nilCollectiveUpgrade = true;
+            t.nilCollectiveLevel = 1;
+        }
+        teams.get(0).nilCollectiveLevel = 5;
+        String story = league.buildNilCollectiveStory();
+        assertTrue(story, story.startsWith(teams.size() + " programs expanded"));
+        assertTrue(story, story.contains(teams.get(0).getName() + " : NIL Tier 5"));
+        assertTrue(story, story.contains("Your program: " + league.userTeam.getName()));
+        assertTrue(story, story.contains("...and " + (teams.size() - League.NIL_STORY_MAX_LISTED) + " more."));
+        int listed = story.split(" : NIL Tier ", -1).length - 1;
+        assertEquals(League.NIL_STORY_MAX_LISTED, listed);
+    }
+
+    @Test
+    public void newsStory_nullWhenNobodyExpanded() {
+        for (Team t : league.getTeamList()) t.nilCollectiveUpgrade = false;
+        assertEquals(null, league.buildNilCollectiveStory());
+    }
 }

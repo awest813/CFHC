@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="nil_card_title">NIL Collective</string>
+    <string name="nil_progress_desc">Athletic budget progress toward the next NIL tier</string>
+</resources>
