@@ -57,8 +57,16 @@ public class StatsRowAdapter extends ArrayAdapter<String> {
 
             TextView itemC = rowView.findViewById(R.id.textPlayerStatsCenter);
             itemC.setText("");
+            itemC.setVisibility(View.GONE);
         } else {
-            // Only one, center it
+            // Only one, center it. Hide the two-column views so a recycled row
+            // does not keep stale left/right text next to the header line.
+            TextView itemL = rowView.findViewById(R.id.textPlayerStatsLeftChild);
+            TextView itemR = rowView.findViewById(R.id.textPlayerStatsRightChild);
+            itemL.setText("");
+            itemL.setVisibility(View.GONE);
+            itemR.setText("");
+            itemR.setVisibility(View.GONE);
             TextView itemC = rowView.findViewById(R.id.textPlayerStatsCenter);
             itemC.setVisibility(View.VISIBLE);
             itemC.setTextColor(ContextCompat.getColor(context, R.color.cf_text_secondary));

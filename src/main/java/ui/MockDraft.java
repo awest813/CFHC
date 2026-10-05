@@ -42,6 +42,9 @@ public class MockDraft extends ArrayAdapter<String> {
         TextView itemR = rowView.findViewById(R.id.textPlayerStatsRightChild);
         String detail = valueAt(detailSplit, 1);
         itemR.setText(detail);
+        // save_list.xml hides the third line by default (SaveFilesList toggles it);
+        // the mock draft always carries a detail line, so show it.
+        itemR.setVisibility(View.VISIBLE);
 
         String[] split = detail.split("\n");
 

@@ -165,8 +165,8 @@
                 android:minHeight="44dp"
                 android:text="@string/recruiting_button_options"
                 android:textSize="@dimen/cf_text_stat"
-                app:insetBottom="0dp"
-                app:insetTop="0dp" />
+                android:insetBottom="0dp"
+                android:insetTop="0dp" />
         </LinearLayout>
 
         <androidx.appcompat.widget.SwitchCompat
