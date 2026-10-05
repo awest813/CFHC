@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Reusable "pick one" wizard step: step pill, title, subtitle, card list. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialog_surface"
+    android:orientation="vertical"
+    android:padding="@dimen/cf_space_lg">
+
+    <TextView
+        android:id="@+id/choiceStep"
+        style="@style/Widget.Cfhc.Pill.Gold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="Step 2 of 4" />
+
+    <TextView
+        android:id="@+id/choiceTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/cf_space_sm"
+        android:textAppearance="@style/TextAppearance.Cfhc.Cf.Display"
+        tools:text="Choose Your Coaching Identity" />
+
+    <TextView
+        android:id="@+id/choiceSubtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/cf_space_xs"
+        android:layout_marginBottom="@dimen/cf_space_md"
+        android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption"
+        tools:text="Sets your starting offense and defense ratings." />
+
+    <ListView
+        android:id="@+id/choiceList"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:cacheColorHint="@android:color/transparent"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="@dimen/cf_space_sm"
+        android:listSelector="@android:color/transparent" />
+</LinearLayout>

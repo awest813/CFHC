@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="setup_pill">Coach Setup</string>
+    <string name="setup_name_title">Name Your Head Coach</string>
+    <string name="setup_name_invalid">That name is taken or uses characters the league can\'t store. Try another.</string>
+
+    <string name="setup_identity_title">Choose Your Coaching Identity</string>
+    <string name="setup_identity_subtitle">Sets your starting offense and defense ratings as head coach.</string>
+    <string name="setup_identity_balanced">Balanced Leader</string>
+    <string name="setup_identity_balanced_body">League-average ratings on both sides of the ball.</string>
+    <string name="setup_identity_balanced_badge">AVG</string>
+    <string name="setup_identity_defense">Defensive Architect</string>
+    <string name="setup_identity_defense_body">Five points above average on defense, five below on offense.</string>
+    <string name="setup_identity_defense_badge">DEF +5</string>
+    <string name="setup_identity_offense">Offensive Innovator</string>
+    <string name="setup_identity_offense_body">Five points above average on offense, five below on defense.</string>
+    <string name="setup_identity_offense_badge">OFF +5</string>
+    <string name="setup_identity_hard">Graduate Assistant</string>
+    <string name="setup_identity_hard_body">Hard mode. Start at 50 offense and defense with weak talent and discipline ratings.</string>
+    <string name="setup_identity_hard_badge">HARD</string>
+
+    <string name="setup_offense_title">Choose Your Offensive Scheme</string>
+    <string name="setup_offense_subtitle">Your base offense. You can change it any week from Schemes.</string>
+    <string name="setup_defense_title">Choose Your Defensive Scheme</string>
+    <string name="setup_defense_subtitle">Your base defense. You can change it any week from Schemes.</string>
+</resources>

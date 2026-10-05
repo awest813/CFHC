@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_cf_card"
+    android:foreground="@drawable/bg_cf_ripple"
+    android:minHeight="64dp"
+    android:orientation="vertical"
+    android:paddingStart="@dimen/cf_card_padding_h"
+    android:paddingTop="@dimen/cf_card_padding_v"
+    android:paddingEnd="@dimen/cf_card_padding_h"
+    android:paddingBottom="@dimen/cf_card_padding_v">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/choiceRowTitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title"
+            tools:text="Offensive Innovator" />
+
+        <TextView
+            android:id="@+id/choiceRowBadge"
+            style="@style/Widget.Cfhc.Pill.Emerald"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/cf_space_sm"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
+            android:visibility="gone"
+            tools:text="OFF +5"
+            tools:visibility="visible" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/choiceRowBody"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/cf_space_xs"
+        android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
+        android:visibility="gone"
+        tools:text="Starts five points above the league average on offense."
+        tools:visibility="visible" />
+</LinearLayout>

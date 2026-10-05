@@ -672,8 +672,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void userNameDialog() {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Enter the full name that will represent your head coach across the league, records, and news stories.");
-        builder.setTitle("Name Your Head Coach")
+        builder.setTitle(R.string.setup_name_title)
                 .setView(getLayoutInflater().inflate(R.layout.username_dialog, null, false));
         builder.setCancelable(false);
         final AlertDialog dialog = builder.create();
@@ -692,7 +691,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 newHC = s.toString().trim();
                 if (!simLeague.isNameValid(newHC)) {
-                    invalidHCText.setText("Name already in use or has illegal characters!");
+                    invalidHCText.setText(R.string.setup_name_invalid);
                 } else {
                     invalidHCText.setText("");
                 }
@@ -702,7 +701,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 newHC = s.toString().trim();
                 if (!simLeague.isNameValid(newHC)) {
-                    invalidHCText.setText("Name already in use or has illegal characters!");
+                    invalidHCText.setText(R.string.setup_name_invalid);
                 } else {
                     invalidHCText.setText("");
                 }
@@ -712,7 +711,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void afterTextChanged(Editable s) {
                 newHC = s.toString().trim();
                 if (!simLeague.isNameValid(newHC)) {
-                    invalidHCText.setText("Name already in use or has illegal characters!");
+                    invalidHCText.setText(R.string.setup_name_invalid);
                 } else {
                     invalidHCText.setText("");
                 }
@@ -738,7 +737,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     dialog.dismiss();
                     setupCoachStyle();
                 } else {
-                    Toast.makeText(MainActivity.this, R.string.toast_invalid_team_name,
+                    // Toast, not snackbar: the name dialog stays open on top.
+                    Toast.makeText(MainActivity.this, R.string.setup_name_invalid,
                                 Toast.LENGTH_SHORT).show();
                 }
             }
@@ -746,35 +746,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void setupCoachStyle() {
-
-        String[] coachChoice = {"Balanced Leader", "Defensive Architect", "Offensive Innovator", "Graduate Assistant (Hard Mode)"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder
-                .setTitle("Choose Your Coaching Identity")
-                .setSingleChoiceItems(coachChoice, -1, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        if(i == 0) {
-                            setupCoachBal();
-                        }
-                        if(i == 1) {
-                            setupCoachDef();
-                        }
-                        if(i == 2) {
-                            setupCoachOff();
-                        }
-                        if(i == 3) {
-                            setupCoachHard();
-                        }
-                        dialogInterface.dismiss();
-                    }
+        java.util.List<ChoiceCardDialog.Choice> choices = new java.util.ArrayList<>();
+        choices.add(new ChoiceCardDialog.Choice(getString(R.string.setup_identity_balanced),
+                getString(R.string.setup_identity_balanced_badge), getString(R.string.setup_identity_balanced_body)));
+        choices.add(new ChoiceCardDialog.Choice(getString(R.string.setup_identity_defense),
+                getString(R.string.setup_identity_defense_badge), getString(R.string.setup_identity_defense_body)));
+        choices.add(new ChoiceCardDialog.Choice(getString(R.string.setup_identity_offense),
+                getString(R.string.setup_identity_offense_badge), getString(R.string.setup_identity_offense_body)));
+        choices.add(new ChoiceCardDialog.Choice(getString(R.string.setup_identity_hard),
+                getString(R.string.setup_identity_hard_badge), getString(R.string.setup_identity_hard_body)));
+        ChoiceCardDialog.show(this, getString(R.string.setup_pill),
+                getString(R.string.setup_identity_title), getString(R.string.setup_identity_subtitle),
+                choices, i -> {
+                    if (i == 0) setupCoachBal();
+                    else if (i == 1) setupCoachDef();
+                    else if (i == 2) setupCoachOff();
+                    else setupCoachHard();
                 });
-
-        final AlertDialog dialog = builder.create(); 
-        dialog.setCancelable(false);
-        builder.setCancelable(false);
-        showImmersive(dialog);
-
     }
 
     private void setupCoachOff() {
@@ -818,68 +806,44 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void setupPlaybookOff() {
         final PlaybookOffense[] pbOff = currentTeam.getPlaybookOff();
-
-        String[] coachChoice = new String[pbOff.length];
-        for(int i = 0; i < pbOff.length; i++) {
-            coachChoice[i] = pbOff[i].getStratName();
+        java.util.List<ChoiceCardDialog.Choice> choices = new java.util.ArrayList<>();
+        for (PlaybookOffense pb : pbOff) {
+            choices.add(new ChoiceCardDialog.Choice(pb.getStratName(), null, pb.getStratDescription()));
         }
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder
-                .setTitle("Choose Your Offensive Scheme")
-                .setSingleChoiceItems(coachChoice, -1, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        HeadCoach coach = ensureUserHeadCoach();
-                        if (coach == null) return;
-                        coach.offStrat = i;
-                        if(userTeam.OC != null) userTeam.OC.offStrat = i;
-                        if(userTeam.DC != null) userTeam.DC.offStrat = i;
-                        userTeam.playbookOffNum = i;
-                        userTeam.playbookOff = userTeam.getPlaybookOff()[i];
-                        dialogInterface.dismiss();
-                        setupPlaybooksDef();
-                    }
+        ChoiceCardDialog.show(this, getString(R.string.setup_pill),
+                getString(R.string.setup_offense_title), getString(R.string.setup_offense_subtitle),
+                choices, i -> {
+                    HeadCoach coach = ensureUserHeadCoach();
+                    if (coach == null) return;
+                    coach.offStrat = i;
+                    if (userTeam.OC != null) userTeam.OC.offStrat = i;
+                    if (userTeam.DC != null) userTeam.DC.offStrat = i;
+                    userTeam.playbookOffNum = i;
+                    userTeam.playbookOff = userTeam.getPlaybookOff()[i];
+                    setupPlaybooksDef();
                 });
-
-        final AlertDialog dialog = builder.create(); 
-        dialog.setCancelable(false);
-        builder.setCancelable(false);
-        showImmersive(dialog);
     }
 
     private void setupPlaybooksDef() {
-        final PlaybookDefense[] pbOff = currentTeam.getPlaybookDef();
-
-        String[] coachChoice = new String[pbOff.length];
-        for(int i = 0; i < pbOff.length; i++) {
-            coachChoice[i] = pbOff[i].getStratName();
+        final PlaybookDefense[] pbDef = currentTeam.getPlaybookDef();
+        java.util.List<ChoiceCardDialog.Choice> choices = new java.util.ArrayList<>();
+        for (PlaybookDefense pb : pbDef) {
+            choices.add(new ChoiceCardDialog.Choice(pb.getStratName(), null, pb.getStratDescription()));
         }
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder
-                .setTitle("Choose Your Defensive Scheme")
-                .setSingleChoiceItems(coachChoice, -1, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        HeadCoach coach = ensureUserHeadCoach();
-                        if (coach == null) return;
-                        coach.defStrat = i;
-                        if(userTeam.OC != null) userTeam.OC.defStrat = i;
-                        if(userTeam.DC != null) userTeam.DC.defStrat = i;
-                        userTeam.playbookDefNum = i;
-                        userTeam.playbookDef = userTeam.getPlaybookDef()[i];
-                        dialogInterface.dismiss();
-                        if(simLeague.currentWeek == 0) seasonGoals();
-                        defaultScreen();
-                    }
+        ChoiceCardDialog.show(this, getString(R.string.setup_pill),
+                getString(R.string.setup_defense_title), getString(R.string.setup_defense_subtitle),
+                choices, i -> {
+                    HeadCoach coach = ensureUserHeadCoach();
+                    if (coach == null) return;
+                    coach.defStrat = i;
+                    if (userTeam.OC != null) userTeam.OC.defStrat = i;
+                    if (userTeam.DC != null) userTeam.DC.defStrat = i;
+                    userTeam.playbookDefNum = i;
+                    userTeam.playbookDef = userTeam.getPlaybookDef()[i];
+                    if (simLeague.currentWeek == 0) seasonGoals();
+                    defaultScreen();
                 });
-
-        final AlertDialog dialog = builder.create(); dialog.setCancelable(false);
-        builder.setCancelable(false);
-        showImmersive(dialog);
     }
-
-
-
 
     public void resetTeamUI() {
         currentTeam = userTeam;

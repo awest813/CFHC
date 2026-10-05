@@ -156,7 +156,6 @@
     <string name="action_export_league_locked">Export Dynasty (Preseason Only)</string>
     <string name="main_a11y_drawer_menu">Open the Dynasty Hub menu</string>
     <string name="toast_sim_running">Finish the current simulation first.</string>
-    <string name="toast_invalid_team_name">That name or abbreviation is already taken or empty. Nothing was changed.</string>
     <string name="toast_export_preseason_only">Export is only available in the preseason (Week 0).</string>
     <string name="toast_import_unreadable">Could not read that file. Check the link or pick another file.</string>
     <string name="toast_import_failed">Could not import that file.</string>
