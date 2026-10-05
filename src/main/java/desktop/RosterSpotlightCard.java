@@ -85,12 +85,13 @@ public class RosterSpotlightCard extends CustomCardPanel {
     }
 
     private JPanel buildPlayerCard(positions.Player player, boolean isOffense, Consumer<positions.Player> onSelectPlayer) {
-        JPanel card = new JPanel(new BorderLayout(0, 4)) {
+        JPanel card = new JPanel(new BorderLayout(0, 6)) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(new Color(11, 20, 34));
+                // Obsidian inset inside the slate card frame (style guide §3.4).
+                g2.setColor(DesktopTheme.windowBackground());
                 g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 8, 8);
                 g2.setColor(DesktopTheme.borderSubtle());
                 g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 8, 8);
@@ -143,7 +144,7 @@ public class RosterSpotlightCard extends CustomCardPanel {
 
         JLabel roleBadge = new JLabel(isOffense ? "OFF" : "DEF");
         roleBadge.setFont(new Font("SansSerif", Font.BOLD, 9));
-        roleBadge.setForeground(isOffense ? new Color(96, 165, 250) : new Color(248, 113, 113));
+        roleBadge.setForeground(isOffense ? DesktopTheme.accentBlue() : DesktopTheme.dangerRed());
 
         JLabel ovrBadge = new JLabel(ovr + " OVR");
         ovrBadge.setFont(new Font("SansSerif", Font.BOLD, 10));
@@ -153,8 +154,10 @@ public class RosterSpotlightCard extends CustomCardPanel {
         topRow.add(ovrBadge, BorderLayout.EAST);
         card.add(topRow, BorderLayout.NORTH);
 
-        // Center Area: Pixel Jersey Avatar + Name + Year/Pos
-        JPanel centerArea = new JPanel(new BorderLayout(0, 4));
+        // Center Area: avatar on the left, name / position+class / archetype
+        // stacked on the right. Stacking all four vertically needed ~105px but
+        // the dashboard row leaves ~80px, so the name overlapped "POS \u2022 Yr".
+        JPanel centerArea = new JPanel(new BorderLayout(8, 0));
         centerArea.setOpaque(false);
 
         final String avatarInitials = initials;
@@ -193,42 +196,42 @@ public class RosterSpotlightCard extends CustomCardPanel {
         spriteBox.setPreferredSize(new Dimension(38, 40));
         spriteBox.setOpaque(false);
 
-        JPanel spriteCenter = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        spriteCenter.setOpaque(false);
-        spriteCenter.add(spriteBox);
-        centerArea.add(spriteCenter, BorderLayout.NORTH);
+        JPanel spriteWrap = new JPanel(new BorderLayout());
+        spriteWrap.setOpaque(false);
+        spriteWrap.add(spriteBox, BorderLayout.NORTH);
+        centerArea.add(spriteWrap, BorderLayout.WEST);
 
-        JPanel meta = new JPanel(new GridLayout(2, 1, 0, 1));
+        JPanel meta = new JPanel(new GridLayout(0, 1, 0, 2));
         meta.setOpaque(false);
 
-        JLabel nameLbl = new JLabel(displayName, JLabel.CENTER);
-        nameLbl.setFont(new Font("SansSerif", Font.BOLD, 10));
-        nameLbl.setForeground(Color.WHITE);
+        JLabel nameLbl = new JLabel(displayName);
+        nameLbl.setFont(new Font("SansSerif", Font.BOLD, 11));
+        nameLbl.setForeground(DesktopTheme.textPrimary());
         nameLbl.setToolTipText(rawName);
 
-        JLabel subLbl = new JLabel(hasPlayer ? (pos + " \u2022 " + year) : "Empty", JLabel.CENTER);
-        subLbl.setFont(new Font("SansSerif", Font.PLAIN, 9));
+        JLabel subLbl = new JLabel(hasPlayer ? (pos + " \u2022 " + year) : "Empty");
+        subLbl.setFont(new Font("SansSerif", Font.PLAIN, 10));
         subLbl.setForeground(DesktopTheme.textSecondary());
 
-        meta.add(nameLbl);
-        meta.add(subLbl);
-        centerArea.add(meta, BorderLayout.CENTER);
-        card.add(centerArea, BorderLayout.CENTER);
-
-        // Footer: Archetype pill
-        JPanel foot = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-        foot.setOpaque(false);
-
         String archText = archetype.isEmpty() ? (hasPlayer ? pos : "No data") : archetype;
-        JLabel archLbl = new JLabel(archText, JLabel.CENTER);
+        JLabel archLbl = new JLabel(archText);
         archLbl.setFont(new Font("SansSerif", Font.BOLD, 8));
         archLbl.setForeground(DesktopTheme.warningText());
         archLbl.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(DesktopTheme.borderSubtle(), 1),
                 BorderFactory.createEmptyBorder(1, 4, 1, 4)));
+        JPanel archRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+        archRow.setOpaque(false);
+        archRow.add(archLbl);
 
-        foot.add(archLbl);
-        card.add(foot, BorderLayout.SOUTH);
+        meta.add(nameLbl);
+        meta.add(subLbl);
+        meta.add(archRow);
+        JPanel metaWrap = new JPanel(new BorderLayout());
+        metaWrap.setOpaque(false);
+        metaWrap.add(meta, BorderLayout.NORTH);
+        centerArea.add(metaWrap, BorderLayout.CENTER);
+        card.add(centerArea, BorderLayout.CENTER);
 
         return card;
     }

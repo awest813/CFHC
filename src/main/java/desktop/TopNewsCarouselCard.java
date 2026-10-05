@@ -6,11 +6,9 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -84,7 +82,7 @@ public class TopNewsCarouselCard extends CustomCardPanel {
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setPaint(new GradientPaint(0, 0, new Color(15, 28, 48), getWidth(), getHeight(), new Color(24, 46, 78)));
+                g2.setColor(DesktopTheme.tableStripe());
                 g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 6, 6);
                 g2.setColor(DesktopTheme.successGreen());
                 g2.fillRoundRect(0, 0, 4, getHeight() - 1, 4, 4);
@@ -105,7 +103,7 @@ public class TopNewsCarouselCard extends CustomCardPanel {
         pill.setForeground(DesktopTheme.successGreen());
         JLabel wire = new JLabel("\uD83D\uDCF0 WIRE");
         wire.setFont(new Font("SansSerif", Font.BOLD, 9));
-        wire.setForeground(new Color(148, 163, 184));
+        wire.setForeground(DesktopTheme.textSecondary());
         heroTop.add(pill, BorderLayout.WEST);
         heroTop.add(wire, BorderLayout.EAST);
 
@@ -140,7 +138,7 @@ public class TopNewsCarouselCard extends CustomCardPanel {
 
         JLabel title = new JLabel("<html><b>" + escapeHtml(titleText) + "</b></html>");
         title.setFont(new Font("SansSerif", Font.BOLD, 12));
-        title.setForeground(Color.WHITE);
+        title.setForeground(DesktopTheme.textPrimary());
 
         JLabel snippet = new JLabel("<html><body style='width: 180px;'>" + escapeHtml(snippetText) + "</body></html>");
         snippet.setFont(new Font("SansSerif", Font.PLAIN, 10));

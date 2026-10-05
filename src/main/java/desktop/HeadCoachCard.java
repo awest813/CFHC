@@ -7,11 +7,9 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridLayout;
@@ -69,97 +67,72 @@ public class HeadCoachCard extends CustomCardPanel {
         String coachName = hasCoach ? hc.name : "Vacant";
         String position = hasCoach && hc.position != null ? hc.position : "Head Coach";
 
-        // Name + title row
-        JPanel top = new JPanel(new GridLayout(0, 1, 0, 1));
+        // Name row: coach name left, position caption right.
+        JPanel top = new JPanel(new BorderLayout(8, 0));
         top.setOpaque(false);
         JLabel nameLabel = new JLabel(coachName);
         nameLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
         nameLabel.setForeground(DesktopTheme.textPrimary());
-        JLabel titleLabel = new JLabel(position);
-        titleLabel.setFont(new Font("SansSerif", Font.PLAIN, 10));
+        JLabel titleLabel = new JLabel(position.toUpperCase());
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 9));
         titleLabel.setForeground(DesktopTheme.textSecondary());
-        top.add(nameLabel);
-        top.add(titleLabel);
+        top.add(nameLabel, BorderLayout.CENTER);
+        top.add(titleLabel, BorderLayout.EAST);
 
-        // Big overall rating container
-        JPanel ovrWrapper = new JPanel(new BorderLayout(0, 2)) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                Graphics2D g2 = (Graphics2D) g.create();
-                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(DesktopTheme.tableStripe());
-                g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 6, 6);
-                g2.setColor(DesktopTheme.borderSubtle());
-                g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 6, 6);
-                g2.dispose();
-                super.paintComponent(g);
-            }
-        };
-        ovrWrapper.setPreferredSize(new Dimension(64, 60));
-        ovrWrapper.setOpaque(false);
-        ovrWrapper.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
-
-        JLabel ovr = new JLabel(hasCoach ? String.valueOf(hc.ratOvr) : "\u2014", JLabel.CENTER);
-        ovr.setFont(new Font("SansSerif", Font.BOLD, 28));
-        ovr.setForeground(DesktopTheme.successGreen());
-        JLabel ovrCaption = new JLabel("OVR", JLabel.CENTER);
-        ovrCaption.setFont(new Font("SansSerif", Font.BOLD, 8));
-        ovrCaption.setForeground(DesktopTheme.textSecondary());
-        ovrWrapper.add(ovr, BorderLayout.CENTER);
-        ovrWrapper.add(ovrCaption, BorderLayout.SOUTH);
-
-        // Rating sub-stats grid (off/def/talent/discipline) — 4 HUD metric tiles.
-        JPanel stats = new JPanel(new GridLayout(2, 2, 5, 4));
+        // Ratings: one compact row of five HUD tiles (OVR + off/def/talent/discipline).
+        // The previous 64px OVR block + 2x2 grid needed ~90px of height but the
+        // dashboard row only leaves ~40px here, so every tile was cut in half.
+        JPanel stats = new JPanel(new GridLayout(1, 5, 4, 0));
         stats.setOpaque(false);
-        if (hasCoach) {
-            stats.add(buildStatTile("OFF", hc.ratOff));
-            stats.add(buildStatTile("DEF", hc.ratDef));
-            stats.add(buildStatTile("TALENT", hc.ratTalent));
-            stats.add(buildStatTile("DISC", hc.ratDiscipline));
-        } else {
-            stats.add(buildStatTile("OFF", 0));
-            stats.add(buildStatTile("DEF", 0));
-            stats.add(buildStatTile("TALENT", 0));
-            stats.add(buildStatTile("DISC", 0));
-        }
+        stats.add(buildStatTile("OVR", hasCoach ? hc.ratOvr : 0, true));
+        stats.add(buildStatTile("OFF", hasCoach ? hc.ratOff : 0, false));
+        stats.add(buildStatTile("DEF", hasCoach ? hc.ratDef : 0, false));
+        stats.add(buildStatTile("TALENT", hasCoach ? hc.ratTalent : 0, false));
+        stats.add(buildStatTile("DISC", hasCoach ? hc.ratDiscipline : 0, false));
 
-        // Career record + contract info
+        // Career record + contract info on a single footer line.
         String record = hasCoach ? hc.getWins() + "-" + hc.getLosses() : "\u2014";
         String contract = hasCoach
                 ? "Yr " + (hc.contractYear + 1) + " of " + hc.contractLength + "  \u2022  Age " + hc.age
                 : "\u2014";
 
-        JLabel recordLabel = new JLabel("Record: " + record);
-        recordLabel.setFont(new Font("SansSerif", Font.BOLD, 10));
+        JPanel recordBox = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
+        recordBox.setOpaque(false);
+        JLabel recordCaption = new JLabel("RECORD");
+        recordCaption.setFont(new Font("SansSerif", Font.BOLD, 9));
+        recordCaption.setForeground(DesktopTheme.textSecondary());
+        JLabel recordLabel = new JLabel(record);
+        recordLabel.setFont(new Font("Monospaced", Font.BOLD, 12));
         recordLabel.setForeground(DesktopTheme.textPrimary());
-        JLabel contractLabel = new JLabel(contract);
-        contractLabel.setFont(new Font("SansSerif", Font.PLAIN, 9));
+        recordBox.add(recordCaption);
+        recordBox.add(recordLabel);
+
+        JLabel contractLabel = new JLabel(contract, JLabel.RIGHT);
+        contractLabel.setFont(new Font("SansSerif", Font.PLAIN, 10));
         contractLabel.setForeground(DesktopTheme.textSecondary());
 
-        JPanel footer = new JPanel(new GridLayout(0, 1, 0, 1));
+        JPanel footer = new JPanel(new BorderLayout(8, 0));
         footer.setOpaque(false);
         footer.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.borderSubtle()),
-                BorderFactory.createEmptyBorder(4, 0, 0, 0)));
-        footer.add(recordLabel);
-        footer.add(contractLabel);
+                BorderFactory.createEmptyBorder(5, 0, 0, 0)));
+        footer.add(recordBox, BorderLayout.WEST);
+        footer.add(contractLabel, BorderLayout.EAST);
 
-        // Layout: name top, big OVR + sub-stats middle, record/contract bottom.
-        JPanel body = new JPanel(new BorderLayout(8, 6));
+        // Layout: name top, rating tiles middle (kept at preferred height), record bottom.
+        JPanel body = new JPanel(new BorderLayout(0, 8));
         body.setOpaque(false);
         body.add(top, BorderLayout.NORTH);
-
-        JPanel middle = new JPanel(new BorderLayout(8, 0));
+        JPanel middle = new JPanel(new BorderLayout());
         middle.setOpaque(false);
-        middle.add(ovrWrapper, BorderLayout.WEST);
-        middle.add(stats, BorderLayout.CENTER);
+        middle.add(stats, BorderLayout.NORTH);
         body.add(middle, BorderLayout.CENTER);
         body.add(footer, BorderLayout.SOUTH);
 
         content.add(body, BorderLayout.CENTER);
     }
 
-    private JPanel buildStatTile(String label, int value) {
+    private JPanel buildStatTile(String label, int value, boolean primary) {
         JPanel tile = new JPanel(new BorderLayout(0, 1)) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -174,15 +147,17 @@ public class HeadCoachCard extends CustomCardPanel {
             }
         };
         tile.setOpaque(false);
-        tile.setBorder(BorderFactory.createEmptyBorder(2, 3, 2, 3));
+        tile.setBorder(BorderFactory.createEmptyBorder(4, 2, 4, 2));
 
         JLabel lbl = new JLabel(label, JLabel.CENTER);
-        lbl.setFont(new Font("SansSerif", Font.PLAIN, 8));
+        lbl.setFont(new Font("SansSerif", Font.BOLD, 8));
         lbl.setForeground(DesktopTheme.textSecondary());
 
         JLabel val = new JLabel(value > 0 ? String.valueOf(value) : "\u2014", JLabel.CENTER);
-        val.setFont(new Font("SansSerif", Font.BOLD, 11));
-        if (value >= 85) {
+        val.setFont(new Font("Monospaced", Font.BOLD, 14));
+        if (primary && value > 0) {
+            val.setForeground(DesktopTheme.successGreen());
+        } else if (value >= 85) {
             val.setForeground(DesktopTheme.successGreen());
         } else if (value >= 70) {
             val.setForeground(DesktopTheme.warningText());
