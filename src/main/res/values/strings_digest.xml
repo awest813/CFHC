@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="digest_pill">Week In Review</string>
+    <string name="digest_your_result">Your result</string>
+    <string name="digest_next_up">Next up</string>
+    <string name="digest_continue">Continue</string>
+    <string name="digest_bye">Bye week</string>
+</resources>

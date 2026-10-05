@@ -1350,11 +1350,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     /** Auto-popup week-in-review (desktop parity: the result dialog fires there). */
     private void showWeekDigestDialog(String digest) {
-        new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle("Week In Review")
-                .setMessage(digest)
-                .setPositiveButton(android.R.string.ok, null)
-                .show();
+        WeekDigestDialogController.show(this, digest);
     }
 
     /**

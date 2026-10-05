@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Week In Review: result callout, then one card per digest section. -->
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_dialog_surface"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/cf_space_lg">
+
+        <TextView
+            style="@style/Widget.Cfhc.Pill.Emerald"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/digest_pill" />
+
+        <TextView
+            android:id="@+id/digestTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_sm"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Display"
+            tools:text="Week 4 In Review" />
+
+        <LinearLayout
+            android:id="@+id/digestResultCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_md"
+            android:background="@drawable/bg_cf_card_accent"
+            android:gravity="center_vertical"
+            android:minHeight="56dp"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/cf_space_lg"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_card_padding_v">
+
+            <TextView
+                android:id="@+id/digestOutcome"
+                style="@style/Widget.Cfhc.Pill.Emerald"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="40dp"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
+                tools:text="W" />
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/cf_space_md"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    style="@style/Widget.Cfhc.CardTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/digest_your_result" />
+
+                <TextView
+                    android:id="@+id/digestResult"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
+                    tools:text="31-17 vs Rival U  (Rivalry Game)" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/digestSections"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+        <LinearLayout
+            android:id="@+id/digestNextCard"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_sm"
+            android:background="@drawable/bg_cf_card_crimson"
+            android:orientation="vertical"
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_card_padding_v"
+            android:paddingEnd="@dimen/cf_card_padding_h"
+            android:paddingBottom="@dimen/cf_card_padding_v">
+
+            <TextView
+                style="@style/Widget.Cfhc.CardTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/digest_next_up" />
+
+            <TextView
+                android:id="@+id/digestNext"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title"
+                tools:text="at Delta State" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
