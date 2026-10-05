@@ -62,7 +62,7 @@ public class BowlManager {
             }
         } else {
             if (league.expPlayoffs) {
-                return league.postseason;
+                return expandedPostseasonSummary();
             } else {
                 StringBuilder sb = new StringBuilder();
                 sb.append("Semifinal 1v4:\n");
@@ -696,6 +696,61 @@ public class BowlManager {
                                 + " in the " + g.gameName + ", winning " + g.awayScore + " to " + g.homeScore + ".");
                 league.newsHeadlines.add(g.awayTeam.getName() + " wins the " + g.gameName + "!");
             }
+        }
+    }
+
+    /**
+     * 12-team Bowl Watch once the field is set: the bracket round by round
+     * (scores as games finish), then every bowl. Previously this returned only
+     * the static field list, so playoff results and the bowl slate never
+     * showed in 12-team mode.
+     */
+    String expandedPostseasonSummary() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("COLLEGE FOOTBALL PLAYOFF\n");
+        appendRound(sb, "First Round", 0, 4, true);
+        appendRound(sb, "Quarterfinals", 4, 8, false);
+        appendRound(sb, "Semifinals", 8, 10, false);
+        if (league.ncg != null) {
+            sb.append("\nNational Championship:\n  ").append(getGameSummaryBowl(league.ncg)).append("\n");
+        }
+        if (!league.playoffTeams.isEmpty()) {
+            sb.append("\nFirst-round byes: ");
+            for (int i = 0; i < Math.min(4, league.playoffTeams.size()); i++) {
+                if (i > 0) sb.append(", ");
+                sb.append("#").append(i + 1).append(" seed ").append(league.playoffTeams.get(i).getName());
+            }
+            sb.append("\n");
+        }
+        boolean anyBowl = false;
+        for (int i = 0; i < league.bowlGames.length; ++i) {
+            if (league.bowlGames[i] == null) continue;
+            if (!anyBowl) {
+                sb.append("\nBOWL GAMES\n");
+                anyBowl = true;
+            }
+            sb.append("\n").append(league.bowlNames[i]).append(":\n  ")
+                    .append(getGameSummaryBowl(league.bowlGames[i])).append("\n");
+        }
+        return sb.toString();
+    }
+
+    private void appendRound(StringBuilder sb, String title, int from, int to, boolean showSeeds) {
+        boolean any = false;
+        for (int i = from; i < to && i < league.cfpGames.length; i++) {
+            Game g = league.cfpGames[i];
+            if (g == null) continue;
+            if (!any) {
+                sb.append("\n").append(title).append(":\n");
+                any = true;
+            }
+            sb.append("  ");
+            if (showSeeds) {
+                int home = league.playoffTeams.indexOf(g.homeTeam) + 1;
+                int away = league.playoffTeams.indexOf(g.awayTeam) + 1;
+                if (home > 0 && away > 0) sb.append("(").append(home).append(" v ").append(away).append(") ");
+            }
+            sb.append(getGameSummaryBowl(g)).append("\n");
         }
     }
 

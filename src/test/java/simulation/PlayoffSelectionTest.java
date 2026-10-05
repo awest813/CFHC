@@ -109,4 +109,19 @@ public class PlayoffSelectionTest {
                     field.get(i - 1).getTeamPollScore() >= field.get(i).getTeamPollScore());
         }
     }
+
+    @Test
+    public void bowlWatch_afterSelection_showsBracketAndBowls() {
+        league.expPlayoffs = true;
+        league.currentWeek = league.regSeasonWeeks - 1;
+        // Bowl eligibility needs 6+ wins; a fresh league has played no games.
+        for (Team t : league.getTeamList()) t.wins = 7;
+        league.scheduleExpPlayoff();
+        assertTrue(league.hasScheduledBowls);
+        String watch = league.getBowlGameWatchStr();
+        assertTrue(watch, watch.contains("First Round:"));
+        assertTrue(watch, watch.contains("(5 v 12)"));
+        assertTrue(watch, watch.contains("First-round byes: #1 seed"));
+        assertTrue(watch, watch.contains("BOWL GAMES"));
+    }
 }
