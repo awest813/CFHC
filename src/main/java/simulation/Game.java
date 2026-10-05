@@ -218,6 +218,22 @@ public class Game implements Serializable {
     private final int fatigueGain = 3;
     private int snapCount = 0;
     private final int touchback = 25;
+    /** Punts that reach the end zone come out to the 20 (kickoffs to the 25). */
+    static final int PUNT_TOUCHBACK = 20;
+    /** Share of punts landing past the 10 that are run back (the rest are fair caught or downed). */
+    static final double PUNT_RETURN_CHANCE = 0.5;
+    /** Share of punts that would reach the end zone from plus territory that are downed inside the 15 instead. */
+    static final double PUNT_PIN_CHANCE = 0.6;
+    /** Share of kickoffs fielded short of the 10 that are fair caught (spotted at the 25). */
+    static final double KICKOFF_FAIR_CATCH = 0.3;
+    /** Head start for the kickoff coverage over the returner. */
+    static final int KICK_COVERAGE_EDGE = 2;
+    /** Kickoff returns start at 13-22 yards, plus a yard per 4 points the returner beats the coverage by. */
+    static final int KICK_RETURN_BASE = 13;
+    /** About 1 punt in 140 is blocked (FBS ~0.7%; it was 1 in 100). */
+    static final double BLOCKED_PUNT_CHANCE = 0.007;
+    /** Whether the last kick handled by returnPlay was run back (false: fair catch, downed or touchback). */
+    private boolean kickReturned;
 
     double hkReturnAvg = 0, akReturnAvg = 0, hpReturnAvg = 0, apReturnAvg = 0;
 
@@ -2604,7 +2620,7 @@ public class Game implements Serializable {
             if (kicker != null && gameTime < 180 && ((gamePoss && (awayScore - homeScore) <= 8 && (awayScore - homeScore) > 0)
                     || (!gamePoss && (homeScore - awayScore) <= 8 && (homeScore - awayScore) > 0))) {
                 // Yes, do onside
-                if (kicker.getRatKickFum() * SimRandom.nextDouble() > 60 || SimRandom.nextDouble() < 0.1) {
+                if (SimRandom.nextDouble() < onsideRecoveryChance(kicker.getRatKickFum())) {
                     //Success!
                     gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" K ").append(kicker.name).append(" successfully executes onside kick! ").append(offense.getAbbr()).append(" has possession!");
                 } else {
@@ -2644,6 +2660,9 @@ public class Game implements Serializable {
                         gameYardLine = touchback;
                         if (homeTeam.league.fullGameLog)
                             gameEventLog.append("\n\nKick-off!\n").append(returner.team).append(" ").append(returner.name).append(" lets it go for a touchback.");
+                    } else if (!kickReturned) {
+                        if (homeTeam.league.fullGameLog)
+                            gameEventLog.append("\n\nKick-off!\n").append(returner.team).append(" ").append(returner.name).append(" calls for a fair catch; ball at the ").append(gameYardLine).append(" yard line.");
                     } else {
                         if (homeTeam.league.fullGameLog)
                             gameEventLog.append("\n\nKick-off!\n").append(returner.team).append(" ").append(returner.name).append(" returns the kickoff to the ").append(gameYardLine).append(" yard line.");
@@ -2666,7 +2685,7 @@ public class Game implements Serializable {
             if (kicker != null && gameTime < 180 && ((gamePoss && (awayScore - homeScore) <= 8 && (awayScore - homeScore) > 0)
                     || (!gamePoss && (homeScore - awayScore) <= 8 && (homeScore - awayScore) > 0))) {
                 // Yes, do onside
-                if (kicker.getRatKickFum() * SimRandom.nextDouble() > 60 || SimRandom.nextDouble() < 0.1) {
+                if (SimRandom.nextDouble() < onsideRecoveryChance(kicker.getRatKickFum())) {
                     //Success!
                     gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" K ").append(kicker.name).append(" successfully executes onside kick! ").append(offense.getAbbr()).append(" has possession!");
                     gameYardLine = 35;
@@ -2708,6 +2727,9 @@ public class Game implements Serializable {
                         gameYardLine = touchback;
                         if (homeTeam.league.fullGameLog)
                             gameEventLog.append("\n\nFree-Kick!\n").append(returner.team).append(" ").append(returner.name).append(" lets it go for a touchback.");
+                    } else if (!kickReturned) {
+                        if (homeTeam.league.fullGameLog)
+                            gameEventLog.append("\n\nFree-Kick!\n").append(returner.team).append(" ").append(returner.name).append(" calls for a fair catch; ball at the ").append(gameYardLine).append(" yard line.");
                     } else {
                         if (homeTeam.league.fullGameLog)
                             gameEventLog.append("\n\nFree-Kick!\n").append(returner.team).append(" ").append(returner.name).append(" returns the free-kick to the ").append(gameYardLine).append(" yard line.");
@@ -2749,7 +2771,7 @@ public class Game implements Serializable {
         }
 
         // Rare blocked punt: the return team breaks through for great field position.
-        if (SimRandom.nextDouble() < 0.01) {
+        if (SimRandom.nextDouble() < BLOCKED_PUNT_CHANCE) {
             gameEventLog.append(getEventLog()).append("BLOCKED PUNT! ").append(defense.getAbbr())
                     .append(" gets a hand on it!");
             gamePoss = !gamePoss;
@@ -2764,7 +2786,12 @@ public class Game implements Serializable {
         PlayerReturner returner = selectReturner();
         int specialTeams = getSpecialTeamsD(offense);
 
-        gameYardLine = returnPlay(gameYardLine, offense.getK(0), returner, specialTeams, false);
+        // returnPlay works from the receiving team's side of the field (as it does for
+        // kickoffs, from their 65). Punts passed the punting team's own yard line, so
+        // the receiver started near its 25 whether the punt came from the punting
+        // team's 10 or from the opponent's 40.
+        String puntFrom = offense.getAbbr() + " punts from the " + gameYardLine + " yard line. ";
+        gameYardLine = returnPlay(100 - gameYardLine, offense.getK(0), returner, specialTeams, false);
         gamePoss = !gamePoss;
 
         //Touchdown...
@@ -2782,12 +2809,15 @@ public class Game implements Serializable {
             else resetForOT();
         } else {
             if (gameYardLine <= 0) {
-                gameYardLine = touchback;
+                gameYardLine = PUNT_TOUCHBACK;
                 if (homeTeam.league.fullGameLog)
-                    gameEventLog.append("\n\nPunt!\n").append(returner.team).append(" ").append(returner.name).append(" lets it go for a touchback.");
+                    gameEventLog.append("\n\nPunt!\n").append(puntFrom).append(returner.team).append(" ").append(returner.name).append(" lets it go for a touchback.");
+            } else if (!kickReturned) {
+                if (homeTeam.league.fullGameLog)
+                    gameEventLog.append("\n\nPunt!\n").append(puntFrom).append("No return; ").append(returner.team).append(" ball at the ").append(gameYardLine).append(" yard line.");
             } else {
                 if (homeTeam.league.fullGameLog)
-                    gameEventLog.append("\n\nPunt!\n").append(returner.team).append(" ").append(returner.name).append(" returns the punt to the ").append(gameYardLine).append(" yard line.");
+                    gameEventLog.append("\n\nPunt!\n").append(puntFrom).append(returner.team).append(" ").append(returner.name).append(" returns the punt to the ").append(gameYardLine).append(" yard line.");
             }
         }
 
@@ -2801,52 +2831,96 @@ public class Game implements Serializable {
         else return homeKickReturner;
     }
 
+    /**
+     * A kick and its return, from the receiving team's side of the field: startYards
+     * is where the kick is made from in their terms (65 on a kickoff from the 35, 100
+     * minus the line of scrimmage on a punt). Returns the receiving team's new yard
+     * line: 0 or less is a touchback, 100 or more a touchback the other way (a TD).
+     */
     private int returnPlay(int startYards, PlayerK kicker, PlayerReturner returner, int ST, boolean kickoff) {
-        int yards;
         returnYards = 0;
+        kickReturned = false;
 
         // Missing kicker — treat as a touchback rather than crashing.
         if (kicker == null) {
             return -4;
         }
 
-        //Kicker kicks the ball
-        if (kickoff) yards = startYards - (kicker.getRatKickPow() / 2) - (int) (25 * SimRandom.nextDouble());
-        else yards = startYards - (kicker.getRatKickPow() - (25 + (int) (20 * SimRandom.nextDouble())));
-
-        if (yards < -3) {
-            //touchback
-            return yards;
-        } else if (returner == null) {
-            // Depleted roster without a returner — treat as a touchback rather than crashing.
-            return -4;
-        } else if (!kickoff && yards < 12 && SimRandom.nextDouble() < 0.5) {
-            // Fair catch deep in own territory — no return, ball at the spot.
-            returnYards = 0;
-            return yards;
-        } else {
-            //Returner receives ball and runs at defense
-
-            int ret = (int) (returner.ratSpeed * SimRandom.nextDouble());
-            int def = (int) (ST * SimRandom.nextDouble());
-
-            //Returner tackled by playerST?
-            if (def >= ret) returnYards = (int) (SimRandom.nextDouble() * 10) + 1;
-            else if (ret > def + 80) returnYards += 100 - yards;
-            else if (ret > def + 50) returnYards = (int) (SimRandom.nextDouble() * 40) + 30;
-            else if (ret > def + 35) returnYards = (int) (SimRandom.nextDouble() * 20) + 20;
-            else returnYards = ret - def;
-
-            if (kickoff) {
-                returner.kYards += returnYards;
-                returner.kReturns++;
-            } else {
-                returner.pYards += returnYards;
-                returner.pReturns++;
+        int landing;
+        if (kickoff) {
+            // An average leg reaches 58-78 yards from the 35, so about half go deep
+            // enough for a touchback (FBS: about half of kickoffs). The old 42-66
+            // yards almost never reached the end zone (~5% touchbacks).
+            landing = startYards - kickoffDistance(kicker.getRatKickPow());
+            if (landing < -3) return landing;
+            if (returner == null) return -4;
+            if (landing <= 10 && SimRandom.nextDouble() < KICKOFF_FAIR_CATCH) {
+                // Fair catch inside the 25 is spotted at the 25.
+                return touchback;
             }
-            yards += returnYards;
-            return yards;
+        } else {
+            landing = startYards - puntDistance(kicker.getRatKickPow());
+            if (landing < 0) {
+                // Out-kicks the field. From plus territory the punter aims short and the
+                // coverage downs it inside the 15 more often than not.
+                if (startYards <= 60 && SimRandom.nextDouble() < PUNT_PIN_CHANCE) return 4 + (int) (SimRandom.nextDouble() * 12);
+                return -4;
+            }
+            if (returner == null) return landing;
+            if (landing < 10 || SimRandom.nextDouble() > PUNT_RETURN_CHANCE) {
+                // Fair catch, downed or out of bounds: no return (about 6 punts in 10).
+                return landing;
+            }
         }
+
+        kickReturned = true;
+        int ret = (int) (returner.ratSpeed * SimRandom.nextDouble());
+        int def = (int) (ST * SimRandom.nextDouble()) + (kickoff ? KICK_COVERAGE_EDGE : 0);
+        if (ret > def + 80) {
+            returnYards = 100 - landing;
+        } else if (kickoff) {
+            // Most kickoff returns run 15-30 yards. The old curve gave 1-10 yards whenever
+            // the coverage won the roll (about 4 returns in 10).
+            if (ret > def + 50) returnYards = (int) (SimRandom.nextDouble() * 40) + 30;
+            else returnYards = Math.max(2, KICK_RETURN_BASE + (int) (SimRandom.nextDouble() * 10) + (ret - def) / 4);
+        } else {
+            // Punt returns are short: the coverage arrives with the ball.
+            if (def >= ret) returnYards = (int) (SimRandom.nextDouble() * 4);
+            else if (ret > def + 50) returnYards = (int) (SimRandom.nextDouble() * 30) + 15;
+            else returnYards = (ret - def) / 3;
+        }
+        returnYards = Math.min(returnYards, 100 - landing);
+
+        if (kickoff) {
+            returner.kYards += returnYards;
+            returner.kReturns++;
+        } else {
+            returner.pYards += returnYards;
+            returner.pReturns++;
+        }
+        return landing + returnYards;
+    }
+
+    /**
+     * Punt distance: 34-53 yards for an 85-power leg (FBS gross ~43), a yard more per 2
+     * points of power. It was power minus 25-44, so the average punter kicked ~50 yards
+     * and a 95 kicked ~60.
+     */
+    static int puntDistance(int power) {
+        return 34 + (power - 85) / 2 + (int) (SimRandom.nextDouble() * 20);
+    }
+
+    /** Kickoff distance: 58-78 yards for an 80-power leg, a yard more per 4 points of power. */
+    static int kickoffDistance(int power) {
+        return 58 + (power - 80) / 4 + (int) (SimRandom.nextDouble() * 20);
+    }
+
+    /**
+     * Onside recovery: ~12% for a kicker with 80 form (FBS ~11% when the return team
+     * expects it), 8-14% for most kickers. It was 25-33%.
+     */
+    static double onsideRecoveryChance(int form) {
+        return Math.max(0.03, Math.min(0.20, 0.06 + 0.12 * (form - 60) / 40.0));
     }
 
     //STATISTICS MANAGEMENT
