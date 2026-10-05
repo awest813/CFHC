@@ -148,7 +148,12 @@ public class Game implements Serializable {
     boolean playingOT;
     private boolean bottomOT;
 
-    final int timePerPlay = 18;
+    /**
+     * Seconds a snap takes (a play burns this to twice this; an incompletion up to
+     * this). At 18 teams ran ~66 plays a game once they ran as often as college
+     * offenses do (FBS ~70).
+     */
+    final int timePerPlay = 17;
     /** League-average pressure on a dropback (2 x pass rush - protection). */
     static final int LEAGUE_PRESSURE = 80;
     /** Pick chance for a QB of {@link #INT_QB_PIVOT} skill under league-average pressure. */
@@ -159,7 +164,13 @@ public class Game implements Serializable {
     static final double INT_PRESSURE_SLOPE = 0.00015;
     static final int INT_SAFETY_PIVOT = 78;
     static final double INT_SAFETY_SLOPE = 0.00015;
-    static final double INT_SCHEME_SLOPE = 0.0026;
+    /**
+     * Per point of the defense's pass-rush book against the offense's protection
+     * book. At 0.0026 (carried over from the old risk score) Air Raid's -2
+     * protection added ~0.6% to every throw, and its QBs were 8 of the top 10 in
+     * interceptions with 20-29 a season.
+     */
+    static final double INT_SCHEME_SLOPE = 0.0013;
     /** Chance an interception return breaks into the open field. */
     static final double PICK_RETURN_BREAKAWAY = 0.15;
     /** Coverage rating of the defender on the target (corner on a wideout, linebacker on a tight end). */
@@ -177,6 +188,19 @@ public class Game implements Serializable {
     static final double RUN_STUFF_CHANCE = 0.11;
     /** Change in that share per point of blocking advantage. */
     static final double RUN_STUFF_PER_BLOCK = 0.005;
+    /** Added to the run preference on first and second down. */
+    static final double EARLY_DOWN_RUN_LEAN = 0.12;
+    /**
+     * How strongly a book's run/pass preference sets its early-down calls. At full
+     * strength a 2-to-1 preference made Power Spread run 82% of early downs and
+     * Air Raid pass 75%; at half, run-first books run 72-77% (with the down,
+     * distance and score leans) and Air Raid passes ~57%.
+     */
+    static final double BOOK_LEAN_SCALE = 0.5;
+
+    static double bookWeight(int pref) {
+        return 1 + BOOK_LEAN_SCALE * (pref - 1);
+    }
     /** Divides the fumble score into a per-play chance (was 50: ~0.85 lost a team-game). */
     static final double FUMBLE_DIVISOR = 75;
     private final int escapeValue = 150;
@@ -1011,8 +1035,8 @@ public class Game implements Serializable {
 
             }
         } else {
-            double preferPass = (offense.getPassProf() - defense.getPassDef()) / 100 + SimRandom.nextDouble() * offense.getPlaybookOffense().getPassPref();       //STRATEGIES
-            double preferRush = (offense.getRushProf() - defense.getRushDef()) / 90 + SimRandom.nextDouble() * offense.getPlaybookOffense().getRunPref();
+            double preferPass = (offense.getPassProf() - defense.getPassDef()) / 100 + SimRandom.nextDouble() * bookWeight(offense.getPlaybookOffense().getPassPref());       //STRATEGIES
+            double preferRush = (offense.getRushProf() - defense.getRushDef()) / 90 + SimRandom.nextDouble() * bookWeight(offense.getPlaybookOffense().getRunPref());
 
             // Weather: wet fields lean on the ground game.
             preferRush += weather.runLean();
@@ -1059,6 +1083,17 @@ public class Game implements Serializable {
             // If it's 1st and Goal to go, adjust yards needed to reflect distance for a TD so that play selection reflects actual yards to go
             // If we don't do this, gameYardsNeed may be higher than the actually distance for a TD and suboptimal plays may be chosen
             if (gameDown == 1 && gameYardLine >= 91) gameYardsNeed = 100 - gameYardLine;
+
+            // Early downs: college offenses run about 56% of the time on first down,
+            // more on short yardage and near the goal line, less on second and long.
+            // The playbook coin flip alone ran 45% of all plays (FBS ~53%).
+            if (gameDown <= 2) {
+                preferRush += EARLY_DOWN_RUN_LEAN;
+                if (gameYardsNeed <= 2) preferRush += 0.35;
+                else if (gameYardsNeed <= 4) preferRush += 0.10;
+                else if (gameDown == 2 && gameYardsNeed >= 8) preferRush -= 0.15;
+                if (gameYardLine >= 90) preferRush += 0.15;
+            }
 
             //Under 20 seconds to play: winning team kneels, trailing team goes for it
             if (gameTime <= 20 && !playingOT) {
@@ -1111,8 +1146,12 @@ public class Game implements Serializable {
                             //fga
                             fieldGoalAtt(offense, defense);
                         } else if (gameYardLine > 55) {
-                            // run play, go for it!
-                            rushingPlay(offense, defense);
+                            // go for it: usually a run, sometimes a quick throw
+                            if (SimRandom.nextDouble() < shortYardageRunChance(gameYardsNeed, offense.getPlaybookOffense())) {
+                                rushingPlay(offense, defense);
+                            } else {
+                                passingPlay(offense, defense);
+                            }
                         } else {
                             //punt
                             puntPlay(offense, defense);
@@ -1129,10 +1168,17 @@ public class Game implements Serializable {
                         puntPlay(offense, defense);
                     }
                 }
-            } else if (gameDown == 3 && gameYardsNeed <= 2 && (!hurryUpPass || gameYardsNeed == 1)) {
-                // Short-yardage: prefer power run unless late hurry-up on third-and-two (still allow run on third-and-one).
-                rushingPlay(offense, defense);
-            } else if ((gameDown == 3 && gameYardsNeed > 4) || ((gameDown == 1 || gameDown == 2) && (preferPass >= preferRush))) {
+            } else if (gameDown == 3) {
+                // Third down by distance. It used to be all runs at 1-4 yards and all
+                // passes from 5 on (FBS: ~70% runs on 3rd and 1-2, ~35% at 3-6, ~10% beyond).
+                double runChance = hurryUpPass && gameYardsNeed > 1 ? 0.03
+                        : shortYardageRunChance(gameYardsNeed, offense.getPlaybookOffense());
+                if (SimRandom.nextDouble() < runChance) {
+                    rushingPlay(offense, defense);
+                } else {
+                    passingPlay(offense, defense);
+                }
+            } else if (preferPass >= preferRush) {
                 // pass play
                 passingPlay(offense, defense);
             } else {
@@ -2138,6 +2184,16 @@ public class Game implements Serializable {
      */
     static double sackChance(int pressure) {
         return Math.max(0.01, Math.min(0.16, SACK_RATE * Math.exp((pressure - LEAGUE_PRESSURE) / SACK_PRESSURE_SCALE)));
+    }
+
+    /**
+     * Chance of a run on third (or fourth) down by yards to go: ~75% at 1, 50% at 3,
+     * 30% at 5, 12% at 7-10, 6% beyond; run-first books a little more, pass-first less.
+     */
+    static double shortYardageRunChance(int yardsToGo, PlaybookOffense book) {
+        double base = yardsToGo <= 1 ? 0.75 : yardsToGo == 2 ? 0.62 : yardsToGo == 3 ? 0.50 : yardsToGo == 4 ? 0.40
+                : yardsToGo == 5 ? 0.30 : yardsToGo == 6 ? 0.24 : yardsToGo <= 10 ? 0.12 : 0.06;
+        return Math.max(0.02, Math.min(0.90, base + 0.04 * (book.getRunPref() - book.getPassPref())));
     }
 
     /** Chance a run is stuffed for no gain or a loss; better blocking makes it rarer. */
