@@ -63,8 +63,9 @@ public final class SeasonPresentation {
         return currentTeam.getName() + " " + season;
     }
 
+    /** Short next-action line under the hub header (kept under 60 chars). */
     public static String getSeasonSubtitleText() {
-        return "Track the campaign at a glance with your current week, season phase, and team command center in one place.";
+        return "Scout any team below or play the next week.";
     }
 
     public static String getSeasonYearChipText(int season) {

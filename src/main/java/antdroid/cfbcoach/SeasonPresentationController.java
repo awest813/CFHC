@@ -1,5 +1,6 @@
 package antdroid.cfbcoach;
 
+import android.view.View;
 import android.widget.TextView;
 
 import simulation.League;
@@ -19,6 +20,7 @@ public final class SeasonPresentationController {
         TextView seasonBadge = activity.findViewById(R.id.mainSeasonBadge);
         TextView seasonTitle = activity.findViewById(R.id.mainSeasonTitle);
         TextView seasonSubtitle = activity.findViewById(R.id.mainSeasonSubtitle);
+        TextView seasonNickname = activity.findViewById(R.id.mainSeasonNickname);
         TextView seasonYearChip = activity.findViewById(R.id.mainSeasonYearChip);
         TextView seasonWeekChip = activity.findViewById(R.id.mainSeasonWeekChip);
         TextView seasonPhaseChip = activity.findViewById(R.id.mainSeasonPhaseChip);
@@ -30,7 +32,19 @@ public final class SeasonPresentationController {
             seasonTitle.setText(status.title);
         }
         if (seasonSubtitle != null) {
-            seasonSubtitle.setText(status.subtitle);
+            // Compact broadcast header: the line only takes space when the
+            // engine actually has something to say.
+            boolean hasSubtitle = status.subtitle != null && !status.subtitle.trim().isEmpty();
+            seasonSubtitle.setText(hasSubtitle ? status.subtitle : "");
+            seasonSubtitle.setVisibility(hasSubtitle ? View.VISIBLE : View.GONE);
+        }
+        if (seasonNickname != null) {
+            // Caveat script accent (style_guide §2: nickname only); hidden when
+            // the team file carries no nickname.
+            String nickname = currentTeam.nickname;
+            boolean hasNickname = nickname != null && !nickname.trim().isEmpty();
+            seasonNickname.setText(hasNickname ? nickname.trim() : "");
+            seasonNickname.setVisibility(hasNickname ? View.VISIBLE : View.GONE);
         }
         if (seasonYearChip != null) {
             seasonYearChip.setText(status.yearChip);

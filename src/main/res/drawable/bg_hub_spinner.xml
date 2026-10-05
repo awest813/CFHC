@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Compact input field with a trailing chevron so the Spinner reads as a dropdown. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/bg_cf_input" />
+    <item
+        android:width="16dp"
+        android:height="16dp"
+        android:end="8dp"
+        android:drawable="@drawable/ic_hub_chevron"
+        android:gravity="end|center_vertical" />
+</layer-list>

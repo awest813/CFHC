@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dynasty Hub broadcast header: elevated card with a gold leading bar (style_guide §3 "lower-third"). -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <gradient
+                android:angle="0"
+                android:endColor="@color/cf_card"
+                android:startColor="@color/cf_card_elevated" />
+            <corners android:radius="@dimen/cf_radius_md" />
+            <stroke
+                android:width="@dimen/cf_stroke"
+                android:color="@color/cf_border_highlight" />
+        </shape>
+    </item>
+    <item
+        android:gravity="start|fill_vertical"
+        android:width="@dimen/cf_nav_indicator">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/cf_gold" />
+            <corners
+                android:bottomLeftRadius="@dimen/cf_radius_md"
+                android:topLeftRadius="@dimen/cf_radius_md" />
+        </shape>
+    </item>
+</layer-list>

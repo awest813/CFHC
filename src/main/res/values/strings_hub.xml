@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Dynasty Hub shell (content_main / nav_header_main) strings. -->
+<resources>
+    <string name="hub_nav_crest_desc">Program crest</string>
+    <string name="hub_quick_stats">Stats</string>
+    <string name="hub_scout_label">Scout</string>
+    <string name="hub_a11y_nickname">Team nickname</string>
+</resources>

@@ -12,198 +12,235 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:paddingBottom="8dp"
         android:paddingStart="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/cf_space_sm"
         android:paddingEnd="@dimen/activity_horizontal_margin"
-        android:paddingTop="10dp"
+        android:paddingBottom="@dimen/cf_space_sm"
         tools:context="antdroid.cfbcoach.MainActivity"
         tools:showIn="@layout/activity_main">
 
+        <!-- ============================================================ -->
+        <!-- Broadcast header: team name + script nickname, then one row  -->
+        <!-- of season / week / phase pills. Text is bound at runtime by  -->
+        <!-- SeasonPresentationController; placeholders are tools: only.  -->
+        <!-- ============================================================ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/bg_mobile_panel_strong"
-            android:gravity="center_vertical"
+            android:background="@drawable/bg_hub_header"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:paddingStart="@dimen/cf_card_padding_h"
+            android:paddingTop="@dimen/cf_space_sm"
+            android:paddingEnd="@dimen/cf_space_md"
+            android:paddingBottom="@dimen/cf_space_sm">
 
+            <!-- Kicker badge ("2026 Season"). Hidden by default: the year pill
+                 below carries the same fact; id kept for the controller. -->
             <TextView
                 android:id="@+id/mainSeasonBadge"
+                style="@style/Widget.Cfhc.CardTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_mobile_chip"
-                android:paddingBottom="4dp"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:paddingTop="4dp"
-                android:text="@string/main_hub_label"
-                android:textAllCaps="true"
-                android:textColor="@color/accentGold"
-                android:textSize="11sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/mainSeasonTitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:maxLines="2"
-                android:text="@string/main_hub_title"
-                android:textAppearance="@style/TextAppearance.Cfhc.HubTitle"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/mainSeasonSubtitle"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:maxLines="2"
-                android:text="@string/main_hub_subtitle"
-                android:textAppearance="@style/TextAppearance.Cfhc.SectionBody"
-                android:textSize="13sp" />
+                android:textColor="@color/cf_gold"
+                android:visibility="gone"
+                tools:text="2026 Season"
+                tools:visibility="visible" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
-                android:orientation="vertical">
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/mainSeasonTitle"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textAppearance="@style/TextAppearance.Cfhc.Cf.Display"
+                    app:autoSizeMaxTextSize="@dimen/cf_text_display"
+                    app:autoSizeMinTextSize="@dimen/cf_text_title"
+                    app:autoSizeTextType="uniform"
+                    tools:text="Alabama 2026" />
 
-                    <TextView
-                        android:id="@+id/mainSeasonYearChip"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/bg_mobile_chip"
-                        android:paddingBottom="6dp"
-                        android:paddingStart="10dp"
-                        android:paddingEnd="10dp"
-                        android:paddingTop="6dp"
-                        tools:text="Year 2026"
-                        android:textColor="@color/textPrimary"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/mainSeasonNickname"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/cf_space_sm"
+                    android:contentDescription="@string/hub_a11y_nickname"
+                    android:maxLines="1"
+                    android:maxWidth="120dp"
+                    android:ellipsize="end"
+                    android:textAppearance="@style/TextAppearance.Cfhc.Cf.Script"
+                    android:textColor="@color/cf_gold"
+                    android:textSize="22sp"
+                    android:visibility="gone"
+                    tools:text="Crimson Tide"
+                    tools:visibility="visible" />
+            </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/mainSeasonWeekChip"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="8dp"
-                        android:background="@drawable/bg_mobile_chip"
-                        android:paddingBottom="6dp"
-                        android:paddingStart="10dp"
-                        android:paddingEnd="10dp"
-                        android:paddingTop="6dp"
-                        tools:text="Week 0  Preseason"
-                        android:textColor="@color/textPrimary"
-                        android:textSize="12sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
+            <!-- Season / week / phase pills on one line. Year + week carry
+                 numbers (mono); the phase pill flexes and ellipsizes so the
+                 row never overflows at 360dp. -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/cf_space_xs"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/mainSeasonYearChip"
+                    style="@style/Widget.Cfhc.Pill"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:maxLines="1"
+                    android:paddingStart="6dp"
+                    android:paddingEnd="6dp"
+                    android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
+                    android:textColor="@color/cf_text_primary"
+                    android:textSize="11sp"
+                    tools:text="Year 2026" />
+
+                <TextView
+                    android:id="@+id/mainSeasonWeekChip"
+                    style="@style/Widget.Cfhc.Pill.Emerald"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/cf_space_xs"
+                    android:maxLines="1"
+                    android:paddingStart="6dp"
+                    android:paddingEnd="6dp"
+                    android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
+                    android:textColor="@color/cf_emerald"
+                    android:textSize="11sp"
+                    tools:text="Week 5" />
 
                 <TextView
                     android:id="@+id/mainSeasonPhaseChip"
-                    android:layout_width="wrap_content"
+                    style="@style/Widget.Cfhc.Pill.Gold"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/bg_mobile_chip"
-                    android:paddingBottom="6dp"
-                    android:paddingStart="10dp"
-                    android:paddingEnd="10dp"
-                    android:paddingTop="6dp"
-                    tools:text="Phase  Regular Season"
-                    android:textColor="@color/accentGold"
-                    android:textSize="12sp"
-                    android:textStyle="bold" />
+                    android:layout_marginStart="@dimen/cf_space_xs"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:gravity="center_vertical|start"
+                    android:letterSpacing="0.02"
+                    android:maxLines="1"
+                    android:paddingStart="6dp"
+                    android:paddingEnd="6dp"
+                    android:textSize="11sp"
+                    tools:text="Phase  Regular Season" />
             </LinearLayout>
+
+            <!-- Optional next-action line; the controller shows it only when
+                 the engine returns non-empty text. -->
+            <TextView
+                android:id="@+id/mainSeasonSubtitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/cf_space_xs"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption"
+                android:visibility="gone"
+                tools:text="Scout any team below or play the next week."
+                tools:visibility="visible" />
         </LinearLayout>
 
+        <!-- ============================================================ -->
+        <!-- Scout any team: two spinners on one compact row.             -->
+        <!-- ============================================================ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/bg_mobile_panel"
-            android:orientation="vertical"
-            android:padding="14dp">
+            android:layout_marginTop="@dimen/cf_space_sm"
+            android:background="@drawable/bg_cf_card"
+            android:gravity="bottom"
+            android:orientation="horizontal"
+            android:paddingStart="@dimen/cf_space_md"
+            android:paddingTop="6dp"
+            android:paddingEnd="@dimen/cf_space_md"
+            android:paddingBottom="@dimen/cf_space_sm">
 
-            <TextView
-                android:layout_width="match_parent"
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/main_filter_label"
-                android:textColor="@color/textPrimary"
-                android:textSize="16sp"
-                android:textStyle="bold" />
+                android:layout_weight="1"
+                android:orientation="vertical">
 
-            <TextView
-                android:layout_width="match_parent"
+                <TextView
+                    android:id="@+id/labelExamineConference"
+                    style="@style/Widget.Cfhc.CardTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@id/examineConfSpinner"
+                    android:maxLines="1"
+                    android:text="@string/main_filter_conference" />
+
+                <Spinner
+                    android:id="@+id/examineConfSpinner"
+                    style="@style/Widget.Cfhc.Spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="@dimen/cf_space_xs"
+                    android:background="@drawable/bg_hub_spinner"
+                    android:contentDescription="@string/main_a11y_conference_spinner"
+                    android:paddingStart="@dimen/cf_space_sm"
+                    android:paddingEnd="26dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:maxLines="2"
-                android:text="@string/main_filter_hint"
-                android:textColor="@color/textSecondary"
-                android:textSize="12sp" />
+                android:layout_marginStart="@dimen/cf_space_sm"
+                android:layout_weight="1.4"
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/labelExamineConference"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:labelFor="@id/examineConfSpinner"
-                android:text="@string/main_filter_conference"
-                android:textColor="@color/textMuted"
-                android:textSize="11sp" />
+                <TextView
+                    android:id="@+id/labelExamineTeam"
+                    style="@style/Widget.Cfhc.CardTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:labelFor="@id/examineTeamSpinner"
+                    android:maxLines="1"
+                    android:text="@string/main_filter_team" />
 
-            <Spinner
-                android:id="@+id/examineConfSpinner"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="4dp"
-                android:background="@drawable/bg_mobile_chip"
-                android:contentDescription="@string/main_a11y_conference_spinner"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:popupBackground="@color/surfacePrimary" />
-
-            <TextView
-                android:id="@+id/labelExamineTeam"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:labelFor="@id/examineTeamSpinner"
-                android:text="@string/main_filter_team"
-                android:textColor="@color/textMuted"
-                android:textSize="11sp" />
-
-            <Spinner
-                android:id="@+id/examineTeamSpinner"
-                android:layout_width="match_parent"
-                android:layout_height="48dp"
-                android:layout_marginTop="4dp"
-                android:background="@drawable/bg_mobile_chip"
-                android:contentDescription="@string/main_a11y_team_spinner"
-                android:paddingStart="10dp"
-                android:paddingEnd="10dp"
-                android:popupBackground="@color/surfacePrimary" />
+                <Spinner
+                    android:id="@+id/examineTeamSpinner"
+                    style="@style/Widget.Cfhc.Spinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="44dp"
+                    android:layout_marginTop="@dimen/cf_space_xs"
+                    android:background="@drawable/bg_hub_spinner"
+                    android:contentDescription="@string/main_a11y_team_spinner"
+                    android:paddingStart="@dimen/cf_space_sm"
+                    android:paddingEnd="26dp" />
+            </LinearLayout>
         </LinearLayout>
 
+        <!-- ============================================================ -->
+        <!-- Main list: takes every remaining dp. Populated by adapters.  -->
+        <!-- ============================================================ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
+            android:layout_marginTop="@dimen/cf_space_sm"
             android:layout_weight="1"
-            android:background="@drawable/bg_mobile_panel"
+            android:background="@drawable/bg_cf_card"
             android:orientation="vertical"
-            android:padding="8dp">
+            android:padding="6dp">
 
             <ListView
                 android:id="@+id/mainList"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:contentDescription="@string/main_standings_list_description"
                 android:background="@android:color/transparent"
                 android:cacheColorHint="@android:color/transparent"
+                android:contentDescription="@string/main_standings_list_description"
                 android:divider="@android:color/transparent"
                 android:dividerHeight="8dp"
                 android:listSelector="@android:color/transparent"
@@ -211,22 +248,20 @@
                 android:scrollbarStyle="insideInset" />
         </LinearLayout>
 
+        <!-- ============================================================ -->
+        <!-- Bottom action bar: Quick Browse (5 secondary) + Quick Actions -->
+        <!-- (Depth Chart / Play Week gold CTA / Schemes).                -->
+        <!-- ============================================================ -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="@dimen/cf_space_sm"
             android:background="@drawable/bg_bottom_nav"
             android:orientation="vertical"
-            android:padding="8dp">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:text="@string/quick_browse"
-                android:textColor="@color/textMuted"
-                android:textSize="11sp"
-                android:textStyle="bold" />
+            android:paddingStart="@dimen/cf_space_sm"
+            android:paddingTop="@dimen/cf_space_sm"
+            android:paddingEnd="@dimen/cf_space_sm"
+            android:paddingBottom="@dimen/cf_space_sm">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -236,128 +271,161 @@
 
                 <Button
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_marginEnd="6dp"
+                    android:layout_height="44dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_action_secondary"
+                    android:fontFamily="@font/inter"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:maxLines="1"
                     android:onClick="openHomeView"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text="@string/quick_home"
                     android:textAllCaps="false"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="12sp" />
+                    android:textColor="@color/cf_text_primary"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
 
                 <Button
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="6dp"
-                    android:layout_marginEnd="6dp"
+                    android:layout_height="44dp"
+                    android:layout_marginStart="@dimen/cf_space_xs"
                     android:layout_weight="1"
                     android:background="@drawable/bg_action_secondary"
+                    android:fontFamily="@font/inter"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:maxLines="1"
                     android:onClick="openRosterView"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text="@string/quick_roster"
                     android:textAllCaps="false"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="12sp" />
+                    android:textColor="@color/cf_text_primary"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
 
                 <Button
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="6dp"
-                    android:layout_marginEnd="6dp"
+                    android:layout_height="44dp"
+                    android:layout_marginStart="@dimen/cf_space_xs"
                     android:layout_weight="1"
                     android:background="@drawable/bg_action_secondary"
+                    android:fontFamily="@font/inter"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:maxLines="1"
                     android:onClick="openTeamStatsView"
-                    android:text="@string/quick_team_stats"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
+                    android:text="@string/hub_quick_stats"
                     android:textAllCaps="false"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="12sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:gravity="center"
-                android:orientation="horizontal">
+                    android:textColor="@color/cf_text_primary"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
 
                 <Button
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_marginEnd="6dp"
+                    android:layout_height="44dp"
+                    android:layout_marginStart="@dimen/cf_space_xs"
                     android:layout_weight="1"
                     android:background="@drawable/bg_action_secondary"
+                    android:fontFamily="@font/inter"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:maxLines="1"
                     android:onClick="openScheduleView"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text="@string/quick_schedule"
                     android:textAllCaps="false"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="12sp" />
+                    android:textColor="@color/cf_text_primary"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
 
                 <Button
                     android:layout_width="0dp"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="6dp"
+                    android:layout_height="44dp"
+                    android:layout_marginStart="@dimen/cf_space_xs"
                     android:layout_weight="1"
                     android:background="@drawable/bg_action_secondary"
+                    android:fontFamily="@font/inter"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:maxLines="1"
                     android:onClick="openLeagueDrawer"
+                    android:paddingStart="2dp"
+                    android:paddingEnd="2dp"
                     android:text="@string/quick_league"
                     android:textAllCaps="false"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="12sp" />
+                    android:textColor="@color/cf_text_primary"
+                    android:textSize="11sp"
+                    android:textStyle="bold" />
             </LinearLayout>
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:layout_marginTop="12dp"
-                android:text="@string/quick_actions"
-                android:textColor="@color/textMuted"
-                android:textSize="11sp"
-                android:textStyle="bold" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
+                android:layout_marginTop="@dimen/cf_space_sm"
+                android:gravity="center_vertical"
                 android:orientation="horizontal">
 
                 <Button
                     android:id="@+id/buttonDepthChart"
                     android:layout_width="0dp"
-                    android:layout_height="52dp"
-                    android:layout_marginEnd="6dp"
+                    android:layout_height="44dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_action_secondary"
+                    android:fontFamily="@font/inter"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:maxLines="1"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
                     android:text="@string/main_depth_chart"
                     android:textAllCaps="false"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="12sp" />
+                    android:textColor="@color/cf_text_primary"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
 
                 <Button
                     android:id="@+id/simGameButton"
                     android:layout_width="0dp"
                     android:layout_height="52dp"
-                    android:layout_marginStart="6dp"
-                    android:layout_marginEnd="6dp"
-                    android:layout_weight="1.35"
+                    android:layout_marginStart="@dimen/cf_space_sm"
+                    android:layout_marginEnd="@dimen/cf_space_sm"
+                    android:layout_weight="1.6"
                     android:background="@drawable/bg_action_primary"
+                    android:fontFamily="@font/inter"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:maxLines="2"
+                    android:paddingStart="6dp"
+                    android:paddingEnd="6dp"
                     android:text="@string/main_play_week"
                     android:textAllCaps="false"
-                    android:textColor="@color/colorPrimaryDark"
+                    android:textColor="@color/cf_on_gold"
                     android:textSize="15sp"
                     android:textStyle="bold" />
 
                 <Button
                     android:id="@+id/buttonStrategy"
                     android:layout_width="0dp"
-                    android:layout_height="52dp"
-                    android:layout_marginStart="6dp"
+                    android:layout_height="44dp"
                     android:layout_weight="1"
                     android:background="@drawable/bg_action_secondary"
+                    android:fontFamily="@font/inter"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    android:maxLines="1"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
                     android:text="@string/main_playbook"
                     android:textAllCaps="false"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="12sp" />
+                    android:textColor="@color/cf_text_primary"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
