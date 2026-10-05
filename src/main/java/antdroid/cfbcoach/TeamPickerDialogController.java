@@ -91,6 +91,7 @@ public final class TeamPickerDialogController {
             if (picked == null) return;
             int index = league.getTeamList().indexOf(picked);
             if (index < 0) return;
+            view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
             dialog.dismiss();
             callback.onTeamPicked(index);
         });

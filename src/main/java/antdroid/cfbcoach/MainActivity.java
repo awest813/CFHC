@@ -330,6 +330,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         simGameButton.setText("Start Season");
         simGameButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                // CONFIRM-style tick on the primary action; performHapticFeedback
+                // respects the user's system "touch feedback" setting.
+                v.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
                 simulateWeek();
             }
         });
@@ -369,6 +372,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         audioManager.play(AudioEvent.UI_CLICK);
+        View navView = findViewById(R.id.nav_view);
+        if (navView != null) {
+            navView.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP);
+        }
         int id = item.getItemId();
         if (id == R.id.nav_home) {
             currentTeam = userTeam;
