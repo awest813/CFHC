@@ -1,6 +1,6 @@
 package antdroid.cfbcoach;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Environment;
@@ -1353,7 +1353,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     /** Auto-popup week-in-review (desktop parity: the result dialog fires there). */
     private void showWeekDigestDialog(String digest) {
-        new android.app.AlertDialog.Builder(this)
+        new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Week In Review")
                 .setMessage(digest)
                 .setPositiveButton(android.R.string.ok, null)
@@ -1384,7 +1384,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         pendingBulkDialogs.clear();
         audioManager.play(AudioEvent.ADVANCE);
 
-        final android.app.AlertDialog progress = new android.app.AlertDialog.Builder(this)
+        final androidx.appcompat.app.AlertDialog progress = new androidx.appcompat.app.AlertDialog.Builder(this)
                 .setTitle("Simulating")
                 .setMessage("Week " + simLeague.currentWeek)
                 .setNegativeButton("Stop", (d, w) -> cancelBulk = true)

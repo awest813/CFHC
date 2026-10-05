@@ -1,7 +1,7 @@
 package antdroid.cfbcoach;
 
 import android.app.Activity;
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.DialogInterface;
 import android.view.View;
 import android.widget.AdapterView;

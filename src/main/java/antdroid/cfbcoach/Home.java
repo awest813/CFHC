@@ -18,7 +18,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 
 import simulation.AudioEvent;
 import simulation.LeagueSaveStorage;

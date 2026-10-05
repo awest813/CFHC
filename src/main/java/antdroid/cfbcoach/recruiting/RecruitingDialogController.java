@@ -1,6 +1,6 @@
 package antdroid.cfbcoach.recruiting;
 
-import android.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.content.DialogInterface;
 import android.util.TypedValue;
 import android.widget.ExpandableListView;
