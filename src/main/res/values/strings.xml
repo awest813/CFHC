@@ -163,6 +163,10 @@
     <string name="sim_progress_title">Simulating Season</string>
     <string name="sim_progress_week">Playing week %1$d…</string>
     <string name="sim_progress_stop">Stop</string>
+    <plurals name="nav_news_badge">
+        <item quantity="one">%1$d new headline</item>
+        <item quantity="other">%1$d new headlines</item>
+    </plurals>
     <string name="save_slot_title">Save Dynasty</string>
     <string name="save_overwrite_title">Overwrite this save?</string>
     <string name="save_overwrite_confirm">Overwrite</string>

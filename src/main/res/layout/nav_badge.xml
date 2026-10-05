@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Drawer action-view counter (style_guide §3: gold pill, black bold text). -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/navBadge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical|end"
+        android:background="@drawable/bg_cf_pill_solid_gold"
+        android:gravity="center"
+        android:minWidth="22dp"
+        android:paddingStart="6dp"
+        android:paddingEnd="6dp"
+        android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
+        android:textColor="@color/cf_on_gold"
+        android:textSize="@dimen/cf_text_micro"
+        android:visibility="gone"
+        tools:text="5"
+        tools:visibility="visible" />
+</FrameLayout>

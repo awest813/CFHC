@@ -9,6 +9,7 @@
   highlighted.
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
@@ -86,7 +87,8 @@
                 <item
                     android:id="@+id/nav_news"
                     android:icon="@drawable/ic_menu_news"
-                    android:title="@string/menu_news" />
+                    android:title="@string/menu_news"
+                    app:actionLayout="@layout/nav_badge" />
                 <item
                     android:id="@+id/nav_leagueteamstats"
                     android:icon="@drawable/ic_menu_teamstats"

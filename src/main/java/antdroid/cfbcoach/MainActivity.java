@@ -195,6 +195,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         ? simulation.SeasonPresentation.getDrawerTeamLine(currentTeam)
                         : getString(R.string.nav_header_no_team));
                 syncDrawerSelection();
+                updateDrawerBadges();
             }
         };
         toggle.getDrawerArrowDrawable().setColor(getColor(R.color.textPrimary));
@@ -409,6 +410,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_transfers) {
             TransferDialogController.showTransfers(this, simLeague, userTeam);
         } else if (id == R.id.nav_news) {
+            newsSeenKey = currentNewsKey();
             showNewsStoriesDialog();
         } else if (id == R.id.nav_scores) {
             showWeeklyScores();
@@ -474,6 +476,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             case 8: return R.id.nav_rankings;
             default: return R.id.nav_home;
         }
+    }
+
+    /** {year, week} marker of the last time the user opened News; drives the badge. */
+    private int newsSeenKey = -1;
+
+    private int currentNewsKey() {
+        return simLeague == null ? -1 : simLeague.getYear() * 100 + simLeague.currentWeek;
+    }
+
+    /** Gold count pill on the News drawer item: this week's unread headlines. */
+    private void updateDrawerBadges() {
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        if (navigationView == null || simLeague == null) return;
+        MenuItem news = navigationView.getMenu().findItem(R.id.nav_news);
+        View action = news != null ? news.getActionView() : null;
+        TextView badge = action != null ? action.findViewById(R.id.navBadge) : null;
+        if (badge == null) return;
+        int count = simLeague.getNewsHeadlines().size();
+        boolean unread = count > 0 && newsSeenKey != currentNewsKey();
+        badge.setVisibility(unread ? View.VISIBLE : View.GONE);
+        badge.setText(count > 9 ? "9+" : String.valueOf(count));
+        badge.setContentDescription(getResources().getQuantityString(R.plurals.nav_news_badge, count, count));
     }
 
     /** Highlights the drawer entry for the page currently on screen. */
