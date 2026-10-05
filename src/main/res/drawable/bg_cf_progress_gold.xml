@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@android:id/background">
+        <shape android:shape="rectangle">
+            <corners android:radius="@dimen/cf_radius_sm" />
+            <solid android:color="@color/cf_canvas" />
+            <stroke
+                android:width="@dimen/cf_stroke"
+                android:color="@color/cf_border" />
+        </shape>
+    </item>
+    <item android:id="@android:id/progress">
+        <clip>
+            <shape android:shape="rectangle">
+                <corners android:radius="@dimen/cf_radius_sm" />
+                <solid android:color="@color/cf_gold" />
+            </shape>
+        </clip>
+    </item>
+</layer-list>

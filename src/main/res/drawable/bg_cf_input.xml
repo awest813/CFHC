@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <solid android:color="@color/cf_card_elevated" />
-    <corners android:radius="@dimen/cf_radius_md" />
+    <solid android:color="@color/cf_canvas" />
+    <corners android:radius="@dimen/cf_radius_sm" />
     <stroke
         android:width="@dimen/cf_stroke"
-        android:color="@color/cf_border" />
+        android:color="@color/cf_border_highlight" />
 </shape>

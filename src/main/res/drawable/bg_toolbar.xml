@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
-    <gradient
-        android:angle="0"
-        android:endColor="@color/surfaceSecondary"
-        android:startColor="@color/colorPrimaryDark" />
-</shape>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/cf_sidebar" />
+        </shape>
+    </item>
+    <!-- 1dp hairline along the bottom edge (style_guide §3: status/header bars) -->
+    <item android:gravity="bottom">
+        <shape android:shape="rectangle">
+            <size android:height="1dp" />
+            <solid android:color="@color/cf_border" />
+        </shape>
+    </item>
+</layer-list>

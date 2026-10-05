@@ -2,17 +2,20 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item android:state_pressed="true">
         <shape android:shape="rectangle">
-            <solid android:color="@color/surfaceTertiary" />
-            <corners android:radius="20dp" />
+            <solid android:color="@color/cf_card_hover" />
+            <corners android:radius="@dimen/cf_radius_md" />
+            <stroke
+                android:width="@dimen/cf_stroke"
+                android:color="@color/cf_border_highlight" />
         </shape>
     </item>
     <item>
         <shape android:shape="rectangle">
-            <solid android:color="@color/surfaceSecondary" />
-            <corners android:radius="20dp" />
+            <solid android:color="@color/cf_card_elevated" />
+            <corners android:radius="@dimen/cf_radius_md" />
             <stroke
-                android:width="1dp"
-                android:color="@color/surfaceOutline" />
+                android:width="@dimen/cf_stroke"
+                android:color="@color/cf_border" />
         </shape>
     </item>
 </selector>

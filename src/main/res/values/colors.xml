@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#121826</color>
-    <color name="colorPrimaryDark">#0B0F19</color>
-    <color name="colorAccent">#FBBF24</color>
+    <color name="colorPrimary">#0D1726</color>
+    <color name="colorPrimaryDark">#060C14</color>
+    <color name="colorAccent">#F59E0B</color>
     <color name="colorAccentDark">#D97706</color>
-    <color name="greenLight">#22C55E</color>
-    <color name="blueDark">#0B0F19</color>
+    <color name="greenLight">#10B981</color>
+    <color name="blueDark">#060C14</color>
     <color name="blueLight">#3B82F6</color>
     <color name="winColor">#3B82F6</color>
     <color name="winColorPressed">#2563EB</color>
@@ -14,32 +14,32 @@
     <color name="grey">#94A3B8</color>
     <color name="greyPressed">#64748B</color>
     <color name="foreground_material_dark_1">#94A3B8</color>
-    <color name="primary_material_dark_1">#0B0F19</color>
-    <color name="primary_material_dark_2">#121826</color>
+    <color name="primary_material_dark_1">#060C14</color>
+    <color name="primary_material_dark_2">#0D1726</color>
     <color name="rosterColorDk">#F8FAFC</color>
     <color name="rosterColorLt">#000000</color>
-    <color name="surfacePrimary">#0B0F19</color>
-    <color name="surfaceSecondary">#121826</color>
-    <color name="surfaceTertiary">#1E293B</color>
-    <color name="surfaceCard">#121826</color>
-    <color name="surfaceCardStrong">#1E293B</color>
-    <color name="surfaceOutline">#33FFFFFF</color>
+    <color name="surfacePrimary">#060C14</color>
+    <color name="surfaceSecondary">#0D1726</color>
+    <color name="surfaceTertiary">#16243B</color>
+    <color name="surfaceCard">#0D1726</color>
+    <color name="surfaceCardStrong">#111C2E</color>
+    <color name="surfaceOutline">#1E293B</color>
     <color name="textPrimary">#F8FAFC</color>
     <color name="textSecondary">#94A3B8</color>
-    <color name="textMuted">#475569</color>
-    <color name="accentGold">#FBBF24</color>
+    <color name="textMuted">#64748B</color>
+    <color name="accentGold">#F59E0B</color>
     <color name="accentGoldDark">#D97706</color>
-    <color name="successSurface">#14532D</color>
-    <color name="dangerSurface">#7F1D1D</color>
+    <color name="successSurface">#0F3D2E</color>
+    <color name="dangerSurface">#881337</color>
     <!-- Material 3 on-* tokens (toolbar / surfaces; dynamic color may override on API 31+) -->
     <color name="colorOnPrimary">#F8FAFC</color>
     <color name="colorOnSurface">#F8FAFC</color>
-    <color name="colorSurface">#0B0F19</color>
+    <color name="colorSurface">#060C14</color>
     <!-- Deeper stadium night gradient stops (home + field hub) -->
-    <color name="bgNightTop">#0B0F19</color>
-    <color name="bgNightBottom">#020617</color>
+    <color name="bgNightTop">#0A111C</color>
+    <color name="bgNightBottom">#060C14</color>
     <!-- Adaptive launcher icon background (matches the crest's dark plate) -->
-    <color name="ic_launcher_background">#0B0F19</color>
+    <color name="ic_launcher_background">#060C14</color>
 
     <!-- ================================================================== -->
     <!-- Broadcast-HUD design tokens (style_guide.md). cf_ = component      -->
@@ -74,4 +74,24 @@
     <color name="cf_text_primary">@color/textPrimary</color>
     <color name="cf_text_secondary">@color/textSecondary</color>
     <color name="cf_text_muted">@color/textMuted</color>
+
+    <!-- Semantic / state tokens -->
+    <color name="cf_win">#10B981</color>
+    <color name="cf_loss">#EF4444</color>
+    <color name="cf_positive">#00E676</color>
+    <color name="cf_negative">#F87171</color>
+    <color name="cf_warning">#FBBF24</color>
+    <color name="cf_info">#38BDF8</color>
+    <color name="cf_on_crimson">#FFF1F2</color>
+
+    <!-- Translucent overlays (glass panels, dividers, scrims) -->
+    <color name="cf_glass">#14FFFFFF</color>
+    <color name="cf_glass_strong">#1FFFFFFF</color>
+    <color name="cf_glass_border">#22FFFFFF</color>
+    <color name="cf_scrim">#99060C14</color>
+    <color name="cf_footer">#F2050A12</color>
+    <color name="cf_gold_glow">#33F59E0B</color>
+    <color name="cf_crimson_glow">#40881337</color>
+    <color name="cf_emerald_dim">#1A00E676</color>
+    <color name="cf_divider">#1E293B</color>
 </resources>

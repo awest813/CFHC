@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/cf_card" />
+            <corners android:radius="@dimen/cf_radius_md" />
+            <stroke
+                android:width="@dimen/cf_stroke"
+                android:color="@color/cf_border" />
+        </shape>
+    </item>
+    <!-- Active-item indicator: 4dp emerald bar on the leading edge -->
+    <item
+        android:gravity="start|fill_vertical"
+        android:width="@dimen/cf_nav_indicator">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/cf_emerald" />
+            <corners
+                android:bottomLeftRadius="@dimen/cf_radius_md"
+                android:topLeftRadius="@dimen/cf_radius_md" />
+        </shape>
+    </item>
+</layer-list>

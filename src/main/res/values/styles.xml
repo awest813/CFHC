@@ -2,35 +2,101 @@
 
     <!-- Material 3 base; palette + status/nav bar; dynamic color layered in CfhcApplication on API 31+. -->
     <style name="AppTheme" parent="Theme.Material3.Dark.NoActionBar">
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorOnPrimary">@color/colorOnPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="colorSurface">@color/colorSurface</item>
-        <item name="colorOnSurface">@color/colorOnSurface</item>
-        <item name="android:windowBackground">@color/colorPrimaryDark</item>
+        <item name="colorPrimary">@color/cf_emerald</item>
+        <item name="colorOnPrimary">@color/cf_on_emerald</item>
+        <item name="colorPrimaryContainer">@color/cf_card_elevated</item>
+        <item name="colorOnPrimaryContainer">@color/cf_text_primary</item>
+        <item name="colorSecondary">@color/cf_gold</item>
+        <item name="colorOnSecondary">@color/cf_on_gold</item>
+        <item name="colorSecondaryContainer">@color/cf_card_elevated</item>
+        <item name="colorOnSecondaryContainer">@color/cf_text_primary</item>
+        <item name="colorPrimaryDark">@color/cf_canvas</item>
+        <item name="colorAccent">@color/cf_gold</item>
+        <item name="colorSurface">@color/cf_card</item>
+        <item name="colorOnSurface">@color/cf_text_primary</item>
+        <item name="colorSurfaceVariant">@color/cf_card_elevated</item>
+        <item name="colorOnSurfaceVariant">@color/cf_text_secondary</item>
+        <item name="colorOutline">@color/cf_border</item>
+        <item name="colorOutlineVariant">@color/cf_border</item>
+        <item name="colorError">@color/cf_negative</item>
+        <item name="android:colorBackground">@color/cf_canvas</item>
+        <item name="android:windowBackground">@color/cf_canvas</item>
         <item name="android:fontFamily">@font/inter</item>
-        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
-        <item name="android:navigationBarColor">@color/colorPrimaryDark</item>
+        <item name="android:statusBarColor">@color/cf_canvas</item>
+        <item name="android:navigationBarColor">@color/cf_canvas</item>
         <item name="android:windowLightStatusBar">false</item>
+        <item name="android:textColorPrimary">@color/cf_text_primary</item>
+        <item name="android:textColorSecondary">@color/cf_text_secondary</item>
+        <item name="materialAlertDialogTheme">@style/ThemeOverlay.Cfhc.Dialog</item>
+        <item name="alertDialogTheme">@style/ThemeOverlay.Cfhc.Dialog</item>
+        <item name="android:progressBarStyleHorizontal">@style/Widget.Cfhc.ProgressBar</item>
     </style>
 
-    <style name="AppThemeLight" parent="Theme.Material3.Light.NoActionBar">
+    <!-- Dialog chrome: slate surface, hairline border, HUD typography (style_guide §3). -->
+    <style name="ThemeOverlay.Cfhc.Dialog" parent="ThemeOverlay.Material3.MaterialAlertDialog">
+        <item name="colorSurface">@color/cf_card</item>
+        <item name="colorOnSurface">@color/cf_text_primary</item>
+        <item name="colorPrimary">@color/cf_emerald</item>
+        <item name="colorOnSurfaceVariant">@color/cf_text_secondary</item>
+        <item name="android:colorBackground">@color/cf_card</item>
+        <item name="android:windowBackground">@drawable/bg_dialog_surface</item>
         <item name="android:fontFamily">@font/inter</item>
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorOnPrimary">@color/colorOnPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
-        <item name="colorSurface">@color/blueLight</item>
-        <item name="colorOnSurface">@color/colorPrimaryDark</item>
-        <item name="android:statusBarColor">@color/colorPrimaryDark</item>
-        <item name="android:navigationBarColor">@color/surfacePrimary</item>
-        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:textColorPrimary">@color/cf_text_primary</item>
+        <item name="android:textColorSecondary">@color/cf_text_secondary</item>
+        <item name="materialAlertDialogTitleTextStyle">@style/TextAppearance.Cfhc.DialogTitle</item>
+        <item name="materialAlertDialogBodyTextStyle">@style/TextAppearance.Cfhc.DialogBody</item>
+        <item name="buttonBarPositiveButtonStyle">@style/Widget.Cfhc.DialogButton.Positive</item>
+        <item name="buttonBarNegativeButtonStyle">@style/Widget.Cfhc.DialogButton</item>
+        <item name="buttonBarNeutralButtonStyle">@style/Widget.Cfhc.DialogButton</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.Material3.Dark.ActionBar" />
+    <style name="TextAppearance.Cfhc.DialogTitle" parent="MaterialAlertDialog.Material3.Title.Text">
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textColor">@color/cf_text_primary</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.01</item>
+    </style>
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.Material3.Light" />
+    <style name="TextAppearance.Cfhc.DialogBody" parent="MaterialAlertDialog.Material3.Body.Text">
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textColor">@color/cf_text_secondary</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineSpacingExtra">2dp</item>
+    </style>
+
+    <style name="Widget.Cfhc.DialogButton" parent="Widget.Material3.Button.TextButton.Dialog">
+        <item name="android:textColor">@color/cf_text_primary</item>
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="Widget.Cfhc.DialogButton.Positive">
+        <item name="android:textColor">@color/cf_emerald</item>
+    </style>
+
+    <!-- "Light" theme = the same obsidian HUD on a slate (not black) canvas. Every
+         screen is built on the dark token ramp, so a true light palette would need
+         per-attribute theming; this keeps the user toggle meaningful (softer canvas,
+         less OLED-black) without producing broken contrast anywhere. -->
+    <style name="AppThemeLight" parent="AppTheme">
+        <item name="colorPrimaryDark">@color/cf_card</item>
+        <item name="android:colorBackground">@color/cf_card</item>
+        <item name="android:windowBackground">@color/cf_card</item>
+        <item name="android:statusBarColor">@color/cf_card</item>
+        <item name="android:navigationBarColor">@color/cf_card</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.Material3.Dark.ActionBar">
+        <item name="colorControlNormal">@color/cf_text_primary</item>
+    </style>
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.Material3.Dark">
+        <item name="android:colorBackground">@color/cf_card_elevated</item>
+        <item name="colorSurface">@color/cf_card_elevated</item>
+        <item name="android:textColorPrimary">@color/cf_text_primary</item>
+    </style>
 
     <!-- Typography: dense sports-management readability (reference: premium dynasty sim UIs) -->
     <style name="TextAppearance.Cfhc.HeroTitle" parent="TextAppearance.Material3.HeadlineMedium">
@@ -71,20 +137,100 @@
 
     <style name="Widget.Cfhc.Button.Primary" parent="Widget.Material3.Button">
         <item name="backgroundTint">@color/accent_primary_button</item>
-        <item name="android:textColor">@color/blueDark</item>
-        <item name="cornerRadius">22dp</item>
+        <item name="android:textColor">@color/cf_on_gold</item>
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="cornerRadius">@dimen/cf_radius_md</item>
+        <item name="android:minHeight">52dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.01</item>
+        <item name="rippleColor">@color/cf_on_gold</item>
+    </style>
+
+    <style name="Widget.Cfhc.Button.Emerald" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/cf_emerald</item>
+        <item name="android:textColor">@color/cf_on_emerald</item>
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="cornerRadius">@dimen/cf_radius_md</item>
         <item name="android:minHeight">52dp</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="Widget.Cfhc.Button.Secondary" parent="Widget.Material3.Button">
-        <item name="backgroundTint">@color/surface_secondary_button</item>
-        <item name="android:textColor">@color/textPrimary</item>
-        <item name="cornerRadius">20dp</item>
+    <style name="Widget.Cfhc.Button.Danger" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/cf_crimson</item>
+        <item name="android:textColor">@color/cf_on_crimson</item>
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="cornerRadius">@dimen/cf_radius_md</item>
         <item name="android:minHeight">48dp</item>
         <item name="android:textAllCaps">false</item>
         <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- Compact pill labels (grade pills, rank badges, status chips) -->
+    <style name="Widget.Cfhc.Pill" parent="android:Widget.TextView">
+        <item name="android:background">@drawable/bg_cf_pill_neutral</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
+        <item name="android:paddingTop">2dp</item>
+        <item name="android:paddingBottom">2dp</item>
+        <item name="android:textAppearance">@style/TextAppearance.Cfhc.Cf.Micro</item>
+        <item name="android:textColor">@color/cf_text_secondary</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="Widget.Cfhc.Pill.Emerald">
+        <item name="android:background">@drawable/bg_cf_pill_emerald</item>
+        <item name="android:textColor">@color/cf_emerald</item>
+    </style>
+
+    <style name="Widget.Cfhc.Pill.Gold">
+        <item name="android:background">@drawable/bg_cf_pill_gold</item>
+        <item name="android:textColor">@color/cf_gold</item>
+    </style>
+
+    <style name="Widget.Cfhc.Pill.Crimson">
+        <item name="android:background">@drawable/bg_cf_pill_crimson</item>
+        <item name="android:textColor">@color/cf_on_crimson</item>
+    </style>
+
+    <!-- Card section label: 10sp heavy upper-case tracking (style_guide §2 "Card Title M") -->
+    <style name="Widget.Cfhc.CardTitle" parent="android:Widget.TextView">
+        <item name="android:textAppearance">@style/TextAppearance.Cfhc.Cf.Micro</item>
+        <item name="android:textColor">@color/cf_text_muted</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.1</item>
+    </style>
+
+    <style name="Widget.Cfhc.ProgressBar" parent="Widget.AppCompat.ProgressBar.Horizontal">
+        <item name="android:progressDrawable">@drawable/bg_cf_progress</item>
+        <item name="android:minHeight">6dp</item>
+        <item name="android:maxHeight">6dp</item>
+    </style>
+
+    <style name="Widget.Cfhc.ProgressBar.Gold">
+        <item name="android:progressDrawable">@drawable/bg_cf_progress_gold</item>
+    </style>
+
+    <style name="Widget.Cfhc.Spinner" parent="Widget.AppCompat.Spinner">
+        <item name="android:background">@drawable/bg_cf_input</item>
+        <item name="android:popupBackground">@color/cf_card_elevated</item>
+        <item name="android:paddingStart">10dp</item>
+        <item name="android:paddingEnd">10dp</item>
+        <item name="android:minHeight">44dp</item>
+    </style>
+
+    <style name="Widget.Cfhc.Button.Secondary" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/surface_secondary_button</item>
+        <item name="android:textColor">@color/cf_text_primary</item>
+        <item name="android:fontFamily">@font/inter</item>
+        <item name="strokeColor">@color/cf_border_highlight</item>
+        <item name="strokeWidth">@dimen/cf_stroke</item>
+        <item name="cornerRadius">@dimen/cf_radius_md</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+        <item name="rippleColor">@color/cf_emerald_dim</item>
     </style>
 
     <style name="AppTheme.NoActionBar">
@@ -221,7 +367,7 @@
 
     <style name="TextAppearance.Cfhc.ButtonCompactPrimary" parent="TextAppearance.Material3.LabelLarge">
         <item name="android:fontFamily">@font/inter</item>
-        <item name="android:textColor">@color/blueDark</item>
+        <item name="android:textColor">@color/cf_on_gold</item>
         <item name="android:textSize">12sp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:fontFeatureSettings">tnum</item>
