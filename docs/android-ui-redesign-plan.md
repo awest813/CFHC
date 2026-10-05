@@ -135,7 +135,7 @@ screens + commit. No wave mixes re-skinning with engine changes.
 - Acceptance: gallery screen shows every token/component; no existing screen changed
   except the 4 shell-bound dialog families.
 
-### Wave 2 — Home + MainActivity shell (~2–3 days) — 🔄 drawer/menu pass done
+### Wave 2 — Home + MainActivity shell (~2–3 days) — ✅ done (XML/style layer)
 - Done (menu + UX audit, Oct 2026): drawer items that render a list page are
   single-choice groups and the checked item tracks `GameStateManager.currPage`
   (page renderers own the page id; dialogs no longer clobber it, which also fixed
@@ -159,7 +159,12 @@ screens + commit. No wave mixes re-skinning with engine changes.
 - Acceptance: drawer + all 7 list pages still render every destination; screenshots
   captured before/after.
 
-### Wave 3 — The 7 list pages + adapters (~3–4 days)
+### Wave 3 — The 7 list pages + adapters (~3–4 days) — ✅ done (XML/style layer)
+- Done (Oct 2026): every list-row layout is a bordered slate card (gold mono rank
+  pills, Inter primary text, mono numbers right-aligned, emerald accent bar for the
+  user's team); all 67 hardcoded adapter colours replaced with `cf_*` tokens; Team
+  Home is a stacked card dashboard (Team Overall, Next Game, Last Game, News,
+  Health). RecyclerView migration and the custom `View` components remain open.
 - Migrate `ui/` adapters (`TeamHome`, `TeamRoster`, `IndividualStats`, `TeamStatsList`,
   `GameScheduleList`, `MainRankings`, `CoachDatabase`, `PlayerProfileV2`,
   `StatsRowAdapter`, …) to RecyclerView rows built on §4 components.
@@ -176,7 +181,12 @@ screens + commit. No wave mixes re-skinning with engine changes.
 - Acceptance: every drawer list page + Team Home renders from new components;
   light theme manually checked on each.
 
-### Wave 4 — Dialogs (~3–4 days)
+### Wave 4 — Dialogs (~3–4 days) — ✅ done (XML/style layer)
+- Done (Oct 2026): all 15 custom dialog layouts share one shell (pill + Display title
+  header, sectioned cards, mono values, emerald rating tiles, styled inputs, one gold
+  primary); every controller uses the AppCompat `AlertDialog` so
+  `ThemeOverlay.Cfhc.Dialog` applies; `PlatformUiHelper` shell binders collapsed to
+  one. The `Dialogs` facade / grep-enforced builder rule is still open.
 - Sweep the 25 dialog controllers / 86 builders onto `DialogShell` + components.
   Biggest first: `GameDialogController` (50 ids), `PlayerProfileDialogController`
   (43, + sprite header), `SettingsDialogController` (508-line layout → sectioned
@@ -186,7 +196,11 @@ screens + commit. No wave mixes re-skinning with engine changes.
 - Acceptance: zero raw `AlertDialog.Builder` outside the `Dialogs` facade;
   grep-enforced.
 
-### Wave 5 — Recruiting board + Tutorial (~2–3 days)
+### Wave 5 — Recruiting board + Tutorial (~2–3 days) — ✅ done (XML/style layer)
+- Done (Oct 2026): recruiting header/controls/board cards, gold-bar prospect rows,
+  expanded prospect cards with sprite and measurables tile; tutorial screen on token
+  surfaces with a usable topic spinner. Position-aware sprites need adapter binding
+  (open).
 - `content_recruiting.xml` + `ExpandableListAdapterRecruiting`: recruit rows become
   PlayerSpriteCards with star gauges, mono ratings, budget header card; crest for
   each school; the recruiting "map" concept from the preview rendered as a regional

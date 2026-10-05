@@ -47,7 +47,7 @@ public class StatsRowAdapter extends ArrayAdapter<String> {
             if (row.startsWith("[B]")) {
                 // Bold it
                 itemL.setText(row.substring(3));
-                itemR.setTypeface(null, Typeface.BOLD);
+                itemR.setTypeface(itemR.getTypeface(), Typeface.BOLD);
             } else {
                 itemL.setText(detailSplit[0]);
                 itemR.setText(detailSplit[1]);
