@@ -142,7 +142,7 @@ public final class DesktopTheme {
             _sidebarBg = new Color(246, 248, 251);
             _sidebarText = new Color(35, 42, 50);
             _sidebarSelBg = new Color(50, 100, 180);
-            _borderSubtle = Color.GRAY;
+            _borderSubtle = new Color(203, 213, 225); // slate-300: visible but not heavy on white
             _userTeamRow = new Color(220, 235, 255);
             _nliBannerBg = new Color(255, 248, 220);
             _pollLeader = new Color(245, 245, 250);
@@ -664,13 +664,24 @@ public final class DesktopTheme {
         }
     }
 
-    /** Titled border with theme line + title color (works in light and dark). */
+    /**
+     * HUD card border: 1px theme line with the title drawn inside the box as a
+     * small upper-case muted label (style_guide "Card Title M"), matching the
+     * dashboard cards, instead of the classic Swing caption cut into the line.
+     */
     public static javax.swing.border.Border titledBorder(String title) {
         TitledBorder tb = BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(borderSubtle()), title);
-        tb.setTitleColor(textPrimary());
-        tb.setTitleFont(new Font(Font.SANS_SERIF, Font.BOLD, 12));
-        return BorderFactory.createCompoundBorder(tb, BorderFactory.createEmptyBorder(6, 6, 6, 6));
+                BorderFactory.createEmptyBorder(),
+                title == null ? "" : title.toUpperCase(java.util.Locale.ROOT),
+                TitledBorder.LEADING, TitledBorder.TOP);
+        tb.setTitleColor(textSecondary());
+        tb.setTitleFont(new Font(Font.SANS_SERIF, Font.BOLD, 11));
+        return BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(borderSubtle()),
+                BorderFactory.createCompoundBorder(
+                        BorderFactory.createEmptyBorder(6, 8, 0, 8),
+                        BorderFactory.createCompoundBorder(tb,
+                                BorderFactory.createEmptyBorder(4, 0, 6, 0))));
     }
 
     /** Non-table lists inside league tabs (poll sidebar, news headlines, etc.). */
