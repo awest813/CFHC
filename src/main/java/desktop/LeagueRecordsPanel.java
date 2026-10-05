@@ -18,7 +18,7 @@ public class LeagueRecordsPanel implements LeagueScreen {
 
     @Override
     public JPanel build(LeagueScreenContext ctx) {
-        JPanel panel = new JPanel(new BorderLayout());
+        JPanel panel = new JPanel(new BorderLayout(0, 8));
         DesktopTheme.styleTabRoot(panel);
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         panel.add(DesktopTheme.buildScreenHeader("League Records",
@@ -62,6 +62,7 @@ public class LeagueRecordsPanel implements LeagueScreen {
         table.getColumnModel().getColumn(3).setPreferredWidth(60);
         table.getColumnModel().getColumn(3).setMaxWidth(80);
         StripedRowRenderer.install(table);
+        StripedRowRenderer.setNumericColumns(table, 1, 3);
 
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override

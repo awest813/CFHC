@@ -22,7 +22,7 @@ public class PollRankingsPanel implements LeagueScreen {
 
     @Override
     public JPanel build(LeagueScreenContext ctx) {
-        JPanel panel = new JPanel(new BorderLayout());
+        JPanel panel = new JPanel(new BorderLayout(0, 8));
         DesktopTheme.styleTabRoot(panel);
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         panel.add(DesktopTheme.buildScreenHeader("Poll Rankings",
@@ -58,6 +58,8 @@ public class PollRankingsPanel implements LeagueScreen {
         table.setRowHeight(22);
         table.setFillsViewportHeight(true);
         StripedRowRenderer.installWithTeamColors(table, ctx.teamMap(), 1, "%.1f");
+        // Record / Conf ("7-0") align with the other numeric columns.
+        StripedRowRenderer.setNumericColumns(table, 2, 3);
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {

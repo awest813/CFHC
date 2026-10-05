@@ -52,7 +52,7 @@ public class CoachProfilePanel implements LeagueScreen {
                     "This team does not have a head coach assigned.");
         }
 
-        JPanel panel = new JPanel(new BorderLayout(16, 16));
+        JPanel panel = new JPanel(new BorderLayout(16, 12));
         DesktopTheme.styleTabRoot(panel);
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         panel.add(DesktopTheme.buildScreenHeader("My Coach",
@@ -68,11 +68,20 @@ public class CoachProfilePanel implements LeagueScreen {
         body.add(Box.createVerticalStrut(12));
         body.add(buildHistoryTimeline(hc));
 
-        JScrollPane scroll = new JScrollPane(body);
+        // Anchor the cards to the top: a BoxLayout body placed directly in the
+        // viewport is stretched to the window height, which spread the tiles out
+        // with large empty gaps. Wrapping it in BorderLayout.NORTH keeps every
+        // card at its preferred height.
+        JPanel anchor = new JPanel(new BorderLayout());
+        anchor.setOpaque(false);
+        anchor.add(body, BorderLayout.NORTH);
+
+        JScrollPane scroll = new JScrollPane(anchor);
         scroll.setOpaque(false);
         scroll.getViewport().setOpaque(false);
         scroll.setBorder(BorderFactory.createEmptyBorder());
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scroll.getVerticalScrollBar().setUnitIncrement(16);
         panel.add(scroll, BorderLayout.CENTER);
 
         return panel;
@@ -81,17 +90,16 @@ public class CoachProfilePanel implements LeagueScreen {
     // ---- Section A: Career summary header band ---------------------------
 
     private JPanel buildCareerSummary(Team ut, HeadCoach hc) {
-        JPanel section = new JPanel(new BorderLayout(12, 8));
-        section.setOpaque(true);
-        section.setBackground(DesktopTheme.windowBackground());
-        section.setBorder(DesktopTheme.titledBorder("Coach Career"));
+        JPanel section = sectionCard("Coach Career");
 
         Color teamPrimary = TeamColors.primary(ut.getAbbr());
-        Color readableTeamColor = DesktopTheme.ensureReadableText(teamPrimary, DesktopTheme.windowBackground());
+        Color readableTeamColor = DesktopTheme.ensureReadableText(teamPrimary, DesktopTheme.tableBase());
 
         // Name + team with team-color accent.
-        JPanel nameBlock = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 2));
+        JPanel nameBlock = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         nameBlock.setOpaque(false);
+        // FlowLayout's leading hgap would indent the name past the tile grid.
+        nameBlock.setBorder(BorderFactory.createEmptyBorder(0, -10, 0, 0));
         JLabel name = new JLabel(hc.name);
         name.setFont(new Font("SansSerif", Font.BOLD, 20));
         name.setForeground(DesktopTheme.textPrimary());
@@ -122,7 +130,7 @@ public class CoachProfilePanel implements LeagueScreen {
                 ? String.format("%.3f", (double) wins / games)
                 : "\u2014";
 
-        JPanel statsRow = new JPanel(new GridLayout(2, 4, 10, 6));
+        JPanel statsRow = new JPanel(new GridLayout(2, 4, 8, 8));
         statsRow.setOpaque(false);
         statsRow.add(statTile("Record", wins + "-" + losses));
         statsRow.add(statTile("Win %", winPct));
@@ -133,8 +141,11 @@ public class CoachProfilePanel implements LeagueScreen {
         statsRow.add(statTile("Conf COTY", String.valueOf(hc.getConfCOTY())));
         statsRow.add(statTile("Prestige", String.valueOf(hc.getCumulativePrestige())));
 
-        section.add(nameBlock, BorderLayout.NORTH);
-        section.add(statsRow, BorderLayout.CENTER);
+        JPanel content = new JPanel(new BorderLayout(0, 10));
+        content.setOpaque(false);
+        content.add(nameBlock, BorderLayout.NORTH);
+        content.add(statsRow, BorderLayout.CENTER);
+        section.add(content, BorderLayout.CENTER);
         return section;
     }
 
@@ -173,36 +184,38 @@ public class CoachProfilePanel implements LeagueScreen {
         return chip;
     }
 
-    private JLabel statTile(String label, String value) {
-        JPanel tile = new JPanel(new GridLayout(0, 1, 0, 1));
-        tile.setOpaque(false);
+    /**
+     * Compact stat cell: monospaced value stacked directly above a small muted
+     * caption on an elevated slate tile (style guide "Stats Cell Grid").
+     */
+    private JPanel statTile(String label, String value) {
+        return tile(label, value, DesktopTheme.textPrimary(), 16f);
+    }
+
+    private JPanel tile(String label, String value, Color valueColor, float valueSize) {
+        JPanel tile = new JPanel(new BorderLayout(0, 2));
+        tile.setOpaque(true);
+        tile.setBackground(DesktopTheme.tableStripe());
+        tile.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(DesktopTheme.borderSubtle()),
+                BorderFactory.createEmptyBorder(6, 10, 6, 10)));
         JLabel v = new JLabel(value, JLabel.CENTER);
-        v.setFont(new Font("SansSerif", Font.BOLD, 16));
-        v.setForeground(DesktopTheme.textPrimary());
-        JLabel l = new JLabel(label, JLabel.CENTER);
-        l.setFont(new Font("SansSerif", Font.PLAIN, 9));
+        v.setFont(new Font(Font.MONOSPACED, Font.BOLD, Math.round(valueSize)));
+        v.setForeground(valueColor);
+        JLabel l = new JLabel(label.toUpperCase(java.util.Locale.ROOT), JLabel.CENTER);
+        l.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 9));
         l.setForeground(DesktopTheme.textSecondary());
-        tile.add(v);
-        tile.add(l);
-        // Wrap in a label-style container isn't possible; return a label-styled
-        // panel by abusing JLabel is messy, so callers get a JPanel via add.
-        // To keep GridLayout happy we return a lightweight host.
-        JLabel host = new JLabel();
-        host.setLayout(new BorderLayout());
-        host.add(tile, BorderLayout.CENTER);
-        host.setOpaque(false);
-        return host;
+        tile.add(v, BorderLayout.CENTER);
+        tile.add(l, BorderLayout.SOUTH);
+        return tile;
     }
 
     // ---- Section B: Coach attributes with color-coded badges ------------
 
     private JPanel buildAttributes(HeadCoach hc) {
-        JPanel section = new JPanel(new BorderLayout(10, 8));
-        section.setOpaque(true);
-        section.setBackground(DesktopTheme.windowBackground());
-        section.setBorder(DesktopTheme.titledBorder("Coach Attributes"));
+        JPanel section = sectionCard("Coach Attributes");
 
-        JPanel ratings = new JPanel(new GridLayout(0, 5, 10, 6));
+        JPanel ratings = new JPanel(new GridLayout(0, 5, 8, 8));
         ratings.setOpaque(false);
         ratings.add(ratingBadge("OVR", hc.ratOvr));
         ratings.add(ratingBadge("OFF", hc.ratOff));
@@ -211,15 +224,19 @@ public class CoachProfilePanel implements LeagueScreen {
         ratings.add(ratingBadge("DIS", hc.ratDiscipline));
 
         // Scheme info.
-        JPanel scheme = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 4));
+        JPanel scheme = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 0));
         scheme.setOpaque(false);
+        scheme.setBorder(BorderFactory.createEmptyBorder(0, -20, 0, 0));
         String offScheme = withinBounds(hc.offStrat, hc.offPlaybook) ? hc.offPlaybook[hc.offStrat] : "\u2014";
         String defScheme = withinBounds(hc.defStrat, hc.defPlaybook) ? hc.defPlaybook[hc.defStrat] : "\u2014";
         scheme.add(schemeLabel("Offense:", offScheme));
         scheme.add(schemeLabel("Defense:", defScheme));
 
-        section.add(ratings, BorderLayout.CENTER);
-        section.add(scheme, BorderLayout.SOUTH);
+        JPanel content = new JPanel(new BorderLayout(0, 10));
+        content.setOpaque(false);
+        content.add(ratings, BorderLayout.CENTER);
+        content.add(scheme, BorderLayout.SOUTH);
+        section.add(content, BorderLayout.CENTER);
         return section;
     }
 
@@ -227,7 +244,10 @@ public class CoachProfilePanel implements LeagueScreen {
         return arr != null && idx >= 0 && idx < arr.length;
     }
 
-    private JLabel schemeLabel(String label, String value) {
+    // Returned as a JPanel: the previous JLabel "host" wrappers reported a zero
+    // preferred size (a JLabel without text ignores its layout), so the scheme
+    // row never appeared and the grids sized themselves unpredictably.
+    private JPanel schemeLabel(String label, String value) {
         JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
         p.setOpaque(false);
         JLabel l = new JLabel(label);
@@ -238,44 +258,25 @@ public class CoachProfilePanel implements LeagueScreen {
         v.setForeground(DesktopTheme.textPrimary());
         p.add(l);
         p.add(v);
-        JLabel host = new JLabel();
-        host.setLayout(new BorderLayout());
-        host.add(p, BorderLayout.CENTER);
-        host.setOpaque(false);
-        return host;
+        return p;
     }
 
-    private JLabel ratingBadge(String label, int value) {
-        Color color;
-        if (value >= 85) color = DesktopTheme.successGreen();
-        else if (value >= 70) color = DesktopTheme.warningText();
-        else color = DesktopTheme.textSecondary();
+    private JPanel ratingBadge(String label, int value) {
+        return tile(label, String.valueOf(value), ratingColor(), 22f);
+    }
 
-        JPanel tile = new JPanel(new GridLayout(0, 1, 0, 1));
-        tile.setOpaque(false);
-        JLabel v = new JLabel(String.valueOf(value), JLabel.CENTER);
-        v.setFont(new Font("SansSerif", Font.BOLD, 22));
-        v.setForeground(color);
-        JLabel l = new JLabel(label, JLabel.CENTER);
-        l.setFont(new Font("SansSerif", Font.PLAIN, 9));
-        l.setForeground(DesktopTheme.textSecondary());
-        tile.add(v);
-        tile.add(l);
-
-        JLabel host = new JLabel();
-        host.setLayout(new BorderLayout());
-        host.add(tile, BorderLayout.CENTER);
-        host.setOpaque(false);
-        return host;
+    /** Emerald rating digits (style guide), kept legible on the light themes. */
+    private static Color ratingColor() {
+        if (DesktopTheme.isDark()) {
+            return DesktopTheme.isHighContrast() ? DesktopTheme.successGreen() : DesktopTheme.emerald();
+        }
+        return DesktopTheme.successGreen().darker();
     }
 
     // ---- Section C: Career history timeline ------------------------------
 
     private JPanel buildHistoryTimeline(HeadCoach hc) {
-        JPanel section = new JPanel(new BorderLayout());
-        section.setOpaque(true);
-        section.setBackground(DesktopTheme.windowBackground());
-        section.setBorder(DesktopTheme.titledBorder("Career History"));
+        JPanel section = sectionCard("Career History");
 
         List<String> entries = new ArrayList<>();
         if (hc.history != null) {
@@ -290,7 +291,7 @@ public class CoachProfilePanel implements LeagueScreen {
             JLabel empty = new JLabel("No history yet \u2014 your career starts this season.");
             empty.setFont(new Font("SansSerif", Font.PLAIN, 13));
             empty.setForeground(DesktopTheme.textSecondary());
-            empty.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
+            empty.setBorder(BorderFactory.createEmptyBorder(2, 2, 2, 2));
             section.add(empty, BorderLayout.CENTER);
             return section;
         }
@@ -305,12 +306,9 @@ public class CoachProfilePanel implements LeagueScreen {
             list.add(Box.createVerticalStrut(2));
         }
 
-        JScrollPane scroll = new JScrollPane(list);
-        scroll.setOpaque(false);
-        scroll.getViewport().setOpaque(false);
-        scroll.setBorder(BorderFactory.createEmptyBorder(8, 8, 8, 8));
-        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        section.add(scroll, BorderLayout.CENTER);
+        // The whole profile already scrolls; a nested scroll pane here only
+        // trapped the mouse wheel.
+        section.add(list, BorderLayout.CENTER);
         return section;
     }
 
@@ -356,6 +354,21 @@ public class CoachProfilePanel implements LeagueScreen {
     }
 
     // ---- Helpers ---------------------------------------------------------
+
+    /** Slate HUD card: 1px border, small uppercase muted title, compact padding. */
+    private static JPanel sectionCard(String title) {
+        JPanel card = new JPanel(new BorderLayout(0, 10));
+        card.setOpaque(true);
+        card.setBackground(DesktopTheme.tableBase());
+        card.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(DesktopTheme.borderSubtle()),
+                BorderFactory.createEmptyBorder(12, 14, 12, 14)));
+        JLabel heading = new JLabel(title.toUpperCase(java.util.Locale.ROOT));
+        heading.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 11));
+        heading.setForeground(DesktopTheme.textSecondary());
+        card.add(heading, BorderLayout.NORTH);
+        return card;
+    }
 
     private JPanel emptyState(String title, String message) {
         JPanel empty = new JPanel(new BorderLayout());

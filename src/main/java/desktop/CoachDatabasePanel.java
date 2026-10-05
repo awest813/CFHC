@@ -26,11 +26,11 @@ public class CoachDatabasePanel implements LeagueScreen {
 
     @Override
     public JPanel build(LeagueScreenContext ctx) {
-        JPanel panel = new JPanel(new BorderLayout());
+        JPanel panel = new JPanel(new BorderLayout(0, 6));
         DesktopTheme.styleTabRoot(panel);
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JPanel topPanel = new JPanel(new BorderLayout());
+        JPanel topPanel = new JPanel(new BorderLayout(0, 4));
         topPanel.setOpaque(false);
         topPanel.add(DesktopTheme.buildScreenHeader("Coaches Database",
                 "Browse all-time coaching leaderboards across the league."), BorderLayout.NORTH);
@@ -52,6 +52,7 @@ public class CoachDatabasePanel implements LeagueScreen {
         table.getColumnModel().getColumn(1).setPreferredWidth(280);
         table.getColumnModel().getColumn(2).setPreferredWidth(120);
         StripedRowRenderer.install(table);
+        StripedRowRenderer.setNumericColumns(table, 0, 2);
 
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
@@ -99,6 +100,7 @@ public class CoachDatabasePanel implements LeagueScreen {
                             model.addRow(new Object[]{parts[0].trim(), parts[1].trim(), parts[2].trim()});
                         }
                     }
+                    StripedRowRenderer.alignDecimals(model, 2);
                 }
             } catch (Exception ex) {
                 simulation.PlatformLog.e("CoachDatabasePanel", "Error loading coach database", ex);

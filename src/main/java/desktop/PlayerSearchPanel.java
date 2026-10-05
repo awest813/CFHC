@@ -34,11 +34,11 @@ public class PlayerSearchPanel implements LeagueScreen {
 
     @Override
     public JPanel build(LeagueScreenContext ctx) {
-        JPanel panel = new JPanel(new BorderLayout());
+        JPanel panel = new JPanel(new BorderLayout(0, 6));
         DesktopTheme.styleTabRoot(panel);
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JPanel topPanel = new JPanel(new BorderLayout());
+        JPanel topPanel = new JPanel(new BorderLayout(0, 4));
         topPanel.setOpaque(false);
         topPanel.add(DesktopTheme.buildScreenHeader("Player Search", "Find players across every roster by name, position, and class."), BorderLayout.NORTH);
 

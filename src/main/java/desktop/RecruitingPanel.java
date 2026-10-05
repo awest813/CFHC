@@ -191,6 +191,26 @@ public class RecruitingPanel extends JPanel {
         boardTable.getColumnModel().getColumn(2).setPreferredWidth(60);  // Stars
         boardTable.getColumnModel().getColumn(3).setPreferredWidth(65);  // Cost
         boardTable.getColumnModel().getColumn(4).setPreferredWidth(70);  // Overall
+        // Stars as gold glyphs (style guide), keeping the Integer model value so
+        // the column still sorts numerically.
+        boardTable.getColumnModel().getColumn(2).setCellRenderer(new StripedRowRenderer() {
+            @Override
+            public java.awt.Component getTableCellRendererComponent(JTable table, Object value,
+                    boolean isSelected, boolean hasFocus, int row, int column) {
+                java.awt.Component c = super.getTableCellRendererComponent(
+                        table, value, isSelected, hasFocus, row, column);
+                if (c instanceof JLabel jl && value instanceof Integer stars) {
+                    jl.setText("\u2605".repeat(Math.max(0, Math.min(5, stars))));
+                    jl.setFont(table.getFont());
+                    jl.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+                    jl.setToolTipText(stars + "-star recruit");
+                    if (!isSelected) {
+                        jl.setForeground(DesktopTheme.isDark() ? DesktopTheme.gold() : DesktopTheme.warningText());
+                    }
+                }
+                return c;
+            }
+        });
         tableScroll.setPreferredSize(new Dimension(620, 0));
 
         JPanel rightPanel = new JPanel(new BorderLayout(0, 6));
@@ -228,17 +248,17 @@ public class RecruitingPanel extends JPanel {
         actionPanel.setBackground(DesktopTheme.windowBackground());
         actionPanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
 
+        // One accent action (Recruit) next to a regular secondary (Scout), using
+        // the HUD button treatment instead of the off-palette selection blue.
         JButton scoutBtn = new JButton("Scout (10% cost)");
-        scoutBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        scoutBtn.setFocusPainted(false);
-        DesktopTheme.styleSecondaryButton(scoutBtn);
+        DesktopTheme.styleHudQuickButton(scoutBtn, false);
+        scoutBtn.setFont(scoutBtn.getFont().deriveFont(Font.BOLD, 13f));
         scoutBtn.addActionListener(e -> scoutSelected());
         actionPanel.add(scoutBtn);
 
         JButton recruitBtn = new JButton("Recruit");
-        recruitBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        recruitBtn.setFocusPainted(false);
-        DesktopTheme.stylePrimaryButton(recruitBtn);
+        DesktopTheme.styleHudQuickButton(recruitBtn, true);
+        recruitBtn.setFont(recruitBtn.getFont().deriveFont(Font.BOLD, 13f));
         recruitBtn.addActionListener(e -> recruitSelected());
         actionPanel.add(recruitBtn);
 
@@ -257,10 +277,8 @@ public class RecruitingPanel extends JPanel {
         bar.setBackground(DesktopTheme.windowBackground());
 
         JButton doneBtn = new JButton(finishButtonText);
-        doneBtn.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 14));
-        doneBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        doneBtn.setFocusPainted(false);
-        DesktopTheme.stylePrimaryButton(doneBtn);
+        DesktopTheme.styleHudQuickButton(doneBtn, false);
+        doneBtn.setFont(doneBtn.getFont().deriveFont(Font.BOLD, 13f));
         doneBtn.addActionListener(e -> finishRecruiting());
         bar.add(doneBtn);
         return bar;
