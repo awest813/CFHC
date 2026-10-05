@@ -18,7 +18,7 @@ public final class CoachSkills {
      */
     public static final String PROGRAM_DIALOG_FOOTER_HINT =
             "XP is earned weekly while you advance the season. "
-                    + "NIL tier grows in the offseason when your budget can fund the collective. "
+                    + "The NIL collective adds a tier each offseason when your athletic budget covers the next tier. "
                     + "Training facilities still power player development in the sim core.";
 
     public static final int RECRUITING = 0;
@@ -91,8 +91,10 @@ public final class CoachSkills {
         StringBuilder sb = new StringBuilder();
         sb.append("Training facilities: L").append(t.getTeamFacilities())
                 .append("  (drives base player development in the sim)\n");
-        sb.append("NIL / booster collective: Tier ").append(t.nilCollectiveLevel)
-                .append("  (home revenue, weekly stipend, recruiting budget)\n\n");
+        NilCollectiveStatus nil = NilCollectiveStatus.of(t);
+        sb.append("NIL / booster collective: ").append(nil.tierLabel()).append("\n");
+        sb.append("  ").append(nil.effectsLine()).append("\n");
+        sb.append("  ").append(nil.nextTierLine()).append("\n\n");
         TeamMoraleSnapshot morale = t.getTeamMoraleSnapshot();
         sb.append("Team morale: Chemistry ").append(morale.chemistry())
                 .append(", Leadership ").append(morale.leadership())

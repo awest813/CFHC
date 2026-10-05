@@ -1939,17 +1939,32 @@ public class League {
         }
     }
 
+    /** Highest NIL collective tier a program can fund. */
+    public static final int NIL_MAX_TIER = 12;
+    /**
+     * Athletic-budget cost per NIL tier step (tier N costs N x this).
+     * Was 22,000: with season-end budgets of roughly $8K-$50K and facilities
+     * buying first, no team reached Tier 1 for three seasons and Tier 2+ was
+     * unreachable, so the collective never mattered. 9,000 lets typical
+     * programs climb a tier every couple of seasons and rich ones go further.
+     */
+    public static final int NIL_TIER_COST_STEP = 9000;
+
+    /** Budget needed to fund {@code nextTier} (0 when already at max). */
+    public static int nilCollectiveUpgradeCost(int nextTier) {
+        if (nextTier < 1 || nextTier > NIL_MAX_TIER) return 0;
+        return NIL_TIER_COST_STEP * nextTier;
+    }
+
     /** Booster / NIL collective tiers spent from athletic budgets each offseason. */
     public void upgradeNilCollectives() {
-        int baselineCost = 22000;
-        final int maxTier = 12;
         for (Team tm : teamList) {
             tm.nilCollectiveUpgrade = false;
             int next = tm.nilCollectiveLevel + 1;
-            if (next > maxTier) {
+            if (next > NIL_MAX_TIER) {
                 continue;
             }
-            int cost = baselineCost * next;
+            int cost = nilCollectiveUpgradeCost(next);
             if (tm.getTeamBudget() > cost) {
                 tm.setTeamBudget(tm.getTeamBudget() - cost);
                 tm.nilCollectiveLevel = next;
