@@ -5,13 +5,14 @@ package ui;
  */
 
 import android.content.Context;
-import android.graphics.Color;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
 
 import antdroid.cfbcoach.R;
 
@@ -46,10 +47,18 @@ public class LeagueRecordsList extends ArrayAdapter<String> {
         String value = valueAt(record, 1);
         String holder = valueAt(record, 2);
         String year = valueAt(record, 3);
+        // Reset recycled-row styling to the HUD row defaults.
+        textCenter.setTextColor(ContextCompat.getColor(context, R.color.cf_text_primary));
+        textCenter.setTextSize(TypedValue.COMPLEX_UNIT_PX,
+                context.getResources().getDimension(R.dimen.cf_text_body));
+        textRight.setTextColor(ContextCompat.getColor(context, R.color.cf_text_secondary));
         if (value.equals("-1")) {
+            // Section header line: gold title-size label, no value / holder
             textLeft.setText("");
             textCenter.setText(name);
-            textCenter.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+            textCenter.setTextColor(ContextCompat.getColor(context, R.color.cf_gold));
+            textCenter.setTextSize(TypedValue.COMPLEX_UNIT_PX,
+                    context.getResources().getDimension(R.dimen.cf_text_title));
             textRight.setText("");
         } else if (!holder.equals("XXX")) {
             // Only show record if it exists
@@ -61,7 +70,7 @@ public class LeagueRecordsList extends ArrayAdapter<String> {
                 textRight.setText(valueAt(nameSplit, 0) + "\n" + team + " " + year);
                 if (team.equals(userTeamAbbr) || team.equals(userTeamName)) {
                     // User team record, make it special color
-                    textRight.setTextColor(Color.parseColor("#5994de"));
+                    textRight.setTextColor(ContextCompat.getColor(context, R.color.cf_emerald));
                 }
             } else {
                 textRight.setText(holder + "\n" + year);
@@ -69,7 +78,7 @@ public class LeagueRecordsList extends ArrayAdapter<String> {
                 String team = valueAt(holderParts, 0);
                 if (team.equals(userTeamAbbr) || team.equals(userTeamName)) {
                     // User team record, make it special color
-                    textRight.setTextColor(Color.parseColor("#5994de"));
+                    textRight.setTextColor(ContextCompat.getColor(context, R.color.cf_emerald));
                 }
             }
         }

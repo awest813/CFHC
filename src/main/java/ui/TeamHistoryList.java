@@ -5,12 +5,13 @@ package ui;
  */
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
 
 import antdroid.cfbcoach.R;
 
@@ -50,6 +51,10 @@ public class TeamHistoryList extends ArrayAdapter<TeamHistoryRecord> {
         TextView textTop = rowView.findViewById(R.id.textViewTeamHistoryTitle);
         TextView textBottom = rowView.findViewById(R.id.textViewTeamHistoryDetail);
 
+        // Reset recycled-row styling to the HUD row defaults.
+        textTop.setTextColor(color(R.color.cf_text_primary));
+        textBottom.setVisibility(View.VISIBLE);
+
         String summary = values[position].summary();
         String[] teamHist = summary.split(">");
         if (teamHist.length > 1) {
@@ -62,9 +67,9 @@ public class TeamHistoryList extends ArrayAdapter<TeamHistoryRecord> {
                 else if (s.equals("BW")) wonB = true;
             }
 
-            if (wonNC) textTop.setTextColor(Color.parseColor("#FF9933"));
-            else if (wonCC) textTop.setTextColor(Color.parseColor("#00B300"));
-            else if (wonB) textTop.setTextColor(Color.parseColor("#5994de"));
+            if (wonNC) textTop.setTextColor(color(R.color.cf_gold));
+            else if (wonCC) textTop.setTextColor(color(R.color.cf_positive));
+            else if (wonB) textTop.setTextColor(color(R.color.cf_info));
 
             String detail = "";
             for (int i = 1; i < teamHist.length; ++i) {
@@ -84,13 +89,17 @@ public class TeamHistoryList extends ArrayAdapter<TeamHistoryRecord> {
                 else if (s.equals("BW")) wonB = true;
             }
 
-            if (wonNC) textTop.setTextColor(Color.parseColor("#FF9933"));
-            else if (wonCC) textTop.setTextColor(Color.parseColor("#00B300"));
-            else if (wonB) textTop.setTextColor(Color.parseColor("#5994de"));
+            if (wonNC) textTop.setTextColor(color(R.color.cf_gold));
+            else if (wonCC) textTop.setTextColor(color(R.color.cf_positive));
+            else if (wonB) textTop.setTextColor(color(R.color.cf_info));
 
             textBottom.setVisibility(View.GONE);
         }
 
         return rowView;
+    }
+
+    private int color(int colorRes) {
+        return ContextCompat.getColor(context, colorRes);
     }
 }

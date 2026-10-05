@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Strings for the shared list-row language (broadcast HUD rows). -->
+<resources>
+    <string name="row_lineup_starter_cd">Toggle starting lineup</string>
+    <string name="row_schedule_result_cd">Game result</string>
+    <string name="row_schedule_opponent_cd">Opponent team</string>
+    <string name="row_rank_cd">Rank</string>
+</resources>

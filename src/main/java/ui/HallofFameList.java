@@ -5,12 +5,13 @@ package ui;
  */
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
 
 import antdroid.cfbcoach.MainActivity;
 import antdroid.cfbcoach.R;
@@ -56,8 +57,12 @@ public class HallofFameList extends ArrayAdapter<PlayerRecord> {
         if(team) textTop.setText(entryTeam);
         else textTop.setText(entry);
 
+        // Reset recycled-row styling, then accent the user's team.
+        rowView.setBackgroundResource(R.drawable.bg_cf_card);
+        textTop.setTextColor(ContextCompat.getColor(context, R.color.cf_text_primary));
         if (record.teamName().equals(userTeam)) {
-            textTop.setTextColor(Color.parseColor("#5994de"));
+            rowView.setBackgroundResource(R.drawable.bg_cf_card_accent);
+            textTop.setTextColor(ContextCompat.getColor(context, R.color.cf_emerald));
         }
 
         textTop.setOnClickListener(new View.OnClickListener() {

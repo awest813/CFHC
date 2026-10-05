@@ -44,6 +44,8 @@ public class GameScheduleList extends ArrayAdapter<Game> {
         gameButton.setText(valueAt(gameSummary, 1));
         textRight.setText(valueAt(gameSummary, 2));
 
+        // Recycled rows: start from the neutral secondary fill, then apply win/loss.
+        gameButton.setBackgroundResource(R.drawable.bg_action_secondary);
         if (team.getGameWLSchedule().size() > position) {
             if (team.getGameWLSchedule().get(position).equals("W")) {
                 gameButton.setBackgroundResource(R.drawable.bg_action_win);

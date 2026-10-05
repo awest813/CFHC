@@ -1,7 +1,6 @@
 package ui;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +8,8 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 
@@ -65,25 +66,27 @@ public class DepthChart extends ArrayAdapter<Player> {
 
 
         CheckBox isPlayerStarting = rowView.findViewById(R.id.checkboxPlayerStartingLineup);
+        // Reset recycled-row text colour to the HUD default before flagging availability.
+        playerInfo.setTextColor(ContextCompat.getColor(context, R.color.cf_text_primary));
         if (playersSelected.contains(players.get(position))) {
             isPlayerStarting.setChecked(true);
         } else if (players.get(position).isInjured) {
             // Is injured
             isPlayerStarting.setEnabled(false);
-            playerInfo.setTextColor(Color.parseColor("#ffc34d"));
+            playerInfo.setTextColor(ContextCompat.getColor(context, R.color.cf_warning));
         } else if (players.get(position).isTransfer) {
             // Is Transfer
             isPlayerStarting.setEnabled(false);
             isPlayerStarting.setText("T");
-            playerInfo.setTextColor(Color.RED);
+            playerInfo.setTextColor(ContextCompat.getColor(context, R.color.cf_negative));
         } else if (players.get(position).isSuspended) {
             // Is suspended
             isPlayerStarting.setEnabled(false);
-            playerInfo.setTextColor(Color.parseColor("#ffc34d"));
+            playerInfo.setTextColor(ContextCompat.getColor(context, R.color.cf_warning));
         } else if (players.get(position).isRedshirt) {
             isPlayerStarting.setEnabled(false);
             isPlayerStarting.setText("RS");
-            playerInfo.setTextColor(Color.RED);
+            playerInfo.setTextColor(ContextCompat.getColor(context, R.color.cf_negative));
         } else {
             isPlayerStarting.setChecked(false);
         }

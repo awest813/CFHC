@@ -5,13 +5,14 @@ package ui;
  */
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
 
 import antdroid.cfbcoach.R;
 
@@ -39,6 +40,9 @@ public class StatsRowAdapter extends ArrayAdapter<String> {
         if (detailSplit.length == 2) {
             TextView itemL = rowView.findViewById(R.id.textPlayerStatsLeftChild);
             TextView itemR = rowView.findViewById(R.id.textPlayerStatsRightChild);
+            itemL.setVisibility(View.VISIBLE);
+            itemR.setVisibility(View.VISIBLE);
+            itemR.setTypeface(itemR.getTypeface(), Typeface.NORMAL);
 
             if (row.startsWith("[B]")) {
                 // Bold it
@@ -56,12 +60,15 @@ public class StatsRowAdapter extends ArrayAdapter<String> {
         } else {
             // Only one, center it
             TextView itemC = rowView.findViewById(R.id.textPlayerStatsCenter);
+            itemC.setVisibility(View.VISIBLE);
+            itemC.setTextColor(ContextCompat.getColor(context, R.color.cf_text_secondary));
             if (row.startsWith("[B]")) {
-                // Bold it
+                // Section header line: bold gold label
                 itemC.setText(row.substring(3));
-                itemC.setTypeface(null, Typeface.BOLD);
-                itemC.setTextColor(Color.parseColor("#5994de"));
+                itemC.setTypeface(itemC.getTypeface(), Typeface.BOLD);
+                itemC.setTextColor(ContextCompat.getColor(context, R.color.cf_gold));
             } else {
+                itemC.setTypeface(itemC.getTypeface(), Typeface.NORMAL);
                 itemC.setText(row);
             }
 
@@ -83,25 +90,25 @@ public class StatsRowAdapter extends ArrayAdapter<String> {
             if(isInteger(letter)) {
                 int pRat = Integer.parseInt(letter);
                 if (pRat >= 92) {
-                    textV.setTextColor(Color.parseColor("#5994de"));
+                    textV.setTextColor(ContextCompat.getColor(context, R.color.cf_emerald));
                 } else if (pRat < 92 && pRat >= 84) {
-                    textV.setTextColor(Color.parseColor("#00b300"));
+                    textV.setTextColor(ContextCompat.getColor(context, R.color.cf_positive));
                 } else if (pRat < 94 && pRat >= 76) {
-                    textV.setTextColor(Color.parseColor("#ffc34d"));
+                    textV.setTextColor(ContextCompat.getColor(context, R.color.cf_warning));
                 } else if (pRat < 76 && pRat >= 68) {
-                    textV.setTextColor(Color.parseColor("#e68a00"));
+                    textV.setTextColor(ContextCompat.getColor(context, R.color.cf_amber));
                 } else {
-                    textV.setTextColor(Color.RED);
+                    textV.setTextColor(ContextCompat.getColor(context, R.color.cf_negative));
                 }
             } else {
 
                 } if (letter.equals("Active")) {
                 } else if (letter.equals("Redshirt") || letter.equals("Medical") || letter.equals("Transfer")) {
-                    textV.setTextColor(Color.DKGRAY);
+                    textV.setTextColor(ContextCompat.getColor(context, R.color.cf_text_muted));
                 } else if (letter.equals("Injured")) {
-                    textV.setTextColor(Color.parseColor("#ffc34d"));
+                    textV.setTextColor(ContextCompat.getColor(context, R.color.cf_warning));
                 } else if (letter.equals("Suspended")) {
-                    textV.setTextColor(Color.RED);
+                    textV.setTextColor(ContextCompat.getColor(context, R.color.cf_negative));
                 }
             }
         }*/

@@ -5,12 +5,13 @@ package ui;
  */
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
 
 import antdroid.cfbcoach.R;
 
@@ -38,6 +39,10 @@ public class SeasonAwardsList extends ArrayAdapter<String> {
         TextView textMiddle = rowView.findViewById(R.id.textViewLeagueHistoryMiddle);
         TextView textBottom = rowView.findViewById(R.id.textViewLeagueHistoryBottom);
 
+        // Reset recycled-row styling to the HUD row defaults.
+        rowView.setBackgroundResource(R.drawable.bg_cf_card);
+        textTop.setTextColor(ContextCompat.getColor(context, R.color.cf_text_primary));
+        textBottom.setVisibility(View.VISIBLE);
         String[] player = values[position].split("\n");
         if (player.length == 3) {
             textTop.setText(player[0]);
@@ -45,7 +50,8 @@ public class SeasonAwardsList extends ArrayAdapter<String> {
             textBottom.setText(player[2]);
             if (firstWord(player[0]).equals(userTeamAbbr)) {
                 // highlight user team players
-                textTop.setTextColor(Color.parseColor("#5994de"));
+                textTop.setTextColor(ContextCompat.getColor(context, R.color.cf_emerald));
+                rowView.setBackgroundResource(R.drawable.bg_cf_card_accent);
             }
         } else if (player.length == 2) {
             textTop.setText(player[0]);
@@ -53,7 +59,8 @@ public class SeasonAwardsList extends ArrayAdapter<String> {
             textBottom.setVisibility(View.GONE);
             if (firstWord(player[0]).equals(userTeamAbbr)) {
                 // highlight user team players
-                textTop.setTextColor(Color.parseColor("#5994de"));
+                textTop.setTextColor(ContextCompat.getColor(context, R.color.cf_emerald));
+                rowView.setBackgroundResource(R.drawable.bg_cf_card_accent);
             }
         } else {
             textMiddle.setText(values[position]);

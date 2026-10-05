@@ -5,7 +5,6 @@ package ui;
  */
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
@@ -13,6 +12,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 
 import java.util.ArrayList;
 
@@ -25,11 +27,13 @@ public class TeamRoster extends ArrayAdapter<String> {
     private String userTeamStrRep;
     private final MainActivity mainAct;
     private final int week;
+    private final Typeface interFont;
 
 
     public TeamRoster(Context context, ArrayList<String> values, MainActivity mainAct, int week) {
         super(context, R.layout.team_roster, values);
         this.context = context;
+        this.interFont = ResourcesCompat.getFont(context, R.font.inter);
         this.values = values;
         this.mainAct = mainAct;
         this.week = week;
@@ -59,48 +63,53 @@ public class TeamRoster extends ArrayAdapter<String> {
         textClass.setText(playerClass);
         textCenter.setText(name + " " + status);
         textRight.setText(ratingText);
-        textLeft.setTextColor(Color.parseColor("#B7C6D1"));
-        textClass.setTextColor(Color.parseColor("#B7C6D1"));
-        textCenter.setTextColor(Color.parseColor("#F5F7FA"));
-        textRight.setTextColor(Color.parseColor("#F5F7FA"));
-        textProg.setTextColor(Color.parseColor("#F4C95D"));
+        // Reset recycled-row styling to the HUD row defaults (tokens only, Inter kept).
+        textLeft.setTextColor(color(R.color.cf_text_secondary));
+        textClass.setTextColor(color(R.color.cf_text_secondary));
+        textCenter.setTextColor(color(R.color.cf_text_primary));
+        textRight.setTextColor(color(R.color.cf_text_primary));
+        textProg.setTextColor(color(R.color.cf_gold));
         textCenter.setPaintFlags(textCenter.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
         textClass.setPaintFlags(textClass.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
-        textCenter.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
-        textClass.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
+        textCenter.setTypeface(interFont, Typeface.BOLD);
+        textClass.setTypeface(interFont, Typeface.BOLD);
+        textLeft.setVisibility(View.VISIBLE);
+        textClass.setVisibility(View.VISIBLE);
 
         if (role.equals(" ")) {
+            // Position-group header line: no POS/YR pills, gold section label.
+            textLeft.setVisibility(View.INVISIBLE);
+            textClass.setVisibility(View.INVISIBLE);
             textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
-            textCenter.setTextColor(Color.parseColor("#5994de"));
+            textCenter.setTextColor(color(R.color.cf_gold));
         }
         if (status.equals("*")) {
             textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
-            //textCenter.setTextColor(Color.WHITE);
         }
         if (status.contains("RS") || status.contains("[T]")) {
             textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
-            textCenter.setTextColor(Color.DKGRAY);
+            textCenter.setTextColor(color(R.color.cf_text_muted));
         }
         if (status.contains("Suspended")) {
             textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
-            textCenter.setTextColor(Color.RED);
+            textCenter.setTextColor(color(R.color.cf_negative));
         }
         if (status.contains("INJ")) {
             textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
-            textCenter.setTextColor(Color.parseColor("#ff9933"));
+            textCenter.setTextColor(color(R.color.cf_warning));
         }
         if (status.contains("Hot Seat")) {
             textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
-            textCenter.setTextColor(Color.RED);
+            textCenter.setTextColor(color(R.color.cf_negative));
         }
 
         if(!ratingText.contains(" ")) {
             try {
                 int rating = Integer.parseInt(ratingText);
                 if (rating > 90) {
-                    textRight.setTextColor(Color.parseColor("#5994de"));
+                    textRight.setTextColor(color(R.color.cf_emerald));
                 } else if (rating > 80) {
-                    textRight.setTextColor(Color.parseColor("#8FBC8F"));
+                    textRight.setTextColor(color(R.color.cf_positive));
                 }
             } catch (NumberFormatException ignored) {
             }
@@ -109,22 +118,22 @@ public class TeamRoster extends ArrayAdapter<String> {
         if(teamStat.length > 5) {
             if (teamStat[5].equals("1")) {
                 textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
-                textCenter.setTextColor(Color.parseColor("#8FBC8F"));
+                textCenter.setTextColor(color(R.color.cf_positive));
                 status = " :  All-Fr";
                 textCenter.setText(name + " " + status);
             } else if (teamStat[5].equals("2")) {
                 textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
-                textCenter.setTextColor(Color.parseColor("#00B300"));
+                textCenter.setTextColor(color(R.color.cf_green));
                 status = " :  All-Conf";
                 textCenter.setText(name + " " + status);
             } else if (teamStat[5].equals("3")) {
                 textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
-                textCenter.setTextColor(Color.parseColor("#1A75FF"));
+                textCenter.setTextColor(color(R.color.cf_info));
                 status = " :  All-Am";
                 textCenter.setText(name + " " + status);
             } else if (teamStat[5].equals("4")) {
                 textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
-                textCenter.setTextColor(Color.parseColor("#FF9933"));
+                textCenter.setTextColor(color(R.color.cf_gold));
                 if(role.contains("HC")) status = " :  COTY";
                 else status = " :  POTY";
                 textCenter.setText(name + " " + status);
@@ -133,10 +142,10 @@ public class TeamRoster extends ArrayAdapter<String> {
 
         if(week > 17 && week < 22 && playerClass.contains("Sr")) {
             textCenter.setTypeface(textCenter.getTypeface(), Typeface.ITALIC);
-            textCenter.setTextColor(Color.DKGRAY);
+            textCenter.setTextColor(color(R.color.cf_text_muted));
             textCenter.setPaintFlags(textCenter.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
             textClass.setTypeface(textCenter.getTypeface(), Typeface.ITALIC);
-            textClass.setTextColor(Color.DKGRAY);
+            textClass.setTextColor(color(R.color.cf_text_muted));
             textClass.setPaintFlags(textClass.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         }
 
@@ -161,6 +170,10 @@ public class TeamRoster extends ArrayAdapter<String> {
         rowView.setOnClickListener(rowClickListener);
 
         return rowView;
+    }
+
+    private int color(int colorRes) {
+        return ContextCompat.getColor(context, colorRes);
     }
 
     private static String valueAt(String[] values, int index) {

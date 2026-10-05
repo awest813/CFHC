@@ -1,91 +1,65 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Roster row: POS / YR pills · player name (Inter) · OVR + progression (mono, right). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    android:background="@drawable/bg_mobile_row"
-    android:orientation="vertical"
-    android:padding="12dp">
+    android:background="@drawable/bg_cf_card"
+    android:gravity="center_vertical"
+    android:minHeight="52dp"
+    android:orientation="horizontal"
+    android:paddingStart="@dimen/cf_card_padding_h"
+    android:paddingTop="@dimen/cf_space_sm"
+    android:paddingEnd="@dimen/cf_card_padding_h"
+    android:paddingBottom="@dimen/cf_space_sm">
 
-    <LinearLayout
-        android:layout_width="match_parent"
+    <TextView
+        android:id="@+id/textTeamRosterLeft"
+        style="@style/Widget.Cfhc.Pill"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal">
+        android:minWidth="36dp"
+        tools:text="QB" />
 
-        <TextView
-            android:id="@+id/textTeamRosterLeft"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_mobile_chip"
-            android:gravity="center"
-            android:minWidth="40dp"
-            android:paddingBottom="4dp"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:paddingTop="4dp"
-            android:text="POS"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.Cfhc.ChipRosterMuted" />
-
-        <TextView
-            android:id="@+id/textTeamRosterClass"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:background="@drawable/bg_mobile_chip"
-            android:gravity="center"
-            android:minWidth="46dp"
-            android:paddingBottom="4dp"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:paddingTop="4dp"
-            android:text="YR"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.Cfhc.ChipRosterMuted" />
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
-
-        <TextView
-            android:id="@+id/textTeamRosterRight"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/bg_mobile_chip"
-            android:gravity="center"
-            android:minWidth="52dp"
-            android:paddingBottom="4dp"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:paddingTop="4dp"
-            android:text="OVR"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.Cfhc.ChipRosterValue" />
-
-        <TextView
-            android:id="@+id/textTeamRosterProgression"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:background="@drawable/bg_mobile_chip"
-            android:gravity="center"
-            android:minWidth="42dp"
-            android:paddingBottom="4dp"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:paddingTop="4dp"
-            android:text=""
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.Cfhc.ChipRosterAccent" />
-    </LinearLayout>
+    <TextView
+        android:id="@+id/textTeamRosterClass"
+        style="@style/Widget.Cfhc.Pill"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/cf_space_xs"
+        android:minWidth="36dp"
+        tools:text="JR" />
 
     <TextView
         android:id="@+id/textTeamRosterCenter"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="Player Name"
-        android:textAppearance="@style/TextAppearance.Cfhc.ListRowHeadline" />
+        android:layout_marginStart="@dimen/cf_space_md"
+        android:layout_marginEnd="@dimen/cf_space_sm"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title"
+        tools:text="A. Player" />
+
+    <TextView
+        android:id="@+id/textTeamRosterRight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="end"
+        android:minWidth="36dp"
+        android:textAlignment="viewEnd"
+        android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
+        tools:text="88" />
+
+    <TextView
+        android:id="@+id/textTeamRosterProgression"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/cf_space_xs"
+        android:gravity="end"
+        android:minWidth="36dp"
+        android:textAlignment="viewEnd"
+        android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatAccent"
+        tools:text="+3" />
 </LinearLayout>

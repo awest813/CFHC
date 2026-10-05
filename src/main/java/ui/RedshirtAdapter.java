@@ -1,7 +1,6 @@
 package ui;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +8,8 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 
@@ -69,25 +70,27 @@ public class RedshirtAdapter extends ArrayAdapter<Player> {
 
 
         CheckBox isPlayerStarting = rowView.findViewById(R.id.checkboxPlayerStartingLineup);
+        // Reset recycled-row text colour to the HUD default before flagging eligibility.
+        playerInfo.setTextColor(ContextCompat.getColor(context, R.color.cf_text_primary));
         if (players.get(position).isInjured) {
             // Is injured
             isPlayerStarting.setEnabled(false);
-            playerInfo.setTextColor(Color.BLUE);
+            playerInfo.setTextColor(ContextCompat.getColor(context, R.color.cf_info));
         } else if (players.get(position).isTransfer) {
             // Is Transfer
             isPlayerStarting.setEnabled(false);
-            playerInfo.setTextColor(Color.GRAY);
+            playerInfo.setTextColor(ContextCompat.getColor(context, R.color.cf_text_muted));
         } else if (players.get(position).isSuspended) {
             // Is suspended
             isPlayerStarting.setEnabled(false);
-            playerInfo.setTextColor(Color.GREEN);
+            playerInfo.setTextColor(ContextCompat.getColor(context, R.color.cf_positive));
         } else if (players.get(position).wasRedshirt) {
             isPlayerStarting.setEnabled(false);
-            playerInfo.setTextColor(Color.GRAY);
+            playerInfo.setTextColor(ContextCompat.getColor(context, R.color.cf_text_muted));
         } else if (players.get(position).isRedshirt) {
             isPlayerStarting.setChecked(true);
             isPlayerStarting.setEnabled(true);
-            playerInfo.setTextColor(Color.RED);
+            playerInfo.setTextColor(ContextCompat.getColor(context, R.color.cf_negative));
         }
 
         isPlayerStarting.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {

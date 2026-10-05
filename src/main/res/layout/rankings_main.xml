@@ -1,49 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Standings row: gold rank pill · team + record (Inter) · poll value (mono, right). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center"
-    android:layout_marginBottom="8dp"
-    android:background="@drawable/bg_mobile_row"
+    android:background="@drawable/bg_cf_card"
+    android:gravity="center_vertical"
+    android:minHeight="48dp"
     android:orientation="horizontal"
-    android:padding="12dp">
+    android:paddingStart="@dimen/cf_card_padding_h"
+    android:paddingTop="@dimen/cf_space_sm"
+    android:paddingEnd="@dimen/cf_card_padding_h"
+    android:paddingBottom="@dimen/cf_space_sm">
 
     <TextView
         android:id="@+id/textRankLeft"
-        android:layout_width="0dip"
+        style="@style/Widget.Cfhc.Pill.Gold"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="0.55"
-        android:gravity="start"
-        android:paddingStart="0dp"
-        android:paddingEnd="10dp"
-        android:text="Rank"
-        android:textAlignment="viewStart"
-        android:textColor="@color/textMuted"
-        android:textSize="12sp"
-        android:textStyle="bold" />
+        android:contentDescription="@string/row_rank_cd"
+        android:minWidth="40dp"
+        android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatAccent"
+        tools:text="#1" />
 
     <TextView
         android:id="@+id/textRankCenter"
-        android:layout_width="0dip"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1.95"
-        android:gravity="start"
-        android:text="Team"
-        android:textAlignment="viewStart"
-        android:textColor="@color/textPrimary"
-        android:textSize="14sp"
-        android:textStyle="bold" />
+        android:layout_marginStart="@dimen/cf_space_md"
+        android:layout_marginEnd="@dimen/cf_space_sm"
+        android:layout_weight="1"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title"
+        tools:text="Team (10-2)" />
 
     <TextView
         android:id="@+id/textRankRight"
-        android:layout_width="0dip"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_weight="0.7"
         android:gravity="end"
-        android:text="Value"
+        android:minWidth="44dp"
         android:textAlignment="viewEnd"
-        android:textColor="@color/accentGold"
-        android:textSize="13sp"
-        android:textStyle="bold" />
-
+        android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
+        tools:text="1512" />
 </LinearLayout>

@@ -5,13 +5,15 @@ package ui;
  */
 
         import android.content.Context;
-        import android.graphics.Color;
         import android.graphics.Typeface;
         import android.view.LayoutInflater;
         import android.view.View;
         import android.view.ViewGroup;
         import android.widget.ArrayAdapter;
         import android.widget.TextView;
+
+        import androidx.core.content.ContextCompat;
+        import androidx.core.content.res.ResourcesCompat;
 
         import java.util.ArrayList;
 
@@ -21,10 +23,14 @@ public class TeamRankingsList extends ArrayAdapter<String> {
     private final Context context;
     private final ArrayList<String> values;
     private String userTeamStrRep;
+    private final Typeface interFont;
+    private final Typeface monoFont;
 
     public TeamRankingsList(Context context, ArrayList<String> values, String userTeamStrRep) {
         super(context, R.layout.team_rankings_list_item, values);
         this.context = context;
+        this.interFont = ResourcesCompat.getFont(context, R.font.inter);
+        this.monoFont = ResourcesCompat.getFont(context, R.font.jetbrains_mono);
         this.values = values;
         this.userTeamStrRep = userTeamStrRep;
     }
@@ -49,28 +55,27 @@ public class TeamRankingsList extends ArrayAdapter<String> {
         textLeft.setText(rank);
         textCenter.setText(team);
         textRight.setText(detail);
-        textLeft.setTextColor(Color.parseColor("#B7C6D1"));
-        textCenter.setTextColor(Color.parseColor("#F5F7FA"));
-        textRight.setTextColor(Color.parseColor("#F4C95D"));
-        textLeft.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-        textCenter.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-        textRight.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+        // Reset recycled-row styling to the HUD row defaults (gold rank pill, Inter name, mono stat).
+        rowView.setBackgroundResource(R.drawable.bg_cf_card);
+        textLeft.setTextColor(color(R.color.cf_gold));
+        textCenter.setTextColor(color(R.color.cf_text_primary));
+        textRight.setTextColor(color(R.color.cf_text_primary));
+        textLeft.setTypeface(monoFont, Typeface.BOLD);
+        textCenter.setTypeface(interFont, Typeface.BOLD);
+        textRight.setTypeface(monoFont, Typeface.BOLD);
 
         if (team.equals(userTeamStrRep)) {
-            // Bold user team
-            textLeft.setTypeface(textLeft.getTypeface(), Typeface.BOLD);
-            textLeft.setTextColor(Color.parseColor("#5994de"));
-            textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
-            textCenter.setTextColor(Color.parseColor("#5994de"));
-            textRight.setTypeface(textRight.getTypeface(), Typeface.BOLD);
-            textRight.setTextColor(Color.parseColor("#5994de"));
+            // User team: emerald leading bar + emerald text
+            rowView.setBackgroundResource(R.drawable.bg_cf_card_accent);
+            textCenter.setTextColor(color(R.color.cf_emerald));
+            textRight.setTextColor(color(R.color.cf_emerald));
         }
         String[] detailParts = detail.split(" ");
         if (detailParts.length > 2 && detailParts[2].contains("+")) {
             // Highlight Prestige Changes in off-season
-            textRight.setTextColor(Color.parseColor("#00b300"));
+            textRight.setTextColor(color(R.color.cf_positive));
         } else if (detailParts.length > 2 && detailParts[2].contains("-")) {
-            textRight.setTextColor(Color.RED);
+            textRight.setTextColor(color(R.color.cf_negative));
         }
 
         return rowView;
@@ -78,6 +83,10 @@ public class TeamRankingsList extends ArrayAdapter<String> {
 
     public void setUserTeamStrRep(String userTeamStrRep) {
         this.userTeamStrRep = userTeamStrRep;
+    }
+
+    private int color(int colorRes) {
+        return ContextCompat.getColor(context, colorRes);
     }
 
     private static String valueAt(String[] values, int index) {

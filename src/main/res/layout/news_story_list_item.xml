@@ -1,23 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- News row: headline (Inter title) over story body. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_mobile_row"
+    android:background="@drawable/bg_cf_card"
+    android:minHeight="48dp"
     android:orientation="vertical"
-    android:padding="12dp">
+    android:paddingStart="@dimen/cf_card_padding_h"
+    android:paddingTop="@dimen/cf_card_padding_v"
+    android:paddingEnd="@dimen/cf_card_padding_h"
+    android:paddingBottom="@dimen/cf_card_padding_v">
 
     <TextView
         android:id="@+id/textNewsTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Headline"
-        android:textAppearance="@style/TextAppearance.Cfhc.NewsRowHeadline" />
+        android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title"
+        tools:text="Headline" />
 
     <TextView
         android:id="@+id/textNewsContent"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Story body"
-        android:textAppearance="@style/TextAppearance.Cfhc.NewsRowBody" />
+        android:layout_marginTop="@dimen/cf_space_sm"
+        android:lineSpacingExtra="2dp"
+        android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
+        tools:text="Story body" />
 </LinearLayout>

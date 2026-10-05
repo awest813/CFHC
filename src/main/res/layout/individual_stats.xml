@@ -1,23 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Player-stat row: name (Inter title) over a 3x2 grid of mono stat tiles; last tile is the rating accent. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    android:background="@drawable/bg_mobile_row"
+    android:background="@drawable/bg_cf_card"
     android:orientation="vertical"
-    android:padding="12dp">
+    android:paddingStart="@dimen/cf_card_padding_h"
+    android:paddingTop="@dimen/cf_space_md"
+    android:paddingEnd="@dimen/cf_card_padding_h"
+    android:paddingBottom="@dimen/cf_space_md">
 
     <TextView
         android:id="@+id/textName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Player Name"
-        android:textAppearance="@style/TextAppearance.Cfhc.ListRowHeadline" />
+        android:minHeight="24dp"
+        android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title"
+        tools:text="QB A. Player (Team)" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="@dimen/cf_space_sm"
         android:orientation="horizontal"
         android:weightSum="3">
 
@@ -25,44 +30,44 @@
             android:id="@+id/textStat0"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="6dp"
+            android:layout_marginEnd="@dimen/cf_space_xs"
             android:layout_weight="1"
-            android:background="@drawable/bg_mobile_stat_chip"
-            android:gravity="center"
-            android:padding="8dp"
-            android:text="Games"
-            android:textAppearance="@style/TextAppearance.Cfhc.StatRowLabel" />
+            android:background="@drawable/bg_cf_card_canvas"
+            android:gravity="end|center_vertical"
+            android:padding="@dimen/cf_space_sm"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
+            tools:text="G 12" />
 
         <TextView
             android:id="@+id/textStat1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="3dp"
-            android:layout_marginEnd="3dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
             android:layout_weight="1"
-            android:background="@drawable/bg_mobile_stat_chip"
-            android:gravity="center"
-            android:padding="8dp"
-            android:text="Comp %"
-            android:textAppearance="@style/TextAppearance.Cfhc.StatRowLabel" />
+            android:background="@drawable/bg_cf_card_canvas"
+            android:gravity="end|center_vertical"
+            android:padding="@dimen/cf_space_sm"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
+            tools:text="68.1%" />
 
         <TextView
             android:id="@+id/textStat2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
+            android:layout_marginStart="@dimen/cf_space_xs"
             android:layout_weight="1"
-            android:background="@drawable/bg_mobile_stat_chip"
-            android:gravity="center"
-            android:padding="8dp"
-            android:text="Yds"
-            android:textAppearance="@style/TextAppearance.Cfhc.StatRowLabel" />
+            android:background="@drawable/bg_cf_card_canvas"
+            android:gravity="end|center_vertical"
+            android:padding="@dimen/cf_space_sm"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
+            tools:text="3,412 yds" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/cf_space_xs"
         android:orientation="horizontal"
         android:weightSum="3">
 
@@ -70,37 +75,38 @@
             android:id="@+id/textStat3"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="6dp"
+            android:layout_marginEnd="@dimen/cf_space_xs"
             android:layout_weight="1"
-            android:background="@drawable/bg_mobile_stat_chip"
-            android:gravity="center"
-            android:padding="8dp"
-            android:text="TD"
-            android:textAppearance="@style/TextAppearance.Cfhc.StatRowLabel" />
+            android:background="@drawable/bg_cf_card_canvas"
+            android:gravity="end|center_vertical"
+            android:padding="@dimen/cf_space_sm"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
+            tools:text="31 TD" />
 
         <TextView
             android:id="@+id/textStat4"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="3dp"
-            android:layout_marginEnd="3dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
             android:layout_weight="1"
-            android:background="@drawable/bg_mobile_stat_chip"
-            android:gravity="center"
-            android:padding="8dp"
-            android:text="Int"
-            android:textAppearance="@style/TextAppearance.Cfhc.StatRowLabel" />
+            android:background="@drawable/bg_cf_card_canvas"
+            android:gravity="end|center_vertical"
+            android:padding="@dimen/cf_space_sm"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
+            tools:text="6 INT" />
 
         <TextView
             android:id="@+id/textStat5"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
+            android:layout_marginStart="@dimen/cf_space_xs"
             android:layout_weight="1"
-            android:background="@drawable/bg_mobile_stat_chip"
-            android:gravity="center"
-            android:padding="8dp"
-            android:text="Rating"
-            android:textAppearance="@style/TextAppearance.Cfhc.StatRowValueAccent" />
+            android:background="@drawable/bg_cf_rating_tile"
+            android:gravity="end|center_vertical"
+            android:padding="@dimen/cf_space_sm"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
+            android:textColor="@color/cf_emerald"
+            tools:text="164.2" />
     </LinearLayout>
 </LinearLayout>

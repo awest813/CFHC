@@ -5,12 +5,13 @@ package ui;
  */
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
 
 import antdroid.cfbcoach.R;
 
@@ -44,9 +45,14 @@ public class MockDraft extends ArrayAdapter<String> {
 
         String[] split = detail.split("\n");
 
+        // Reset recycled-row styling, then accent the user's team.
+        rowView.setBackgroundResource(R.drawable.bg_cf_card);
+        itemL.setTextColor(ContextCompat.getColor(context, R.color.cf_text_primary));
+        itemR.setTextColor(ContextCompat.getColor(context, R.color.cf_gold));
         if (valueAt(split, 1).equals(userTeamStrRep)) {
-            itemL.setTextColor(Color.parseColor("#5994de"));
-            itemR.setTextColor(Color.parseColor("#5994de"));
+            rowView.setBackgroundResource(R.drawable.bg_cf_card_accent);
+            itemL.setTextColor(ContextCompat.getColor(context, R.color.cf_emerald));
+            itemR.setTextColor(ContextCompat.getColor(context, R.color.cf_emerald));
         }
 
         return rowView;

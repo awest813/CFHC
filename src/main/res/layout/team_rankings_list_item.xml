@@ -1,33 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Generic ranking row (teams, players, coaches): gold rank pill · name (Inter) · stat (mono, right). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/bg_mobile_row"
+    android:background="@drawable/bg_cf_card"
     android:gravity="center_vertical"
-    android:minHeight="60dp"
+    android:minHeight="48dp"
     android:orientation="horizontal"
-    android:padding="12dp">
+    android:paddingStart="@dimen/cf_card_padding_h"
+    android:paddingTop="@dimen/cf_space_sm"
+    android:paddingEnd="@dimen/cf_card_padding_h"
+    android:paddingBottom="@dimen/cf_space_sm">
 
     <TextView
         android:id="@+id/textTeamRankingsLeft"
-        android:layout_width="56dp"
+        style="@style/Widget.Cfhc.Pill.Gold"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:gravity="start"
-        android:textAppearance="@style/TextAppearance.Cfhc.ListRankOrdinal" />
+        android:contentDescription="@string/row_rank_cd"
+        android:minWidth="40dp"
+        android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatAccent"
+        tools:text="#1" />
 
     <TextView
         android:id="@+id/textTeamRankingsCenter"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginEnd="10dp"
+        android:layout_marginStart="@dimen/cf_space_md"
+        android:layout_marginEnd="@dimen/cf_space_sm"
         android:layout_weight="1"
-        android:textAppearance="@style/TextAppearance.Cfhc.ListRankTitle" />
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title"
+        tools:text="Team Name" />
 
     <TextView
         android:id="@+id/textTeamRankingsRight"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="end"
-        android:textAppearance="@style/TextAppearance.Cfhc.ListRankStat" />
+        android:minWidth="44dp"
+        android:textAlignment="viewEnd"
+        android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
+        tools:text="412.5" />
 </LinearLayout>

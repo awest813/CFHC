@@ -5,12 +5,13 @@ package ui;
  */
 
 import android.content.Context;
-import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
 
 import antdroid.cfbcoach.R;
 
@@ -37,6 +38,9 @@ public class LeagueHistoryList extends ArrayAdapter<String> {
         TextView textTop = rowView.findViewById(R.id.textViewLeagueHistoryTop);
         TextView textMiddle = rowView.findViewById(R.id.textViewLeagueHistoryMiddle);
         TextView textBottom = rowView.findViewById(R.id.textViewLeagueHistoryBottom);
+        // Reset recycled-row colours to the HUD defaults before applying user-team accents.
+        textMiddle.setTextColor(ContextCompat.getColor(context, R.color.cf_text_secondary));
+        textBottom.setTextColor(ContextCompat.getColor(context, R.color.cf_text_secondary));
         String[] record = values[position].split("\n");
         if (record.length == 3) {
             textTop.setText(record[0]);
@@ -44,11 +48,11 @@ public class LeagueHistoryList extends ArrayAdapter<String> {
             textBottom.setText(record[2]);
             if (wordAt(record[1], 1).equals(userTeamAbbr)) {
                 // User team won NCG, make it special color
-                textMiddle.setTextColor(Color.parseColor("#5994de"));
+                textMiddle.setTextColor(ContextCompat.getColor(context, R.color.cf_emerald));
             }
             if (wordAt(record[2], 5).equals(userTeamAbbr)) {
                 // User team won POTY, make it special color
-                textBottom.setTextColor(Color.parseColor("#5994de"));
+                textBottom.setTextColor(ContextCompat.getColor(context, R.color.cf_emerald));
             }
         } else if (record.length == 4) {
             textTop.setText(record[0]);
@@ -56,15 +60,15 @@ public class LeagueHistoryList extends ArrayAdapter<String> {
             textBottom.setText(record[2] + "\n" + record[3]);
             if (wordAt(record[1], 1).equals(userTeamAbbr)) {
                 // User team won NCG, make it special color
-                textMiddle.setTextColor(Color.parseColor("#5994de"));
+                textMiddle.setTextColor(ContextCompat.getColor(context, R.color.cf_emerald));
             }
             if (wordAt(record[2], 5).equals(userTeamAbbr)) {
                 // User team won POTY, make it special color
-                textBottom.setTextColor(Color.parseColor("#5994de"));
+                textBottom.setTextColor(ContextCompat.getColor(context, R.color.cf_emerald));
             }
             if (wordAt(record[3], 5).equals(userTeamAbbr)) {
                 // User team won POTY, make it special color
-                textBottom.setTextColor(Color.parseColor("#5994de"));
+                textBottom.setTextColor(ContextCompat.getColor(context, R.color.cf_emerald));
             }
         } else if (record.length > 0) {
             textTop.setText(record[0]);

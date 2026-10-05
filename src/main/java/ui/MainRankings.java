@@ -5,13 +5,14 @@ package ui;
  */
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 
@@ -53,19 +54,27 @@ public class MainRankings extends ArrayAdapter<String> {
         textCenter.setText(team + " " + record);
         textRight.setText(valueAt(teamStat, 3));
 
+        // Reset recycled-row styling to the HUD row defaults.
+        rowView.setBackgroundResource(R.drawable.bg_cf_card);
+        textLeft.setVisibility(View.VISIBLE);
+        textLeft.setTextColor(color(R.color.cf_gold));
+        textCenter.setTextColor(color(R.color.cf_text_primary));
+        textRight.setTextColor(color(R.color.cf_text_primary));
+
         if (team.equals(userTeamStrRep)) {
-            // Bold user team
+            // User team: emerald leading bar + emerald text
+            rowView.setBackgroundResource(R.drawable.bg_cf_card_accent);
             textLeft.setTypeface(textLeft.getTypeface(), Typeface.BOLD);
-            textLeft.setTextColor(Color.parseColor("#5994de"));
             textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
-            textCenter.setTextColor(Color.parseColor("#5994de"));
+            textCenter.setTextColor(color(R.color.cf_emerald));
             textRight.setTypeface(textRight.getTypeface(), Typeface.BOLD);
-            textRight.setTextColor(Color.parseColor("#5994de"));
+            textRight.setTextColor(color(R.color.cf_emerald));
         }
         if (rank.equals(" ")) {
-            // Bold user team
+            // Section header line (conference / division): no rank pill, gold label
+            textLeft.setVisibility(View.INVISIBLE);
             textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
-            textCenter.setTextColor(Color.parseColor("#5994de"));
+            textCenter.setTextColor(color(R.color.cf_gold));
         }
 
         textCenter.setOnClickListener(new View.OnClickListener() {
@@ -80,6 +89,10 @@ public class MainRankings extends ArrayAdapter<String> {
 
     public void setUserTeamStrRep(String userTeamStrRep) {
         this.userTeamStrRep = userTeamStrRep;
+    }
+
+    private int color(int colorRes) {
+        return ContextCompat.getColor(context, colorRes);
     }
 
     private static String valueAt(String[] values, int index) {

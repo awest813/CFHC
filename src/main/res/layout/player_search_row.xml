@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Search / transfer result row: POS · YR · team pills, OVR (mono, right); name (Inter) + status. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="6dp"
-    android:background="@drawable/bg_mobile_row"
+    android:background="@drawable/bg_cf_card"
+    android:minHeight="48dp"
     android:orientation="vertical"
-    android:padding="12dp">
+    android:paddingStart="@dimen/cf_card_padding_h"
+    android:paddingTop="@dimen/cf_space_sm"
+    android:paddingEnd="@dimen/cf_card_padding_h"
+    android:paddingBottom="@dimen/cf_space_sm">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,50 +20,30 @@
 
         <TextView
             android:id="@+id/textSearchRowPos"
+            style="@style/Widget.Cfhc.Pill"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_mobile_chip"
-            android:gravity="center"
-            android:minWidth="38dp"
-            android:paddingBottom="4dp"
-            android:paddingStart="6dp"
-            android:paddingEnd="6dp"
-            android:paddingTop="4dp"
-            android:text="QB"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.Cfhc.ChipRosterMuted" />
+            android:minWidth="36dp"
+            tools:text="QB" />
 
         <TextView
             android:id="@+id/textSearchRowClass"
+            style="@style/Widget.Cfhc.Pill"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:background="@drawable/bg_mobile_chip"
-            android:gravity="center"
-            android:minWidth="38dp"
-            android:paddingBottom="4dp"
-            android:paddingStart="6dp"
-            android:paddingEnd="6dp"
-            android:paddingTop="4dp"
-            android:text="JR"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.Cfhc.ChipRosterMuted" />
+            android:layout_marginStart="@dimen/cf_space_xs"
+            android:minWidth="36dp"
+            tools:text="JR" />
 
         <TextView
             android:id="@+id/textSearchRowTeam"
+            style="@style/Widget.Cfhc.Pill.Gold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="6dp"
-            android:background="@drawable/bg_mobile_chip"
-            android:gravity="center"
-            android:paddingBottom="4dp"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:paddingTop="4dp"
-            android:text="Team"
-            android:textColor="@color/accentGold"
-            android:textSize="11sp"
-            android:textStyle="bold" />
+            android:layout_marginStart="@dimen/cf_space_xs"
+            android:ellipsize="end"
+            android:maxLines="1"
+            tools:text="TEAM" />
 
         <Space
             android:layout_width="0dp"
@@ -69,22 +54,18 @@
             android:id="@+id/textSearchRowOvr"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_mobile_chip"
-            android:gravity="center"
+            android:gravity="end"
             android:minWidth="48dp"
-            android:paddingBottom="4dp"
-            android:paddingStart="8dp"
-            android:paddingEnd="8dp"
-            android:paddingTop="4dp"
-            android:text="88 OVR"
-            android:textAlignment="center"
-            android:textAppearance="@style/TextAppearance.Cfhc.ChipRosterValue" />
+            android:textAlignment="viewEnd"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
+            android:textColor="@color/cf_emerald"
+            tools:text="88 OVR" />
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/cf_space_sm"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
@@ -93,16 +74,17 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Player Name"
-            android:textAppearance="@style/TextAppearance.Cfhc.ListRowHeadline"
-            android:textSize="15sp" />
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title"
+            tools:text="Player Name" />
 
         <TextView
             android:id="@+id/textSearchRowStatus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Active"
-            android:textColor="@color/textSecondary"
-            android:textSize="12sp" />
+            android:layout_marginStart="@dimen/cf_space_sm"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption"
+            tools:text="Active" />
     </LinearLayout>
 </LinearLayout>

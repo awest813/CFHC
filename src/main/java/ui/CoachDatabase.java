@@ -1,13 +1,14 @@
 package ui;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
 
@@ -51,41 +52,48 @@ public class CoachDatabase  extends ArrayAdapter<String> {
         textCenter.setText(center);
         textRight.setText(right);
 
+        // Reset recycled-row styling to the HUD row defaults.
+        rowView.setBackgroundResource(R.drawable.bg_cf_card);
+        textLeft.setTextColor(color(R.color.cf_gold));
+        textCenter.setTextColor(color(R.color.cf_text_primary));
+        textRight.setTextColor(color(R.color.cf_text_primary));
 
         if (!center.contains("[U]") && !center.contains("[R]")) {
-            // Bold user team
-            textCenter.setTextColor(Color.parseColor("#5994de"));
-            textRight.setTextColor(Color.parseColor("#5994de"));
+            // Active (employed) coach
+            textCenter.setTextColor(color(R.color.cf_emerald));
+            textRight.setTextColor(color(R.color.cf_emerald));
         }
         if (center.contains("[R]")) {
-            // Bold user team
-            textCenter.setTextColor(Color.GRAY);
-            textRight.setTextColor(Color.GRAY);
+            // Retired coach
+            textCenter.setTextColor(color(R.color.cf_text_muted));
+            textRight.setTextColor(color(R.color.cf_text_muted));
         }
 
         if(userNames != null && userNames.contains(center)) {
-            textLeft.setTextColor(Color.parseColor("#B68044"));
-            textCenter.setTextColor(Color.parseColor("#B68044"));
-            textRight.setTextColor(Color.parseColor("#B68044"));
+            // Coaches the user has controlled in this save
+            textLeft.setTextColor(color(R.color.cf_amber));
+            textCenter.setTextColor(color(R.color.cf_amber));
+            textRight.setTextColor(color(R.color.cf_amber));
         }
 
 
         if (center.equals(userHC)) {
-            // Bold user team
+            // Current user head coach: emerald leading bar + gold text
+            rowView.setBackgroundResource(R.drawable.bg_cf_card_accent);
             textLeft.setTypeface(textLeft.getTypeface(), Typeface.BOLD);
-            textLeft.setTextColor(Color.parseColor("#ff9933"));
+            textLeft.setTextColor(color(R.color.cf_gold));
             textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
-            textCenter.setTextColor(Color.parseColor("#ff9933"));
+            textCenter.setTextColor(color(R.color.cf_gold));
             textRight.setTypeface(textRight.getTypeface(), Typeface.BOLD);
-            textRight.setTextColor(Color.parseColor("#ff9933"));
+            textRight.setTextColor(color(R.color.cf_gold));
         }
 
         String[] rightParts = right.split(" ");
         if (rightParts.length > 2 && rightParts[2].contains("+")) {
             // Highlight Prestige Changes in off-season
-            textRight.setTextColor(Color.GREEN);
+            textRight.setTextColor(color(R.color.cf_positive));
         } else if (rightParts.length > 2 && rightParts[2].contains("-")) {
-            textRight.setTextColor(Color.RED);
+            textRight.setTextColor(color(R.color.cf_negative));
         }
 
 
@@ -104,6 +112,10 @@ public class CoachDatabase  extends ArrayAdapter<String> {
 
     public void setupUserHC(String userHC) {
         this.userHC = userHC;
+    }
+
+    private int color(int colorRes) {
+        return ContextCompat.getColor(context, colorRes);
     }
 
     private static String valueAt(String[] values, int index) {

@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Schedule row: game label (Inter) · result button (mono score, win/loss fill) · opponent link. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
-    android:background="@drawable/bg_mobile_panel"
+    android:background="@drawable/bg_cf_card"
     android:gravity="center_vertical"
-    android:minHeight="72dp"
+    android:minHeight="64dp"
     android:orientation="horizontal"
-    android:padding="10dp">
+    android:paddingStart="@dimen/cf_card_padding_h"
+    android:paddingTop="@dimen/cf_space_sm"
+    android:paddingEnd="@dimen/cf_card_padding_h"
+    android:paddingBottom="@dimen/cf_space_sm">
 
     <TextView
         android:id="@+id/gameScheduleLeft"
@@ -16,41 +20,47 @@
         android:layout_weight="0.85"
         android:ellipsize="end"
         android:maxLines="2"
-        android:paddingStart="0dp"
-        android:paddingEnd="8dp"
-        android:textColor="@color/textSecondary"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:textSize="12sp"
-        android:textStyle="bold" />
+        android:paddingEnd="@dimen/cf_space_sm"
+        android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption"
+        tools:text="Week 1" />
 
     <Button
         android:id="@+id/gameScheduleButtonList"
         android:layout_width="0dp"
         android:layout_height="48dp"
-        android:layout_marginStart="4dp"
-        android:layout_marginEnd="4dp"
+        android:layout_marginStart="@dimen/cf_space_xs"
+        android:layout_marginEnd="@dimen/cf_space_xs"
         android:layout_weight="1.4"
         android:background="@drawable/bg_action_secondary"
+        android:contentDescription="@string/row_schedule_result_cd"
         android:ellipsize="end"
+        android:fontFamily="@font/jetbrains_mono"
         android:maxLines="2"
+        android:paddingStart="@dimen/cf_space_sm"
+        android:paddingEnd="@dimen/cf_space_sm"
         android:textAllCaps="false"
-        android:textColor="@color/textPrimary"
-        android:textSize="13sp"
-        android:textStyle="bold" />
+        android:textColor="@color/cf_text_primary"
+        android:textSize="@dimen/cf_text_stat"
+        android:textStyle="bold"
+        tools:text="W 35-14" />
 
     <Button
         android:id="@+id/gameScheduleRight"
         android:layout_width="0dp"
         android:layout_height="48dp"
-        android:layout_marginStart="4dp"
+        android:layout_marginStart="@dimen/cf_space_xs"
         android:layout_weight="0.85"
         android:background="@android:color/transparent"
+        android:contentDescription="@string/row_schedule_opponent_cd"
         android:ellipsize="end"
-        android:paddingStart="8dp"
-        android:paddingEnd="0dp"
+        android:fontFamily="@font/inter"
         android:gravity="end|center_vertical"
         android:maxLines="2"
+        android:paddingStart="@dimen/cf_space_sm"
+        android:paddingEnd="0dp"
         android:textAllCaps="false"
-        android:textColor="@color/accentGold"
-        android:textSize="12sp" />
+        android:textColor="@color/cf_gold"
+        android:textSize="@dimen/cf_text_caption"
+        android:textStyle="bold"
+        tools:text="#4 Opponent" />
 </LinearLayout>
