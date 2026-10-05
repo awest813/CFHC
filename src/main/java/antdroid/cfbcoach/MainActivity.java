@@ -300,10 +300,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         //Team Depth Chart Button
         Button depthchartButton = findViewById(R.id.buttonDepthChart);
         if (!gameState.isRedshirtComplete()) {
-            // Title case so the label fits the third-width button without wrapping.
-            depthchartButton.setText("Redshirt");
+            // Short label so it fits the third-width button (which also autosizes).
+            depthchartButton.setText(R.string.redshirt_button_pending);
             depthchartButton.setBackgroundResource(R.drawable.bg_action_danger);
-            depthchartButton.setTextColor(ContextCompat.getColor(this, R.color.textPrimary));
+            depthchartButton.setTextColor(ContextCompat.getColor(this, R.color.cf_on_crimson));
         }
 
         depthchartButton.setOnClickListener(new View.OnClickListener() {

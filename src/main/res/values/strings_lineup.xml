@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="lineup_title">Depth Chart</string>
+    <string name="lineup_starters_needed">Starters needed: %1$d</string>
+    <string name="lineup_saved">%1$s lineup saved.</string>
+    <string name="lineup_wrong_count">Pick exactly %1$d starters. You have %2$d selected.</string>
+    <string name="redshirt_title">Redshirts</string>
+    <string name="redshirt_button_pending">Redshirts</string>
+    <string name="redshirt_apply">Apply Redshirts</string>
+    <string name="redshirt_active_count">Active: %1$d (minimum %2$d)</string>
+    <string name="redshirt_saved">%1$s redshirts saved. %2$d of 10 used.</string>
+    <string name="redshirt_over_limit">Only 10 redshirts are allowed per season. You already have %1$d.</string>
+</resources>

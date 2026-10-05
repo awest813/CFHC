@@ -28,7 +28,7 @@ final class DepthChartDialogController {
 
     static void showDepthChart(final MainActivity activity, final Team userTeam) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("Set Team Lineup")
+        builder.setTitle(R.string.lineup_title)
                 .setView(activity.getLayoutInflater().inflate(R.layout.team_lineup_dialog, null, false));
         final AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
@@ -56,7 +56,7 @@ final class DepthChartDialogController {
         teamLineupPositionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                minPlayersText.setText("Starters: " + positionNumberRequired[position]);
+                minPlayersText.setText(activity.getString(R.string.lineup_starters_needed, positionNumberRequired[position]));
                 updateLineupList(userTeam, position, teamLineupAdapter, positionNumberRequired, positionPlayers, textLineupPositionDescription);
             }
 
@@ -82,9 +82,9 @@ final class DepthChartDialogController {
                 if (teamLineupAdapter.playersSelected.size() == teamLineupAdapter.playersRequired) {
                     userTeam.setStarters(teamLineupAdapter.playersSelected, positionSpinner);
                     updateLineupList(userTeam, positionSpinner, teamLineupAdapter, positionNumberRequired, positionPlayers, textLineupPositionDescription);
-                    Toast.makeText(activity, "Saved lineup for " + positionSelection[positionSpinner] + "!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, activity.getString(R.string.lineup_saved, positionSelection[positionSpinner]), Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(activity, teamLineupAdapter.playersSelected.size() + " players selected.\nNot the correct number of starters (" + teamLineupAdapter.playersRequired + ")", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, activity.getString(R.string.lineup_wrong_count, teamLineupAdapter.playersRequired, teamLineupAdapter.playersSelected.size()), Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -92,7 +92,7 @@ final class DepthChartDialogController {
 
     static void showRedshirt(final MainActivity activity, final Team userTeam) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("Select Redshirt Players")
+        builder.setTitle(R.string.redshirt_title)
                 .setView(activity.getLayoutInflater().inflate(R.layout.team_lineup_dialog, null, false));
         final AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
@@ -120,7 +120,7 @@ final class DepthChartDialogController {
         teamLineupPositionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                minPlayersText.setText("Min Active: " + positionNumberRequired[position] + " Current Active: " + userTeam.getActivePlayers(position));
+                minPlayersText.setText(activity.getString(R.string.redshirt_active_count, userTeam.getActivePlayers(position), positionNumberRequired[position]));
                 redshirtLineup(userTeam, position, redshirtSelector, positionNumberRequired, positionPlayers, textLineupPositionDescription);
             }
 
@@ -134,14 +134,14 @@ final class DepthChartDialogController {
             @Override
             public void onClick(View v) {
                 Button depthchartButton = activity.findViewById(R.id.buttonDepthChart);
-                if (!activity.isRedshirtComplete()) depthchartButton.setText("SET REDSHIRTS");
+                if (!activity.isRedshirtComplete()) depthchartButton.setText(R.string.redshirt_button_pending);
                 dialog.dismiss();
                 activity.updateCurrTeam();
             }
         });
 
         Button saveButton = dialog.findViewById(R.id.buttonSaveLineups);
-        saveButton.setText("REDSHIRT PLAYERS");
+        saveButton.setText(R.string.redshirt_apply);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -151,10 +151,10 @@ final class DepthChartDialogController {
                     redshirtSelector.playersSelected.clear();
                     redshirtSelector.playersRemoved.clear();
                     redshirtLineup(userTeam, positionSpinner, redshirtSelector, positionNumberRequired, positionPlayers, textLineupPositionDescription);
-                    minPlayersText.setText("Min Active: " + positionNumberRequired[positionSpinner] + " Current Active: " + userTeam.getActivePlayers(positionSpinner));
-                    Toast.makeText(activity, "Set redshirts for " + positionSelection[positionSpinner] + "! You currently have " + userTeam.countRedshirts() + " (Max: 10) redshirted players.", Toast.LENGTH_SHORT).show();
+                    minPlayersText.setText(activity.getString(R.string.redshirt_active_count, userTeam.getActivePlayers(positionSpinner), positionNumberRequired[positionSpinner]));
+                    Toast.makeText(activity, activity.getString(R.string.redshirt_saved, positionSelection[positionSpinner], userTeam.countRedshirts()), Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(activity, "A maximum of 10 players can be redshirted each season. You have exceeded this! You currently have " + userTeam.countRedshirts() + " redshirted players.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, activity.getString(R.string.redshirt_over_limit, userTeam.countRedshirts()), Toast.LENGTH_LONG).show();
                 }
             }
         });
