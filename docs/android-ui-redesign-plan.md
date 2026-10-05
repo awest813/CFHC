@@ -216,7 +216,12 @@ screens + commit. No wave mixes re-skinning with engine changes.
   and recruiting cards, progress dialog copy in resources, conference-grouped
   first-run team picker, card-based Week In Review (`WeekDigestView` parser,
   unit-tested), haptic ticks on Play Week / drawer / team pick, Android 12+
-  splash on the canvas colour. Open: light-theme
+  splash on the canvas colour. Third round: honest exit prompt with Save &
+  Exit (tracks the season position of the last save/load), HUD snackbars for
+  save/export results, `ChoiceCardDialog` steps for coaching identity and
+  schemes (with what each choice does), Season Goals projection tiles,
+  large-font-safe buttons (minHeight / autosize), unread-headlines badge on the
+  News drawer item. Open: light-theme
   audit per screen, vector icon pass, snapshot re-baseline (needs an emulator).
 - Light theme audit: every screen in both themes via the snapshot script.
 - Animations: row press ripples, card state transitions, screen-change fade
