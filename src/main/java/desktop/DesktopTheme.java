@@ -1036,20 +1036,38 @@ public final class DesktopTheme {
     }
 
     public static JPanel buildScreenHeader(String title, String subtitle) {
-        JPanel header = new JPanel(new BorderLayout());
+        JPanel header = new JPanel(new BorderLayout(0, 2));
         header.setOpaque(false);
-        JLabel titleLabel = new JLabel(title);
-        titleLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 18));
+        JPanel titleRow = new JPanel(new BorderLayout(8, 0));
+        titleRow.setOpaque(false);
+        JPanel mark = new JPanel() {
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                g.setColor(isHighContrast() ? textPrimary() : emerald());
+                int barH = Math.max(12, getHeight() - 6);
+                g.fillRect(0, (getHeight() - barH) / 2, 3, barH);
+            }
+
+            @Override
+            public Dimension getPreferredSize() {
+                return new Dimension(8, 22);
+            }
+        };
+        mark.setOpaque(false);
+        JLabel titleLabel = new JLabel(title == null ? "" : title.toUpperCase(java.util.Locale.ROOT));
+        titleLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 16));
         titleLabel.setForeground(textPrimary());
-        JLabel subtitleLabel = new JLabel(subtitle);
+        titleRow.add(mark, BorderLayout.WEST);
+        titleRow.add(titleLabel, BorderLayout.CENTER);
+        JLabel subtitleLabel = new JLabel(subtitle == null ? "" : subtitle);
         subtitleLabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
         subtitleLabel.setForeground(textSecondary());
-        subtitleLabel.setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 0, 0, 0));
-        header.add(titleLabel, BorderLayout.NORTH);
+        subtitleLabel.setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 11, 0, 0));
+        header.add(titleRow, BorderLayout.NORTH);
         header.add(subtitleLabel, BorderLayout.SOUTH);
         // Breathing room between the header and the table/content below it
         // (the subtitle used to sit flush against table headers).
-        header.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 8, 0));
+        header.setBorder(javax.swing.BorderFactory.createEmptyBorder(2, 0, 10, 0));
         return header;
     }
 

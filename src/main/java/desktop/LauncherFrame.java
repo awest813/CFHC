@@ -99,20 +99,28 @@ public class LauncherFrame extends JFrame {
                 BorderFactory.createMatteBorder(0, 0, 0, 1, BRAND_ACCENT),
                 BorderFactory.createEmptyBorder(40, 24, 40, 24)));
 
-        JPanel branding = new JPanel(new GridLayout(0, 1, 0, 4));
+        JPanel branding = new JPanel(new BorderLayout(0, 10));
         branding.setOpaque(false);
+        branding.add(new FrontOfficeMark(), BorderLayout.NORTH);
+        JPanel names = new JPanel(new GridLayout(0, 1, 0, 2));
+        names.setOpaque(false);
+        JLabel kicker = new JLabel("FRONT OFFICE", SwingConstants.CENTER);
+        kicker.setForeground(DesktopTheme.emerald());
+        kicker.setFont(new Font("SansSerif", Font.BOLD, 11));
         JLabel title = new JLabel("CFHC", SwingConstants.CENTER);
         title.setForeground(DesktopTheme.sidebarText());
-        title.setFont(new Font("SansSerif", Font.BOLD, 32));
+        title.setFont(new Font("SansSerif", Font.BOLD, 34));
         JLabel subtitle = new JLabel("College Football Head Coach", SwingConstants.CENTER);
         subtitle.setForeground(DesktopTheme.textSecondary());
         subtitle.setFont(new Font("SansSerif", Font.PLAIN, 12));
         JLabel version = new JLabel(version(), SwingConstants.CENTER);
         version.setForeground(DesktopTheme.textSecondary());
         version.setFont(new Font("SansSerif", Font.PLAIN, 11));
-        branding.add(title);
-        branding.add(subtitle);
-        branding.add(version);
+        names.add(kicker);
+        names.add(title);
+        names.add(subtitle);
+        names.add(version);
+        branding.add(names, BorderLayout.CENTER);
 
         JPanel northBlock = new JPanel(new BorderLayout());
         northBlock.setOpaque(false);
@@ -357,7 +365,7 @@ public class LauncherFrame extends JFrame {
                 In the league window
                 - The left sidebar opens Home, Recruiting, Standings, Scoreboard, My Coach,
                   polls, rankings, stats, search, history, news, coaches, HoF, records, and Settings.
-                - Space plays the next week or the next offseason step. Use the header buttons for longer sims.
+                - Space, or the dashboard Play control, advances the next step. Season menu items run longer sims.
                 - Double-click any team in Standings to open rosters, depth chart, coordinators, and facilities.
                 - F1 lists every keyboard shortcut.
 
@@ -383,4 +391,34 @@ public class LauncherFrame extends JFrame {
     }
 
     private static String version() { return DesktopVersion.DISPLAY; }
+
+    /** Painted shield for the career-hub rail. Matches the league header crest. */
+    private static final class FrontOfficeMark extends JPanel {
+        FrontOfficeMark() {
+            setOpaque(false);
+            setPreferredSize(new Dimension(72, 64));
+        }
+
+        @Override
+        protected void paintComponent(java.awt.Graphics g) {
+            java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+            g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
+                    java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+            int size = 56;
+            int x = (getWidth() - size) / 2;
+            int y = 2;
+            g2.setColor(DesktopTheme.isDark() ? new java.awt.Color(15, 41, 30) : new java.awt.Color(226, 242, 232));
+            g2.fillOval(x, y, size, size);
+            g2.setColor(DesktopTheme.emerald());
+            g2.setStroke(new java.awt.BasicStroke(2f));
+            g2.drawOval(x, y, size, size);
+            g2.setFont(new Font("SansSerif", Font.BOLD, 16));
+            g2.setColor(DesktopTheme.isDark() ? java.awt.Color.WHITE : new java.awt.Color(6, 64, 36));
+            java.awt.FontMetrics fm = g2.getFontMetrics();
+            String mark = "CF";
+            g2.drawString(mark, x + (size - fm.stringWidth(mark)) / 2,
+                    y + (size + fm.getAscent() - fm.getDescent()) / 2);
+            g2.dispose();
+        }
+    }
 }

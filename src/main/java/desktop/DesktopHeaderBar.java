@@ -89,25 +89,39 @@ public class DesktopHeaderBar extends JPanel {
         JPanel titlePanel = new JPanel(new BorderLayout(0, 2));
         titlePanel.setOpaque(false);
 
-        String schoolName = userTeam != null ? userTeam.getName().toUpperCase() : "PINE VALLEY STATE";
-        String mascotName = userTeam != null && userTeam.nickname != null ? userTeam.nickname : "Owls";
+        String schoolName = userTeam != null ? userTeam.getName().toUpperCase() : "COLLEGE FOOTBALL";
+        String mascotName = userTeam != null && userTeam.nickname != null ? userTeam.nickname : "";
 
-        JLabel schoolLabel = new JLabel(schoolName + "  " + mascotName);
+        JPanel nameRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        nameRow.setOpaque(false);
+        JLabel schoolLabel = new JLabel(schoolName);
         schoolLabel.setFont(new Font("SansSerif", Font.BOLD, 22));
         schoolLabel.setForeground(DesktopTheme.headerText());
+        nameRow.add(schoolLabel);
+        if (!mascotName.isBlank()) {
+            JLabel mascotLabel = new JLabel(mascotName);
+            mascotLabel.setFont(new Font("Serif", Font.ITALIC | Font.BOLD, 22));
+            mascotLabel.setForeground(DesktopTheme.headerAccentGold());
+            nameRow.add(mascotLabel);
+        }
 
         int currentYear = league != null ? league.getYear() : 2026;
+        String recordPrefix = "";
+        if (userTeam != null) {
+            recordPrefix = userTeam.getWins() + "-" + userTeam.getLosses() + "   ·   ";
+        }
         String seasonText = league != null
                 // The engine chip reads "Phase  Regular Season"; the header
                 // only needs the phase name itself.
-                ? simulation.SeasonPresentation.getSeasonPhaseChipText(league).replaceFirst("^Phase\\s+", "")
+                ? recordPrefix
+                    + simulation.SeasonPresentation.getSeasonPhaseChipText(league).replaceFirst("^Phase\\s+", "")
                     + "  \u2022  " + simulation.SeasonPresentation.getSeasonWeekChipText(league)
                 : currentYear + " SEASON  •  WEEK 8";
         JLabel seasonLabel = new JLabel(seasonText.toUpperCase());
         seasonLabel.setFont(new Font("SansSerif", Font.BOLD, 11));
         seasonLabel.setForeground(DesktopTheme.headerSubtleText());
 
-        titlePanel.add(schoolLabel, BorderLayout.NORTH);
+        titlePanel.add(nameRow, BorderLayout.NORTH);
         titlePanel.add(seasonLabel, BorderLayout.SOUTH);
         leftGroup.add(titlePanel);
 
