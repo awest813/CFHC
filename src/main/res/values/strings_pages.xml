@@ -4,6 +4,15 @@
     <string name="page_standings_columns">Team · record · conference</string>
     <string name="page_rankings_columns">Team · record · poll</string>
     <string name="page_roster_columns">Position · class · overall</string>
+    <string name="page_schedule_columns">Week · result · opponent</string>
+    <string name="page_schedule_bye">Bye</string>
+    <string name="page_schedule_home">Home</string>
+    <string name="page_schedule_away">Away</string>
+    <string name="page_schedule_week">Wk %1$d</string>
+    <string name="page_schedule_vs">vs %1$s</string>
+    <string name="page_schedule_at">at %1$s</string>
+    <string name="page_schedule_vs_ranked">vs #%1$d %2$s</string>
+    <string name="page_schedule_at_ranked">at #%1$d %2$s</string>
     <string name="page_team_stats_columns">Value · national rank</string>
     <string name="page_roster_starter">Starter</string>
     <string name="page_roster_all_fr">All-Freshman</string>
