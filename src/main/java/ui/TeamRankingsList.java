@@ -45,6 +45,7 @@ public class TeamRankingsList extends ArrayAdapter<String> {
         }
         TextView textLeft = rowView.findViewById(R.id.textTeamRankingsLeft);
         TextView textCenter = rowView.findViewById(R.id.textTeamRankingsCenter);
+        TextView textDetail = rowView.findViewById(R.id.textTeamRankingsDetail);
         TextView textRight = rowView.findViewById(R.id.textTeamRankingsRight);
 
 
@@ -52,9 +53,20 @@ public class TeamRankingsList extends ArrayAdapter<String> {
         String rank = valueAt(teamStat, 0);
         String team = valueAt(teamStat, 1);
         String detail = valueAt(teamStat, 2);
+        String score = detail;
+        String headline = "";
+        int dot = detail.indexOf(" · ");
+        if (dot >= 0) {
+            score = detail.substring(0, dot).trim();
+            headline = detail.substring(dot + 3).trim();
+        }
         textLeft.setText(rank);
         textCenter.setText(team);
-        textRight.setText(detail);
+        textRight.setText(score);
+        if (textDetail != null) {
+            textDetail.setText(headline);
+            textDetail.setVisibility(headline.isEmpty() ? View.GONE : View.VISIBLE);
+        }
         // Reset recycled-row styling to the HUD row defaults (gold rank pill, Inter name, mono stat).
         rowView.setBackgroundResource(R.drawable.bg_cf_card);
         textLeft.setTextColor(color(R.color.cf_gold));
@@ -64,11 +76,15 @@ public class TeamRankingsList extends ArrayAdapter<String> {
         textCenter.setTypeface(interFont, Typeface.BOLD);
         textRight.setTypeface(monoFont, Typeface.BOLD);
 
-        if (team.equals(userTeamStrRep)) {
+        boolean userRow = team.equals(userTeamStrRep);
+        if (userRow) {
             // User team: emerald leading bar + emerald text
             rowView.setBackgroundResource(R.drawable.bg_cf_card_accent);
             textCenter.setTextColor(color(R.color.cf_emerald));
             textRight.setTextColor(color(R.color.cf_emerald));
+        }
+        if (textDetail != null && !headline.isEmpty()) {
+            textDetail.setTextColor(color(userRow ? R.color.cf_emerald : R.color.cf_text_secondary));
         }
         String[] detailParts = detail.split(" ");
         if (detailParts.length > 2 && detailParts[2].contains("+")) {

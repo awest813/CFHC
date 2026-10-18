@@ -41,6 +41,15 @@ public class RecruitingClassRankingsTest {
     }
 
     @Test
+    public void mockDraft_emptyLeavingPoolDoesNotThrow() {
+        for (Team t : league.getTeamList()) {
+            t.clearPlayersLeaving();
+        }
+        String[] board = league.getMockDraftPlayersList();
+        assertEquals(0, board.length);
+    }
+
+    @Test
     public void recruitingClassRating_isNonNegativeForAnyTeam() {
         for (Team t : league.getTeamList()) {
             float r = t.getRecruitingClassRat();

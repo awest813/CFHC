@@ -75,6 +75,15 @@
 
     <!-- Rankings / list shells -->
     <string name="dlg_rankings_view">View</string>
+    <string name="dlg_rankings_weekly_subtitle">Review weekly performance across all major team statistical categories.</string>
+    <string name="dlg_recruit_class_subtitle">Class score and the headline freshman. Your program is marked in emerald.</string>
+    <string name="dlg_recruit_launch_subtitle">Check who is leaving your roster, then open the pro draft board before recruiting.</string>
+    <string name="dlg_draft_players_leaving">Players Leaving</string>
+    <string name="dlg_draft_board">Pro Mock Draft</string>
+    <string name="dlg_draft_empty">No prospects have declared for the draft yet.</string>
+    <string name="dlg_draft_round">Round %1$s</string>
+    <string name="dlg_draft_pick_cd">Round %1$s, pick %2$s</string>
+    <string name="dlg_draft_overall_cd">Overall %1$s</string>
 
     <!-- Development plan -->
     <string name="dlg_plan_current">Current plan</string>
