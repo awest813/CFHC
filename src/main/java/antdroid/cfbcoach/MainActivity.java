@@ -556,6 +556,56 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             mainList.setAlpha(0f);
             mainList.animate().alpha(1f).setDuration(160).start();
         }
+        applyPageChrome(page);
+    }
+
+    /** Emerald screen title and the matching shortcut. Home keeps the team card. */
+    private void applyPageChrome(int page) {
+        View header = findViewById(R.id.mainPageHeader);
+        TextView title = findViewById(R.id.mainPageTitle);
+        TextView subtitle = findViewById(R.id.mainPageSubtitle);
+        boolean home = page == 0;
+        if (header != null) {
+            header.setVisibility(home ? View.GONE : View.VISIBLE);
+        }
+        if (!home && title != null) {
+            title.setText(pageTitle(page));
+        }
+        if (subtitle != null) {
+            String columns = pageColumns(page);
+            subtitle.setText(columns);
+            subtitle.setVisibility(columns.isEmpty() ? View.GONE : View.VISIBLE);
+        }
+        styleQuickButton(R.id.buttonQuickHome, page == 0);
+        styleQuickButton(R.id.buttonQuickRoster, page == 1);
+        styleQuickButton(R.id.buttonQuickStats, page == 3);
+        styleQuickButton(R.id.buttonQuickSchedule, page == 4);
+    }
+
+    private String pageTitle(int page) {
+        switch (page) {
+            case 1: return getString(R.string.menu_roster);
+            case 2: return getString(R.string.menu_teamplayerstats);
+            case 3: return getString(R.string.menu_teamstats);
+            case 4: return getString(R.string.menu_schedule);
+            case 7: return getString(R.string.menu_standings);
+            case 8: return getString(R.string.menu_rankings);
+            default: return getString(R.string.menu_home);
+        }
+    }
+
+    private String pageColumns(int page) {
+        if (page == 7) return getString(R.string.page_standings_columns);
+        if (page == 8) return getString(R.string.page_rankings_columns);
+        return "";
+    }
+
+    private void styleQuickButton(int id, boolean active) {
+        Button button = findViewById(id);
+        if (button == null) return;
+        button.setBackgroundResource(active ? R.drawable.bg_action_win : R.drawable.bg_action_secondary);
+        button.setTextColor(ContextCompat.getColor(this, active ? R.color.cf_on_emerald : R.color.cf_text_primary));
+        button.setSelected(active);
     }
 
     public void openHomeView(View view) {

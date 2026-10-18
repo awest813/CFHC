@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Column hints pinned above standings and the poll. -->
+<resources>
+    <string name="page_standings_columns">Team · record · conference</string>
+    <string name="page_rankings_columns">Team · record · poll</string>
+</resources>
