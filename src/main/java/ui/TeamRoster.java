@@ -80,7 +80,7 @@ public class TeamRoster extends ArrayAdapter<String> {
         textCenter.setAllCaps(section);
         textCenter.setPaintFlags(textCenter.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
         textClass.setPaintFlags(textClass.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
-        textCenter.setTypeface(interFont, Typeface.BOLD);
+        textCenter.setTypeface(interFont, "*".equals(status) || section ? Typeface.BOLD : Typeface.NORMAL);
         textClass.setTypeface(interFont, Typeface.BOLD);
 
         if (section) {
@@ -121,9 +121,6 @@ public class TeamRoster extends ArrayAdapter<String> {
         }
         if (status.contains("INJ")) {
             nameColor = color(R.color.cf_warning);
-        }
-        if ("*".equals(status)) {
-            textCenter.setTypeface(interFont, Typeface.BOLD);
         }
         textCenter.setTextColor(nameColor);
 
@@ -178,12 +175,29 @@ public class TeamRoster extends ArrayAdapter<String> {
         if ("*".equals(status)) {
             availability = context.getString(R.string.page_roster_starter);
         } else if (!status.isEmpty()) {
-            availability = status;
+            availability = plainTag(status);
         }
         String award = awardLabel(role, awardCode);
         if (award.isEmpty()) return availability;
         if (availability.isEmpty()) return award;
         return availability + "  ·  " + award;
+    }
+
+    /** Engine tags arrive as {@code [INJ - 3 wks]} or {@code [T]}; the caption uses words. */
+    private String plainTag(String status) {
+        String trimmed = status.trim();
+        if (trimmed.startsWith("[") && trimmed.endsWith("]") && trimmed.length() > 2) {
+            trimmed = trimmed.substring(1, trimmed.length() - 1).trim();
+        }
+        if ("T".equals(trimmed)) return context.getString(R.string.page_roster_transfer);
+        if ("RS".equals(trimmed)) return context.getString(R.string.page_roster_redshirt);
+        if ("Med RS".equals(trimmed)) return context.getString(R.string.page_roster_med_rs);
+        if ("INJ".equals(trimmed)) return context.getString(R.string.page_roster_injured);
+        if ("Hot Seat".equals(trimmed)) return context.getString(R.string.page_roster_hot_seat);
+        if (trimmed.startsWith("INJ - ")) {
+            return context.getString(R.string.page_roster_injured_weeks, trimmed.substring(6));
+        }
+        return trimmed;
     }
 
     private String awardLabel(String role, String awardCode) {

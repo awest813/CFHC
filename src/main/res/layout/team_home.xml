@@ -48,9 +48,9 @@
                 android:contentDescription="@string/hub_a11y_overall"
                 android:gravity="center"
                 android:layout_marginEnd="@dimen/cf_space_sm"
+                android:includeFontPadding="false"
                 android:minWidth="48dp"
-                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Rating"
-                android:textSize="@dimen/cf_text_hero"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Overall"
                 tools:text="82" />
 
             <!-- National rank: gold mono pill, taps to rankings -->

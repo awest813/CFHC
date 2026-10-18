@@ -39,7 +39,9 @@ public final class SeasonPresentationController {
             seasonTitle.setText(name == null ? "" : name.toUpperCase(Locale.ROOT));
         }
         if (seasonMono != null) {
-            seasonMono.setText(monogram(currentTeam));
+            String mono = monogram(currentTeam);
+            seasonMono.setText(mono);
+            seasonMono.setContentDescription(activity.getString(R.string.hub_a11y_mono) + " " + mono);
         }
         if (seasonRecord != null) {
             seasonRecord.setText(recordLine(currentTeam));
@@ -79,14 +81,25 @@ public final class SeasonPresentationController {
         return abbr.substring(0, Math.min(3, abbr.length())).toUpperCase(Locale.ROOT);
     }
 
-    /** Record and conference for the header, e.g. {@code 5-2  ·  ACC}. */
+    /** Poll prefix only inside the top 25. Unranked teams otherwise show the full league size. */
+    static String pollPrefix(Team team) {
+        if (team == null) {
+            return "";
+        }
+        int rank = team.getRankTeamPollScore();
+        return rank >= 1 && rank <= 25 ? "#" + rank : "";
+    }
+
+    /** Record and conference for the header, e.g. {@code #12  ·  5-2  ·  ACC}. */
     static String recordLine(Team team) {
         if (team == null) {
             return "";
         }
         String conf = team.conference == null ? "" : team.conference.trim();
         String record = team.getWins() + "-" + team.getLosses();
-        return conf.isEmpty() ? record : record + "  ·  " + conf;
+        String poll = pollPrefix(team);
+        String head = poll.isEmpty() ? record : poll + "  ·  " + record;
+        return conf.isEmpty() ? head : head + "  ·  " + conf;
     }
 
     public static String getSeasonBadgeText(int season) {

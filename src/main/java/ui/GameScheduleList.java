@@ -65,9 +65,8 @@ public class GameScheduleList extends ArrayAdapter<Game> {
 
         gameButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // Perform action on click
                 Game game = gameAt(position);
-                if (game != null && !game.gameName.equals("BYE WEEK")) {
+                if (game != null && !game.isByeWeek()) {
                     mainAct.showGameDialog(game);
                 }
             }
@@ -76,12 +75,13 @@ public class GameScheduleList extends ArrayAdapter<Game> {
         textRight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Do something on click
                 Game game = gameAt(position);
-                if (game != null && !game.gameName.equals("BYE WEEK")) {
-                    if (game.awayTeam == team)
-                        mainAct.examineTeam(game.homeTeam.getName());
-                    else mainAct.examineTeam(game.awayTeam.getName());
+                if (game == null || game.isByeWeek()) {
+                    return;
+                }
+                Team opponent = game.awayTeam == team ? game.homeTeam : game.awayTeam;
+                if (opponent != null) {
+                    mainAct.examineTeam(opponent.getName());
                 }
             }
         });
@@ -102,7 +102,8 @@ public class GameScheduleList extends ArrayAdapter<Game> {
     /** Week and site, instead of the engine's "Conference" / "OOC" token. */
     private String weekLabel(Game game, int position) {
         if (game.isByeWeek()) return context.getString(R.string.page_schedule_bye);
-        String site = context.getString(game.homeTeam == team
+        boolean home = game.homeTeam != null && game.homeTeam == team;
+        String site = context.getString(home
                 ? R.string.page_schedule_home : R.string.page_schedule_away);
         if (game.isRegularSeasonSlot()) {
             return context.getString(R.string.page_schedule_week, position + 1) + "\n" + site;

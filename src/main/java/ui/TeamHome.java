@@ -60,7 +60,7 @@ public class TeamHome extends ArrayAdapter<String> {
         String[] teamStat = values[position].split("&", -1);
         textTeam.setText(valueAt(teamStat, 0));
         bindIdentity(textNickname, textOverall);
-        textRank.setText(valueAt(teamStat, 1));
+        textRank.setText(team != null ? rankLabel(team) : valueAt(teamStat, 1));
         textRecord.setText(valueAt(teamStat, 2));
         textSeason.setText(mainAct.getSeasonYearChipText());
         textWeek.setText(mainAct.getSeasonWeekChipText());
@@ -71,7 +71,7 @@ public class TeamHome extends ArrayAdapter<String> {
         String nextGame = valueAt(teamStat, 6);
         String news = valueAt(teamStat, 7);
         String lastGame = valueAt(teamStat, 8);
-        textNextGame.setText(nextGame);
+        textNextGame.setText(stripUnrankedMarks(nextGame));
         textNews.setText(news);
         textLastGame.setText(lastGame);
 
@@ -146,6 +146,45 @@ public class TeamHome extends ArrayAdapter<String> {
         return rowView;
     }
 
+    /** Top 25 as #12. The engine rank is the full league size until a team is ranked. */
+    private String rankLabel(Team current) {
+        int rank = current.getRankTeamPollScore();
+        if (rank >= 1 && rank <= 25) {
+            return context.getString(R.string.page_poll_rank, rank);
+        }
+        return context.getString(R.string.page_unranked);
+    }
+
+    /**
+     * Opponent lines from the engine always append {@code #rank}. Drop marks outside the top 25
+     * so an unranked opponent reads as {@code vs Alabama} rather than {@code vs #130 Alabama}.
+     */
+    static String stripUnrankedMarks(String text) {
+        if (text == null || text.isEmpty()) {
+            return "";
+        }
+        StringBuilder out = new StringBuilder(text.length());
+        for (int i = 0; i < text.length(); i++) {
+            if (text.charAt(i) == '#' && i + 1 < text.length() && Character.isDigit(text.charAt(i + 1))) {
+                int j = i + 1;
+                int rank = 0;
+                while (j < text.length() && Character.isDigit(text.charAt(j)) && rank < 1000) {
+                    rank = rank * 10 + (text.charAt(j) - '0');
+                    j++;
+                }
+                if (rank >= 1 && rank <= 25) {
+                    out.append(text, i, j);
+                } else if (j < text.length() && text.charAt(j) == ' ') {
+                    j++;
+                }
+                i = j - 1;
+                continue;
+            }
+            out.append(text.charAt(i));
+        }
+        return out.toString();
+    }
+
     /** Script nickname and the same off/def overall the desktop card shows. */
     private void bindIdentity(TextView nicknameView, TextView overallView) {
         if (nicknameView != null) {
@@ -159,6 +198,8 @@ public class TeamHome extends ArrayAdapter<String> {
             } else {
                 int overall = (int) ((team.teamOffTalent + team.teamDefTalent) / 2f);
                 overallView.setText(String.valueOf(overall));
+                overallView.setContentDescription(
+                        context.getString(R.string.hub_a11y_overall) + " " + overall);
             }
         }
     }

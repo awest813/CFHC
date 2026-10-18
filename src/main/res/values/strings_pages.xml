@@ -14,7 +14,15 @@
     <string name="page_schedule_vs_ranked">vs #%1$d %2$s</string>
     <string name="page_schedule_at_ranked">at #%1$d %2$s</string>
     <string name="page_team_stats_columns">Value · national rank</string>
+    <string name="page_poll_rank">#%1$d</string>
+    <string name="page_unranked">Unranked</string>
     <string name="page_roster_starter">Starter</string>
+    <string name="page_roster_transfer">Transfer</string>
+    <string name="page_roster_redshirt">Redshirt</string>
+    <string name="page_roster_med_rs">Medical redshirt</string>
+    <string name="page_roster_injured">Injured</string>
+    <string name="page_roster_injured_weeks">Injured - %1$s</string>
+    <string name="page_roster_hot_seat">Hot Seat</string>
     <string name="page_roster_all_fr">All-Freshman</string>
     <string name="page_roster_all_conf">All-Conference</string>
     <string name="page_roster_all_am">All-American</string>

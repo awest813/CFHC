@@ -60,7 +60,7 @@ public class IndividualStats extends ArrayAdapter<String> {
                 break;
             }
         }
-        final boolean header = isCategoryHeader(playerName);
+        final boolean header = isCategoryHeader(playerName, valueAt(teamStat, 1).trim());
         if (playerName.isEmpty() && !anyStat) {
             rowView.setVisibility(View.GONE);
             setRowHeight(rowView, 0);
@@ -108,10 +108,15 @@ public class IndividualStats extends ArrayAdapter<String> {
         return rowView;
     }
 
-    /** Category banners in the player-stat list. The following cells are the column labels. */
-    private static boolean isCategoryHeader(String name) {
-        return "Passing".equals(name) || "Rushing".equals(name) || "Receiving".equals(name)
+    /**
+     * Category banners in the player-stat list. The following cells are the column labels.
+     * A real player row starts with a number, so a player who shares a category name still renders as a player.
+     */
+    private static boolean isCategoryHeader(String name, String firstStat) {
+        boolean category = "Passing".equals(name) || "Rushing".equals(name) || "Receiving".equals(name)
                 || "Defense".equals(name) || "Kicking".equals(name);
+        if (!category) return false;
+        return firstStat.isEmpty() || !firstStat.matches("[-+]?\\d.*");
     }
 
     private static void setRowHeight(View rowView, int height) {

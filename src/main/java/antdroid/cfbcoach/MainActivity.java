@@ -164,9 +164,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     /** Drawer subtitle: poll, record, conference, and any title honors. */
     private static String drawerRecordLine(simulation.Team team) {
         StringBuilder sb = new StringBuilder();
-        sb.append('#').append(team.getRankTeamPollScore())
-                .append("  ·  ")
-                .append(team.getWins()).append('-').append(team.getLosses());
+        String poll = SeasonPresentationController.pollPrefix(team);
+        if (!poll.isEmpty()) {
+            sb.append(poll).append("  ·  ");
+        }
+        sb.append(team.getWins()).append('-').append(team.getLosses());
         if (team.conference != null && !team.conference.trim().isEmpty()) {
             sb.append("  ·  ").append(team.conference.trim());
         }
@@ -216,7 +218,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                         navRecord.setText(drawerRecordLine(currentTeam));
                     }
                     if (navMono != null) {
-                        navMono.setText(SeasonPresentationController.monogram(currentTeam));
+                        String mono = SeasonPresentationController.monogram(currentTeam);
+                        navMono.setText(mono);
+                        navMono.setContentDescription(getString(R.string.hub_a11y_mono) + " " + mono);
                     }
                 } else {
                     navTeam.setText(getString(R.string.nav_header_no_team));
@@ -225,6 +229,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     }
                     if (navMono != null) {
                         navMono.setText("CF");
+                        navMono.setContentDescription(getString(R.string.hub_a11y_mono));
                     }
                 }
                 syncDrawerSelection();
@@ -580,6 +585,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         styleQuickButton(R.id.buttonQuickRoster, page == 1);
         styleQuickButton(R.id.buttonQuickStats, page == 3);
         styleQuickButton(R.id.buttonQuickSchedule, page == 4);
+        if (mainList != null && !home) {
+            mainList.setContentDescription(pageTitle(page));
+        }
     }
 
     private String pageTitle(int page) {
