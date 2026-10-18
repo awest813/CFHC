@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Roster row: POS / YR pills · player name (Inter) · OVR + progression (mono, right). -->
+<!-- Roster row: POS / YR pills · name and status · OVR + progression (mono, right). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -31,17 +31,34 @@
         android:minWidth="36dp"
         tools:text="JR" />
 
-    <TextView
-        android:id="@+id/textTeamRosterCenter"
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/cf_space_md"
         android:layout_marginEnd="@dimen/cf_space_sm"
         android:layout_weight="1"
-        android:ellipsize="end"
-        android:maxLines="2"
-        android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title"
-        tools:text="A. Player" />
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textTeamRosterCenter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title"
+            tools:text="A. Player" />
+
+        <TextView
+            android:id="@+id/textTeamRosterStatus"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption"
+            android:visibility="gone"
+            tools:text="Starter"
+            tools:visibility="visible" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/textTeamRosterRight"

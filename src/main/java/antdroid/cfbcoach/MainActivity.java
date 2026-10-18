@@ -595,6 +595,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private String pageColumns(int page) {
+        if (page == 1) return getString(R.string.page_roster_columns);
+        if (page == 3) return getString(R.string.page_team_stats_columns);
         if (page == 7) return getString(R.string.page_standings_columns);
         if (page == 8) return getString(R.string.page_rankings_columns);
         return "";

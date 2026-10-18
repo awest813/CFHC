@@ -10,6 +10,7 @@ import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
@@ -54,56 +55,79 @@ public class TeamRoster extends ArrayAdapter<String> {
         TextView textProg = rowView.findViewById(R.id.textTeamRosterProgression);
 
         final String[] teamStat = values.get(position).split(",", -1);
-        final String role = valueAt(teamStat, 0);
-        final String playerClass = valueAt(teamStat, 1);
-        final String name = valueAt(teamStat, 2);
-        String status = valueAt(teamStat, 3);
-        final String ratingText = valueAt(teamStat, 4);
-        textLeft.setText(role);
-        textClass.setText(playerClass);
-        textCenter.setText(name + " " + status);
-        textRight.setText(ratingText);
-        // Reset recycled-row styling to the HUD row defaults (tokens only, Inter kept).
-        textLeft.setTextColor(color(R.color.cf_text_secondary));
-        textClass.setTextColor(color(R.color.cf_text_secondary));
-        textCenter.setTextColor(color(R.color.cf_text_primary));
-        textRight.setTextColor(color(R.color.cf_text_primary));
-        textProg.setTextColor(color(R.color.cf_gold));
+        final String role = valueAt(teamStat, 0).trim();
+        final String playerClass = valueAt(teamStat, 1).trim();
+        final String name = valueAt(teamStat, 2).trim();
+        final String status = valueAt(teamStat, 3).trim();
+        final String ratingText = valueAt(teamStat, 4).trim();
+        final String awardCode = valueAt(teamStat, 5).trim();
+        final String progression = valueAt(teamStat, 6).trim();
+        TextView textStatus = rowView.findViewById(R.id.textTeamRosterStatus);
+        final boolean spacer = role.isEmpty() && name.isEmpty();
+        final boolean section = role.isEmpty() && !name.isEmpty();
+
+        if (spacer) {
+            rowView.setVisibility(View.GONE);
+            setRowHeight(rowView, 0);
+            textCenter.setOnClickListener(null);
+            rowView.setOnClickListener(null);
+            return rowView;
+        }
+
+        rowView.setVisibility(View.VISIBLE);
+        setRowHeight(rowView, ViewGroup.LayoutParams.WRAP_CONTENT);
+        textCenter.setText(name);
+        textCenter.setAllCaps(section);
         textCenter.setPaintFlags(textCenter.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
         textClass.setPaintFlags(textClass.getPaintFlags() & (~Paint.STRIKE_THRU_TEXT_FLAG));
         textCenter.setTypeface(interFont, Typeface.BOLD);
         textClass.setTypeface(interFont, Typeface.BOLD);
-        textLeft.setVisibility(View.VISIBLE);
-        textClass.setVisibility(View.VISIBLE);
 
-        if (role.equals(" ")) {
-            // Position-group header line: no POS/YR pills, gold section label.
-            textLeft.setVisibility(View.INVISIBLE);
-            textClass.setVisibility(View.INVISIBLE);
-            textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
+        if (section) {
+            rowView.setBackgroundResource(R.drawable.bg_section_bar);
+            textLeft.setVisibility(View.GONE);
+            textClass.setVisibility(View.GONE);
+            textRight.setVisibility(View.GONE);
+            textProg.setVisibility(View.GONE);
+            if (textStatus != null) textStatus.setVisibility(View.GONE);
             textCenter.setTextColor(color(R.color.cf_gold));
+            textCenter.setOnClickListener(null);
+            textCenter.setClickable(false);
+            rowView.setOnClickListener(null);
+            rowView.setClickable(false);
+            return rowView;
         }
-        if (status.equals("*")) {
-            textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
-        }
+
+        rowView.setBackgroundResource(R.drawable.bg_cf_card);
+        textLeft.setVisibility(View.VISIBLE);
+        textClass.setVisibility(playerClass.isEmpty() ? View.GONE : View.VISIBLE);
+        textRight.setVisibility(ratingText.isEmpty() ? View.GONE : View.VISIBLE);
+        textProg.setVisibility(progression.isEmpty() ? View.GONE : View.VISIBLE);
+        textLeft.setText(role);
+        textClass.setText(playerClass);
+        textRight.setText(ratingText);
+        textProg.setText(progression);
+        textLeft.setTextColor(color(R.color.cf_text_secondary));
+        textClass.setTextColor(color(R.color.cf_text_secondary));
+        textRight.setTextColor(color(R.color.cf_text_primary));
+        textProg.setTextColor(color(R.color.cf_gold));
+
+        int nameColor = color(R.color.cf_text_primary);
         if (status.contains("RS") || status.contains("[T]")) {
-            textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
-            textCenter.setTextColor(color(R.color.cf_text_muted));
+            nameColor = color(R.color.cf_text_muted);
         }
-        if (status.contains("Suspended")) {
-            textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
-            textCenter.setTextColor(color(R.color.cf_negative));
+        if (status.contains("Hot Seat") || status.contains("Suspended")) {
+            nameColor = color(R.color.cf_negative);
         }
         if (status.contains("INJ")) {
-            textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
-            textCenter.setTextColor(color(R.color.cf_warning));
+            nameColor = color(R.color.cf_warning);
         }
-        if (status.contains("Hot Seat")) {
-            textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
-            textCenter.setTextColor(color(R.color.cf_negative));
+        if ("*".equals(status)) {
+            textCenter.setTypeface(interFont, Typeface.BOLD);
         }
+        textCenter.setTextColor(nameColor);
 
-        if(!ratingText.contains(" ")) {
+        if (!ratingText.isEmpty() && !ratingText.contains(" ")) {
             try {
                 int rating = Integer.parseInt(ratingText);
                 if (rating > 90) {
@@ -115,46 +139,21 @@ public class TeamRoster extends ArrayAdapter<String> {
             }
         }
 
-        if(teamStat.length > 5) {
-            if (teamStat[5].equals("1")) {
-                textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
-                textCenter.setTextColor(color(R.color.cf_positive));
-                status = " :  All-Fr";
-                textCenter.setText(name + " " + status);
-            } else if (teamStat[5].equals("2")) {
-                textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
-                textCenter.setTextColor(color(R.color.cf_green));
-                status = " :  All-Conf";
-                textCenter.setText(name + " " + status);
-            } else if (teamStat[5].equals("3")) {
-                textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
-                textCenter.setTextColor(color(R.color.cf_info));
-                status = " :  All-Am";
-                textCenter.setText(name + " " + status);
-            } else if (teamStat[5].equals("4")) {
-                textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
-                textCenter.setTextColor(color(R.color.cf_gold));
-                if(role.contains("HC")) status = " :  COTY";
-                else status = " :  POTY";
-                textCenter.setText(name + " " + status);
-            }
+        if (textStatus != null) {
+            String caption = statusCaption(role, status, awardCode);
+            textStatus.setText(caption);
+            textStatus.setVisibility(caption.isEmpty() ? View.GONE : View.VISIBLE);
+            textStatus.setTextColor(statusColor(status, awardCode));
         }
 
-        if(week > 17 && week < 22 && playerClass.contains("Sr")) {
-            textCenter.setTypeface(textCenter.getTypeface(), Typeface.ITALIC);
+        if (week > 17 && week < 22 && playerClass.contains("Sr")) {
+            textCenter.setTypeface(interFont, Typeface.ITALIC);
             textCenter.setTextColor(color(R.color.cf_text_muted));
             textCenter.setPaintFlags(textCenter.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
-            textClass.setTypeface(textCenter.getTypeface(), Typeface.ITALIC);
+            textClass.setTypeface(interFont, Typeface.ITALIC);
             textClass.setTextColor(color(R.color.cf_text_muted));
             textClass.setPaintFlags(textClass.getPaintFlags() | Paint.STRIKE_THRU_TEXT_FLAG);
         }
-
-        if(teamStat.length > 6) {
-            textProg.setText(teamStat[6]);
-        } else {
-            textProg.setText("");
-        }
-
 
         View.OnClickListener rowClickListener = new View.OnClickListener() {
             @Override
@@ -168,8 +167,55 @@ public class TeamRoster extends ArrayAdapter<String> {
         };
         textCenter.setOnClickListener(rowClickListener);
         rowView.setOnClickListener(rowClickListener);
+        rowView.setClickable(true);
 
         return rowView;
+    }
+
+    /** Starter, availability, and award sit under the name instead of being glued onto it. */
+    private String statusCaption(String role, String status, String awardCode) {
+        String availability = "";
+        if ("*".equals(status)) {
+            availability = context.getString(R.string.page_roster_starter);
+        } else if (!status.isEmpty()) {
+            availability = status;
+        }
+        String award = awardLabel(role, awardCode);
+        if (award.isEmpty()) return availability;
+        if (availability.isEmpty()) return award;
+        return availability + "  ·  " + award;
+    }
+
+    private String awardLabel(String role, String awardCode) {
+        if ("1".equals(awardCode)) return context.getString(R.string.page_roster_all_fr);
+        if ("2".equals(awardCode)) return context.getString(R.string.page_roster_all_conf);
+        if ("3".equals(awardCode)) return context.getString(R.string.page_roster_all_am);
+        if ("4".equals(awardCode)) {
+            return context.getString(role.contains("HC") ? R.string.page_roster_coty : R.string.page_roster_poty);
+        }
+        return "";
+    }
+
+    private int statusColor(String status, String awardCode) {
+        if (status.contains("Suspended") || status.contains("Hot Seat")) return color(R.color.cf_negative);
+        if (status.contains("INJ")) return color(R.color.cf_warning);
+        if (status.contains("RS") || status.contains("[T]")) return color(R.color.cf_text_muted);
+        if (!awardLabel("", awardCode).isEmpty() && !"*".equals(status)) return color(R.color.cf_gold);
+        if ("*".equals(status)) return color(R.color.cf_emerald);
+        return color(R.color.cf_text_secondary);
+    }
+
+    private static void setRowHeight(View rowView, int height) {
+        ViewGroup.LayoutParams lp = rowView.getLayoutParams();
+        if (lp == null) {
+            rowView.setLayoutParams(new AbsListView.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, height));
+            return;
+        }
+        if (lp.height != height) {
+            lp.height = height;
+            rowView.requestLayout();
+        }
     }
 
     private int color(int colorRes) {
