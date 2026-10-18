@@ -156,7 +156,11 @@ public final class DesktopTheme {
             Color def = UIManager.getColor("MenuBar.background");
             _menuBarBg = def != null ? def : new Color(240, 240, 240);
         }
-        _selectionAccent = highContrast ? new Color(0, 70, 160) : new Color(50, 100, 180);
+        // Dark selection is a deep emerald so white row text stays readable and
+// matches the sidebar. Light and high-contrast keep a saturated blue.
+_selectionAccent = highContrast
+        ? new Color(0, 70, 160)
+        : (dark ? new Color(0, 110, 72) : new Color(50, 100, 180));
         _accentBlue = highContrast ? new Color(0, 90, 200) : new Color(52, 152, 219);
         _successGreen = highContrast ? new Color(0, 140, 60) : new Color(46, 204, 113);
         _dangerRed = highContrast ? new Color(180, 0, 0) : new Color(231, 76, 60);
@@ -567,9 +571,24 @@ public final class DesktopTheme {
         table.setBackground(tableBase());
         table.setForeground(textPrimary());
         table.setGridColor(borderSubtle());
-        table.getTableHeader().setOpaque(true);
-        table.getTableHeader().setBackground(tableHeaderBackground());
-        table.getTableHeader().setForeground(textPrimary());
+        table.setShowVerticalLines(false);
+        table.setIntercellSpacing(new Dimension(0, 0));
+        table.setSelectionBackground(selectionAccent());
+        table.setSelectionForeground(Color.WHITE);
+        if (table.getRowHeight() < 26) {
+            table.setRowHeight(26);
+        }
+        javax.swing.table.JTableHeader header = table.getTableHeader();
+        header.setOpaque(true);
+        header.setBackground(tableHeaderBackground());
+        header.setForeground(textSecondary());
+        header.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 11));
+        header.setPreferredSize(new Dimension(0, 30));
+        header.setReorderingAllowed(false);
+        javax.swing.table.TableCellRenderer existing = header.getDefaultRenderer();
+        if (!(existing instanceof BroadcastHeaderRenderer)) {
+            header.setDefaultRenderer(new BroadcastHeaderRenderer(existing));
+        }
         if (accessibleName != null && !accessibleName.isBlank()) {
             table.getAccessibleContext().setAccessibleName(accessibleName);
         }
@@ -1148,6 +1167,33 @@ public final class DesktopTheme {
             Math.min(255, Math.max(0, (int)(alpha * 255f))));
     }
 
+
+    /**
+     * Uppercase, padded table header that still delegates painting (including
+     * sort arrows) to the look-and-feel renderer.
+     */
+    private static final class BroadcastHeaderRenderer implements javax.swing.table.TableCellRenderer {
+        private final javax.swing.table.TableCellRenderer delegate;
+
+        BroadcastHeaderRenderer(javax.swing.table.TableCellRenderer delegate) {
+            this.delegate = delegate;
+        }
+
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                                                       boolean hasFocus, int row, int column) {
+            Object shown = value instanceof String s ? s.toUpperCase(java.util.Locale.ROOT) : value;
+            Component c = delegate.getTableCellRendererComponent(table, shown, isSelected, hasFocus, row, column);
+            c.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 11));
+            c.setForeground(textSecondary());
+            if (c instanceof JComponent jc) {
+                jc.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createMatteBorder(0, 0, 1, 0, borderSubtle()),
+                        BorderFactory.createEmptyBorder(4, 10, 4, 8)));
+            }
+            return c;
+        }
+    }
 
     /**
      * Keyboard support for custom dialogs: Enter triggers {@code defaultButton},

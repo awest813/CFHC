@@ -115,6 +115,16 @@ public final class UiSnapshotTool {
             }
         }
 
+        simulation.Team user = league.userTeam;
+        TeamDetailView detail = new TeamDetailView(view, user.toRecord(), user);
+        detail.setModal(false);
+        detail.setLocationRelativeTo(view);
+        detail.setVisible(true);
+        Thread.sleep(400);
+        capture(detail, outDir + "/_team_detail.png");
+        System.out.println("captured: Team detail");
+        detail.dispose();
+
         view.setVisible(false);
         view.dispose();
 
