@@ -4,4 +4,7 @@
     <string name="hub_nav_crest_desc">Program crest</string>
     <string name="hub_quick_stats">Stats</string>
     <string name="hub_a11y_nickname">Team nickname</string>
+    <string name="hub_nav_kicker">Program</string>
+    <string name="hub_a11y_mono">Team abbreviation</string>
+    <string name="hub_a11y_overall">Team overall rating</string>
 </resources>

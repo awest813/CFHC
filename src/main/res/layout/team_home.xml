@@ -41,6 +41,18 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
+            <TextView
+                android:id="@+id/home_overall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/hub_a11y_overall"
+                android:gravity="center"
+                android:layout_marginEnd="@dimen/cf_space_sm"
+                android:minWidth="48dp"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Rating"
+                android:textSize="@dimen/cf_text_hero"
+                tools:text="82" />
+
             <!-- National rank: gold mono pill, taps to rankings -->
             <TextView
                 android:id="@+id/home_rank"
@@ -70,6 +82,19 @@
                     android:layout_height="wrap_content"
                     android:textAppearance="@style/TextAppearance.Cfhc.Cf.Display"
                     tools:text="Pine Valley State" />
+
+                <TextView
+                    android:id="@+id/home_nickname"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textAppearance="@style/TextAppearance.Cfhc.Cf.Script"
+                    android:textColor="@color/cf_gold"
+                    android:textSize="@dimen/cf_text_display"
+                    android:visibility="gone"
+                    tools:text="Eagles"
+                    tools:visibility="visible" />
 
                 <!-- Record: mono, taps to standings -->
                 <TextView

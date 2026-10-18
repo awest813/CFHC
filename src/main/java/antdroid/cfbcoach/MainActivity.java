@@ -161,6 +161,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         gameState.setRedshirtComplete(complete);
     }
 
+    /** Drawer subtitle: poll, record, conference, and any title honors. */
+    private static String drawerRecordLine(simulation.Team team) {
+        StringBuilder sb = new StringBuilder();
+        sb.append('#').append(team.getRankTeamPollScore())
+                .append("  ·  ")
+                .append(team.getWins()).append('-').append(team.getLosses());
+        if (team.conference != null && !team.conference.trim().isEmpty()) {
+            sb.append("  ·  ").append(team.conference.trim());
+        }
+        for (String honor : new String[]{team.getConfChampion(), team.semiFinalWL, team.natChampWL}) {
+            if (honor != null && !honor.trim().isEmpty()) {
+                sb.append(' ').append(honor.trim());
+            }
+        }
+        return sb.toString();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -191,9 +208,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 super.onDrawerOpened(drawerView);
                 View headerView = navigationView.getHeaderView(0);
                 TextView navTeam = headerView.findViewById(R.id.navTextTeam);
-                navTeam.setText(currentTeam != null
-                        ? simulation.SeasonPresentation.getDrawerTeamLine(currentTeam)
-                        : getString(R.string.nav_header_no_team));
+                TextView navRecord = headerView.findViewById(R.id.navTextRecord);
+                TextView navMono = headerView.findViewById(R.id.navMono);
+                if (currentTeam != null) {
+                    navTeam.setText(currentTeam.getName());
+                    if (navRecord != null) {
+                        navRecord.setText(drawerRecordLine(currentTeam));
+                    }
+                    if (navMono != null) {
+                        navMono.setText(SeasonPresentationController.monogram(currentTeam));
+                    }
+                } else {
+                    navTeam.setText(getString(R.string.nav_header_no_team));
+                    if (navRecord != null) {
+                        navRecord.setText("");
+                    }
+                    if (navMono != null) {
+                        navMono.setText("CF");
+                    }
+                }
                 syncDrawerSelection();
                 updateDrawerBadges();
             }

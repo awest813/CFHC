@@ -53,6 +53,18 @@
                 android:orientation="horizontal">
 
                 <TextView
+                    android:id="@+id/mainSeasonMono"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:layout_marginEnd="@dimen/cf_space_sm"
+                    android:background="@drawable/bg_hub_mono"
+                    android:contentDescription="@string/hub_a11y_mono"
+                    android:gravity="center"
+                    android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title"
+                    android:textColor="@color/cf_emerald"
+                    tools:text="BC" />
+
+                <TextView
                     android:id="@+id/mainSeasonTitle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -136,8 +148,18 @@
                     tools:text="Phase  Regular Season" />
             </LinearLayout>
 
-            <!-- Optional next-action line; the controller shows it only when
-                 the engine returns non-empty text. -->
+            <!-- Record and conference, bound by SeasonPresentationController. -->
+            <TextView
+                android:id="@+id/mainSeasonRecord"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/cf_space_xs"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
+                android:textColor="@color/cf_text_secondary"
+                tools:text="5-2  ·  ACC" />
+
             <TextView
                 android:id="@+id/mainSeasonSubtitle"
                 android:layout_width="match_parent"

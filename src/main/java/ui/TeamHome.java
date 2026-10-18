@@ -10,21 +10,28 @@ import android.widget.TextView;
 import antdroid.cfbcoach.MainActivity;
 import antdroid.cfbcoach.R;
 import simulation.Game;
+import simulation.Team;
 
 public class TeamHome extends ArrayAdapter<String> {
     private final Context context;
     private final String[] values;
     private final MainActivity mainAct;
     private final Game[] games;
+    private final Team team;
     private int week;
 
     public TeamHome(Context context, String[] values, MainActivity mainAct,  Game[] games, int week) {
+        this(context, values, mainAct, games, week, null);
+    }
+
+    public TeamHome(Context context, String[] values, MainActivity mainAct, Game[] games, int week, Team team) {
         super(context, R.layout.team_home, values);
         this.context = context;
         this.values = values;
         this.mainAct = mainAct;
         this.games = games;
         this.week = week;
+        this.team = team;
     }
 
     @Override
@@ -36,6 +43,8 @@ public class TeamHome extends ArrayAdapter<String> {
             rowView = inflater.inflate(R.layout.team_home, parent, false);
         }
         TextView textTeam = rowView.findViewById(R.id.home_teamname);
+        TextView textNickname = rowView.findViewById(R.id.home_nickname);
+        TextView textOverall = rowView.findViewById(R.id.home_overall);
         TextView textRecord = rowView.findViewById(R.id.home_record);
         TextView textRank = rowView.findViewById(R.id.home_rank);
         TextView textSeason = rowView.findViewById(R.id.home_season_chip);
@@ -50,6 +59,7 @@ public class TeamHome extends ArrayAdapter<String> {
 
         String[] teamStat = values[position].split("&", -1);
         textTeam.setText(valueAt(teamStat, 0));
+        bindIdentity(textNickname, textOverall);
         textRank.setText(valueAt(teamStat, 1));
         textRecord.setText(valueAt(teamStat, 2));
         textSeason.setText(mainAct.getSeasonYearChipText());
@@ -134,6 +144,23 @@ public class TeamHome extends ArrayAdapter<String> {
 
 
         return rowView;
+    }
+
+    /** Script nickname and the same off/def overall the desktop card shows. */
+    private void bindIdentity(TextView nicknameView, TextView overallView) {
+        if (nicknameView != null) {
+            String nickname = team != null && team.nickname != null ? team.nickname.trim() : "";
+            nicknameView.setText(nickname);
+            nicknameView.setVisibility(nickname.isEmpty() ? View.GONE : View.VISIBLE);
+        }
+        if (overallView != null) {
+            if (team == null) {
+                overallView.setText("");
+            } else {
+                int overall = (int) ((team.teamOffTalent + team.teamDefTalent) / 2f);
+                overallView.setText(String.valueOf(overall));
+            }
+        }
     }
 
     private static String valueAt(String[] values, int index) {

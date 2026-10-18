@@ -3,6 +3,8 @@ package antdroid.cfbcoach;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.Locale;
+
 import simulation.League;
 import simulation.Team;
 
@@ -24,12 +26,23 @@ public final class SeasonPresentationController {
         TextView seasonYearChip = activity.findViewById(R.id.mainSeasonYearChip);
         TextView seasonWeekChip = activity.findViewById(R.id.mainSeasonWeekChip);
         TextView seasonPhaseChip = activity.findViewById(R.id.mainSeasonPhaseChip);
+        TextView seasonMono = activity.findViewById(R.id.mainSeasonMono);
+        TextView seasonRecord = activity.findViewById(R.id.mainSeasonRecord);
 
         if (seasonBadge != null) {
             seasonBadge.setText(status.badge);
         }
         if (seasonTitle != null) {
-            seasonTitle.setText(status.title);
+            // School name only. The year already lives on the year chip, matching
+            // the desktop broadcast header.
+            String name = currentTeam.getName();
+            seasonTitle.setText(name == null ? "" : name.toUpperCase(Locale.ROOT));
+        }
+        if (seasonMono != null) {
+            seasonMono.setText(monogram(currentTeam));
+        }
+        if (seasonRecord != null) {
+            seasonRecord.setText(recordLine(currentTeam));
         }
         if (seasonSubtitle != null) {
             // Compact broadcast header: the line only takes space when the
@@ -53,8 +66,27 @@ public final class SeasonPresentationController {
             seasonWeekChip.setText(status.weekChip);
         }
         if (seasonPhaseChip != null) {
-            seasonPhaseChip.setText(status.phaseChip);
+            String phase = status.phaseChip == null ? "" : status.phaseChip.replaceFirst("^Phase\\s+", "");
+            seasonPhaseChip.setText(phase);
         }
+    }
+
+    static String monogram(Team team) {
+        if (team == null || team.getAbbr() == null || team.getAbbr().length() < 2) {
+            return "CF";
+        }
+        String abbr = team.getAbbr();
+        return abbr.substring(0, Math.min(3, abbr.length())).toUpperCase(Locale.ROOT);
+    }
+
+    /** Record and conference for the header, e.g. {@code 5-2  ·  ACC}. */
+    static String recordLine(Team team) {
+        if (team == null) {
+            return "";
+        }
+        String conf = team.conference == null ? "" : team.conference.trim();
+        String record = team.getWins() + "-" + team.getLosses();
+        return conf.isEmpty() ? record : record + "  ·  " + conf;
     }
 
     public static String getSeasonBadgeText(int season) {
