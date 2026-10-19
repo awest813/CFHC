@@ -476,7 +476,7 @@
     <style name="TextAppearance.Cfhc.Cf.Overall" parent="TextAppearance.Cfhc.Cf.StatBold">
         <item name="android:textSize">@dimen/cf_text_hero</item>
         <item name="android:textColor">@color/cf_emerald</item>
-        <item name="android:lineHeight">@dimen/cf_text_hero</item>
+        <!-- Appcompat attr, not android:lineHeight (API 28). MaterialTextView applies it on minSdk 24. -->
         <item name="lineHeight">@dimen/cf_text_hero</item>
     </style>
 
