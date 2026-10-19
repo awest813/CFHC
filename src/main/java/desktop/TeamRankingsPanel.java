@@ -84,13 +84,25 @@ public class TeamRankingsPanel implements LeagueScreen {
             try {
                 java.util.List<String> rankings = ctx.league().getTeamRankingsStr(sel);
                 if (rankings != null) {
+                    boolean recruitingClass = sel == 17;
+                    table.getColumnModel().getColumn(2).setPreferredWidth(recruitingClass ? 280 : 120);
                     for (String line : rankings) {
                         String[] parts = line.split(",", 3);
                         if (parts.length >= 3) {
-                            model.addRow(new Object[]{parts[0].trim(), parts[1].trim(), parts[2].trim()});
+                            String value = parts[2].trim();
+                            if (recruitingClass) {
+                                int dot = value.indexOf(" · ");
+                                if (dot >= 0) {
+                                    value = value.substring(0, dot).trim() + "   "
+                                            + value.substring(dot + 3).trim();
+                                }
+                            }
+                            model.addRow(new Object[]{parts[0].trim(), parts[1].trim(), value});
                         }
                     }
-                    StripedRowRenderer.alignDecimals(model, 2);
+                    if (!recruitingClass) {
+                        StripedRowRenderer.alignDecimals(model, 2);
+                    }
                 }
             } catch (Exception ex) {
                 PlatformLog.e(TAG, "Error loading team rankings", ex);

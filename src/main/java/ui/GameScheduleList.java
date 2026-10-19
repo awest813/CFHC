@@ -8,6 +8,8 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
+
 import antdroid.cfbcoach.MainActivity;
 import antdroid.cfbcoach.R;
 import simulation.Game;
@@ -39,28 +41,32 @@ public class GameScheduleList extends ArrayAdapter<Game> {
         Button gameButton = rowView.findViewById(R.id.gameScheduleButtonList);
         Button textRight = rowView.findViewById(R.id.gameScheduleRight);
 
+        Game game = gameAt(position);
         String[] gameSummary = team.getGameSummaryStr(position);
-        textLeft.setText(valueAt(gameSummary, 0));
+        textLeft.setText(game == null ? valueAt(gameSummary, 0) : weekLabel(game, position));
         gameButton.setText(valueAt(gameSummary, 1));
-        textRight.setText(valueAt(gameSummary, 2));
+        textRight.setText(game == null ? valueAt(gameSummary, 2) : opponentLabel(game));
+
+        boolean upcoming = position == nextUnplayedIndex();
+        rowView.setBackgroundResource(upcoming ? R.drawable.bg_cf_card_accent : R.drawable.bg_cf_card);
 
         // Recycled rows: start from the neutral secondary fill, then apply win/loss.
         gameButton.setBackgroundResource(R.drawable.bg_action_secondary);
+        gameButton.setTextColor(color(R.color.cf_text_primary));
         if (team.getGameWLSchedule().size() > position) {
             if (team.getGameWLSchedule().get(position).equals("W")) {
                 gameButton.setBackgroundResource(R.drawable.bg_action_win);
+                gameButton.setTextColor(color(R.color.cf_on_emerald));
             } else if (team.getGameWLSchedule().get(position).equals("L")) {
                 gameButton.setBackgroundResource(R.drawable.bg_action_danger);
-            } else if (team.getGameWLSchedule().get(position).equals("BYE")) {
-
+                gameButton.setTextColor(color(R.color.cf_on_crimson));
             }
         }
 
         gameButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                // Perform action on click
                 Game game = gameAt(position);
-                if (game != null && !game.gameName.equals("BYE WEEK")) {
+                if (game != null && !game.isByeWeek()) {
                     mainAct.showGameDialog(game);
                 }
             }
@@ -69,17 +75,57 @@ public class GameScheduleList extends ArrayAdapter<Game> {
         textRight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Do something on click
                 Game game = gameAt(position);
-                if (game != null && !game.gameName.equals("BYE WEEK")) {
-                    if (game.awayTeam == team)
-                        mainAct.examineTeam(game.homeTeam.getName());
-                    else mainAct.examineTeam(game.awayTeam.getName());
+                if (game == null || game.isByeWeek()) {
+                    return;
+                }
+                Team opponent = game.awayTeam == team ? game.homeTeam : game.awayTeam;
+                if (opponent != null) {
+                    mainAct.examineTeam(opponent.getName());
                 }
             }
         });
 
         return rowView;
+    }
+
+    /** First game that has not been played, including a bye that is this week's slot. */
+    private int nextUnplayedIndex() {
+        if (games == null) return -1;
+        for (int i = 0; i < games.length; i++) {
+            Game game = games[i];
+            if (game != null && !game.hasPlayed) return i;
+        }
+        return -1;
+    }
+
+    /** Week and site, instead of the engine's "Conference" / "OOC" token. */
+    private String weekLabel(Game game, int position) {
+        if (game.isByeWeek()) return context.getString(R.string.page_schedule_bye);
+        boolean home = game.homeTeam != null && game.homeTeam == team;
+        String site = context.getString(home
+                ? R.string.page_schedule_home : R.string.page_schedule_away);
+        if (game.isRegularSeasonSlot()) {
+            return context.getString(R.string.page_schedule_week, position + 1) + "\n" + site;
+        }
+        return game.gameName + "\n" + site;
+    }
+
+    /** Opponent with a poll rank only when they are in the top 25. */
+    private String opponentLabel(Game game) {
+        if (game.isByeWeek() || game.homeTeam == null || game.awayTeam == null) return "";
+        boolean home = game.homeTeam == team;
+        Team opponent = home ? game.awayTeam : game.homeTeam;
+        int rank = opponent.rankTeamPollScore;
+        if (rank >= 1 && rank <= 25) {
+            return context.getString(home ? R.string.page_schedule_vs_ranked : R.string.page_schedule_at_ranked,
+                    rank, opponent.getName());
+        }
+        return context.getString(home ? R.string.page_schedule_vs : R.string.page_schedule_at, opponent.getName());
+    }
+
+    private int color(int colorRes) {
+        return ContextCompat.getColor(context, colorRes);
     }
 
     private Game gameAt(int index) {

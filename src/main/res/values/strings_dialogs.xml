@@ -11,6 +11,13 @@
     <string name="dlg_pill_staff">Staff File</string>
     <string name="dlg_pill_front_office">Front Office</string>
     <string name="dlg_pill_portal">Portal</string>
+    <string name="dlg_pill_carousel">Carousel</string>
+    <string name="dlg_coach_retired">Retired</string>
+    <string name="dlg_coach_unemployed">Unemployed</string>
+    <string name="dlg_carousel_current">Current</string>
+    <string name="dlg_carousel_decline">Decline offers</string>
+    <string name="dlg_portal_count">%d in the portal</string>
+    <string name="dlg_portal_summary_count">%d transfers</string>
     <string name="dlg_pill_scout">Scouting</string>
     <string name="dlg_pill_depth">Depth Chart</string>
     <string name="dlg_pill_program">Program</string>
@@ -75,6 +82,15 @@
 
     <!-- Rankings / list shells -->
     <string name="dlg_rankings_view">View</string>
+    <string name="dlg_rankings_weekly_subtitle">Review weekly performance across all major team statistical categories.</string>
+    <string name="dlg_recruit_class_subtitle">Class score and the headline freshman. Your program is marked in emerald.</string>
+    <string name="dlg_recruit_launch_subtitle">Check who is leaving your roster, then open the pro draft board before recruiting.</string>
+    <string name="dlg_draft_players_leaving">Players Leaving</string>
+    <string name="dlg_draft_board">Pro Mock Draft</string>
+    <string name="dlg_draft_empty">No prospects have declared for the draft yet.</string>
+    <string name="dlg_draft_round">Round %1$s</string>
+    <string name="dlg_draft_pick_cd">Round %1$s, pick %2$s</string>
+    <string name="dlg_draft_overall_cd">Overall %1$s</string>
 
     <!-- Development plan -->
     <string name="dlg_plan_current">Current plan</string>

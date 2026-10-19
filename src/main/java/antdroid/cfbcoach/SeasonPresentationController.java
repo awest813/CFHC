@@ -3,6 +3,8 @@ package antdroid.cfbcoach;
 import android.view.View;
 import android.widget.TextView;
 
+import java.util.Locale;
+
 import simulation.League;
 import simulation.Team;
 
@@ -24,12 +26,25 @@ public final class SeasonPresentationController {
         TextView seasonYearChip = activity.findViewById(R.id.mainSeasonYearChip);
         TextView seasonWeekChip = activity.findViewById(R.id.mainSeasonWeekChip);
         TextView seasonPhaseChip = activity.findViewById(R.id.mainSeasonPhaseChip);
+        TextView seasonMono = activity.findViewById(R.id.mainSeasonMono);
+        TextView seasonRecord = activity.findViewById(R.id.mainSeasonRecord);
 
         if (seasonBadge != null) {
             seasonBadge.setText(status.badge);
         }
         if (seasonTitle != null) {
-            seasonTitle.setText(status.title);
+            // School name only. The year already lives on the year chip, matching
+            // the desktop broadcast header.
+            String name = currentTeam.getName();
+            seasonTitle.setText(name == null ? "" : name.toUpperCase(Locale.ROOT));
+        }
+        if (seasonMono != null) {
+            String mono = monogram(currentTeam);
+            seasonMono.setText(mono);
+            seasonMono.setContentDescription(activity.getString(R.string.hub_a11y_mono) + " " + mono);
+        }
+        if (seasonRecord != null) {
+            seasonRecord.setText(recordLine(currentTeam));
         }
         if (seasonSubtitle != null) {
             // Compact broadcast header: the line only takes space when the
@@ -53,8 +68,38 @@ public final class SeasonPresentationController {
             seasonWeekChip.setText(status.weekChip);
         }
         if (seasonPhaseChip != null) {
-            seasonPhaseChip.setText(status.phaseChip);
+            String phase = status.phaseChip == null ? "" : status.phaseChip.replaceFirst("^Phase\\s+", "");
+            seasonPhaseChip.setText(phase);
         }
+    }
+
+    static String monogram(Team team) {
+        if (team == null || team.getAbbr() == null || team.getAbbr().length() < 2) {
+            return "CF";
+        }
+        String abbr = team.getAbbr();
+        return abbr.substring(0, Math.min(3, abbr.length())).toUpperCase(Locale.ROOT);
+    }
+
+    /** Poll prefix only inside the top 25. Unranked teams otherwise show the full league size. */
+    static String pollPrefix(Team team) {
+        if (team == null) {
+            return "";
+        }
+        int rank = team.getRankTeamPollScore();
+        return rank >= 1 && rank <= 25 ? "#" + rank : "";
+    }
+
+    /** Record and conference for the header, e.g. {@code #12  ·  5-2  ·  ACC}. */
+    static String recordLine(Team team) {
+        if (team == null) {
+            return "";
+        }
+        String conf = team.conference == null ? "" : team.conference.trim();
+        String record = team.getWins() + "-" + team.getLosses();
+        String poll = pollPrefix(team);
+        String head = poll.isEmpty() ? record : poll + "  ·  " + record;
+        return conf.isEmpty() ? head : head + "  ·  " + conf;
     }
 
     public static String getSeasonBadgeText(int season) {

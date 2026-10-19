@@ -23,7 +23,7 @@
         android:maxLines="2"
         android:paddingEnd="@dimen/cf_space_sm"
         android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption"
-        tools:text="Week 1" />
+        tools:text="Wk 4\nHome" />
 
     <Button
         android:id="@+id/gameScheduleButtonList"
@@ -65,5 +65,5 @@
         android:textColor="@color/cf_gold"
         android:textSize="@dimen/cf_text_caption"
         android:textStyle="bold"
-        tools:text="#4 Opponent" />
+        tools:text="vs #4 Alabama" />
 </LinearLayout>

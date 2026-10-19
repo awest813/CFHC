@@ -35,9 +35,12 @@ public final class RecruitingOptionsDialogController {
         dialog.setCancelable(false);
         activity.showImmersive(dialog);
         PlatformUiHelper.bindRankingsDialogShell(dialog, "Recruiting Launch",
-                "Check who is leaving your roster or headed to the draft before you enter recruiting season.");
+                activity.getString(R.string.dlg_recruit_launch_subtitle));
 
-        String[] spinnerSelection = {"Players Leaving", "Pro Mock Draft"};
+        String[] spinnerSelection = {
+                activity.getString(R.string.dlg_draft_players_leaving),
+                activity.getString(R.string.dlg_draft_board)
+        };
         Spinner spinner = dialog.findViewById(R.id.spinnerTeamRankings);
         PlatformUiHelper.avoidSpinnerDropdownFocus(spinner);
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(activity,
@@ -48,8 +51,12 @@ public final class RecruitingOptionsDialogController {
         final ListView playerList = dialog.findViewById(R.id.listViewTeamRankings);
         final StatsRowAdapter playerStatsAdapter =
                 new StatsRowAdapter(activity, userTeam.getGradPlayersList());
+        String[] draftBoard = simLeague.getMockDraftPlayersList();
+        if (draftBoard == null || draftBoard.length == 0) {
+            draftBoard = new String[]{activity.getString(R.string.dlg_draft_empty)};
+        }
         final MockDraft mockDraftAdapter =
-                new MockDraft(activity, simLeague.getMockDraftPlayersList(), userTeam.getName());
+                new MockDraft(activity, draftBoard, userTeam.getName());
         playerList.setAdapter(playerStatsAdapter);
 
         spinner.setOnItemSelectedListener(
@@ -79,7 +86,7 @@ public final class RecruitingOptionsDialogController {
         dialog.setCancelable(false);
         activity.showImmersive(dialog);
         PlatformUiHelper.bindSimpleListDialogShell(dialog, "Recruiting Class Rankings",
-                "Measure your incoming class against the rest of the country before you move on to season goals.");
+                activity.getString(R.string.dlg_recruit_class_subtitle));
 
         ListView rankingsList = dialog.findViewById(R.id.listViewDialog);
         rankingsList.setAdapter(new ui.TeamRankingsList(activity,

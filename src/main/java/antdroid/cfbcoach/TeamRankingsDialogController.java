@@ -31,7 +31,9 @@ final class TeamRankingsDialogController {
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
         PlatformUiHelper.showImmersive(dialog);
-        PlatformUiHelper.bindRankingsDialogShell(dialog, "Team Statistical Rankings", "Review weekly performance across all major team statistical categories.");
+        PlatformUiHelper.bindRankingsDialogShell(dialog, "Team Statistical Rankings",
+                activity.getString(R.string.dlg_rankings_weekly_subtitle));
+        final android.widget.TextView rankingsSubtitle = dialog.findViewById(R.id.textDialogShellSubtitle);
 
         ArrayList<String> rankings = new ArrayList<>();
         String[] rankingsSelection =
@@ -57,8 +59,11 @@ final class TeamRankingsDialogController {
                         ArrayList<String> rankings = simLeague.getTeamRankingsStr(position);
 
                         teamRankingsAdapter.setUserTeamStrRep(userTeam.getName());
-                        if (position == 16)
-                            teamRankingsAdapter.setUserTeamStrRep(userTeam.getName() + "\n" + userTeam.getTopRecruit());
+                        if (rankingsSubtitle != null) {
+                            rankingsSubtitle.setText(position == 17
+                                    ? R.string.dlg_recruit_class_subtitle
+                                    : R.string.dlg_rankings_weekly_subtitle);
+                        }
 
                         teamRankingsAdapter.clear();
                         teamRankingsAdapter.addAll(rankings);

@@ -24,17 +24,34 @@
         android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatAccent"
         tools:text="#1" />
 
-    <TextView
-        android:id="@+id/textTeamRankingsCenter"
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/cf_space_md"
         android:layout_marginEnd="@dimen/cf_space_sm"
         android:layout_weight="1"
-        android:ellipsize="end"
-        android:maxLines="2"
-        android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title"
-        tools:text="Team Name" />
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textTeamRankingsCenter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title"
+            tools:text="Team Name" />
+
+        <TextView
+            android:id="@+id/textTeamRankingsDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption"
+            android:visibility="gone"
+            tools:text="QB Ada Lovelace (91)"
+            tools:visibility="visible" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/textTeamRankingsRight"

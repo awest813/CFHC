@@ -79,11 +79,6 @@ public class StatsRowAdapter extends ArrayAdapter<String> {
                 itemC.setTypeface(itemC.getTypeface(), Typeface.NORMAL);
                 itemC.setText(row);
             }
-
-            TextView itemL = rowView.findViewById(R.id.textPlayerStatsLeftChild);
-            itemL.setVisibility(View.GONE);
-            TextView itemR = rowView.findViewById(R.id.textPlayerStatsRightChild);
-            itemR.setVisibility(View.GONE);
         }
 
         return rowView;

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Conference banner: elevated slate with the same 4dp emerald bar as the drawer. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/cf_card_elevated" />
+            <corners android:radius="@dimen/cf_radius_sm" />
+        </shape>
+    </item>
+    <item
+        android:width="@dimen/cf_nav_indicator"
+        android:gravity="start|fill_vertical">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/cf_emerald" />
+            <corners
+                android:bottomLeftRadius="@dimen/cf_radius_sm"
+                android:topLeftRadius="@dimen/cf_radius_sm" />
+        </shape>
+    </item>
+</layer-list>

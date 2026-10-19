@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="124dp"
+    android:layout_height="wrap_content"
     android:background="@drawable/bg_nav_header"
     android:gravity="bottom|center_vertical"
+    android:minHeight="132dp"
     android:orientation="horizontal"
     android:paddingStart="@dimen/cf_space_lg"
     android:paddingTop="@dimen/cf_space_xxl"
@@ -13,16 +13,16 @@
     android:paddingBottom="@dimen/cf_space_md"
     android:theme="@style/ThemeOverlay.Material3.Dark">
 
-    <!-- Pixel crest (sprite box, keep fitCenter so the pixel look survives). -->
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:background="@drawable/bg_cf_card_canvas"
-        android:contentDescription="@string/hub_nav_crest_desc"
-        android:padding="4dp"
-        android:scaleType="fitCenter"
-        app:srcCompat="@drawable/sprite_crest_wildcats" />
+    <TextView
+        android:id="@+id/navMono"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:background="@drawable/bg_hub_mono"
+        android:contentDescription="@string/hub_a11y_mono"
+        android:gravity="center"
+        android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title"
+        android:textColor="@color/cf_emerald"
+        tools:text="BC" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -35,9 +35,9 @@
             style="@style/Widget.Cfhc.CardTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxLines="1"
             android:ellipsize="end"
-            android:text="@string/nav_header_title"
+            android:maxLines="1"
+            android:text="@string/hub_nav_kicker"
             android:textColor="@color/cf_gold" />
 
         <TextView
@@ -46,11 +46,21 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/cf_space_xs"
             android:ellipsize="end"
-            android:maxLines="2"
+            android:maxLines="1"
             android:text="@string/nav_header_no_team"
             android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title"
-            android:visibility="visible"
-            tools:text="#4 Alabama (11-1) CC NCW" />
+            tools:text="Boston College" />
+
+        <TextView
+            android:id="@+id/navTextRecord"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
+            android:textColor="@color/cf_text_secondary"
+            tools:text="#12  ·  5-2  ·  ACC" />
     </LinearLayout>
 
 </LinearLayout>

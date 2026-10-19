@@ -21,6 +21,6 @@ final class HomeScreenController {
         }
         int week = simLeague.currentWeek;
 
-        mainList.setAdapter(new TeamHome(activity, teamStatsStr, activity, games, week));
+        mainList.setAdapter(new TeamHome(activity, teamStatsStr, activity, games, week, currentTeam));
     }
 }

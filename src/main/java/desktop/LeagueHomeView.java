@@ -1819,7 +1819,7 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
         StringBuilder sb = new StringBuilder("Mock Draft Board\n");
         sb.append("=".repeat(40)).append("\n\n");
         for (int i = 0; i < draft.length; i++) {
-            sb.append(String.format(Locale.ROOT, "%3d. %s%n", i + 1, draft[i]));
+            sb.append(simulation.MockDraftLine.parse(draft[i]).boardLine()).append('\n');
         }
         showScrollableText("Mock Draft", sb.toString());
     }

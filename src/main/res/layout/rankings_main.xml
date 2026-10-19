@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Standings row: gold rank pill · team + record (Inter) · poll value (mono, right). -->
+<!-- Standings / poll row: gold rank pill · team · record (mono) · conference or poll (mono). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -34,7 +34,19 @@
         android:ellipsize="end"
         android:maxLines="2"
         android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title"
-        tools:text="Team (10-2)" />
+        tools:text="Alabama" />
+
+    <TextView
+        android:id="@+id/textRankRecord"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="@dimen/cf_space_sm"
+        android:ellipsize="end"
+        android:gravity="end"
+        android:maxLines="1"
+        android:maxWidth="120dp"
+        android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
+        tools:text="(8-1)" />
 
     <TextView
         android:id="@+id/textRankRight"

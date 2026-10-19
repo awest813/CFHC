@@ -36,8 +36,9 @@ public class TeamStatsList extends ArrayAdapter<String> {
         TextView textRight = rowView.findViewById(R.id.textTeamStatsRight);
 
         String[] teamStat = values[position].split(",", -1);
-        textLeft.setText(valueAt(teamStat, 0));
-        textCenter.setText(valueAt(teamStat, 1));
+        // Engine order is value, label, rank. The row reads label, then the number, then the rank.
+        textLeft.setText(valueAt(teamStat, 1));
+        textCenter.setText(valueAt(teamStat, 0));
         textRight.setText(valueAt(teamStat, 2));
 
         return rowView;

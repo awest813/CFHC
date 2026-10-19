@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Pro draft pick: round label on the first pick, then pick pill, player, overall. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/mockDraftRound"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/cf_space_xs"
+        android:letterSpacing="0.08"
+        android:textAllCaps="true"
+        android:textAppearance="@style/TextAppearance.Cfhc.Cf.Micro"
+        android:textColor="@color/cf_gold"
+        android:visibility="gone"
+        tools:text="Round 1"
+        tools:visibility="visible" />
+
+    <LinearLayout
+        android:id="@+id/mockDraftCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_cf_card"
+        android:gravity="center_vertical"
+        android:minHeight="56dp"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/cf_card_padding_h"
+        android:paddingTop="@dimen/cf_space_sm"
+        android:paddingEnd="@dimen/cf_card_padding_h"
+        android:paddingBottom="@dimen/cf_space_sm">
+
+        <TextView
+            android:id="@+id/mockDraftPick"
+            style="@style/Widget.Cfhc.Pill.Gold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="64dp"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatAccent"
+            tools:text="R1 · 4" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/cf_space_md"
+            android:layout_marginEnd="@dimen/cf_space_sm"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/mockDraftPlayer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title"
+                tools:text="QB Ada Lovelace" />
+
+            <TextView
+                android:id="@+id/mockDraftMeta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption"
+                tools:text="Junior  ·  Pine Valley  ·  Dallas" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/mockDraftOverall"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:minWidth="36dp"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
+            android:textColor="@color/cf_emerald"
+            tools:text="88" />
+    </LinearLayout>
+</LinearLayout>

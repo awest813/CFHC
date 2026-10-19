@@ -5558,15 +5558,12 @@ Then conferences can see if they want to add them to their list if the teams mee
         Collections.sort(allPlayersLeaving, new CompNFLTalent());
         ArrayList<Player> NFLPlayers = new ArrayList<>();
 
-        if (allPlayersLeaving.size() > 224) {
-            for (int i = 0; i < 224; ++i) {
-                NFLPlayers.add(allPlayersLeaving.get(i));
-            }
-        } else {
-            // Get first 3 rounds
-            for (int i = 0; i < 96; ++i) {
-                NFLPlayers.add(allPlayersLeaving.get(i));
-            }
+        // Seven rounds when the pool is deep, otherwise the first three rounds,
+        // and never more names than have actually declared.
+        int cap = allPlayersLeaving.size() > 224 ? 224 : 96;
+        int limit = Math.min(cap, allPlayersLeaving.size());
+        for (int i = 0; i < limit; ++i) {
+            NFLPlayers.add(allPlayersLeaving.get(i));
         }
 
         List<String> nfl = Arrays.asList(proTeams);

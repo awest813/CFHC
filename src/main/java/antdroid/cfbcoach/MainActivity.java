@@ -161,6 +161,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         gameState.setRedshirtComplete(complete);
     }
 
+    /** Drawer subtitle: poll, record, conference, and any title honors. */
+    private static String drawerRecordLine(simulation.Team team) {
+        StringBuilder sb = new StringBuilder();
+        String poll = SeasonPresentationController.pollPrefix(team);
+        if (!poll.isEmpty()) {
+            sb.append(poll).append("  ·  ");
+        }
+        sb.append(team.getWins()).append('-').append(team.getLosses());
+        if (team.conference != null && !team.conference.trim().isEmpty()) {
+            sb.append("  ·  ").append(team.conference.trim());
+        }
+        for (String honor : new String[]{team.getConfChampion(), team.semiFinalWL, team.natChampWL}) {
+            if (honor != null && !honor.trim().isEmpty()) {
+                sb.append(' ').append(honor.trim());
+            }
+        }
+        return sb.toString();
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -191,9 +210,28 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 super.onDrawerOpened(drawerView);
                 View headerView = navigationView.getHeaderView(0);
                 TextView navTeam = headerView.findViewById(R.id.navTextTeam);
-                navTeam.setText(currentTeam != null
-                        ? simulation.SeasonPresentation.getDrawerTeamLine(currentTeam)
-                        : getString(R.string.nav_header_no_team));
+                TextView navRecord = headerView.findViewById(R.id.navTextRecord);
+                TextView navMono = headerView.findViewById(R.id.navMono);
+                if (currentTeam != null) {
+                    navTeam.setText(currentTeam.getName());
+                    if (navRecord != null) {
+                        navRecord.setText(drawerRecordLine(currentTeam));
+                    }
+                    if (navMono != null) {
+                        String mono = SeasonPresentationController.monogram(currentTeam);
+                        navMono.setText(mono);
+                        navMono.setContentDescription(getString(R.string.hub_a11y_mono) + " " + mono);
+                    }
+                } else {
+                    navTeam.setText(getString(R.string.nav_header_no_team));
+                    if (navRecord != null) {
+                        navRecord.setText("");
+                    }
+                    if (navMono != null) {
+                        navMono.setText("CF");
+                        navMono.setContentDescription(getString(R.string.hub_a11y_mono));
+                    }
+                }
                 syncDrawerSelection();
                 updateDrawerBadges();
             }
@@ -523,6 +561,62 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             mainList.setAlpha(0f);
             mainList.animate().alpha(1f).setDuration(160).start();
         }
+        applyPageChrome(page);
+    }
+
+    /** Emerald screen title and the matching shortcut. Home keeps the team card. */
+    private void applyPageChrome(int page) {
+        View header = findViewById(R.id.mainPageHeader);
+        TextView title = findViewById(R.id.mainPageTitle);
+        TextView subtitle = findViewById(R.id.mainPageSubtitle);
+        boolean home = page == 0;
+        if (header != null) {
+            header.setVisibility(home ? View.GONE : View.VISIBLE);
+        }
+        if (!home && title != null) {
+            title.setText(pageTitle(page));
+        }
+        if (subtitle != null) {
+            String columns = pageColumns(page);
+            subtitle.setText(columns);
+            subtitle.setVisibility(columns.isEmpty() ? View.GONE : View.VISIBLE);
+        }
+        styleQuickButton(R.id.buttonQuickHome, page == 0);
+        styleQuickButton(R.id.buttonQuickRoster, page == 1);
+        styleQuickButton(R.id.buttonQuickStats, page == 3);
+        styleQuickButton(R.id.buttonQuickSchedule, page == 4);
+        if (mainList != null && !home) {
+            mainList.setContentDescription(pageTitle(page));
+        }
+    }
+
+    private String pageTitle(int page) {
+        switch (page) {
+            case 1: return getString(R.string.menu_roster);
+            case 2: return getString(R.string.menu_teamplayerstats);
+            case 3: return getString(R.string.menu_teamstats);
+            case 4: return getString(R.string.menu_schedule);
+            case 7: return getString(R.string.menu_standings);
+            case 8: return getString(R.string.menu_rankings);
+            default: return getString(R.string.menu_home);
+        }
+    }
+
+    private String pageColumns(int page) {
+        if (page == 1) return getString(R.string.page_roster_columns);
+        if (page == 4) return getString(R.string.page_schedule_columns);
+        if (page == 3) return getString(R.string.page_team_stats_columns);
+        if (page == 7) return getString(R.string.page_standings_columns);
+        if (page == 8) return getString(R.string.page_rankings_columns);
+        return "";
+    }
+
+    private void styleQuickButton(int id, boolean active) {
+        Button button = findViewById(id);
+        if (button == null) return;
+        button.setBackgroundResource(active ? R.drawable.bg_action_win : R.drawable.bg_action_secondary);
+        button.setTextColor(ContextCompat.getColor(this, active ? R.color.cf_on_emerald : R.color.cf_text_primary));
+        button.setSelected(active);
     }
 
     public void openHomeView(View view) {

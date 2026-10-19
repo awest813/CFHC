@@ -9,6 +9,7 @@ import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
@@ -44,47 +45,113 @@ public class MainRankings extends ArrayAdapter<String> {
         }
         TextView textLeft = rowView.findViewById(R.id.textRankLeft);
         final TextView textCenter = rowView.findViewById(R.id.textRankCenter);
+        TextView textRecord = rowView.findViewById(R.id.textRankRecord);
         TextView textRight = rowView.findViewById(R.id.textRankRight);
 
         final String[] teamStat = values.get(position).split(",", -1);
-        final String rank = valueAt(teamStat, 0);
-        final String team = valueAt(teamStat, 1);
-        final String record = valueAt(teamStat, 2);
+        final String rank = valueAt(teamStat, 0).trim();
+        final String team = valueAt(teamStat, 1).trim();
+        final String record = valueAt(teamStat, 2).trim();
+        final String stat = valueAt(teamStat, 3).trim();
+        final boolean spacer = rank.isEmpty() && team.isEmpty();
+        final boolean section = rank.isEmpty() && !team.isEmpty();
+
+        if (spacer) {
+            // Blank line the engine inserts between conferences.
+            rowView.setVisibility(View.GONE);
+            setRowHeight(rowView, 0);
+            textCenter.setOnClickListener(null);
+            return rowView;
+        }
+
+        rowView.setVisibility(View.VISIBLE);
+        setRowHeight(rowView, ViewGroup.LayoutParams.WRAP_CONTENT);
         textLeft.setText(rank);
-        textCenter.setText(team + " " + record);
-        textRight.setText(valueAt(teamStat, 3));
-
-        // Reset recycled-row styling to the HUD row defaults.
-        rowView.setBackgroundResource(R.drawable.bg_cf_card);
-        textLeft.setVisibility(View.VISIBLE);
-        textLeft.setTextColor(color(R.color.cf_gold));
-        textCenter.setTextColor(color(R.color.cf_text_primary));
-        textRight.setTextColor(color(R.color.cf_text_primary));
-
-        if (team.equals(userTeamStrRep)) {
-            // User team: emerald leading bar + emerald text
-            rowView.setBackgroundResource(R.drawable.bg_cf_card_accent);
-            textLeft.setTypeface(textLeft.getTypeface(), Typeface.BOLD);
-            textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
-            textCenter.setTextColor(color(R.color.cf_emerald));
-            textRight.setTypeface(textRight.getTypeface(), Typeface.BOLD);
-            textRight.setTextColor(color(R.color.cf_emerald));
+        textCenter.setText(team);
+        textCenter.setAllCaps(section);
+        if (textRecord != null) {
+            textRecord.setText(record);
+            textRecord.setVisibility(record.isEmpty() ? View.GONE : View.VISIBLE);
         }
-        if (rank.equals(" ")) {
-            // Section header line (conference / division): no rank pill, gold label
-            textLeft.setVisibility(View.INVISIBLE);
-            textCenter.setTypeface(textCenter.getTypeface(), Typeface.BOLD);
+        textRight.setText(stat);
+        textRight.setVisibility(stat.isEmpty() ? View.GONE : View.VISIBLE);
+
+        boolean userRow = isUserTeam(team);
+        int weight = userRow ? Typeface.BOLD : Typeface.NORMAL;
+        textLeft.setTypeface(textLeft.getTypeface(), weight);
+        textCenter.setTypeface(textCenter.getTypeface(), weight);
+        textRight.setTypeface(textRight.getTypeface(), weight);
+        if (textRecord != null) {
+            textRecord.setTypeface(textRecord.getTypeface(), weight);
+        }
+
+        if (section) {
+            rowView.setBackgroundResource(R.drawable.bg_section_bar);
+            textLeft.setVisibility(View.GONE);
             textCenter.setTextColor(color(R.color.cf_gold));
-        }
-
-        textCenter.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mainAct.examineTeam(team);
+            textCenter.setOnClickListener(null);
+            textCenter.setClickable(false);
+        } else {
+            textLeft.setVisibility(View.VISIBLE);
+            textLeft.setTextColor(color(R.color.cf_gold));
+            if (userRow) {
+                rowView.setBackgroundResource(R.drawable.bg_cf_card_accent);
+                textCenter.setTextColor(color(R.color.cf_emerald));
+                textRight.setTextColor(color(R.color.cf_emerald));
+                if (textRecord != null) {
+                    textRecord.setTextColor(color(R.color.cf_emerald));
+                }
+            } else {
+                rowView.setBackgroundResource(R.drawable.bg_cf_card);
+                textCenter.setTextColor(color(R.color.cf_text_primary));
+                textRight.setTextColor(color(R.color.cf_text_primary));
+                if (textRecord != null) {
+                    textRecord.setTextColor(color(R.color.cf_text_secondary));
+                }
             }
-        });
+            final String lookup = bareTeamName(team);
+            textCenter.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mainAct.examineTeam(lookup);
+                }
+            });
+        }
 
         return rowView;
+    }
+
+    /** Ranked standings prefix the poll rank (`#12 Alabama`); the lookup name does not. */
+    static String bareTeamName(String team) {
+        if (team == null) {
+            return "";
+        }
+        String trimmed = team.trim();
+        if (trimmed.startsWith("#")) {
+            int space = trimmed.indexOf(' ');
+            if (space >= 0 && space + 1 < trimmed.length()) {
+                return trimmed.substring(space + 1).trim();
+            }
+        }
+        return trimmed;
+    }
+
+    private boolean isUserTeam(String teamField) {
+        return userTeamStrRep != null && !userTeamStrRep.isEmpty()
+                && bareTeamName(teamField).equals(userTeamStrRep);
+    }
+
+    private static void setRowHeight(View rowView, int height) {
+        ViewGroup.LayoutParams lp = rowView.getLayoutParams();
+        if (lp == null) {
+            rowView.setLayoutParams(new AbsListView.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT, height));
+            return;
+        }
+        if (lp.height != height) {
+            lp.height = height;
+            rowView.requestLayout();
+        }
     }
 
     public void setUserTeamStrRep(String userTeamStrRep) {

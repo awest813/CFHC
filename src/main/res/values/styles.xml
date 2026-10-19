@@ -472,6 +472,14 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <!-- Hero digit. StatBold inherits LabelMedium's 16sp line box, which clips a 28sp number. -->
+    <style name="TextAppearance.Cfhc.Cf.Overall" parent="TextAppearance.Cfhc.Cf.StatBold">
+        <item name="android:textSize">@dimen/cf_text_hero</item>
+        <item name="android:textColor">@color/cf_emerald</item>
+        <!-- Appcompat attr, not android:lineHeight (API 28). MaterialTextView applies it on minSdk 24. -->
+        <item name="lineHeight">@dimen/cf_text_hero</item>
+    </style>
+
     <style name="TextAppearance.Cfhc.Cf.StatAccent" parent="TextAppearance.Cfhc.Cf.Stat">
         <item name="android:textColor">@color/cf_gold</item>
         <item name="android:textStyle">bold</item>

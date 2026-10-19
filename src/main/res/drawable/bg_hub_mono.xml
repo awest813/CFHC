@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Program monogram: slate disc with an emerald ring. Matches the desktop seal. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <solid android:color="@color/cf_card" />
+    <stroke
+        android:width="@dimen/cf_stroke"
+        android:color="@color/cf_emerald" />
+</shape>
