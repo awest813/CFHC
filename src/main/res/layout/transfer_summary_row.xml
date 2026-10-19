@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Transfer result: a section label, or position / year / name / destination / overall. -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/transferSection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_section_bar"
+        android:letterSpacing="0.08"
+        android:paddingStart="@dimen/cf_card_padding_h"
+        android:paddingTop="@dimen/cf_space_sm"
+        android:paddingEnd="@dimen/cf_card_padding_h"
+        android:paddingBottom="@dimen/cf_space_sm"
+        android:textAllCaps="true"
+        android:textAppearance="@style/TextAppearance.Cfhc.Cf.Micro"
+        android:textColor="@color/cf_gold"
+        android:visibility="gone"
+        tools:text="Transfers Out"
+        tools:visibility="visible" />
+
+    <LinearLayout
+        android:id="@+id/transferSummaryCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_cf_card"
+        android:gravity="center_vertical"
+        android:minHeight="56dp"
+        android:orientation="horizontal"
+        android:paddingStart="@dimen/cf_card_padding_h"
+        android:paddingTop="@dimen/cf_space_sm"
+        android:paddingEnd="@dimen/cf_card_padding_h"
+        android:paddingBottom="@dimen/cf_space_sm">
+
+        <TextView
+            android:id="@+id/transferSummaryPos"
+            style="@style/Widget.Cfhc.Pill"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="36dp"
+            tools:text="QB" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/cf_space_md"
+            android:layout_marginEnd="@dimen/cf_space_sm"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/transferSummaryName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title"
+                tools:text="Ada Lovelace" />
+
+            <TextView
+                android:id="@+id/transferSummaryDest"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption"
+                tools:text="Fr  ·  State" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/transferSummaryOvr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="end"
+            android:minWidth="36dp"
+            android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
+            android:textColor="@color/cf_emerald"
+            tools:text="88" />
+    </LinearLayout>
+</LinearLayout>

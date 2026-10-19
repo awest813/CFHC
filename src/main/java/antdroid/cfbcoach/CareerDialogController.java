@@ -175,16 +175,14 @@ public final class CareerDialogController {
 
     public static void showJobOffersDialog(MainActivity activity, String title, String message,
                                             String[] teams, Consumer<Integer> onSelect) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle(title)
-                .setMessage(message)
-                .setCancelable(false);
-        builder.setItems(teams, (dialog, item) -> {
-            if (onSelect != null) onSelect.accept(item);
-        });
-        AlertDialog alert = builder.create();
-        alert.setCancelable(false);
-        activity.showImmersive(alert);
+        java.util.ArrayList<ChoiceCardDialog.Choice> choices = new java.util.ArrayList<>();
+        if (teams != null) {
+            for (String team : teams) {
+                choices.add(jobChoice(team));
+            }
+        }
+        showChoiceList(activity, activity.getString(R.string.dlg_pill_carousel), title, message,
+                null, null, choices, onSelect);
     }
 
     public static void showJobOffersEmpty(MainActivity activity, String title, String message) {
@@ -200,32 +198,28 @@ public final class CareerDialogController {
     public static void showPromotionsDialog(MainActivity activity, String title, String message,
                                              String[] teams, Consumer<Integer> onSelect,
                                              Runnable onDecline) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle(title)
-                .setMessage(message)
-                .setPositiveButton("Decline Offers", (dialog, which) -> {
-                    if (onDecline != null) onDecline.run();
-                });
-        builder.setCancelable(false);
-        builder.setItems(teams, (dialog, item) -> {
-            if (onSelect != null) onSelect.accept(item);
-        });
-        AlertDialog alert = builder.create();
-        alert.setCancelable(false);
-        activity.showImmersive(alert);
+        java.util.ArrayList<ChoiceCardDialog.Choice> choices = new java.util.ArrayList<>();
+        if (teams != null) {
+            for (String team : teams) {
+                choices.add(jobChoice(team));
+            }
+        }
+        showChoiceList(activity, activity.getString(R.string.dlg_pill_carousel), title, message,
+                activity.getString(R.string.dlg_carousel_decline), onDecline, choices, onSelect);
     }
 
     public static void showSelectNewTeamDialog(MainActivity activity, String[] teams,
                                                 Consumer<Integer> onSelect) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle("Choose Your New Team");
-        builder.setItems(teams, (dialog, item) -> {
-            if (onSelect != null) onSelect.accept(item);
-        });
-        builder.setCancelable(false);
-        AlertDialog alert = builder.create();
-        alert.setCancelable(false);
-        activity.showImmersive(alert);
+        java.util.ArrayList<ChoiceCardDialog.Choice> choices = new java.util.ArrayList<>();
+        if (teams != null) {
+            for (String team : teams) {
+                choices.add(teamListChoice(team));
+            }
+        }
+        showChoiceList(activity, activity.getString(R.string.dlg_pill_carousel),
+                "Choose Your New Team",
+                "Every program is open. Prestige is the number on the right.",
+                null, null, choices, onSelect);
     }
 
     public static void showTeamReviewDialog(MainActivity activity, Team team, String rosterSummary,
@@ -239,9 +233,7 @@ public final class CareerDialogController {
         }
 
         AlertDialog.Builder roster = new AlertDialog.Builder(activity);
-        roster.setTitle(team.getName() + " Program Review" +
-                        "\nPrestige #" + team.getRankTeamPrestige() + " | Off "
-                        + team.getTeamOffTalent() + " | Def " + team.getTeamDefTalent());
+        roster.setTitle(team.getName() + " Program Review");
         roster.setNeutralButton("Back to Offers", (dialog, which) -> {
             if (onBack != null) onBack.run();
         });
@@ -291,11 +283,14 @@ public final class CareerDialogController {
             }
         }
 
-        String title = isOffense ? "Off Coordinators Available:" : "Def Coordinators Available:";
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-        builder.setTitle(title);
-        builder.setCancelable(false);
-        builder.setItems(items, (dialog, item) -> {
+        String title = isOffense ? "Offensive coordinators" : "Defensive coordinators";
+        java.util.ArrayList<ChoiceCardDialog.Choice> choices = new java.util.ArrayList<>();
+        for (String item : items) {
+            choices.add(coordinatorChoice(item, isOffense, activity.getString(R.string.dlg_carousel_current)));
+        }
+        showChoiceList(activity, activity.getString(R.string.dlg_pill_carousel), title,
+                "Age, side rating, recruiting talent, and scheme. The current coach can be renewed.",
+                null, null, choices, item -> {
             if (isOffense) {
                 if (item == 0 && userTeam.OC != null) {
                     userTeam.OC.contractLength = 3;
@@ -314,7 +309,6 @@ public final class CareerDialogController {
                     simLeague.removeCoachFreeAgent(hired);
 
                     if (isNewTeam) {
-                        dialog.dismiss();
                         CareerDialogController.showHireCoordinatorDialog(activity, false, true,
                                 simLeague.getDCList(userTeam.getHeadCoach()), userTeam, simLeague, onComplete);
                         return;
@@ -347,9 +341,117 @@ public final class CareerDialogController {
             }
             if (onComplete != null) onComplete.run();
         });
-        AlertDialog alert = builder.create();
-        alert.setCancelable(false);
-        activity.showImmersive(alert);
+    }
+
+    /** Broadcast card list for carousel openings. A tap selects that row. */
+    private static void showChoiceList(MainActivity activity, String pill, String title, String subtitle,
+                                        String negative, Runnable onNegative,
+                                        java.util.List<ChoiceCardDialog.Choice> choices,
+                                        Consumer<Integer> onSelect) {
+        android.view.View content = activity.getLayoutInflater()
+                .inflate(R.layout.simple_list_dialog, null, false);
+        TextView pillView = content.findViewById(R.id.textSimpleDialogShellLabel);
+        if (pillView != null && pill != null && !pill.isEmpty()) {
+            pillView.setText(pill);
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity)
+                .setView(content)
+                .setCancelable(false);
+        if (negative != null) {
+            builder.setNegativeButton(negative, (dialog, which) -> {
+                if (onNegative != null) onNegative.run();
+            });
+        }
+        AlertDialog dialog = builder.create();
+        dialog.setCancelable(false);
+        activity.showImmersive(dialog);
+        PlatformUiHelper.bindSimpleListDialogShell(dialog, title, subtitle);
+        android.widget.ListView list = dialog.findViewById(R.id.listViewDialog);
+        list.setAdapter(new android.widget.ArrayAdapter<ChoiceCardDialog.Choice>(
+                activity, R.layout.choice_card_row, choices) {
+            @Override
+            public android.view.View getView(int position, android.view.View convertView,
+                                              android.view.ViewGroup parent) {
+                android.view.View row = convertView != null ? convertView
+                        : android.view.LayoutInflater.from(getContext())
+                        .inflate(R.layout.choice_card_row, parent, false);
+                ChoiceCardDialog.Choice choice = getItem(position);
+                TextView rowTitle = row.findViewById(R.id.choiceRowTitle);
+                TextView badge = row.findViewById(R.id.choiceRowBadge);
+                TextView body = row.findViewById(R.id.choiceRowBody);
+                rowTitle.setText(choice != null ? choice.title : "");
+                bindChoiceText(badge, choice != null ? choice.badge : null);
+                bindChoiceText(body, choice != null ? choice.body : null);
+                return row;
+            }
+        });
+        list.setOnItemClickListener((parent, view, position, id) -> {
+            dialog.dismiss();
+            if (onSelect != null) onSelect.accept(position);
+        });
+    }
+
+    private static void bindChoiceText(TextView view, String text) {
+        if (view == null) return;
+        if (text == null || text.trim().isEmpty()) {
+            view.setVisibility(android.view.View.GONE);
+            view.setText("");
+        } else {
+            view.setVisibility(android.view.View.VISIBLE);
+            view.setText(text.trim());
+        }
+    }
+
+    /** Job-offer block: name, prestige line, swing line. */
+    static ChoiceCardDialog.Choice jobChoice(String block) {
+        String[] lines = block == null ? new String[0] : block.split("\n");
+        String name = lines.length > 0 ? lines[0].trim() : "";
+        String body = lines.length > 1 ? lines[1].replace("  |  ", "  ·  ").trim() : "";
+        String badge = "";
+        if (lines.length > 2) {
+            String swing = lines[2];
+            int mark = swing.indexOf(':');
+            String rest = mark >= 0 ? swing.substring(mark + 1).trim() : swing.trim();
+            int space = rest.indexOf(' ');
+            badge = space > 0 ? rest.substring(0, space) : rest;
+        }
+        return new ChoiceCardDialog.Choice(name, badge, body);
+    }
+
+    /** {@code Conference:  Name  [prestige]}. */
+    static ChoiceCardDialog.Choice teamListChoice(String line) {
+        String raw = line == null ? "" : line.trim();
+        int colon = raw.indexOf(':');
+        String conference = colon >= 0 ? raw.substring(0, colon).trim() : "";
+        String rest = colon >= 0 ? raw.substring(colon + 1).trim() : raw;
+        String badge = "";
+        int bracket = rest.lastIndexOf('[');
+        String name = rest;
+        if (bracket >= 0 && rest.endsWith("]")) {
+            badge = rest.substring(bracket + 1, rest.length() - 1).trim();
+            name = rest.substring(0, bracket).trim();
+        }
+        return new ChoiceCardDialog.Choice(name, badge, conference);
+    }
+
+    static ChoiceCardDialog.Choice coordinatorChoice(String block, boolean offense, String currentLabel) {
+        String raw = block == null ? "" : block.trim();
+        String[] lines = raw.split("\n");
+        String title = lines.length > 0 ? lines[0].replace(" [current]", "").trim() : "";
+        String body = lines.length > 1 ? lines[1].trim() : "";
+        String badge = lines.length > 0 && lines[0].contains("[current]") ? currentLabel : "";
+        if (badge.isEmpty()) {
+            badge = ratingToken(body, offense ? "Off:" : "Def:");
+        }
+        return new ChoiceCardDialog.Choice(title, badge, body);
+    }
+
+    private static String ratingToken(String body, String label) {
+        int at = body.indexOf(label);
+        if (at < 0) return "";
+        String rest = body.substring(at + label.length()).trim();
+        int space = rest.indexOf(' ');
+        return space > 0 ? rest.substring(0, space) : rest;
     }
 
     public static void showSimpleMessage(MainActivity activity, String title, String message) {
