@@ -2,11 +2,15 @@ package desktop;
 
 import org.junit.Test;
 
+import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import java.awt.Component;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class DesktopThemeAccessibilityTest {
 
@@ -17,6 +21,12 @@ public class DesktopThemeAccessibilityTest {
         JScrollPane scroll = new JScrollPane(table);
         DesktopTheme.styleDataTableInScroll(scroll, table, "Standings");
         assertEquals("Standings", table.getAccessibleContext().getAccessibleName());
+        assertFalse(table.getShowVerticalLines());
+        assertTrue(table.getRowHeight() >= 26);
+        Component header = table.getTableHeader().getDefaultRenderer()
+                .getTableCellRendererComponent(table, "Team", false, false, -1, 0);
+        assertTrue(header instanceof JLabel);
+        assertEquals("TEAM", ((JLabel) header).getText());
     }
 
     @Test

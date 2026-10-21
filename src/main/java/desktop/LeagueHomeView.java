@@ -20,15 +20,12 @@ import simulation.TeamColors;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -43,13 +40,9 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
-import java.awt.GridLayout;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.Comparator;
@@ -113,7 +106,7 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
     private String selectedScreen = "Home";
     private JPanel mainContentCards;
     private CardLayout mainCardLayout;
-    private JList<String> navigationList;
+    private DesktopNavSidebar navSidebar;
     private final DesktopRecruitingSessionStore recruitingStore = new DesktopRecruitingSessionStore();
 
     /** Retained UI shells to avoid full frame rebuilds on refresh. */
@@ -150,7 +143,8 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
         rebuildLiveTeamMap();
 
         setTitle(buildWindowTitle());
-        setSize(1200, 850);
+        setSize(1440, 900);
+        setMinimumSize(new Dimension(1100, 720));
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
@@ -794,8 +788,8 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
     }
 
     private void focusNavigationList() {
-        if (navigationList != null) {
-            navigationList.requestFocusInWindow();
+        if (navSidebar != null) {
+            navSidebar.focusNav();
         }
     }
 
@@ -1896,6 +1890,7 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
         rebuildStatusBar();
         selectScreen(selectedScreen);
 
+        refreshNavChrome();
         revalidate();
         repaint();
         applyWindowTheme();
@@ -1997,11 +1992,11 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
         shell.setOpaque(true);
         shell.setBackground(DesktopTheme.windowBackground());
 
-        navigationList = buildNavigationList();
-        JScrollPane navScroll = new JScrollPane(navigationList);
-        navScroll.setBorder(BorderFactory.createEmptyBorder());
-        navScroll.getViewport().setBackground(DesktopTheme.sidebarBackground());
-
+        navSidebar = new DesktopNavSidebar(NAV_TITLES, NAV_ICONS, title -> {
+            audioManager.play(AudioEvent.UI_CLICK);
+            selectScreen(title);
+        });
+        refreshNavChrome();
         JPanel sidebar = new JPanel(new BorderLayout()) {
             @Override
             protected void paintComponent(Graphics g) {
@@ -2011,32 +2006,8 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
         };
         sidebar.setOpaque(false);
         sidebar.setBackground(DesktopTheme.sidebarBackground());
-        sidebar.setPreferredSize(new Dimension(205, 0));
         sidebar.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, DesktopTheme.borderSubtle()));
-
-        JPanel navHeader = new JPanel(new GridLayout(0, 1, 0, 2));
-        navHeader.setOpaque(false);
-        navHeader.setBorder(BorderFactory.createEmptyBorder(14, 14, 12, 14));
-        JLabel office = new JLabel("LEAGUE OFFICE");
-        office.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 13));
-        office.setForeground(DesktopTheme.sidebarText());
-        JLabel phase = new JLabel(decodeSeasonPeriod());
-        phase.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
-        phase.setForeground(DesktopTheme.textSecondary());
-        navHeader.add(office);
-        navHeader.add(phase);
-
-        JLabel seasonContext = new JLabel("Week " + Math.max(0, leagueCore.currentWeek)
-                + " / Year " + leagueCore.getYear());
-        seasonContext.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
-        seasonContext.setForeground(DesktopTheme.textSecondary());
-        seasonContext.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(1, 0, 0, 0, DesktopTheme.borderSubtle()),
-                BorderFactory.createEmptyBorder(10, 14, 10, 14)));
-
-        sidebar.add(navHeader, BorderLayout.NORTH);
-        sidebar.add(navScroll, BorderLayout.CENTER);
-        sidebar.add(seasonContext, BorderLayout.SOUTH);
+        sidebar.add(navSidebar, BorderLayout.CENTER);
         shell.add(sidebar, BorderLayout.WEST);
 
         mainCardLayout = new CardLayout();
@@ -2053,60 +2024,42 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
         return shell;
     }
 
-    private JList<String> buildNavigationList() {
-        DefaultListModel<String> model = new DefaultListModel<>();
-        for (int i = 0; i < NAV_TITLES.length; i++) {
-            model.addElement(NAV_TITLES[i]);
+    /**
+     * Recruiting commits and unread headlines ride on the nav rows; the seal
+     * shows the user program. Called on every refresh so a week advance updates
+     * both without rebuilding the shell.
+     */
+    private void refreshNavChrome() {
+        if (navSidebar == null) {
+            return;
         }
-        JList<String> list = new JList<>(model);
-        list.setFixedCellHeight(36);
-        list.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        list.setToolTipText("");
-        list.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-        list.setBackground(DesktopTheme.sidebarBackground());
-        list.setForeground(DesktopTheme.sidebarText());
-        list.setSelectionBackground(DesktopTheme.sidebarSelectionBackground());
-        list.setSelectionForeground(Color.WHITE);
-        list.setCellRenderer(new DefaultListCellRenderer() {
-            @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index,
-                                                          boolean isSelected, boolean cellHasFocus) {
-                JLabel label = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-                label.setBorder(BorderFactory.createEmptyBorder(0, 12, 0, 10));
-                if (index >= 0 && index < NAV_ICONS.length) {
-                    label.setIcon(UiIcons.of(NAV_ICONS[index], 16));
-                    label.setIconTextGap(10);
-                }
-                label.setOpaque(true);
-                label.setBackground(isSelected ? DesktopTheme.sidebarSelectionBackground() : DesktopTheme.sidebarBackground());
-                label.setForeground(isSelected ? Color.WHITE : DesktopTheme.sidebarText());
-                if (isSelected) {
-                    label.setFont(new Font("SansSerif", Font.BOLD, 12));
-                } else {
-                    label.setFont(new Font("SansSerif", Font.PLAIN, 12));
-                }
-                // Per-row tooltip advertises the digit-key shortcut per screen.
-                if (index >= 0 && index < NAV_TITLES.length) {
-                    String key = index < 9 ? ("Key " + (index + 1))
-                            : (index < 18 ? ("Ctrl+" + (index - 8)) : "");
-                    list.setToolTipText("Open " + NAV_TITLES[index]
-                            + (key.isEmpty() ? "" : "  (" + key + ")"));
-                }
-                return label;
-            }
-        });
-        list.addListSelectionListener(e -> {
-            if (!e.getValueIsAdjusting()) {
-                String value = list.getSelectedValue();
-                if (value != null) {
-                    audioManager.play(AudioEvent.UI_CLICK);
-                    int idx = list.getSelectedIndex();
-                    String title = idx >= 0 && idx < NAV_TITLES.length ? NAV_TITLES[idx] : "Home";
-                    selectScreen(title);
+        Team user = leagueCore.userTeam;
+        int commits = 0;
+        if (user != null && user.getAllPlayers() != null) {
+            for (positions.Player p : user.getAllPlayers()) {
+                if (p.year == 1 && !p.wasRedshirt) {
+                    commits++;
                 }
             }
-        });
-        return list;
+        }
+        navSidebar.setBadge("Recruiting", commits > 0 ? Integer.toString(commits) : null);
+        int news = leagueCore.getNewsHeadlines() == null ? 0 : leagueCore.getNewsHeadlines().size();
+        navSidebar.setBadge("News", news <= 0 ? null : (news > 99 ? "99+" : Integer.toString(news)));
+
+        String mono = "CF";
+        String title = "League Office";
+        String meta = "Year " + leagueCore.getYear();
+        if (user != null) {
+            if (user.getAbbr() != null && user.getAbbr().length() >= 2) {
+                mono = user.getAbbr().substring(0, Math.min(3, user.getAbbr().length())).toUpperCase(Locale.ROOT);
+            }
+            title = user.getName();
+            String conf = user.conference == null ? "" : user.conference;
+            meta = user.getWins() + "-" + user.getLosses()
+                    + (conf.isBlank() ? "" : "  ·  " + conf);
+        }
+        navSidebar.setFooter(mono, title, meta);
+        navSidebar.setSelected(selectedScreen);
     }
 
     private void addScreenCard(String title, LeagueScreen screen) {
@@ -2129,20 +2082,8 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
         if (mainCardLayout != null && mainContentCards != null) {
             mainCardLayout.show(mainContentCards, title);
         }
-        if (navigationList != null) {
-            int idx = -1;
-            for (int i = 0; i < NAV_TITLES.length; i++) {
-                if (NAV_TITLES[i].equals(title)) {
-                    idx = i;
-                    break;
-                }
-            }
-            if (idx >= 0) {
-                if (navigationList.getSelectedIndex() != idx) {
-                    navigationList.setSelectedIndex(idx);
-                    navigationList.ensureIndexIsVisible(idx);
-                }
-            }
+        if (navSidebar != null) {
+            navSidebar.setSelected(title);
         }
     }
 

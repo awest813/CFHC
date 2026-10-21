@@ -4,16 +4,16 @@ import simulation.Conference;
 import simulation.Team;
 
 import javax.swing.BorderFactory;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
-import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.GridLayout;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -115,33 +115,27 @@ public class StandingsPanel implements LeagueScreen {
     }
 
     private JPanel buildConferenceGrid(LeagueScreenContext ctx) {
-        JPanel content = new JPanel(new GridLayout(0, 2, 10, 10));
+        JPanel content = new JPanel();
+        content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
         content.setOpaque(true);
         content.setBackground(DesktopTheme.windowBackground());
-        content.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        content.setBorder(BorderFactory.createEmptyBorder(4, 4, 10, 10));
 
         for (Conference conf : ctx.league().getConferences()) {
-            content.add(buildConferencePanel(conf, ctx));
+            JPanel card = buildConferencePanel(conf, ctx);
+            card.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+            content.add(card);
+            content.add(Box.createVerticalStrut(10));
         }
         return content;
     }
 
     private JPanel buildConferencePanel(Conference conf, LeagueScreenContext ctx) {
-        JPanel panel = new JPanel(new BorderLayout());
-        DesktopTheme.styleTabRoot(panel);
-        panel.setBorder(BorderFactory.createLineBorder(DesktopTheme.borderSubtle()));
-
         String headerText = conf.confName;
         if (conf.confTV) {
             headerText += "  (" + conf.getTVName() + ")";
         }
-        JLabel label = new JLabel(headerText);
-        label.setOpaque(true);
-        label.setBackground(DesktopTheme.conferenceHeaderBackground());
-        label.setForeground(Color.WHITE);
-        label.setFont(new Font("SansSerif", Font.BOLD, 14));
-        label.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
-        panel.add(label, BorderLayout.NORTH);
+        CustomCardPanel panel = new CustomCardPanel(headerText);
 
         List<Team> sorted = new ArrayList<>(conf.getTeams());
         sorted.sort((a, b) -> {
@@ -175,13 +169,14 @@ public class StandingsPanel implements LeagueScreen {
 
         JTable confTable = new JTable(confModel);
         confTable.setAutoCreateRowSorter(true);
-        confTable.setRowHeight(20);
         confTable.setFont(new Font("SansSerif", Font.PLAIN, 12));
-        confTable.getColumnModel().getColumn(0).setPreferredWidth(30);
-        confTable.getColumnModel().getColumn(1).setPreferredWidth(140);
-        confTable.getColumnModel().getColumn(2).setPreferredWidth(50);
-        confTable.getColumnModel().getColumn(3).setPreferredWidth(50);
-        confTable.getColumnModel().getColumn(4).setPreferredWidth(40);
+        confTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        int[] mins = {36, 160, 64, 64, 52};
+        for (int c = 0; c < mins.length; c++) {
+            confTable.getColumnModel().getColumn(c).setMinWidth(mins[c]);
+            confTable.getColumnModel().getColumn(c).setPreferredWidth(c == 1 ? 280 : mins[c] + 8);
+        }
+        confTable.getColumnModel().getColumn(0).setMaxWidth(48);
 
         StripedRowRenderer.installWithTeamColors(confTable, ctx.teamMap(), 1);
         StripedRowRenderer.setNumericColumns(confTable, 2, 3);
@@ -203,8 +198,17 @@ public class StandingsPanel implements LeagueScreen {
             }
         });
         JScrollPane confScroll = new JScrollPane(confTable);
+        confScroll.setBorder(BorderFactory.createEmptyBorder());
         DesktopTheme.styleDataTableInScroll(confScroll, confTable, "Conference standings");
-        panel.add(confScroll, BorderLayout.CENTER);
+        int visibleRows = Math.min(Math.max(sorted.size(), 1), 14);
+        int cardHeight = 52 + visibleRows * confTable.getRowHeight();
+        confScroll.setPreferredSize(new Dimension(640, visibleRows * confTable.getRowHeight() + 32));
+        panel.getContentArea().add(confScroll, BorderLayout.CENTER);
+        // BoxLayout stretches children to their maximum height. Lock each
+        // conference to its row count so a 4-team league doesn't become a
+        // tall empty card, and so columns aren't crushed into a 2-up grid.
+        panel.setPreferredSize(new Dimension(640, cardHeight));
+        panel.setMaximumSize(new Dimension(Integer.MAX_VALUE, cardHeight));
         return panel;
     }
 }
