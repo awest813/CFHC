@@ -147,23 +147,19 @@ public class DashboardPanel implements LeagueScreen {
         bottom.setOpaque(false);
         JPanel quick = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         quick.setOpaque(false);
-        quick.add(mkNavButton("Play Week", cb.playWeek(), true));
-        quick.add(mkNavButton("Standings", cb.selectScreenStandings(), false));
-        quick.add(mkNavButton("Scoreboard", cb.selectScreenScoreboard(), false));
-        quick.add(mkNavButton("Poll Rankings", cb.selectScreenPoll(), false));
-        quick.add(mkNavButton("Player Stats", cb.selectScreenPlayerStats(), false));
-        quick.add(mkNavButton("News", cb.selectScreenNews(), false));
-        quick.add(mkNavButton("Recruiting", cb.selectScreenRecruiting(), false));
-        quick.add(mkNavButton("My Coach", () -> {
-            if (ctx != null) ctx.nav().selectScreen("My Coach");
-        }, false));
+        JButton play = mkNavButton(playWeekLabel(), cb.playWeek(), true);
+        play.setToolTipText(buildNextActionContext());
+        quick.add(play);
         if (league.userTeam != null) {
-            JButton my = new JButton("\u2605 My Program");
+            JButton my = new JButton("My Program");
             my.setToolTipText("Roster, depth chart, and team tools (Ctrl+U)");
             my.addActionListener(e -> cb.openUserTeamDetail().run());
             DesktopTheme.styleHudQuickButton(my, false);
             quick.add(my);
         }
+        JButton save = mkNavButton("Save", cb.saveLeague(), false);
+        save.setToolTipText("Save the league (Ctrl+S)");
+        quick.add(save);
         bottom.add(quick, BorderLayout.NORTH);
         panel.add(bottom, BorderLayout.SOUTH);
 
@@ -245,6 +241,39 @@ public class DashboardPanel implements LeagueScreen {
         return SeasonPresentation.getNextActionHint(league);
     }
 
+    /** Rounded phase chip. The active step uses the emerald wash; the rest stay quiet. */
+    private static JPanel phaseChip(String phase, boolean active) {
+        JPanel chip = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
+                g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING,
+                        java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
+                if (active) {
+                    Color emerald = DesktopTheme.emerald();
+                    g2.setColor(new Color(emerald.getRed(), emerald.getGreen(), emerald.getBlue(),
+                            DesktopTheme.isDark() ? 50 : 40));
+                    g2.fillRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 12, 12);
+                    g2.setColor(emerald);
+                    g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 12, 12);
+                } else {
+                    g2.setColor(DesktopTheme.borderSubtle());
+                    g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 12, 12);
+                }
+                g2.dispose();
+            }
+        };
+        chip.setOpaque(false);
+        JLabel label = new JLabel(phase, JLabel.CENTER);
+        label.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 10));
+        label.setForeground(active
+                ? (DesktopTheme.isDark() ? Color.WHITE : new Color(6, 64, 36))
+                : DesktopTheme.textSecondary());
+        label.setBorder(BorderFactory.createEmptyBorder(4, 6, 4, 6));
+        chip.add(label, BorderLayout.CENTER);
+        return chip;
+    }
+
     private JPanel buildSeasonTimelinePanel() {
         JPanel timeline = new JPanel(new GridLayout(1, SeasonFlowOrder.CYCLE_ORDER.length + 1, 4, 0));
         timeline.setOpaque(false);
@@ -253,15 +282,9 @@ public class DashboardPanel implements LeagueScreen {
         System.arraycopy(SeasonFlowOrder.CYCLE_ORDER, 0, phases, 0, SeasonFlowOrder.CYCLE_ORDER.length);
         phases[phases.length - 1] = "Next Year";
         for (String phase : phases) {
-            JLabel label = new JLabel(phase, JLabel.CENTER);
-            label.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 10));
-            label.setOpaque(true);
             boolean isActive = phase.equals(active)
                     || ("Recruiting".equals(phase) && SeasonFlowOrder.isRecruitingGate(league.currentWeek, league.regSeasonWeeks));
-            label.setBackground(isActive ? DesktopTheme.sidebarSelectionBackground() : DesktopTheme.windowBackground());
-            label.setForeground(isActive ? Color.WHITE : DesktopTheme.textSecondary());
-            label.setBorder(BorderFactory.createEmptyBorder(5, 8, 5, 8));
-            timeline.add(label);
+            timeline.add(phaseChip(phase, isActive));
         }
         return timeline;
     }

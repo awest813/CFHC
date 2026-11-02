@@ -26,7 +26,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.BorderLayout;
-import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -100,7 +99,13 @@ public class RecruitingPanel extends JPanel {
         setOpaque(true);
         setBackground(DesktopTheme.windowBackground());
 
-        add(buildToolBar(), BorderLayout.NORTH);
+        JPanel north = new JPanel(new BorderLayout(0, 2));
+        north.setOpaque(false);
+        north.setBorder(BorderFactory.createEmptyBorder(8, 10, 0, 10));
+        north.add(DesktopTheme.buildScreenHeader("Recruiting",
+                "Filter the board, scout a prospect, then offer a scholarship."), BorderLayout.NORTH);
+        north.add(buildToolBar(), BorderLayout.CENTER);
+        add(north, BorderLayout.NORTH);
         add(buildCenterContent(), BorderLayout.CENTER);
         add(buildBottomBar(), BorderLayout.SOUTH);
 
@@ -129,7 +134,7 @@ public class RecruitingPanel extends JPanel {
         bar.add(filterBox);
 
         JButton sortGradeBtn = new JButton("Sort by Grade");
-        sortGradeBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        DesktopTheme.styleHudQuickButton(sortGradeBtn, false);
         sortGradeBtn.addActionListener(e -> {
             controller.sortByGrade();
             loadBoard(filterBox.getSelectedIndex());
@@ -137,7 +142,7 @@ public class RecruitingPanel extends JPanel {
         bar.add(sortGradeBtn);
 
         JButton sortCostBtn = new JButton("Sort by Cost");
-        sortCostBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        DesktopTheme.styleHudQuickButton(sortCostBtn, false);
         sortCostBtn.addActionListener(e -> {
             controller.sortByCost();
             loadBoard(filterBox.getSelectedIndex());
@@ -324,11 +329,11 @@ public class RecruitingPanel extends JPanel {
     }
 
     private void updateLabels() {
-        budgetLabel.setText("  Budget: $" + sessionData.recruitingBudget
-                + "   HC recruiting: " + sessionData.coachTalent);
-        budgetLabel.setForeground(DesktopTheme.textPrimary());
-        recruitedLabel.setText("  Recruited: " + sessionData.playersRecruited.size());
-        recruitedLabel.setForeground(DesktopTheme.textSecondary());
+        budgetLabel.setText("  Budget $" + sessionData.recruitingBudget
+                + "    HC " + sessionData.coachTalent);
+        budgetLabel.setForeground(DesktopTheme.isDark() ? DesktopTheme.emerald() : DesktopTheme.successGreen());
+        recruitedLabel.setText("  Signed " + sessionData.playersRecruited.size());
+        recruitedLabel.setForeground(DesktopTheme.gold());
 
         RecruitingSessionData.PositionNeeds currentNeeds =
                 sessionData.calculateNeeds();

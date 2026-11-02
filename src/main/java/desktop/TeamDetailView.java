@@ -6,6 +6,7 @@ import simulation.Game;
 import simulation.LeagueRecord;
 import simulation.PlayerRecord;
 import simulation.Team;
+import simulation.TeamColors;
 import simulation.TeamHistoryRecord;
 
 import javax.swing.BorderFactory;
@@ -23,8 +24,11 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Comparator;
@@ -59,26 +63,29 @@ public class TeamDetailView extends JDialog {
         this.ownerFrame = owner;
         this.liveTeam = liveTeam;
         this.onChanged = onChanged != null ? onChanged : () -> {};
-        setSize(920, 640);
+        setSize(1080, 740);
         setLayout(new BorderLayout());
         DesktopTheme.applyWindowIcon(this);
 
+        add(buildIdentityHeader(team, liveTeam), BorderLayout.NORTH);
+
         JTabbedPane tabs = new JTabbedPane();
-        tabs.addTab("Roster",  buildRosterTab(team));
+        tabs.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 12));
+        tabs.addTab("ROSTER",  buildRosterTab(team));
         if (liveTeam != null) {
-            tabs.addTab("Schedule", buildScheduleTab(liveTeam));
-            tabs.addTab("Depth Chart", buildDepthChartTab(liveTeam));
+            tabs.addTab("SCHEDULE", buildScheduleTab(liveTeam));
+            tabs.addTab("DEPTH CHART", buildDepthChartTab(liveTeam));
         }
-        tabs.addTab("Coaches", buildCoachesTab(team));
+        tabs.addTab("COACHES", buildCoachesTab(team));
         if (liveTeam != null) {
-            tabs.addTab("Team Stats", buildTeamStatsTab(liveTeam));
-            tabs.addTab("Budget & Facilities", buildBudgetFacilitiesTab(liveTeam));
+            tabs.addTab("TEAM STATS", buildTeamStatsTab(liveTeam));
+            tabs.addTab("BUDGET & FACILITIES", buildBudgetFacilitiesTab(liveTeam));
         }
         if (liveTeam != null && !liveTeam.getTeamHistory().isEmpty()) {
-            tabs.addTab("History", buildHistoryTab(liveTeam));
+            tabs.addTab("HISTORY", buildHistoryTab(liveTeam));
         }
         if (!team.records().isEmpty()) {
-            tabs.addTab("Records", buildRecordsTab(team.records()));
+            tabs.addTab("RECORDS", buildRecordsTab(team.records()));
         }
 
         JPanel footer = buildFooter(team, liveTeam);
@@ -134,6 +141,95 @@ public class TeamDetailView extends JDialog {
                 }
             }
         }
+    }
+
+    /** Dark identity strip: monogram, school, mascot, and the record line. */
+    private JPanel buildIdentityHeader(LeagueRecord.TeamRecord team, Team live) {
+        JPanel header = new JPanel(new BorderLayout(14, 0)) {
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g2.setColor(DesktopTheme.headerBackground());
+                g2.fillRect(0, 0, getWidth(), getHeight());
+                Color stripe = live != null ? TeamColors.primary(live.getAbbr()) : DesktopTheme.emerald();
+                if (stripe != null) {
+                    g2.setColor(stripe);
+                    g2.fillRect(0, 0, 4, getHeight());
+                }
+                g2.setColor(DesktopTheme.borderSubtle());
+                g2.drawLine(0, getHeight() - 1, getWidth(), getHeight() - 1);
+                g2.dispose();
+            }
+        };
+        header.setOpaque(false);
+        header.setPreferredSize(new Dimension(0, 78));
+        header.setBorder(BorderFactory.createEmptyBorder(12, 18, 12, 18));
+
+        String mono = team.abbr() != null && team.abbr().length() >= 2
+                ? team.abbr().substring(0, Math.min(3, team.abbr().length())).toUpperCase(Locale.ROOT)
+                : "CF";
+        JPanel crest = new JPanel() {
+            @Override
+            protected void paintComponent(java.awt.Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                int s = Math.min(getWidth(), getHeight()) - 2;
+                g2.setColor(new Color(15, 41, 30));
+                g2.fillOval(1, 1, s, s);
+                g2.setColor(DesktopTheme.headerAccentGold());
+                g2.drawOval(1, 1, s, s);
+                g2.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 13));
+                g2.setColor(Color.WHITE);
+                java.awt.FontMetrics fm = g2.getFontMetrics();
+                g2.drawString(mono, 1 + (s - fm.stringWidth(mono)) / 2,
+                        1 + (s + fm.getAscent() - fm.getDescent()) / 2);
+                g2.dispose();
+            }
+        };
+        crest.setOpaque(false);
+        crest.setPreferredSize(new Dimension(48, 48));
+
+        String nickname = live != null && live.nickname != null ? live.nickname : "";
+        JPanel nameRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        nameRow.setOpaque(false);
+        JLabel school = new JLabel(team.name().toUpperCase(Locale.ROOT));
+        school.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
+        school.setForeground(DesktopTheme.headerText());
+        nameRow.add(school);
+        if (!nickname.isBlank()) {
+            JLabel mascot = new JLabel(nickname);
+            mascot.setFont(new Font(Font.SERIF, Font.BOLD | Font.ITALIC, 20));
+            mascot.setForeground(DesktopTheme.headerAccentGold());
+            nameRow.add(mascot);
+        }
+
+        String meta;
+        if (live != null) {
+            String conf = live.conference == null || live.conference.isBlank() ? "" : "   ·   " + live.conference;
+            int poll = live.getRankTeamPollScore();
+            String pollText = poll > 0 && poll <= 25 ? "   ·   Poll #" + poll : "";
+            meta = live.getWins() + "-" + live.getLosses()
+                    + "   ·   Conf " + live.getConfWins() + "-" + live.getConfLosses()
+                    + conf
+                    + "   ·   Prestige " + team.prestige()
+                    + pollText
+                    + "   ·   " + team.roster().size() + " players";
+        } else {
+            meta = "Prestige " + team.prestige() + "   ·   " + team.roster().size() + " players";
+        }
+        JLabel metaLabel = new JLabel(meta.toUpperCase(Locale.ROOT));
+        metaLabel.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 11));
+        metaLabel.setForeground(DesktopTheme.headerSubtleText());
+
+        JPanel text = new JPanel(new BorderLayout(0, 4));
+        text.setOpaque(false);
+        text.add(nameRow, BorderLayout.NORTH);
+        text.add(metaLabel, BorderLayout.SOUTH);
+
+        header.add(crest, BorderLayout.WEST);
+        header.add(text, BorderLayout.CENTER);
+        return header;
     }
 
     private static String dialogTitle(LeagueRecord.TeamRecord team, Team live) {
@@ -565,16 +661,7 @@ public class TeamDetailView extends JDialog {
     private JPanel buildFooter(LeagueRecord.TeamRecord team, Team live) {
         JPanel footer = new JPanel(new BorderLayout(10, 0));
         footer.setBorder(BorderFactory.createEmptyBorder(6, 12, 6, 12));
-        String recordText;
-        if (live != null) {
-            recordText = String.format(Locale.ROOT, "%s (%s)  \u2022  Record %d-%d  \u2022  Conf %d-%d  \u2022  Prestige %d  \u2022  Roster %d",
-                    team.name(), team.abbr(), live.getWins(), live.getLosses(),
-                    live.getConfWins(), live.getConfLosses(), team.prestige(), team.roster().size());
-        } else {
-            recordText = String.format(Locale.ROOT, "%s (%s)  \u2022  Prestige %d  \u2022  Roster %d",
-                    team.name(), team.abbr(), team.prestige(), team.roster().size());
-        }
-        JLabel recordLbl = new JLabel(recordText);
+        JLabel recordLbl = new JLabel("Double-click a player or a game for the full page.");
         recordLbl.setFont(new Font("SansSerif", Font.PLAIN, 11));
         footer.add(recordLbl, BorderLayout.WEST);
 
