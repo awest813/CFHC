@@ -37,11 +37,11 @@ android {
             }
         }
     }
-    compileSdk 35
+    compileSdk 36
     defaultConfig {
         applicationId "antdroid.cfbcoach"
         minSdk 24
-        targetSdk 35
+        targetSdk 36
 
         /*
          * Versioning policy:

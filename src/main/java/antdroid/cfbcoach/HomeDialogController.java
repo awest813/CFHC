@@ -55,8 +55,27 @@ public final class HomeDialogController {
      * Show dialog for loading a save file.
      */
     public static void showLoadLeagueDialog(final Home activity, final String[] fileInfos, final int theme) {
+        showLoadLeagueDialog(activity, fileInfos, null, theme);
+    }
+
+    /**
+     * Slot picker. When {@code autosaveSummary} is non-null, a "Resume Autosave"
+     * button continues from the rolling autosave written after each week.
+     */
+    public static void showLoadLeagueDialog(final Home activity, final String[] fileInfos,
+                                            final String autosaveSummary, final int theme) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle("Choose Save to Load");
+        if (autosaveSummary != null) {
+            builder.setNeutralButton(R.string.home_resume_autosave, (dialog, which) -> {
+                activity.finish();
+                activity.startActivity(GameNavigation.createMainIntent(
+                        activity,
+                        LeagueLaunchCoordinator.LaunchRequest.resumeAutosave(),
+                        theme
+                ));
+            });
+        }
         SaveFilesList saveFilesAdapter = new SaveFilesList(activity, fileInfos);
         builder.setAdapter(saveFilesAdapter, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int item) {

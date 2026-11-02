@@ -28,22 +28,26 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <!-- configChanges: the app picks its own light/dark theme (not DayNight),
+             so a system dark-mode toggle, split-screen resize or fold is handled
+             in place instead of recreating the activity. Recreation is still
+             possible (process death); MainActivity resumes from the autosave. -->
         <activity
             android:name=".MainActivity"
             android:alwaysRetainTaskState="true"
-            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
             android:parentActivityName=".Home"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".recruiting.RecruitingActivity"
             android:alwaysRetainTaskState="true"
-            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
             android:label="@string/title_activity_recruiting"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme" />
         <activity
             android:name=".TutorialActivity"
-            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
             android:parentActivityName=".Home" />
     </application>
 

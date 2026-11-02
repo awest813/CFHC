@@ -5,7 +5,7 @@
 **Dynasty college football simulation — Android app plus a JVM desktop shell on one shared engine.**
 
 [![Version](https://img.shields.io/badge/version-v1.4.5-blue?style=flat-square)](https://github.com/awest813/CFHC/releases)
-[![Android](https://img.shields.io/badge/Android-minSdk%2024%20%7C%20targetSdk%2035-green?style=flat-square&logo=android)](https://developer.android.com)
+[![Android](https://img.shields.io/badge/Android-minSdk%2024%20%7C%20targetSdk%2036-green?style=flat-square&logo=android)](https://developer.android.com)
 [![Java](https://img.shields.io/badge/Java-17-orange?style=flat-square&logo=openjdk)](https://openjdk.org)
 [![Gradle](https://img.shields.io/badge/Gradle-8.9%20%7C%20AGP%208.7-lightgrey?style=flat-square&logo=gradle)](https://gradle.org)
 [![License](https://img.shields.io/badge/license-see%20LICENSE-informational?style=flat-square)](LICENSE)
@@ -42,7 +42,7 @@
 
 | Goal | You need |
 |:---|:---|
-| **Android app** | Android Studio (or JDK 17 + Android SDK with **API 35**), this repo |
+| **Android app** | Android Studio (or JDK 17 + Android SDK with **API 36**), this repo |
 | **Desktop only** | **JDK 17** only — no Android SDK required |
 | **Optional** | Device or emulator for APK install |
 

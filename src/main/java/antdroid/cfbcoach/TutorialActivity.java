@@ -32,6 +32,7 @@ public class TutorialActivity extends AppCompatActivity {
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tutorial);
+        PlatformUiHelper.applySafeInsets(this);
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override

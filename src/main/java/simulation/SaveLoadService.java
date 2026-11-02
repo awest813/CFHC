@@ -37,6 +37,29 @@ public final class SaveLoadService {
         return league.saveLeague(saveFile);
     }
 
+    /** The rolling autosave file (may not exist yet). */
+    public File getAutosaveFile() {
+        return LeagueSaveStorage.getAutosaveFile(filesDir);
+    }
+
+    /**
+     * One-line summary of the autosave for a "Resume" prompt, or {@code null}
+     * when there is no loadable autosave.
+     */
+    public String getAutosaveSummary() {
+        File autosave = getAutosaveFile();
+        if (!autosave.exists()) {
+            return null;
+        }
+        try {
+            String info = SaveFileSummary.summarize(autosave, League.CURRENT_SAVE_VERSION);
+            return SaveLoadMessages.isLoadable(info) ? info : null;
+        } catch (IOException ex) {
+            PlatformLog.e("SaveLoadService", "Error reading autosave", ex);
+            return null;
+        }
+    }
+
     /**
      * Check if a specific slot is empty.
      */

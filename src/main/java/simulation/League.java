@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 
 import java.io.IOException;
@@ -7206,43 +7205,27 @@ Then conferences can see if they want to add them to their list if the teams mee
      * @return true if successful
      */
     public boolean saveLeague(File saveFile) {
-        File tmp = new File(saveFile.getAbsolutePath() + ".tmp");
-        try (FileOutputStream fos = new FileOutputStream(tmp)) {
-            SaveManager.save(this.toRecord(), fos);
-        } catch (IOException e) {
-            PlatformLog.e("League", "Failed to write temp save file " + tmp.getAbsolutePath(), e);
-            if (!tmp.delete()) {
-                PlatformLog.w("League", "Could not delete temp save file " + tmp.getAbsolutePath());
-            }
-            return false;
-        }
+        byte[] data;
         try {
-            if (saveFile.exists() && !saveFile.delete()) {
-                PlatformLog.e("League", "Could not delete existing save file to replace: "
-                        + saveFile.getAbsolutePath());
-                if (!tmp.delete()) {
-                    PlatformLog.w("League", "Could not delete temp save file " + tmp.getAbsolutePath());
-                }
-                return false;
-            }
-            if (tmp.renameTo(saveFile)) {
-                return true;
-            }
-            try (FileInputStream in = new FileInputStream(tmp);
-                 FileOutputStream out = new FileOutputStream(saveFile)) {
-                IoStreams.copy(in, out);
-            }
-            if (!tmp.delete()) {
-                PlatformLog.w("League", "Could not delete temp save file after copy " + tmp.getAbsolutePath());
-            }
-            return true;
+            data = serializeSave();
         } catch (IOException e) {
-            PlatformLog.e("League", "Failed to replace save file " + saveFile.getAbsolutePath(), e);
-            if (!tmp.delete()) {
-                PlatformLog.w("League", "Could not delete temp save file " + tmp.getAbsolutePath());
-            }
+            PlatformLog.e("League", "Failed to serialize league for " + saveFile.getAbsolutePath(), e);
             return false;
         }
+        return LeagueSaveStorage.writeAtomically(saveFile, data);
+    }
+
+    /**
+     * Serializes the league to save-file bytes. This snapshots the league in
+     * memory, so it must run on the thread that owns the league (see
+     * docs/THREADING.md). The returned bytes can then be written on any thread
+     * with {@link LeagueSaveStorage#writeAtomically(File, byte[])}, which keeps
+     * slow storage off the UI thread.
+     */
+    public byte[] serializeSave() throws IOException {
+        java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream(256 * 1024);
+        SaveManager.save(this.toRecord(), out);
+        return out.toByteArray();
     }
 
 

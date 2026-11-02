@@ -18,7 +18,9 @@ public final class LeagueLaunchCoordinator {
             NEW_CUSTOM_LEAGUE,
             LOAD_INTERNAL,
             IMPORT_SAVE,
-            DONE_RECRUITING
+            DONE_RECRUITING,
+            /** Reload the rolling autosave (resume after the OS recreated or killed the app). */
+            RESUME_AUTOSAVE
         }
 
         public enum PrestigeMode {
@@ -51,6 +53,11 @@ public final class LeagueLaunchCoordinator {
 
         public static LaunchRequest loadInternal(String saveFileName) {
             return new LaunchRequest(Action.LOAD_INTERNAL, PrestigeMode.DEFAULT, saveFileName, null, null);
+        }
+
+        public static LaunchRequest resumeAutosave() {
+            return new LaunchRequest(Action.RESUME_AUTOSAVE, PrestigeMode.DEFAULT,
+                    LeagueSaveStorage.AUTOSAVE_FILE_NAME, null, null);
         }
 
         public static LaunchRequest importSave(String importUri) {
@@ -193,24 +200,40 @@ public final class LeagueLaunchCoordinator {
                     league.updateTeamTalentRatings();
                     return new LaunchResult(league, userTeam, userTeam, league.getYear(), true, false, false);
                 }
+            } else if (request.action == LaunchRequest.Action.RESUME_AUTOSAVE) {
+                File saveFile = LeagueSaveStorage.getAutosaveFile(filesDir);
+                if (!saveFile.exists()) {
+                    // Never fall through to generating a new league: that would
+                    // silently replace the dynasty the player expects to resume.
+                    throw new IOException("Autosave not found");
+                }
+                League league = loadInternalLeague(saveFile, playerNames, lastNames, bridge);
+                // No season-goals prompt: the player is resuming, not starting.
+                return new LaunchResult(league, league.userTeam, league.userTeam, league.getYear(), true, false, false);
             } else if (request.action == LaunchRequest.Action.LOAD_INTERNAL) {
                 File saveFile = LeagueSaveStorage.getNamedInternalFile(filesDir, request.saveFileName);
                 if (saveFile.exists()) {
-                    League league = new League(saveFile, playerNames, lastNames, bridge, true);
-                    Team userTeam = league.userTeam;
-                    if (userTeam == null) {
-                        throw new IOException("Loaded save did not contain a user team");
-                    }
-                    userTeam.getHeadCoach().user = true;
-                    league.rebuildScheduleIfNeeded();
-                    league.updateTeamTalentRatings();
-                    return new LaunchResult(league, userTeam, userTeam, league.getYear(), true, false, league.getYear() == seasonStart);
+                    League league = loadInternalLeague(saveFile, playerNames, lastNames, bridge);
+                    return new LaunchResult(league, league.userTeam, league.userTeam, league.getYear(), true, false, league.getYear() == seasonStart);
                 }
             }
         }
 
         League league = new League(playerNames, lastNames, conferencesText, teamsText, bowlsText, false, false);
         return new LaunchResult(league, null, null, seasonStart, false, false, false);
+    }
+
+    private static League loadInternalLeague(File saveFile, String playerNames, String lastNames,
+                                             GameUiBridge bridge) throws IOException {
+        League league = new League(saveFile, playerNames, lastNames, bridge, true);
+        Team userTeam = league.userTeam;
+        if (userTeam == null) {
+            throw new IOException("Loaded save did not contain a user team");
+        }
+        userTeam.getHeadCoach().user = true;
+        league.rebuildScheduleIfNeeded();
+        league.updateTeamTalentRatings();
+        return league;
     }
 
     private static League buildLeagueFromMode(LaunchRequest.PrestigeMode prestigeMode,

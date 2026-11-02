@@ -34,4 +34,5 @@
     <string name="home_tutorial_topic_label">Topic</string>
     <string name="home_tutorial_title_default">CFHC Basics</string>
     <string name="home_tutorial_content_default">Choose a topic to review coaching, recruiting, and game-day fundamentals.</string>
+    <string name="home_resume_autosave">Resume Autosave</string>
 </resources>

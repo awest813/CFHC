@@ -1,5 +1,10 @@
 package antdroid.cfbcoach;
 
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.appcompat.app.AlertDialog;
 import android.view.View;
 import android.widget.Spinner;
@@ -128,16 +133,47 @@ public final class PlatformUiHelper {
     }
 
     /**
-     * Hides system navigation and status bars for immersive mode.
+     * Hides the status and navigation bars (immersive; a swipe shows them
+     * briefly over the content). Uses the WindowInsetsController API: the old
+     * {@code setSystemUiVisibility} flags are deprecated and behave differently
+     * under the edge-to-edge layout Android 15+ enforces.
      */
     public static void hideSystemUI(android.app.Activity activity) {
-        View decorView = activity.getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                        | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_FULLSCREEN);
+        android.view.Window window = activity.getWindow();
+        WindowCompat.setDecorFitsSystemWindows(window, false);
+        hideSystemBars(window);
+    }
+
+    /** Hides the bars for one window (also used for dialogs, which stay floating). */
+    static void hideSystemBars(android.view.Window window) {
+        if (window == null) {
+            return;
+        }
+        WindowInsetsControllerCompat controller =
+                WindowCompat.getInsetsController(window, window.getDecorView());
+        controller.setSystemBarsBehavior(
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+        controller.hide(WindowInsetsCompat.Type.systemBars());
+    }
+
+    /**
+     * Keeps the activity's content clear of visible system bars and display
+     * cutouts. Android 15+ always lays apps out edge to edge (API 36 removed the
+     * opt-out), so without this a notch or a visible navigation bar can cover
+     * the toolbar and bottom controls. Call after {@code setContentView}.
+     */
+    public static void applySafeInsets(android.app.Activity activity) {
+        View content = activity.findViewById(android.R.id.content);
+        if (content == null) {
+            return;
+        }
+        ViewCompat.setOnApplyWindowInsetsListener(content, (v, insets) -> {
+            Insets safe = insets.getInsets(WindowInsetsCompat.Type.systemBars()
+                    | WindowInsetsCompat.Type.displayCutout());
+            v.setPadding(safe.left, safe.top, safe.right, safe.bottom);
+            // Consumed here, so layouts with fitsSystemWindows do not pad twice.
+            return WindowInsetsCompat.CONSUMED;
+        });
+        ViewCompat.requestApplyInsets(content);
     }
 }

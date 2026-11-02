@@ -31,7 +31,7 @@ jobs:
         # 'tools' omitted: removed from Google's SDK repository; sdkmanager
         # (cmdline-tools 20+) fails on it.
         with:
-          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
+          packages: 'platform-tools platforms;android-36 build-tools;35.0.0'
 
       - name: Stress suites (100-season + 20-season flow)
         run: ./gradlew :app:testDebugUnitTest -PrunStress --tests "simulation.Stress100SeasonsTest" --tests "simulation.Debug20SeasonsFlowTest" --no-daemon

@@ -65,11 +65,12 @@ public class RecruitingActivity extends AppCompatActivity {
         else setTheme(R.style.AppTheme);
 
         setContentView(R.layout.activity_recruiting);
+        PlatformUiHelper.applySafeInsets(this);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         // Get User Team's player info and team info for recruiting
-        String userTeamStr = GameNavigation.getUserTeamInfo(getIntent());
+        String userTeamStr = GameNavigation.getUserTeamInfo(this, getIntent());
         sessionData = RecruitingSessionData.fromUserTeamInfo(userTeamStr);
         flowManager = new antdroid.cfbcoach.AndroidGameFlowManager(this, theme);
         controller = new RecruitingController(sessionData, flowManager);

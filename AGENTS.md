@@ -6,7 +6,7 @@ CFHC is an offline single-product game (no backend/DB/network). There are two bu
 front-ends over one shared Java engine:
 
 - **Desktop / engine (JDK 17 only, no Android SDK)** — portable engine + Swing prototype.
-- **Android app `:app` (needs Android SDK, platform `android-35`, build-tools `35.0.0`)** — the shipping product.
+- **Android app `:app` (needs Android SDK, platform `android-36`, build-tools `35.0.0`)** — the shipping product.
 
 Standard commands live in `README.md` and `build.gradle`; this section only covers non-obvious cloud caveats.
 

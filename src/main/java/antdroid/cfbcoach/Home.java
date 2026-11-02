@@ -59,6 +59,7 @@ public class Home extends AppCompatActivity {
         audioManager.setMuted(getSharedPreferences("cfhc_home", MODE_PRIVATE)
                 .getBoolean("cfhc_audio_sfx_muted", false));
         setContentView(R.layout.activity_home);
+        PlatformUiHelper.applySafeInsets(this);
 
         PlatformUiHelper.hideSystemUI(this);
 
@@ -208,7 +209,8 @@ public class Home extends AppCompatActivity {
     }
 
     private void loadLeague() {
-        HomeDialogController.showLoadLeagueDialog(this, getSaveFileInfos(), theme);
+        HomeDialogController.showLoadLeagueDialog(this, getSaveFileInfos(),
+                new simulation.SaveLoadService(getFilesDir()).getAutosaveSummary(), theme);
     }
 
     private void deleteSave() {

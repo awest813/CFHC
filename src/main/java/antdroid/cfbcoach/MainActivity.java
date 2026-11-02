@@ -3,6 +3,8 @@ package antdroid.cfbcoach;
 import androidx.appcompat.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import android.os.Environment;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -198,6 +200,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         setContentView(R.layout.activity_main);
+        PlatformUiHelper.applySafeInsets(this);
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -248,7 +251,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         jobList = new ArrayList<>();
 
         //Load Data
+        checkRestoreFromAutosave(savedInstanceState);
         loadGame();
+        if (restoredFromAutosave && savedInstanceState != null) {
+            // Keep the "unsaved changes" tracking of the session we are resuming.
+            savedYear = savedInstanceState.getInt(STATE_SAVED_YEAR, -1);
+            savedWeek = savedInstanceState.getInt(STATE_SAVED_WEEK, -1);
+        }
 
 
         gameState.setWantUpdateConf(true); // 0 and 1, don't update, 2 update
@@ -388,7 +397,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             resumeDeferredRecruitingIfNeeded();
         }
 
-        if (simLeague.getYear() != seasonStart) {
+        if (simLeague.getYear() != seasonStart && !restoredFromAutosave) {
             // Only show recruiting classes if not gameState.getSeason() 1
             showRecruitingClassDialog();
         }
@@ -688,6 +697,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 seasonGoals();
             }
         } catch (Exception ex) {
+            if (restoredFromAutosave) {
+                // A bad autosave must not end the session: retry the original launch.
+                PlatformLog.e("MainActivity", "Autosave unreadable; using the launch intent", ex);
+                restoredFromAutosave = false;
+                loadGame();
+                return;
+            }
             PlatformLog.e("MainActivity", "Error reading file", ex);
             crash(simulation.SaveLoadMessages.loadFailureMessage(ex));
         }
@@ -741,7 +757,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         preparingDialog.setCancelable(false);
         showImmersive(preparingDialog);
 
-        new Thread(new Runnable() {
+        // The league is single-threaded (docs/THREADING.md): this used to mutate
+        // it from a raw background thread. Post to the UI thread instead, so the
+        // "preparing" dialog can draw first and the work still runs on the
+        // thread that owns the league.
+        getWindow().getDecorView().post(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -787,7 +807,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     });
                 }
             }
-        }, "CFHC-team-select").start();
+        });
     }
 
     private void userNameDialog() {
@@ -1433,6 +1453,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             disciplineSetup();
         }
         resetUI();
+        autosave();
 
         if (advance != null) {
             if (advance.getAudioEvent() != null) {
@@ -1530,8 +1551,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             final SeasonAdvanceResult lastFinal = last;
             runOnUiThread(() -> {
                 bulkRunning = false;
+                if (isDestroyed()) {
+                    return; // activity was recreated mid-run; the new instance owns the UI
+                }
                 progress.dismiss();
                 resetUI();
+                autosave();
                 audioManager.play(AudioEvent.CONFIRM);
                 while (!pendingBulkDialogs.isEmpty()) {
                     pendingBulkDialogs.remove(0).run(); // dialogs stack; user works top-down
@@ -1750,11 +1775,34 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return simLeague != null && savedYear == simLeague.getYear() && savedWeek == simLeague.currentWeek;
     }
 
-    private void onSaveFinished(boolean saved, Runnable afterSave) {
+    /**
+     * Snapshots the league here on the UI thread, then writes the file on the
+     * save thread so slow storage cannot freeze the app.
+     */
+    private void saveToSlotAsync(int slot, final Runnable afterSave) {
+        final int year = simLeague.getYear();
+        final int week = simLeague.currentWeek;
+        final byte[] data;
+        try {
+            data = simLeague.serializeSave();
+        } catch (IOException | RuntimeException ex) {
+            PlatformLog.e("MainActivity", "Failed to serialize league for slot " + slot, ex);
+            onSaveFinished(false, year, week, afterSave);
+            return;
+        }
+        SaveWriter.write(saveLoadService.getSlotFile(slot), data, ok -> {
+            if (isDestroyed()) {
+                return;
+            }
+            onSaveFinished(ok, year, week, afterSave);
+        });
+    }
+
+    private void onSaveFinished(boolean saved, int year, int week, Runnable afterSave) {
         if (saved) {
             audioManager.play(AudioEvent.CONFIRM);
-            savedYear = simLeague.getYear();
-            savedWeek = simLeague.currentWeek;
+            savedYear = year;
+            savedWeek = week;
             PlatformUiHelper.snack(this, simulation.SaveLoadMessages.SAVE_OK);
             if (afterSave != null) afterSave.run();
         } else {
@@ -1777,9 +1825,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 // Do something with the selection
                 if (saveLoadService.isSlotEmpty(itemy)) {
                     // Empty file, don't show dialog confirmation
-                    boolean saved = saveLoadService.saveToSlot(simLeague, itemy);
                     dialog.dismiss();
-                    onSaveFinished(saved, afterSave);
+                    saveToSlotAsync(itemy, afterSave);
                 } else {
                     // Ask for confirmation to overwrite file
                     AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -1788,9 +1835,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             .setPositiveButton(R.string.save_overwrite_confirm, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    boolean saved = saveLoadService.saveToSlot(simLeague, itemy);
                                     dialog.dismiss();
-                                    onSaveFinished(saved, afterSave);
+                                    saveToSlotAsync(itemy, afterSave);
                                 }
                             })
                             .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
@@ -2365,7 +2411,84 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private LeagueLaunchCoordinator.LaunchRequest getLaunchRequest() {
+        if (restoredFromAutosave) {
+            return LeagueLaunchCoordinator.LaunchRequest.resumeAutosave();
+        }
         return GameNavigation.getLaunchRequest(getIntent());
+    }
+
+    // ---- Autosave & restore after recreation ----------------------------------
+    //
+    // Android can destroy and rebuild this activity (process death in the
+    // background, or a config change we do not handle). Without this, onCreate
+    // re-ran the original launch intent: a NEW_LEAGUE launch generated a fresh
+    // league and a slot launch reloaded a stale save, losing the session.
+
+    private static final String STATE_AUTOSAVE_AT = "cfhc.autosaveRequestedAt";
+    private static final String STATE_SAVED_YEAR = "cfhc.savedYear";
+    private static final String STATE_SAVED_WEEK = "cfhc.savedWeek";
+    /** mtime slack when matching the autosave file to the request (coarse file-system clocks). */
+    private static final long AUTOSAVE_MTIME_SLACK_MS = 2000;
+
+    /** True when this instance resumed from the autosave instead of its launch intent. */
+    private boolean restoredFromAutosave;
+    /** Wall-clock time of the last queued autosave this session; -1 = none yet. */
+    private long autosaveRequestedAt = -1;
+
+    /** A save without a user coach cannot be loaded back, so skip the team-picker phase. */
+    private boolean canAutosave() {
+        return simLeague != null && userTeam != null && userTeam.getHeadCoach() != null
+                && userTeam.getHeadCoach().user;
+    }
+
+    /** Queues a rolling autosave of the current league. Safe to call often. */
+    private void autosave() {
+        if (!canAutosave()) {
+            return;
+        }
+        try {
+            byte[] data = simLeague.serializeSave();
+            autosaveRequestedAt = System.currentTimeMillis();
+            SaveWriter.write(saveLoadService.getAutosaveFile(), data, ok -> {
+                if (!ok) PlatformLog.w("MainActivity", "Autosave write failed");
+            });
+        } catch (IOException | RuntimeException ex) {
+            PlatformLog.e("MainActivity", "Autosave failed", ex);
+        }
+    }
+
+    /** Decides, before loadGame(), whether to resume from the autosave. */
+    private void checkRestoreFromAutosave(Bundle savedInstanceState) {
+        if (savedInstanceState == null) {
+            return;
+        }
+        long requestedAt = savedInstanceState.getLong(STATE_AUTOSAVE_AT, -1);
+        if (requestedAt <= 0) {
+            return;
+        }
+        // Same process (config change): the previous instance's write may still be queued.
+        SaveWriter.awaitPendingWrites(5000);
+        File autosave = saveLoadService.getAutosaveFile();
+        // Only trust a file at least as new as the snapshot the bundle refers to,
+        // so a failed write never resumes an older session.
+        if (autosave.exists() && autosave.lastModified() >= requestedAt - AUTOSAVE_MTIME_SLACK_MS) {
+            restoredFromAutosave = true;
+        } else {
+            PlatformLog.w("MainActivity", "Autosave missing or stale; falling back to the launch intent");
+        }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (!isFinishing()) {
+            autosave();
+        }
+        if (autosaveRequestedAt > 0) {
+            outState.putLong(STATE_AUTOSAVE_AT, autosaveRequestedAt);
+            outState.putInt(STATE_SAVED_YEAR, savedYear);
+            outState.putInt(STATE_SAVED_WEEK, savedWeek);
+        }
     }
 
 
@@ -2470,16 +2593,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         }
     }
 
-    // Shows the system bars by removing all the flags
-// except for the ones that make the content appear under the system bars.
-    private void showSystemUI() {
-        View decorView = getWindow().getDecorView();
-        decorView.setSystemUiVisibility(
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-    }
-
     public void showImmersive(AlertDialog alert) {
         PlatformUiHelper.showImmersive(alert);
     }
@@ -2516,6 +2629,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     protected void onDestroy() {
+        cancelBulk = true; // a bulk worker must not keep advancing a league nobody shows
         if (audioManager != null) {
             audioManager.dispose();
             audioManager = null;
