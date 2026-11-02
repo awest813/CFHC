@@ -8,10 +8,10 @@
 > Earlier documents this builds on: [`ship-readiness-audit.md`](ship-readiness-audit.md) (A1–A11),
 > [`android-ui-redesign-plan.md`](android-ui-redesign-plan.md) (Waves 0–6), [`ROADMAP.md`](ROADMAP.md).
 >
-> **Status (follow-up commit 841ed8e):** G1, G2, G3, G5, G6 and G7 are fixed in code, and G4 is
-> fixed for saves. The Android module was **not compiled** in the audit container (no SDK). The
-> engine half is covered by `simulation.AutosaveTest`. Run CI (`:app:assembleDebug` / `lintDebug`)
-> and the device checklist at the end of this file before release.
+> **Status:** G1, G2, G3, G5, G6 and G7 are fixed, and G4 is fixed for saves. CI run 167 on master
+> (`0ce155e`) built and linted all of this. It passed unit tests, debug/beta/release APKs plus the
+> release AAB at compileSdk/targetSdk 36, and lint for debug, beta and release. On-device behaviour
+> is still unverified; see the device checklist at the end of this file.
 >
 > Priority: **P0** blocks the next Play release or loses user data · **P1** players will notice
 > it · **P2** quality or maintainability debt.
@@ -31,7 +31,7 @@
 | G7 | ✅ Deprecated `setSystemUiVisibility` immersive/edge-to-edge code. API 36 removes the edge-to-edge opt-out (A10) | Platform | P1 |
 | G8 | Desktop parity: no interactive gameday coaching, no Offseason Hub, no league-scoreboard box scores, plus 9 smaller gaps (§3) | Features | P1/P2 |
 | G9 | No Android-side tests: no `androidTest`, no unit tests for `antdroid/` or `ui/`, no UI snapshot baseline | Quality | P1 |
-| G10 | Unverified known issue: `./gradlew test` (CI `android` job) reportedly fails to compile | CI | P1 |
+| G10 | ✅ `./gradlew test` (CI `android` job) compiles and passes. The Android test source set excludes desktop Swing tests | CI | P1 |
 | G11 | Accessibility: 26 `contentDescription`s across all layouts, 82 hard-coded UI strings in Java | A11y / i18n | P2 |
 | G12 | Redesign leftovers: 0 RecyclerViews, 0 custom views, 81 raw `AlertDialog.Builder`s, 514 literal dp/sp | UI debt | P2 |
 | G13 | Large screens and tablets: phone-only layouts, `largeHeap`, `configChanges` doesn't cover multi-window or folding | Platform | P2 |
