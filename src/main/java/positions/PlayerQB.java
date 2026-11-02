@@ -149,10 +149,9 @@ public class PlayerQB extends Player {
     public String getAwardDescription() {
         return team.getName() +
                 " QB " + name + " [" + getYrStr() + "], who had " +
-                getPassTD() + " TDs, just " + getPassInt() + " interceptions, and " +
-                getPassYards() + " passing yards. In addition, he ran for " + getRushYards() + " rushing yards and scored " + getRushTDs() + " touchdowns. He led " + team.getName() +
-                " to a " + team.getWins() + "-" + team.getLosses() + " record and a #" + team.getRankTeamPollScore() +
-                " poll ranking.";
+                getPassTD() + " TDs, " + simulation.AwardText.fewCount(getPassInt(), 7, "interception") + ", and " +
+                getPassYards() + " passing yards. In addition, he ran for " + getRushYards() + " rushing yards and scored " + simulation.AwardText.count(getRushTDs(), "touchdown") + ". He led " + team.getName() +
+                simulation.AwardText.recordClause(team);
     }
 
     @Override

@@ -144,9 +144,8 @@ public class PlayerCB extends Player {
     public String getAwardDescription() {
         return team.getName() +
                 " CB " + name + " [" + getYrStr() + "], who had " +
-                getTackles() + " tackles, " + getSacks() + " sacks, and forced " + getFumblesRec() + " fumbles. He led " + team.getName() +
-                " to a " + team.getWins() + "-" + team.getLosses() + " record and a #" + team.getRankTeamPollScore() +
-                " poll ranking.";
+                simulation.AwardText.count(getTackles(), "tackle") + ", " + simulation.AwardText.count(getSacks(), "sack") + ", and forced " + simulation.AwardText.count(getFumblesRec(), "fumble") + ". He led " + team.getName() +
+                simulation.AwardText.recordClause(team);
     }
 
     @Override

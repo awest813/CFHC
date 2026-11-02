@@ -152,10 +152,9 @@ public class PlayerRB extends Player {
     @Override
     public String getAwardDescription() {
         return team.getName() + " RB " + name + " [" + getYrStr() + "], who had " +
-                getRushTDs() + " TDs, just " + getFumbles() + " fumbles, and " +
+                getRushTDs() + " TDs, " + simulation.AwardText.fewCount(getFumbles(), 3, "fumble") + ", and " +
                 getRushYards() + " rushing yards. He led " + team.getName() +
-                " to a " + team.getWins() + "-" + team.getLosses() + " record and a #" + team.getRankTeamPollScore() +
-                " poll ranking.";
+                simulation.AwardText.recordClause(team);
     }
 
     @Override
