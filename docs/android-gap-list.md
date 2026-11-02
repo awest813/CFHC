@@ -24,7 +24,7 @@
 | G5 | Team selection mutates `League` on a raw background thread, breaking the threading contract (A1) | Threading | P1 |
 | G6 | Recruiting payload is passed as an Intent String extra and gets close to the ~1 MB Binder limit late in a dynasty (A11) | Stability | P1 |
 | G7 | Deprecated `setSystemUiVisibility` immersive/edge-to-edge code. API 36 removes the edge-to-edge opt-out (A10) | Platform | P1 |
-| G8 | Feature-parity gaps compared with desktop (see §3) | Features | P1/P2 |
+| G8 | Desktop parity: no interactive gameday coaching, no Offseason Hub, no league-scoreboard box scores, plus 9 smaller gaps (§3) | Features | P1/P2 |
 | G9 | No Android-side tests: no `androidTest`, no unit tests for `antdroid/` or `ui/`, no UI snapshot baseline | Quality | P1 |
 | G10 | Unverified known issue: `./gradlew test` (CI `android` job) reportedly fails to compile | CI | P1 |
 | G11 | Accessibility: 26 `contentDescription`s across all layouts, 82 hard-coded UI strings in Java | A11y / i18n | P2 |
@@ -122,7 +122,51 @@
 
 ## 3. Feature parity with desktop (G8)
 
-_Filled in from the parity sweep below._
+For each desktop feature: find the engine API it calls, then grep `antdroid/` and `ui/` for that API.
+
+### Missing on Android
+| # | Feature | Desktop entry | Android evidence | Pri |
+|---|---|---|---|---|
+| P1 | **Interactive gameday coaching** (pregame / halftime / crunch checkpoints → `GameCoachPlan`) | `desktop/LeagueHomeView.java:377` → `CoachDecisionDialog.java:32` via `setGameCoachListener` | No `GameCoachListener`/`GameCoachPlan` in Android; only the pre-kickoff scheme change in `GameDialogController.java:174` | P1 |
+| P2 | **Offseason Hub** (10-step checklist + "Advance One Step") | `LeagueHomeView.java:388` → `OffseasonHubDialog.java:29` (`SeasonFlowOrder.offseasonSteps()`) | Android uses only `firstOffseasonWeek` (`MainActivity.java:1469`) | P1 |
+| P3 | **Team morale card** (morale snapshot, win streak) | `TeamMoraleCard.java:93` (`getTeamMoraleSnapshot`) | Not referenced; only "Team Chemistry" as a rankings category | P2 |
+| P4 | About / open-source licenses screen | `LeagueHomeView.java:646-662` | No licenses screen. Needed for the bundled OFL fonts and Apache-licensed AndroidX attribution | P2 |
+| — | Update checker | `DesktopUpdateChecker` | Not needed: Play handles updates. Optional in-app update prompt via Play Core | — |
+
+### Partial on Android
+| # | Feature | Gap | Evidence | Pri |
+|---|---|---|---|---|
+| P5 | Redshirts incl. medical | Can only grant in preseason (`MainActivity.java:432`). Can't remove one, and there's no league pool. Medical RS shows only as a status letter (`StatsRowAdapter.java:109`) | desktop `RedshirtDialog.java:152,202,235,272` | P2 |
+| P6 | Coordinator hiring | Only offered when the engine reaches that offseason step (`CareerDialogController.java:301`). No menu entry to fire or hire coordinators any time | desktop `CoordinatorHiringDialog.java:113-380` | P2 |
+| P7 | Box scores from the league scoreboard | Weekly Scores (`WeeklyScoresDialogController`) has no tap-to-open. Box scores open only from your own schedule (`TeamHome.java:119`, `GameScheduleList.java:70`). There's no view for the V2 detailed stats (`getGameSummaryStrV2`) | desktop `ScoreboardPanel.java:115,264` | P1 |
+| P8 | Mock draft | Only inside the begin-recruiting dialog (`RecruitingOptionsDialogController.java:54`). Not in the drawer | desktop View menu `LeagueHomeView.java:491` | P2 |
+| P9 | Program dashboard cards (finances/NIL, prestige delta, recruiting pipeline) | Data is scattered across rankings, the home text and the career summary. No dashboard cards (Wave 3's planned 11-card stack) | desktop `DashboardPanel.java:106-118` | P2 |
+| P10 | Playbook scheme fit | Shows the `schemeFitNote` text (`TeamStrategyDialogController.java:60`). No fit colouring and no slow-QB read-option warning (`starterQbSpeed`) | desktop `PlaybookDialog.java:221` | P2 |
+| P11 | FCS promotions | Available in Settings (`SettingsDialogController.java:92`), not in new-dynasty setup. No "N used" count | desktop `NewGameWizard.java:172` | P2 |
+| P12 | Custom-universe / CSV import mid-career | Import runs only when a custom league is launched (`MainActivity.java:273`) | desktop File menu `LeagueHomeView.java:315-326` | P2 |
+
+### At parity (no action)
+These are present on Android and use the same engine APIs:
+- Job offers / coach market / carousel
+- Contracts and retirement
+- Coach program and NIL
+- Discipline
+- Transfer portal
+- Season awards
+- Hall of Fame and records
+- Polls
+- Bowl Watch / 12-team bracket (shared `getBowlGameWatchStr`, so recent engine fixes show up automatically)
+- Player search
+- Coach database
+- Depth chart
+- Save slots and export
+- Practice focus
+- Signing day and recruiting
+- Bulk sim over the 12-game slate
+
+Weather/momentum widgets and a realignment history screen are missing on **both** shells; weather appears only in the game log.
+
+Android also has two features desktop doesn't: the per-player development plan (`PlayerDevelopmentDialogController`) and the Top 25 history archive (`HistoryDialogController.java:26`).
 
 ---
 
@@ -189,4 +233,4 @@ Items the redesign plan still lists as open, recounted on this tree:
    since it's a one-line change.
 3. **G4 / G5 / G6**: one game-thread executor, file-based recruiting handoff.
 4. **G10 → G9**: get a trusted Android test gate, then add the smoke and parser tests.
-5. **G8** parity items by player impact, then G11–G14.
+5. **G8** parity: P1 (gameday coaching) and P2 (Offseason Hub) first, then P7 (box scores); then G11–G14.
