@@ -132,8 +132,8 @@ For each desktop feature: find the engine API it calls, then grep `antdroid/` an
 ### Missing on Android
 | # | Feature | Desktop entry | Android evidence | Pri |
 |---|---|---|---|---|
-| P1 | **Interactive gameday coaching** (pregame / halftime / crunch checkpoints → `GameCoachPlan`) | `desktop/LeagueHomeView.java:377` → `CoachDecisionDialog.java:32` via `setGameCoachListener` | No `GameCoachListener`/`GameCoachPlan` in Android; only the pre-kickoff scheme change in `GameDialogController.java:174` | P1 |
-| P2 | **Offseason Hub** (10-step checklist + "Advance One Step") | `LeagueHomeView.java:388` → `OffseasonHubDialog.java:29` (`SeasonFlowOrder.offseasonSteps()`) | Android uses only `firstOffseasonWeek` (`MainActivity.java:1469`) | P1 |
+| P1 | 🔲 **Interactive gameday coaching** (pregame / halftime / crunch checkpoints → `GameCoachPlan`) | `desktop/LeagueHomeView.java:377` → `CoachDecisionDialog.java:32` via `setGameCoachListener` | No `GameCoachListener`/`GameCoachPlan` in Android; only the pre-kickoff scheme change in `GameDialogController.java:174` | P1 |
+| P2 | ✅ **Offseason Hub** (10-step checklist + "Advance One Step") | `LeagueHomeView.java:388` → `OffseasonHubDialog.java:29` (`SeasonFlowOrder.offseasonSteps()`) | Android uses only `firstOffseasonWeek` (`MainActivity.java:1469`) | P1 |
 | P3 | **Team morale card** (morale snapshot, win streak) | `TeamMoraleCard.java:93` (`getTeamMoraleSnapshot`) | Not referenced; only "Team Chemistry" as a rankings category | P2 |
 | P4 | About / open-source licenses screen | `LeagueHomeView.java:646-662` | No licenses screen. Needed for the bundled OFL fonts and Apache-licensed AndroidX attribution | P2 |
 | — | Update checker | `DesktopUpdateChecker` | Not needed: Play handles updates. Optional in-app update prompt via Play Core | — |
@@ -143,7 +143,7 @@ For each desktop feature: find the engine API it calls, then grep `antdroid/` an
 |---|---|---|---|---|
 | P5 | Redshirts incl. medical | Can only grant in preseason (`MainActivity.java:432`). Can't remove one, and there's no league pool. Medical RS shows only as a status letter (`StatsRowAdapter.java:109`) | desktop `RedshirtDialog.java:152,202,235,272` | P2 |
 | P6 | Coordinator hiring | Only offered when the engine reaches that offseason step (`CareerDialogController.java:301`). No menu entry to fire or hire coordinators any time | desktop `CoordinatorHiringDialog.java:113-380` | P2 |
-| P7 | Box scores from the league scoreboard | Weekly Scores (`WeeklyScoresDialogController`) has no tap-to-open. Box scores open only from your own schedule (`TeamHome.java:119`, `GameScheduleList.java:70`). There's no view for the V2 detailed stats (`getGameSummaryStrV2`) | desktop `ScoreboardPanel.java:115,264` | P1 |
+| P7 | ✅ Box scores from the league scoreboard | Weekly Scores (`WeeklyScoresDialogController`) has no tap-to-open. Box scores open only from your own schedule (`TeamHome.java:119`, `GameScheduleList.java:70`). There's no view for the V2 detailed stats (`getGameSummaryStrV2`) | desktop `ScoreboardPanel.java:115,264` | P1 |
 | P8 | Mock draft | Only inside the begin-recruiting dialog (`RecruitingOptionsDialogController.java:54`). Not in the drawer | desktop View menu `LeagueHomeView.java:491` | P2 |
 | P9 | Program dashboard cards (finances/NIL, prestige delta, recruiting pipeline) | Data is scattered across rankings, the home text and the career summary. No dashboard cards (Wave 3's planned 11-card stack) | desktop `DashboardPanel.java:106-118` | P2 |
 | P10 | Playbook scheme fit | Shows the `schemeFitNote` text (`TeamStrategyDialogController.java:60`). No fit colouring and no slow-QB read-option warning (`starterQbSpeed`) | desktop `PlaybookDialog.java:221` | P2 |
@@ -262,4 +262,28 @@ Device checklist (API 36 emulator plus one API 24–28 device):
 5. Late-dynasty recruiting (10+ seasons): recruiting opens, and Done returns to MainActivity.
 6. Notched device in landscape plus 3-button navigation: toolbar, drawer and bottom controls are not covered. Dialogs stay immersive.
 7. Home → Load → Resume Autosave.
+
+---
+
+## Second follow-up
+
+| Item | What changed |
+|---|---|
+| P7 | Tapping a final score in Weekly Scores opens its box score. `simulation.ScoreboardLookup` maps a scoreboard line back to its `Game`, preferring the schedule slot for that week so rematches resolve correctly. Tested in `ScoreboardLookupTest` against two simulated weeks |
+| P2 | Drawer → Simulation → **Offseason Hub**, visible only during the offseason (`OffseasonHubDialogController`). Shows the ten-step checklist with done / next-up markers. "Advance One Step" runs the same week advance as Play Week, and decision steps still open their own dialogs on top |
+| Build | `engine/` and `desktop-standalone/engine/` compile every `JavaCompile` task with UTF-8 and pass `file.encoding=UTF-8` to tests. On an ASCII locale, `MockDraftLineTest` used to fail because javac mangled `·` in the test source |
+
+### P1 interactive gameday coaching: design note (not implemented)
+`GameCoachListener.decide()` is synchronous and called mid-`Game.playGame()`. Desktop answers from a
+Swing modal dialog, which keeps processing UI events while it waits. Android can't block the UI thread
+waiting for a dialog. Two options that respect `docs/THREADING.md`:
+1. **Game thread.** Run Play Week's `advanceWeek()` on one dedicated game thread, behind a modal
+   "Simulating…" screen so the UI can't touch the league. The listener posts a `ChoiceCardDialog`
+   to the UI thread and blocks on a latch until the coach answers. `startBulkSim` would then call
+   `advanceWeek` on that thread too, instead of hopping to the UI thread.
+2. **Pre-commit plan.** Before kickoff, ask for halftime and crunch-time intents up front
+   (if trailing / if leading). The listener answers from that stored plan without blocking. This is
+   simpler and safe on the UI thread, but less interactive than desktop.
+
+Option 2 can ship first. Option 1 needs device testing for ANR and back-press behaviour.
 

@@ -136,6 +136,12 @@
                     android:id="@+id/nav_sim_postseason"
                     android:icon="@drawable/ic_menu_sim_fast"
                     android:title="@string/menu_sim_postseason" />
+                <!-- Shown only during the offseason (MainActivity.updateDrawerBadges). -->
+                <item
+                    android:id="@+id/nav_offseason_hub"
+                    android:icon="@drawable/ic_menu_schedule"
+                    android:title="@string/menu_offseason_hub"
+                    android:visible="false" />
             </group>
         </menu>
     </item>

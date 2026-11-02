@@ -10,7 +10,9 @@ import android.widget.Spinner;
 
 import java.util.ArrayList;
 
+import simulation.Game;
 import simulation.League;
+import simulation.ScoreboardLookup;
 import ui.NewsStories;
 
 final class WeeklyScoresDialogController {
@@ -30,7 +32,7 @@ final class WeeklyScoresDialogController {
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
         PlatformUiHelper.showImmersive(dialog);
-        PlatformUiHelper.bindRankingsDialogShell(dialog, "Weekly Scoreboard", "Flip across regular season and postseason weeks to review the full league scoreboard.");
+        PlatformUiHelper.bindRankingsDialogShell(dialog, "Weekly Scoreboard", "Flip across regular season and postseason weeks. Tap a final score for its box score.");
 
         ArrayList<String> rankings = new ArrayList<>();
         int dbSize;
@@ -66,6 +68,17 @@ final class WeeklyScoresDialogController {
         final ListView newsStoriesList = dialog.findViewById(R.id.listViewTeamRankings);
         final NewsStories weeklyScoresAdapter = new NewsStories(activity, rankings);
         newsStoriesList.setAdapter(weeklyScoresAdapter);
+        final Spinner weekSpinner = weekSelectionSpinner;
+        // Desktop parity: any final on the league scoreboard opens its box score,
+        // not only games on the user's own schedule.
+        newsStoriesList.setOnItemClickListener((parent, view, position, id) -> {
+            String line = weeklyScoresAdapter.getItem(position);
+            Game game = ScoreboardLookup.findPlayedGame(
+                    simLeague, weekSpinner.getSelectedItemPosition(), line);
+            if (game != null) {
+                activity.showGameDialog(game);
+            }
+        });
 
         weekSelectionSpinner.setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {

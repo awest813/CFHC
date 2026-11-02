@@ -488,6 +488,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             startBulkSim(false);
         } else if (id == R.id.nav_sim_postseason) {
             startBulkSim(true);
+        } else if (id == R.id.nav_offseason_hub) {
+            showOffseasonHub();
         } else if (id == R.id.nav_save_game) {
             saveLeagueFromMenu();
         } else if (id == R.id.nav_exit_main_menu) {
@@ -535,10 +537,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return simLeague == null ? -1 : simLeague.getYear() * 100 + simLeague.currentWeek;
     }
 
+    private void showOffseasonHub() {
+        if (simLeague == null) return;
+        OffseasonHubDialogController.show(this, simLeague, () -> {
+            if (!bulkRunning) simulateWeek();
+        });
+    }
+
     /** Gold count pill on the News drawer item: this week's unread headlines. */
     private void updateDrawerBadges() {
         NavigationView navigationView = findViewById(R.id.nav_view);
         if (navigationView == null || simLeague == null) return;
+        MenuItem hub = navigationView.getMenu().findItem(R.id.nav_offseason_hub);
+        if (hub != null) hub.setVisible(OffseasonHubDialogController.isOffseason(simLeague));
         MenuItem news = navigationView.getMenu().findItem(R.id.nav_news);
         View action = news != null ? news.getActionView() : null;
         TextView badge = action != null ? action.findViewById(R.id.navBadge) : null;

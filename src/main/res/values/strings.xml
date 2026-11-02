@@ -154,6 +154,12 @@
     <string name="menu_section_management">Management</string>
     <string name="menu_sim_next_stop">Sim to Next Decision</string>
     <string name="menu_sim_postseason">Sim Through Postseason</string>
+    <string name="menu_offseason_hub">Offseason Hub</string>
+    <string name="offseason_hub_title">Offseason Hub — %1$d Season</string>
+    <string name="offseason_hub_advance">Advance One Step</string>
+    <string name="offseason_hub_close">Close</string>
+    <string name="offseason_hub_next_up">next up</string>
+    <string name="offseason_hub_done">The offseason is complete — recruiting is underway.</string>
     <string name="nav_header_no_team">No team selected</string>
     <string name="action_export_league_locked">Export Dynasty (Preseason Only)</string>
     <string name="main_a11y_drawer_menu">Open the Dynasty Hub menu</string>

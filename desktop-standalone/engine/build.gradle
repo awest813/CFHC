@@ -563,3 +563,13 @@ tasks.register('desktopMsi', Exec) {
 
 
 
+
+// Sources and test fixtures contain UTF-8 (·, —, ✓). Do not depend on the
+// build machine's locale: on a POSIX/ASCII locale javac mangled them and
+// string-comparison tests failed.
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+tasks.withType(Test).configureEach {
+    systemProperty 'file.encoding', 'UTF-8'
+}
