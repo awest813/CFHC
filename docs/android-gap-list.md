@@ -8,6 +8,11 @@
 > Earlier documents this builds on: [`ship-readiness-audit.md`](ship-readiness-audit.md) (A1–A11),
 > [`android-ui-redesign-plan.md`](android-ui-redesign-plan.md) (Waves 0–6), [`ROADMAP.md`](ROADMAP.md).
 >
+> **Status (follow-up commit 841ed8e):** G1, G2, G3, G5, G6 and G7 are fixed in code, and G4 is
+> fixed for saves. The Android module was **not compiled** in the audit container (no SDK). The
+> engine half is covered by `simulation.AutosaveTest`. Run CI (`:app:assembleDebug` / `lintDebug`)
+> and the device checklist at the end of this file before release.
+>
 > Priority: **P0** blocks the next Play release or loses user data · **P1** players will notice
 > it · **P2** quality or maintainability debt.
 
@@ -17,13 +22,13 @@
 
 | # | Gap | Area | Pri |
 |---|-----|------|-----|
-| G1 | `targetSdk 35` is below Play's 2026 target-API requirement | Platform | P0 |
-| G2 | Recreating the activity (process death, dark-mode toggle, resize, fold) reloads the league from the launch intent, so unsaved progress is lost and a "new league" launch regenerates the whole league | Data safety | P0 |
-| G3 | No autosave. Progress is kept only by a manual save to a slot | Data safety | P0 |
-| G4 | Save and league load/generation run on the UI thread (ANR risk), carried over from A2 | Threading | P1 |
-| G5 | Team selection mutates `League` on a raw background thread, breaking the threading contract (A1) | Threading | P1 |
-| G6 | Recruiting payload is passed as an Intent String extra and gets close to the ~1 MB Binder limit late in a dynasty (A11) | Stability | P1 |
-| G7 | Deprecated `setSystemUiVisibility` immersive/edge-to-edge code. API 36 removes the edge-to-edge opt-out (A10) | Platform | P1 |
+| G1 | ✅ `targetSdk 35` is below Play's 2026 target-API requirement | Platform | P0 |
+| G2 | ✅ Recreating the activity (process death, dark-mode toggle, resize, fold) reloads the league from the launch intent, so unsaved progress is lost and a "new league" launch regenerates the whole league | Data safety | P0 |
+| G3 | ✅ No autosave. Progress is kept only by a manual save to a slot | Data safety | P0 |
+| G4 | 🟡 Save and league load/generation run on the UI thread (ANR risk), carried over from A2 | Threading | P1 |
+| G5 | ✅ Team selection mutates `League` on a raw background thread, breaking the threading contract (A1) | Threading | P1 |
+| G6 | ✅ Recruiting payload is passed as an Intent String extra and gets close to the ~1 MB Binder limit late in a dynasty (A11) | Stability | P1 |
+| G7 | ✅ Deprecated `setSystemUiVisibility` immersive/edge-to-edge code. API 36 removes the edge-to-edge opt-out (A10) | Platform | P1 |
 | G8 | Desktop parity: no interactive gameday coaching, no Offseason Hub, no league-scoreboard box scores, plus 9 smaller gaps (§3) | Features | P1/P2 |
 | G9 | No Android-side tests: no `androidTest`, no unit tests for `antdroid/` or `ui/`, no UI snapshot baseline | Quality | P1 |
 | G10 | Unverified known issue: `./gradlew test` (CI `android` job) reportedly fails to compile | CI | P1 |
@@ -234,3 +239,27 @@ Items the redesign plan still lists as open, recounted on this tree:
 3. **G4 / G5 / G6**: one game-thread executor, file-based recruiting handoff.
 4. **G10 → G9**: get a trusted Android test gate, then add the smoke and parser tests.
 5. **G8** parity: P1 (gameday coaching) and P2 (Offseason Hub) first, then P7 (box scores); then G11–G14.
+
+---
+
+## Follow-up fixes (841ed8e) and how to verify them
+
+| Gap | What changed |
+|---|---|
+| G1 | `compileSdk`/`targetSdk` 36. `android.suppressUnsupportedCompileSdk=36` because AGP 8.7 was tested only up to 35; bump AGP when convenient. CI installs `platforms;android-36` |
+| G2 | `MainActivity.onSaveInstanceState` queues an autosave and records its timestamp. On recreation, `checkRestoreFromAutosave` waits for queued writes and resumes via `LaunchRequest.resumeAutosave()` if the file is at least that new. Otherwise, or if the file is unreadable, it falls back to the launch intent. `configChanges` adds `screenLayout|smallestScreenSize|uiMode` |
+| G3 | Autosave after every played week and at the end of bulk sims (`autosave.cfb`, not a numbered slot). Home → Load shows **Resume Autosave** |
+| G4 | Slot saves: `League.serializeSave()` on the UI thread, then `SaveWriter` (single save thread) runs `LeagueSaveStorage.writeAtomically`. **Still open:** league load/generation in `onCreate` stays on the UI thread |
+| G5 | `prepareSelectedTeam` posts to the UI thread instead of a raw `Thread` |
+| G6 | `GameNavigation.createRecruitingIntent` writes `recruitingPayload.txt` and passes its name. Falls back to the extra if the write fails |
+| G7 | `PlatformUiHelper.hideSystemUI` and dialogs use `WindowInsetsControllerCompat`. `applySafeInsets` pads every activity for system bars and display cutouts |
+
+Device checklist (API 36 emulator plus one API 24–28 device):
+1. New league → pick team → name coach → play 2 weeks → toggle system dark mode → still the same week. Then Developer options → "Don't keep activities" → background and return → still the same week.
+2. Same with `adb shell am kill antdroid.cfbcoach` while backgrounded.
+3. Save to a slot, and Save & Exit: snackbar appears and the slot loads back.
+4. Bulk sim → background mid-run → return: no crash, and the league resumes.
+5. Late-dynasty recruiting (10+ seasons): recruiting opens, and Done returns to MainActivity.
+6. Notched device in landscape plus 3-button navigation: toolbar, drawer and bottom controls are not covered. Dialogs stay immersive.
+7. Home → Load → Resume Autosave.
+
