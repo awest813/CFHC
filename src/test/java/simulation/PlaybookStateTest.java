@@ -181,6 +181,21 @@ public class PlaybookStateTest {
     }
 
     @Test
+    public void schemeFitTone_coloursEachTier_andFlagsASlowReadOptionQb() {
+        Team t = league.getTeamList().get(4);
+        t.getOC().offStrat = 4; // a QB-run book
+        t.getHeadCoach().offStrat = 2;
+        t.getQB(0).ratAttr4 = Team.READ_OPTION_QB_SPEED + 5;
+        assertEquals(Team.SchemeFitTone.GOOD, t.schemeFitTone(true, 4));
+        t.getQB(0).ratAttr4 = Team.READ_OPTION_QB_SPEED - 5;
+        assertEquals("slow QB in the OC's read-option book", Team.SchemeFitTone.CAUTION, t.schemeFitTone(true, 4));
+        assertEquals(Team.SchemeFitTone.CAUTION, t.schemeFitTone(true, 2));
+        assertEquals(Team.SchemeFitTone.BAD, t.schemeFitTone(true, 1));
+        t.setOC(null);
+        assertEquals(Team.SchemeFitTone.NEUTRAL, t.schemeFitTone(true, 1));
+    }
+
+    @Test
     public void readOptionBooksNeedARunningQuarterback() {
         Team cpu = league.getTeamList().get(9);
         assertNotNull(cpu.getQB(0));

@@ -219,13 +219,11 @@ public class PlaybookDialog extends JDialog {
      */
     private void describeFit(JLabel fit, int idx, boolean isOffense) {
         String text = team.schemeFitNote(isOffense, idx);
-        boolean slowQb = isOffense && PlaybookOffense.forIndex(idx).featuresQbRuns()
-                && team.starterQbSpeed() < Team.READ_OPTION_QB_SPEED;
-        Color color = switch (team.schemeFit(isOffense, idx)) {
-            case COORDINATOR -> slowQb ? DesktopTheme.warningText() : DesktopTheme.successGreen();
-            case HEAD_COACH_ONLY -> DesktopTheme.warningText();
-            case NEITHER -> DesktopTheme.dangerRed();
-            case NO_COORDINATOR -> DesktopTheme.textSecondary();
+        Color color = switch (team.schemeFitTone(isOffense, idx)) {
+            case GOOD -> DesktopTheme.successGreen();
+            case CAUTION -> DesktopTheme.warningText();
+            case BAD -> DesktopTheme.dangerRed();
+            case NEUTRAL -> DesktopTheme.textSecondary();
         };
         fit.setText("<html><body style='width:" + DesktopTheme.htmlWrapWidth(360) + "px'>" + text + "</body></html>");
         fit.setToolTipText(text);

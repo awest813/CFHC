@@ -4439,6 +4439,25 @@ public class Team {
         return SchemeFit.NEITHER;
     }
 
+    /** How a shell should colour a scheme's fit note. */
+    public enum SchemeFitTone { GOOD, CAUTION, BAD, NEUTRAL }
+
+    /**
+     * Colour rule for {@link #schemeFitNote}: the coordinator's own book is good
+     * unless it is a QB-run book with a slow starter (caution); the head coach's
+     * book costs a little (caution); a book neither coach runs costs more (bad).
+     */
+    public SchemeFitTone schemeFitTone(boolean offense, int index) {
+        boolean slowQb = offense && PlaybookOffense.forIndex(index).featuresQbRuns()
+                && starterQbSpeed() < READ_OPTION_QB_SPEED;
+        return switch (schemeFit(offense, index)) {
+            case COORDINATOR -> slowQb ? SchemeFitTone.CAUTION : SchemeFitTone.GOOD;
+            case HEAD_COACH_ONLY -> SchemeFitTone.CAUTION;
+            case NEITHER -> SchemeFitTone.BAD;
+            case NO_COORDINATOR -> SchemeFitTone.NEUTRAL;
+        };
+    }
+
     /** One line on how the scheme fits the staff (and, for read-option books, the quarterback). */
     public String schemeFitNote(boolean offense, int index) {
         staff.Staff coordinator = offense ? OC : DC;

@@ -146,8 +146,8 @@ For each desktop feature: find the engine API it calls, then grep `antdroid/` an
 | P7 | ✅ Box scores from the league scoreboard | Weekly Scores (`WeeklyScoresDialogController`) has no tap-to-open. Box scores open only from your own schedule (`TeamHome.java:119`, `GameScheduleList.java:70`). There's no view for the V2 detailed stats (`getGameSummaryStrV2`) | desktop `ScoreboardPanel.java:115,264` | P1 |
 | P8 | ✅ Mock draft | Only inside the begin-recruiting dialog (`RecruitingOptionsDialogController.java:54`). Not in the drawer | desktop View menu `LeagueHomeView.java:491` | P2 |
 | P9 | Program dashboard cards (finances/NIL, prestige delta, recruiting pipeline) | Data is scattered across rankings, the home text and the career summary. No dashboard cards (Wave 3's planned 11-card stack) | desktop `DashboardPanel.java:106-118` | P2 |
-| P10 | Playbook scheme fit | Shows the `schemeFitNote` text (`TeamStrategyDialogController.java:60`). No fit colouring and no slow-QB read-option warning (`starterQbSpeed`) | desktop `PlaybookDialog.java:221` | P2 |
-| P11 | FCS promotions | Available in Settings (`SettingsDialogController.java:92`), not in new-dynasty setup. No "N used" count | desktop `NewGameWizard.java:172` | P2 |
+| P10 | ✅ Playbook scheme fit | Shows the `schemeFitNote` text (`TeamStrategyDialogController.java:60`). No fit colouring and no slow-QB read-option warning (`starterQbSpeed`) | desktop `PlaybookDialog.java:221` | P2 |
+| P11 | ✅ FCS promotions (already present) | Available in Settings (`SettingsDialogController.java:92`), not in new-dynasty setup. No "N used" count | desktop `NewGameWizard.java:172` | P2 |
 | P12 | Custom-universe / CSV import mid-career | Import runs only when a custom league is launched (`MainActivity.java:273`) | desktop File menu `LeagueHomeView.java:315-326` | P2 |
 
 ### At parity (no action)
@@ -316,4 +316,12 @@ save/load path. javac's output is valid (`stack=26` in `StaffRecord.fromCsv`), a
 later version of R8, the method may be assumed not reachable"*. Today's release builds still work.
 Before bumping AGP, run a release-build save/load smoke test. If R8 starts dropping these methods,
 split the record constructions into smaller helpers.
+
+### Fourth follow-up
+- **P10:** the fit-note colour rule moved into the engine (`Team.schemeFitTone`: good / caution / bad /
+  neutral, where a slow QB in a read-option book counts as caution). Desktop uses it, and Android's
+  Playbook dialog now colours the fit note the same way. Tested in `PlaybookStateTest`.
+- **P11:** on re-check, Android already offers FCS promotions during career setup (the setup dialog
+  is the Settings dialog in `isNewGameSetup` mode) and shows the "N used" count. The parity sweep was
+  wrong.
 

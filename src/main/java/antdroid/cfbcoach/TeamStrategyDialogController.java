@@ -56,8 +56,7 @@ final class TeamStrategyDialogController {
         stratOffSelectionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                offStratDescription.setText(tsOff[position].getStratDescription()
-                        + "\n\n" + userTeam.schemeFitNote(true, position));
+                offStratDescription.setText(fitText(activity, userTeam, tsOff[position].getStratDescription(), true, position));
                 userTeam.setPlaybookOffNum(position);
             }
 
@@ -77,8 +76,7 @@ final class TeamStrategyDialogController {
         stratDefSelectionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                defStratDescription.setText(tsDef[position].getStratDescription()
-                        + "\n\n" + userTeam.schemeFitNote(false, position));
+                defStratDescription.setText(fitText(activity, userTeam, tsDef[position].getStratDescription(), false, position));
                 userTeam.setPlaybookDefNum(position);
             }
 
@@ -87,5 +85,23 @@ final class TeamStrategyDialogController {
                 // No-op.
             }
         });
+    }
+
+    /** Description, then the scheme-fit note coloured by its tone (desktop parity). */
+    private static CharSequence fitText(MainActivity activity, simulation.Team team, String description,
+                                        boolean offense, int index) {
+        String note = team.schemeFitNote(offense, index);
+        android.text.SpannableStringBuilder sb = new android.text.SpannableStringBuilder(description).append("\n\n");
+        int start = sb.length();
+        sb.append(note);
+        int color = switch (team.schemeFitTone(offense, index)) {
+            case GOOD -> R.color.cf_positive;
+            case CAUTION -> R.color.cf_warning;
+            case BAD -> R.color.cf_negative;
+            case NEUTRAL -> R.color.cf_text_secondary;
+        };
+        sb.setSpan(new android.text.style.ForegroundColorSpan(androidx.core.content.ContextCompat.getColor(activity, color)),
+                start, sb.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return sb;
     }
 }
