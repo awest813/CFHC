@@ -328,4 +328,12 @@ split the record constructions into smaller helpers.
   four factor lines (streak, leadership, buy-in, chemistry). The wording and thresholds moved into
   `TeamMoraleSnapshot.label() / tone() / factors()`, so desktop's card and Android's card share them
   (`TeamMoraleSnapshotTest`).
+- **G4 (startup load), measured and deprioritised:** on the JVM here, generating a 130-team league takes
+  about 50–225 ms, saving 60–225 ms (a fresh save is about 3.1 MB) and loading 100–250 ms, including
+  JIT warm-up. Allowing 5–10× for a phone, the startup load is a 1–2 s pause behind the launch
+  screen, not an ANR risk. Moving it off the UI thread means restructuring `MainActivity.onCreate`
+  around an async continuation, which should wait until it can be tested on a device.
+- **Autosave jank:** the same numbers showed that the per-week autosave serializes about 3 MB on the UI
+  thread right after Play Week. It now runs from an idle handler (`autosaveWhenIdle`), so the week's
+  results draw first. `onSaveInstanceState` still autosaves synchronously.
 

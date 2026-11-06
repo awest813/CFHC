@@ -1470,7 +1470,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             disciplineSetup();
         }
         resetUI();
-        autosave();
+        autosaveWhenIdle();
 
         if (advance != null) {
             if (advance.getAudioEvent() != null) {
@@ -2456,6 +2456,23 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private boolean canAutosave() {
         return simLeague != null && userTeam != null && userTeam.getHeadCoach() != null
                 && userTeam.getHeadCoach().user;
+    }
+
+    private boolean autosavePending;
+
+    /**
+     * Autosave once the main thread is idle, so the week's results draw before the
+     * ~3 MB snapshot is serialized. Still runs on the UI thread (the league's owner);
+     * several requests before the next idle collapse into one.
+     */
+    private void autosaveWhenIdle() {
+        if (autosavePending) return;
+        autosavePending = true;
+        android.os.Looper.myQueue().addIdleHandler(() -> {
+            autosavePending = false;
+            if (!isDestroyed()) autosave();
+            return false; // one-shot
+        });
     }
 
     /** Queues a rolling autosave of the current league. Safe to call often. */
