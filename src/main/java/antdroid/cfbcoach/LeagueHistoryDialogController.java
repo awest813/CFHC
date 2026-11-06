@@ -69,7 +69,7 @@ final class LeagueHistoryDialogController {
                             showCoachDatabase(activity, simLeague, userTeam);
                         } else {
                             final LeagueHistoryList leagueHistoryAdapter =
-                                    new LeagueHistoryList(activity, simLeague.getLeagueHistoryStr().split("%"), userTeam.getAbbr());
+                                    new LeagueHistoryList(activity, historyRows(activity, simLeague), userTeam.getAbbr());
                             ui.RecyclerLists.setAdapter(leagueHistoryList, leagueHistoryAdapter);
                         }
                     }
@@ -198,5 +198,14 @@ final class LeagueHistoryDialogController {
             return "";
         }
         return coach.getName() + " (" + userTeam.getAbbr() + ")";
+    }
+
+    /** League history rows, or a three-line note before the first season is complete. */
+    private static String[] historyRows(MainActivity activity, League simLeague) {
+        String history = simLeague.getLeagueHistoryStr();
+        if (history == null || history.replace("%", "").trim().isEmpty()) {
+            return new String[]{activity.getString(R.string.dlg_history_empty)};
+        }
+        return history.split("%");
     }
 }

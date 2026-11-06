@@ -587,6 +587,12 @@ public class StatsTracker {
             int played = 0;
             for (i = 0; i < team.gameSchedule.size(); i++) {
                 if (!team.gameSchedule.get(i).hasPlayed) {
+                    if (i == 0) {
+                        // Week 1 before kickoff: the preseason step advanced the week
+                        // but nothing has been played (this used to read index -1).
+                        data.append("No Game\n&");
+                        break;
+                    }
                     Game g = team.gameSchedule.get(i - 1);
                     if (team.gameSchedule.get(i - 1).gameName.equals("BYE WEEK")) {
                         data.append("Bye\n&");

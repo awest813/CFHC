@@ -117,4 +117,8 @@
     <!-- Editor -->
     <string name="dlg_editor_target">Target program</string>
     <string name="dlg_editor_identity">School identity</string>
+    <string name="settings_lead_season">%1$d Season Settings</string>
+    <string name="settings_sublead_season">Adjust league options, sound and your program\'s practice plan. Some league rules lock once the season is underway.</string>
+    <string name="dlg_scores_empty">No games>Nothing has been played this week yet.</string>
+    <string name="dlg_history_empty">League History\nNo seasons completed yet.\nChampions and award winners appear here after the first season.</string>
 </resources>

@@ -46,6 +46,12 @@ public class CoachDatabase  extends RowAdapter<String> {
         textLeft.setText(left);
         textCenter.setText(coachName);
         textRight.setText(right);
+        // Message rows (",text," such as the empty-category note) have no rank or value:
+        // hide the empty rank pill and let the text wrap instead of ellipsizing.
+        boolean message = left.trim().isEmpty() && right.trim().isEmpty();
+        textLeft.setVisibility(message ? View.GONE : View.VISIBLE);
+        textCenter.setMaxLines(message ? 4 : 1);
+        textCenter.setEllipsize(message ? null : android.text.TextUtils.TruncateAt.END);
         if (textDetail != null) {
             textDetail.setText(status);
             textDetail.setVisibility(status.isEmpty() ? View.GONE : View.VISIBLE);

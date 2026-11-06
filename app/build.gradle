@@ -93,6 +93,12 @@ android {
     }
     productFlavors {
     }
+    testOptions {
+        unitTests {
+            // Robolectric reads the merged resources and manifest.
+            includeAndroidResources = true
+        }
+    }
     buildFeatures {
         // Typed view access for new/redesigned screens (Wave 0 of the Android
         // UI redesign; migrated per-screen, existing findViewById stays until
@@ -127,7 +133,14 @@ android {
     }
 }
 
+configurations {
+    // Robolectric's Android runtime jar, fetched by Gradle (cached, retried) instead of
+    // Robolectric's own downloader; tests run with robolectric.offline=true.
+    robolectricRuntime
+}
+
 dependencies {
+    robolectricRuntime 'org.robolectric:android-all-instrumented:14-robolectric-10818077-i7'
     implementation project(':engine')
     // Desktop-only jars live in libs/ (FlatLaf, OGG SPI) — never ship them in the APK.
     implementation fileTree(dir: "${repoRoot}/libs", include: ['*.jar'], exclude: [
@@ -147,6 +160,10 @@ dependencies {
     implementation 'androidx.gridlayout:gridlayout:1.0.0'
     implementation 'androidx.recyclerview:recyclerview:1.3.2'
     testImplementation 'junit:junit:4.13.2'
+    // Android-side JVM tests and screenshots (src/test/java/antdroid, src/test/java/ui).
+    testImplementation 'org.robolectric:robolectric:4.16.1'
+    testImplementation 'androidx.test:core:1.6.1'
+    testImplementation 'androidx.test.ext:junit:1.2.1'
 }
 
 // Refuse to package a distribution release signed with the debug key. CI passes
@@ -173,3 +190,31 @@ tasks.withType(Test).configureEach {
         }
     }
 }
+
+def robolectricDepsDir = layout.buildDirectory.dir('robolectric-deps')
+tasks.register('copyRobolectricRuntime', Copy) {
+    from configurations.robolectricRuntime
+    into robolectricDepsDir
+}
+tasks.withType(Test).configureEach {
+    dependsOn 'copyRobolectricRuntime'
+    systemProperty 'robolectric.offline', 'true'
+    systemProperty 'robolectric.dependency.dir', robolectricDepsDir.get().asFile.absolutePath
+    maxHeapSize = '2g'
+}
+
+// The test task runs from the repo root (engine tests read src/main/res from there),
+// but AGP writes Robolectric's config with paths relative to this module. Make them
+// absolute so Robolectric finds the merged manifest, resources and assets.
+tasks.matching { it.name ==~ /generate.*UnitTestConfig/ }.configureEach { t ->
+    t.doLast {
+        t.outputs.files.asFileTree.matching { include '**/test_config.properties' }.each { f ->
+            def base = project.projectDir.absolutePath
+            f.text = f.text.readLines().collect { line ->
+                def m = line =~ /^(android_merged_assets|android_resource_apk|android_merged_manifest)=(build\/.*)$/
+                m.matches() ? "${m[0][1]}=${base}/${m[0][2]}" : line
+            }.join('\n') + '\n'
+        }
+    }
+}
+

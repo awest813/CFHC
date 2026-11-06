@@ -159,6 +159,13 @@ public final class SettingsDialogController {
             if (textSettingsLead != null) textSettingsLead.setText(simLeague.getYear() + " Head Coach Career");
             if (textSettingsSublead != null) textSettingsSublead.setText("Set the tone for your first season, choose whether your coach is on the hot seat, and decide if this universe opens with the modern 12-team playoff.");
         } else {
+            // In-season: the header card was left blank (only setup filled it in).
+            final TextView textSettingsLead = dialog.findViewById(R.id.textSettingsLead);
+            final TextView textSettingsSublead = dialog.findViewById(R.id.textSettingsSublead);
+            if (textSettingsLead != null) {
+                textSettingsLead.setText(activity.getString(R.string.settings_lead_season, simLeague.getYear()));
+            }
+            if (textSettingsSublead != null) textSettingsSublead.setText(R.string.settings_sublead_season);
             checkboxProRelegation.setVisibility(View.INVISIBLE);
             if (textProRel != null) textProRel.setVisibility(View.INVISIBLE);
         }

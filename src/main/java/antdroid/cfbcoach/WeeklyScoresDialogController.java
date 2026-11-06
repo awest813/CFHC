@@ -87,7 +87,7 @@ final class WeeklyScoresDialogController {
                         boolean isempty = false;
                         if (scores.size() == 0) {
                             isempty = true;
-                            scores.add(" > ");
+                            scores.add(activity.getString(R.string.dlg_scores_empty)); // was a blank " > " card
                         }
                         weeklyScoresAdapter.clear();
                         weeklyScoresAdapter.addAll(scores);

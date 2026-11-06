@@ -33,3 +33,9 @@ Standard commands live in `README.md` and `build.gradle`; this section only cove
   `SeasonPresentation.getPlayWeekLabel`. Saves store the season length in `L:` header field 8; saves without it
   load as the legacy 13-week calendar and switch to 14 weeks at the next season rollover.
 - Without the Android SDK, `python3 scripts/verify_android_res.py` checks resources and every `R.*` reference.
+- Android screen tests (Robolectric, `src/test/java/antdroid/**`): `./gradlew :app:testDebugUnitTest --tests 'antdroid.cfbcoach.*'`.
+  They open Home, every main-list page and the main dialogs in both themes, check that recreating MainActivity
+  resumes from the autosave, and write PNG screenshots to `app/build/screenshots/` for review. Gradle fetches
+  Robolectric's Android runtime (`robolectricRuntime` configuration) and the tests run with `robolectric.offline=true`.
+  Maven Central may answer 429 in cloud sessions; re-run, since Gradle caches what it already fetched.
+

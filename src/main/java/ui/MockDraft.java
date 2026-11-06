@@ -46,8 +46,12 @@ public class MockDraft extends RowAdapter<String> {
             overallView.setVisibility(View.GONE);
             playerView.setText(line.raw);
             playerView.setTextColor(color(R.color.cf_text_secondary));
+            playerView.setMaxLines(4); // notes such as "No prospects have declared..." wrap
+            playerView.setEllipsize(null);
             return;
         }
+        playerView.setMaxLines(1);
+        playerView.setEllipsize(android.text.TextUtils.TruncateAt.END);
 
         boolean roundStart = "1".equals(line.pick);
         roundView.setVisibility(roundStart ? View.VISIBLE : View.GONE);

@@ -86,10 +86,10 @@
     <string name="home_hero_title">Run your program. Own recruiting. Chase the playoff.</string>
     <string name="home_hero_subtitle">Jump back into your save, start a new career, or load your custom universe files.</string>
     <string name="home_badge_playoff">12-Team Playoff Era</string>
-    <string name="home_badge_theme_light">Light Theme Active</string>
-    <string name="home_badge_theme_dark">Dark Theme Active</string>
-    <string name="home_switch_theme_light">Switch to Light Theme</string>
-    <string name="home_switch_theme_dark">Switch to Dark Theme</string>
+    <string name="home_badge_theme_light">Slate Theme</string>
+    <string name="home_badge_theme_dark">Midnight Theme</string>
+    <string name="home_switch_theme_light">Switch to Slate Theme</string>
+    <string name="home_switch_theme_dark">Switch to Midnight Theme</string>
     <string name="home_save_hint_empty">No saves in your slots yet - start a new career or import an exported file.</string>
     <string name="home_welcome_title">Welcome to CFHC</string>
     <string name="home_welcome_message">Here is how to get moving:\n\n- Start New Career - pick a team and begin your dynasty.\n- Load Save - continue when a slot has a game saved.\n- Game Manual - quick in-app topics or the full guide on the web.\n\nYou can change light or dark theme anytime. Good luck this season.</string>

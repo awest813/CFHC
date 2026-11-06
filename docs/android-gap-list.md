@@ -360,4 +360,16 @@ split the record constructions into smaller helpers.
   depth-chart and redshirt checkboxes could toggle the wrong player, and recycled rows kept
   stale enabled/checked state. Still open: the light-theme audit and the snapshot baseline, which
   both need an emulator.
+- **G9, Android tests (started):** Robolectric 4.16 is set up (offline runtime via Gradle). `HomeScreenTest` and
+  `MainScreensTest` open Home, all seven list pages and 14 drawer dialogs in both themes on a saved dynasty, and
+  render screenshots (`app/build/screenshots/`). `recreation_resumesFromAutosave_notTheLaunchSlot` proves G2 on real
+  Android code. These tests have already found:
+  - **Crash:** Team Home threw `IndexOutOfBounds` after the first Play Week of every season (week 1, nothing played
+    yet: `StatsTracker.getTeamHomeInfo` read `gameSchedule.get(-1)`). Fixed, with `TeamHomeInfoTest`.
+  - Clipped empty-state rows (Mock Draft, Coach Database), the Transfer Portal count running into its hint, a blank
+    header card in in-season Settings, and blank cards for an empty Weekly Scoreboard week or empty League History.
+    All fixed.
+  - The "light theme" is a slate variant of the dark HUD (`AppThemeLight` only changes the window colour), so the
+    toggle is now labelled Midnight / Slate. A true light palette would mean moving every `cf_*` colour onto theme
+    attributes, which the dark broadcast design deliberately doesn't do.
 
