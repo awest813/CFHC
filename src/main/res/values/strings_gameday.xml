@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Gameday Plan: coaching choices made before kickoff and applied at the
+     pregame, halftime and fourth-quarter checkpoints of every user game. -->
+<resources>
+    <string name="menu_gameday_plan">Gameday Plan</string>
+    <string name="gameday_pill">GAMEDAY PLAN</string>
+    <string name="gameday_current">Current</string>
+    <string name="gameday_staff">Let the staff decide</string>
+    <string name="gameday_saved">Gameday plan saved. It applies to every game you play.</string>
+    <string name="gameday_saved_off">Gameday plan cleared. Your staff makes every call.</string>
+
+    <string name="gameday_fourth_title">Fourth downs</string>
+    <string name="gameday_fourth_subtitle">How often should your offense go for it on fourth down, all game long?</string>
+    <string name="gameday_fourth_aggressive">Aggressive</string>
+    <string name="gameday_fourth_aggressive_body">Go for it more often in reachable spots.</string>
+    <string name="gameday_fourth_staff_body">Your coordinators use their usual fourth-down calls.</string>
+    <string name="gameday_fourth_cautious">Cautious</string>
+    <string name="gameday_fourth_cautious_body">Punt and kick more; take fewer gambles.</string>
+
+    <string name="gameday_half_trailing_title">Trailing at halftime</string>
+    <string name="gameday_half_leading_title">Leading at halftime</string>
+    <string name="gameday_half_subtitle">Your locker-room message for the second half. A tie leaves it to the staff.</string>
+    <string name="gameday_half_attack">Attack</string>
+    <string name="gameday_half_attack_body">Push the pace and take shots downfield.</string>
+    <string name="gameday_half_control">Ball control</string>
+    <string name="gameday_half_control_body">Run the ball, protect it and shorten the game.</string>
+    <string name="gameday_half_staff_body">The staff reads the game and adjusts.</string>
+
+    <string name="gameday_crunch_trailing_title">Trailing in the fourth quarter</string>
+    <string name="gameday_crunch_leading_title">Leading in the fourth quarter</string>
+    <string name="gameday_crunch_subtitle">Your fourth-down call once the final quarter starts.</string>
+    <string name="gameday_crunch_go">Go for it</string>
+    <string name="gameday_crunch_go_trailing_body">Keep drives alive; you need points.</string>
+    <string name="gameday_crunch_go_leading_body">Put the game away instead of handing the ball back.</string>
+    <string name="gameday_crunch_fg">Kick field goals</string>
+    <string name="gameday_crunch_fg_body">Take the points when they are in range.</string>
+    <string name="gameday_crunch_punt">Play it safe</string>
+    <string name="gameday_crunch_punt_body">Punt and pin them deep; make them drive the field.</string>
+    <string name="gameday_crunch_staff_body">The staff makes each fourth-down call.</string>
+</resources>

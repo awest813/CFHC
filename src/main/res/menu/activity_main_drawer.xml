@@ -54,6 +54,10 @@
                     android:icon="@drawable/ic_menu_schemes"
                     android:title="@string/main_playbook" />
                 <item
+                    android:id="@+id/nav_gameday_plan"
+                    android:icon="@drawable/ic_menu_schemes"
+                    android:title="@string/menu_gameday_plan" />
+                <item
                     android:id="@+id/nav_redshirts"
                     android:icon="@drawable/ic_menu_redshirt"
                     android:title="@string/menu_redshirts" />

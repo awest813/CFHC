@@ -437,6 +437,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             viewRoster();
         } else if (id == R.id.nav_depth_chart) {
             depthChartDialog();
+        } else if (id == R.id.nav_gameday_plan) {
+            GamedayPlanDialogController.show(this, simLeague);
         } else if (id == R.id.nav_redshirts) {
             if (simLeague.currentWeek == 0 && !gameState.isRedshirtComplete()) {
                 redshirtDialog();
@@ -686,6 +688,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
             simLeague = result.league;
             simLeague.setPlatformResourceProvider(resProvider);
+            // Interactive gameday on Android: the saved pre-kickoff plan coaches user games.
+            GamedayPlanDialogController.install(this, simLeague);
             gameState.setSeason(result.season);
             seasonController = new simulation.SeasonController(simLeague, this);
 
