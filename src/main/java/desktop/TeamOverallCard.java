@@ -181,20 +181,12 @@ public class TeamOverallCard extends CustomCardPanel {
 
     /** Derive a letter grade from the overall rating (was hardcoded "B+"). */
     private static String letterGrade(int ovr) {
-        if (ovr >= 90) return "A+";
-        if (ovr >= 85) return "A";
-        if (ovr >= 80) return "A-";
-        if (ovr >= 75) return "B+";
-        if (ovr >= 70) return "B";
-        if (ovr >= 65) return "B-";
-        if (ovr >= 60) return "C+";
-        if (ovr > 0) return "C";
-        return "N/A";
+        return simulation.RatingScale.grade(ovr);
     }
 
     /** Derive a 5-star string from the overall rating (was hardcoded 4 stars). */
     private static String starString(int ovr) {
-        int stars = ovr >= 92 ? 5 : ovr >= 82 ? 4 : ovr >= 70 ? 3 : ovr >= 60 ? 2 : ovr > 0 ? 1 : 0;
+        int stars = simulation.RatingScale.stars(ovr);
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < 5; i++) {
             sb.append(i < stars ? '\u2605' : '\u2606');

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ui.components.RatingBadgeView: rating digit | grade pill over a star gauge. -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:orientation="horizontal"
+    tools:parentTag="android.widget.LinearLayout">
+
+    <TextView
+        android:id="@+id/cmpRatingValue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:includeFontPadding="false"
+        android:minWidth="@dimen/cf_touch_target_lg"
+        android:gravity="center"
+        android:importantForAccessibility="no"
+        android:textAppearance="@style/TextAppearance.Cfhc.Cf.Overall"
+        tools:text="82" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/cf_space_sm"
+        android:importantForAccessibility="noHideDescendants"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/cmpRatingGrade"
+            style="@style/Widget.Cfhc.Pill.Emerald"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="A-" />
+
+        <ui.components.StarGaugeView
+            android:id="@+id/cmpRatingStars"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_xs" />
+    </LinearLayout>
+</merge>

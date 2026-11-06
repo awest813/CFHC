@@ -43,7 +43,7 @@ public class PlayerProfileV2 extends ArrayAdapter<String> {
         TextView ppPosition = rowView.findViewById(R.id.ppPosition);
         TextView ppClass = rowView.findViewById(R.id.ppClass);
         TextView ppTeam = rowView.findViewById(R.id.ppTeam);
-        TextView ppStars = rowView.findViewById(R.id.ppStars);
+        ui.components.StarGaugeView ppStars = rowView.findViewById(R.id.ppStars);
         TextView ppHome = rowView.findViewById(R.id.ppHome);
         TextView ppHeight = rowView.findViewById(R.id.ppHeight);
         TextView ppWeight = rowView.findViewById(R.id.ppWeight);
@@ -80,7 +80,7 @@ public class PlayerProfileV2 extends ArrayAdapter<String> {
         ppClass.setText(a[1]);
         ppTeam.setText(a[2]);
         ppHome.setText(a[3]);
-        ppStars.setText(a[4] + " Stars");
+        ppStars.setStars(simulation.RatingScale.parseStars(a[4]));
         ppHeight.setText(a[5]);
         ppWeight.setText(a[6]);
         ppOverall.setText(a[7]);

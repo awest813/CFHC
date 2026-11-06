@@ -48,7 +48,7 @@ public final class PlayerProfileDialogController {
         final TextView ppPosition = dialog.findViewById(R.id.ppPosition);
         final TextView ppClass = dialog.findViewById(R.id.ppClass);
         final TextView ppTeam = dialog.findViewById(R.id.ppTeam);
-        final TextView ppStars = dialog.findViewById(R.id.ppStars);
+        final ui.components.StarGaugeView ppStars = dialog.findViewById(R.id.ppStars);
         final TextView ppHome = dialog.findViewById(R.id.ppHome);
         final TextView ppHeight = dialog.findViewById(R.id.ppHeight);
         final TextView ppWeight = dialog.findViewById(R.id.ppWeight);
@@ -103,7 +103,7 @@ public final class PlayerProfileDialogController {
         ppClass.setText(PlatformUiHelper.valueAt(a, 1));
         ppTeam.setText(PlatformUiHelper.valueAt(a, 2));
         ppHome.setText(PlatformUiHelper.valueAt(a, 3));
-        ppStars.setText(PlatformUiHelper.valueAt(a, 4));
+        ppStars.setStars(simulation.RatingScale.parseStars(PlatformUiHelper.valueAt(a, 4)));
         ppHeight.setText(PlatformUiHelper.valueAt(a, 5));
         ppWeight.setText(PlatformUiHelper.valueAt(a, 6));
         ppOverall.setText(PlatformUiHelper.valueAt(a, 7));

@@ -347,4 +347,10 @@ split the record constructions into smaller helpers.
   facade, and the main page list is a `RecyclerView` (`ui.ListRowsAdapter` bridges the existing
   row adapters). Both rules are enforced by `scripts/verify_android_res.py`. Still open: native
   per-page RecyclerView adapters, the custom component `View`s, and the dp/sp token sweep.
+- **G12, second pass:** the six main-page adapters are native `RowAdapter`s; the seven dialog
+  lists are RecyclerViews (`ui.RecyclerLists`); layouts use dimen tokens only (enforced); the star
+  gauge, rating badge and player sprite card components exist and are used on Team Home and the
+  player profile. This pass also fixed a stray 8dp gap above filtered-out rows. Remaining:
+  native adapters for the dialog lists, the recruiting `ExpandableListView`, and four more
+  components.
 

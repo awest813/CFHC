@@ -140,13 +140,12 @@
                     android:layout_marginStart="@dimen/cf_space_sm"
                     tools:text="Senior" />
 
-                <TextView
+                <ui.components.StarGaugeView
                     android:id="@+id/ppStars"
-                    style="@style/Widget.Cfhc.Pill.Gold"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="@dimen/cf_space_sm"
-                    tools:text="4 Star" />
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="@dimen/cf_space_sm" />
 
                 <Space
                     android:layout_width="0dp"

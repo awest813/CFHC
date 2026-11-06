@@ -41,17 +41,11 @@
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
-            <TextView
+            <ui.components.RatingBadgeView
                 android:id="@+id/home_overall"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:contentDescription="@string/hub_a11y_overall"
-                android:gravity="center"
-                android:layout_marginEnd="@dimen/cf_space_sm"
-                android:includeFontPadding="false"
-                android:minWidth="@dimen/cf_touch_target_lg"
-                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Overall"
-                tools:text="82" />
+                android:layout_marginEnd="@dimen/cf_space_sm" />
 
             <!-- National rank: gold mono pill, taps to rankings -->
             <TextView
@@ -188,6 +182,44 @@
                 android:text="@string/dash_tap_team_stats"
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.Micro" />
         </LinearLayout>
+    </LinearLayout>
+
+    <!-- ============================================================ -->
+    <!-- 1b. ROSTER SPOTLIGHT — top two players (PlayerSpriteCardView)  -->
+    <!-- ============================================================ -->
+    <LinearLayout
+        android:id="@+id/home_spotlight_card"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/cf_space_sm"
+        android:background="@drawable/bg_cf_card"
+        android:orientation="vertical"
+        android:paddingStart="@dimen/cf_card_padding_h"
+        android:paddingEnd="@dimen/cf_card_padding_h"
+        android:paddingTop="@dimen/cf_card_padding_v"
+        android:paddingBottom="@dimen/cf_card_padding_v">
+
+        <TextView
+            style="@style/Widget.Cfhc.CardTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/dash_title_spotlight" />
+
+        <ui.components.PlayerSpriteCardView
+            android:id="@+id/home_spotlight_1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_sm"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <ui.components.PlayerSpriteCardView
+            android:id="@+id/home_spotlight_2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_sm"
+            android:clickable="true"
+            android:focusable="true" />
     </LinearLayout>
 
     <!-- ============================================================ -->

@@ -29,4 +29,8 @@
     <string name="dash_program_stable">● Stable</string>
     <string name="dash_program_declining">▼ Declining</string>
     <string name="dash_program_body">Prestige %1$d · season change %2$+d\nBudget %3$s · NIL Tier %4$d / %5$d\nFacilities L%6$d · Discipline %7$d%%\nIncoming class: %8$d · rating %9$.0f</string>
+    <string name="cmp_stars_a11y">%1$s of %2$d stars</string>
+    <string name="cmp_rating_a11y">Overall %1$d, grade %2$s, %3$d stars</string>
+    <string name="cmp_overall_a11y">overall %1$d</string>
+    <string name="dash_title_spotlight">Roster Spotlight</string>
 </resources>

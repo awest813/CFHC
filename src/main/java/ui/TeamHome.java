@@ -35,7 +35,7 @@ public class TeamHome extends RowAdapter<String> {
         View rowView = holder.itemView;
         TextView textTeam = holder.view(R.id.home_teamname);
         TextView textNickname = holder.view(R.id.home_nickname);
-        TextView textOverall = holder.view(R.id.home_overall);
+        ui.components.RatingBadgeView textOverall = holder.view(R.id.home_overall);
         TextView textRecord = holder.view(R.id.home_record);
         TextView textRank = holder.view(R.id.home_rank);
         TextView textSeason = holder.view(R.id.home_season_chip);
@@ -65,6 +65,7 @@ public class TeamHome extends RowAdapter<String> {
         textNextGame.setText(stripUnrankedMarks(nextGame));
         textNews.setText(news);
         textLastGame.setText(lastGame);
+        bindSpotlight(rowView);
         bindMorale(rowView);
         bindProgram(rowView);
 
@@ -179,21 +180,42 @@ public class TeamHome extends RowAdapter<String> {
     }
 
     /** Script nickname and the same off/def overall the desktop card shows. */
-    private void bindIdentity(TextView nicknameView, TextView overallView) {
+    private void bindIdentity(TextView nicknameView, ui.components.RatingBadgeView overallView) {
         if (nicknameView != null) {
             String nickname = team != null && team.nickname != null ? team.nickname.trim() : "";
             nicknameView.setText(nickname);
             nicknameView.setVisibility(nickname.isEmpty() ? View.GONE : View.VISIBLE);
         }
         if (overallView != null) {
-            if (team == null) {
-                overallView.setText("");
-            } else {
-                int overall = (int) ((team.teamOffTalent + team.teamDefTalent) / 2f);
-                overallView.setText(String.valueOf(overall));
-                overallView.setContentDescription(
-                        context.getString(R.string.hub_a11y_overall) + " " + overall);
+            overallView.setRating(team == null ? 0 : (int) ((team.teamOffTalent + team.teamDefTalent) / 2f));
+        }
+    }
+
+    /** Roster Spotlight: the two highest-rated players, each opening its profile. */
+    private void bindSpotlight(View rowView) {
+        View card = rowView.findViewById(R.id.home_spotlight_card);
+        if (card == null) return;
+        java.util.List<positions.Player> top = new java.util.ArrayList<>();
+        if (team != null && team.getAllPlayers() != null) {
+            top.addAll(team.getAllPlayers());
+            top.sort((a, b) -> Integer.compare(b.ratOvr, a.ratOvr));
+        }
+        if (top.isEmpty()) {
+            card.setVisibility(View.GONE);
+            return;
+        }
+        card.setVisibility(View.VISIBLE);
+        int[] ids = {R.id.home_spotlight_1, R.id.home_spotlight_2};
+        for (int i = 0; i < ids.length; i++) {
+            ui.components.PlayerSpriteCardView slot = rowView.findViewById(ids[i]);
+            if (i >= top.size()) {
+                slot.setVisibility(View.GONE);
+                continue;
             }
+            final positions.Player p = top.get(i);
+            slot.setVisibility(View.VISIBLE);
+            slot.bind(p.position, p.name, p.position + " \u00b7 " + p.getYrStr(), p.ratOvr);
+            slot.setOnClickListener(v -> mainAct.examinePlayer(p.name));
         }
     }
 

@@ -81,4 +81,5 @@
     <dimen name="cf_touch_target">44dp</dimen>
     <dimen name="cf_touch_target_lg">48dp</dimen>
     <dimen name="cf_text_tiny">9sp</dimen>
+    <dimen name="cf_star_size">14dp</dimen>
 </resources>

@@ -168,9 +168,15 @@ screens + commit. No wave mixes re-skinning with engine changes.
 - Done (Nov 2026): `mainList` is a `RecyclerView` (vertical `LinearLayoutManager`, 8dp
   row-gap `ItemDecoration`). The six page adapters plug in unchanged through
   `ui.ListRowsAdapter`, which keeps their recycling and the engine string protocol.
-  `scripts/verify_android_res.py` fails if `mainList` stops being a RecyclerView. Next
-  step, per page: replace the `ArrayAdapter` with a native `RecyclerView.Adapter` plus
-  a `RowModel` parser. Dialog lists (`ListView`s inside AlertDialogs) are unchanged.
+  `scripts/verify_android_res.py` fails if `mainList` stops being a RecyclerView.
+- Done (Nov 2026, second pass): the six page adapters are native `ui.RowAdapter`
+  subclasses (`RecyclerView.Adapter` with a view-caching `RowHolder`), and the bridge is
+  gone. Dialog lists (rankings, simple list, lineup, picker, choice cards, player
+  search, transfer portal) are RecyclerViews through `ui.RecyclerLists`, which reproduces
+  the ListView gap, click and selector behaviour while still feeding the existing row
+  adapters. Open: move those dialog adapters to `RowAdapter` one at a time, add typed
+  `RowModel` parsers, and decide on the recruiting board's `ExpandableListView` (it needs a
+  grouped RecyclerView design of its own).
 - Migrate `ui/` adapters (`TeamHome`, `TeamRoster`, `IndividualStats`, `TeamStatsList`,
   `GameScheduleList`, `MainRankings`, `CoachDatabase`, `PlayerProfileV2`,
   `StatsRowAdapter`, …) to RecyclerView rows built on §4 components.
@@ -231,6 +237,13 @@ screens + commit. No wave mixes re-skinning with engine changes.
   large-font-safe buttons (minHeight / autosize), unread-headlines badge on the
   News drawer item. Open: light-theme
   audit per screen, vector icon pass, snapshot re-baseline (needs an emulator).
+- Done (Nov 2026): layout size tokens. Every dp/sp literal in `res/layout` (except
+  `0dp`) is a `values/dimens.xml` token, and `verify_android_res.py` rejects new literals.
+  Values are unchanged, except that `lineSpacingExtra` is now in sp. Components in
+  `ui/components/`: `StarGaugeView` (drawn, half-star aware), `RatingBadgeView` (digit,
+  grade pill and stars from the engine's `RatingScale`) and `PlayerSpriteCardView`. They are
+  used on Team Home (overall badge, new Roster Spotlight card) and the player profile (recruit
+  stars). Still open from §4: `CfhcCardView`, `StatGrid`, `CrestView`, `TrophyIconView`.
 - Light theme audit: every screen in both themes via the snapshot script.
 - Animations: row press ripples, card state transitions, screen-change fade
   (respect `Settings.Global.ANIMATOR_DURATION_SCALE`).
