@@ -33,6 +33,17 @@ public final class SeasonFlowOrder {
             "Preseason", "Regular Season", "Postseason", "Offseason", "Recruiting"
     };
 
+    /**
+     * Redshirts are granted or cleared only in the preseason (week 0), before
+     * anyone has played. Both shells use this rule: a player who has already
+     * appeared in a game cannot be redshirted retroactively from the UI
+     * (the engine's own auto-redshirt for players with fewer than four games
+     * still applies at season end).
+     */
+    public static boolean isRedshirtWindow(int week) {
+        return week == 0;
+    }
+
     public static int clampWeek(int week) {
         return week < 0 ? 0 : week;
     }

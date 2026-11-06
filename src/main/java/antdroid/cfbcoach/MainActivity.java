@@ -442,7 +442,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         } else if (id == R.id.nav_gameday_plan) {
             GamedayPlanDialogController.show(this, simLeague);
         } else if (id == R.id.nav_redshirts) {
-            if (simLeague.currentWeek == 0 && !gameState.isRedshirtComplete()) {
+            if (simulation.SeasonFlowOrder.isRedshirtWindow(simLeague.currentWeek) && !gameState.isRedshirtComplete()) {
                 redshirtDialog();
             } else {
                 TransferDialogController.showRedshirtList(this, simLeague, userTeam);

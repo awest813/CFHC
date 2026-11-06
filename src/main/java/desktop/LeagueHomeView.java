@@ -432,7 +432,10 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
         team.add(transferItem);
 
         JMenuItem coordinatorsItem = new JMenuItem("Staff & Coordinators\u2026");
-        coordinatorsItem.addActionListener(e -> CoordinatorHiringDialog.show(this, leagueCore));
+        // Hiring happens only at the offseason Coordinator Hiring step, which opens the
+        // hiring dialog itself (same rule as Android). Opening it from the menu also ran
+        // the league-wide coordinator carousel mid-season, so the menu is a staff view.
+        coordinatorsItem.addActionListener(e -> showStaffSummary());
         coordinatorsItem.setEnabled(leagueCore.userTeam != null);
         team.add(coordinatorsItem);
 
@@ -1795,6 +1798,18 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
         String text = leagueCore.getCCGsStr();
         if (text == null || text.isEmpty()) text = "Conference championship matchups not set yet.";
         showScrollableText("Conference Championship Games", text);
+    }
+
+    private void showStaffSummary() {
+        Team t = leagueCore.userTeam;
+        if (t == null) return;
+        StringBuilder sb = new StringBuilder();
+        sb.append("Head Coach: ").append(t.getHeadCoach() != null ? t.getHeadCoach().getName() : "Vacant").append('\n');
+        sb.append("Offensive Coordinator: ").append(t.getOC() != null ? t.getOC().getName() : "Vacant").append('\n');
+        sb.append("Defensive Coordinator: ").append(t.getDC() != null ? t.getDC().getName() : "Vacant").append("\n\n");
+        sb.append("Coordinators are hired during the offseason, at the Coordinator Hiring step.");
+        JOptionPane.showMessageDialog(this, DesktopTheme.messageForDialog(sb.toString()),
+                "Staff & Coordinators", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void showMockDraft() {

@@ -82,8 +82,11 @@ public class RedshirtDialog extends JDialog {
             }
         };
         hintBar.setBackground(DesktopTheme.tableBase());
+        boolean window = simulation.SeasonFlowOrder.isRedshirtWindow(league.currentWeek);
         JLabel hint = new JLabel("<html>Season redshirts (including auto-redshirts for players with fewer than 4 games) "
-                + "are listed below. Double-click any player to view details. Use the buttons to adjust eligibility.</html>");
+                + "are listed below. Double-click any player to view details. "
+                + (window ? "Use the buttons to adjust eligibility."
+                          : "Redshirts can only be granted or removed in the preseason.") + "</html>");
         hint.setFont(new Font("SansSerif", Font.ITALIC, 11));
         hint.setForeground(DesktopTheme.textSecondary());
         hintBar.add(hint);
@@ -154,6 +157,7 @@ public class RedshirtDialog extends JDialog {
         });
         JPanel leftBottom = new JPanel(new FlowLayout(FlowLayout.CENTER));
         leftBottom.setOpaque(false);
+        removeBtn.setEnabled(simulation.SeasonFlowOrder.isRedshirtWindow(league.currentWeek));
         leftBottom.add(removeBtn);
         leftPanel.add(leftBottom, BorderLayout.SOUTH);
 
@@ -204,6 +208,7 @@ public class RedshirtDialog extends JDialog {
         });
         JPanel rightBottom = new JPanel(new FlowLayout(FlowLayout.CENTER));
         rightBottom.setOpaque(false);
+        grantBtn.setEnabled(simulation.SeasonFlowOrder.isRedshirtWindow(league.currentWeek));
         rightBottom.add(grantBtn);
         rightPanel.add(rightBottom, BorderLayout.SOUTH);
 

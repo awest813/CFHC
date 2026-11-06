@@ -14,11 +14,6 @@ LIBRARIES (Apache License 2.0, full text below)
   DrawerLayout, GridLayout and their dependencies: Copyright The Android Open Source Project
 - Material Components for Android: Copyright Google LLC
 
-CHARTS
-- GraphView 4.2.2 by Jonas Gehring (https://github.com/jjoe64/GraphView):
-  GNU General Public License with the GraphView linking exception, as
-  published at https://github.com/jjoe64/GraphView/blob/master/license.txt
-
 MUSIC
 - "Marching Band" by stereo_color (https://pixabay.com/users/stereo_color-54563004/),
   Pixabay Content License (https://pixabay.com/service/terms/). Audio unmodified.
