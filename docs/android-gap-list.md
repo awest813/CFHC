@@ -343,4 +343,8 @@ split the record constructions into smaller helpers.
 - **G11 re-check:** every `ImageView` / `ImageButton` in the layouts has a `contentDescription` or is
   marked decorative. The low attribute count reflected how few images there are, not missing labels.
   The new chart view describes itself to TalkBack (season range).
+- **G12 (redesign leftovers), partly done:** all 86 dialog builders now go through the `Dialogs`
+  facade, and the main page list is a `RecyclerView` (`ui.ListRowsAdapter` bridges the existing
+  row adapters). Both rules are enforced by `scripts/verify_android_res.py`. Still open: native
+  per-page RecyclerView adapters, the custom component `View`s, and the dp/sp token sweep.
 

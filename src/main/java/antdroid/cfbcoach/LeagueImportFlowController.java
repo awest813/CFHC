@@ -46,7 +46,7 @@ public final class LeagueImportFlowController {
     }
 
     private static void showImportPrompt(final Host host, final LeagueImportWorkflow workflow) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(host.getDialogContext());
+        AlertDialog.Builder builder = Dialogs.builder(host.getDialogContext());
         builder.setMessage("Do you want to import Coach/Player data?")
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
@@ -66,7 +66,7 @@ public final class LeagueImportFlowController {
     }
 
     private static void showImportTypePrompt(final Host host, final LeagueImportWorkflow workflow) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(host.getDialogContext());
+        AlertDialog.Builder builder = Dialogs.builder(host.getDialogContext());
         builder.setMessage("What type of custom data would you like to import?")
                 .setPositiveButton("Coach File", new DialogInterface.OnClickListener() {
                     @Override
@@ -92,7 +92,7 @@ public final class LeagueImportFlowController {
     }
 
     private static void showImportMorePrompt(final Host host, final LeagueImportWorkflow workflow) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(host.getDialogContext());
+        AlertDialog.Builder builder = Dialogs.builder(host.getDialogContext());
         builder.setMessage("Do you want to import more data?")
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override

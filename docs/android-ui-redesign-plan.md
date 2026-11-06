@@ -165,6 +165,12 @@ screens + commit. No wave mixes re-skinning with engine changes.
   user's team); all 67 hardcoded adapter colours replaced with `cf_*` tokens; Team
   Home is a stacked card dashboard (Team Overall, Next Game, Last Game, News,
   Health). RecyclerView migration and the custom `View` components remain open.
+- Done (Nov 2026): `mainList` is a `RecyclerView` (vertical `LinearLayoutManager`, 8dp
+  row-gap `ItemDecoration`). The six page adapters plug in unchanged through
+  `ui.ListRowsAdapter`, which keeps their recycling and the engine string protocol.
+  `scripts/verify_android_res.py` fails if `mainList` stops being a RecyclerView. Next
+  step, per page: replace the `ArrayAdapter` with a native `RecyclerView.Adapter` plus
+  a `RowModel` parser. Dialog lists (`ListView`s inside AlertDialogs) are unchanged.
 - Migrate `ui/` adapters (`TeamHome`, `TeamRoster`, `IndividualStats`, `TeamStatsList`,
   `GameScheduleList`, `MainRankings`, `CoachDatabase`, `PlayerProfileV2`,
   `StatsRowAdapter`, …) to RecyclerView rows built on §4 components.
@@ -186,7 +192,9 @@ screens + commit. No wave mixes re-skinning with engine changes.
   header, sectioned cards, mono values, emerald rating tiles, styled inputs, one gold
   primary); every controller uses the AppCompat `AlertDialog` so
   `ThemeOverlay.Cfhc.Dialog` applies; `PlatformUiHelper` shell binders collapsed to
-  one. The `Dialogs` facade / grep-enforced builder rule is still open.
+  one. Done (Nov 2026): `antdroid.cfbcoach.Dialogs` is the only place a dialog builder is
+  constructed. All 86 sites were moved, including Home's two `MaterialAlertDialogBuilder`s,
+  and `scripts/verify_android_res.py` rejects any new direct construction.
 - Sweep the 25 dialog controllers / 86 builders onto `DialogShell` + components.
   Biggest first: `GameDialogController` (50 ids), `PlayerProfileDialogController`
   (43, + sprite header), `SettingsDialogController` (508-line layout → sectioned

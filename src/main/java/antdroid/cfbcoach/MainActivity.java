@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private ArrayAdapter<String> dataAdapterTeam;
     private Spinner examineConfSpinner;
     private ArrayAdapter<String> dataAdapterConf;
-    private ListView mainList;
+    private androidx.recyclerview.widget.RecyclerView mainList;
 
     private ArrayList<Team> jobList;
 
@@ -248,6 +248,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //Set up list
         mainList = findViewById(R.id.mainList);
+        mainList.setLayoutManager(new androidx.recyclerview.widget.LinearLayoutManager(this));
+        final int rowGap = Math.round(8 * getResources().getDisplayMetrics().density);
+        // The 8dp gap the ListView's transparent divider used to draw.
+        mainList.addItemDecoration(new androidx.recyclerview.widget.RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(@NonNull android.graphics.Rect outRect, @NonNull View view,
+                                       @NonNull androidx.recyclerview.widget.RecyclerView parent,
+                                       @NonNull androidx.recyclerview.widget.RecyclerView.State state) {
+                if (parent.getChildAdapterPosition(view) > 0) outRect.top = rowGap;
+            }
+        });
         jobList = new ArrayList<>();
 
         //Load Data
@@ -766,7 +777,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     private void prepareSelectedTeam(final int item) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = Dialogs.builder(this);
         builder.setTitle(R.string.picker_preparing_title);
         builder.setMessage(R.string.picker_preparing_message);
         builder.setCancelable(false);
@@ -829,7 +840,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void userNameDialog() {
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = Dialogs.builder(this);
         builder.setTitle(R.string.setup_name_title)
                 .setView(getLayoutInflater().inflate(R.layout.username_dialog, null, false));
         builder.setCancelable(false);
@@ -1087,7 +1098,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void showAwardsSummary(String summaryText) {
         if (bulkQueueDialog(() -> showAwardsSummary(summaryText))) return;
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = Dialogs.builder(this);
         builder.setTitle("Awards Ceremony")
                 .setMessage(summaryText)
                 .setPositiveButton("OK", null);
@@ -1156,7 +1167,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         String title = simLeague.enableUnivProRel
                 ? simLeague.getYear() + " Promotion/Relegation Update"
                 : simLeague.getYear() + " Conference Realignment News";
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = Dialogs.builder(this);
         builder.setMessage(news)
                 .setTitle(title)
                 .setPositiveButton("OK", null);
@@ -1287,7 +1298,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private void scrollToLatestGame() {
         if (simLeague.currentWeek > 2) {
-            mainList.setSelection(currentTeam.numGames() - 3);
+            mainList.scrollToPosition(Math.max(0, currentTeam.numGames() - 3));
         }
 
     }
@@ -1512,7 +1523,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         pendingBulkDialogs.clear();
         audioManager.play(AudioEvent.ADVANCE);
 
-        final androidx.appcompat.app.AlertDialog progress = new androidx.appcompat.app.AlertDialog.Builder(this)
+        final androidx.appcompat.app.AlertDialog progress = Dialogs.builder(this)
                 .setTitle(R.string.sim_progress_title)
                 .setMessage(getString(R.string.sim_progress_week, simLeague.currentWeek))
                 .setNegativeButton(R.string.sim_progress_stop, (d, w) -> cancelBulk = true)
@@ -1704,7 +1715,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     //Open Hall of Fame Profile from Database
     public void examineHOF(String player) {
         if (player != null) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            AlertDialog.Builder builder = Dialogs.builder(this);
 
             String[] pStatsArray = player.split("&");
             StatsRowAdapter pStatsAdapter = new StatsRowAdapter(this, pStatsArray);
@@ -1832,7 +1843,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
      * write, which is how "Save &amp; Exit" chains into leaving the dynasty.
      */
     private void saveLeague(final Runnable afterSave) {
-        AlertDialog.Builder save = new AlertDialog.Builder(this);
+        AlertDialog.Builder save = Dialogs.builder(this);
         save.setTitle(R.string.save_slot_title);
         final String[] fileInfos = saveLoadService.getSaveFileSummaries();
         SaveFilesList saveFilesAdapter = new SaveFilesList(this, fileInfos);
@@ -1846,7 +1857,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     saveToSlotAsync(itemy, afterSave);
                 } else {
                     // Ask for confirmation to overwrite file
-                    AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                    AlertDialog.Builder builder = Dialogs.builder(MainActivity.this);
                     builder.setTitle(R.string.save_overwrite_title)
                             .setMessage(fileInfos[itemy])
                             .setPositiveButton(R.string.save_overwrite_confirm, new DialogInterface.OnClickListener() {
@@ -1904,7 +1915,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return;
         }
         boolean saved = isSavedAtCurrentWeek();
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this)
+        AlertDialog.Builder builder = Dialogs.builder(MainActivity.this)
                 .setTitle(R.string.exit_title)
                 .setMessage(saved ? R.string.exit_message_saved : R.string.exit_message_unsaved)
                 .setNegativeButton(android.R.string.cancel, null);
@@ -2244,7 +2255,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             update.append(simLeague.getNewsTV().get(i) + "\n\n");
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        AlertDialog.Builder builder = Dialogs.builder(MainActivity.this);
         builder.setMessage(update)
                 .setTitle(simLeague.getYear() + " Network Contract Updates")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -2265,7 +2276,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Show Prestige Change
     private void showBudget() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = Dialogs.builder(this);
         builder.setCancelable(false);
         builder.setTitle("Budget Rankings")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -2562,7 +2573,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (bulkQueueDialog(() -> transferPlayer(p))) return;
         PlayerProfileSnapshot snapshot = PlayerProfileSnapshot.fromPlayer(p);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = Dialogs.builder(this);
         builder.setTitle("Accept/Decline " + p.getTransferStatusMessage() + " Request\n")
                 .setView(getLayoutInflater().inflate(R.layout.player_profile, null, false));
 
@@ -2602,7 +2613,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     }
 
     public void crash(String message) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        AlertDialog.Builder builder = Dialogs.builder(MainActivity.this);
         builder.setMessage(message == null || message.trim().isEmpty()
                         ? simulation.SaveLoadMessages.loadFailureMessage(null)
                         : message)

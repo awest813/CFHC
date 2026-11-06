@@ -11,7 +11,7 @@ public final class CoachProfileDialogController {
     public static void showProfile(MainActivity activity, Staff p, Runnable onHistoryClick) {
         CoachProfileSnapshot snapshot = CoachProfileSnapshot.fromStaff(p);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle(p.getName())
                 .setView(activity.getLayoutInflater().inflate(R.layout.coach_profile, null, false))
                 .setPositiveButton("Close", (dialog, which) -> {})

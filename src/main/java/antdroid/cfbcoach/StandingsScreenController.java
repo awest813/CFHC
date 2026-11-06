@@ -1,6 +1,7 @@
 package antdroid.cfbcoach;
 
-import android.widget.ListView;
+import androidx.recyclerview.widget.RecyclerView;
+
 
 import java.util.ArrayList;
 
@@ -13,15 +14,15 @@ final class StandingsScreenController {
     private StandingsScreenController() {
     }
 
-    static void showStandings(MainActivity activity, ListView mainList, League simLeague, Team userTeam) {
+    static void showStandings(MainActivity activity, RecyclerView mainList, League simLeague, Team userTeam) {
         ArrayList<String> standings = simLeague.getConfStandings();
         final MainRankings teamRankings = new MainRankings(activity, standings, userTeam.getName(), activity);
-        mainList.setAdapter(teamRankings);
+        ui.ListRowsAdapter.show(mainList, teamRankings);
     }
 
-    static void showRankings(MainActivity activity, ListView mainList, League simLeague, Team userTeam) {
+    static void showRankings(MainActivity activity, RecyclerView mainList, League simLeague, Team userTeam) {
         ArrayList<String> standings = simLeague.getTeamRankings();
         final MainRankings teamRankings = new MainRankings(activity, standings, userTeam.getName(), activity);
-        mainList.setAdapter(teamRankings);
+        ui.ListRowsAdapter.show(mainList, teamRankings);
     }
 }

@@ -25,7 +25,7 @@ public final class CoachProgramDialogController {
         }
         final Staff hc = userTeam.getHeadCoach();
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         // No builder title: the layout's header card already shows it.
         builder.setView(activity.getLayoutInflater().inflate(R.layout.coach_program_dialog, null, false));
         final AlertDialog dialog = builder.create();

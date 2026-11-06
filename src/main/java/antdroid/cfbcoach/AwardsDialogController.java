@@ -29,7 +29,7 @@ final class AwardsDialogController {
     }
 
     private static void showWatchList(final MainActivity activity, final League simLeague, final Team userTeam) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("Player of the Year Watch")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
@@ -75,7 +75,7 @@ final class AwardsDialogController {
     }
 
     private static void showCeremony(final MainActivity activity, final League simLeague, final Team userTeam) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("Postseason Awards")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override

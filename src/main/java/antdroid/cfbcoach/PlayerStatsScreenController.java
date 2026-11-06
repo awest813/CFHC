@@ -1,6 +1,7 @@
 package antdroid.cfbcoach;
 
-import android.widget.ListView;
+import androidx.recyclerview.widget.RecyclerView;
+
 
 import java.util.ArrayList;
 
@@ -12,9 +13,9 @@ final class PlayerStatsScreenController {
     private PlayerStatsScreenController() {
     }
 
-    static void show(MainActivity activity, ListView mainList, Team currentTeam) {
+    static void show(MainActivity activity, RecyclerView mainList, Team currentTeam) {
         ArrayList<String> players = currentTeam.getRosterStats();
         final IndividualStats playersStats = new IndividualStats(activity, players, activity);
-        mainList.setAdapter(playersStats);
+        ui.ListRowsAdapter.show(mainList, playersStats);
     }
 }

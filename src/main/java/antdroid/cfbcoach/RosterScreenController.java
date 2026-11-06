@@ -1,6 +1,7 @@
 package antdroid.cfbcoach;
 
-import android.widget.ListView;
+import androidx.recyclerview.widget.RecyclerView;
+
 
 import java.util.ArrayList;
 
@@ -12,9 +13,9 @@ final class RosterScreenController {
     private RosterScreenController() {
     }
 
-    static void show(MainActivity activity, ListView mainList, Team currentTeam, int currentWeek) {
+    static void show(MainActivity activity, RecyclerView mainList, Team currentTeam, int currentWeek) {
         ArrayList<String> roster = currentTeam.getRoster();
         final TeamRoster teamRoster = new TeamRoster(activity, roster, activity, currentWeek);
-        mainList.setAdapter(teamRoster);
+        ui.ListRowsAdapter.show(mainList, teamRoster);
     }
 }

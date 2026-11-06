@@ -104,7 +104,7 @@ public final class PlatformUiHelper {
      * Show a simple notification dialog with an OK button.
      */
     public static void showNotification(android.content.Context context, String title, String message) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        AlertDialog.Builder builder = Dialogs.builder(context);
         builder.setMessage(message)
                 .setTitle(title)
                 .setPositiveButton(android.R.string.ok, null);

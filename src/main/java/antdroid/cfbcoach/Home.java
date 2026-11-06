@@ -16,7 +16,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import androidx.appcompat.app.AlertDialog;
 
@@ -150,7 +149,7 @@ public class Home extends AppCompatActivity {
     }
 
     private void showFirstRunWelcome() {
-        new MaterialAlertDialogBuilder(this)
+        Dialogs.builder(this)
                 .setTitle(R.string.home_welcome_title)
                 .setMessage(R.string.home_welcome_message)
                 .setPositiveButton(R.string.home_welcome_cta, null)
@@ -160,7 +159,7 @@ public class Home extends AppCompatActivity {
     }
 
     private void showManualChooser() {
-        new MaterialAlertDialogBuilder(this)
+        Dialogs.builder(this)
                 .setTitle(R.string.home_manual_dialog_title)
                 .setItems(new String[]{
                         getString(R.string.home_manual_option_in_app),
@@ -184,7 +183,7 @@ public class Home extends AppCompatActivity {
             startActivity(intent);
         } catch (ActivityNotFoundException e) {
             PlatformUiHelper.showImmersive(
-                    new AlertDialog.Builder(this)
+                    Dialogs.builder(this)
                             .setMessage("No web browser found to open this link.")
                             .setPositiveButton("OK", null)
                             .create());

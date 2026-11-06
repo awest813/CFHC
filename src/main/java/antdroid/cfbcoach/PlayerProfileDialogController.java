@@ -12,7 +12,7 @@ public final class PlayerProfileDialogController {
     public static void showProfile(MainActivity activity, Player p, Team userTeam) {
         PlayerProfileSnapshot snapshot = PlayerProfileSnapshot.fromPlayer(p);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("Player Profile")
                 .setView(activity.getLayoutInflater().inflate(R.layout.player_profile, null, false))
                 .setPositiveButton("Close", (dialog, which) -> {});
@@ -29,7 +29,7 @@ public final class PlayerProfileDialogController {
     }
 
     static void showCutDialog(MainActivity activity, Player p, Team userTeam) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("Player Cut")
                 .setMessage("Are you sure you want to cut " + p.position + " " + p.getName()
                         + "?\n\nIf this cut occurs during season, he may be replaced with a walk-on to fill roster spots.")

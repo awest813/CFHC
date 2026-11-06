@@ -76,7 +76,7 @@ public final class WeekDigestDialogController {
             ((TextView) content.findViewById(R.id.digestNext)).setText(view.nextUp);
         }
 
-        AlertDialog dialog = new AlertDialog.Builder(activity)
+        AlertDialog dialog = Dialogs.builder(activity)
                 .setView(content)
                 .setPositiveButton(R.string.digest_continue, null)
                 .create();

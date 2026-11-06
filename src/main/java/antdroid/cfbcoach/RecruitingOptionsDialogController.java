@@ -21,7 +21,7 @@ public final class RecruitingOptionsDialogController {
     public static void showBeginRecruiting(MainActivity activity, Team userTeam, League simLeague,
                                             String playerInfo, Runnable onRecruiting,
                                             Runnable onSave) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle(userTeam.getAbbr() + " Players Leaving")
                 .setPositiveButton("Recruiting", (dialog, which) -> {
                     if (onRecruiting != null) onRecruiting.run();
@@ -75,7 +75,7 @@ public final class RecruitingOptionsDialogController {
 
     public static void showRecruitingClassRankings(MainActivity activity, League simLeague,
                                                     Team userTeam, Runnable onContinue) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setCancelable(false);
         builder.setTitle("Recruiting Class Rankings")
                 .setPositiveButton("OK", (dialog, which) -> {
@@ -95,7 +95,7 @@ public final class RecruitingOptionsDialogController {
 
     /** Mock draft board from the drawer, any time of year (desktop parity: View → Mock Draft). */
     public static void showMockDraft(MainActivity activity, League simLeague, Team userTeam) {
-        AlertDialog dialog = new AlertDialog.Builder(activity)
+        AlertDialog dialog = Dialogs.builder(activity)
                 .setPositiveButton("OK", null)
                 .setView(activity.getLayoutInflater().inflate(R.layout.simple_list_dialog, null, false))
                 .create();

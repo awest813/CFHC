@@ -28,7 +28,7 @@ final class GameDialogController {
     private static void showSummary(final MainActivity activity, final Game g) {
         final String[] gameStr = g.getGameSummaryStr();
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle(g.awayTeam.getName() + " @ " + g.homeTeam.getName() + ": " + g.gameName)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
@@ -174,7 +174,7 @@ final class GameDialogController {
     private static void showScout(final MainActivity activity, final Game g, final Team userTeam) {
         final String[] gameStr = g.getGameScoutStr();
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle(g.awayTeam.getName() + " @ " + g.homeTeam.getName() + ": " + g.gameName)
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override

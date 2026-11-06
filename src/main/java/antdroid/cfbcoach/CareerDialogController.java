@@ -22,7 +22,7 @@ public final class CareerDialogController {
     public static void showContractDialog(MainActivity activity, String message, String title,
                                            Runnable onSeasonGoals, Runnable onShowSeasonGoals,
                                            Runnable onShowNews) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setMessage(message)
                 .setTitle(title)
                 .setPositiveButton("OK", (dialog, which) -> {})
@@ -45,7 +45,7 @@ public final class CareerDialogController {
                 "At this point, if you choose to continue, your ability to increase skill ratings will be much more challenging. " +
                 "You may also retire and end your career. " +
                 "Finally, you can choose to reincarnate yourself as a fresh new head coach in his 30s in this same universe!";
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setMessage(msg)
                 .setTitle("Retirement Age")
                 .setPositiveButton("Continue Career", (dialog, which) -> {
@@ -67,7 +67,7 @@ public final class CareerDialogController {
     }
 
     public static void showRetireSummary(MainActivity activity, Team currentTeam, Runnable onExit) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("A Brief Look Back")
                 .setPositiveButton("EXIT GAME", (dialog, which) -> {
                     if (onExit != null) onExit.run();
@@ -106,7 +106,7 @@ public final class CareerDialogController {
                                                 Runnable onSameTeam, Runnable onPickNewTeam) {
         HeadCoach currentCoach = currentTeam.getHeadCoach();
         String currentCoachName = currentCoach != null ? currentCoach.name : "Head Coach";
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("Head Coach History: " + currentCoachName)
                 .setPositiveButton("Use Same Team", (dialog, which) -> {
                     if (onSameTeam != null) onSameTeam.run();
@@ -161,7 +161,7 @@ public final class CareerDialogController {
         ((android.widget.TextView) content.findViewById(R.id.goalsBody))
                 .setText(goals == null ? "" : goals.trim());
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity)
+        AlertDialog.Builder builder = Dialogs.builder(activity)
                 .setView(content)
                 .setPositiveButton(R.string.goals_continue, (dialog, which) -> {})
                 .setNegativeButton(R.string.goals_save, (dialog, which) -> {
@@ -186,7 +186,7 @@ public final class CareerDialogController {
     }
 
     public static void showJobOffersEmpty(MainActivity activity, String title, String message) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle(title)
                 .setMessage(message)
                 .setPositiveButton("OK", (dialog, which) -> {});
@@ -232,7 +232,7 @@ public final class CareerDialogController {
             if (s != null) sb.append(s).append("\n");
         }
 
-        AlertDialog.Builder roster = new AlertDialog.Builder(activity);
+        AlertDialog.Builder roster = Dialogs.builder(activity);
         roster.setTitle(team.getName() + " Program Review");
         roster.setNeutralButton("Back to Offers", (dialog, which) -> {
             if (onBack != null) onBack.run();
@@ -354,7 +354,7 @@ public final class CareerDialogController {
         if (pillView != null && pill != null && !pill.isEmpty()) {
             pillView.setText(pill);
         }
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity)
+        AlertDialog.Builder builder = Dialogs.builder(activity)
                 .setView(content)
                 .setCancelable(false);
         if (negative != null) {
@@ -455,7 +455,7 @@ public final class CareerDialogController {
     }
 
     public static void showSimpleMessage(MainActivity activity, String title, String message) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setMessage(message)
                 .setTitle(title)
                 .setPositiveButton("OK", (dialog, which) -> {});

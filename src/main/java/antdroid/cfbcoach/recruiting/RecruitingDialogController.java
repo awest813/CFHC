@@ -1,5 +1,7 @@
 package antdroid.cfbcoach.recruiting;
 
+import antdroid.cfbcoach.Dialogs;
+
 import androidx.appcompat.app.AlertDialog;
 import android.content.DialogInterface;
 import android.util.TypedValue;
@@ -28,7 +30,7 @@ public final class RecruitingDialogController {
      * Show display options dialog (Expand All, Sort, etc.)
      */
     public static void showDisplayOptions(final RecruitingActivity activity, final boolean autoFilter, final List<RecruitingPlayerRecord> players, final ExpandableListView recruitList, final RecruitingActivity.ExpandableListAdapterRecruiting expListAdapter) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("Board Options");
 
         String filter = autoFilter ? "Disable Auto-Remove Unaffordable Players" : "Enable Auto-Remove Unaffordable Players";
@@ -65,7 +67,7 @@ public final class RecruitingDialogController {
      * Show roster overview dialog
      */
     public static void showRosterDialog(final RecruitingActivity activity, String teamName, String rosterStr, int totalPlayers) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setMessage(rosterStr)
                 .setTitle(teamName + " Roster | Team Size: " + totalPlayers)
                 .setPositiveButton("OK", null);
@@ -98,7 +100,7 @@ public final class RecruitingDialogController {
             return;
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("Confirm Recruiting");
         builder.setMessage(RecruitingPresentation.buildRecruitConfirmMessage(sessionData, RosterRules.MAX_PLAYERS, recruit));
 
@@ -139,7 +141,7 @@ public final class RecruitingDialogController {
      * Show exit confirmation dialog
      */
     public static void showExitConfirmDialog(final RecruitingActivity activity, List<String> positions, final RecruitingController controller) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setMessage(RecruitingPresentation.buildExitConfirmMessage(positions))
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override

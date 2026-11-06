@@ -17,7 +17,7 @@ final class TeamStrategyDialogController {
     }
 
     static void show(MainActivity activity, Team userTeam) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("Team Schemes")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override

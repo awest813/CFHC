@@ -35,7 +35,7 @@ public final class SettingsDialogController {
     }
 
     private static void show(final MainActivity activity, final League simLeague, final boolean isNewGameSetup) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         String title = isNewGameSetup ? (simLeague.getYear() + " Head Coach Career Setup")
                 : activity.getString(R.string.league_settings_title);
         builder.setTitle(title)
@@ -450,7 +450,7 @@ public final class SettingsDialogController {
     }
 
     private static void showFixBowlConfirmation(final MainActivity activity) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("Confirmation")
                 .setMessage("Are you sure you want to restore bowl names to game default names?")
                 .setCancelable(false)
@@ -472,7 +472,7 @@ public final class SettingsDialogController {
     }
 
     private static void showProRelConfirmation(final MainActivity activity, final League simLeague) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("Confirmation")
                 .setMessage("Are you sure you want to convert to Promotion-Relegation Mode?")
                 .setCancelable(false)

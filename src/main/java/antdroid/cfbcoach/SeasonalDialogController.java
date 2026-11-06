@@ -11,7 +11,7 @@ public final class SeasonalDialogController {
     private SeasonalDialogController() {}
 
     public static void showPreseasonOptions(MainActivity activity, League simLeague, Runnable onSave) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setMessage("This will let you redshirt and set budgets in the future")
                 .setTitle(simLeague.getYear() + " Preseason")
                 .setPositiveButton("OK", (dialog, which) -> {})
@@ -30,7 +30,7 @@ public final class SeasonalDialogController {
         if (string == null || string.trim().isEmpty()) {
             string = "No player rating changes to report this midseason.";
         }
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setMessage(string)
                 .setTitle("Mid-Season Progress Report")
                 .setPositiveButton("OK", (dialog, which) -> {});
@@ -42,7 +42,7 @@ public final class SeasonalDialogController {
 
     public static void showSeasonSummary(MainActivity activity, League simLeague, Team userTeam,
                                           Runnable onPrestigeChange) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setMessage(simLeague.seasonSummaryStr()
                         + "\n\nNote: You can always review your season summary in the Offseason News.")
                 .setTitle(simLeague.getYear() + " Season Summary")
@@ -60,7 +60,7 @@ public final class SeasonalDialogController {
     }
 
     public static void showPrestigeChange(MainActivity activity, League simLeague, Team userTeam) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setCancelable(false);
         builder.setTitle("Prestige Rankings")
                 .setPositiveButton("OK", (dialog, which) -> {})
@@ -77,7 +77,7 @@ public final class SeasonalDialogController {
     }
 
     public static void showSuspensions(MainActivity activity, Team userTeam) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setMessage(userTeam.suspensionNews)
                 .setTitle("Disciplinary Action")
                 .setPositiveButton("OK", (dialog, which) -> {});
@@ -89,7 +89,7 @@ public final class SeasonalDialogController {
     }
 
     public static void showExitConfirmation(MainActivity activity, Runnable onExit) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setMessage("Are you sure you want to return to main menu? Any progress from the beginning of the season will be lost.")
                 .setPositiveButton("Yes, Exit", (dialog, which) -> {
                     if (onExit != null) onExit.run();

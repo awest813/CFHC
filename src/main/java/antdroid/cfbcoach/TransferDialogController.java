@@ -45,7 +45,7 @@ public final class TransferDialogController {
     public static void showTransfers(final MainActivity activity, final League simLeague, final Team userTeam) {
         if (activity == null || simLeague == null) return;
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         View dialogView = activity.getLayoutInflater().inflate(R.layout.transfer_portal_dialog, null, false);
         builder.setView(dialogView);
 
@@ -174,7 +174,7 @@ public final class TransferDialogController {
             }
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         View dialogView = activity.getLayoutInflater().inflate(R.layout.player_search_dialog, null, false);
         builder.setView(dialogView);
 

@@ -48,7 +48,7 @@ public final class PlayerSearchDialogController {
     public static void show(final MainActivity activity, final League league, final Team userTeam) {
         if (activity == null || league == null) return;
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         View dialogView = activity.getLayoutInflater().inflate(R.layout.player_search_dialog, null, false);
         builder.setView(dialogView);
 

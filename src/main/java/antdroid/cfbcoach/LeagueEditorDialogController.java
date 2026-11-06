@@ -30,7 +30,7 @@ public final class LeagueEditorDialogController {
         final Team[] currentTeam = {activity.userTeam};
         final Conference[] currentConference = {simLeague.getConferences().get(simLeague.getConfNumber(activity.userTeam.getConference()))};
 
-        AlertDialog.Builder GameEditor = new AlertDialog.Builder(activity);
+        AlertDialog.Builder GameEditor = Dialogs.builder(activity);
         GameEditor.setTitle("Game Universe Editor v2 (BETA)")
                 .setView(activity.getLayoutInflater().inflate(R.layout.game_editor_full, null, false));
         final AlertDialog dialog = GameEditor.create();

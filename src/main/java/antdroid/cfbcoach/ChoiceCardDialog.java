@@ -73,7 +73,7 @@ public final class ChoiceCardDialog {
             }
         });
 
-        final AlertDialog dialog = new AlertDialog.Builder(activity)
+        final AlertDialog dialog = Dialogs.builder(activity)
                 .setView(content)
                 .setCancelable(false)
                 .create();

@@ -24,7 +24,7 @@ final class OffseasonHubDialogController {
     }
 
     static void show(final MainActivity activity, final League league, final Runnable advanceOneStep) {
-        final AlertDialog dialog = new AlertDialog.Builder(activity)
+        final AlertDialog dialog = Dialogs.builder(activity)
                 .setTitle(activity.getString(R.string.offseason_hub_title, league.getYear()))
                 .setMessage(checklist(activity, league))
                 .setPositiveButton(R.string.offseason_hub_advance, null) // wired below to keep the hub open

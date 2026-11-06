@@ -1,6 +1,7 @@
 package antdroid.cfbcoach;
 
-import android.widget.ListView;
+import androidx.recyclerview.widget.RecyclerView;
+
 
 import simulation.Game;
 import simulation.League;
@@ -12,7 +13,7 @@ final class HomeScreenController {
     private HomeScreenController() {
     }
 
-    static void show(MainActivity activity, ListView mainList, Team currentTeam, League simLeague) {
+    static void show(MainActivity activity, RecyclerView mainList, Team currentTeam, League simLeague) {
         String[] teamStatsStr = currentTeam.getTeamHomeInfo().split("!!");
 
         Game[] games = new Game[currentTeam.getGameSchedule().size()];
@@ -21,6 +22,6 @@ final class HomeScreenController {
         }
         int week = simLeague.currentWeek;
 
-        mainList.setAdapter(new TeamHome(activity, teamStatsStr, activity, games, week, currentTeam));
+        ui.ListRowsAdapter.show(mainList, new TeamHome(activity, teamStatsStr, activity, games, week, currentTeam));
     }
 }

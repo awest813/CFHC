@@ -18,7 +18,7 @@ final class NewsDialogController {
     }
 
     static void show(final MainActivity activity, final League simLeague) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("News Stories")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override

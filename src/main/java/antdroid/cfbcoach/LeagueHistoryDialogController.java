@@ -25,7 +25,7 @@ final class LeagueHistoryDialogController {
     }
 
     static void show(final MainActivity activity, final League simLeague, final Team userTeam) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("League History / Records")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
@@ -82,7 +82,7 @@ final class LeagueHistoryDialogController {
     }
 
     static void showLeagueHistoryStats(final MainActivity activity, final League simLeague, final Team userTeam) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("League Stats")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
@@ -144,7 +144,7 @@ final class LeagueHistoryDialogController {
 
     static void showCoachDatabase(final MainActivity activity, final League simLeague, final Team userTeam) {
         ArrayList<String> userNames = simLeague.getUserNames();
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("Head Coach Database")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override

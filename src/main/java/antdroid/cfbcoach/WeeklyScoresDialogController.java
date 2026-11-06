@@ -20,7 +20,7 @@ final class WeeklyScoresDialogController {
     }
 
     static void show(final MainActivity activity, final League simLeague) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("Weekly Scoreboard")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override

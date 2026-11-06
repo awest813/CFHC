@@ -17,7 +17,7 @@ public final class PlayerDevelopmentDialogController {
     private PlayerDevelopmentDialogController() {}
 
     public static void show(MainActivity activity, Player p, Team userTeam) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("Development Plan")
                 .setView(activity.getLayoutInflater().inflate(R.layout.player_dev_plan, null, false))
                 .setPositiveButton("Close", (dialog, which) -> {})
@@ -119,7 +119,7 @@ public final class PlayerDevelopmentDialogController {
 
     private static void confirmChange(MainActivity activity, AlertDialog parentDialog, Player p, String newTag) {
         String displayName = Archetypes.displayName(newTag);
-        AlertDialog.Builder confirm = new AlertDialog.Builder(activity);
+        AlertDialog.Builder confirm = Dialogs.builder(activity);
         confirm.setTitle("Change Development Plan")
                 .setMessage("Set " + p.getName() + "'s development plan to " + displayName
                         + "?\n\nThis changes how their attributes grow each season and which stats get capped.")

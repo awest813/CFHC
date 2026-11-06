@@ -59,7 +59,7 @@ public final class TeamPickerDialogController {
         final TeamRowAdapter rows = new TeamRowAdapter(activity);
         list.setAdapter(rows);
 
-        final AlertDialog dialog = new AlertDialog.Builder(activity)
+        final AlertDialog dialog = Dialogs.builder(activity)
                 .setView(content)
                 .setCancelable(false)
                 .create();

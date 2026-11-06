@@ -8,7 +8,10 @@ Checks, under src/main/res and src/main/java:
   * every R.<type>.<name> reference in Java resolves (same types), and every
     R.id.<name> used in Java is declared by some layout/menu (@+id or
     android:id on a <item>);
-  * no raw hex colours in layouts/menus/drawables under res (token rule).
+  * no raw hex colours in layouts/menus/drawables under res (token rule);
+  * dialogs are built only through antdroid.cfbcoach.Dialogs (no direct
+    AlertDialog.Builder / MaterialAlertDialogBuilder construction elsewhere);
+  * the main page list stays a RecyclerView (no ListView for mainList).
 
 Exit status 1 on any finding. Run: python3 scripts/verify_android_res.py
 """
@@ -159,6 +162,32 @@ def check_java():
                     problems.append(f"{rel}: unresolved R.{t}.{name}")
 
 
+DIALOG_BUILDER_RE = re.compile(
+    r"new\s+(?:[\w.]+\.)?(?:AlertDialog\.Builder|MaterialAlertDialogBuilder)\s*\(")
+
+
+def check_dialog_facade():
+    """Redesign Wave 4 rule: every dialog comes from Dialogs.builder(...)."""
+    for path in sorted(glob.glob(os.path.join(JAVA, "**", "*.java"), recursive=True)):
+        if path.endswith(os.sep + "Dialogs.java"):
+            continue
+        rel = os.path.relpath(path, ROOT)
+        text = open(path, encoding="utf-8").read()
+        for m in DIALOG_BUILDER_RE.finditer(text):
+            line = text.count("\n", 0, m.start()) + 1
+            problems.append(f"{rel}:{line}: build dialogs with Dialogs.builder(...), not {m.group(0).strip()}")
+
+
+def check_main_list():
+    """Redesign Wave 3 rule: the main page list is a RecyclerView."""
+    path = os.path.join(RES, "layout", "content_main.xml")
+    if not os.path.exists(path):
+        return
+    for el in ET.parse(path).getroot().iter():
+        if el.get(ANDROID_NS + "id") == "@+id/mainList" and el.tag != "androidx.recyclerview.widget.RecyclerView":
+            problems.append(f"{os.path.relpath(path, ROOT)}: mainList must be a RecyclerView, found <{el.tag}>")
+
+
 SCROLLERS = {"ScrollView", "androidx.core.widget.NestedScrollView", "HorizontalScrollView"}
 LISTS = {"ListView", "ExpandableListView", "GridView", "androidx.recyclerview.widget.RecyclerView"}
 NON_VIEW_TAGS = {"include", "merge", "requestFocus", "tag", "fragment", "view"}
@@ -207,6 +236,8 @@ def main():
     check_references()
     check_java()
     check_layout_structure()
+    check_dialog_facade()
+    check_main_list()
     if problems:
         print("\n".join(problems))
         print(f"\n{len(problems)} problem(s)")

@@ -20,7 +20,7 @@ public final class HistoryDialogController {
     private HistoryDialogController() {}
 
     public static void showTop25History(MainActivity activity, League simLeague, int seasonStart) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("AP Poll History")
                 .setPositiveButton("OK", (dialog, which) -> {})
                 .setView(activity.getLayoutInflater().inflate(R.layout.bowl_ccg_dialog, null, false));
@@ -64,7 +64,7 @@ public final class HistoryDialogController {
     public static void showCurrTeamHistoryDialog(MainActivity activity, Team currentTeam,
                                                   Team userTeam, League simLeague,
                                                   int seasonStart) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle(currentTeam.getName() + " History")
                 .setPositiveButton("OK", (dialog, which) -> {})
                 .setView(activity.getLayoutInflater().inflate(R.layout.team_rankings_dialog, null, false));
@@ -112,7 +112,7 @@ public final class HistoryDialogController {
 
     public static void showCoachHistoryDialog(MainActivity activity, final Staff hc,
                                                League simLeague, int seasonStart) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("Head Coach History: " + hc.getName())
                 .setPositiveButton("OK", (dialog, which) -> {})
                 .setView(activity.getLayoutInflater().inflate(R.layout.team_rankings_dialog, null, false));
@@ -153,7 +153,7 @@ public final class HistoryDialogController {
                                          String shellDesc, GraphDataProvider provider,
                                          int numHorizontalLabels, double maxY, double minY,
                                          simulation.TrendChartModel.ValueLabeler yLabeler) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle(title)
                 .setPositiveButton("OK", (dialog, which) -> {})
                 .setView(activity.getLayoutInflater().inflate(R.layout.graphview, null, false));

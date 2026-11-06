@@ -27,7 +27,7 @@ final class DepthChartDialogController {
     };
 
     static void showDepthChart(final MainActivity activity, final Team userTeam) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle(R.string.lineup_title)
                 .setView(activity.getLayoutInflater().inflate(R.layout.team_lineup_dialog, null, false));
         final AlertDialog dialog = builder.create();
@@ -91,7 +91,7 @@ final class DepthChartDialogController {
     }
 
     static void showRedshirt(final MainActivity activity, final Team userTeam) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle(R.string.redshirt_title)
                 .setView(activity.getLayoutInflater().inflate(R.layout.team_lineup_dialog, null, false));
         final AlertDialog dialog = builder.create();

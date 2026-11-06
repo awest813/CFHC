@@ -19,7 +19,7 @@ final class TeamRankingsDialogController {
     }
 
     static void show(final MainActivity activity, final League simLeague, final Team userTeam) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("Team Statistical Rankings")
                 .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
