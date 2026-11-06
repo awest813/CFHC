@@ -135,15 +135,16 @@ public final class DesktopUpdateChecker {
         return mapped != null && local.equals(mapped);
     }
 
-    /** Maps "1.4.5" -> "1.4e" (patch N -> Nth letter); null when not numeric. */
+    /** Maps "1.4.5" -> "1.4e" and "1.5.0" -> "1.5" (patch N -> Nth letter); null when not numeric. */
     private static String desktopEquivalent(String normalizedTag) {
         Matcher m = Pattern.compile("^(\\d+)\\.(\\d+)\\.(\\d+)$").matcher(normalizedTag);
         if (!m.matches()) {
             return null;
         }
         int patch = Integer.parseInt(m.group(3));
-        String suffix = patch >= 1 && patch <= 26
-                ? String.valueOf((char) ('a' + patch - 1))
+        // Patch 0 has no letter (v1.5.0 -> 1.5), as in the bumpVersion task.
+        String suffix = patch == 0 ? ""
+                : patch <= 26 ? String.valueOf((char) ('a' + patch - 1))
                 : String.valueOf(patch);
         return m.group(1) + "." + m.group(2) + suffix;
     }

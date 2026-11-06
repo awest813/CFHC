@@ -22,7 +22,7 @@ public final class DesktopVersion {
     public static final String RELEASES_API =
             "https://api.github.com/repos/awest813/CFHC/releases?per_page=15";
 
-    private static final String FALLBACK_VERSION = "1.4e";
+    private static final String FALLBACK_VERSION = "1.5";
 
     private DesktopVersion() {}
 

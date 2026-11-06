@@ -12,6 +12,19 @@ CFHC stores gameplay data such as save files, imported league files, exported sa
 
 That information stays on your device unless **you** choose to move, back up, export, or share those files using your operating system or another app.
 
+## Backups
+
+On Android, CFHC lets the system include its saves and settings in Android backup and device-to-device transfer,
+so a dynasty is not lost when you change phones. Whether backup runs, and where it is stored, is controlled by your
+device settings and your backup provider (for example, your Google account), not by CFHC.
+
+## Network use
+
+The Android app has no internet permission. Links on its Home screen (manual, community, project pages) open in your
+browser only when you tap them. The desktop app contacts GitHub's public releases API only when you choose
+**Help → Check for Updates**; that request carries no gameplay or personal data, and GitHub may see your IP address
+as with any web request.
+
 ## Does CFHC share data with third parties?
 
 No. Because CFHC does not collect personal data from you, it does not sell or share personal data with third parties.
@@ -28,7 +41,7 @@ Because CFHC is designed to run offline and does not transmit player data to our
 
 We may update this policy from time to time by editing this file. Continued use of CFHC after a policy update means you accept the revised policy.
 
-**Effective date:** 2026-04-27
+**Effective date:** 2026-11-06
 
 ## Contact
 

@@ -16,6 +16,8 @@ public class DesktopUpdateCheckerTest {
     public void isSameVersion_matchesCommonTagShapes() {
         assertTrue(DesktopUpdateChecker.isSameVersion("1.4e", "1.4e"));
         assertTrue(DesktopUpdateChecker.isSameVersion("1.4e", "v1.4e"));
+        assertTrue("minor release without a patch letter", DesktopUpdateChecker.isSameVersion("1.5", "v1.5.0"));
+        assertFalse(DesktopUpdateChecker.isSameVersion("1.4e", "v1.5.0"));
         assertTrue(DesktopUpdateChecker.isSameVersion("1.4e", "desktop-1.4e"));
         assertTrue(DesktopUpdateChecker.isSameVersion("1.4e", "CFHC-desktop-1.4e"));
     }

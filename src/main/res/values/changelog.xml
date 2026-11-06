@@ -20,6 +20,18 @@
         \n+ Cross-platform cleanup: Android-only recruiting UI classes separated
         \n+ Null-safety and dead code removal across desktop and shared engine
         \n+ Save/load robustness improvements
+        \n\n v1.5.0
+        \n+ Autosave: your dynasty is saved after every week, and the game picks up where you left off if Android closes it (Home → Load → Resume Autosave)
+        \n+ Gameday Plan: set your fourth-down approach and halftime and fourth-quarter calls before kickoff
+        \n+ Offseason Hub: a step-by-step checklist for the offseason
+        \n+ New Team Home cards: Roster Spotlight, Locker Room (morale) and Program
+        \n+ Tap any final score in Weekly Scores to open its box score; Mock Draft is in the drawer all year
+        \n+ Fixed: every game now falls in one week for both teams (teams no longer play twice in a week)
+        \n+ Fixed: loading a save no longer plays several weeks of games at once
+        \n+ Fixed: crashes on the first Play Week of a season and at the Season Summary
+        \n+ Refreshed lists, dialogs, rating badges and star ratings; crisper team crests and trophies
+        \n+ Licenses screen under Credits; smaller download
+        \n+ Updated for Android 16
 
     </string>
 </resources>

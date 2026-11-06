@@ -45,9 +45,10 @@ One command bumps every location atomically (validated before any file is
 written): `./gradlew bumpVersion -Ppatch` updates `app/build.gradle`
 (versionName/versionCode), `gradle.properties` → `desktopVersion`, and the
 `DesktopVersion.java` fallback. Mapping: Android `v1.4.N` → desktop `1.4` +
-Nth letter (v1.4.5 → 1.4e; patches past 26 fall back to the number). Current
-release identity: `v1.4.5` / versionCode 320 / desktop `1.4e`. If versionCode
-320 was already consumed on the Play Console, bump first.
+Nth letter (v1.4.5 → 1.4e; patch 0 has no letter, so v1.5.0 → 1.5; patches past 26
+fall back to the number). Current release identity: `v1.5.0` / versionCode 321 /
+desktop `1.5` (release notes: `docs/release-notes-1.5.0.md`). If versionCode 321 was
+already consumed on the Play Console, bump first.
 
 ## 3. Local signed build + smoke test (recommended before tagging)
 
@@ -67,8 +68,8 @@ release identity: `v1.4.5` / versionCode 320 / desktop `1.4e`. If versionCode
 ## 4. Tag and publish
 
 ```bash
-git tag -a v1.4.5 -m "CFHC v1.4.5"
-git push origin v1.4.5
+git tag -a v1.5.0 -m "CFHC v1.5.0"
+git push origin v1.5.0
 ```
 
 The `v*` tag triggers `.github/workflows/release.yml`, which builds the signed

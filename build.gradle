@@ -1,6 +1,6 @@
 // Root aggregator + desktop packaging tasks. Android app lives in :app; portable engine in :engine.
 
-def desktopVersion = (findProperty('desktopVersion') ?: '1.4e').toString()
+def desktopVersion = (findProperty('desktopVersion') ?: '1.5').toString()
 
 allprojects {
     repositories {
@@ -241,7 +241,7 @@ tasks.register('bumpVersion') {
 
     doLast {
         def buildFile = file("app/build.gradle")
-        def text = buildFile.text
+        def text = buildFile.getText("UTF-8")
 
         def vnMatch = text =~ /versionName\s+'v(\d+)\.(\d+)\.(\d+)/
         def vcMatch = text =~ /versionCode\s+(\d+)/
@@ -263,14 +263,15 @@ tasks.register('bumpVersion') {
         text = text.replaceFirst(/versionCode\s+\d+/, "versionCode ${newVersionCode}")
 
         // Desktop version follows the Android patch: v1.4.5 -> 1.4e.
-        def desktopSuffix = patch <= 26 ? (char) (97 + patch - 1) : String.valueOf(patch)
+        // Patch 0 has no letter (v1.5.0 -> 1.5); must match DesktopUpdateChecker.desktopEquivalent.
+        def desktopSuffix = patch == 0 ? "" : (patch <= 26 ? (char) (97 + patch - 1) : String.valueOf(patch))
         def desktopVer = "${major}.${minor}${desktopSuffix}"
         def propsFile = file("gradle.properties")
-        def propsText = propsFile.text
+        def propsText = propsFile.getText("UTF-8")
         if (!propsText =~ /desktopVersion=.*/) throw new GradleException("Could not find desktopVersion in gradle.properties")
         propsText = propsText.replaceFirst(/desktopVersion=.*/, "desktopVersion=${desktopVer}")
         def dvFile = file("src/main/java/desktop/DesktopVersion.java")
-        def dvText = dvFile.exists() ? dvFile.text : null
+        def dvText = dvFile.exists() ? dvFile.getText("UTF-8") : null
         if (dvText != null && !(dvText =~ /FALLBACK_VERSION = "[^"]*"/)) {
             throw new GradleException("Could not find FALLBACK_VERSION in DesktopVersion.java")
         }
@@ -278,9 +279,9 @@ tasks.register('bumpVersion') {
 
         // All three files validated — write last so a failure never leaves a
         // half-bumped tree.
-        buildFile.text = text
-        propsFile.text = propsText
-        if (dvNew != null) dvFile.text = dvNew
+        buildFile.write(text, "UTF-8")
+        propsFile.write(propsText, "UTF-8")
+        if (dvNew != null) dvFile.write(dvNew, "UTF-8")
 
         logger.lifecycle "Bumped: ${newVersionName} (code ${newVersionCode}); desktop ${desktopVer}"
     }

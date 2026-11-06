@@ -4,7 +4,7 @@
 
 **Dynasty college football simulation — Android app plus a JVM desktop shell on one shared engine.**
 
-[![Version](https://img.shields.io/badge/version-v1.4.5-blue?style=flat-square)](https://github.com/awest813/CFHC/releases)
+[![Version](https://img.shields.io/badge/version-v1.5.0-blue?style=flat-square)](https://github.com/awest813/CFHC/releases)
 [![Android](https://img.shields.io/badge/Android-minSdk%2024%20%7C%20targetSdk%2036-green?style=flat-square&logo=android)](https://developer.android.com)
 [![Java](https://img.shields.io/badge/Java-17-orange?style=flat-square&logo=openjdk)](https://openjdk.org)
 [![Gradle](https://img.shields.io/badge/Gradle-8.9%20%7C%20AGP%208.7-lightgrey?style=flat-square&logo=gradle)](https://gradle.org)
@@ -21,7 +21,7 @@
 
 | | |
 |:---|:---|
-| **Current release** | v1.4.5 (`versionCode` 320) |
+| **Current release** | v1.5.0 (`versionCode` 321) |
 | **Package** | `antdroid.cfbcoach` |
 | **Language / toolchain** | Java 17 · Gradle 8.9 · Android Gradle Plugin 8.7 |
 | **Automated tests** | JUnit — engine flows, recruiting, comparators, persistence (coverage is growing, not exhaustive) |
@@ -73,9 +73,9 @@ The standalone JVM project compiles the shared engine, runs unit tests with the 
 **Play a release jar** (Java 17+):
 
 ```bash
-java -jar CFHC-desktop-1.4e.jar          # Career Hub launcher
-java -jar CFHC-desktop-1.4e.jar help
-java -jar CFHC-desktop-1.4e.jar play ~/.cfhc/saves/my-league.cfb
+java -jar CFHC-desktop-1.5.jar          # Career Hub launcher
+java -jar CFHC-desktop-1.5.jar help
+java -jar CFHC-desktop-1.5.jar play ~/.cfhc/saves/my-league.cfb
 ```
 
 Saves default to `~/.cfhc/saves` on Linux (`~/Library/Application Support/CFHC/saves` on macOS, `%APPDATA%\CFHC\saves` on Windows). Use **File → Save** (Ctrl+S); desktop prompts when a new season starts and on exit if unsaved.
@@ -86,14 +86,14 @@ Saves default to `~/.cfhc/saves` on Linux (`~/Library/Application Support/CFHC/s
 ./gradlew -p desktop-standalone :engine:desktopStandaloneGate
 ```
 
-Jar output: `desktop-standalone/engine/build/libs/CFHC-desktop-1.4e.jar` (also `build/libs/` from the root `desktopJar` task).
+Jar output: `desktop-standalone/engine/build/libs/CFHC-desktop-1.5.jar` (also `build/libs/` from the root `desktopJar` task).
 
 If you already use the **root** Gradle build (Android Studio), equivalent desktop tasks live there:
 
 | Task | Purpose |
 |:---|:---|
 | `desktopVerify` | Import scan for forbidden Android APIs in engine packages, required resource files, desktop Java compile |
-| `desktopJar` | Produces `CFHC-desktop-1.4e.jar` (see `build/libs/`) |
+| `desktopJar` | Produces `CFHC-desktop-1.5.jar` (see `build/libs/`) |
 | `runDesktop` | Runs `desktop.Main`; optional `-PdesktopArgs="..."` |
 
 ```bash
@@ -101,8 +101,8 @@ If you already use the **root** Gradle build (Android Studio), equivalent deskto
 ./gradlew desktopJar
 ./gradlew runDesktop
 ./gradlew runDesktop -PdesktopArgs="new"
-java -jar build/libs/CFHC-desktop-1.4e.jar play path/to/save.cfb
-java -jar build/libs/CFHC-desktop-1.4e.jar help
+java -jar build/libs/CFHC-desktop-1.5.jar play path/to/save.cfb
+java -jar build/libs/CFHC-desktop-1.5.jar help
 ```
 
 | CLI (jar or `runDesktop`) | |
@@ -181,7 +181,7 @@ More detail: [docs/platform-expansion.md](docs/platform-expansion.md).
 - **Simulation:** play-by-play, multiple schemes, stats, news, awards, progression; weather, penalties, momentum and timeouts; interactive coaching (opt-in gameplan / halftime / crunch-time decisions)
 - **League:** conferences, bowls (with tie-ins), playoff options, AP/Coaches polls, prestige, infractions, rivalries and trophies, senior day / homecoming, realignment (with optional limits on FCS schools moving up), history; offseason coaching carousel, transfer portal, draft night and signing day
 - **Customization:** CSV import for universes/rosters/coaches; in-game renames; light/dark themes
-- **Desktop:** Career Hub launcher, league shell, docked recruiting, dark/high-contrast themes, CSV import/export — Java 17 jar (`CFHC-desktop-1.4e.jar`)
+- **Desktop:** Career Hub launcher, league shell, docked recruiting, dark/high-contrast themes, CSV import/export — Java 17 jar (`CFHC-desktop-1.5.jar`)
 
 ---
 
@@ -221,7 +221,7 @@ Use formats aligned with the bundled sample universes, then **Import** from the 
 <details>
 <summary><strong>What does the desktop build support?</strong></summary>
 
-New career wizard, load/save (`.cfb` / `.sav` / `.txt`), week-by-week and bulk season advance, docked recruiting with disk checkpoints, transfer summaries, redshirts, depth chart/playbook, CSV coach/roster import, and league export. Requires **Java 17+**. Run `java -jar CFHC-desktop-1.4e.jar`. Some Android-only UI flows remain more complete on mobile.
+New career wizard, load/save (`.cfb` / `.sav` / `.txt`), week-by-week and bulk season advance, docked recruiting with disk checkpoints, transfer summaries, redshirts, depth chart/playbook, CSV coach/roster import, and league export. Requires **Java 17+**. Run `java -jar CFHC-desktop-1.5.jar`. Some Android-only UI flows remain more complete on mobile.
 </details>
 
 ---

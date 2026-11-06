@@ -4,7 +4,7 @@ plugins {
 
 def repoRoot = rootProject.projectDir.parentFile
 
-def desktopVersion = '1.4e'
+def desktopVersion = '1.5'
 def desktopVersionProps = new File(repoRoot, 'gradle.properties')
 if (desktopVersionProps.file) {
     def loaded = new Properties()
