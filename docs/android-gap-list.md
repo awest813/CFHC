@@ -353,4 +353,11 @@ split the record constructions into smaller helpers.
   player profile. This pass also fixed a stray 8dp gap above filtered-out rows. Remaining:
   native adapters for the dialog lists, the recruiting `ExpandableListView`, and four more
   components.
+- **G12, third pass (done apart from screenshots):** dialog adapters are native where nothing
+  else depends on them, the recruiting board is a grouped RecyclerView, the list pages read typed
+  row models with JVM protocol tests, and the component set is complete (card, stat grid,
+  crest, trophy, star gauge, rating badge, player sprite card). Recycling bugs fixed on the way:
+  depth-chart and redshirt checkboxes could toggle the wrong player, and recycled rows kept
+  stale enabled/checked state. Still open: the light-theme audit and the snapshot baseline, which
+  both need an emulator.
 

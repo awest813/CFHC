@@ -174,9 +174,16 @@ screens + commit. No wave mixes re-skinning with engine changes.
   gone. Dialog lists (rankings, simple list, lineup, picker, choice cards, player
   search, transfer portal) are RecyclerViews through `ui.RecyclerLists`, which reproduces
   the ListView gap, click and selector behaviour while still feeding the existing row
-  adapters. Open: move those dialog adapters to `RowAdapter` one at a time, add typed
-  `RowModel` parsers, and decide on the recruiting board's `ExpandableListView` (it needs a
-  grouped RecyclerView design of its own).
+  adapters.
+- Done (Nov 2026, third pass): twelve dialog adapters are native `RowAdapter`s (with
+  ArrayAdapter-style `clear`/`add`/`addAll` and the dialog item-click hook). Only adapters that
+  also serve an `AlertDialog.setAdapter` list or a single dialog stay bridged
+  (`StatsRowAdapter`, transfer/search/picker/choice-card adapters). The recruiting board is a
+  grouped RecyclerView (`ui.ExpandableRows`, ExpandableListView-style expand/collapse API). Typed
+  row models in the portable `simulation.rows` package (`RosterRow`, `RankingRow`, `StatLine`,
+  `TeamStatRow`) replace positional splitting in the four list pages that use those formats,
+  with `RowModelTest` parsing real engine output. No layout uses `ListView`,
+  `ExpandableListView` or `GridView` any more, and `verify_android_res.py` enforces it.
 - Migrate `ui/` adapters (`TeamHome`, `TeamRoster`, `IndividualStats`, `TeamStatsList`,
   `GameScheduleList`, `MainRankings`, `CoachDatabase`, `PlayerProfileV2`,
   `StatsRowAdapter`, …) to RecyclerView rows built on §4 components.
@@ -243,7 +250,9 @@ screens + commit. No wave mixes re-skinning with engine changes.
   `ui/components/`: `StarGaugeView` (drawn, half-star aware), `RatingBadgeView` (digit,
   grade pill and stars from the engine's `RatingScale`) and `PlayerSpriteCardView`. They are
   used on Team Home (overall badge, new Roster Spotlight card) and the player profile (recruit
-  stars). Still open from §4: `CfhcCardView`, `StatGrid`, `CrestView`, `TrophyIconView`.
+  stars). Also done: `CfhcCardView`, `StatGridView`, `CrestView` and `TrophyIconView` (both on a
+  `PixelSpriteView` that scales sprites nearest-neighbour). The §4 set is complete apart from
+  `DialogShell`, whose role the `Dialogs` facade plus `ThemeOverlay.Cfhc.Dialog` already cover.
 - Light theme audit: every screen in both themes via the snapshot script.
 - Animations: row press ripples, card state transitions, screen-change fade
   (respect `Settings.Global.ANIMATOR_DURATION_SCALE`).

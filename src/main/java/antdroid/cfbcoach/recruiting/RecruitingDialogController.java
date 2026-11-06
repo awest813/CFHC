@@ -5,7 +5,6 @@ import antdroid.cfbcoach.Dialogs;
 import androidx.appcompat.app.AlertDialog;
 import android.content.DialogInterface;
 import android.util.TypedValue;
-import android.widget.ExpandableListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,7 +28,7 @@ public final class RecruitingDialogController {
     /**
      * Show display options dialog (Expand All, Sort, etc.)
      */
-    public static void showDisplayOptions(final RecruitingActivity activity, final boolean autoFilter, final List<RecruitingPlayerRecord> players, final ExpandableListView recruitList, final RecruitingActivity.ExpandableListAdapterRecruiting expListAdapter) {
+    public static void showDisplayOptions(final RecruitingActivity activity, final boolean autoFilter, final List<RecruitingPlayerRecord> players, final ui.ExpandableRows recruitList, final RecruitingActivity.ExpandableListAdapterRecruiting expListAdapter) {
         AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("Board Options");
 
@@ -84,7 +83,7 @@ public final class RecruitingDialogController {
     /**
      * Show recruiting confirmation dialog
      */
-    public static void showRecruitConfirmDialog(final RecruitingActivity activity, final RecruitingSessionData sessionData, final RecruitingPlayerRecord recruit, final int groupPosition, final int groupCount, final ExpandableListView recruitList, final RecruitingActivity.ExpandableListAdapterRecruiting expListAdapter, boolean showPopUp) {
+    public static void showRecruitConfirmDialog(final RecruitingActivity activity, final RecruitingSessionData sessionData, final RecruitingPlayerRecord recruit, final int groupPosition, final int groupCount, final ui.ExpandableRows recruitList, final RecruitingActivity.ExpandableListAdapterRecruiting expListAdapter, boolean showPopUp) {
         int moneyNeeded = recruit.cost();
 
         if (sessionData.recruitingBudget < moneyNeeded) {
@@ -155,14 +154,14 @@ public final class RecruitingDialogController {
         PlatformUiHelper.showImmersive(dialog);
     }
 
-    private static void performRecruit(RecruitingActivity activity, RecruitingSessionData sessionData, RecruitingPlayerRecord recruit, int groupPosition, ExpandableListView recruitList, RecruitingActivity.ExpandableListAdapterRecruiting expListAdapter) {
+    private static void performRecruit(RecruitingActivity activity, RecruitingSessionData sessionData, RecruitingPlayerRecord recruit, int groupPosition, ui.ExpandableRows recruitList, RecruitingActivity.ExpandableListAdapterRecruiting expListAdapter) {
         collapseForRefresh(recruitList, groupPosition, expListAdapter.getGroupCount());
         activity.recruitPlayer(recruit);
         expListAdapter.notifyDataSetChanged();
     }
 
 
-    private static void collapseForRefresh(ExpandableListView recruitList, int groupPosition, int totalCount) {
+    private static void collapseForRefresh(ui.ExpandableRows recruitList, int groupPosition, int totalCount) {
         recruitList.collapseGroup(groupPosition);
         for (int i = groupPosition + 1; i < totalCount; ++i) {
             recruitList.collapseGroup(i);

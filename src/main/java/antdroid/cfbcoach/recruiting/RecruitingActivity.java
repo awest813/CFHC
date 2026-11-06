@@ -12,7 +12,6 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseExpandableListAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.ExpandableListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,7 +45,9 @@ public class RecruitingActivity extends AppCompatActivity {
     // Android Components to keep track of
     private TextView budgetText;
     private Spinner positionSpinner;
-    private ExpandableListView recruitList;
+    private androidx.recyclerview.widget.RecyclerView recruitListView;
+    /** Expand/collapse controller for the board (ExpandableListView API). */
+    private ui.ExpandableRows recruitList;
     private ArrayList<String> positions;
     private ArrayAdapter<String> dataAdapterPosition;
     private ExpandableListAdapterRecruiting expListAdapter;
@@ -150,11 +151,11 @@ public class RecruitingActivity extends AppCompatActivity {
         /*
           Set up expandable list view
          */
-        recruitList = findViewById(R.id.recruitExpandList);
+        recruitListView = findViewById(R.id.recruitExpandList);
         uiState.setCurrentPosition(positions.isEmpty() ? "Top 50 Recruits" : positions.get(0));
         setPlayerList(0, uiState.getCurrentPosition());
         expListAdapter = new ExpandableListAdapterRecruiting(this);
-        recruitList.setAdapter(expListAdapter);
+        recruitList = ui.ExpandableRows.attach(recruitListView, expListAdapter);
 
         /*
           Set up "Expand All / Collapse All" button
