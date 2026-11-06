@@ -372,4 +372,23 @@ split the record constructions into smaller helpers.
   - The "light theme" is a slate variant of the dark HUD (`AppThemeLight` only changes the window colour), so the
     toggle is now labelled Midnight / Slate. A true light palette would mean moving every `cf_*` colour onto theme
     attributes, which the dark broadcast design deliberately doesn't do.
+- **Season-flow screen test (`SeasonFlowScreenTest`)** plays a season through MainActivity, dismissing dialogs, and
+  redraws every page each week. It found three engine bugs that no engine test caught:
+  - **Season summary crash:** the summary was shown before the season's books closed, so `Team.prestigePts` was
+    null in a dynasty's first season (Android crashed; desktop masked it as "summary unavailable") and a year stale
+    afterwards. Fixed (`SeasonSummaryOrderTest`).
+  - **Reloaded saves played many weeks at once:** saves wrote each game once and loads appended games in file
+    order, so opponents held games at the wrong schedule index. The first game week after loading any save played
+    the user's whole season. Saves now record both teams' slots, and loads rebuild schedules exactly; older saves
+    are rebuilt from write order (`PreseasonReloadTest`).
+  - **Fresh schedules were misaligned:** about 28% of games (234/839) sat at different indexes for the two teams,
+    because OOC games were appended after conference games instead of placed in the week they were paired for. A game
+    plays once, at the first team's index, so teams played twice some weeks and not at all in others.
+    `ScheduleManager.alignToWeeks` now places OOC games in their paired week, conference rounds in the conference's
+    non-OOC weeks, and byes in the gaps. The rivalry guarantee swaps fillers only within one week
+    (`ScheduleConsistencyTest`). Side effect: conference rematches now show up properly, so `ScoreboardLookup` picks
+    the meeting by the line's scores.
+- **Not changed (gameplay decision):** `Game.week` is never assigned, so `Weather.forGame` always rolls week-0
+  weather and there's no seasonal change across the year. Passing the real week would change every simulated
+  result, so it's left for a deliberate balance pass.
 

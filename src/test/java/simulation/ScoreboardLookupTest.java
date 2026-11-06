@@ -28,14 +28,18 @@ public class ScoreboardLookupTest {
 
     @Test
     public void everyPlayedLineResolvesToTheGameItDescribes() {
+        checkAllLines(2);
+    }
+
+    /** Plays {@code weeks} game weeks, then checks every played scoreboard line. */
+    private void checkAllLines(int weeks) {
         league.currentWeek = 1; // in-season step; playWeek() advances currentWeek
-        league.playWeek();
-        league.playWeek();
+        for (int i = 0; i < weeks; i++) league.playWeek();
 
         int resolved = 0;
-        List<List<String>> weeks = league.getWeeklyScores();
-        for (int w = 0; w < weeks.size(); w++) {
-            for (String line : weeks.get(w)) {
+        List<List<String>> board = league.getWeeklyScores();
+        for (int w = 0; w < board.size(); w++) {
+            for (String line : board.get(w)) {
                 if (!line.contains("\n")) continue;
                 Game g = ScoreboardLookup.findPlayedGame(league, w, line);
                 if (g == null) continue; // scheduled (unplayed) line
@@ -50,6 +54,16 @@ public class ScoreboardLookupTest {
             }
         }
         assertTrue("expected played games on the scoreboard", resolved > 20);
+    }
+
+    @Test
+    public void rematches_resolveByTheLinesScores() {
+        // Several unseeded leagues: conference rematches happen in some of them.
+        // A full regular season in several unseeded leagues: rematches happen.
+        for (int run = 0; run < 3; run++) {
+            setUp();
+            checkAllLines(League.REGULAR_SEASON_GAMES);
+        }
     }
 
     @Test

@@ -310,7 +310,14 @@ public class Conference {
     /**
      * Sets up schedule for in-conference games using round robin scheduling.
      */
+    /**
+     * Round of each conference game built by {@link #setUpSchedule} (0-based);
+     * ScheduleManager places round r in the conference's r-th non-OOC week.
+     */
+    final java.util.IdentityHashMap<Game, Integer> confRoundOf = new java.util.IdentityHashMap<>();
+
     public void setUpSchedule() {
+        confRoundOf.clear();
         oocGames = getOOCGames();
         /*if(confTeams.size()>=12) {
             setDivisionTeams();
@@ -357,6 +364,7 @@ public class Conference {
 
                 a.addGameToSchedule(gm);
                 b.addGameToSchedule(gm);
+                confRoundOf.put(gm, r);
 
             }
         }

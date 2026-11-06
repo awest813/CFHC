@@ -36,6 +36,10 @@ public final class ScoreboardLookup {
             return null;
         }
 
+        // Teams can meet twice in a season (conference rematches, title games), so the
+        // line's own scores pick the meeting; slot/week order only breaks ties.
+        Integer awayScore = trailingInt(sides[0]);
+        Integer homeScore = trailingInt(sides[1]);
         Game byIndex = null;
         Game byWeekField = null;
         Game latest = null;
@@ -49,6 +53,10 @@ public final class ScoreboardLookup {
                     || (g.homeTeam == away && g.awayTeam == home);
             if (!sameMatchup) {
                 continue;
+            }
+            if (awayScore != null && homeScore != null
+                    && (g.awayTeam != away || g.awayScore != awayScore || g.homeScore != homeScore)) {
+                continue; // a different meeting between the same two teams
             }
             latest = g;
             // A game played in week w is posted to scoreboard index w + 1,
@@ -67,6 +75,12 @@ public final class ScoreboardLookup {
             return byWeekField;
         }
         return latest;
+    }
+
+    /** The score at the end of "#12 Texas A&M 35", or null when the line has none. */
+    static Integer trailingInt(String side) {
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("\\s(-?\\d+)\\s*$").matcher(side);
+        return m.find() ? Integer.valueOf(m.group(1)) : null;
     }
 
     /** "#12 Texas A&M 35" → "Texas A&M". */
