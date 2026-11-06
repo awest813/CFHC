@@ -537,7 +537,7 @@
             android:layout_marginTop="@dimen/cf_space_xs"
             android:lineSpacingExtra="2sp"
             android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
-            tools:text="Prestige 74 (+6 this season)\nBudget $34.2M · NIL Tier 3 / 5\nFacilities L4 · Discipline 82%\nRecruiting: 14 commits · class 61" />
+            tools:text="Prestige 74 · season change +6\nBudget $34.2M · NIL Tier 3 / 5\nFacilities L4 · Discipline 82%\nIncoming class: 14 · rating 61" />
     </LinearLayout>
 
 </LinearLayout>
