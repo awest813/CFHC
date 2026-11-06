@@ -2,10 +2,8 @@ package ui;
 
 import android.content.Context;
 import android.graphics.Typeface;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
@@ -16,8 +14,7 @@ import antdroid.cfbcoach.MainActivity;
 import antdroid.cfbcoach.R;
 import simulation.CoachDirectoryRow;
 
-public class CoachDatabase  extends ArrayAdapter<String> {
-    private final Context context;
+public class CoachDatabase  extends RowAdapter<String> {
     private final ArrayList<String> values;
     private String userHC;
     private final MainActivity mainAct;
@@ -26,7 +23,6 @@ public class CoachDatabase  extends ArrayAdapter<String> {
 
     public CoachDatabase(Context context, ArrayList<String> values, String userHC, MainActivity mainAct, ArrayList<String> userNames) {
         super(context, R.layout.team_rankings_list_item, values);
-        this.context = context;
         this.values = values;
         this.userHC = userHC;
         this.mainAct = mainAct;
@@ -34,17 +30,12 @@ public class CoachDatabase  extends ArrayAdapter<String> {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View rowView = convertView;
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        if (rowView == null) {
-            rowView = inflater.inflate(R.layout.team_rankings_list_item, parent, false);
-        }
-        TextView textLeft = rowView.findViewById(R.id.textTeamRankingsLeft);
-        TextView textCenter = rowView.findViewById(R.id.textTeamRankingsCenter);
-        TextView textDetail = rowView.findViewById(R.id.textTeamRankingsDetail);
-        TextView textRight = rowView.findViewById(R.id.textTeamRankingsRight);
+    protected void bind(RowHolder holder, final int position) {
+        View rowView = holder.itemView;
+        TextView textLeft = holder.view(R.id.textTeamRankingsLeft);
+        TextView textCenter = holder.view(R.id.textTeamRankingsCenter);
+        TextView textDetail = holder.view(R.id.textTeamRankingsDetail);
+        TextView textRight = holder.view(R.id.textTeamRankingsRight);
 
         final String[] teamStat = values.get(position).split(",", -1);
         final String left = valueAt(teamStat, 0);
@@ -119,7 +110,7 @@ public class CoachDatabase  extends ArrayAdapter<String> {
         });
 
 
-        return rowView;
+        return;
     }
 
 

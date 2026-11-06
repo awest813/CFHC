@@ -1,10 +1,8 @@
 package ui;
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
@@ -21,8 +19,7 @@ import static android.view.View.INVISIBLE;
 /**
  * Created by Achi Jones on 3/18/2016.
  */
-public class RedshirtAdapter extends ArrayAdapter<Player> {
-    private final Context context;
+public class RedshirtAdapter extends RowAdapter<Player> {
     public final ArrayList<Player> players;
     public final ArrayList<Player> playersSelected;
     public final ArrayList<Player> playersRemoved;
@@ -30,7 +27,6 @@ public class RedshirtAdapter extends ArrayAdapter<Player> {
 
     public RedshirtAdapter(Context context, ArrayList<Player> values, int playersRequired) {
         super(context, R.layout.team_lineup_list_item, values);
-        this.context = context;
         this.players = values;
         this.playersRequired = playersRequired;
         playersSelected = new ArrayList<>();
@@ -47,15 +43,10 @@ public class RedshirtAdapter extends ArrayAdapter<Player> {
     }
 
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
-        View rowView = convertView;
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        if (rowView == null) {
-            rowView = inflater.inflate(R.layout.team_lineup_list_item, parent, false);
-        }
+    protected void bind(RowHolder holder, final int position) {
+        View rowView = holder.itemView;
 
-        TextView playerInfo = rowView.findViewById(R.id.textViewLineupPlayerInfo);
+        TextView playerInfo = holder.view(R.id.textViewLineupPlayerInfo);
 
         if (players.get(position).injury == null && !players.get(position).isTransfer && !players.get(position).isSuspended) {
             playerInfo.setText(players.get(position).getInfoForLineup());
@@ -69,9 +60,17 @@ public class RedshirtAdapter extends ArrayAdapter<Player> {
         }
 
 
-        CheckBox isPlayerStarting = rowView.findViewById(R.id.checkboxPlayerStartingLineup);
+        CheckBox isPlayerStarting = holder.view(R.id.checkboxPlayerStartingLineup);
         // Reset recycled-row text colour to the HUD default before flagging eligibility.
         playerInfo.setTextColor(ContextCompat.getColor(context, R.color.cf_text_primary));
+        // Reset the recycled checkbox before binding this player. Detach the old
+        // listener first, or setChecked would toggle the row's previous player.
+        isPlayerStarting.setOnCheckedChangeListener(null);
+        isPlayerStarting.setEnabled(true);
+        // Checked = already redshirted and not being removed, or newly picked this session,
+        // so a row scrolled off and back keeps the user's pending choice.
+        Player p = players.get(position);
+        isPlayerStarting.setChecked((p.isRedshirt && !playersRemoved.contains(p)) || playersSelected.contains(p));
         if (players.get(position).isInjured) {
             // Is injured
             isPlayerStarting.setEnabled(false);
@@ -88,7 +87,6 @@ public class RedshirtAdapter extends ArrayAdapter<Player> {
             isPlayerStarting.setEnabled(false);
             playerInfo.setTextColor(ContextCompat.getColor(context, R.color.cf_text_muted));
         } else if (players.get(position).isRedshirt) {
-            isPlayerStarting.setChecked(true);
             isPlayerStarting.setEnabled(true);
             playerInfo.setTextColor(ContextCompat.getColor(context, R.color.cf_negative));
         }
@@ -109,7 +107,7 @@ public class RedshirtAdapter extends ArrayAdapter<Player> {
         });
 
 
-        return rowView;
+        return;
 
 
     }

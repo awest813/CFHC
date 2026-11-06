@@ -5,39 +5,30 @@ package ui;
  */
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
 import antdroid.cfbcoach.R;
 
-public class LeagueHistoryList extends ArrayAdapter<String> {
-    private final Context context;
+public class LeagueHistoryList extends RowAdapter<String> {
     private final String[] values;
     private final String userTeamAbbr;
 
     public LeagueHistoryList(Context context, String[] values, String userTeamAbbr) {
         super(context, R.layout.league_history_list_item, values);
-        this.context = context;
         this.values = values;
         this.userTeamAbbr = userTeamAbbr;
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View rowView = convertView;
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        if (rowView == null) {
-            rowView = inflater.inflate(R.layout.league_history_list_item, parent, false);
-        }
-        TextView textTop = rowView.findViewById(R.id.textViewLeagueHistoryTop);
-        TextView textMiddle = rowView.findViewById(R.id.textViewLeagueHistoryMiddle);
-        TextView textBottom = rowView.findViewById(R.id.textViewLeagueHistoryBottom);
+    protected void bind(RowHolder holder, final int position) {
+        View rowView = holder.itemView;
+        TextView textTop = holder.view(R.id.textViewLeagueHistoryTop);
+        TextView textMiddle = holder.view(R.id.textViewLeagueHistoryMiddle);
+        TextView textBottom = holder.view(R.id.textViewLeagueHistoryBottom);
         // Reset recycled-row colours to the HUD defaults before applying user-team accents.
         textMiddle.setTextColor(ContextCompat.getColor(context, R.color.cf_text_secondary));
         textBottom.setTextColor(ContextCompat.getColor(context, R.color.cf_text_secondary));
@@ -76,7 +67,7 @@ public class LeagueHistoryList extends ArrayAdapter<String> {
             textBottom.setText("");
         }
 
-        return rowView;
+        return;
     }
 
     private static String wordAt(String value, int index) {

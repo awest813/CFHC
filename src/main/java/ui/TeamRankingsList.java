@@ -6,11 +6,9 @@ package ui;
 
         import android.content.Context;
         import android.graphics.Typeface;
-        import android.view.LayoutInflater;
-        import android.view.View;
+                import android.view.View;
         import android.view.ViewGroup;
-        import android.widget.ArrayAdapter;
-        import android.widget.TextView;
+                import android.widget.TextView;
 
         import androidx.core.content.ContextCompat;
         import androidx.core.content.res.ResourcesCompat;
@@ -19,8 +17,7 @@ package ui;
 
         import antdroid.cfbcoach.R;
 
-public class TeamRankingsList extends ArrayAdapter<String> {
-    private final Context context;
+public class TeamRankingsList extends RowAdapter<String> {
     private final ArrayList<String> values;
     private String userTeamStrRep;
     private final Typeface interFont;
@@ -28,7 +25,6 @@ public class TeamRankingsList extends ArrayAdapter<String> {
 
     public TeamRankingsList(Context context, ArrayList<String> values, String userTeamStrRep) {
         super(context, R.layout.team_rankings_list_item, values);
-        this.context = context;
         this.interFont = ResourcesCompat.getFont(context, R.font.inter);
         this.monoFont = ResourcesCompat.getFont(context, R.font.jetbrains_mono);
         this.values = values;
@@ -36,17 +32,12 @@ public class TeamRankingsList extends ArrayAdapter<String> {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View rowView = convertView;
-        if (rowView == null) {
-            LayoutInflater inflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            rowView = inflater.inflate(R.layout.team_rankings_list_item, parent, false);
-        }
-        TextView textLeft = rowView.findViewById(R.id.textTeamRankingsLeft);
-        TextView textCenter = rowView.findViewById(R.id.textTeamRankingsCenter);
-        TextView textDetail = rowView.findViewById(R.id.textTeamRankingsDetail);
-        TextView textRight = rowView.findViewById(R.id.textTeamRankingsRight);
+    protected void bind(RowHolder holder, final int position) {
+        View rowView = holder.itemView;
+        TextView textLeft = holder.view(R.id.textTeamRankingsLeft);
+        TextView textCenter = holder.view(R.id.textTeamRankingsCenter);
+        TextView textDetail = holder.view(R.id.textTeamRankingsDetail);
+        TextView textRight = holder.view(R.id.textTeamRankingsRight);
 
 
         String[] teamStat = values.get(position).split(",", -1);
@@ -94,7 +85,7 @@ public class TeamRankingsList extends ArrayAdapter<String> {
             textRight.setTextColor(color(R.color.cf_negative));
         }
 
-        return rowView;
+        return;
     }
 
     public void setUserTeamStrRep(String userTeamStrRep) {

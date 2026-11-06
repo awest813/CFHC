@@ -2,10 +2,8 @@ package ui;
 
 import android.content.Context;
 import android.graphics.Typeface;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
@@ -16,8 +14,7 @@ import java.util.ArrayList;
 import antdroid.cfbcoach.MainActivity;
 import antdroid.cfbcoach.R;
 
-public class PlayerRankingsList extends ArrayAdapter<String> {
-    private final Context context;
+public class PlayerRankingsList extends RowAdapter<String> {
     private final ArrayList<String> values;
     private String userTeamStrRep;
     private final MainActivity mainAct;
@@ -26,7 +23,6 @@ public class PlayerRankingsList extends ArrayAdapter<String> {
 
     public PlayerRankingsList(Context context, ArrayList<String> values, String userTeamStrRep, MainActivity mainAct) {
         super(context, R.layout.team_rankings_list_item, values);
-        this.context = context;
         this.interFont = ResourcesCompat.getFont(context, R.font.inter);
         this.monoFont = ResourcesCompat.getFont(context, R.font.jetbrains_mono);
         this.values = values;
@@ -35,16 +31,11 @@ public class PlayerRankingsList extends ArrayAdapter<String> {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View rowView = convertView;
-        if (rowView == null) {
-            LayoutInflater inflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            rowView = inflater.inflate(R.layout.team_rankings_list_item, parent, false);
-        }
-        TextView textLeft = rowView.findViewById(R.id.textTeamRankingsLeft);
-        TextView textCenter = rowView.findViewById(R.id.textTeamRankingsCenter);
-        TextView textRight = rowView.findViewById(R.id.textTeamRankingsRight);
+    protected void bind(RowHolder holder, final int position) {
+        View rowView = holder.itemView;
+        TextView textLeft = holder.view(R.id.textTeamRankingsLeft);
+        TextView textCenter = holder.view(R.id.textTeamRankingsCenter);
+        TextView textRight = holder.view(R.id.textTeamRankingsRight);
 
 
         final String[] teamStat = values.get(position).split(",", -1);
@@ -77,7 +68,7 @@ public class PlayerRankingsList extends ArrayAdapter<String> {
             }
         });
 
-        return rowView;
+        return;
     }
 
 

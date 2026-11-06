@@ -1,10 +1,8 @@
 package ui;
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
@@ -19,15 +17,13 @@ import positions.Player;
 /**
  * Created by Achi Jones on 3/18/2016.
  */
-public class DepthChart extends ArrayAdapter<Player> {
-    private final Context context;
+public class DepthChart extends RowAdapter<Player> {
     public final ArrayList<Player> players;
     public final ArrayList<Player> playersSelected;
     public int playersRequired;
 
     public DepthChart(Context context, ArrayList<Player> values, int playersRequired) {
         super(context, R.layout.team_lineup_list_item, values);
-        this.context = context;
         this.players = values;
         this.playersRequired = playersRequired;
         playersSelected = new ArrayList<>();
@@ -43,15 +39,10 @@ public class DepthChart extends ArrayAdapter<Player> {
     }
 
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
-        View rowView = convertView;
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        if (rowView == null) {
-            rowView = inflater.inflate(R.layout.team_lineup_list_item, parent, false);
-        }
+    protected void bind(RowHolder holder, final int position) {
+        View rowView = holder.itemView;
 
-        TextView playerInfo = rowView.findViewById(R.id.textViewLineupPlayerInfo);
+        TextView playerInfo = holder.view(R.id.textViewLineupPlayerInfo);
 
         if (players.get(position).injury == null && !players.get(position).isTransfer && !players.get(position).isSuspended) {
             playerInfo.setText(players.get(position).getInfoForLineup());
@@ -65,11 +56,17 @@ public class DepthChart extends ArrayAdapter<Player> {
         }
 
 
-        CheckBox isPlayerStarting = rowView.findViewById(R.id.checkboxPlayerStartingLineup);
+        CheckBox isPlayerStarting = holder.view(R.id.checkboxPlayerStartingLineup);
         // Reset recycled-row text colour to the HUD default before flagging availability.
         playerInfo.setTextColor(ContextCompat.getColor(context, R.color.cf_text_primary));
+        // Reset the recycled checkbox before binding this player. Detach the old
+        // listener first, or setChecked would toggle the row's previous player.
+        isPlayerStarting.setOnCheckedChangeListener(null);
+        isPlayerStarting.setEnabled(true);
+        isPlayerStarting.setText(null);
+        isPlayerStarting.setChecked(playersSelected.contains(players.get(position)));
         if (playersSelected.contains(players.get(position))) {
-            isPlayerStarting.setChecked(true);
+            // Selected starter: checked above.
         } else if (players.get(position).isInjured) {
             // Is injured
             isPlayerStarting.setEnabled(false);
@@ -104,7 +101,7 @@ public class DepthChart extends ArrayAdapter<Player> {
         });
 
 
-        return rowView;
+        return;
 
 
     }

@@ -5,10 +5,8 @@ package ui;
  */
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
@@ -18,8 +16,7 @@ import antdroid.cfbcoach.R;
 
 import simulation.PlayerRecord;
 
-public class HallofFameList extends ArrayAdapter<PlayerRecord> {
-    private final Context context;
+public class HallofFameList extends RowAdapter<PlayerRecord> {
     private final PlayerRecord[] values;
     private final String userTeam;
     private final MainActivity mainAct;
@@ -27,8 +24,6 @@ public class HallofFameList extends ArrayAdapter<PlayerRecord> {
 
     public HallofFameList(Context context, PlayerRecord[] values, String userTeam, boolean team, MainActivity mainAct) {
         super(context, R.layout.hall_fame_list_item, values);
-
-        this.context = context;
         this.values = values;
         this.userTeam = userTeam;
         this.team = team;
@@ -36,14 +31,9 @@ public class HallofFameList extends ArrayAdapter<PlayerRecord> {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View rowView = convertView;
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        if (rowView == null) {
-            rowView = inflater.inflate(R.layout.hall_fame_list_item, parent, false);
-        }
-        TextView textTop = rowView.findViewById(R.id.textViewHallFameName);
+    protected void bind(RowHolder holder, final int position) {
+        View rowView = holder.itemView;
+        TextView textTop = holder.view(R.id.textViewHallFameName);
 
         PlayerRecord record = values[position];
         String nameStr = record.position() + " " + record.name();
@@ -74,6 +64,6 @@ public class HallofFameList extends ArrayAdapter<PlayerRecord> {
 
 
 
-        return rowView;
+        return;
     }
 }

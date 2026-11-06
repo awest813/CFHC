@@ -5,10 +5,8 @@ package ui;
  */
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
@@ -16,33 +14,26 @@ import androidx.core.content.ContextCompat;
 import antdroid.cfbcoach.R;
 import simulation.MockDraftLine;
 
-public class MockDraft extends ArrayAdapter<String> {
-    private final Context context;
+public class MockDraft extends RowAdapter<String> {
     private final String[] values;
     private final String userTeamStrRep;
 
     public MockDraft(Context context, String[] values, String userTeamStrRep) {
         super(context, R.layout.mock_draft_row, values);
-        this.context = context;
         this.values = values;
         this.userTeamStrRep = userTeamStrRep;
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View rowView = convertView;
-        if (rowView == null) {
-            LayoutInflater inflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            rowView = inflater.inflate(R.layout.mock_draft_row, parent, false);
-        }
+    protected void bind(RowHolder holder, final int position) {
+        View rowView = holder.itemView;
 
-        TextView roundView = rowView.findViewById(R.id.mockDraftRound);
-        View card = rowView.findViewById(R.id.mockDraftCard);
-        TextView pickView = rowView.findViewById(R.id.mockDraftPick);
-        TextView playerView = rowView.findViewById(R.id.mockDraftPlayer);
-        TextView metaView = rowView.findViewById(R.id.mockDraftMeta);
-        TextView overallView = rowView.findViewById(R.id.mockDraftOverall);
+        TextView roundView = holder.view(R.id.mockDraftRound);
+        View card = holder.view(R.id.mockDraftCard);
+        TextView pickView = holder.view(R.id.mockDraftPick);
+        TextView playerView = holder.view(R.id.mockDraftPlayer);
+        TextView metaView = holder.view(R.id.mockDraftMeta);
+        TextView overallView = holder.view(R.id.mockDraftOverall);
 
         MockDraftLine line = MockDraftLine.parse(values[position]);
         boolean userRow = line.parsed && line.school.equals(userTeamStrRep);
@@ -55,7 +46,7 @@ public class MockDraft extends ArrayAdapter<String> {
             overallView.setVisibility(View.GONE);
             playerView.setText(line.raw);
             playerView.setTextColor(color(R.color.cf_text_secondary));
-            return rowView;
+            return;
         }
 
         boolean roundStart = "1".equals(line.pick);
@@ -81,7 +72,7 @@ public class MockDraft extends ArrayAdapter<String> {
                 line.overall.isEmpty() ? null : context.getString(R.string.dlg_draft_overall_cd, line.overall));
         overallView.setTextColor(color(overallColor(line.overall, userRow)));
 
-        return rowView;
+        return;
     }
 
     private int overallColor(String overall, boolean userRow) {

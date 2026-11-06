@@ -5,10 +5,8 @@ package ui;
  */
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
@@ -17,14 +15,11 @@ import antdroid.cfbcoach.R;
 
 import simulation.TeamHistoryRecord;
 
-public class TeamHistoryList extends ArrayAdapter<TeamHistoryRecord> {
-    private final Context context;
+public class TeamHistoryList extends RowAdapter<TeamHistoryRecord> {
     private final TeamHistoryRecord[] values;
 
     public TeamHistoryList(Context context, TeamHistoryRecord[] values) {
         super(context, R.layout.team_history_list_item, values);
-
-        this.context = context;
         this.values = values;
     }
 
@@ -41,15 +36,10 @@ public class TeamHistoryList extends ArrayAdapter<TeamHistoryRecord> {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View rowView = convertView;
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        if (rowView == null) {
-            rowView = inflater.inflate(R.layout.team_history_list_item, parent, false);
-        }
-        TextView textTop = rowView.findViewById(R.id.textViewTeamHistoryTitle);
-        TextView textBottom = rowView.findViewById(R.id.textViewTeamHistoryDetail);
+    protected void bind(RowHolder holder, final int position) {
+        View rowView = holder.itemView;
+        TextView textTop = holder.view(R.id.textViewTeamHistoryTitle);
+        TextView textBottom = holder.view(R.id.textViewTeamHistoryDetail);
 
         // Reset recycled-row styling to the HUD row defaults.
         textTop.setTextColor(color(R.color.cf_text_primary));
@@ -96,7 +86,7 @@ public class TeamHistoryList extends ArrayAdapter<TeamHistoryRecord> {
             textBottom.setVisibility(View.GONE);
         }
 
-        return rowView;
+        return;
     }
 
     private int color(int colorRes) {

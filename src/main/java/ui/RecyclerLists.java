@@ -50,14 +50,24 @@ public final class RecyclerLists {
         }
     }
 
-    /** A row whose adapter collapsed it (GONE child or zero height) gets no gap. */
-    private static boolean isCollapsed(View container) {
-        if (container instanceof ViewGroup && ((ViewGroup) container).getChildCount() == 1) {
-            View row = ((ViewGroup) container).getChildAt(0);
-            ViewGroup.LayoutParams lp = row.getLayoutParams();
-            return row.getVisibility() == View.GONE || (lp != null && lp.height == 0);
+    /** A row its adapter collapsed (GONE or zero height) gets no gap. */
+    private static boolean isCollapsed(View view) {
+        View row = view;
+        if (view.getTag(R.id.tag_item_click) == CONTAINER && view instanceof ViewGroup
+                && ((ViewGroup) view).getChildCount() == 1) {
+            row = ((ViewGroup) view).getChildAt(0); // bridged row inside its container
         }
-        return false;
+        ViewGroup.LayoutParams lp = row.getLayoutParams();
+        return row.getVisibility() == View.GONE || (lp != null && lp.height == 0);
+    }
+
+    /** Marks bridge containers (as opposed to native RowAdapter rows). */
+    private static final Object CONTAINER = new Object();
+
+    /** Shows a native {@link RowAdapter} in {@code list} (gap, clicks as below). */
+    public static void setAdapter(RecyclerView list, RowAdapter<?> rows) {
+        setup(list);
+        list.setAdapter(rows);
     }
 
     /** Shows {@code rows} in {@code list}, replacing any current adapter. */
@@ -140,6 +150,7 @@ public final class RecyclerLists {
         @Override
         public Holder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
             FrameLayout container = new FrameLayout(parent.getContext());
+            container.setTag(R.id.tag_item_click, CONTAINER);
             container.setLayoutParams(new RecyclerView.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT));
             return new Holder(container);

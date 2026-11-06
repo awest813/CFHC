@@ -27,6 +27,9 @@ public abstract class RowAdapter<T> extends RecyclerView.Adapter<RowAdapter.RowH
     public static final class RowHolder extends RecyclerView.ViewHolder {
         private final SparseArray<View> views = new SparseArray<>();
 
+        /** True while a dialog item-click listener is bound to this row. */
+        boolean clickBound;
+
         RowHolder(View row) {
             super(row);
         }
@@ -53,7 +56,39 @@ public abstract class RowAdapter<T> extends RecyclerView.Adapter<RowAdapter.RowH
     }
 
     protected RowAdapter(Context context, @LayoutRes int layout, T[] items) {
-        this(context, layout, Arrays.asList(items));
+        this(context, layout, Arrays.asList(items)); // fixed-size, like ArrayAdapter(T[])
+    }
+
+    private RecyclerView attached;
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        attached = recyclerView;
+    }
+
+    @Override
+    public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
+        attached = null;
+    }
+
+    // ArrayAdapter-style mutation for the dialog lists that refill on a spinner
+    // change; each call refreshes the list (ArrayAdapter's notifyOnChange default).
+    @android.annotation.SuppressLint("NotifyDataSetChanged")
+    public void clear() {
+        items.clear();
+        notifyDataSetChanged();
+    }
+
+    @android.annotation.SuppressLint("NotifyDataSetChanged")
+    public void add(T item) {
+        items.add(item);
+        notifyDataSetChanged();
+    }
+
+    @android.annotation.SuppressLint("NotifyDataSetChanged")
+    public void addAll(java.util.Collection<? extends T> more) {
+        items.addAll(more);
+        notifyDataSetChanged();
     }
 
     public Context getContext() {
@@ -76,8 +111,22 @@ public abstract class RowAdapter<T> extends RecyclerView.Adapter<RowAdapter.RowH
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RowHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final RowHolder holder, int position) {
         bind(holder, position);
+        // Dialog lists set an item-click listener on the RecyclerView (RecyclerLists).
+        final android.widget.AdapterView.OnItemClickListener click = attached == null ? null
+                : (android.widget.AdapterView.OnItemClickListener) attached.getTag(antdroid.cfbcoach.R.id.tag_item_click);
+        if (click != null) {
+            holder.clickBound = true;
+            holder.itemView.setOnClickListener(v -> {
+                int pos = holder.getBindingAdapterPosition();
+                if (pos != RecyclerView.NO_POSITION) click.onItemClick(null, holder.itemView, pos, pos);
+            });
+        } else if (holder.clickBound) {
+            holder.clickBound = false;
+            holder.itemView.setOnClickListener(null);
+            holder.itemView.setClickable(false);
+        }
     }
 
     /** Fill {@code holder.itemView} for the item at {@code position}. */
