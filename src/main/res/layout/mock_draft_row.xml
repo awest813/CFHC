@@ -25,7 +25,7 @@
         android:layout_height="wrap_content"
         android:background="@drawable/bg_cf_card"
         android:gravity="center_vertical"
-        android:minHeight="56dp"
+        android:minHeight="@dimen/cf_row_height_lg"
         android:orientation="horizontal"
         android:paddingStart="@dimen/cf_card_padding_h"
         android:paddingTop="@dimen/cf_space_sm"
@@ -37,7 +37,7 @@
             style="@style/Widget.Cfhc.Pill.Gold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="64dp"
+            android:minWidth="@dimen/cf_column_wide"
             android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatAccent"
             tools:text="R1 · 4" />
 
@@ -73,7 +73,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="end"
-            android:minWidth="36dp"
+            android:minWidth="@dimen/cf_control_compact"
             android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
             android:textColor="@color/cf_emerald"
             tools:text="88" />

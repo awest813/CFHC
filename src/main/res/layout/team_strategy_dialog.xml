@@ -44,7 +44,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/cf_space_xs"
-                android:lineSpacingExtra="2dp"
+                android:lineSpacingExtra="@dimen/cf_line_extra"
                 android:text="@string/dlg_strategy_identity_body"
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" />
         </LinearLayout>
@@ -73,14 +73,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/cf_space_sm"
-                android:minHeight="44dp" />
+                android:minHeight="@dimen/cf_touch_target" />
 
             <TextView
                 android:id="@+id/textOffenseStrategy"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/cf_space_sm"
-                android:lineSpacingExtra="2dp"
+                android:lineSpacingExtra="@dimen/cf_line_extra"
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
                 tools:text="Choose the offensive scheme that best matches the kind of team you want to build." />
         </LinearLayout>
@@ -109,14 +109,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/cf_space_sm"
-                android:minHeight="44dp" />
+                android:minHeight="@dimen/cf_touch_target" />
 
             <TextView
                 android:id="@+id/textDefenseStrategy"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/cf_space_sm"
-                android:lineSpacingExtra="2dp"
+                android:lineSpacingExtra="@dimen/cf_line_extra"
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
                 tools:text="Choose the defensive scheme that will define your unit in big moments." />
         </LinearLayout>

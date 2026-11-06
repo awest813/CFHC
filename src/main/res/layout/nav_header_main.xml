@@ -5,7 +5,7 @@
     android:layout_height="wrap_content"
     android:background="@drawable/bg_nav_header"
     android:gravity="bottom|center_vertical"
-    android:minHeight="132dp"
+    android:minHeight="@dimen/cf_nav_header_height"
     android:orientation="horizontal"
     android:paddingStart="@dimen/cf_space_lg"
     android:paddingTop="@dimen/cf_space_xxl"
@@ -15,8 +15,8 @@
 
     <TextView
         android:id="@+id/navMono"
-        android:layout_width="52dp"
-        android:layout_height="52dp"
+        android:layout_width="@dimen/cf_column_narrow"
+        android:layout_height="@dimen/cf_column_narrow"
         android:background="@drawable/bg_hub_mono"
         android:contentDescription="@string/hub_a11y_mono"
         android:gravity="center"
@@ -55,7 +55,7 @@
             android:id="@+id/navTextRecord"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="@dimen/cf_space_xxs"
             android:ellipsize="end"
             android:maxLines="1"
             android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"

@@ -53,9 +53,9 @@
                     android:id="@+id/goalsRank"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginTop="@dimen/cf_space_xxs"
                     android:textAppearance="@style/TextAppearance.Cfhc.Cf.Rating"
-                    android:textSize="28sp"
+                    android:textSize="@dimen/cf_text_hero"
                     tools:text="#14" />
             </LinearLayout>
 
@@ -79,9 +79,9 @@
                     android:id="@+id/goalsRecord"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginTop="@dimen/cf_space_xxs"
                     android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
-                    android:textSize="28sp"
+                    android:textSize="@dimen/cf_text_hero"
                     tools:text="9-3" />
             </LinearLayout>
         </LinearLayout>
@@ -92,7 +92,7 @@
             android:layout_marginTop="@dimen/cf_space_sm"
             android:background="@drawable/bg_cf_card_canvas"
             android:gravity="center_vertical"
-            android:minHeight="44dp"
+            android:minHeight="@dimen/cf_touch_target"
             android:orientation="horizontal"
             android:paddingStart="@dimen/cf_card_padding_h"
             android:paddingEnd="@dimen/cf_card_padding_h">
@@ -134,7 +134,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/cf_space_xs"
-                android:lineSpacingExtra="2dp"
+                android:lineSpacingExtra="@dimen/cf_line_extra"
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
                 android:textColor="@color/cf_text_primary"
                 tools:text="Welcome to the season, Coach." />

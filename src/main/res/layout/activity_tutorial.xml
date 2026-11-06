@@ -43,7 +43,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/cf_space_xs"
-            android:minHeight="48dp" />
+            android:minHeight="@dimen/cf_touch_target_lg" />
     </LinearLayout>
 
     <TextView
@@ -76,7 +76,7 @@
                 android:id="@+id/tutorialContent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:lineSpacingExtra="3dp"
+                android:lineSpacingExtra="@dimen/cf_line_extra_loose"
                 android:text="@string/home_tutorial_content_default"
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
                 android:textColor="@color/cf_text_primary" />

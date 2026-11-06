@@ -123,7 +123,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/cf_space_xs"
-                android:minHeight="44dp" />
+                android:minHeight="@dimen/cf_touch_target" />
 
             <TextView
                 android:id="@+id/textScoutDefenseStrategy"
@@ -141,7 +141,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/cf_space_xs"
-                android:minHeight="44dp" />
+                android:minHeight="@dimen/cf_touch_target" />
         </LinearLayout>
 
         <LinearLayout
@@ -166,7 +166,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/cf_space_sm"
-                android:lineSpacingExtra="2dp"
+                android:lineSpacingExtra="@dimen/cf_line_extra"
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
                 android:textColor="@color/cf_text_primary"
                 tools:text="Scouting report" />

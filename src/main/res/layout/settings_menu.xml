@@ -49,7 +49,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/cf_space_xs"
-                android:lineSpacingExtra="2dp"
+                android:lineSpacingExtra="@dimen/cf_line_extra"
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
                 tools:text="Shape the rules of your new coaching run before you choose a program." />
         </LinearLayout>
@@ -72,29 +72,29 @@
                 android:layout_height="wrap_content"
                 android:text="@string/settings_section_gameplay" />
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_xs" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_xs" android:gravity="center_vertical" android:minHeight="@dimen/cf_touch_target" android:orientation="horizontal">
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/checkboxShowPotential" android:text="@string/settings_show_potential" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
-                <CheckBox android:id="@+id/checkboxShowPotential" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="44dp" android:minHeight="44dp" />
+                <CheckBox android:id="@+id/checkboxShowPotential" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="@dimen/cf_touch_target" android:minHeight="@dimen/cf_touch_target" />
             </LinearLayout>
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="@dimen/cf_touch_target" android:orientation="horizontal">
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/checkboxShowFullGameLog" android:text="@string/settings_full_game_log" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
-                <CheckBox android:id="@+id/checkboxShowFullGameLog" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="44dp" android:minHeight="44dp" />
+                <CheckBox android:id="@+id/checkboxShowFullGameLog" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="@dimen/cf_touch_target" android:minHeight="@dimen/cf_touch_target" />
             </LinearLayout>
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="@dimen/cf_touch_target" android:orientation="horizontal">
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/checkboxCareerMode" android:text="@string/settings_career_mode" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
-                <CheckBox android:id="@+id/checkboxCareerMode" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="44dp" android:minHeight="44dp" />
+                <CheckBox android:id="@+id/checkboxCareerMode" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="@dimen/cf_touch_target" android:minHeight="@dimen/cf_touch_target" />
             </LinearLayout>
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="@dimen/cf_touch_target" android:orientation="horizontal">
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/checkboxNeverRetire" android:text="@string/settings_never_retire" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
-                <CheckBox android:id="@+id/checkboxNeverRetire" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="44dp" android:minHeight="44dp" />
+                <CheckBox android:id="@+id/checkboxNeverRetire" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="@dimen/cf_touch_target" android:minHeight="@dimen/cf_touch_target" />
             </LinearLayout>
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="@dimen/cf_touch_target" android:orientation="horizontal">
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/checkboxTV" android:text="@string/settings_tv_contracts" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
-                <CheckBox android:id="@+id/checkboxTV" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="44dp" android:minHeight="44dp" />
+                <CheckBox android:id="@+id/checkboxTV" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="@dimen/cf_touch_target" android:minHeight="@dimen/cf_touch_target" />
             </LinearLayout>
         </LinearLayout>
 
@@ -117,14 +117,14 @@
                 android:layout_height="wrap_content"
                 android:text="@string/dlg_settings_section_sound" />
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_xs" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_xs" android:gravity="center_vertical" android:minHeight="@dimen/cf_touch_target" android:orientation="horizontal">
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/checkboxMusic" android:text="@string/dlg_settings_music" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
-                <CheckBox android:id="@+id/checkboxMusic" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="44dp" android:minHeight="44dp" />
+                <CheckBox android:id="@+id/checkboxMusic" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="@dimen/cf_touch_target" android:minHeight="@dimen/cf_touch_target" />
             </LinearLayout>
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="@dimen/cf_touch_target" android:orientation="horizontal">
                 <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/checkboxSfx" android:text="@string/settings_sfx" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
-                <CheckBox android:id="@+id/checkboxSfx" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="44dp" android:minHeight="44dp" />
+                <CheckBox android:id="@+id/checkboxSfx" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="@dimen/cf_touch_target" android:minHeight="@dimen/cf_touch_target" />
             </LinearLayout>
         </LinearLayout>
 
@@ -163,7 +163,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/cf_space_xs"
-                android:minHeight="44dp" />
+                android:minHeight="@dimen/cf_touch_target" />
 
             <TextView
                 android:id="@+id/textPracticeFocusDesc"
@@ -188,7 +188,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/cf_space_xs"
-                android:minHeight="44dp" />
+                android:minHeight="@dimen/cf_touch_target" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -205,7 +205,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/cf_space_xs"
-                android:minHeight="44dp" />
+                android:minHeight="@dimen/cf_touch_target" />
 
             <TextView
                 android:id="@+id/textFocusIntensityDesc"
@@ -234,34 +234,34 @@
                 android:layout_height="wrap_content"
                 android:text="@string/settings_section_universe_rules" />
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_xs" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_xs" android:gravity="center_vertical" android:minHeight="@dimen/cf_touch_target" android:orientation="horizontal">
                 <TextView android:id="@+id/textPlayoffs" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/checkboxPlayoffs" android:text="@string/settings_expanded_playoffs" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
-                <CheckBox android:id="@+id/checkboxPlayoffs" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="44dp" android:minHeight="44dp" />
+                <CheckBox android:id="@+id/checkboxPlayoffs" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="@dimen/cf_touch_target" android:minHeight="@dimen/cf_touch_target" />
             </LinearLayout>
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="@dimen/cf_touch_target" android:orientation="horizontal">
                 <TextView android:id="@+id/textConfRealignment" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/checkboxConfRealignment" android:text="@string/settings_conf_realignment" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
-                <CheckBox android:id="@+id/checkboxConfRealignment" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="44dp" android:minHeight="44dp" />
+                <CheckBox android:id="@+id/checkboxConfRealignment" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="@dimen/cf_touch_target" android:minHeight="@dimen/cf_touch_target" />
             </LinearLayout>
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="@dimen/cf_touch_target" android:orientation="horizontal">
                 <TextView android:id="@+id/textAdvConfRealignment" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/checkboxAdvConfRealignment" android:text="@string/settings_adv_realignment" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
-                <CheckBox android:id="@+id/checkboxAdvConfRealignment" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="44dp" android:minHeight="44dp" />
+                <CheckBox android:id="@+id/checkboxAdvConfRealignment" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="@dimen/cf_touch_target" android:minHeight="@dimen/cf_touch_target" />
             </LinearLayout>
 
-            <LinearLayout android:id="@+id/rowFcsPromotion" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
+            <LinearLayout android:id="@+id/rowFcsPromotion" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="@dimen/cf_touch_target" android:orientation="horizontal">
                 <TextView android:id="@+id/textFcsPromotion" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/spinnerFcsPromotion" android:text="@string/settings_fcs_promotion" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
-                <Spinner android:id="@+id/spinnerFcsPromotion" style="@style/Widget.Cfhc.Spinner" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minHeight="44dp" />
+                <Spinner android:id="@+id/spinnerFcsPromotion" style="@style/Widget.Cfhc.Spinner" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minHeight="@dimen/cf_touch_target" />
             </LinearLayout>
 
-            <LinearLayout android:id="@+id/rowFcsPromotionCap" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal" android:paddingStart="@dimen/cf_space_md" android:visibility="gone">
+            <LinearLayout android:id="@+id/rowFcsPromotionCap" android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="@dimen/cf_touch_target" android:orientation="horizontal" android:paddingStart="@dimen/cf_space_md" android:visibility="gone">
                 <TextView android:id="@+id/textFcsPromotionCap" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/spinnerFcsPromotionCap" android:text="@string/settings_fcs_promotion_cap" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" android:textColor="@color/cf_text_secondary" />
-                <Spinner android:id="@+id/spinnerFcsPromotionCap" style="@style/Widget.Cfhc.Spinner" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minHeight="44dp" />
+                <Spinner android:id="@+id/spinnerFcsPromotionCap" style="@style/Widget.Cfhc.Spinner" android:layout_width="wrap_content" android:layout_height="wrap_content" android:minHeight="@dimen/cf_touch_target" />
             </LinearLayout>
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="44dp" android:orientation="horizontal">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="@dimen/cf_touch_target" android:orientation="horizontal">
                 <TextView android:id="@+id/textEnableProRel" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:labelFor="@+id/checkboxProRelegation" android:text="@string/settings_universal_pro_rel" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" />
-                <CheckBox android:id="@+id/checkboxProRelegation" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="44dp" android:minHeight="44dp" />
+                <CheckBox android:id="@+id/checkboxProRelegation" android:layout_width="wrap_content" android:layout_height="wrap_content" android:buttonTint="@color/cf_emerald" android:minWidth="@dimen/cf_touch_target" android:minHeight="@dimen/cf_touch_target" />
             </LinearLayout>
         </LinearLayout>
 
@@ -270,7 +270,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/cf_space_md"
-            android:lineSpacingExtra="2dp"
+            android:lineSpacingExtra="@dimen/cf_line_extra"
             android:text="@string/settings_footer_hint"
             android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" />
 
@@ -286,7 +286,7 @@
                 android:id="@+id/buttonCancelSettings"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:minHeight="48dp"
+                android:minHeight="@dimen/cf_touch_target_lg"
                 android:layout_marginEnd="@dimen/cf_space_xs"
                 android:layout_weight="1"
                 android:background="@drawable/bg_action_secondary"
@@ -300,7 +300,7 @@
                 android:id="@+id/buttonOkSettings"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:minHeight="48dp"
+                android:minHeight="@dimen/cf_touch_target_lg"
                 android:layout_marginStart="@dimen/cf_space_xs"
                 android:layout_weight="1"
                 android:background="@drawable/bg_action_primary"
@@ -316,7 +316,7 @@
             android:id="@+id/buttonGameEditor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
+            android:minHeight="@dimen/cf_touch_target_lg"
             android:layout_marginTop="@dimen/cf_space_md"
             android:background="@drawable/bg_action_secondary"
             android:fontFamily="@font/inter"
@@ -329,7 +329,7 @@
             android:id="@+id/buttonFixBowls"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
+            android:minHeight="@dimen/cf_touch_target_lg"
             android:layout_marginTop="@dimen/cf_space_sm"
             android:background="@drawable/bg_action_secondary"
             android:fontFamily="@font/inter"
@@ -342,7 +342,7 @@
             android:id="@+id/buttonProRel"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
+            android:minHeight="@dimen/cf_touch_target_lg"
             android:layout_marginTop="@dimen/cf_space_sm"
             android:background="@drawable/bg_action_secondary"
             android:fontFamily="@font/inter"
@@ -355,7 +355,7 @@
             android:id="@+id/buttonChangeTeams"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
+            android:minHeight="@dimen/cf_touch_target_lg"
             android:layout_marginTop="@dimen/cf_space_lg"
             android:background="@drawable/bg_action_danger"
             android:fontFamily="@font/inter"

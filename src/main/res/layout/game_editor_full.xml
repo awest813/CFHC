@@ -45,7 +45,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/cf_space_xs"
-                android:lineSpacingExtra="2dp"
+                android:lineSpacingExtra="@dimen/cf_line_extra"
                 android:text="@string/editor_panel_subtitle"
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" />
 
@@ -96,7 +96,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/cf_space_xs"
-                android:minHeight="44dp" />
+                android:minHeight="@dimen/cf_touch_target" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -113,7 +113,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/cf_space_xs"
-                android:minHeight="44dp" />
+                android:minHeight="@dimen/cf_touch_target" />
         </LinearLayout>
 
         <LinearLayout
@@ -130,22 +130,22 @@
             <TextView style="@style/Widget.Cfhc.CardTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/dlg_editor_identity" />
 
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:labelFor="@+id/editTextChangeConf" android:text="@string/editor_team_conf" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" />
-            <EditText android:id="@+id/editTextChangeConf" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_xs" android:background="@drawable/bg_cf_input" android:fontFamily="@font/inter" android:importantForAutofill="no" android:inputType="text" android:minHeight="44dp" android:paddingStart="@dimen/cf_space_md" android:paddingEnd="@dimen/cf_space_md" android:textColor="@color/cf_text_primary" android:textColorHint="@color/cf_text_muted" android:textSize="@dimen/cf_text_body" tools:text="Big Conference" />
+            <EditText android:id="@+id/editTextChangeConf" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_xs" android:background="@drawable/bg_cf_input" android:fontFamily="@font/inter" android:importantForAutofill="no" android:inputType="text" android:minHeight="@dimen/cf_touch_target" android:paddingStart="@dimen/cf_space_md" android:paddingEnd="@dimen/cf_space_md" android:textColor="@color/cf_text_primary" android:textColorHint="@color/cf_text_muted" android:textSize="@dimen/cf_text_body" tools:text="Big Conference" />
 
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_md" android:labelFor="@+id/editTextChangeName" android:text="@string/editor_team_name" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" />
-            <EditText android:id="@+id/editTextChangeName" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_xs" android:background="@drawable/bg_cf_input" android:fontFamily="@font/inter" android:importantForAutofill="no" android:inputType="text" android:minHeight="44dp" android:paddingStart="@dimen/cf_space_md" android:paddingEnd="@dimen/cf_space_md" android:textColor="@color/cf_text_primary" android:textColorHint="@color/cf_text_muted" android:textSize="@dimen/cf_text_body" tools:text="State University" />
+            <EditText android:id="@+id/editTextChangeName" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_xs" android:background="@drawable/bg_cf_input" android:fontFamily="@font/inter" android:importantForAutofill="no" android:inputType="text" android:minHeight="@dimen/cf_touch_target" android:paddingStart="@dimen/cf_space_md" android:paddingEnd="@dimen/cf_space_md" android:textColor="@color/cf_text_primary" android:textColorHint="@color/cf_text_muted" android:textSize="@dimen/cf_text_body" tools:text="State University" />
 
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_md" android:labelFor="@+id/editTextChangeAbbr" android:text="@string/editor_team_abbr" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" />
-            <EditText android:id="@+id/editTextChangeAbbr" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_xs" android:background="@drawable/bg_cf_input" android:fontFamily="@font/jetbrains_mono" android:importantForAutofill="no" android:inputType="textCapCharacters" android:minHeight="44dp" android:paddingStart="@dimen/cf_space_md" android:paddingEnd="@dimen/cf_space_md" android:textColor="@color/cf_text_primary" android:textColorHint="@color/cf_text_muted" android:textSize="@dimen/cf_text_body" tools:text="STU" />
+            <EditText android:id="@+id/editTextChangeAbbr" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_xs" android:background="@drawable/bg_cf_input" android:fontFamily="@font/jetbrains_mono" android:importantForAutofill="no" android:inputType="textCapCharacters" android:minHeight="@dimen/cf_touch_target" android:paddingStart="@dimen/cf_space_md" android:paddingEnd="@dimen/cf_space_md" android:textColor="@color/cf_text_primary" android:textColorHint="@color/cf_text_muted" android:textSize="@dimen/cf_text_body" tools:text="STU" />
 
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_md" android:labelFor="@+id/editTextChangeHC" android:text="@string/editor_head_coach" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" />
-            <EditText android:id="@+id/editTextChangeHC" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_xs" android:background="@drawable/bg_cf_input" android:fontFamily="@font/inter" android:importantForAutofill="no" android:inputType="textPersonName" android:minHeight="44dp" android:paddingStart="@dimen/cf_space_md" android:paddingEnd="@dimen/cf_space_md" android:textColor="@color/cf_text_primary" android:textColorHint="@color/cf_text_muted" android:textSize="@dimen/cf_text_body" tools:text="Head Coach" />
+            <EditText android:id="@+id/editTextChangeHC" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_xs" android:background="@drawable/bg_cf_input" android:fontFamily="@font/inter" android:importantForAutofill="no" android:inputType="textPersonName" android:minHeight="@dimen/cf_touch_target" android:paddingStart="@dimen/cf_space_md" android:paddingEnd="@dimen/cf_space_md" android:textColor="@color/cf_text_primary" android:textColorHint="@color/cf_text_muted" android:textSize="@dimen/cf_text_body" tools:text="Head Coach" />
 
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_md" android:labelFor="@+id/editLocation" android:text="@string/editor_location" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" />
-            <EditText android:id="@+id/editLocation" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_xs" android:background="@drawable/bg_cf_input" android:fontFamily="@font/jetbrains_mono" android:importantForAutofill="no" android:inputType="text" android:minHeight="44dp" android:paddingStart="@dimen/cf_space_md" android:paddingEnd="@dimen/cf_space_md" android:textColor="@color/cf_text_primary" android:textColorHint="@color/cf_text_muted" android:textSize="@dimen/cf_text_body" tools:text="2" />
+            <EditText android:id="@+id/editLocation" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_xs" android:background="@drawable/bg_cf_input" android:fontFamily="@font/jetbrains_mono" android:importantForAutofill="no" android:inputType="text" android:minHeight="@dimen/cf_touch_target" android:paddingStart="@dimen/cf_space_md" android:paddingEnd="@dimen/cf_space_md" android:textColor="@color/cf_text_primary" android:textColorHint="@color/cf_text_muted" android:textSize="@dimen/cf_text_body" tools:text="2" />
 
             <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_md" android:labelFor="@+id/editPrestige" android:text="@string/editor_prestige" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" />
-            <EditText android:id="@+id/editPrestige" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_xs" android:background="@drawable/bg_cf_input" android:fontFamily="@font/jetbrains_mono" android:importantForAutofill="no" android:inputType="number" android:minHeight="44dp" android:paddingStart="@dimen/cf_space_md" android:paddingEnd="@dimen/cf_space_md" android:textColor="@color/cf_text_primary" android:textColorHint="@color/cf_text_muted" android:textSize="@dimen/cf_text_body" tools:text="75" />
+            <EditText android:id="@+id/editPrestige" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_xs" android:background="@drawable/bg_cf_input" android:fontFamily="@font/jetbrains_mono" android:importantForAutofill="no" android:inputType="number" android:minHeight="@dimen/cf_touch_target" android:paddingStart="@dimen/cf_space_md" android:paddingEnd="@dimen/cf_space_md" android:textColor="@color/cf_text_primary" android:textColorHint="@color/cf_text_muted" android:textSize="@dimen/cf_text_body" tools:text="75" />
         </LinearLayout>
 
         <LinearLayout
@@ -159,7 +159,7 @@
                 android:id="@+id/buttonCancelChangeName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:minHeight="48dp"
+                android:minHeight="@dimen/cf_touch_target_lg"
                 android:layout_marginEnd="@dimen/cf_space_xs"
                 android:layout_weight="1"
                 android:background="@drawable/bg_action_secondary"
@@ -173,7 +173,7 @@
                 android:id="@+id/buttonOkChangeName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:minHeight="48dp"
+                android:minHeight="@dimen/cf_touch_target_lg"
                 android:layout_marginStart="@dimen/cf_space_xs"
                 android:layout_weight="1"
                 android:background="@drawable/bg_action_primary"

@@ -40,8 +40,8 @@
             android:id="@+id/textSimpleDialogShellSubtitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:lineSpacingExtra="2dp"
+            android:layout_marginTop="@dimen/cf_space_xxs"
+            android:lineSpacingExtra="@dimen/cf_line_extra"
             android:text="@string/dialog_shell_list_subtitle"
             android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" />
     </LinearLayout>

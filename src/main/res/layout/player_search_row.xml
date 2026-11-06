@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:background="@drawable/bg_cf_card"
     android:foreground="@drawable/bg_cf_ripple"
-    android:minHeight="48dp"
+    android:minHeight="@dimen/cf_touch_target_lg"
     android:orientation="vertical"
     android:paddingStart="@dimen/cf_card_padding_h"
     android:paddingTop="@dimen/cf_space_sm"
@@ -24,7 +24,7 @@
             style="@style/Widget.Cfhc.Pill"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minWidth="36dp"
+            android:minWidth="@dimen/cf_control_compact"
             tools:text="QB" />
 
         <TextView
@@ -33,7 +33,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/cf_space_xs"
-            android:minWidth="36dp"
+            android:minWidth="@dimen/cf_control_compact"
             tools:text="JR" />
 
         <TextView
@@ -48,7 +48,7 @@
 
         <Space
             android:layout_width="0dp"
-            android:layout_height="1dp"
+            android:layout_height="@dimen/cf_stroke"
             android:layout_weight="1" />
 
         <TextView
@@ -56,7 +56,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="end"
-            android:minWidth="48dp"
+            android:minWidth="@dimen/cf_touch_target_lg"
             android:textAlignment="viewEnd"
             android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
             android:textColor="@color/cf_emerald"

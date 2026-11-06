@@ -54,8 +54,8 @@
 
                 <TextView
                     android:id="@+id/mainSeasonMono"
-                    android:layout_width="44dp"
-                    android:layout_height="44dp"
+                    android:layout_width="@dimen/cf_touch_target"
+                    android:layout_height="@dimen/cf_touch_target"
                     android:layout_marginEnd="@dimen/cf_space_sm"
                     android:background="@drawable/bg_hub_mono"
                     android:contentDescription="@string/hub_a11y_mono"
@@ -84,11 +84,11 @@
                     android:layout_marginStart="@dimen/cf_space_sm"
                     android:contentDescription="@string/hub_a11y_nickname"
                     android:maxLines="1"
-                    android:maxWidth="120dp"
+                    android:maxWidth="@dimen/cf_name_max_width"
                     android:ellipsize="end"
                     android:textAppearance="@style/TextAppearance.Cfhc.Cf.Script"
                     android:textColor="@color/cf_gold"
-                    android:textSize="22sp"
+                    android:textSize="@dimen/cf_text_display"
                     android:visibility="gone"
                     tools:text="Crimson Tide"
                     tools:visibility="visible" />
@@ -110,11 +110,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:maxLines="1"
-                    android:paddingStart="6dp"
-                    android:paddingEnd="6dp"
+                    android:paddingStart="@dimen/cf_space_xsm"
+                    android:paddingEnd="@dimen/cf_space_xsm"
                     android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
                     android:textColor="@color/cf_text_primary"
-                    android:textSize="11sp"
+                    android:textSize="@dimen/cf_text_small"
                     tools:text="Year 2026" />
 
                 <TextView
@@ -124,11 +124,11 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/cf_space_xs"
                     android:maxLines="1"
-                    android:paddingStart="6dp"
-                    android:paddingEnd="6dp"
+                    android:paddingStart="@dimen/cf_space_xsm"
+                    android:paddingEnd="@dimen/cf_space_xsm"
                     android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
                     android:textColor="@color/cf_emerald"
-                    android:textSize="11sp"
+                    android:textSize="@dimen/cf_text_small"
                     tools:text="Week 5" />
 
                 <TextView
@@ -142,9 +142,9 @@
                     android:gravity="center_vertical|start"
                     android:letterSpacing="0.02"
                     android:maxLines="1"
-                    android:paddingStart="6dp"
-                    android:paddingEnd="6dp"
-                    android:textSize="11sp"
+                    android:paddingStart="@dimen/cf_space_xsm"
+                    android:paddingEnd="@dimen/cf_space_xsm"
+                    android:textSize="@dimen/cf_text_small"
                     tools:text="Phase  Regular Season" />
             </LinearLayout>
 
@@ -184,7 +184,7 @@
             android:gravity="bottom"
             android:orientation="horizontal"
             android:paddingStart="@dimen/cf_space_md"
-            android:paddingTop="6dp"
+            android:paddingTop="@dimen/cf_space_xsm"
             android:paddingEnd="@dimen/cf_space_md"
             android:paddingBottom="@dimen/cf_space_sm">
 
@@ -207,12 +207,12 @@
                     android:id="@+id/examineConfSpinner"
                     style="@style/Widget.Cfhc.Spinner"
                     android:layout_width="match_parent"
-                    android:layout_height="44dp"
+                    android:layout_height="@dimen/cf_touch_target"
                     android:layout_marginTop="@dimen/cf_space_xs"
                     android:background="@drawable/bg_hub_spinner"
                     android:contentDescription="@string/main_a11y_conference_spinner"
                     android:paddingStart="@dimen/cf_space_sm"
-                    android:paddingEnd="26dp" />
+                    android:paddingEnd="@dimen/cf_spinner_arrow_inset" />
             </LinearLayout>
 
             <LinearLayout
@@ -235,12 +235,12 @@
                     android:id="@+id/examineTeamSpinner"
                     style="@style/Widget.Cfhc.Spinner"
                     android:layout_width="match_parent"
-                    android:layout_height="44dp"
+                    android:layout_height="@dimen/cf_touch_target"
                     android:layout_marginTop="@dimen/cf_space_xs"
                     android:background="@drawable/bg_hub_spinner"
                     android:contentDescription="@string/main_a11y_team_spinner"
                     android:paddingStart="@dimen/cf_space_sm"
-                    android:paddingEnd="26dp" />
+                    android:paddingEnd="@dimen/cf_spinner_arrow_inset" />
             </LinearLayout>
         </LinearLayout>
 
@@ -254,7 +254,7 @@
             android:layout_weight="1"
             android:background="@drawable/bg_cf_card"
             android:orientation="vertical"
-            android:padding="6dp">
+            android:padding="@dimen/cf_space_xsm">
 
             <LinearLayout
                 android:id="@+id/mainPageHeader"
@@ -338,29 +338,29 @@
                 <Button
                     android:id="@+id/buttonQuickHome"
                     android:layout_width="0dp"
-                    android:layout_height="44dp"
+                    android:layout_height="@dimen/cf_touch_target"
                     android:layout_weight="1"
                     android:background="@drawable/bg_action_secondary"
                     android:fontFamily="@font/inter"
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:maxLines="1"
-                    app:autoSizeMaxTextSize="11sp"
-                    app:autoSizeMinTextSize="9sp"
+                    app:autoSizeMaxTextSize="@dimen/cf_text_small"
+                    app:autoSizeMinTextSize="@dimen/cf_text_tiny"
                     app:autoSizeTextType="uniform"
                     android:onClick="openHomeView"
-                    android:paddingStart="2dp"
-                    android:paddingEnd="2dp"
+                    android:paddingStart="@dimen/cf_space_xxs"
+                    android:paddingEnd="@dimen/cf_space_xxs"
                     android:text="@string/quick_home"
                     android:textAllCaps="false"
                     android:textColor="@color/cf_text_primary"
-                    android:textSize="11sp"
+                    android:textSize="@dimen/cf_text_small"
                     android:textStyle="bold" />
 
                 <Button
                     android:id="@+id/buttonQuickRoster"
                     android:layout_width="0dp"
-                    android:layout_height="44dp"
+                    android:layout_height="@dimen/cf_touch_target"
                     android:layout_marginStart="@dimen/cf_space_xs"
                     android:layout_weight="1"
                     android:background="@drawable/bg_action_secondary"
@@ -368,22 +368,22 @@
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:maxLines="1"
-                    app:autoSizeMaxTextSize="11sp"
-                    app:autoSizeMinTextSize="9sp"
+                    app:autoSizeMaxTextSize="@dimen/cf_text_small"
+                    app:autoSizeMinTextSize="@dimen/cf_text_tiny"
                     app:autoSizeTextType="uniform"
                     android:onClick="openRosterView"
-                    android:paddingStart="2dp"
-                    android:paddingEnd="2dp"
+                    android:paddingStart="@dimen/cf_space_xxs"
+                    android:paddingEnd="@dimen/cf_space_xxs"
                     android:text="@string/quick_roster"
                     android:textAllCaps="false"
                     android:textColor="@color/cf_text_primary"
-                    android:textSize="11sp"
+                    android:textSize="@dimen/cf_text_small"
                     android:textStyle="bold" />
 
                 <Button
                     android:id="@+id/buttonQuickStats"
                     android:layout_width="0dp"
-                    android:layout_height="44dp"
+                    android:layout_height="@dimen/cf_touch_target"
                     android:layout_marginStart="@dimen/cf_space_xs"
                     android:layout_weight="1"
                     android:background="@drawable/bg_action_secondary"
@@ -391,22 +391,22 @@
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:maxLines="1"
-                    app:autoSizeMaxTextSize="11sp"
-                    app:autoSizeMinTextSize="9sp"
+                    app:autoSizeMaxTextSize="@dimen/cf_text_small"
+                    app:autoSizeMinTextSize="@dimen/cf_text_tiny"
                     app:autoSizeTextType="uniform"
                     android:onClick="openTeamStatsView"
-                    android:paddingStart="2dp"
-                    android:paddingEnd="2dp"
+                    android:paddingStart="@dimen/cf_space_xxs"
+                    android:paddingEnd="@dimen/cf_space_xxs"
                     android:text="@string/hub_quick_stats"
                     android:textAllCaps="false"
                     android:textColor="@color/cf_text_primary"
-                    android:textSize="11sp"
+                    android:textSize="@dimen/cf_text_small"
                     android:textStyle="bold" />
 
                 <Button
                     android:id="@+id/buttonQuickSchedule"
                     android:layout_width="0dp"
-                    android:layout_height="44dp"
+                    android:layout_height="@dimen/cf_touch_target"
                     android:layout_marginStart="@dimen/cf_space_xs"
                     android:layout_weight="1"
                     android:background="@drawable/bg_action_secondary"
@@ -414,21 +414,21 @@
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:maxLines="1"
-                    app:autoSizeMaxTextSize="11sp"
-                    app:autoSizeMinTextSize="9sp"
+                    app:autoSizeMaxTextSize="@dimen/cf_text_small"
+                    app:autoSizeMinTextSize="@dimen/cf_text_tiny"
                     app:autoSizeTextType="uniform"
                     android:onClick="openScheduleView"
-                    android:paddingStart="2dp"
-                    android:paddingEnd="2dp"
+                    android:paddingStart="@dimen/cf_space_xxs"
+                    android:paddingEnd="@dimen/cf_space_xxs"
                     android:text="@string/quick_schedule"
                     android:textAllCaps="false"
                     android:textColor="@color/cf_text_primary"
-                    android:textSize="11sp"
+                    android:textSize="@dimen/cf_text_small"
                     android:textStyle="bold" />
 
                 <Button
                     android:layout_width="0dp"
-                    android:layout_height="44dp"
+                    android:layout_height="@dimen/cf_touch_target"
                     android:layout_marginStart="@dimen/cf_space_xs"
                     android:layout_weight="1"
                     android:background="@drawable/bg_action_secondary"
@@ -436,16 +436,16 @@
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:maxLines="1"
-                    app:autoSizeMaxTextSize="11sp"
-                    app:autoSizeMinTextSize="9sp"
+                    app:autoSizeMaxTextSize="@dimen/cf_text_small"
+                    app:autoSizeMinTextSize="@dimen/cf_text_tiny"
                     app:autoSizeTextType="uniform"
                     android:onClick="openLeagueDrawer"
-                    android:paddingStart="2dp"
-                    android:paddingEnd="2dp"
+                    android:paddingStart="@dimen/cf_space_xxs"
+                    android:paddingEnd="@dimen/cf_space_xxs"
                     android:text="@string/quick_league"
                     android:textAllCaps="false"
                     android:textColor="@color/cf_text_primary"
-                    android:textSize="11sp"
+                    android:textSize="@dimen/cf_text_small"
                     android:textStyle="bold" />
             </LinearLayout>
 
@@ -459,28 +459,28 @@
                 <Button
                     android:id="@+id/buttonDepthChart"
                     android:layout_width="0dp"
-                    android:layout_height="44dp"
+                    android:layout_height="@dimen/cf_touch_target"
                     android:layout_weight="1"
                     android:background="@drawable/bg_action_secondary"
                     android:fontFamily="@font/inter"
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:maxLines="1"
-                    app:autoSizeMaxTextSize="12sp"
-                    app:autoSizeMinTextSize="9sp"
+                    app:autoSizeMaxTextSize="@dimen/cf_text_caption"
+                    app:autoSizeMinTextSize="@dimen/cf_text_tiny"
                     app:autoSizeTextType="uniform"
-                    android:paddingStart="4dp"
-                    android:paddingEnd="4dp"
+                    android:paddingStart="@dimen/cf_space_xs"
+                    android:paddingEnd="@dimen/cf_space_xs"
                     android:text="@string/main_depth_chart"
                     android:textAllCaps="false"
                     android:textColor="@color/cf_text_primary"
-                    android:textSize="12sp"
+                    android:textSize="@dimen/cf_text_caption"
                     android:textStyle="bold" />
 
                 <Button
                     android:id="@+id/simGameButton"
                     android:layout_width="0dp"
-                    android:layout_height="52dp"
+                    android:layout_height="@dimen/cf_column_narrow"
                     android:layout_marginStart="@dimen/cf_space_sm"
                     android:layout_marginEnd="@dimen/cf_space_sm"
                     android:layout_weight="1.6"
@@ -489,33 +489,33 @@
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:maxLines="2"
-                    android:paddingStart="6dp"
-                    android:paddingEnd="6dp"
+                    android:paddingStart="@dimen/cf_space_xsm"
+                    android:paddingEnd="@dimen/cf_space_xsm"
                     android:text="@string/main_play_week"
                     android:textAllCaps="false"
                     android:textColor="@color/cf_on_gold"
-                    android:textSize="15sp"
+                    android:textSize="@dimen/cf_text_lead"
                     android:textStyle="bold" />
 
                 <Button
                     android:id="@+id/buttonStrategy"
                     android:layout_width="0dp"
-                    android:layout_height="44dp"
+                    android:layout_height="@dimen/cf_touch_target"
                     android:layout_weight="1"
                     android:background="@drawable/bg_action_secondary"
                     android:fontFamily="@font/inter"
                     android:insetTop="0dp"
                     android:insetBottom="0dp"
                     android:maxLines="1"
-                    app:autoSizeMaxTextSize="12sp"
-                    app:autoSizeMinTextSize="9sp"
+                    app:autoSizeMaxTextSize="@dimen/cf_text_caption"
+                    app:autoSizeMinTextSize="@dimen/cf_text_tiny"
                     app:autoSizeTextType="uniform"
-                    android:paddingStart="4dp"
-                    android:paddingEnd="4dp"
+                    android:paddingStart="@dimen/cf_space_xs"
+                    android:paddingEnd="@dimen/cf_space_xs"
                     android:text="@string/main_playbook"
                     android:textAllCaps="false"
                     android:textColor="@color/cf_text_primary"
-                    android:textSize="12sp"
+                    android:textSize="@dimen/cf_text_caption"
                     android:textStyle="bold" />
             </LinearLayout>
         </LinearLayout>

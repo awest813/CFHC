@@ -51,7 +51,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/cf_space_sm"
-            android:minHeight="44dp" />
+            android:minHeight="@dimen/cf_touch_target" />
 
         <TextView
             android:id="@+id/textMinPlayers"
@@ -104,7 +104,7 @@
             android:id="@+id/buttonSaveLineups"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
+            android:minHeight="@dimen/cf_touch_target_lg"
             android:layout_marginEnd="@dimen/cf_space_xs"
             android:layout_weight="1"
             android:background="@drawable/bg_action_secondary"
@@ -118,7 +118,7 @@
             android:id="@+id/buttonDoneWithLineups"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
+            android:minHeight="@dimen/cf_touch_target_lg"
             android:layout_marginStart="@dimen/cf_space_xs"
             android:layout_weight="1"
             android:background="@drawable/bg_action_primary"

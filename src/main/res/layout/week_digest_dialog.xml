@@ -34,7 +34,7 @@
             android:layout_marginTop="@dimen/cf_space_md"
             android:background="@drawable/bg_cf_card_accent"
             android:gravity="center_vertical"
-            android:minHeight="56dp"
+            android:minHeight="@dimen/cf_row_height_lg"
             android:orientation="horizontal"
             android:paddingStart="@dimen/cf_space_lg"
             android:paddingTop="@dimen/cf_card_padding_v"
@@ -46,7 +46,7 @@
                 style="@style/Widget.Cfhc.Pill.Emerald"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minWidth="40dp"
+                android:minWidth="@dimen/cf_pill_width"
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
                 tools:text="W" />
 
@@ -67,7 +67,7 @@
                     android:id="@+id/digestResult"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginTop="@dimen/cf_space_xxs"
                     android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
                     tools:text="31-17 vs Rival U  (Rivalry Game)" />
             </LinearLayout>
@@ -101,7 +101,7 @@
                 android:id="@+id/digestNext"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="@dimen/cf_space_xxs"
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title"
                 tools:text="at Delta State" />
         </LinearLayout>

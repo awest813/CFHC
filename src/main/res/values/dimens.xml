@@ -45,4 +45,40 @@
     <dimen name="cf_footer_height">36dp</dimen>
     <dimen name="cf_card_padding_h">14dp</dimen>
     <dimen name="cf_card_padding_v">12dp</dimen>
+
+    <!-- Layout tokens (redesign Wave 6 sweep): sizes formerly written as literals. -->
+    <dimen name="cf_badge_min_width">22dp</dimen>
+    <dimen name="cf_chip_height">32dp</dimen>
+    <dimen name="cf_chip_height_sm">28dp</dimen>
+    <dimen name="cf_column_mid">60dp</dimen>
+    <dimen name="cf_column_narrow">52dp</dimen>
+    <dimen name="cf_column_wide">64dp</dimen>
+    <dimen name="cf_control_compact">36dp</dimen>
+    <dimen name="cf_crest_icon_height">28dp</dimen>
+    <dimen name="cf_crest_icon_width">24dp</dimen>
+    <dimen name="cf_dialog_list_height">550dp</dimen>
+    <dimen name="cf_drawer_max_width">280dp</dimen>
+    <dimen name="cf_line_extra">2sp</dimen>
+    <dimen name="cf_line_extra_loose">3sp</dimen>
+    <dimen name="cf_logo_height">120dp</dimen>
+    <dimen name="cf_name_max_width">120dp</dimen>
+    <dimen name="cf_nav_header_height">132dp</dimen>
+    <dimen name="cf_panel_max">320dp</dimen>
+    <dimen name="cf_pill_width">40dp</dimen>
+    <dimen name="cf_pill_width_sm">28dp</dimen>
+    <dimen name="cf_rating_tile_width">72dp</dimen>
+    <dimen name="cf_row_height">52dp</dimen>
+    <dimen name="cf_row_height_lg">56dp</dimen>
+    <dimen name="cf_row_height_xl">64dp</dimen>
+    <dimen name="cf_row_height_xs">24dp</dimen>
+    <dimen name="cf_space_xsm">6dp</dimen>
+    <dimen name="cf_space_xxs">2dp</dimen>
+    <dimen name="cf_spinner_arrow_inset">26dp</dimen>
+    <dimen name="cf_text_jumbo">40sp</dimen>
+    <dimen name="cf_text_lead">15sp</dimen>
+    <dimen name="cf_text_score">34sp</dimen>
+    <dimen name="cf_text_small">11sp</dimen>
+    <dimen name="cf_touch_target">44dp</dimen>
+    <dimen name="cf_touch_target_lg">48dp</dimen>
+    <dimen name="cf_text_tiny">9sp</dimen>
 </resources>

@@ -51,7 +51,7 @@
             android:id="@+id/pickerConferenceSpinner"
             style="@style/Widget.Cfhc.Spinner"
             android:layout_width="match_parent"
-            android:layout_height="44dp"
+            android:layout_height="@dimen/cf_touch_target"
             android:layout_marginTop="@dimen/cf_space_xs"
             android:contentDescription="@string/picker_conference_label" />
     </LinearLayout>
@@ -68,7 +68,7 @@
     <ListView
         android:id="@+id/pickerTeamList"
         android:layout_width="match_parent"
-        android:layout_height="320dp"
+        android:layout_height="@dimen/cf_panel_max"
         android:background="@android:color/transparent"
         android:cacheColorHint="@android:color/transparent"
         android:contentDescription="@string/picker_list_desc"

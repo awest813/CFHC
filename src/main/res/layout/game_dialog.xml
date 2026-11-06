@@ -48,7 +48,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/cf_space_sm"
-            android:minHeight="44dp" />
+            android:minHeight="@dimen/cf_touch_target" />
 
         <!-- Scoreline hero -->
         <LinearLayout
@@ -76,7 +76,7 @@
                     android:gravity="center"
                     android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
                     android:textColor="@color/cf_text_primary"
-                    android:textSize="40sp"
+                    android:textSize="@dimen/cf_text_jumbo"
                     tools:text="31" />
 
                 <TextView
@@ -88,7 +88,7 @@
                     android:text="@string/dlg_score_separator"
                     android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
                     android:textColor="@color/cf_text_muted"
-                    android:textSize="28sp" />
+                    android:textSize="@dimen/cf_text_hero" />
 
                 <TextView
                     android:id="@+id/gameDialogScoreHome"
@@ -98,7 +98,7 @@
                     android:gravity="center"
                     android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
                     android:textColor="@color/cf_text_primary"
-                    android:textSize="40sp"
+                    android:textSize="@dimen/cf_text_jumbo"
                     tools:text="27" />
             </LinearLayout>
 
@@ -168,32 +168,32 @@
                 android:stretchColumns="0">
 
                 <TableRow>
-                    <TextView android:id="@+id/scoreboard" style="@style/Widget.Cfhc.CardTitle" android:gravity="start|center_vertical" android:minHeight="32dp" android:paddingEnd="@dimen/cf_space_sm" android:text="@string/dlg_box_col_team" />
-                    <TextView android:id="@+id/scoreQT1" style="@style/Widget.Cfhc.CardTitle" android:gravity="end|center_vertical" android:minHeight="32dp" android:minWidth="36dp" android:text="@string/dlg_box_col_q1" />
-                    <TextView android:id="@+id/scoreQT2" style="@style/Widget.Cfhc.CardTitle" android:gravity="end|center_vertical" android:minHeight="32dp" android:minWidth="36dp" android:text="@string/dlg_box_col_q2" />
-                    <TextView android:id="@+id/scoreQT3" style="@style/Widget.Cfhc.CardTitle" android:gravity="end|center_vertical" android:minHeight="32dp" android:minWidth="36dp" android:text="@string/dlg_box_col_q3" />
-                    <TextView android:id="@+id/scoreQT4" style="@style/Widget.Cfhc.CardTitle" android:gravity="end|center_vertical" android:minHeight="32dp" android:minWidth="36dp" android:text="@string/dlg_box_col_q4" />
-                    <TextView android:id="@+id/scoreOT" style="@style/Widget.Cfhc.CardTitle" android:gravity="end|center_vertical" android:minHeight="32dp" android:minWidth="40dp" android:text="@string/dlg_box_col_ot" />
+                    <TextView android:id="@+id/scoreboard" style="@style/Widget.Cfhc.CardTitle" android:gravity="start|center_vertical" android:minHeight="@dimen/cf_chip_height" android:paddingEnd="@dimen/cf_space_sm" android:text="@string/dlg_box_col_team" />
+                    <TextView android:id="@+id/scoreQT1" style="@style/Widget.Cfhc.CardTitle" android:gravity="end|center_vertical" android:minHeight="@dimen/cf_chip_height" android:minWidth="@dimen/cf_control_compact" android:text="@string/dlg_box_col_q1" />
+                    <TextView android:id="@+id/scoreQT2" style="@style/Widget.Cfhc.CardTitle" android:gravity="end|center_vertical" android:minHeight="@dimen/cf_chip_height" android:minWidth="@dimen/cf_control_compact" android:text="@string/dlg_box_col_q2" />
+                    <TextView android:id="@+id/scoreQT3" style="@style/Widget.Cfhc.CardTitle" android:gravity="end|center_vertical" android:minHeight="@dimen/cf_chip_height" android:minWidth="@dimen/cf_control_compact" android:text="@string/dlg_box_col_q3" />
+                    <TextView android:id="@+id/scoreQT4" style="@style/Widget.Cfhc.CardTitle" android:gravity="end|center_vertical" android:minHeight="@dimen/cf_chip_height" android:minWidth="@dimen/cf_control_compact" android:text="@string/dlg_box_col_q4" />
+                    <TextView android:id="@+id/scoreOT" style="@style/Widget.Cfhc.CardTitle" android:gravity="end|center_vertical" android:minHeight="@dimen/cf_chip_height" android:minWidth="@dimen/cf_pill_width" android:text="@string/dlg_box_col_ot" />
                 </TableRow>
 
                 <View android:layout_width="match_parent" android:layout_height="@dimen/cf_stroke" android:background="@color/cf_divider" />
 
                 <TableRow>
-                    <TextView android:id="@+id/teamAway" android:gravity="start|center_vertical" android:minHeight="36dp" android:paddingEnd="@dimen/cf_space_sm" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title" tools:text="AWAY" />
-                    <TextView android:id="@+id/awayQT1" android:gravity="end|center_vertical" android:minHeight="36dp" android:minWidth="36dp" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="7" />
-                    <TextView android:id="@+id/awayQT2" android:gravity="end|center_vertical" android:minHeight="36dp" android:minWidth="36dp" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="10" />
-                    <TextView android:id="@+id/awayQT3" android:gravity="end|center_vertical" android:minHeight="36dp" android:minWidth="36dp" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="7" />
-                    <TextView android:id="@+id/awayQT4" android:gravity="end|center_vertical" android:minHeight="36dp" android:minWidth="36dp" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="7" />
-                    <TextView android:id="@+id/awayOT" android:gravity="end|center_vertical" android:minHeight="36dp" android:minWidth="40dp" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" tools:text="0" />
+                    <TextView android:id="@+id/teamAway" android:gravity="start|center_vertical" android:minHeight="@dimen/cf_control_compact" android:paddingEnd="@dimen/cf_space_sm" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title" tools:text="AWAY" />
+                    <TextView android:id="@+id/awayQT1" android:gravity="end|center_vertical" android:minHeight="@dimen/cf_control_compact" android:minWidth="@dimen/cf_control_compact" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="7" />
+                    <TextView android:id="@+id/awayQT2" android:gravity="end|center_vertical" android:minHeight="@dimen/cf_control_compact" android:minWidth="@dimen/cf_control_compact" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="10" />
+                    <TextView android:id="@+id/awayQT3" android:gravity="end|center_vertical" android:minHeight="@dimen/cf_control_compact" android:minWidth="@dimen/cf_control_compact" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="7" />
+                    <TextView android:id="@+id/awayQT4" android:gravity="end|center_vertical" android:minHeight="@dimen/cf_control_compact" android:minWidth="@dimen/cf_control_compact" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="7" />
+                    <TextView android:id="@+id/awayOT" android:gravity="end|center_vertical" android:minHeight="@dimen/cf_control_compact" android:minWidth="@dimen/cf_pill_width" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" tools:text="0" />
                 </TableRow>
 
                 <TableRow>
-                    <TextView android:id="@+id/teamHome" android:gravity="start|center_vertical" android:minHeight="36dp" android:paddingEnd="@dimen/cf_space_sm" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title" tools:text="HOME" />
-                    <TextView android:id="@+id/homeQT1" android:gravity="end|center_vertical" android:minHeight="36dp" android:minWidth="36dp" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="3" />
-                    <TextView android:id="@+id/homeQT2" android:gravity="end|center_vertical" android:minHeight="36dp" android:minWidth="36dp" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="14" />
-                    <TextView android:id="@+id/homeQT3" android:gravity="end|center_vertical" android:minHeight="36dp" android:minWidth="36dp" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="7" />
-                    <TextView android:id="@+id/homeQT4" android:gravity="end|center_vertical" android:minHeight="36dp" android:minWidth="36dp" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="3" />
-                    <TextView android:id="@+id/homeOT" android:gravity="end|center_vertical" android:minHeight="36dp" android:minWidth="40dp" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" tools:text="0" />
+                    <TextView android:id="@+id/teamHome" android:gravity="start|center_vertical" android:minHeight="@dimen/cf_control_compact" android:paddingEnd="@dimen/cf_space_sm" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title" tools:text="HOME" />
+                    <TextView android:id="@+id/homeQT1" android:gravity="end|center_vertical" android:minHeight="@dimen/cf_control_compact" android:minWidth="@dimen/cf_control_compact" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="3" />
+                    <TextView android:id="@+id/homeQT2" android:gravity="end|center_vertical" android:minHeight="@dimen/cf_control_compact" android:minWidth="@dimen/cf_control_compact" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="14" />
+                    <TextView android:id="@+id/homeQT3" android:gravity="end|center_vertical" android:minHeight="@dimen/cf_control_compact" android:minWidth="@dimen/cf_control_compact" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="7" />
+                    <TextView android:id="@+id/homeQT4" android:gravity="end|center_vertical" android:minHeight="@dimen/cf_control_compact" android:minWidth="@dimen/cf_control_compact" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="3" />
+                    <TextView android:id="@+id/homeOT" android:gravity="end|center_vertical" android:minHeight="@dimen/cf_control_compact" android:minWidth="@dimen/cf_pill_width" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" tools:text="0" />
                 </TableRow>
             </TableLayout>
         </LinearLayout>
@@ -279,7 +279,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/cf_space_sm"
-                android:lineSpacingExtra="2dp"
+                android:lineSpacingExtra="@dimen/cf_line_extra"
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
                 android:textColor="@color/cf_text_primary"
                 tools:text="Q1 15:00 — Kickoff" />

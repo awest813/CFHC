@@ -80,7 +80,7 @@
                     android:id="@+id/textRecBudget"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginTop="@dimen/cf_space_xxs"
                     android:ellipsize="end"
                     android:maxLines="2"
                     android:text="@string/recruiting_budget_default"
@@ -111,7 +111,7 @@
                     android:id="@+id/textRecruitBoardStatus"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="2dp"
+                    android:layout_marginTop="@dimen/cf_space_xxs"
                     android:ellipsize="end"
                     android:maxLines="2"
                     android:text="@string/recruiting_board_status_default"
@@ -151,7 +151,7 @@
                 android:id="@+id/spinnerRec"
                 style="@style/Widget.Cfhc.Spinner"
                 android:layout_width="0dp"
-                android:layout_height="44dp"
+                android:layout_height="@dimen/cf_touch_target"
                 android:layout_marginEnd="@dimen/cf_space_sm"
                 android:layout_weight="1"
                 android:contentDescription="@string/rec_label_lane"
@@ -162,7 +162,7 @@
                 style="@style/Widget.Cfhc.Button.Secondary"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="44dp"
+                android:minHeight="@dimen/cf_touch_target"
                 android:text="@string/recruiting_button_options"
                 android:textSize="@dimen/cf_text_stat"
                 android:insetBottom="0dp"
@@ -175,7 +175,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/cf_space_xs"
             android:fontFamily="@font/inter"
-            android:minHeight="44dp"
+            android:minHeight="@dimen/cf_touch_target"
             android:text="@string/recruiting_filter_label"
             android:textColor="@color/cf_text_primary"
             android:textSize="@dimen/cf_text_stat" />
@@ -253,7 +253,7 @@
             android:ellipsize="end"
             android:maxLines="2"
             android:text="@string/recruiting_button_roster"
-            android:textSize="15sp" />
+            android:textSize="@dimen/cf_text_lead" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/buttonDoneRecruiting"
@@ -265,6 +265,6 @@
             android:ellipsize="end"
             android:maxLines="2"
             android:text="@string/recruiting_button_done"
-            android:textSize="15sp" />
+            android:textSize="@dimen/cf_text_lead" />
     </LinearLayout>
 </LinearLayout>

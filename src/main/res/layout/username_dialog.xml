@@ -29,7 +29,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/cf_space_sm"
-            android:lineSpacingExtra="2dp"
+            android:lineSpacingExtra="@dimen/cf_line_extra"
             android:text="@string/home_username_body"
             android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" />
 
@@ -45,7 +45,7 @@
             android:importantForAutofill="no"
             android:inputType="textPersonName"
             android:maxLines="1"
-            android:minHeight="48dp"
+            android:minHeight="@dimen/cf_touch_target_lg"
             android:paddingStart="@dimen/cf_space_md"
             android:paddingTop="@dimen/cf_space_sm"
             android:paddingEnd="@dimen/cf_space_md"
@@ -70,7 +70,7 @@
         android:layout_marginTop="@dimen/cf_space_md"
         android:background="@drawable/bg_action_primary"
         android:fontFamily="@font/inter"
-        android:minHeight="52dp"
+        android:minHeight="@dimen/cf_row_height"
         android:text="@string/home_username_continue"
         android:textAllCaps="false"
         android:textColor="@color/cf_on_gold"

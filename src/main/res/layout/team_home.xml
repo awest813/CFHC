@@ -49,7 +49,7 @@
                 android:gravity="center"
                 android:layout_marginEnd="@dimen/cf_space_sm"
                 android:includeFontPadding="false"
-                android:minWidth="48dp"
+                android:minWidth="@dimen/cf_touch_target_lg"
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.Overall"
                 tools:text="82" />
 
@@ -59,8 +59,8 @@
                 style="@style/Widget.Cfhc.Pill.Gold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:minHeight="44dp"
-                android:minWidth="44dp"
+                android:minHeight="@dimen/cf_touch_target"
+                android:minWidth="@dimen/cf_touch_target"
                 android:paddingStart="@dimen/cf_space_md"
                 android:paddingEnd="@dimen/cf_space_md"
                 android:clickable="true"
@@ -106,7 +106,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center_vertical"
-                    android:minHeight="44dp"
+                    android:minHeight="@dimen/cf_touch_target"
                     android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
                     tools:text="7 wins and 2 losses" />
             </LinearLayout>
@@ -176,8 +176,8 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
-                android:lineSpacingExtra="2sp"
-                android:minHeight="44dp"
+                android:lineSpacingExtra="@dimen/cf_line_extra"
+                android:minHeight="@dimen/cf_touch_target"
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
                 tools:text="Offense: 78.4 (#20) | Defense: 74.1 (#31)\nPrestige: #24 | Discipline: 92% | Facilities: L3" />
 
@@ -236,7 +236,7 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
-                android:minHeight="44dp"
+                android:minHeight="@dimen/cf_touch_target"
                 android:paddingStart="@dimen/cf_space_xs"
                 android:paddingEnd="@dimen/cf_space_xs"
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title"
@@ -280,7 +280,7 @@
             android:clickable="true"
             android:focusable="true"
             android:gravity="center_vertical"
-            android:minHeight="44dp"
+            android:minHeight="@dimen/cf_touch_target"
             android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
             tools:text="W 31-21 vs Blue Ridge Tech" />
 
@@ -321,8 +321,8 @@
             android:clickable="true"
             android:focusable="true"
             android:gravity="center_vertical"
-            android:lineSpacingExtra="2sp"
-            android:minHeight="44dp"
+            android:lineSpacingExtra="@dimen/cf_line_extra"
+            android:minHeight="@dimen/cf_touch_target"
             android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption"
             tools:text="Owls climb to #24 in latest poll after back-to-back road wins." />
 
@@ -388,7 +388,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center_vertical"
-                    android:minHeight="44dp"
+                    android:minHeight="@dimen/cf_touch_target"
                     android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
                     tools:text="QB J. Carter [84] 2wk\nNo further injuries" />
             </LinearLayout>
@@ -423,7 +423,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:gravity="center_vertical"
-                    android:minHeight="44dp"
+                    android:minHeight="@dimen/cf_touch_target"
                     android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
                     tools:text="No Suspensions" />
             </LinearLayout>
@@ -487,7 +487,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/cf_space_xs"
-            android:lineSpacingExtra="2sp"
+            android:lineSpacingExtra="@dimen/cf_line_extra"
             android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption"
             tools:text="✓  3 Game Win Streak\n↓  Leadership Questions" />
     </LinearLayout>
@@ -535,7 +535,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/cf_space_xs"
-            android:lineSpacingExtra="2sp"
+            android:lineSpacingExtra="@dimen/cf_line_extra"
             android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
             tools:text="Prestige 74 · season change +6\nBudget $34.2M · NIL Tier 3 / 5\nFacilities L4 · Discipline 82%\nIncoming class: 14 · rating 61" />
     </LinearLayout>

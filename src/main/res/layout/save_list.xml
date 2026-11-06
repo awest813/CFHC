@@ -16,7 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/bg_cf_card"
-        android:minHeight="56dp"
+        android:minHeight="@dimen/cf_row_height_lg"
         android:orientation="vertical"
         android:paddingStart="@dimen/cf_card_padding_h"
         android:paddingTop="@dimen/cf_card_padding_v"
@@ -37,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/cf_space_sm"
                 android:contentDescription="@string/home_save_slot_label"
-                android:minWidth="28dp"
+                android:minWidth="@dimen/cf_pill_width_sm"
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatAccent"
                 android:visibility="gone"
                 tools:text="1"
@@ -49,7 +49,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.Title"
-                android:textSize="15sp"
+                android:textSize="@dimen/cf_text_lead"
                 tools:text="Dynasty save title" />
         </LinearLayout>
 

@@ -45,7 +45,7 @@
                 android:id="@+id/dpPlayerInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
+                android:layout_marginTop="@dimen/cf_space_xxs"
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
                 android:textColor="@color/cf_text_secondary"
                 tools:text="QB | Junior | 86 OVR" />

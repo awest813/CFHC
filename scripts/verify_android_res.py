@@ -11,7 +11,8 @@ Checks, under src/main/res and src/main/java:
   * no raw hex colours in layouts/menus/drawables under res (token rule);
   * dialogs are built only through antdroid.cfbcoach.Dialogs (no direct
     AlertDialog.Builder / MaterialAlertDialogBuilder construction elsewhere);
-  * the main page list stays a RecyclerView (no ListView for mainList).
+  * the main page list stays a RecyclerView (no ListView for mainList);
+  * layouts use @dimen tokens, not dp/sp literals (0dp, the weight idiom, is fine).
 
 Exit status 1 on any finding. Run: python3 scripts/verify_android_res.py
 """
@@ -178,6 +179,21 @@ def check_dialog_facade():
             problems.append(f"{rel}:{line}: build dialogs with Dialogs.builder(...), not {m.group(0).strip()}")
 
 
+SIZE_LITERAL_RE = re.compile(r'="(\d+(?:\.\d+)?)(dp|sp)"')
+
+
+def check_size_tokens():
+    """Redesign Wave 6 rule: sizes in layouts come from values/dimens.xml."""
+    for path in sorted(glob.glob(os.path.join(RES, "layout*", "*.xml"))):
+        rel = os.path.relpath(path, ROOT)
+        text = open(path, encoding="utf-8").read()
+        for m in SIZE_LITERAL_RE.finditer(text):
+            if float(m.group(1)) == 0:
+                continue
+            line = text.count("\n", 0, m.start()) + 1
+            problems.append(f"{rel}:{line}: use a @dimen token instead of {m.group(1)}{m.group(2)}")
+
+
 def check_main_list():
     """Redesign Wave 3 rule: the main page list is a RecyclerView."""
     path = os.path.join(RES, "layout", "content_main.xml")
@@ -238,6 +254,7 @@ def main():
     check_layout_structure()
     check_dialog_facade()
     check_main_list()
+    check_size_tokens()
     if problems:
         print("\n".join(problems))
         print(f"\n{len(problems)} problem(s)")

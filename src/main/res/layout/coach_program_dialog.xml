@@ -54,7 +54,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/cf_space_xs"
-                android:lineSpacingExtra="3dp"
+                android:lineSpacingExtra="@dimen/cf_line_extra_loose"
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
                 android:textColor="@color/cf_text_primary"
                 tools:text="Program summary" />
@@ -98,7 +98,7 @@
                 android:id="@+id/progressNilNextTier"
                 style="@style/Widget.Cfhc.ProgressBar.Gold"
                 android:layout_width="match_parent"
-                android:layout_height="6dp"
+                android:layout_height="@dimen/cf_space_xsm"
                 android:layout_marginTop="@dimen/cf_space_sm"
                 android:contentDescription="@string/nil_progress_desc"
                 android:max="100"
@@ -162,13 +162,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/cf_space_xs"
-                android:minHeight="44dp" />
+                android:minHeight="@dimen/cf_touch_target" />
 
             <Button
                 android:id="@+id/buttonCoachSkillUpgrade"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="48dp"
+                android:minHeight="@dimen/cf_touch_target_lg"
                 android:layout_marginTop="@dimen/cf_space_md"
                 android:background="@drawable/bg_action_primary"
                 android:fontFamily="@font/inter"
@@ -191,7 +191,7 @@
             android:id="@+id/buttonCoachProgramClose"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="48dp"
+            android:minHeight="@dimen/cf_touch_target_lg"
             android:layout_marginTop="@dimen/cf_space_md"
             android:background="@drawable/bg_action_secondary"
             android:fontFamily="@font/inter"

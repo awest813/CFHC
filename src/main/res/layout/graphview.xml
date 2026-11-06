@@ -41,7 +41,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/cf_space_xs"
-                android:lineSpacingExtra="2dp"
+                android:lineSpacingExtra="@dimen/cf_line_extra"
                 android:text="@string/dialog_shell_graph_subtitle"
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" />
         </LinearLayout>

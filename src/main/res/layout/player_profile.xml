@@ -70,7 +70,7 @@
                         android:id="@+id/ppTeam"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
+                        android:layout_marginTop="@dimen/cf_space_xxs"
                         android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
                         tools:text="Washington" />
 
@@ -78,7 +78,7 @@
                         android:id="@+id/ppHome"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
+                        android:layout_marginTop="@dimen/cf_space_xxs"
                         android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption"
                         android:textColor="@color/cf_text_muted"
                         tools:text="Boise, Idaho" />
@@ -91,7 +91,7 @@
                     android:layout_marginStart="@dimen/cf_space_sm"
                     android:background="@drawable/bg_cf_rating_tile"
                     android:gravity="center"
-                    android:minWidth="72dp"
+                    android:minWidth="@dimen/cf_rating_tile_width"
                     android:orientation="vertical"
                     android:paddingStart="@dimen/cf_space_sm"
                     android:paddingTop="@dimen/cf_space_xs"
@@ -106,7 +106,7 @@
                         android:gravity="center"
                         android:includeFontPadding="false"
                         android:textAppearance="@style/TextAppearance.Cfhc.Cf.Rating"
-                        android:textSize="34sp"
+                        android:textSize="@dimen/cf_text_score"
                         tools:text="86" />
 
                     <TextView
@@ -150,7 +150,7 @@
 
                 <Space
                     android:layout_width="0dp"
-                    android:layout_height="1dp"
+                    android:layout_height="@dimen/cf_stroke"
                     android:layout_weight="1" />
 
                 <TextView
@@ -309,15 +309,15 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <TextView android:id="@+id/ppYear" android:layout_width="64dp" android:layout_height="wrap_content" android:gravity="start" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatAccent" tools:text="Year\n2024\n2025" />
-                    <TextView android:id="@+id/ppStat0" android:layout_width="48dp" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="G\n12\n13" />
-                    <TextView android:id="@+id/ppStat1" android:layout_width="48dp" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="GS\n12\n13" />
-                    <TextView android:id="@+id/ppStat2" android:layout_width="60dp" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="Yds\n3104\n3450" />
-                    <TextView android:id="@+id/ppStat3" android:layout_width="48dp" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="TD\n28\n31" />
-                    <TextView android:id="@+id/ppStat4" android:layout_width="48dp" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="Int\n6\n4" />
-                    <TextView android:id="@+id/ppStat5" android:layout_width="52dp" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="Sack\n12\n9" />
-                    <TextView android:id="@+id/ppStat6" android:layout_width="64dp" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="Comp\n64%\n67%" />
-                    <TextView android:id="@+id/ppStat7" android:layout_width="64dp" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="QBR\n158.2\n166.0" />
+                    <TextView android:id="@+id/ppYear" android:layout_width="@dimen/cf_column_wide" android:layout_height="wrap_content" android:gravity="start" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatAccent" tools:text="Year\n2024\n2025" />
+                    <TextView android:id="@+id/ppStat0" android:layout_width="@dimen/cf_touch_target_lg" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="G\n12\n13" />
+                    <TextView android:id="@+id/ppStat1" android:layout_width="@dimen/cf_touch_target_lg" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="GS\n12\n13" />
+                    <TextView android:id="@+id/ppStat2" android:layout_width="@dimen/cf_column_mid" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="Yds\n3104\n3450" />
+                    <TextView android:id="@+id/ppStat3" android:layout_width="@dimen/cf_touch_target_lg" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="TD\n28\n31" />
+                    <TextView android:id="@+id/ppStat4" android:layout_width="@dimen/cf_touch_target_lg" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="Int\n6\n4" />
+                    <TextView android:id="@+id/ppStat5" android:layout_width="@dimen/cf_column_narrow" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="Sack\n12\n9" />
+                    <TextView android:id="@+id/ppStat6" android:layout_width="@dimen/cf_column_wide" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="Comp\n64%\n67%" />
+                    <TextView android:id="@+id/ppStat7" android:layout_width="@dimen/cf_column_wide" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat" tools:text="QBR\n158.2\n166.0" />
                 </LinearLayout>
             </HorizontalScrollView>
         </LinearLayout>
@@ -336,19 +336,19 @@
 
             <TextView style="@style/Widget.Cfhc.CardTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/dlg_profile_featured" />
 
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:gravity="center_vertical" android:minHeight="32dp" android:orientation="horizontal">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:gravity="center_vertical" android:minHeight="@dimen/cf_chip_height" android:orientation="horizontal">
                 <TextView android:id="@+id/ppFeatStat1Name" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Yards per pass" />
                 <TextView android:id="@+id/ppFeatStat1" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" tools:text="15.2 YPP" />
             </LinearLayout>
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="32dp" android:orientation="horizontal">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="@dimen/cf_chip_height" android:orientation="horizontal">
                 <TextView android:id="@+id/ppFeatStat2Name" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Passing yards per game" />
                 <TextView android:id="@+id/ppFeatStat2" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" tools:text="377 PYPG" />
             </LinearLayout>
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="32dp" android:orientation="horizontal">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="@dimen/cf_chip_height" android:orientation="horizontal">
                 <TextView android:id="@+id/ppFeatStat3Name" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Rushing yards per game" />
                 <TextView android:id="@+id/ppFeatStat3" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" tools:text="76 YPG" />
             </LinearLayout>
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="32dp" android:orientation="horizontal">
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical" android:minHeight="@dimen/cf_chip_height" android:orientation="horizontal">
                 <TextView android:id="@+id/ppFeatStat4Name" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Yards per carry" />
                 <TextView android:id="@+id/ppFeatStat4" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" tools:text="5.6 YPC" />
             </LinearLayout>

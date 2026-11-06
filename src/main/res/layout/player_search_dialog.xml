@@ -40,7 +40,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
+            android:layout_marginTop="@dimen/cf_space_xxs"
             android:text="@string/player_search_subtitle"
             android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" />
 
@@ -56,7 +56,7 @@
             android:imeOptions="actionDone"
             android:importantForAutofill="no"
             android:inputType="textPersonName"
-            android:minHeight="44dp"
+            android:minHeight="@dimen/cf_touch_target"
             android:paddingStart="@dimen/cf_space_md"
             android:paddingEnd="@dimen/cf_space_md"
             android:textColor="@color/cf_text_primary"
@@ -82,7 +82,7 @@
                 android:id="@+id/spinnerSearchPos"
                 style="@style/Widget.Cfhc.Spinner"
                 android:layout_width="0dp"
-                android:layout_height="44dp"
+                android:layout_height="@dimen/cf_touch_target"
                 android:layout_marginEnd="@dimen/cf_space_xs"
                 android:layout_weight="1"
                 android:paddingStart="@dimen/cf_space_sm"
@@ -92,7 +92,7 @@
                 android:id="@+id/spinnerSearchClass"
                 style="@style/Widget.Cfhc.Spinner"
                 android:layout_width="0dp"
-                android:layout_height="44dp"
+                android:layout_height="@dimen/cf_touch_target"
                 android:layout_marginStart="@dimen/cf_space_xs"
                 android:layout_marginEnd="@dimen/cf_space_xs"
                 android:layout_weight="1"
@@ -103,7 +103,7 @@
                 android:id="@+id/spinnerSearchOvr"
                 style="@style/Widget.Cfhc.Spinner"
                 android:layout_width="0dp"
-                android:layout_height="44dp"
+                android:layout_height="@dimen/cf_touch_target"
                 android:layout_marginStart="@dimen/cf_space_xs"
                 android:layout_weight="1"
                 android:paddingStart="@dimen/cf_space_sm"
@@ -115,7 +115,7 @@
             android:id="@+id/spinnerSearchTeam"
             style="@style/Widget.Cfhc.Spinner"
             android:layout_width="match_parent"
-            android:layout_height="44dp"
+            android:layout_height="@dimen/cf_touch_target"
             android:layout_marginTop="@dimen/cf_space_sm" />
     </LinearLayout>
 
@@ -126,7 +126,7 @@
         android:layout_marginTop="@dimen/cf_space_sm"
         android:layout_marginBottom="@dimen/cf_space_xs"
         android:gravity="center_vertical"
-        android:minHeight="28dp"
+        android:minHeight="@dimen/cf_chip_height_sm"
         android:orientation="horizontal"
         android:paddingStart="@dimen/cf_space_xs"
         android:paddingEnd="@dimen/cf_space_xs">
@@ -140,7 +140,7 @@
 
         <Space
             android:layout_width="0dp"
-            android:layout_height="1dp"
+            android:layout_height="@dimen/cf_stroke"
             android:layout_weight="1" />
 
         <TextView
@@ -184,7 +184,7 @@
         android:id="@+id/buttonCloseSearch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="48dp"
+        android:minHeight="@dimen/cf_touch_target_lg"
         android:layout_marginTop="@dimen/cf_space_sm"
         android:background="@drawable/bg_action_secondary"
         android:fontFamily="@font/inter"

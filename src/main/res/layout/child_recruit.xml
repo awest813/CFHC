@@ -26,7 +26,7 @@
             android:layout_marginEnd="@dimen/cf_space_md"
             android:background="@drawable/bg_cf_card_canvas"
             android:contentDescription="@string/rec_cd_prospect_avatar"
-            android:padding="2dp"
+            android:padding="@dimen/cf_space_xxs"
             android:scaleType="fitCenter"
             android:src="@drawable/sprite_avatar_qb_green" />
 
@@ -46,8 +46,8 @@
                 android:id="@+id/textRecruitDetails"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:lineSpacingExtra="2dp"
+                android:layout_marginTop="@dimen/cf_space_xxs"
+                android:lineSpacingExtra="@dimen/cf_line_extra"
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
                 android:textColor="@color/cf_text_primary"
                 tools:text="Marcus Reed  Fr  Ovr: 58 (+9)\nHometown: Dayton, OH" />
@@ -76,7 +76,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/cf_space_xs"
-            android:lineSpacingExtra="2dp"
+            android:lineSpacingExtra="@dimen/cf_line_extra"
             android:textAppearance="@style/TextAppearance.Cfhc.Cf.Stat"
             tools:text="Height: 6&apos;2&quot;\nWeight: 205 lbs\nIntelligence: B+\nCharacter: A\nDurability: B" />
     </LinearLayout>
@@ -97,7 +97,7 @@
             android:layout_marginEnd="@dimen/cf_space_sm"
             android:ellipsize="end"
             android:maxLines="1"
-            android:minHeight="44dp"
+            android:minHeight="@dimen/cf_touch_target"
             android:text="@string/recruiting_button_scout"
             android:textSize="@dimen/cf_text_stat"
             android:insetBottom="0dp"
@@ -110,7 +110,7 @@
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:maxLines="1"
-            android:minHeight="44dp"
+            android:minHeight="@dimen/cf_touch_target"
             android:text="@string/recruiting_button_recruit_default"
             android:textSize="@dimen/cf_text_stat"
             android:insetBottom="0dp"

@@ -71,11 +71,11 @@
             <ImageView
                 android:id="@+id/imageLogo"
                 android:layout_width="match_parent"
-                android:layout_height="120dp"
+                android:layout_height="@dimen/cf_logo_height"
                 android:layout_marginTop="@dimen/cf_space_lg"
                 android:adjustViewBounds="true"
                 android:contentDescription="@string/home_logo_desc"
-                android:maxWidth="320dp"
+                android:maxWidth="@dimen/cf_panel_max"
                 android:scaleType="fitCenter" />
 
             <TextView
@@ -99,7 +99,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/cf_space_sm"
-                android:lineSpacingExtra="2dp"
+                android:lineSpacingExtra="@dimen/cf_line_extra"
                 android:text="@string/home_hero_subtitle"
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" />
 
@@ -189,8 +189,8 @@
 
                 <ImageView
                     android:id="@+id/homeDynastiesTrophy"
-                    android:layout_width="24dp"
-                    android:layout_height="28dp"
+                    android:layout_width="@dimen/cf_crest_icon_width"
+                    android:layout_height="@dimen/cf_crest_icon_height"
                     android:layout_marginEnd="@dimen/cf_space_sm"
                     android:contentDescription="@string/home_card_dynasties_trophy_desc"
                     android:importantForAccessibility="no"
@@ -250,7 +250,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/cf_space_xs"
                     android:layout_weight="1"
-                    android:minHeight="52dp"
+                    android:minHeight="@dimen/cf_row_height"
                     android:text="@string/home_button_import"
                     android:textSize="@dimen/cf_text_body" />
             </LinearLayout>

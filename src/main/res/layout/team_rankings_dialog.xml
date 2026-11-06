@@ -4,7 +4,7 @@
      are bound by each controller. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="550dp"
+    android:layout_height="@dimen/cf_dialog_list_height"
     android:background="@drawable/bg_dialog_surface"
     android:orientation="vertical"
     android:paddingStart="@dimen/cf_space_lg"
@@ -41,8 +41,8 @@
             android:id="@+id/textDialogShellSubtitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:lineSpacingExtra="2dp"
+            android:layout_marginTop="@dimen/cf_space_xxs"
+            android:lineSpacingExtra="@dimen/cf_line_extra"
             android:text="@string/dialog_shell_rankings_subtitle"
             android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" />
     </LinearLayout>
@@ -59,7 +59,7 @@
         android:id="@+id/spinnerTeamRankings"
         style="@style/Widget.Cfhc.Spinner"
         android:layout_width="match_parent"
-        android:layout_height="44dp"
+        android:layout_height="@dimen/cf_touch_target"
         android:layout_marginTop="@dimen/cf_space_xs" />
 
     <ListView
