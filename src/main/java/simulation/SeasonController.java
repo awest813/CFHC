@@ -138,9 +138,13 @@ public final class SeasonController {
 
     private void handleOffseasonWeek(SeasonAdvanceResult.Builder result) {
         if (league.currentWeek == SeasonFlowOrder.seasonSummaryWeek(regSeasonWeeks)) {
+            // Close the books first: the summary reads this season's prestige change
+            // (Team.prestigePts, set by enterOffseason) and the records it just broke.
+            // Showing it before left prestigePts null in a dynasty's first season (an
+            // Android crash; desktop showed "summary unavailable") and a year stale after.
+            handleSeasonSummary(result);
             bridge.showSeasonSummary();
             result.needsDialog(SeasonAdvanceResult.DialogType.SEASON_SUMMARY, null);
-            handleSeasonSummary(result);
 
         } else if (league.currentWeek == SeasonFlowOrder.contractsWeek(regSeasonWeeks)) {
             handleContracts(result);

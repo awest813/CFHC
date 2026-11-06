@@ -1398,16 +1398,33 @@ public class League {
         java.util.ArrayList<LeagueRecord.GameRecord> out = new java.util.ArrayList<>();
         int slot = 0;
         for (Team t : teamList) {
-            for (Game g : t.getGameSchedule()) {
+            java.util.List<Game> schedule = t.getGameSchedule();
+            for (int i = 0; i < schedule.size(); i++) {
+                Game g = schedule.get(i);
                 if (g == null || seen.put(g, Boolean.TRUE) != null) {
                     continue;
                 }
-                out.add(LeagueRecord.GameRecord.fromGame(g, slot++));
+                // Record where each team holds the game; the two indexes can differ.
+                int home = g.homeTeam.getGameSchedule().indexOf(g);
+                int away = g.awayTeam.getGameSchedule().indexOf(g);
+                out.add(LeagueRecord.GameRecord.fromGame(g, slot++).withScheduleSlots(home + 1, away + 1));
             }
         }
         return out;
     }
 
+    /**
+     * Rebuilds every team's schedule from the saved games, in week order.
+     *
+     * <p>Both teams in a game must hold it at the same schedule index, because
+     * {@code Conference.playWeek} plays index {@code currentWeek - 1} for each team.
+     * Saves write each game once (at the earlier team in league order), so simply
+     * appending games in file order scrambled every opponent's schedule: a reloaded
+     * dynasty played many weeks' games at once. New saves carry each game's 1-based
+     * slot in {@code week}. Older saves carry 0 there, and their slots are rebuilt
+     * exactly from the write order: the owning team wrote its new games in slot order,
+     * so each takes the owner's earliest free slot.
+     */
     private void restoreScheduledGames(java.util.List<LeagueRecord.GameRecord> games) {
         if (games == null || games.isEmpty()) {
             return;
@@ -1416,49 +1433,105 @@ public class League {
         sorted.sort(java.util.Comparator.comparingInt(LeagueRecord.GameRecord::slot));
 
         java.util.HashMap<String, Team> byName = new java.util.HashMap<>();
-        for (Team t : teamList) {
-            byName.put(t.name, t);
+        java.util.IdentityHashMap<Team, Integer> order = new java.util.IdentityHashMap<>();
+        for (int i = 0; i < teamList.size(); i++) {
+            byName.put(teamList.get(i).name, teamList.get(i));
+            order.put(teamList.get(i), i);
         }
+        java.util.IdentityHashMap<Team, java.util.ArrayList<Game>> slots = new java.util.IdentityHashMap<>();
+        java.util.IdentityHashMap<Team, java.util.ArrayList<Game>> overflow = new java.util.IdentityHashMap<>();
 
         for (LeagueRecord.GameRecord gr : sorted) {
             Team home = byName.get(gr.homeName());
             if (home == null) {
                 continue;
             }
-
+            Game g;
+            Team away = null; // a league team; null for byes and FCS opponents
             if ("BYE WEEK".equals(gr.gameName())) {
                 Team bye = new Team("BYE", "BYE", "BYE", 0, "BYE", 0, this);
                 bye.setRankTeamPollScore(teamList.size());
-                Game g = new Game(home, bye, "BYE WEEK");
-                g.week = gr.week();
-                g.hasPlayed = gr.played();
-                g.homeScore = gr.homeScore();
-                g.awayScore = gr.awayScore();
-                home.addGameToSchedule(g);
-                continue;
+                g = new Game(home, bye, "BYE WEEK");
+            } else {
+                away = byName.get(gr.awayName());
+                Team opponent = away != null ? away
+                        : new Team(gr.awayName(), "FCS", "FCS Division", (int) (SimRandom.nextDouble() * 40), "FCS1", 0, this, false);
+                String gName = gr.gameName();
+                if (gName == null || gName.isEmpty()) {
+                    gName = "Game";
+                }
+                g = new Game(home, opponent, gName);
+                g.seniorDay = gr.seniorDay();
+                g.homecomingGame = gr.homecomingGame();
+                g.rivalryGame = gr.rivalryGame();
+                if (away == null) {
+                    opponent.addGameToSchedule(g); // FCS opponents sit outside the league
+                }
             }
-
-            Team away = byName.get(gr.awayName());
-            if (away == null) {
-                away = new Team(gr.awayName(), "FCS", "FCS Division", (int) (SimRandom.nextDouble() * 40), "FCS1", 0, this, false);
-            }
-
-            String gName = gr.gameName();
-            if (gName == null || gName.isEmpty()) {
-                gName = "Game";
-            }
-            Game g = new Game(home, away, gName);
-            g.week = gr.week();
+            g.week = 0; // never assigned in play (Weather reads it); the slot is ordering only
             g.hasPlayed = gr.played();
             g.homeScore = gr.homeScore();
             g.awayScore = gr.awayScore();
-            g.seniorDay = gr.seniorDay();
-            g.homecomingGame = gr.homecomingGame();
-            g.rivalryGame = gr.rivalryGame();
 
-            home.addGameToSchedule(g);
-            away.addGameToSchedule(g);
+            int homeIndex = gr.homeScheduleIndex();
+            int awayIndex = gr.awayScheduleIndex();
+            if (homeIndex < 0) {
+                // Older save: the owner (earlier team in league order) wrote its new games
+                // in slot order, so the owner's earliest free slot is exact. The opponent
+                // takes the same slot when free (most games share it), else its first free.
+                Team owner = (away != null && order.get(away) < order.get(home)) ? away : home;
+                int ownerIndex = firstFree(slots.get(owner));
+                Team other = owner == home ? away : home;
+                int otherIndex = other == null ? -1 : (isFree(slots.get(other), ownerIndex) ? ownerIndex : firstFree(slots.get(other)));
+                homeIndex = owner == home ? ownerIndex : otherIndex;
+                awayIndex = owner == home ? otherIndex : ownerIndex;
+            }
+            boolean placed = place(slots, home, homeIndex, g);
+            if (away != null) {
+                placed &= place(slots, away, awayIndex >= 0 ? awayIndex : firstFree(slots.get(away)), g);
+            }
+            if (!placed) {
+                // Inconsistent input (a slot already taken): keep the game rather than drop it.
+                overflow.computeIfAbsent(home, k -> new java.util.ArrayList<>()).add(g);
+                if (away != null) overflow.computeIfAbsent(away, k -> new java.util.ArrayList<>()).add(g);
+            }
         }
+        for (Team t : teamList) {
+            java.util.ArrayList<Game> list = slots.get(t);
+            if (list != null) {
+                for (Game g : list) {
+                    if (g != null) t.addGameToSchedule(g);
+                }
+            }
+            java.util.ArrayList<Game> extra = overflow.get(t);
+            if (extra != null) {
+                for (Game g : extra) {
+                    if (!t.getGameSchedule().contains(g)) t.addGameToSchedule(g);
+                }
+            }
+        }
+    }
+
+    private static boolean isFree(java.util.ArrayList<Game> list, int index) {
+        return list == null || index >= list.size() || list.get(index) == null;
+    }
+
+    private static int firstFree(java.util.ArrayList<Game> list) {
+        if (list == null) return 0;
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i) == null) return i;
+        }
+        return list.size();
+    }
+
+    /** Puts {@code g} at {@code index} in the team's slot list; false if the slot is taken. */
+    private static boolean place(java.util.IdentityHashMap<Team, java.util.ArrayList<Game>> slots,
+                                 Team t, int index, Game g) {
+        java.util.ArrayList<Game> list = slots.computeIfAbsent(t, k -> new java.util.ArrayList<>());
+        while (list.size() <= index) list.add(null);
+        if (list.get(index) != null && list.get(index) != g) return false;
+        list.set(index, g);
+        return true;
     }
 
     public void applyLeagueRecord(LeagueRecord record) {

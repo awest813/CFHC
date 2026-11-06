@@ -292,6 +292,28 @@ public record LeagueRecord(
             return s == null ? "" : s.replace("\t", " ");
         }
 
+        /**
+         * The same record with {@code week} carrying both teams' schedule slots:
+         * {@code homeSlot + 1000 * awaySlot}, each 1-based (0 = unknown). The two
+         * teams can hold a game at different indexes, so a load needs both to rebuild
+         * every schedule exactly. Game.week itself is never assigned in play, and
+         * older saves wrote 0 here.
+         */
+        public GameRecord withScheduleSlots(int homeSlot1Based, int awaySlot1Based) {
+            return new GameRecord(slot, homeName, awayName, gameName, homeSlot1Based + 1000 * awaySlot1Based,
+                    played, homeScore, awayScore, seniorDay, homecomingGame, rivalryGame);
+        }
+
+        /** 0-based home schedule index, or -1 when the save did not record it. */
+        public int homeScheduleIndex() {
+            return (week % 1000) - 1;
+        }
+
+        /** 0-based away schedule index, or -1 when the save did not record it. */
+        public int awayScheduleIndex() {
+            return (week / 1000) - 1;
+        }
+
         public String toSaveLine() {
             return slot + "\t" + tabSafe(homeName) + "\t" + tabSafe(awayName) + "\t" + tabSafe(gameName) + "\t"
                     + week + "\t" + (played ? 1 : 0) + "\t" + homeScore + "\t" + awayScore
