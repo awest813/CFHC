@@ -24,4 +24,9 @@
     <string name="dash_cd_opponent_sprite">Opponent avatar</string>
     <string name="dash_title_morale">Locker Room</string>
     <string name="dash_morale_values">Chemistry %1$d · Leadership %2$d · Buy-In %3$d</string>
+    <string name="dash_title_program">Program</string>
+    <string name="dash_program_rising">▲ Rising</string>
+    <string name="dash_program_stable">● Stable</string>
+    <string name="dash_program_declining">▼ Declining</string>
+    <string name="dash_program_body">Prestige %1$d (%2$+d this season)\nBudget %3$s · NIL Tier %4$d / %5$d\nFacilities L%6$d · Discipline %7$d%%\nRecruiting: %8$d commits · class %9$.0f</string>
 </resources>

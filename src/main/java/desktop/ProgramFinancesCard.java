@@ -58,9 +58,7 @@ public class ProgramFinancesCard extends CustomCardPanel {
 
     /** Format an integer budget as $X.XM or $XK depending on magnitude. */
     private static String formatMoney(int amount) {
-        if (amount >= 1_000_000) return "$" + String.format("%.1fM", amount / 1_000_000.0);
-        if (amount >= 1_000) return "$" + (amount / 1_000) + "K";
-        return "$" + amount;
+        return simulation.ProgramSnapshot.formatMoney(amount);
     }
 
     private JPanel buildFinRow(String label, String value, Color valColor) {

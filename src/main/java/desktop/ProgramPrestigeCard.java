@@ -34,9 +34,11 @@ public class ProgramPrestigeCard extends CustomCardPanel {
         // Trend label + color from the real season delta.
         String trend;
         Color trendColor;
-        if (delta > 5) { trend = "\u25B2  RISING"; trendColor = DesktopTheme.successGreen(); }
-        else if (delta < -2) { trend = "\u25BC  DECLINING"; trendColor = DesktopTheme.dangerRed(); }
-        else { trend = "\u25CF  STABLE"; trendColor = DesktopTheme.textSecondary(); }
+        switch (new simulation.ProgramSnapshot(0, 0, 0, 0, prestige, delta, 0, 0f).trend()) {
+            case RISING -> { trend = "\u25B2  RISING"; trendColor = DesktopTheme.successGreen(); }
+            case DECLINING -> { trend = "\u25BC  DECLINING"; trendColor = DesktopTheme.dangerRed(); }
+            default -> { trend = "\u25CF  STABLE"; trendColor = DesktopTheme.textSecondary(); }
+        }
         // Winning percentage from real wins/losses.
         int w = team != null ? team.getWins() : 0;
         int l = team != null ? team.getLosses() : 0;

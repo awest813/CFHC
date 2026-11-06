@@ -75,6 +75,7 @@ public class TeamHome extends ArrayAdapter<String> {
         textNews.setText(news);
         textLastGame.setText(lastGame);
         bindMorale(rowView);
+        bindProgram(rowView);
 
         textRank.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -247,5 +248,31 @@ public class TeamHome extends ArrayAdapter<String> {
                     start, sb.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
         ((TextView) rowView.findViewById(R.id.home_morale_factors)).setText(sb);
+    }
+
+    /** Program card: prestige trend, finances and the incoming class. */
+    private void bindProgram(View rowView) {
+        View card = rowView.findViewById(R.id.home_program_card);
+        if (card == null) return;
+        if (team == null) {
+            card.setVisibility(View.GONE);
+            return;
+        }
+        card.setVisibility(View.VISIBLE);
+        simulation.ProgramSnapshot p = simulation.ProgramSnapshot.of(team);
+        TextView trend = rowView.findViewById(R.id.home_program_trend);
+        int label;
+        int color;
+        switch (p.trend()) {
+            case RISING -> { label = R.string.dash_program_rising; color = R.color.cf_positive; }
+            case DECLINING -> { label = R.string.dash_program_declining; color = R.color.cf_negative; }
+            default -> { label = R.string.dash_program_stable; color = R.color.cf_text_secondary; }
+        }
+        trend.setText(label);
+        trend.setTextColor(androidx.core.content.ContextCompat.getColor(context, color));
+        ((TextView) rowView.findViewById(R.id.home_program_body)).setText(context.getString(R.string.dash_program_body,
+                p.prestige(), p.prestigeDelta(), simulation.ProgramSnapshot.formatMoney(p.budget()),
+                p.nilTier(), simulation.League.NIL_MAX_TIER, p.facilities(), p.discipline(),
+                p.commits(), p.classRating()));
     }
 }

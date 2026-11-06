@@ -145,7 +145,7 @@ For each desktop feature: find the engine API it calls, then grep `antdroid/` an
 | P6 | ➖ Coordinator hiring | Only offered when the engine reaches that offseason step (`CareerDialogController.java:301`). No menu entry to fire or hire coordinators any time | desktop `CoordinatorHiringDialog.java:113-380` | P2 |
 | P7 | ✅ Box scores from the league scoreboard | Weekly Scores (`WeeklyScoresDialogController`) has no tap-to-open. Box scores open only from your own schedule (`TeamHome.java:119`, `GameScheduleList.java:70`). There's no view for the V2 detailed stats (`getGameSummaryStrV2`) | desktop `ScoreboardPanel.java:115,264` | P1 |
 | P8 | ✅ Mock draft | Only inside the begin-recruiting dialog (`RecruitingOptionsDialogController.java:54`). Not in the drawer | desktop View menu `LeagueHomeView.java:491` | P2 |
-| P9 | Program dashboard cards (finances/NIL, prestige delta, recruiting pipeline) | Data is scattered across rankings, the home text and the career summary. No dashboard cards (Wave 3's planned 11-card stack) | desktop `DashboardPanel.java:106-118` | P2 |
+| P9 | ✅ Program dashboard cards (finances/NIL, prestige delta, recruiting pipeline) | Data is scattered across rankings, the home text and the career summary. No dashboard cards (Wave 3's planned 11-card stack) | desktop `DashboardPanel.java:106-118` | P2 |
 | P10 | ✅ Playbook scheme fit | Shows the `schemeFitNote` text (`TeamStrategyDialogController.java:60`). No fit colouring and no slow-QB read-option warning (`starterQbSpeed`) | desktop `PlaybookDialog.java:221` | P2 |
 | P11 | ✅ FCS promotions (already present) | Available in Settings (`SettingsDialogController.java:92`), not in new-dynasty setup. No "N used" count | desktop `NewGameWizard.java:172` | P2 |
 | P12 | Custom-universe / CSV import mid-career | Import runs only when a custom league is launched (`MainActivity.java:273`) | desktop File menu `LeagueHomeView.java:315-326` | P2 |
@@ -336,4 +336,11 @@ split the record constructions into smaller helpers.
 - **Autosave jank:** the same numbers showed that the per-week autosave serializes about 3 MB on the UI
   thread right after Play Week. It now runs from an idle handler (`autosaveWhenIdle`), so the week's
   results draw first. `onSaveInstanceState` still autosaves synchronously.
+- **P9:** Team Home has a **Program** card: prestige with this season's change and a Rising / Stable /
+  Declining tag, budget, NIL tier, facilities, discipline, and the incoming class (commits plus class
+  rating). `simulation.ProgramSnapshot` owns the trend rule and money formatting, and desktop's
+  Finances and Prestige cards use it too (`ProgramSnapshotTest`).
+- **G11 re-check:** every `ImageView` / `ImageButton` in the layouts has a `contentDescription` or is
+  marked decorative. The low attribute count reflected how few images there are, not missing labels.
+  The new chart view describes itself to TalkBack (season range).
 
