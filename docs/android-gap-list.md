@@ -132,7 +132,7 @@ For each desktop feature: find the engine API it calls, then grep `antdroid/` an
 ### Missing on Android
 | # | Feature | Desktop entry | Android evidence | Pri |
 |---|---|---|---|---|
-| P1 | 🔲 **Interactive gameday coaching** (pregame / halftime / crunch checkpoints → `GameCoachPlan`) | `desktop/LeagueHomeView.java:377` → `CoachDecisionDialog.java:32` via `setGameCoachListener` | No `GameCoachListener`/`GameCoachPlan` in Android; only the pre-kickoff scheme change in `GameDialogController.java:174` | P1 |
+| P1 | ✅ **Interactive gameday coaching** (as a pre-kickoff Gameday Plan) (pregame / halftime / crunch checkpoints → `GameCoachPlan`) | `desktop/LeagueHomeView.java:377` → `CoachDecisionDialog.java:32` via `setGameCoachListener` | No `GameCoachListener`/`GameCoachPlan` in Android; only the pre-kickoff scheme change in `GameDialogController.java:174` | P1 |
 | P2 | ✅ **Offseason Hub** (10-step checklist + "Advance One Step") | `LeagueHomeView.java:388` → `OffseasonHubDialog.java:29` (`SeasonFlowOrder.offseasonSteps()`) | Android uses only `firstOffseasonWeek` (`MainActivity.java:1469`) | P1 |
 | P3 | **Team morale card** (morale snapshot, win streak) | `TeamMoraleCard.java:93` (`getTeamMoraleSnapshot`) | Not referenced; only "Team Chemistry" as a rankings category | P2 |
 | P4 | About / open-source licenses screen | `LeagueHomeView.java:646-662` | No licenses screen. Needed for the bundled OFL fonts and Apache-licensed AndroidX attribution | P2 |
@@ -286,4 +286,10 @@ waiting for a dialog. Two options that respect `docs/THREADING.md`:
    simpler and safe on the UI thread, but less interactive than desktop.
 
 Option 2 can ship first. Option 1 needs device testing for ANR and back-press behaviour.
+
+**Shipped (option 2):** `simulation.GamedayPlan` (fourth-down aggression, halftime focus if
+trailing / leading, fourth-quarter fourth-down call if trailing / leading; ties defer to the staff).
+Drawer → Team → **Gameday Plan** walks five choice cards. The plan is saved in preferences (it applies
+to every dynasty on the device) and reinstalled on each league load. Tested in `GamedayPlanTest`.
+Built and linted locally against the Android SDK (`:app:assembleDebug`, `:app:lintDebug`).
 
