@@ -17,7 +17,7 @@ final class ScheduleScreenController {
         for (int i = 0; i < games.length; ++i) {
             games[i] = currentTeam.getGameSchedule().get(i);
         }
-        ui.ListRowsAdapter.show(mainList, new GameScheduleList(activity, activity, currentTeam, games));
+        mainList.setAdapter(new GameScheduleList(activity, activity, currentTeam, games));
         mainList.scrollToPosition(Math.max(0, currentTeam.numGames() - 3));
     }
 }

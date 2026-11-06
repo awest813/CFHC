@@ -5,11 +5,8 @@ package ui;
  */
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
@@ -19,36 +16,29 @@ import java.util.ArrayList;
 import antdroid.cfbcoach.MainActivity;
 import antdroid.cfbcoach.R;
 
-public class IndividualStats extends ArrayAdapter<String> {
-    private final Context context;
+public class IndividualStats extends RowAdapter<String> {
     private final ArrayList<String> values;
     private final MainActivity mainact;
 
     public IndividualStats(Context context, ArrayList<String> values, MainActivity mainact) {
         super(context, R.layout.individual_stats, values);
-        this.context = context;
         this.values = values;
         this.mainact = mainact;
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View rowView = convertView;
-        if (rowView == null) {
-            LayoutInflater inflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            rowView = inflater.inflate(R.layout.individual_stats, parent, false);
-        }
+    protected void bind(RowHolder holder, final int position) {
+        View rowView = holder.itemView;
 
 
-        TextView textPlayer = rowView.findViewById(R.id.textName);
+        TextView textPlayer = holder.view(R.id.textName);
         TextView[] stats = new TextView[] {
-                rowView.findViewById(R.id.textStat0),
-                rowView.findViewById(R.id.textStat1),
-                rowView.findViewById(R.id.textStat2),
-                rowView.findViewById(R.id.textStat3),
-                rowView.findViewById(R.id.textStat4),
-                rowView.findViewById(R.id.textStat5)
+                holder.view(R.id.textStat0),
+                holder.view(R.id.textStat1),
+                holder.view(R.id.textStat2),
+                holder.view(R.id.textStat3),
+                holder.view(R.id.textStat4),
+                holder.view(R.id.textStat5)
         };
 
         final String[] teamStat = values.get(position).split(",", -1);
@@ -65,7 +55,7 @@ public class IndividualStats extends ArrayAdapter<String> {
             rowView.setVisibility(View.GONE);
             setRowHeight(rowView, 0);
             textPlayer.setOnClickListener(null);
-            return rowView;
+            return;
         }
 
         rowView.setVisibility(View.VISIBLE);
@@ -105,7 +95,7 @@ public class IndividualStats extends ArrayAdapter<String> {
             }
         }
 
-        return rowView;
+        return;
     }
 
     /**
@@ -119,18 +109,6 @@ public class IndividualStats extends ArrayAdapter<String> {
         return firstStat.isEmpty() || !firstStat.matches("[-+]?\\d.*");
     }
 
-    private static void setRowHeight(View rowView, int height) {
-        ViewGroup.LayoutParams lp = rowView.getLayoutParams();
-        if (lp == null) {
-            rowView.setLayoutParams(new AbsListView.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, height));
-            return;
-        }
-        if (lp.height != height) {
-            lp.height = height;
-            rowView.requestLayout();
-        }
-    }
 
     private static String valueAt(String[] values, int index) {
         return index < values.length ? values[index] : "";

@@ -7,11 +7,8 @@ package ui;
 import android.content.Context;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
@@ -22,8 +19,7 @@ import java.util.ArrayList;
 import antdroid.cfbcoach.MainActivity;
 import antdroid.cfbcoach.R;
 
-public class TeamRoster extends ArrayAdapter<String> {
-    private final Context context;
+public class TeamRoster extends RowAdapter<String> {
     private final ArrayList<String> values;
     private String userTeamStrRep;
     private final MainActivity mainAct;
@@ -33,7 +29,6 @@ public class TeamRoster extends ArrayAdapter<String> {
 
     public TeamRoster(Context context, ArrayList<String> values, MainActivity mainAct, int week) {
         super(context, R.layout.team_roster, values);
-        this.context = context;
         this.interFont = ResourcesCompat.getFont(context, R.font.inter);
         this.values = values;
         this.mainAct = mainAct;
@@ -41,18 +36,13 @@ public class TeamRoster extends ArrayAdapter<String> {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View rowView = convertView;
-        if (rowView == null) {
-            LayoutInflater inflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            rowView = inflater.inflate(R.layout.team_roster, parent, false);
-        }
-        TextView textLeft = rowView.findViewById(R.id.textTeamRosterLeft);
-        TextView textClass = rowView.findViewById(R.id.textTeamRosterClass);
-        final TextView textCenter = rowView.findViewById(R.id.textTeamRosterCenter);
-        TextView textRight = rowView.findViewById(R.id.textTeamRosterRight);
-        TextView textProg = rowView.findViewById(R.id.textTeamRosterProgression);
+    protected void bind(RowHolder holder, final int position) {
+        View rowView = holder.itemView;
+        TextView textLeft = holder.view(R.id.textTeamRosterLeft);
+        TextView textClass = holder.view(R.id.textTeamRosterClass);
+        final TextView textCenter = holder.view(R.id.textTeamRosterCenter);
+        TextView textRight = holder.view(R.id.textTeamRosterRight);
+        TextView textProg = holder.view(R.id.textTeamRosterProgression);
 
         final String[] teamStat = values.get(position).split(",", -1);
         final String role = valueAt(teamStat, 0).trim();
@@ -62,7 +52,7 @@ public class TeamRoster extends ArrayAdapter<String> {
         final String ratingText = valueAt(teamStat, 4).trim();
         final String awardCode = valueAt(teamStat, 5).trim();
         final String progression = valueAt(teamStat, 6).trim();
-        TextView textStatus = rowView.findViewById(R.id.textTeamRosterStatus);
+        TextView textStatus = holder.view(R.id.textTeamRosterStatus);
         final boolean spacer = role.isEmpty() && name.isEmpty();
         final boolean section = role.isEmpty() && !name.isEmpty();
 
@@ -71,7 +61,7 @@ public class TeamRoster extends ArrayAdapter<String> {
             setRowHeight(rowView, 0);
             textCenter.setOnClickListener(null);
             rowView.setOnClickListener(null);
-            return rowView;
+            return;
         }
 
         rowView.setVisibility(View.VISIBLE);
@@ -95,7 +85,7 @@ public class TeamRoster extends ArrayAdapter<String> {
             textCenter.setClickable(false);
             rowView.setOnClickListener(null);
             rowView.setClickable(false);
-            return rowView;
+            return;
         }
 
         rowView.setBackgroundResource(R.drawable.bg_cf_card);
@@ -166,7 +156,7 @@ public class TeamRoster extends ArrayAdapter<String> {
         rowView.setOnClickListener(rowClickListener);
         rowView.setClickable(true);
 
-        return rowView;
+        return;
     }
 
     /** Starter, availability, and award sit under the name instead of being glued onto it. */
@@ -219,18 +209,6 @@ public class TeamRoster extends ArrayAdapter<String> {
         return color(R.color.cf_text_secondary);
     }
 
-    private static void setRowHeight(View rowView, int height) {
-        ViewGroup.LayoutParams lp = rowView.getLayoutParams();
-        if (lp == null) {
-            rowView.setLayoutParams(new AbsListView.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, height));
-            return;
-        }
-        if (lp.height != height) {
-            lp.height = height;
-            rowView.requestLayout();
-        }
-    }
 
     private int color(int colorRes) {
         return ContextCompat.getColor(context, colorRes);

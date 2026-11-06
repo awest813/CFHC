@@ -256,7 +256,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             public void getItemOffsets(@NonNull android.graphics.Rect outRect, @NonNull View view,
                                        @NonNull androidx.recyclerview.widget.RecyclerView parent,
                                        @NonNull androidx.recyclerview.widget.RecyclerView.State state) {
-                if (parent.getChildAdapterPosition(view) > 0) outRect.top = rowGap;
+                // Filtered-out rows collapse to GONE / height 0: no gap above them.
+                if (parent.getChildAdapterPosition(view) > 0 && view.getVisibility() != View.GONE) {
+                    outRect.top = rowGap;
+                }
             }
         });
         jobList = new ArrayList<>();

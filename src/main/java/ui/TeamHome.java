@@ -1,10 +1,8 @@
 package ui;
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import antdroid.cfbcoach.MainActivity;
@@ -12,8 +10,7 @@ import antdroid.cfbcoach.R;
 import simulation.Game;
 import simulation.Team;
 
-public class TeamHome extends ArrayAdapter<String> {
-    private final Context context;
+public class TeamHome extends RowAdapter<String> {
     private final String[] values;
     private final MainActivity mainAct;
     private final Game[] games;
@@ -26,7 +23,6 @@ public class TeamHome extends ArrayAdapter<String> {
 
     public TeamHome(Context context, String[] values, MainActivity mainAct, Game[] games, int week, Team team) {
         super(context, R.layout.team_home, values);
-        this.context = context;
         this.values = values;
         this.mainAct = mainAct;
         this.games = games;
@@ -35,27 +31,22 @@ public class TeamHome extends ArrayAdapter<String> {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View rowView = convertView;
-        if (rowView == null) {
-            LayoutInflater inflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            rowView = inflater.inflate(R.layout.team_home, parent, false);
-        }
-        TextView textTeam = rowView.findViewById(R.id.home_teamname);
-        TextView textNickname = rowView.findViewById(R.id.home_nickname);
-        TextView textOverall = rowView.findViewById(R.id.home_overall);
-        TextView textRecord = rowView.findViewById(R.id.home_record);
-        TextView textRank = rowView.findViewById(R.id.home_rank);
-        TextView textSeason = rowView.findViewById(R.id.home_season_chip);
-        TextView textWeek = rowView.findViewById(R.id.home_week_chip);
-        TextView textPhase = rowView.findViewById(R.id.home_phase_chip);
-        TextView textTeamRatings = rowView.findViewById(R.id.home_teamRatings);
-        TextView textInjuries = rowView.findViewById(R.id.home_injuries);
-        TextView textSuspensions = rowView.findViewById(R.id.home_suspensions);
-        TextView textNextGame = rowView.findViewById(R.id.home_nextgame);
-        TextView textNews = rowView.findViewById(R.id.home_news);
-        TextView textLastGame = rowView.findViewById(R.id.home_lastgame);
+    protected void bind(RowHolder holder, final int position) {
+        View rowView = holder.itemView;
+        TextView textTeam = holder.view(R.id.home_teamname);
+        TextView textNickname = holder.view(R.id.home_nickname);
+        TextView textOverall = holder.view(R.id.home_overall);
+        TextView textRecord = holder.view(R.id.home_record);
+        TextView textRank = holder.view(R.id.home_rank);
+        TextView textSeason = holder.view(R.id.home_season_chip);
+        TextView textWeek = holder.view(R.id.home_week_chip);
+        TextView textPhase = holder.view(R.id.home_phase_chip);
+        TextView textTeamRatings = holder.view(R.id.home_teamRatings);
+        TextView textInjuries = holder.view(R.id.home_injuries);
+        TextView textSuspensions = holder.view(R.id.home_suspensions);
+        TextView textNextGame = holder.view(R.id.home_nextgame);
+        TextView textNews = holder.view(R.id.home_news);
+        TextView textLastGame = holder.view(R.id.home_lastgame);
 
         String[] teamStat = values[position].split("&", -1);
         textTeam.setText(valueAt(teamStat, 0));
@@ -145,7 +136,7 @@ public class TeamHome extends ArrayAdapter<String> {
         });
 
 
-        return rowView;
+        return;
     }
 
     /** Top 25 as #12. The engine rank is the full league size until a team is ranked. */

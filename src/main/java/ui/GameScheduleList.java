@@ -1,10 +1,8 @@
 package ui;
 
 import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -15,31 +13,24 @@ import antdroid.cfbcoach.R;
 import simulation.Game;
 import simulation.Team;
 
-public class GameScheduleList extends ArrayAdapter<Game> {
-    private final Context context;
+public class GameScheduleList extends RowAdapter<Game> {
     private final Game[] games;
     private final Team team;
     private final MainActivity mainAct;
 
     public GameScheduleList(Context context, MainActivity mainAct, Team team, Game[] games) {
         super(context, R.layout.game_schedule_list_item, games);
-        this.context = context;
         this.mainAct = mainAct;
         this.games = games;
         this.team = team;
     }
 
     @Override
-    public View getView(final int position, View convertView, ViewGroup parent) {
-        View rowView = convertView;
-        LayoutInflater inflater = (LayoutInflater) context
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        if (rowView == null) {
-            rowView = inflater.inflate(R.layout.game_schedule_list_item, parent, false);
-        }
-        TextView textLeft = rowView.findViewById(R.id.gameScheduleLeft);
-        Button gameButton = rowView.findViewById(R.id.gameScheduleButtonList);
-        Button textRight = rowView.findViewById(R.id.gameScheduleRight);
+    protected void bind(RowHolder holder, final int position) {
+        View rowView = holder.itemView;
+        TextView textLeft = holder.view(R.id.gameScheduleLeft);
+        Button gameButton = holder.view(R.id.gameScheduleButtonList);
+        Button textRight = holder.view(R.id.gameScheduleRight);
 
         Game game = gameAt(position);
         String[] gameSummary = team.getGameSummaryStr(position);
@@ -86,7 +77,7 @@ public class GameScheduleList extends ArrayAdapter<Game> {
             }
         });
 
-        return rowView;
+        return;
     }
 
     /** First game that has not been played, including a bye that is this week's slot. */

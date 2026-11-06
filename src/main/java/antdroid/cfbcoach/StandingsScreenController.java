@@ -17,12 +17,12 @@ final class StandingsScreenController {
     static void showStandings(MainActivity activity, RecyclerView mainList, League simLeague, Team userTeam) {
         ArrayList<String> standings = simLeague.getConfStandings();
         final MainRankings teamRankings = new MainRankings(activity, standings, userTeam.getName(), activity);
-        ui.ListRowsAdapter.show(mainList, teamRankings);
+        mainList.setAdapter(teamRankings);
     }
 
     static void showRankings(MainActivity activity, RecyclerView mainList, League simLeague, Team userTeam) {
         ArrayList<String> standings = simLeague.getTeamRankings();
         final MainRankings teamRankings = new MainRankings(activity, standings, userTeam.getName(), activity);
-        ui.ListRowsAdapter.show(mainList, teamRankings);
+        mainList.setAdapter(teamRankings);
     }
 }

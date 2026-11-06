@@ -16,6 +16,6 @@ final class RosterScreenController {
     static void show(MainActivity activity, RecyclerView mainList, Team currentTeam, int currentWeek) {
         ArrayList<String> roster = currentTeam.getRoster();
         final TeamRoster teamRoster = new TeamRoster(activity, roster, activity, currentWeek);
-        ui.ListRowsAdapter.show(mainList, teamRoster);
+        mainList.setAdapter(teamRoster);
     }
 }

@@ -16,6 +16,6 @@ final class PlayerStatsScreenController {
     static void show(MainActivity activity, RecyclerView mainList, Team currentTeam) {
         ArrayList<String> players = currentTeam.getRosterStats();
         final IndividualStats playersStats = new IndividualStats(activity, players, activity);
-        ui.ListRowsAdapter.show(mainList, playersStats);
+        mainList.setAdapter(playersStats);
     }
 }

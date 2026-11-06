@@ -6,11 +6,8 @@ package ui;
 
 import android.content.Context;
 import android.graphics.Typeface;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
@@ -20,33 +17,26 @@ import java.util.ArrayList;
 import antdroid.cfbcoach.MainActivity;
 import antdroid.cfbcoach.R;
 
-public class MainRankings extends ArrayAdapter<String> {
-    private final Context context;
+public class MainRankings extends RowAdapter<String> {
     private final ArrayList<String> values;
     private String userTeamStrRep;
     private final MainActivity mainAct;
 
 
     public MainRankings(Context context, ArrayList<String> values, String userTeamStrRep, MainActivity mainAct) {
-        super(context, R.layout.team_stats_list_item, values);
-        this.context = context;
+        super(context, R.layout.rankings_main, values);
         this.values = values;
         this.userTeamStrRep = userTeamStrRep;
         this.mainAct = mainAct;
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View rowView = convertView;
-        if (rowView == null) {
-            LayoutInflater inflater = (LayoutInflater) context
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            rowView = inflater.inflate(R.layout.rankings_main, parent, false);
-        }
-        TextView textLeft = rowView.findViewById(R.id.textRankLeft);
-        final TextView textCenter = rowView.findViewById(R.id.textRankCenter);
-        TextView textRecord = rowView.findViewById(R.id.textRankRecord);
-        TextView textRight = rowView.findViewById(R.id.textRankRight);
+    protected void bind(RowHolder holder, final int position) {
+        View rowView = holder.itemView;
+        TextView textLeft = holder.view(R.id.textRankLeft);
+        final TextView textCenter = holder.view(R.id.textRankCenter);
+        TextView textRecord = holder.view(R.id.textRankRecord);
+        TextView textRight = holder.view(R.id.textRankRight);
 
         final String[] teamStat = values.get(position).split(",", -1);
         final String rank = valueAt(teamStat, 0).trim();
@@ -61,7 +51,7 @@ public class MainRankings extends ArrayAdapter<String> {
             rowView.setVisibility(View.GONE);
             setRowHeight(rowView, 0);
             textCenter.setOnClickListener(null);
-            return rowView;
+            return;
         }
 
         rowView.setVisibility(View.VISIBLE);
@@ -118,7 +108,7 @@ public class MainRankings extends ArrayAdapter<String> {
             });
         }
 
-        return rowView;
+        return;
     }
 
     /** Ranked standings prefix the poll rank (`#12 Alabama`); the lookup name does not. */
@@ -141,18 +131,6 @@ public class MainRankings extends ArrayAdapter<String> {
                 && bareTeamName(teamField).equals(userTeamStrRep);
     }
 
-    private static void setRowHeight(View rowView, int height) {
-        ViewGroup.LayoutParams lp = rowView.getLayoutParams();
-        if (lp == null) {
-            rowView.setLayoutParams(new AbsListView.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT, height));
-            return;
-        }
-        if (lp.height != height) {
-            lp.height = height;
-            rowView.requestLayout();
-        }
-    }
 
     public void setUserTeamStrRep(String userTeamStrRep) {
         this.userTeamStrRep = userTeamStrRep;

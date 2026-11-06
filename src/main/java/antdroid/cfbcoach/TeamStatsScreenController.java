@@ -13,6 +13,6 @@ final class TeamStatsScreenController {
 
     static void show(MainActivity activity, RecyclerView mainList, Team currentTeam) {
         String[] teamStatsStr = currentTeam.getTeamStatsStrCSV().split("%\n");
-        ui.ListRowsAdapter.show(mainList, new TeamStatsList(activity, teamStatsStr));
+        mainList.setAdapter(new TeamStatsList(activity, teamStatsStr));
     }
 }
