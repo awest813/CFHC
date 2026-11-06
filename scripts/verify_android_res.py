@@ -159,7 +159,9 @@ def check_java():
                 if name not in declared["id"]:
                     problems.append(f"{rel}: R.id.{name} is not declared in any layout/menu")
             elif t in declared and t not in ("attr",):
-                if name not in declared[t] and not is_library(t, name):
+                # Java sees style "A.B" as R.style.A_B.
+                known = declared[t] if t != "style" else {n.replace(".", "_") for n in declared[t]}
+                if name not in known and not is_library(t, name):
                     problems.append(f"{rel}: unresolved R.{t}.{name}")
 
 

@@ -3,6 +3,7 @@
      (title/subtitle rebound via PlatformUiHelper.bindArchiveDialogShell), bracket spinner,
      then the bracket rows in a mono results card (textViewBowlCCGDialog). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -24,13 +25,13 @@
         android:paddingEnd="@dimen/cf_card_padding_h"
         android:paddingBottom="@dimen/cf_card_padding_v">
 
-        <ImageView
+        <ui.components.TrophyIconView
             android:layout_width="@dimen/cf_sprite_avatar_width"
             android:layout_height="@dimen/cf_sprite_avatar_height"
             android:background="@drawable/bg_cf_card_canvas"
             android:contentDescription="@string/dlg_cd_trophy"
             android:scaleType="fitCenter"
-            android:src="@drawable/sprite_trophy_crystal" />
+            app:trophy="crystal" />
 
         <LinearLayout
             android:layout_width="0dp"

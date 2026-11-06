@@ -55,7 +55,7 @@
                     android:text="@string/home_hero_eyebrow"
                     android:textAllCaps="true" />
 
-                <ImageView
+                <ui.components.CrestView
                     android:id="@+id/homeHeroCrest"
                     android:layout_width="@dimen/cf_sprite_avatar_width"
                     android:layout_height="@dimen/cf_sprite_avatar_height"
@@ -187,7 +187,7 @@
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
 
-                <ImageView
+                <ui.components.TrophyIconView
                     android:id="@+id/homeDynastiesTrophy"
                     android:layout_width="@dimen/cf_crest_icon_width"
                     android:layout_height="@dimen/cf_crest_icon_height"
@@ -195,7 +195,7 @@
                     android:contentDescription="@string/home_card_dynasties_trophy_desc"
                     android:importantForAccessibility="no"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/sprite_trophy_crystal" />
+                    app:trophy="crystal" />
 
                 <TextView
                     style="@style/Widget.Cfhc.CardTitle"

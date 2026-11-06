@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- ui.components.CfhcCardView -->
+    <declare-styleable name="CfhcCardView">
+        <attr name="cardTitle" format="string" />
+    </declare-styleable>
+    <!-- ui.components.TrophyIconView -->
+    <declare-styleable name="TrophyIconView">
+        <attr name="trophy" format="enum">
+            <enum name="crystal" value="0" />
+            <enum name="heisman" value="1" />
+            <enum name="ring" value="2" />
+        </attr>
+    </declare-styleable>
+    <!-- ui.components.StatGridView -->
+    <declare-styleable name="StatGridView">
+        <attr name="columns" format="integer" />
+    </declare-styleable>
+</resources>

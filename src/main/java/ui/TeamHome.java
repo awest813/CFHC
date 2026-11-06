@@ -248,8 +248,11 @@ public class TeamHome extends RowAdapter<String> {
         int tone = snap.tone();
         status.setTextColor(androidx.core.content.ContextCompat.getColor(context,
                 tone > 0 ? R.color.cf_positive : (tone == 0 ? R.color.cf_warning : R.color.cf_negative)));
-        ((TextView) rowView.findViewById(R.id.home_morale_values)).setText(context.getString(
-                R.string.dash_morale_values, snap.chemistry(), snap.leadership(), snap.buyIn()));
+        ui.components.StatGridView grid = rowView.findViewById(R.id.home_morale_grid);
+        grid.clear();
+        grid.addCell(context.getString(R.string.dash_lbl_chemistry), String.valueOf(snap.chemistry()));
+        grid.addCell(context.getString(R.string.dash_lbl_leadership), String.valueOf(snap.leadership()));
+        grid.addCell(context.getString(R.string.dash_lbl_buyin), String.valueOf(snap.buyIn()));
         int streak = team.getWinStreak() != null ? team.getWinStreak().getStreakLength() : 0;
         android.text.SpannableStringBuilder sb = new android.text.SpannableStringBuilder();
         for (simulation.TeamMoraleSnapshot.Factor f : snap.factors(streak)) {
@@ -283,9 +286,16 @@ public class TeamHome extends RowAdapter<String> {
         }
         trend.setText(label);
         trend.setTextColor(androidx.core.content.ContextCompat.getColor(context, color));
-        ((TextView) rowView.findViewById(R.id.home_program_body)).setText(context.getString(R.string.dash_program_body,
-                p.prestige(), p.prestigeDelta(), simulation.ProgramSnapshot.formatMoney(p.budget()),
-                p.nilTier(), simulation.League.NIL_MAX_TIER, p.facilities(), p.discipline(),
-                p.commits(), p.classRating()));
+        ui.components.StatGridView grid = rowView.findViewById(R.id.home_program_grid);
+        grid.clear();
+        grid.addCell(context.getString(R.string.dash_lbl_prestige),
+                context.getString(R.string.dash_val_prestige, p.prestige(), p.prestigeDelta()));
+        grid.addCell(context.getString(R.string.dash_lbl_budget), simulation.ProgramSnapshot.formatMoney(p.budget()));
+        grid.addCell(context.getString(R.string.dash_lbl_nil),
+                context.getString(R.string.dash_val_tier, p.nilTier(), simulation.League.NIL_MAX_TIER));
+        grid.addCell(context.getString(R.string.dash_lbl_facilities), context.getString(R.string.dash_val_level, p.facilities()));
+        grid.addCell(context.getString(R.string.dash_lbl_discipline), context.getString(R.string.dash_val_percent, p.discipline()));
+        grid.addCell(context.getString(R.string.dash_lbl_class),
+                context.getString(R.string.dash_val_class, p.commits(), p.classRating()));
     }
 }
