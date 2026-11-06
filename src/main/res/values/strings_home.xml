@@ -35,4 +35,6 @@
     <string name="home_tutorial_title_default">CFHC Basics</string>
     <string name="home_tutorial_content_default">Choose a topic to review coaching, recruiting, and game-day fundamentals.</string>
     <string name="home_resume_autosave">Resume Autosave</string>
+    <string name="home_licenses">Licenses</string>
+    <string name="home_licenses_unavailable">The license text could not be loaded.</string>
 </resources>

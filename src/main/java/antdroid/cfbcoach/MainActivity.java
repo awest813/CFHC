@@ -437,6 +437,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             viewRoster();
         } else if (id == R.id.nav_depth_chart) {
             depthChartDialog();
+        } else if (id == R.id.nav_mock_draft) {
+            RecruitingOptionsDialogController.showMockDraft(this, simLeague, userTeam);
         } else if (id == R.id.nav_gameday_plan) {
             GamedayPlanDialogController.show(this, simLeague);
         } else if (id == R.id.nav_redshirts) {

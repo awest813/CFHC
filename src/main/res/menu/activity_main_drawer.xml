@@ -114,6 +114,10 @@
                     android:icon="@drawable/ic_menu_postseason"
                     android:title="@string/menu_postseason" />
                 <item
+                    android:id="@+id/nav_mock_draft"
+                    android:icon="@drawable/ic_menu_rankings"
+                    android:title="@string/menu_mock_draft" />
+                <item
                     android:id="@+id/nav_awards"
                     android:icon="@drawable/ic_menu_awards"
                     android:title="@string/menu_leagueawards" />

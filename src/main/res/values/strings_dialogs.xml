@@ -87,6 +87,7 @@
     <string name="dlg_recruit_launch_subtitle">Check who is leaving your roster, then open the pro draft board before recruiting.</string>
     <string name="dlg_draft_players_leaving">Players Leaving</string>
     <string name="dlg_draft_board">Pro Mock Draft</string>
+    <string name="dlg_mock_draft_subtitle">Projected picks from every player declaring this year. Your players are highlighted.</string>
     <string name="dlg_draft_empty">No prospects have declared for the draft yet.</string>
     <string name="dlg_draft_round">Round %1$s</string>
     <string name="dlg_draft_pick_cd">Round %1$s, pick %2$s</string>

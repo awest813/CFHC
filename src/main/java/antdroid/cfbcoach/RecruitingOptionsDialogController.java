@@ -92,4 +92,28 @@ public final class RecruitingOptionsDialogController {
         rankingsList.setAdapter(new ui.TeamRankingsList(activity,
                 simLeague.getTeamRankingsStr(17), userTeam.getName()));
     }
+
+    /** Mock draft board from the drawer, any time of year (desktop parity: View → Mock Draft). */
+    public static void showMockDraft(MainActivity activity, League simLeague, Team userTeam) {
+        AlertDialog dialog = new AlertDialog.Builder(activity)
+                .setPositiveButton("OK", null)
+                .setView(activity.getLayoutInflater().inflate(R.layout.simple_list_dialog, null, false))
+                .create();
+        activity.showImmersive(dialog);
+        PlatformUiHelper.bindSimpleListDialogShell(dialog, activity.getString(R.string.dlg_draft_board),
+                activity.getString(R.string.dlg_mock_draft_subtitle));
+        String[] board;
+        try {
+            board = simLeague.getMockDraftPlayersList();
+        } catch (RuntimeException ex) {
+            simulation.PlatformLog.e("MockDraft", "Error building mock draft", ex);
+            board = null;
+        }
+        if (board == null || board.length == 0) {
+            board = new String[]{activity.getString(R.string.dlg_draft_empty)};
+        }
+        ListView list = dialog.findViewById(R.id.listViewDialog);
+        list.setAdapter(new MockDraft(activity, board, userTeam != null ? userTeam.getName() : ""));
+    }
 }
+

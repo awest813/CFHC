@@ -135,16 +135,16 @@ For each desktop feature: find the engine API it calls, then grep `antdroid/` an
 | P1 | ✅ **Interactive gameday coaching** (as a pre-kickoff Gameday Plan) (pregame / halftime / crunch checkpoints → `GameCoachPlan`) | `desktop/LeagueHomeView.java:377` → `CoachDecisionDialog.java:32` via `setGameCoachListener` | No `GameCoachListener`/`GameCoachPlan` in Android; only the pre-kickoff scheme change in `GameDialogController.java:174` | P1 |
 | P2 | ✅ **Offseason Hub** (10-step checklist + "Advance One Step") | `LeagueHomeView.java:388` → `OffseasonHubDialog.java:29` (`SeasonFlowOrder.offseasonSteps()`) | Android uses only `firstOffseasonWeek` (`MainActivity.java:1469`) | P1 |
 | P3 | **Team morale card** (morale snapshot, win streak) | `TeamMoraleCard.java:93` (`getTeamMoraleSnapshot`) | Not referenced; only "Team Chemistry" as a rankings category | P2 |
-| P4 | About / open-source licenses screen | `LeagueHomeView.java:646-662` | No licenses screen. Needed for the bundled OFL fonts and Apache-licensed AndroidX attribution | P2 |
+| P4 | ✅ About / open-source licenses screen | `LeagueHomeView.java:646-662` | No licenses screen. Needed for the bundled OFL fonts and Apache-licensed AndroidX attribution | P2 |
 | — | Update checker | `DesktopUpdateChecker` | Not needed: Play handles updates. Optional in-app update prompt via Play Core | — |
 
 ### Partial on Android
 | # | Feature | Gap | Evidence | Pri |
 |---|---|---|---|---|
-| P5 | Redshirts incl. medical | Can only grant in preseason (`MainActivity.java:432`). Can't remove one, and there's no league pool. Medical RS shows only as a status letter (`StatsRowAdapter.java:109`) | desktop `RedshirtDialog.java:152,202,235,272` | P2 |
-| P6 | Coordinator hiring | Only offered when the engine reaches that offseason step (`CareerDialogController.java:301`). No menu entry to fire or hire coordinators any time | desktop `CoordinatorHiringDialog.java:113-380` | P2 |
+| P5 | ➖ Redshirts incl. medical | Can only grant in preseason (`MainActivity.java:432`). Can't remove one, and there's no league pool. Medical RS shows only as a status letter (`StatsRowAdapter.java:109`) | desktop `RedshirtDialog.java:152,202,235,272` | P2 |
+| P6 | ➖ Coordinator hiring | Only offered when the engine reaches that offseason step (`CareerDialogController.java:301`). No menu entry to fire or hire coordinators any time | desktop `CoordinatorHiringDialog.java:113-380` | P2 |
 | P7 | ✅ Box scores from the league scoreboard | Weekly Scores (`WeeklyScoresDialogController`) has no tap-to-open. Box scores open only from your own schedule (`TeamHome.java:119`, `GameScheduleList.java:70`). There's no view for the V2 detailed stats (`getGameSummaryStrV2`) | desktop `ScoreboardPanel.java:115,264` | P1 |
-| P8 | Mock draft | Only inside the begin-recruiting dialog (`RecruitingOptionsDialogController.java:54`). Not in the drawer | desktop View menu `LeagueHomeView.java:491` | P2 |
+| P8 | ✅ Mock draft | Only inside the begin-recruiting dialog (`RecruitingOptionsDialogController.java:54`). Not in the drawer | desktop View menu `LeagueHomeView.java:491` | P2 |
 | P9 | Program dashboard cards (finances/NIL, prestige delta, recruiting pipeline) | Data is scattered across rankings, the home text and the career summary. No dashboard cards (Wave 3's planned 11-card stack) | desktop `DashboardPanel.java:106-118` | P2 |
 | P10 | Playbook scheme fit | Shows the `schemeFitNote` text (`TeamStrategyDialogController.java:60`). No fit colouring and no slow-QB read-option warning (`starterQbSpeed`) | desktop `PlaybookDialog.java:221` | P2 |
 | P11 | FCS promotions | Available in Settings (`SettingsDialogController.java:92`), not in new-dynasty setup. No "N used" count | desktop `NewGameWizard.java:172` | P2 |
@@ -292,4 +292,20 @@ trailing / leading, fourth-quarter fourth-down call if trailing / leading; ties 
 Drawer → Team → **Gameday Plan** walks five choice cards. The plan is saved in preferences (it applies
 to every dynasty on the device) and reinstalled on each league load. Tested in `GamedayPlanTest`.
 Built and linted locally against the Android SDK (`:app:assembleDebug`, `:app:lintDebug`).
+
+---
+
+## Third follow-up
+
+| Item | What changed |
+|---|---|
+| P4 | Home → Credits → **Licenses** shows `res/raw/open_source_licenses.txt`, which has the font, library and music attributions plus the full SIL OFL 1.1 and Apache 2.0 texts. The subsetted fonts may have lost their embedded license name-table entries, so the app ships the text itself |
+| P8 | Drawer → League → **Mock Draft** opens the draft board any time of year, with the user's players highlighted |
+| APK | `jlayer` and `mp3spi` (LGPL MP3 decoders for the desktop soundtrack) are no longer packaged into the APK; Android plays MP3 natively. Debug and minified release builds pass |
+| P5 / P6 | **Not copied from desktop on purpose.** Android only grants redshirts in the preseason, and a redshirt can be cleared there (the checkbox stays enabled). Desktop toggles `isRedshirt` at any time, even for players who have already played, which looks like a rules leak on desktop rather than an Android gap. Android's coordinator hiring also runs the league-wide `coordinatorCarousel()`, so opening it mid-season would change league behaviour. Decide the rule first, then align both shells |
+
+**License finding:** GraphView 4.2.2 is published under the **GPL with a linking exception** (its POM),
+not Apache 2.0. It is used only for the history chart in `HistoryDialogController`. The licenses screen
+now names it correctly. Check that the linking exception covers the app's distribution, or replace the
+chart with a small custom `View`.
 

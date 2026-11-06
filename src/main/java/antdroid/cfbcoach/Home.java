@@ -127,7 +127,7 @@ public class Home extends AppCompatActivity {
 
         findViewById(R.id.buttonCredits).setOnClickListener(v -> {
             audioManager.play(AudioEvent.UI_CLICK);
-            HomeDialogController.showMessageDialog(Home.this, "Game Acknowledgements", getString(R.string.credits), 12);
+            HomeDialogController.showCreditsDialog(Home.this, "Game Acknowledgements", getString(R.string.credits), 12);
         });
 
         findViewById(R.id.buttonDonate).setOnClickListener(v ->

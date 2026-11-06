@@ -135,6 +135,9 @@ dependencies {
             'vorbisspi*.jar',
             'jorbis*.jar',
             'tritonus-share*.jar',
+            // MP3 decoders (LGPL) for the desktop soundtrack; Android plays MP3 natively.
+            'jlayer*.jar',
+            'mp3spi*.jar',
     ])
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'com.google.android.material:material:1.13.0'
