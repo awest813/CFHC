@@ -26,16 +26,13 @@ public class TeamStatsList extends RowAdapter<String> {
         TextView textCenter = holder.view(R.id.textTeamStatsCenter);
         TextView textRight = holder.view(R.id.textTeamStatsRight);
 
-        String[] teamStat = values[position].split(",", -1);
+        simulation.rows.TeamStatRow row = simulation.rows.TeamStatRow.parse(values[position]);
         // Engine order is value, label, rank. The row reads label, then the number, then the rank.
-        textLeft.setText(valueAt(teamStat, 1));
-        textCenter.setText(valueAt(teamStat, 0));
-        textRight.setText(valueAt(teamStat, 2));
+        textLeft.setText(row.label());
+        textCenter.setText(row.value());
+        textRight.setText(row.rank());
 
         return;
     }
 
-    private static String valueAt(String[] values, int index) {
-        return index < values.length ? values[index] : "";
-    }
 }

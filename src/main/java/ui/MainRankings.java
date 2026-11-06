@@ -38,13 +38,13 @@ public class MainRankings extends RowAdapter<String> {
         TextView textRecord = holder.view(R.id.textRankRecord);
         TextView textRight = holder.view(R.id.textRankRight);
 
-        final String[] teamStat = values.get(position).split(",", -1);
-        final String rank = valueAt(teamStat, 0).trim();
-        final String team = valueAt(teamStat, 1).trim();
-        final String record = valueAt(teamStat, 2).trim();
-        final String stat = valueAt(teamStat, 3).trim();
-        final boolean spacer = rank.isEmpty() && team.isEmpty();
-        final boolean section = rank.isEmpty() && !team.isEmpty();
+        final simulation.rows.RankingRow row = simulation.rows.RankingRow.parse(values.get(position));
+        final String rank = row.rank();
+        final String team = row.team();
+        final String record = row.record();
+        final String stat = row.stat();
+        final boolean spacer = row.kind() == simulation.rows.RowKind.SPACER;
+        final boolean section = row.kind() == simulation.rows.RowKind.SECTION;
 
         if (spacer) {
             // Blank line the engine inserts between conferences.
@@ -140,7 +140,4 @@ public class MainRankings extends RowAdapter<String> {
         return ContextCompat.getColor(context, colorRes);
     }
 
-    private static String valueAt(String[] values, int index) {
-        return index < values.length ? values[index] : "";
-    }
 }

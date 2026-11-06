@@ -41,17 +41,10 @@ public class IndividualStats extends RowAdapter<String> {
                 holder.view(R.id.textStat5)
         };
 
-        final String[] teamStat = values.get(position).split(",", -1);
-        final String playerName = valueAt(teamStat, 0).trim();
-        boolean anyStat = false;
-        for (int i = 0; i < stats.length; i++) {
-            if (!valueAt(teamStat, i + 1).trim().isEmpty()) {
-                anyStat = true;
-                break;
-            }
-        }
-        final boolean header = isCategoryHeader(playerName, valueAt(teamStat, 1).trim());
-        if (playerName.isEmpty() && !anyStat) {
+        final simulation.rows.StatLine line = simulation.rows.StatLine.parse(values.get(position));
+        final String playerName = line.name();
+        final boolean header = line.kind() == simulation.rows.RowKind.SECTION;
+        if (line.kind() == simulation.rows.RowKind.SPACER) {
             rowView.setVisibility(View.GONE);
             setRowHeight(rowView, 0);
             textPlayer.setOnClickListener(null);
@@ -79,7 +72,7 @@ public class IndividualStats extends RowAdapter<String> {
         }
 
         for (int i = 0; i < stats.length; i++) {
-            String value = valueAt(teamStat, i + 1).trim();
+            String value = line.value(i);
             stats[i].setText(value);
             stats[i].setVisibility(value.isEmpty() ? View.GONE : View.VISIBLE);
             boolean accent = !header && i == stats.length - 1 && !value.isEmpty();
@@ -102,15 +95,6 @@ public class IndividualStats extends RowAdapter<String> {
      * Category banners in the player-stat list. The following cells are the column labels.
      * A real player row starts with a number, so a player who shares a category name still renders as a player.
      */
-    private static boolean isCategoryHeader(String name, String firstStat) {
-        boolean category = "Passing".equals(name) || "Rushing".equals(name) || "Receiving".equals(name)
-                || "Defense".equals(name) || "Kicking".equals(name);
-        if (!category) return false;
-        return firstStat.isEmpty() || !firstStat.matches("[-+]?\\d.*");
-    }
 
 
-    private static String valueAt(String[] values, int index) {
-        return index < values.length ? values[index] : "";
-    }
 }

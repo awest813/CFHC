@@ -44,17 +44,17 @@ public class TeamRoster extends RowAdapter<String> {
         TextView textRight = holder.view(R.id.textTeamRosterRight);
         TextView textProg = holder.view(R.id.textTeamRosterProgression);
 
-        final String[] teamStat = values.get(position).split(",", -1);
-        final String role = valueAt(teamStat, 0).trim();
-        final String playerClass = valueAt(teamStat, 1).trim();
-        final String name = valueAt(teamStat, 2).trim();
-        final String status = valueAt(teamStat, 3).trim();
-        final String ratingText = valueAt(teamStat, 4).trim();
-        final String awardCode = valueAt(teamStat, 5).trim();
-        final String progression = valueAt(teamStat, 6).trim();
+        final simulation.rows.RosterRow row = simulation.rows.RosterRow.parse(values.get(position));
+        final String role = row.role();
+        final String playerClass = row.detail();
+        final String name = row.name();
+        final String status = row.status();
+        final String ratingText = row.rating();
+        final String awardCode = row.awards();
+        final String progression = row.progression();
         TextView textStatus = holder.view(R.id.textTeamRosterStatus);
-        final boolean spacer = role.isEmpty() && name.isEmpty();
-        final boolean section = role.isEmpty() && !name.isEmpty();
+        final boolean spacer = row.kind() == simulation.rows.RowKind.SPACER;
+        final boolean section = row.kind() == simulation.rows.RowKind.SECTION;
 
         if (spacer) {
             rowView.setVisibility(View.GONE);
@@ -214,9 +214,6 @@ public class TeamRoster extends RowAdapter<String> {
         return ContextCompat.getColor(context, colorRes);
     }
 
-    private static String valueAt(String[] values, int index) {
-        return index < values.length ? values[index] : "";
-    }
 
 }
 
