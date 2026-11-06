@@ -2,7 +2,6 @@ package antdroid.cfbcoach;
 
 import androidx.appcompat.app.AlertDialog;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -82,7 +81,7 @@ public final class HistoryDialogController {
         teamHistAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         teamHistSpinner.setAdapter(teamHistAdapter);
 
-        final ListView teamHistoryList = dialog.findViewById(R.id.listViewTeamRankings);
+        final androidx.recyclerview.widget.RecyclerView teamHistoryList = dialog.findViewById(R.id.listViewTeamRankings);
         final PlayerRecord[] hofPlayers = currentTeam.getHallOfFame().toArray(new PlayerRecord[0]);
 
         teamHistSpinner.setOnItemSelectedListener(
@@ -91,12 +90,12 @@ public final class HistoryDialogController {
                                                int position, long id) {
                         if (position == 0) {
                             TeamHistoryRecord[] histArray = currentTeam.getTeamHistory().toArray(new TeamHistoryRecord[0]);
-                            teamHistoryList.setAdapter(new TeamHistoryList(activity, histArray));
+                            ui.RecyclerLists.setAdapter(teamHistoryList, new TeamHistoryList(activity, histArray));
                         } else if (position == 1) {
-                            teamHistoryList.setAdapter(new LeagueRecordsList(activity,
+                            ui.RecyclerLists.setAdapter(teamHistoryList, new LeagueRecordsList(activity,
                                     currentTeam.teamRecords.getRecordsStr().split("\n"), "---", "---"));
                         } else if (position == 2) {
-                            teamHistoryList.setAdapter(new HallofFameList(activity, hofPlayers,
+                            ui.RecyclerLists.setAdapter(teamHistoryList, new HallofFameList(activity, hofPlayers,
                                     userTeam.getName(), true, activity));
                         } else if (position == 3) {
                             dialog.dismiss();
@@ -130,13 +129,13 @@ public final class HistoryDialogController {
         teamHistAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         teamHistSpinner.setAdapter(teamHistAdapter);
 
-        final ListView teamHistoryList = dialog.findViewById(R.id.listViewTeamRankings);
+        final androidx.recyclerview.widget.RecyclerView teamHistoryList = dialog.findViewById(R.id.listViewTeamRankings);
         teamHistSpinner.setOnItemSelectedListener(
                 new android.widget.AdapterView.OnItemSelectedListener() {
                     public void onItemSelected(android.widget.AdapterView<?> parent, android.view.View view,
                                                int position, long id) {
                         if (position == 0) {
-                            teamHistoryList.setAdapter(new TeamHistoryList(activity, hc.getCoachHistory()));
+                            ui.RecyclerLists.setAdapter(teamHistoryList, new TeamHistoryList(activity, hc.getCoachHistory()));
                         } else if (position == 1) {
                             dialog.dismiss();
                             coachGraphView(activity, hc, simLeague);

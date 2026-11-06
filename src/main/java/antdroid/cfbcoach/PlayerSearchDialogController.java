@@ -11,7 +11,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -63,7 +62,7 @@ public final class PlayerSearchDialogController {
         final Spinner spinnerTeam = dialogView.findViewById(R.id.spinnerSearchTeam);
         final TextView textCount = dialogView.findViewById(R.id.textSearchResultCount);
         final TextView textEmpty = dialogView.findViewById(R.id.textSearchEmpty);
-        final ListView listResults = dialogView.findViewById(R.id.listSearchResults);
+        final androidx.recyclerview.widget.RecyclerView listResults = dialogView.findViewById(R.id.listSearchResults);
         final Button buttonClose = dialogView.findViewById(R.id.buttonCloseSearch);
 
         PlatformUiHelper.avoidSpinnerDropdownFocus(spinnerPos);
@@ -102,7 +101,7 @@ public final class PlayerSearchDialogController {
 
         final List<Player> searchResults = new ArrayList<>();
         final SearchResultsAdapter adapter = new SearchResultsAdapter(activity, searchResults);
-        listResults.setAdapter(adapter);
+        ui.RecyclerLists.setAdapter(listResults, adapter);
 
         final Runnable runFilter = () -> {
             String query = editSearch.getText().toString().trim();
@@ -158,7 +157,7 @@ public final class PlayerSearchDialogController {
             @Override public void afterTextChanged(Editable s) {}
         });
 
-        listResults.setOnItemClickListener((parent, view, position, id) -> {
+        ui.RecyclerLists.setOnItemClickListener(listResults, (parent, view, position, id) -> {
             activity.uiSounds().play(AudioEvent.UI_CLICK);
             if (position >= 0 && position < searchResults.size()) {
                 Player p = searchResults.get(position);

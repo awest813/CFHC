@@ -2,7 +2,6 @@ package antdroid.cfbcoach;
 
 import androidx.appcompat.app.AlertDialog;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -87,7 +86,7 @@ public final class CareerDialogController {
         teamHistAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         teamHistSpinner.setAdapter(teamHistAdapter);
 
-        final ListView teamHistoryList = dialog.findViewById(R.id.listViewTeamRankings);
+        final androidx.recyclerview.widget.RecyclerView teamHistoryList = dialog.findViewById(R.id.listViewTeamRankings);
         teamHistSpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
             public void onItemSelected(android.widget.AdapterView<?> parent, android.view.View view,
                                        int position, long id) {
@@ -95,7 +94,7 @@ public final class CareerDialogController {
                     if (currentTeam.getHeadCoach() == null) return;
                     TeamHistoryList teamHistoryAdapter =
                             new TeamHistoryList(activity, currentTeam.getHeadCoach().getCoachHistory());
-                    teamHistoryList.setAdapter(teamHistoryAdapter);
+                    ui.RecyclerLists.setAdapter(teamHistoryList, teamHistoryAdapter);
                 }
             }
             public void onNothingSelected(android.widget.AdapterView<?> parent) {}
@@ -130,7 +129,7 @@ public final class CareerDialogController {
         teamHistAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         teamHistSpinner.setAdapter(teamHistAdapter);
 
-        final ListView teamHistoryList = dialog.findViewById(R.id.listViewTeamRankings);
+        final androidx.recyclerview.widget.RecyclerView teamHistoryList = dialog.findViewById(R.id.listViewTeamRankings);
         teamHistSpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
             public void onItemSelected(android.widget.AdapterView<?> parent, android.view.View view,
                                        int position, long id) {
@@ -138,7 +137,7 @@ public final class CareerDialogController {
                     if (currentTeam.getHeadCoach() == null) return;
                     TeamHistoryList teamHistoryAdapter =
                             new TeamHistoryList(activity, currentTeam.getHeadCoach().getCoachHistory());
-                    teamHistoryList.setAdapter(teamHistoryAdapter);
+                    ui.RecyclerLists.setAdapter(teamHistoryList, teamHistoryAdapter);
                 }
             }
             public void onNothingSelected(android.widget.AdapterView<?> parent) {}
@@ -366,8 +365,8 @@ public final class CareerDialogController {
         dialog.setCancelable(false);
         activity.showImmersive(dialog);
         PlatformUiHelper.bindSimpleListDialogShell(dialog, title, subtitle);
-        android.widget.ListView list = dialog.findViewById(R.id.listViewDialog);
-        list.setAdapter(new android.widget.ArrayAdapter<ChoiceCardDialog.Choice>(
+        androidx.recyclerview.widget.RecyclerView list = dialog.findViewById(R.id.listViewDialog);
+        ui.RecyclerLists.setAdapter(list, new android.widget.ArrayAdapter<ChoiceCardDialog.Choice>(
                 activity, R.layout.choice_card_row, choices) {
             @Override
             public android.view.View getView(int position, android.view.View convertView,
@@ -385,7 +384,7 @@ public final class CareerDialogController {
                 return row;
             }
         });
-        list.setOnItemClickListener((parent, view, position, id) -> {
+        ui.RecyclerLists.setOnItemClickListener(list, (parent, view, position, id) -> {
             dialog.dismiss();
             if (onSelect != null) onSelect.accept(position);
         });

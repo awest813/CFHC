@@ -32,13 +32,9 @@
         android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption"
         tools:text="Sets your starting offense and defense ratings." />
 
-    <ListView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/choiceList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:cacheColorHint="@android:color/transparent"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="@dimen/cf_space_sm"
-        android:listSelector="@android:color/transparent" />
+        android:background="@android:color/transparent" />
 </LinearLayout>

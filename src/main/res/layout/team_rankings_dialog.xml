@@ -62,16 +62,12 @@
         android:layout_height="@dimen/cf_touch_target"
         android:layout_marginTop="@dimen/cf_space_xs" />
 
-    <ListView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/listViewTeamRankings"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_marginTop="@dimen/cf_space_sm"
         android:layout_weight="1"
         android:background="@drawable/bg_dialog_section"
-        android:cacheColorHint="@android:color/transparent"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="@dimen/cf_space_sm"
-        android:listSelector="@drawable/bg_cf_list_selector"
         android:padding="@dimen/cf_space_sm" />
 </LinearLayout>

@@ -2292,10 +2292,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         showImmersive(dialog);
         PlatformUiHelper.bindSimpleListDialogShell(dialog, "Budget Landscape", "Compare which programs are operating with the strongest financial footing this cycle.");
 
-        final ListView teamRankingsList = dialog.findViewById(R.id.listViewDialog);
+        final androidx.recyclerview.widget.RecyclerView teamRankingsList = dialog.findViewById(R.id.listViewDialog);
         final TeamRankingsList teamRankingsAdapter =
                 new TeamRankingsList(this, simLeague.getTeamRankingsStr(19), userTeam.getName());
-        teamRankingsList.setAdapter(teamRankingsAdapter);
+        ui.RecyclerLists.setAdapter(teamRankingsList, teamRankingsAdapter);
     }
 
     private void transfers() {

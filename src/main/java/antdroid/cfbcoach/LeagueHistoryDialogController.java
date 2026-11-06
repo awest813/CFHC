@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Spinner;
 
 import java.util.ArrayList;
@@ -47,7 +46,7 @@ final class LeagueHistoryDialogController {
         leagueHistorySpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         leagueHistorySpinner.setAdapter(leagueHistorySpinnerAdapter);
 
-        final ListView leagueHistoryList = dialog.findViewById(R.id.listViewTeamRankings);
+        final androidx.recyclerview.widget.RecyclerView leagueHistoryList = dialog.findViewById(R.id.listViewTeamRankings);
         final PlayerRecord[] hofPlayers = new PlayerRecord[simLeague.getLeagueHoF().size()];
         for (int i = 0; i < simLeague.getLeagueHoF().size(); ++i) {
             hofPlayers[i] = simLeague.getLeagueHoF().get(i);
@@ -60,18 +59,18 @@ final class LeagueHistoryDialogController {
                         if (position == 1) {
                             final LeagueRecordsList leagueRecordsAdapter =
                                     new LeagueRecordsList(activity, simLeague.getLeagueRecordsStr().split("\n"), userTeam.getAbbr(), userTeam.getName());
-                            leagueHistoryList.setAdapter(leagueRecordsAdapter);
+                            ui.RecyclerLists.setAdapter(leagueHistoryList, leagueRecordsAdapter);
                         } else if (position == 2) {
                             showLeagueHistoryStats(activity, simLeague, userTeam);
                         } else if (position == 3) {
                             HallofFameList hofAdapter = new HallofFameList(activity, hofPlayers, userTeam.getName(), false, activity);
-                            leagueHistoryList.setAdapter(hofAdapter);
+                            ui.RecyclerLists.setAdapter(leagueHistoryList, hofAdapter);
                         } else if (position == 4) {
                             showCoachDatabase(activity, simLeague, userTeam);
                         } else {
                             final LeagueHistoryList leagueHistoryAdapter =
                                     new LeagueHistoryList(activity, simLeague.getLeagueHistoryStr().split("%"), userTeam.getAbbr());
-                            leagueHistoryList.setAdapter(leagueHistoryAdapter);
+                            ui.RecyclerLists.setAdapter(leagueHistoryList, leagueHistoryAdapter);
                         }
                     }
 
@@ -106,10 +105,10 @@ final class LeagueHistoryDialogController {
         teamRankingsSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         teamRankingsSpinner.setAdapter(teamRankingsSpinnerAdapter);
 
-        final ListView teamRankingsList = dialog.findViewById(R.id.listViewTeamRankings);
+        final androidx.recyclerview.widget.RecyclerView teamRankingsList = dialog.findViewById(R.id.listViewTeamRankings);
         final ui.TeamRankingsList teamRankingsAdapter =
                 new ui.TeamRankingsList(activity, rankings, userTeam.getName());
-        teamRankingsList.setAdapter(teamRankingsAdapter);
+        ui.RecyclerLists.setAdapter(teamRankingsList, teamRankingsAdapter);
 
         teamRankingsSpinner.setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {
@@ -168,10 +167,10 @@ final class LeagueHistoryDialogController {
         teamRankingsSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         teamRankingsSpinner.setAdapter(teamRankingsSpinnerAdapter);
 
-        final ListView teamRankingsList = dialog.findViewById(R.id.listViewTeamRankings);
+        final androidx.recyclerview.widget.RecyclerView teamRankingsList = dialog.findViewById(R.id.listViewTeamRankings);
         final CoachDatabase coachDatabase =
                 new CoachDatabase(activity, rankings, userTeam.getName(), activity, userNames);
-        teamRankingsList.setAdapter(coachDatabase);
+        ui.RecyclerLists.setAdapter(teamRankingsList, coachDatabase);
 
         teamRankingsSpinner.setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {

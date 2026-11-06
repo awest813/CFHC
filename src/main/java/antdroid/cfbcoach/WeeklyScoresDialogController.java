@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Spinner;
 
 import java.util.ArrayList;
@@ -65,13 +64,13 @@ final class WeeklyScoresDialogController {
         if (simLeague.currentWeek + 2 <= simLeague.regSeasonWeeks) weekSelectionSpinner.setSelection(dbSize - 2);
         else weekSelectionSpinner.setSelection(psweek);
 
-        final ListView newsStoriesList = dialog.findViewById(R.id.listViewTeamRankings);
+        final androidx.recyclerview.widget.RecyclerView newsStoriesList = dialog.findViewById(R.id.listViewTeamRankings);
         final NewsStories weeklyScoresAdapter = new NewsStories(activity, rankings);
-        newsStoriesList.setAdapter(weeklyScoresAdapter);
+        ui.RecyclerLists.setAdapter(newsStoriesList, weeklyScoresAdapter);
         final Spinner weekSpinner = weekSelectionSpinner;
         // Desktop parity: any final on the league scoreboard opens its box score,
         // not only games on the user's own schedule.
-        newsStoriesList.setOnItemClickListener((parent, view, position, id) -> {
+        ui.RecyclerLists.setOnItemClickListener(newsStoriesList, (parent, view, position, id) -> {
             String line = weeklyScoresAdapter.getItem(position);
             Game game = ScoreboardLookup.findPlayedGame(
                     simLeague, weekSpinner.getSelectedItemPosition(), line);

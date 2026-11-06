@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- RecyclerView tags used by ui.RecyclerLists. -->
+    <item name="tag_item_click" type="id" />
+    <item name="tag_row_gap" type="id" />
+</resources>

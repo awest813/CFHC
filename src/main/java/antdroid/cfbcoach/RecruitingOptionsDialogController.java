@@ -2,7 +2,6 @@ package antdroid.cfbcoach;
 
 import androidx.appcompat.app.AlertDialog;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Spinner;
 
 import simulation.League;
@@ -48,7 +47,7 @@ public final class RecruitingOptionsDialogController {
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(spinnerAdapter);
 
-        final ListView playerList = dialog.findViewById(R.id.listViewTeamRankings);
+        final androidx.recyclerview.widget.RecyclerView playerList = dialog.findViewById(R.id.listViewTeamRankings);
         final StatsRowAdapter playerStatsAdapter =
                 new StatsRowAdapter(activity, userTeam.getGradPlayersList());
         String[] draftBoard = simLeague.getMockDraftPlayersList();
@@ -57,16 +56,16 @@ public final class RecruitingOptionsDialogController {
         }
         final MockDraft mockDraftAdapter =
                 new MockDraft(activity, draftBoard, userTeam.getName());
-        playerList.setAdapter(playerStatsAdapter);
+        ui.RecyclerLists.setAdapter(playerList, playerStatsAdapter);
 
         spinner.setOnItemSelectedListener(
                 new android.widget.AdapterView.OnItemSelectedListener() {
                     public void onItemSelected(android.widget.AdapterView<?> parent,
                                                android.view.View view, int position, long id) {
                         if (position == 0) {
-                            playerList.setAdapter(playerStatsAdapter);
+                            ui.RecyclerLists.setAdapter(playerList, playerStatsAdapter);
                         } else {
-                            playerList.setAdapter(mockDraftAdapter);
+                            ui.RecyclerLists.setAdapter(playerList, mockDraftAdapter);
                         }
                     }
                     public void onNothingSelected(android.widget.AdapterView<?> parent) {}
@@ -88,8 +87,8 @@ public final class RecruitingOptionsDialogController {
         PlatformUiHelper.bindSimpleListDialogShell(dialog, "Recruiting Class Rankings",
                 activity.getString(R.string.dlg_recruit_class_subtitle));
 
-        ListView rankingsList = dialog.findViewById(R.id.listViewDialog);
-        rankingsList.setAdapter(new ui.TeamRankingsList(activity,
+        androidx.recyclerview.widget.RecyclerView rankingsList = dialog.findViewById(R.id.listViewDialog);
+        ui.RecyclerLists.setAdapter(rankingsList, new ui.TeamRankingsList(activity,
                 simLeague.getTeamRankingsStr(17), userTeam.getName()));
     }
 
@@ -112,8 +111,8 @@ public final class RecruitingOptionsDialogController {
         if (board == null || board.length == 0) {
             board = new String[]{activity.getString(R.string.dlg_draft_empty)};
         }
-        ListView list = dialog.findViewById(R.id.listViewDialog);
-        list.setAdapter(new MockDraft(activity, board, userTeam != null ? userTeam.getName() : ""));
+        androidx.recyclerview.widget.RecyclerView list = dialog.findViewById(R.id.listViewDialog);
+        ui.RecyclerLists.setAdapter(list, new MockDraft(activity, board, userTeam != null ? userTeam.getName() : ""));
     }
 }
 

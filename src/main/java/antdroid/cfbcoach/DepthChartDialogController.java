@@ -5,7 +5,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,9 +48,9 @@ final class DepthChartDialogController {
         final ArrayList<Player> positionPlayers = new ArrayList<>();
         positionPlayers.addAll(userTeam.getTeamQBs());
 
-        final ListView teamPositionList = dialog.findViewById(R.id.listViewTeamLineup);
+        final androidx.recyclerview.widget.RecyclerView teamPositionList = dialog.findViewById(R.id.listViewTeamLineup);
         final DepthChart teamLineupAdapter = new DepthChart(activity, positionPlayers, 1);
-        teamPositionList.setAdapter(teamLineupAdapter);
+        ui.RecyclerLists.setAdapter(teamPositionList, teamLineupAdapter);
 
         teamLineupPositionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -113,9 +112,9 @@ final class DepthChartDialogController {
         final ArrayList<Player> positionPlayers = new ArrayList<>();
         positionPlayers.addAll(userTeam.getTeamQBs());
 
-        final ListView teamPositionList = dialog.findViewById(R.id.listViewTeamLineup);
+        final androidx.recyclerview.widget.RecyclerView teamPositionList = dialog.findViewById(R.id.listViewTeamLineup);
         final RedshirtAdapter redshirtSelector = new RedshirtAdapter(activity, positionPlayers, 1);
-        teamPositionList.setAdapter(redshirtSelector);
+        ui.RecyclerLists.setAdapter(teamPositionList, redshirtSelector);
 
         teamLineupPositionSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override

@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Spinner;
 
 import java.util.ArrayList;
@@ -52,10 +51,10 @@ final class AwardsDialogController {
         teamRankingsSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         teamRankingsSpinner.setAdapter(teamRankingsSpinnerAdapter);
 
-        final ListView teamRankingsList = dialog.findViewById(R.id.listViewTeamRankings);
+        final androidx.recyclerview.widget.RecyclerView teamRankingsList = dialog.findViewById(R.id.listViewTeamRankings);
         final TeamRankingsList teamRankingsAdapter =
                 new TeamRankingsList(activity, rankings, userTeam.getAbbr());
-        teamRankingsList.setAdapter(teamRankingsAdapter);
+        ui.RecyclerLists.setAdapter(teamRankingsList, teamRankingsAdapter);
 
         teamRankingsSpinner.setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {
@@ -118,7 +117,7 @@ final class AwardsDialogController {
         potyAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         potySpinner.setAdapter(potyAdapter);
 
-        final ListView potyList = dialog.findViewById(R.id.listViewTeamRankings);
+        final androidx.recyclerview.widget.RecyclerView potyList = dialog.findViewById(R.id.listViewTeamRankings);
 
         final String[] coachAwardList = simLeague.getCoachAwardStr().split(">");
         final String[] defAwardList = simLeague.getDefensePOTYStr().split(">");
@@ -140,19 +139,19 @@ final class AwardsDialogController {
                     public void onItemSelected(
                             AdapterView<?> parent, View view, int position, long id) {
                         if (position == 0) {
-                            potyList.setAdapter(new SeasonAwardsList(activity, simLeague.getHeismanCeremonyStr().split(">"), userTeam.getAbbr()));
+                            ui.RecyclerLists.setAdapter(potyList, new SeasonAwardsList(activity, simLeague.getHeismanCeremonyStr().split(">"), userTeam.getAbbr()));
                         } else if (position == 1) {
-                            potyList.setAdapter(new SeasonAwardsList(activity, defAwardList, userTeam.getAbbr()));
+                            ui.RecyclerLists.setAdapter(potyList, new SeasonAwardsList(activity, defAwardList, userTeam.getAbbr()));
                         } else if (position == 2) {
-                            potyList.setAdapter(new SeasonAwardsList(activity, coachAwardList, userTeam.getAbbr()));
+                            ui.RecyclerLists.setAdapter(potyList, new SeasonAwardsList(activity, coachAwardList, userTeam.getAbbr()));
                         } else if (position == 3) {
-                            potyList.setAdapter(new SeasonAwardsList(activity, freshmanAwardList, userTeam.getAbbr()));
+                            ui.RecyclerLists.setAdapter(potyList, new SeasonAwardsList(activity, freshmanAwardList, userTeam.getAbbr()));
                         } else if (position == 4) {
-                            potyList.setAdapter(new SeasonAwardsList(activity, allAmericans, userTeam.getAbbr()));
+                            ui.RecyclerLists.setAdapter(potyList, new SeasonAwardsList(activity, allAmericans, userTeam.getAbbr()));
                         } else if (position == 5) {
-                            potyList.setAdapter(new SeasonAwardsList(activity, allFreshman, userTeam.getAbbr()));
+                            ui.RecyclerLists.setAdapter(potyList, new SeasonAwardsList(activity, allFreshman, userTeam.getAbbr()));
                         } else {
-                            potyList.setAdapter(new SeasonAwardsList(activity, allConference[position - 6], userTeam.getAbbr()));
+                            ui.RecyclerLists.setAdapter(potyList, new SeasonAwardsList(activity, allConference[position - 6], userTeam.getAbbr()));
                         }
                     }
 

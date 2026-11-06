@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Spinner;
 
 import java.util.ArrayList;
@@ -46,10 +45,10 @@ final class PlayerRankingsDialogController {
         playerRankingsSpinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         playerRankingsSpinner.setAdapter(playerRankingsSpinnerAdapter);
 
-        final ListView playerRankingsList = dialog.findViewById(R.id.listViewTeamRankings);
+        final androidx.recyclerview.widget.RecyclerView playerRankingsList = dialog.findViewById(R.id.listViewTeamRankings);
         final PlayerRankingsList playerRankingsAdapter =
                 new PlayerRankingsList(activity, rankings, userTeam.getAbbr(), activity);
-        playerRankingsList.setAdapter(playerRankingsAdapter);
+        ui.RecyclerLists.setAdapter(playerRankingsList, playerRankingsAdapter);
 
         playerRankingsSpinner.setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {

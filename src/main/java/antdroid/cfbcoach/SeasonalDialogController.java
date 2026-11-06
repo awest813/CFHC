@@ -1,7 +1,6 @@
 package antdroid.cfbcoach;
 
 import androidx.appcompat.app.AlertDialog;
-import android.widget.ListView;
 
 import simulation.League;
 import simulation.Team;
@@ -71,8 +70,8 @@ public final class SeasonalDialogController {
         PlatformUiHelper.bindSimpleListDialogShell(dialog, "Prestige Movement",
                 "See which programs are rising and falling across the current college football landscape.");
 
-        ListView teamRankingsList = dialog.findViewById(R.id.listViewDialog);
-        teamRankingsList.setAdapter(new TeamRankingsList(activity,
+        androidx.recyclerview.widget.RecyclerView teamRankingsList = dialog.findViewById(R.id.listViewDialog);
+        ui.RecyclerLists.setAdapter(teamRankingsList, new TeamRankingsList(activity,
                 simLeague.getTeamRankingsStr(1), userTeam.getName()));
     }
 

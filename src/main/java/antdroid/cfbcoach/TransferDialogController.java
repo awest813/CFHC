@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -61,7 +60,7 @@ public final class TransferDialogController {
         final TextView textCount = dialogView.findViewById(R.id.textTransferCount);
         final TextView textHint = dialogView.findViewById(R.id.textTransferTapHint);
         final TextView textEmpty = dialogView.findViewById(R.id.textTransferEmpty);
-        final ListView listPlayers = dialogView.findViewById(R.id.listTransferPlayers);
+        final androidx.recyclerview.widget.RecyclerView listPlayers = dialogView.findViewById(R.id.listTransferPlayers);
         final Button buttonClose = dialogView.findViewById(R.id.buttonCloseTransfer);
 
         PlatformUiHelper.avoidSpinnerDropdownFocus(spinnerMode);
@@ -83,7 +82,7 @@ public final class TransferDialogController {
         final List<Player> allTransferPlayers = collectTransferPlayers(simLeague);
         final List<Player> displayedPlayers = new ArrayList<>(allTransferPlayers);
         final TransferPlayerAdapter playerAdapter = new TransferPlayerAdapter(activity, displayedPlayers);
-        listPlayers.setAdapter(playerAdapter);
+        ui.RecyclerLists.setAdapter(listPlayers, playerAdapter);
 
         final Runnable updateRegistryList = () -> {
             String selectedPos = (String) spinnerPos.getSelectedItem();
@@ -123,14 +122,14 @@ public final class TransferDialogController {
                     if (textHint != null) textHint.setVisibility(View.VISIBLE);
                     layoutRegistry.setVisibility(View.VISIBLE);
                     scrollSummary.setVisibility(View.GONE);
-                    listPlayers.setOnItemClickListener((parent1, itemView, index, itemId) -> {
+                    ui.RecyclerLists.setOnItemClickListener(listPlayers, (parent1, itemView, index, itemId) -> {
                         activity.uiSounds().play(AudioEvent.UI_CLICK);
                         if (index >= 0 && index < displayedPlayers.size()) {
                             Player p = displayedPlayers.get(index);
                             PlayerProfileDialogController.showProfile(activity, p, userTeam);
                         }
                     });
-                    listPlayers.setAdapter(playerAdapter);
+                    ui.RecyclerLists.setAdapter(listPlayers, playerAdapter);
                     updateRegistryList.run();
                 } else if (position == 1) {
                     showSummary(activity, simLeague.userTransfers,
@@ -147,7 +146,7 @@ public final class TransferDialogController {
             @Override public void onNothingSelected(AdapterView<?> parent) {}
         });
 
-        listPlayers.setOnItemClickListener((parent, view, position, id) -> {
+        ui.RecyclerLists.setOnItemClickListener(listPlayers, (parent, view, position, id) -> {
             activity.uiSounds().play(AudioEvent.UI_CLICK);
             if (position >= 0 && position < displayedPlayers.size()) {
                 Player p = displayedPlayers.get(position);
@@ -193,7 +192,7 @@ public final class TransferDialogController {
 
         final TextView textCount = dialogView.findViewById(R.id.textSearchResultCount);
         final TextView textEmpty = dialogView.findViewById(R.id.textSearchEmpty);
-        final ListView listResults = dialogView.findViewById(R.id.listSearchResults);
+        final androidx.recyclerview.widget.RecyclerView listResults = dialogView.findViewById(R.id.listSearchResults);
         final Button buttonClose = dialogView.findViewById(R.id.buttonCloseSearch);
 
         textCount.setText(String.format(Locale.ROOT, "%d Active Redshirts", redshirtPlayers.size()));
@@ -206,8 +205,8 @@ public final class TransferDialogController {
             textEmpty.setVisibility(View.GONE);
             listResults.setVisibility(View.VISIBLE);
             final TransferPlayerAdapter adapter = new TransferPlayerAdapter(activity, redshirtPlayers);
-            listResults.setAdapter(adapter);
-            listResults.setOnItemClickListener((parent, view, position, id) -> {
+            ui.RecyclerLists.setAdapter(listResults, adapter);
+            ui.RecyclerLists.setOnItemClickListener(listResults, (parent, view, position, id) -> {
                 activity.uiSounds().play(AudioEvent.UI_CLICK);
                 if (position >= 0 && position < redshirtPlayers.size()) {
                     Player p = redshirtPlayers.get(position);
@@ -224,7 +223,7 @@ public final class TransferDialogController {
 
     private static void showSummary(MainActivity activity, String raw, String emptyCopy,
                                      Spinner spinnerPos, View layoutStatus, TextView textHint,
-                                     View layoutRegistry, ScrollView scrollSummary, ListView listPlayers,
+                                     View layoutRegistry, ScrollView scrollSummary, androidx.recyclerview.widget.RecyclerView listPlayers,
                                      TextView textCount, TextView textEmpty) {
         spinnerPos.setVisibility(View.GONE);
         layoutStatus.setVisibility(View.VISIBLE);
@@ -234,7 +233,7 @@ public final class TransferDialogController {
         List<TransferSummaryLine> rows = TransferSummaryLine.parse(raw);
         int players = TransferSummaryLine.playerCount(rows);
         textCount.setText(activity.getString(R.string.dlg_portal_summary_count, players));
-        listPlayers.setOnItemClickListener(null);
+        ui.RecyclerLists.setOnItemClickListener(listPlayers, null);
         if (players == 0) {
             textEmpty.setText(emptyCopy);
             textEmpty.setVisibility(View.VISIBLE);
@@ -242,7 +241,7 @@ public final class TransferDialogController {
         } else {
             textEmpty.setVisibility(View.GONE);
             listPlayers.setVisibility(View.VISIBLE);
-            listPlayers.setAdapter(new TransferSummaryAdapter(activity, rows));
+            ui.RecyclerLists.setAdapter(listPlayers, new TransferSummaryAdapter(activity, rows));
         }
     }
 

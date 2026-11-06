@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -38,7 +37,7 @@ public final class TeamPickerDialogController {
     public static void show(final MainActivity activity, final League league, final OnTeamPicked callback) {
         View content = LayoutInflater.from(activity).inflate(R.layout.team_picker_dialog, null, false);
         final Spinner spinner = content.findViewById(R.id.pickerConferenceSpinner);
-        final ListView list = content.findViewById(R.id.pickerTeamList);
+        final androidx.recyclerview.widget.RecyclerView list = content.findViewById(R.id.pickerTeamList);
         final TextView count = content.findViewById(R.id.pickerCount);
 
         final List<Conference> conferences = new ArrayList<>();
@@ -57,7 +56,7 @@ public final class TeamPickerDialogController {
         PlatformUiHelper.avoidSpinnerDropdownFocus(spinner);
 
         final TeamRowAdapter rows = new TeamRowAdapter(activity);
-        list.setAdapter(rows);
+        ui.RecyclerLists.setAdapter(list, rows);
 
         final AlertDialog dialog = Dialogs.builder(activity)
                 .setView(content)
@@ -78,7 +77,7 @@ public final class TeamPickerDialogController {
                 teams.sort(Comparator.comparing(Team::getName, String.CASE_INSENSITIVE_ORDER));
                 rows.replace(teams);
                 count.setText(activity.getString(R.string.picker_count, teams.size()));
-                list.setSelection(0);
+                list.scrollToPosition(0);
             }
 
             @Override
@@ -86,7 +85,7 @@ public final class TeamPickerDialogController {
             }
         });
 
-        list.setOnItemClickListener((parent, view, position, id) -> {
+        ui.RecyclerLists.setOnItemClickListener(list, (parent, view, position, id) -> {
             Team picked = rows.getItem(position);
             if (picked == null) return;
             int index = league.getTeamList().indexOf(picked);

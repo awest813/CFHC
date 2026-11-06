@@ -5,7 +5,6 @@ import android.content.DialogInterface;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.Spinner;
 
 import java.util.ArrayList;
@@ -60,9 +59,9 @@ final class NewsDialogController {
         weekSelectionSpinner.setAdapter(weekSelectionSpinnerAdapter);
         weekSelectionSpinner.setSelection(simLeague.currentWeek);
 
-        final ListView newsStoriesList = dialog.findViewById(R.id.listViewTeamRankings);
+        final androidx.recyclerview.widget.RecyclerView newsStoriesList = dialog.findViewById(R.id.listViewTeamRankings);
         final NewsStories newsStoriesAdapter = new NewsStories(activity, rankings);
-        newsStoriesList.setAdapter(newsStoriesAdapter);
+        ui.RecyclerLists.setAdapter(newsStoriesList, newsStoriesAdapter);
 
         weekSelectionSpinner.setOnItemSelectedListener(
                 new AdapterView.OnItemSelectedListener() {

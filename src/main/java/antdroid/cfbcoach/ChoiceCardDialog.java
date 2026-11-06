@@ -4,7 +4,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -56,8 +55,8 @@ public final class ChoiceCardDialog {
             subtitleView.setText(subtitle);
         }
 
-        ListView list = content.findViewById(R.id.choiceList);
-        list.setAdapter(new ArrayAdapter<Choice>(activity, R.layout.choice_card_row, choices) {
+        androidx.recyclerview.widget.RecyclerView list = content.findViewById(R.id.choiceList);
+        ui.RecyclerLists.setAdapter(list, new ArrayAdapter<Choice>(activity, R.layout.choice_card_row, choices) {
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View row = convertView != null ? convertView
@@ -79,7 +78,7 @@ public final class ChoiceCardDialog {
                 .create();
         dialog.setCancelable(false);
         dialog.setCanceledOnTouchOutside(false);
-        list.setOnItemClickListener((parent, view, position, id) -> {
+        ui.RecyclerLists.setOnItemClickListener(list, (parent, view, position, id) -> {
             view.performHapticFeedback(android.view.HapticFeedbackConstants.VIRTUAL_KEY);
             dialog.dismiss();
             callback.onChosen(position);
