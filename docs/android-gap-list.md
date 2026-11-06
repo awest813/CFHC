@@ -304,8 +304,16 @@ Built and linted locally against the Android SDK (`:app:assembleDebug`, `:app:li
 | APK | `jlayer` and `mp3spi` (LGPL MP3 decoders for the desktop soundtrack) are no longer packaged into the APK; Android plays MP3 natively. Debug and minified release builds pass |
 | P5 / P6 | **Not copied from desktop on purpose.** Android only grants redshirts in the preseason, and a redshirt can be cleared there (the checkbox stays enabled). Desktop toggles `isRedshirt` at any time, even for players who have already played, which looks like a rules leak on desktop rather than an Android gap. Android's coordinator hiring also runs the league-wide `coordinatorCarousel()`, so opening it mid-season would change league behaviour. Decide the rule first, then align both shells |
 
-**License finding:** GraphView 4.2.2 is published under the **GPL with a linking exception** (its POM),
-not Apache 2.0. It is used only for the history chart in `HistoryDialogController`. The licenses screen
-now names it correctly. Check that the linking exception covers the app's distribution, or replace the
-chart with a small custom `View`.
+**License finding (resolved):** GraphView 4.2.2 is published under the **GPL with a linking
+exception** (its POM), not Apache 2.0. It was replaced by `ui.TrendChartView`, a small custom view
+whose layout math lives in the tested, portable `simulation.TrendChartModel`. The app now has no
+GPL dependency. Jetifier, which only converts old Support Library dependencies, is off as well.
+
+**Release-build risk (pre-existing, not fixed):** R8 (AGP 8.7) warns *"Invalid stack map table … max
+stack height of 16 is violated"* for code that builds `PlayerRecord`, `StaffRecord` and
+`LeagueRecord.TeamRecord`, i.e. `PlayerRecord.fromCsv`, `StaffRecord.fromCsv` and `Team.toRecord`, the
+save/load path. javac's output is valid (`stack=26` in `StaffRecord.fromCsv`), and R8 notes that *"in
+later version of R8, the method may be assumed not reachable"*. Today's release builds still work.
+Before bumping AGP, run a release-build save/load smoke test. If R8 starts dropping these methods,
+split the record constructions into smaller helpers.
 

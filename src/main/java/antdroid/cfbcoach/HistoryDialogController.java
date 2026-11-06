@@ -6,10 +6,6 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.helper.StaticLabelsFormatter;
-import com.jjoe64.graphview.series.DataPoint;
-import com.jjoe64.graphview.series.LineGraphSeries;
 
 import simulation.League;
 import simulation.PlayerRecord;
@@ -155,8 +151,8 @@ public final class HistoryDialogController {
 
     private static void showGraphDialog(MainActivity activity, String title, String shellTitle,
                                          String shellDesc, GraphDataProvider provider,
-                                         int numHorizontalLabels, Double maxY, Double minY,
-                                         String[] verticalLabels) {
+                                         int numHorizontalLabels, double maxY, double minY,
+                                         simulation.TrendChartModel.ValueLabeler yLabeler) {
         AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle(title)
                 .setPositiveButton("OK", (dialog, which) -> {})
@@ -166,28 +162,20 @@ public final class HistoryDialogController {
         activity.showImmersive(dialog);
         PlatformUiHelper.bindGraphDialogShell(dialog, shellTitle, shellDesc);
 
-        GraphView graph = dialog.findViewById(R.id.graph);
-        LineGraphSeries<DataPoint> series = new LineGraphSeries<>();
-        String[] yearLabels = new String[provider.getDataCount()];
-        for (int i = 0; i < provider.getDataCount(); i++) {
-            series.appendData(provider.createDataPoint(i), true, i + 1, false);
-            yearLabels[i] = provider.createLabel(i);
+        int n = provider.getDataCount();
+        double[] values = new double[n];
+        String[] labels = new String[n];
+        for (int i = 0; i < n; i++) {
+            values[i] = provider.value(i);
+            labels[i] = provider.createLabel(i);
         }
-        graph.addSeries(series);
+        ui.TrendChartView chart = dialog.findViewById(R.id.graph);
+        chart.setModel(new simulation.TrendChartModel(values, labels, minY, maxY, yLabeler), numHorizontalLabels);
+    }
 
-        if (yearLabels.length > 1) {
-            StaticLabelsFormatter years = new StaticLabelsFormatter(graph);
-            years.setHorizontalLabels(yearLabels);
-            if (verticalLabels != null) years.setVerticalLabels(verticalLabels);
-            graph.getGridLabelRenderer().setLabelFormatter(years);
-            graph.getGridLabelRenderer().setNumHorizontalLabels(numHorizontalLabels);
-            if (verticalLabels != null) graph.getGridLabelRenderer().setNumVerticalLabels(6);
-        }
-        graph.getViewport().setScalable(true);
-        graph.getViewport().setScrollable(true);
-        graph.getViewport().setYAxisBoundsManual(true);
-        if (maxY != null) graph.getViewport().setMaxY(maxY);
-        if (minY != null) graph.getViewport().setMinY(minY);
+    /** Charts store "teams - rank" so better seasons plot higher; the axis shows the rank. */
+    private static simulation.TrendChartModel.ValueLabeler rankLabeler(final int teams) {
+        return v -> Integer.toString(teams - (int) Math.round(v));
     }
 
     private static void teamPrestigeGraphView(MainActivity activity, Team currentTeam, League simLeague) {
@@ -197,8 +185,8 @@ public final class HistoryDialogController {
                 currentTeam.getName() + " Prestige Trend",
                 "See how program prestige has risen and fallen across your team's historical arc.",
                 new GraphDataProvider() {
-                    public DataPoint createDataPoint(int i) {
-                        return new DataPoint(currentTeam.getTeamHistory().get(i).year, currentTeam.getTeamHistory().get(i).prestige);
+                    public double value(int i) {
+                        return currentTeam.getTeamHistory().get(i).prestige;
                     }
                     public String createLabel(int i) { return Integer.toString(currentTeam.getTeamHistory().get(i).year); }
                     public int getDataCount() { return currentTeam.getTeamHistory().size(); }
@@ -208,23 +196,18 @@ public final class HistoryDialogController {
 
     private static void teamRankingGraphView(MainActivity activity, Team currentTeam,
                                               League simLeague, int seasonStart) {
-        String[] rankLabels = new String[simLeague.getTeamList().size() + 1];
-        for (int i = simLeague.getTeamList().size(); i >= 0; i--) {
-            rankLabels[simLeague.getTeamList().size() - i] = Integer.toString(i);
-        }
         showGraphDialog(activity,
                 currentTeam.getName() + ": Rankings History",
                 currentTeam.getName() + " Ranking Trend",
                 "Track where your program has landed in the national pecking order over time.",
                 new GraphDataProvider() {
-                    public DataPoint createDataPoint(int i) {
-                        return new DataPoint(currentTeam.getTeamHistory().get(i).year,
-                                simLeague.getTeamList().size() - currentTeam.getTeamHistory().get(i).rank);
+                    public double value(int i) {
+                        return simLeague.getTeamList().size() - currentTeam.getTeamHistory().get(i).rank;
                     }
                     public String createLabel(int i) { return Integer.toString(i + seasonStart); }
                     public int getDataCount() { return currentTeam.getTeamHistory().size(); }
                 },
-                5, (double) simLeague.getTeamList().size(), 0.0, rankLabels);
+                5, simLeague.getTeamList().size(), 0.0, rankLabeler(simLeague.getTeamList().size()));
     }
 
     private static void coachGraphView(MainActivity activity, final Staff hc, League simLeague) {
@@ -234,19 +217,19 @@ public final class HistoryDialogController {
                 hc.getName() + " Prestige Trend",
                 "Follow how this coach changed program prestige across each stop in his career.",
                 new GraphDataProvider() {
-                    public DataPoint createDataPoint(int i) {
+                    public double value(int i) {
                         if (!hc.history.get(i).equals("")) {
                             String[] prsPart = hc.history.get(i).split("Prs: ");
                             if (prsPart.length >= 2) {
                                 String[] prsVal = prsPart[1].split(" ");
                                 if (prsVal.length >= 1) {
                                     try {
-                                        return new DataPoint(Integer.parseInt(hc.history.get(i).split(": ")[0]), Integer.parseInt(prsVal[0]));
+                                        return Integer.parseInt(prsVal[0]);
                                     } catch (NumberFormatException ignored) {}
                                 }
                             }
                         }
-                        return new DataPoint(i, 0);
+                        return 0;
                     }
                     public String createLabel(int i) { return hc.history.get(i).split(":")[0]; }
                     public int getDataCount() { return hc.history.size(); }
@@ -255,32 +238,27 @@ public final class HistoryDialogController {
     }
 
     private static void coachGraphViewRank(MainActivity activity, final Staff hc, League simLeague) {
-        String[] rankLabels = new String[simLeague.getTeamList().size() + 1];
-        for (int i = simLeague.getTeamList().size(); i >= 0; i--) {
-            rankLabels[simLeague.getTeamList().size() - i] = Integer.toString(i);
-        }
         showGraphDialog(activity,
                 hc.getName() + ": Rankings History",
                 hc.getName() + " Ranking Trend",
                 "Follow how this coach's teams climbed or slid in the national rankings over time.",
                 new GraphDataProvider() {
-                    public DataPoint createDataPoint(int i) {
+                    public double value(int i) {
                         if (!hc.history.get(i).equals("")) {
                             try {
-                                return new DataPoint(Integer.parseInt(hc.history.get(i).split(": ")[0]),
-                                        simLeague.getTeamList().size() - Integer.parseInt(hc.history.get(i).split("#")[1].split(" ")[0]));
-                            } catch (NumberFormatException ignored) {}
+                                return simLeague.getTeamList().size() - Integer.parseInt(hc.history.get(i).split("#")[1].split(" ")[0]);
+                            } catch (NumberFormatException | ArrayIndexOutOfBoundsException ignored) {}
                         }
-                        return new DataPoint(i, 0);
+                        return 0;
                     }
                     public String createLabel(int i) { return hc.history.get(i).split(":")[0]; }
                     public int getDataCount() { return hc.history.size(); }
                 },
-                4, (double) simLeague.getTeamList().size(), 0.0, rankLabels);
+                4, simLeague.getTeamList().size(), 0.0, rankLabeler(simLeague.getTeamList().size()));
     }
 
     private interface GraphDataProvider {
-        DataPoint createDataPoint(int index);
+        double value(int index);
         String createLabel(int index);
         int getDataCount();
     }
