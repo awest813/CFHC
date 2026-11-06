@@ -100,20 +100,14 @@ public class TeamMoraleCard extends CustomCardPanel {
     private void render(TeamMoraleSnapshot snap) {
         int overall = snap.overall();
 
-        String label = overall >= 75 ? "High" : (overall >= 55 ? "Steady" : (overall >= 40 ? "Uneasy" : "Low"));
-        statusTxt.setText(label);
+        statusTxt.setText(snap.label());
         statusTxt.setForeground(moraleColor(overall));
 
         int streak = team != null && team.getWinStreak() != null ? team.getWinStreak().getStreakLength() : 0;
         checklist.removeAll();
-        checklist.add(buildFactorRow(streak >= 2 ? "\u2713  " + streak + " Game Win Streak"
-                : (streak <= -2 ? "\u2193  " + (-streak) + " Game Slump" : "\u2713  Season On Track"), streak >= -1));
-        checklist.add(buildFactorRow(snap.leadership() >= 70 ? "\u2713  Strong Locker Room"
-                : "\u2193  Leadership Questions", snap.leadership() >= 70));
-        checklist.add(buildFactorRow(snap.buyIn() >= 70 ? "\u2713  Players Bought In"
-                : "\u2193  Buy-In Slipping", snap.buyIn() >= 70));
-        checklist.add(buildFactorRow(snap.chemistry() >= 65 ? "\u2713  Tight Chemistry"
-                : "\u2193  Chemistry Building", snap.chemistry() >= 65));
+        for (TeamMoraleSnapshot.Factor f : snap.factors(streak)) {
+            checklist.add(buildFactorRow(f.text(), f.positive()));
+        }
 
         sliders.removeAll();
         sliders.add(buildSliderRow("Chemistry", snap.chemistry()));

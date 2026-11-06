@@ -134,7 +134,7 @@ For each desktop feature: find the engine API it calls, then grep `antdroid/` an
 |---|---|---|---|---|
 | P1 | ✅ **Interactive gameday coaching** (as a pre-kickoff Gameday Plan) (pregame / halftime / crunch checkpoints → `GameCoachPlan`) | `desktop/LeagueHomeView.java:377` → `CoachDecisionDialog.java:32` via `setGameCoachListener` | No `GameCoachListener`/`GameCoachPlan` in Android; only the pre-kickoff scheme change in `GameDialogController.java:174` | P1 |
 | P2 | ✅ **Offseason Hub** (10-step checklist + "Advance One Step") | `LeagueHomeView.java:388` → `OffseasonHubDialog.java:29` (`SeasonFlowOrder.offseasonSteps()`) | Android uses only `firstOffseasonWeek` (`MainActivity.java:1469`) | P1 |
-| P3 | **Team morale card** (morale snapshot, win streak) | `TeamMoraleCard.java:93` (`getTeamMoraleSnapshot`) | Not referenced; only "Team Chemistry" as a rankings category | P2 |
+| P3 | ✅ **Team morale card** (morale snapshot, win streak) | `TeamMoraleCard.java:93` (`getTeamMoraleSnapshot`) | Not referenced; only "Team Chemistry" as a rankings category | P2 |
 | P4 | ✅ About / open-source licenses screen | `LeagueHomeView.java:646-662` | No licenses screen. Needed for the bundled OFL fonts and Apache-licensed AndroidX attribution | P2 |
 | — | Update checker | `DesktopUpdateChecker` | Not needed: Play handles updates. Optional in-app update prompt via Play Core | — |
 
@@ -324,4 +324,8 @@ split the record constructions into smaller helpers.
 - **P11:** on re-check, Android already offers FCS promotions during career setup (the setup dialog
   is the Settings dialog in `isNewGameSetup` mode) and shows the "N used" count. The parity sweep was
   wrong.
+- **P3:** Team Home has a **Locker Room** card: status word, chemistry / leadership / buy-in, and the
+  four factor lines (streak, leadership, buy-in, chemistry). The wording and thresholds moved into
+  `TeamMoraleSnapshot.label() / tone() / factors()`, so desktop's card and Android's card share them
+  (`TeamMoraleSnapshotTest`).
 

@@ -74,6 +74,7 @@ public class TeamHome extends ArrayAdapter<String> {
         textNextGame.setText(stripUnrankedMarks(nextGame));
         textNews.setText(news);
         textLastGame.setText(lastGame);
+        bindMorale(rowView);
 
         textRank.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -216,5 +217,35 @@ public class TeamHome extends ArrayAdapter<String> {
             return -1;
         }
         return Math.min(index, games.length - 1);
+    }
+
+    /** Locker Room card: status word, the three morale values, and the factor lines. */
+    private void bindMorale(View rowView) {
+        View card = rowView.findViewById(R.id.home_morale_card);
+        if (card == null) return;
+        if (team == null) {
+            card.setVisibility(View.GONE);
+            return;
+        }
+        card.setVisibility(View.VISIBLE);
+        simulation.TeamMoraleSnapshot snap = team.getTeamMoraleSnapshot();
+        TextView status = rowView.findViewById(R.id.home_morale_status);
+        status.setText(snap.label());
+        int tone = snap.tone();
+        status.setTextColor(androidx.core.content.ContextCompat.getColor(context,
+                tone > 0 ? R.color.cf_positive : (tone == 0 ? R.color.cf_warning : R.color.cf_negative)));
+        ((TextView) rowView.findViewById(R.id.home_morale_values)).setText(context.getString(
+                R.string.dash_morale_values, snap.chemistry(), snap.leadership(), snap.buyIn()));
+        int streak = team.getWinStreak() != null ? team.getWinStreak().getStreakLength() : 0;
+        android.text.SpannableStringBuilder sb = new android.text.SpannableStringBuilder();
+        for (simulation.TeamMoraleSnapshot.Factor f : snap.factors(streak)) {
+            if (sb.length() > 0) sb.append('\n');
+            int start = sb.length();
+            sb.append(f.text());
+            sb.setSpan(new android.text.style.ForegroundColorSpan(androidx.core.content.ContextCompat.getColor(context,
+                    f.positive() ? R.color.cf_positive : R.color.cf_warning)),
+                    start, sb.length(), android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        ((TextView) rowView.findViewById(R.id.home_morale_factors)).setText(sb);
     }
 }

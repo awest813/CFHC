@@ -22,4 +22,6 @@
 
     <!-- Accessibility -->
     <string name="dash_cd_opponent_sprite">Opponent avatar</string>
+    <string name="dash_title_morale">Locker Room</string>
+    <string name="dash_morale_values">Chemistry %1$d · Leadership %2$d · Buy-In %3$d</string>
 </resources>
