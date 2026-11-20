@@ -34,3 +34,6 @@ bin/
 # Python bytecode
 __pycache__/
 *.pyc
+
+# Claude Code agent worktrees (local scratch checkouts)
+.claude/worktrees/
