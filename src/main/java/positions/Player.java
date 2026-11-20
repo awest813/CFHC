@@ -65,6 +65,10 @@ public class Player {
         this.isWalkOn = record.isWalkOn();
         this.archetypeTag = record.archetypeTag() != null ? record.archetypeTag() : "";
         this.mentorName = record.mentorName() != null ? record.mentorName() : "";
+        if (record.ratOvrStart() >= 0) {
+            this.ratOvrStart = record.ratOvrStart();
+        }
+        this.ratImprovement = record.ratImprovement();
 
         if (record.isInjured() && record.injuryDuration() > 0) {
             String d = record.injuryDescription();
@@ -119,7 +123,8 @@ public class Player {
                 isRedshirt, isMedicalRS, isGradTransfer, isWalkOn,
                 inj, injDur, injDesc,
                 archetypeTag != null ? archetypeTag : "",
-                mentorName != null ? mentorName : ""
+                mentorName != null ? mentorName : "",
+                ratOvrStart, ratImprovement
         );
     }
 

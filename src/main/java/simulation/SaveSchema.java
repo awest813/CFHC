@@ -25,9 +25,16 @@ public final class SaveSchema {
      */
     private static final Set<String> SUPPORTED;
 
+    /**
+     * The generation before team/conference/league state lines. It loads through the
+     * same reader: the new lines are simply absent and their fields take defaults.
+     */
+    public static final String V1_4E = "v1.4e";
+
     static {
         LinkedHashSet<String> versions = new LinkedHashSet<>();
         versions.add(League.CURRENT_SAVE_VERSION);
+        versions.add(V1_4E);
         SUPPORTED = Collections.unmodifiableSet(versions);
     }
 
@@ -87,13 +94,13 @@ public final class SaveSchema {
     }
 
     /**
-     * Migration hook. Today every supported version is identity; add version-to-version
-     * transforms here when the on-disk shape changes.
+     * Migration hook. v1.4e to the current version is identity at the record level:
+     * the fields v1.5a added are optional lines, and {@code League} defaults them
+     * (or rebuilds them from the schedules) when a record does not carry them.
      */
     public static LeagueRecord migrate(String fromVersion, LeagueRecord record) throws IOException {
         String normalized = requireSupported(fromVersion);
-        // Identity migrate for the single supported generation.
-        if (League.CURRENT_SAVE_VERSION.equals(normalized)) {
+        if (League.CURRENT_SAVE_VERSION.equals(normalized) || V1_4E.equals(normalized)) {
             return record;
         }
         throw new IOException(unsupportedMessage(normalized));

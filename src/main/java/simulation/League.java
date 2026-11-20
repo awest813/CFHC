@@ -110,7 +110,11 @@ import staff.Staff;
  */
 @NotThreadSafe
 public class League {
-    public static final String CURRENT_SAVE_VERSION = "v1.4e";
+    /**
+     * v1.5a added team/conference/league state lines (TX:, CX:, LS:, LH:, HH:, BN:, PO:);
+     * v1.4e saves still load, with those fields defaulted.
+     */
+    public static final String CURRENT_SAVE_VERSION = "v1.5a";
 
     public static GameUiBridge bridgeOrNoOp(GameUiBridge bridge) {
         return bridge == null ? GameUiBridge.NO_OP : bridge;
@@ -1284,8 +1288,60 @@ public class League {
                 settingsRecord(),
                 recruitingPhaseActive,
                 coachPoolRecords(),
-                regSeasonWeeks
+                regSeasonWeeks,
+                leagueStateRecord()
         );
+    }
+
+    /** History, bowl names and postseason bookkeeping for the save (see {@link LeagueRecord.LeagueState}). */
+    private LeagueRecord.LeagueState leagueStateRecord() {
+        java.util.List<String> history = new ArrayList<>();
+        for (String[] row : leagueHistory) {
+            history.add(String.join("%", row));
+        }
+        java.util.List<String> bowls = new ArrayList<>();
+        if (bowlNames != null) {
+            for (String b : bowlNames) {
+                bowls.add(b != null ? b : "");
+            }
+        }
+        java.util.List<String> field = new ArrayList<>();
+        if (playoffTeams != null) {
+            for (Team t : playoffTeams) {
+                field.add(t.getName());
+            }
+        }
+        LeagueRecord.StateBag.Builder scalars = new LeagueRecord.StateBag.Builder()
+                .flag("bowlsScheduled", hasScheduledBowls)
+                .put("playoffWeek", playoffWeek)
+                .put("userTeam", userTeam != null ? userTeam.getName() : "")
+                .put("longestStreak", streakCsv(longestWinStreak))
+                .put("yearStartStreak", streakCsv(yearStartLongestWinStreak));
+        if (postseason != null) {
+            scalars.put("postseason", postseason.replace("\n", "\\n"));
+        }
+        return new LeagueRecord.LeagueState(history, new ArrayList<>(heismanHistory), bowls, field, scalars.build());
+    }
+
+    private static String streakCsv(TeamStreak s) {
+        if (s == null) {
+            return "";
+        }
+        return s.getStreakLength() + "," + s.getStartYear() + "," + s.getEndYear() + ","
+                + (s.getTeam() != null ? s.getTeam() : "");
+    }
+
+    private static TeamStreak parseStreakCsv(String csv, TeamStreak fallback) {
+        if (csv == null || csv.isEmpty()) {
+            return fallback;
+        }
+        String[] p = csv.split(",", 4);
+        try {
+            return new TeamStreak(Integer.parseInt(p[1].trim()), Integer.parseInt(p[2].trim()),
+                    Integer.parseInt(p[0].trim()), p.length > 3 ? p[3] : "");
+        } catch (RuntimeException e) {
+            return fallback;
+        }
     }
 
     /**
@@ -1536,7 +1592,18 @@ public class League {
 
     public void applyLeagueRecord(LeagueRecord record) {
         this.leagueName = record.leagueName();
+        LeagueRecord.LeagueState state = record.state();
+        if (state != null) {
+            // History first: the season year is seasonStart + history size.
+            leagueHistory.clear();
+            for (String row : state.leagueHistory()) {
+                leagueHistory.add(row.split("%", -1));
+            }
+            heismanHistory.clear();
+            heismanHistory.addAll(state.heismanHistory());
+        }
         this.seasonStart = record.year() - (leagueHistory != null ? leagueHistory.size() : 0);
+        restoreBowlNames(state);
 
         // Re-bind the persisted RNG stream (legacy saves without a seed start a fresh one).
         this.rngSeed = record.rngSeed() != 0 ? record.rngSeed() : SimRandom.freshSeed();
@@ -1589,16 +1656,351 @@ public class League {
         }
 
         linkUserTeamFromLoadedCoaches();
+        if (userTeam == null && state != null) {
+            // The user's head-coach post can be vacant mid-offseason; the save names the team.
+            Team saved = findTeam(state.scalars().str("userTeam", ""));
+            if (saved != null) {
+                userTeam = saved;
+                saved.setUserControlled(true);
+            }
+        }
         applySettingsRecord(record.settings());
         this.recruitingPhaseActive = SeasonFlowOrder.isRecruitingGate(currentWeek, regSeasonWeeks)
                 && (record.recruitingStarted() != null ? record.recruitingStarted() : cpuClassesSigned());
 
+        restoreTeamHallsOfFame();
+        restoreLegacyDivisions(record);
+        if (state != null) {
+            longestWinStreak = parseStreakCsv(state.scalars().str("longestStreak", ""), longestWinStreak);
+            yearStartLongestWinStreak = parseStreakCsv(state.scalars().str("yearStartStreak", ""),
+                    yearStartLongestWinStreak);
+            String ps = state.scalars().str("postseason", "");
+            postseason = ps.isEmpty() ? postseason : ps.replace("\\n", "\n");
+            playoffWeek = state.scalars().integer("playoffWeek", playoffWeek);
+        }
+
         restoreScheduledGames(record.scheduledGames());
+        rebuildSeasonResultsFromSchedules();
+        restorePostseasonGames(state);
         restoreSeasonBaselines();
 
         // New-format loads skip setupSeason(), which normally allocates weekly news/score
         // buckets. Without this, preseasonNews/topRecruits NPEs on newsStories.
         ensureSeasonWeekListsCapacity(Math.max(seasonWeeks, currentWeek + 4));
+    }
+
+    /**
+     * Bowl names from the save. Saves that predate them left every name null, so a
+     * bowl scheduled after such a load had no name (and crashed when played); they
+     * get the built-in names.
+     */
+    private void restoreBowlNames(LeagueRecord.LeagueState state) {
+        String[] names = null;
+        if (state != null && !state.bowlNames().isEmpty()) {
+            names = state.bowlNames().toArray(new String[0]);
+        } else if (bowlNames == null || bowlNames.length == 0 || bowlNames[0] == null) {
+            String[] defaults = bowlNamesText.split(",");
+            names = new String[defaults.length];
+            for (int i = 0; i < defaults.length; i++) {
+                names[i] = defaults[i].trim();
+            }
+        }
+        if (names != null) {
+            bowlNames = names;
+        }
+        if (bowlGames == null || bowlGames.length < bowlNames.length) {
+            bowlGames = new Game[bowlNames.length];
+        }
+    }
+
+    /** Team halls of fame are not saved per team; rebuild them from the league's, as the legacy loader did. */
+    private void restoreTeamHallsOfFame() {
+        for (PlayerRecord pr : leagueHoF) {
+            Team t = pr.teamName() != null ? findTeam(pr.teamName()) : null;
+            if (t != null) {
+                t.addToHallOfFame(pr);
+                t.incrementHoFCount();
+            }
+        }
+    }
+
+    /**
+     * Saves that predate team state carry no division; split each conference between
+     * its two divisions (alternating, as the legacy loader did) so division lookups work.
+     */
+    private void restoreLegacyDivisions(LeagueRecord record) {
+        for (Conference c : conferences) {
+            int i = 0;
+            for (Team t : c.confTeams) {
+                if (t.getDivision() == null && c.divisions.size() >= 2) {
+                    t.setDivision(c.divisions.get(i % 2).divName);
+                }
+                i++;
+            }
+        }
+    }
+
+    /**
+     * Rebuilds each team's per-game W/L list and wins/losses-against lists from the
+     * played games on its schedule; the save keeps the games, not these lists.
+     * Conference standings ({@code Team.getConfWins}) and the schedule screen read them,
+     * so without this a mid-season load seeded the conference title games as if no
+     * conference game had been played.
+     */
+    private void rebuildSeasonResultsFromSchedules() {
+        for (Team t : teamList) {
+            if (!t.getGameWLSchedule().isEmpty()) {
+                continue;
+            }
+            for (Game g : t.getGameSchedule()) {
+                if (g == null || !g.hasPlayed) {
+                    continue;
+                }
+                if (Game.BYE_WEEK_NAME.equals(g.gameName)) {
+                    t.addToGameWLSchedule("BYE");
+                    continue;
+                }
+                boolean home = g.homeTeam == t;
+                Team opponent = home ? g.awayTeam : g.homeTeam;
+                boolean won = home ? g.homeScore > g.awayScore : g.awayScore > g.homeScore;
+                t.addToGameWLSchedule(won ? "W" : "L");
+                if (won) {
+                    t.addGameWinAgainst(opponent);
+                } else {
+                    t.addGameLossAgainst(opponent);
+                }
+            }
+        }
+    }
+
+    /**
+     * Re-links the postseason references (conference title games, playoff and bowl
+     * arrays, the title game, the playoff field) to the games restored onto the team
+     * schedules, so a save made at any postseason week resumes. Games are identified
+     * by name; the playoff bracket order comes from the saved seeded field, or for
+     * older saves from the games' teams and poll ranks.
+     */
+    private void restorePostseasonGames(LeagueRecord.LeagueState state) {
+        java.util.Set<Game> seen = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+        java.util.List<Game> post = new ArrayList<>();
+        int regularSlots = Math.max(0, regSeasonWeeks - 2);
+        for (Team t : teamList) {
+            java.util.List<Game> sched = t.getGameSchedule();
+            for (int i = 0; i < sched.size(); i++) {
+                Game g = sched.get(i);
+                if (g != null && seen.add(g)) {
+                    post.add(g);
+                }
+            }
+        }
+
+        // Conference title games.
+        java.util.Set<Game> ccgs = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+        for (Conference c : conferences) {
+            String ccgName = c.confName + " CCG";
+            for (Game g : post) {
+                if (ccgName.equals(g.gameName) && c.confTeams.contains(g.homeTeam)) {
+                    c.restoreChampionshipGame(g);
+                    ccgs.add(g);
+                    break;
+                }
+            }
+        }
+
+        // The playoff field.
+        playoffTeams.clear();
+        if (state != null) {
+            for (String n : state.playoffTeams()) {
+                Team t = findTeam(n);
+                if (t != null) {
+                    playoffTeams.add(t);
+                }
+            }
+        }
+
+        java.util.List<Game> firstRound = new ArrayList<>();
+        java.util.List<Game> quarters = new ArrayList<>();
+        java.util.List<Game> semis = new ArrayList<>();
+        java.util.List<Game> unnamed = new ArrayList<>();
+        java.util.Map<String, Game> byName = new java.util.HashMap<>();
+        semiG14 = null;
+        semiG23 = null;
+        ncg = null;
+        for (Game g : post) {
+            if (ccgs.contains(g) || g.gameName == null) {
+                continue;
+            }
+            switch (g.gameName) {
+                case "First Round": firstRound.add(g); break;
+                case "Quarterfinal": quarters.add(g); break;
+                case "Semifinal": semis.add(g); break;
+                case "Semis, 1v4": semiG14 = g; break;
+                case "Semis, 2v3": semiG23 = g; break;
+                case "Championship":
+                case "NCG": ncg = g; break;
+                default:
+                    byName.putIfAbsent(g.gameName, g);
+                    if (isPostseasonSlot(g, regularSlots)) {
+                        unnamed.add(g);
+                    }
+            }
+        }
+
+        if (playoffTeams.isEmpty() && firstRound.size() == 4) {
+            playoffTeams.addAll(inferPlayoffField(firstRound, quarters));
+        }
+        cfpGames = new Game[15];
+        if (playoffTeams.size() >= EXPANDED_PLAYOFF_TEAM_COUNT) {
+            int[] firstRoundHomeSeed = {4, 7, 5, 6};
+            for (int i = 0; i < 4; i++) {
+                cfpGames[i] = gameHostedBy(firstRound, playoffTeams.get(firstRoundHomeSeed[i]));
+            }
+            int[] quarterHomeSeed = {3, 0, 2, 1};
+            for (int i = 0; i < 4; i++) {
+                cfpGames[4 + i] = gameHostedBy(quarters, playoffTeams.get(quarterHomeSeed[i]));
+            }
+            // Semifinal 8 is hosted by the winner of quarterfinal 4 (BowlManager.expPlayoffSchdSemi).
+            Game upper = cfpGames[4];
+            for (Game g : semis) {
+                boolean fromUpper = upper != null && (g.homeTeam == upper.homeTeam || g.homeTeam == upper.awayTeam);
+                int slot = fromUpper ? 8 : 9;
+                if (cfpGames[slot] == null) {
+                    cfpGames[slot] = g;
+                } else {
+                    cfpGames[17 - slot] = g;
+                }
+            }
+        }
+
+        // Bowls: by saved name, or for older saves (no bowl names saved, and bowls
+        // scheduled after a load had none) every other postseason game, by tier.
+        java.util.Arrays.fill(bowlGames, null);
+        int bowlsFound = 0;
+        boolean namesSaved = state != null && !state.bowlNames().isEmpty();
+        if (namesSaved) {
+            for (int b = 0; b < bowlNames.length && b < bowlGames.length; b++) {
+                bowlGames[b] = bowlNames[b] != null ? byName.get(bowlNames[b]) : null;
+                if (bowlGames[b] != null) bowlsFound++;
+            }
+        } else if (!unnamed.isEmpty()) {
+            assignUnnamedBowls(unnamed);
+            bowlsFound = unnamed.size();
+        }
+
+        boolean selectionDone = currentWeek >= SeasonFlowOrder.bowlWeek1(regSeasonWeeks)
+                && currentWeek <= SeasonFlowOrder.firstOffseasonWeek(regSeasonWeeks);
+        hasScheduledBowls = state != null && state.scalars().has("bowlsScheduled")
+                ? state.scalars().bool("bowlsScheduled", false)
+                : bowlsFound > 0 || selectionDone;
+    }
+
+    private static boolean isPostseasonSlot(Game g, int regularSlots) {
+        int idx = g.homeTeam.getGameSchedule().indexOf(g);
+        return idx >= regularSlots;
+    }
+
+    private static Game gameHostedBy(java.util.List<Game> games, Team home) {
+        for (Game g : games) {
+            if (g.homeTeam == home) return g;
+        }
+        return null;
+    }
+
+    /**
+     * The 12-team field for saves that did not record it: seeds 5-12 from the
+     * first-round games (home seeds ranked by poll), seeds 1-4 from the quarterfinal
+     * hosts when scheduled, else the best-ranked teams without a postseason game.
+     */
+    private java.util.List<Team> inferPlayoffField(java.util.List<Game> firstRound, java.util.List<Game> quarters) {
+        java.util.List<Game> fr = new ArrayList<>(firstRound);
+        fr.sort(java.util.Comparator.comparingInt(g -> g.homeTeam.getRankTeamPollScore()));
+        Team[] seeds = new Team[EXPANDED_PLAYOFF_TEAM_COUNT];
+        // Seeds 5-8 host seeds 12-9 (see BowlManager.scheduleExpPlayoff).
+        for (int i = 0; i < 4; i++) {
+            seeds[4 + i] = fr.get(i).homeTeam;
+            seeds[11 - i] = fr.get(i).awayTeam;
+        }
+        // cfp0..3 are hosted by seeds 5, 8, 6, 7; QF hosts 4, 1, 3, 2 meet their winners.
+        Game[] cfp = {fr.get(0), fr.get(3), fr.get(1), fr.get(2)};
+        int[] quarterHostSeed = {3, 0, 2, 1};
+        boolean quartersKnown = quarters.size() == 4;
+        if (quartersKnown) {
+            for (int i = 0; i < 4; i++) {
+                Game q = null;
+                for (Game g : quarters) {
+                    if (g.awayTeam == cfp[i].homeTeam || g.awayTeam == cfp[i].awayTeam) q = g;
+                }
+                if (q == null) {
+                    quartersKnown = false;
+                    break;
+                }
+                seeds[quarterHostSeed[i]] = q.homeTeam;
+            }
+        }
+        if (!quartersKnown) {
+            java.util.Set<Team> busy = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+            for (Team t : seeds) if (t != null) busy.add(t);
+            int regularSlots = Math.max(0, regSeasonWeeks - 2);
+            java.util.List<Team> candidates = new ArrayList<>();
+            for (Team t : teamList) {
+                if (busy.contains(t) || t.isBowlBan()) continue;
+                boolean hasPostseasonGame = false;
+                java.util.List<Game> sched = t.getGameSchedule();
+                for (int i = regularSlots; i < sched.size(); i++) {
+                    Game g = sched.get(i);
+                    if (g != null && (g.gameName == null || !g.gameName.endsWith(" CCG"))) hasPostseasonGame = true;
+                }
+                if (!hasPostseasonGame) candidates.add(t);
+            }
+            candidates.sort(java.util.Comparator.comparingInt(Team::getRankTeamPollScore));
+            for (int i = 0; i < 4 && i < candidates.size(); i++) {
+                seeds[i] = candidates.get(i);
+            }
+        }
+        java.util.List<Team> out = new ArrayList<>();
+        for (Team t : seeds) {
+            if (t == null) return new ArrayList<>();
+            out.add(t);
+        }
+        return out;
+    }
+
+    /**
+     * Older saves did not record bowl slots (and bowls scheduled after a load had no
+     * name). Give each bowl a slot, keeping unplayed bowls in a tier whose week is
+     * still ahead so they get played; a named bowl lends its name to its slot, an
+     * unnamed one takes the slot's.
+     */
+    private void adoptBowlSlot(int slot, Game g) {
+        bowlGames[slot] = g;
+        if (g.gameName == null || g.gameName.isEmpty() || "Game".equals(g.gameName)) {
+            if (bowlNames[slot] != null) g.gameName = bowlNames[slot];
+        } else {
+            bowlNames[slot] = g.gameName;
+        }
+    }
+
+    private void assignUnnamedBowls(java.util.List<Game> unnamed) {
+        int r = regSeasonWeeks;
+        int slots = Math.min(bowlGames.length, bowlNames.length);
+        int limit = slots;
+        if (currentWeek > SeasonFlowOrder.bowlWeek1(r)) limit = Math.min(limit, BowlManager.TIER2_CUTOFF);
+        if (currentWeek > SeasonFlowOrder.bowlWeek2(r)) limit = Math.min(limit, BowlManager.TIER1_CUTOFF);
+        int next = 0;
+        java.util.List<Game> played = new ArrayList<>();
+        for (Game g : unnamed) {
+            if (g.hasPlayed) {
+                played.add(g);
+            } else if (next < limit) {
+                adoptBowlSlot(next++, g);
+            }
+        }
+        int slot = slots - 1;
+        for (Game g : played) {
+            while (slot >= 0 && bowlGames[slot] != null) slot--;
+            if (slot < 0) break;
+            adoptBowlSlot(slot, g);
+        }
     }
 
     /**

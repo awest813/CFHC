@@ -518,9 +518,10 @@ public class Team {
         this.teamPrestige = record.prestige();
         commonInitializer();
 
-        this.HC = new staff.HeadCoach(record.headCoach(), this);
-        this.OC = new staff.OC(this, record.offenseCoach());
-        this.DC = new staff.DC(this, record.defenseCoach());
+        // A post can be vacant in a save made between firing and the coaching carousel.
+        this.HC = record.headCoach() != null ? new staff.HeadCoach(record.headCoach(), this) : null;
+        this.OC = record.offenseCoach() != null ? new staff.OC(this, record.offenseCoach()) : null;
+        this.DC = record.defenseCoach() != null ? new staff.DC(this, record.defenseCoach()) : null;
 
 
         for (PlayerRecord pr : record.roster()) {
@@ -577,7 +578,175 @@ public class Team {
                 this.oocWeeks.add(w);
             }
         }
+        applyStateRecord(record.state());
         // oocOpponentNames are resolved in League.linkOocOpponentsFromRecord after every team exists.
+    }
+
+    /**
+     * Program and season state saved beside the {@link LeagueRecord.TeamRecord} columns
+     * (see {@link #stateRecord()} for the keys). Saves that predate it keep the
+     * constructor defaults, except discipline, which starts at the new-team value
+     * rather than 0.
+     */
+    private void applyStateRecord(LeagueRecord.StateBag s) {
+        if (s == null || s.isEmpty()) {
+            teamDisciplineScore = disciplineStart;
+            return;
+        }
+        conference = s.has("conf") ? s.str("conf", conference) : conference;
+        if (s.has("nick")) {
+            nickname = s.str("nick", nickname);
+        }
+        division = s.has("div") ? s.str("div", division) : division;
+        location = s.integer("loc", location);
+        teamBudget = s.integer("budget", teamBudget);
+        teamRecruitBudget = s.integer("recruitBudget", teamRecruitBudget);
+        teamDiscplineBudget = s.integer("disciplineBudget", teamDiscplineBudget);
+        teamDisciplineScore = s.integer("disciplineScore", disciplineStart);
+        teamDiscipline = s.integer("discipline", teamDiscipline);
+        teamFacilities = s.integer("facilities", teamFacilities);
+        bowlBan = s.bool("bowlBan", bowlBan);
+        penalized = s.bool("penalized", penalized);
+        recentPenalty = s.bool("recentPenalty", recentPenalty);
+        facilityUpgrade = s.bool("facilityUpgrade", facilityUpgrade);
+        nilCollectiveUpgrade = s.bool("nilUpgrade", nilCollectiveUpgrade);
+        disciplineAction = s.bool("disciplineAction", disciplineAction);
+        showPopups = s.bool("popups", showPopups);
+        totalWins = s.integer("totW", totalWins);
+        totalLosses = s.integer("totL", totalLosses);
+        totalCCs = s.integer("totCC", totalCCs);
+        totalNCs = s.integer("totNC", totalNCs);
+        totalCCLosses = s.integer("totCCL", totalCCLosses);
+        totalNCLosses = s.integer("totNCL", totalNCLosses);
+        totalBowls = s.integer("totBowl", totalBowls);
+        totalBowlLosses = s.integer("totBowlL", totalBowlLosses);
+        TeamStreak streak = parseStreak(s.str("streak", null));
+        if (streak != null) {
+            winStreak = streak;
+        }
+        confChampion = s.str("cc", confChampion);
+        sweet16 = s.str("fr", sweet16);
+        qtFinalWL = s.str("qf", qtFinalWL);
+        semiFinalWL = s.str("sf", semiFinalWL);
+        natChampWL = s.str("nc", natChampWL);
+        teamPoints = s.integer("pts", teamPoints);
+        teamOppPoints = s.integer("oppPts", teamOppPoints);
+        teamYards = s.integer("yds", teamYards);
+        teamOppYards = s.integer("oppYds", teamOppYards);
+        teamPassYards = s.integer("passYds", teamPassYards);
+        teamRushYards = s.integer("rushYds", teamRushYards);
+        teamOppPassYards = s.integer("oppPassYds", teamOppPassYards);
+        teamOppRushYards = s.integer("oppRushYds", teamOppRushYards);
+        teamTODiff = s.integer("toDiff", teamTODiff);
+        disciplinePts = s.integer("disciplinePts", disciplinePts);
+        confPrestige = s.integer("confPrestige", confPrestige);
+        fired = s.bool("fired", fired);
+        newContract = s.bool("newContract", newContract);
+        retired = s.bool("retired", retired);
+        if (s.has("contract")) {
+            contractString = s.str("contract", contractString);
+        }
+        int[] pts = parseInts(s.str("prestigePts", ""));
+        if (pts.length > 0) {
+            prestigePts = pts;
+        }
+    }
+
+    /** The {@link #applyStateRecord} counterpart: what {@link #toRecord()} saves as team state. */
+    LeagueRecord.StateBag stateRecord() {
+        LeagueRecord.StateBag.Builder b = new LeagueRecord.StateBag.Builder()
+                .put("conf", conference != null ? conference : "")
+                .put("nick", nickname != null ? nickname : "")
+                .put("loc", location)
+                .put("budget", teamBudget)
+                .put("recruitBudget", teamRecruitBudget)
+                .put("disciplineBudget", teamDiscplineBudget)
+                .put("disciplineScore", teamDisciplineScore)
+                .put("discipline", teamDiscipline)
+                .put("facilities", teamFacilities)
+                .flag("bowlBan", bowlBan)
+                .flag("penalized", penalized)
+                .flag("recentPenalty", recentPenalty)
+                .flag("facilityUpgrade", facilityUpgrade)
+                .flag("nilUpgrade", nilCollectiveUpgrade)
+                .flag("disciplineAction", disciplineAction)
+                .flag("popups", showPopups)
+                .put("totW", totalWins)
+                .put("totL", totalLosses)
+                .put("totCC", totalCCs)
+                .put("totNC", totalNCs)
+                .put("totCCL", totalCCLosses)
+                .put("totNCL", totalNCLosses)
+                .put("totBowl", totalBowls)
+                .put("totBowlL", totalBowlLosses)
+                .put("cc", confChampion)
+                .put("fr", sweet16)
+                .put("qf", qtFinalWL)
+                .put("sf", semiFinalWL)
+                .put("nc", natChampWL)
+                .put("pts", teamPoints)
+                .put("oppPts", teamOppPoints)
+                .put("yds", teamYards)
+                .put("oppYds", teamOppYards)
+                .put("passYds", teamPassYards)
+                .put("rushYds", teamRushYards)
+                .put("oppPassYds", teamOppPassYards)
+                .put("oppRushYds", teamOppRushYards)
+                .put("toDiff", teamTODiff)
+                .put("disciplinePts", disciplinePts)
+                .put("confPrestige", confPrestige)
+                .flag("fired", fired)
+                .flag("newContract", newContract)
+                .flag("retired", retired);
+        if (division != null) {
+            b.put("div", division);
+        }
+        if (winStreak != null) {
+            b.put("streak", winStreak.getStreakLength() + "," + winStreak.getStartYear() + ","
+                    + winStreak.getEndYear() + "," + (winStreak.getTeam() != null ? winStreak.getTeam() : ""));
+        }
+        if (contractString != null) {
+            b.put("contract", contractString);
+        }
+        if (prestigePts != null) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < prestigePts.length; i++) {
+                if (i > 0) sb.append(',');
+                sb.append(prestigePts[i]);
+            }
+            b.put("prestigePts", sb);
+        }
+        return b.build();
+    }
+
+    /** "length,startYear,endYear,team" from {@link #stateRecord()}; null when unreadable. */
+    private static TeamStreak parseStreak(String csv) {
+        if (csv == null || csv.isEmpty()) {
+            return null;
+        }
+        String[] p = csv.split(",", 4);
+        try {
+            return new TeamStreak(Integer.parseInt(p[1].trim()), Integer.parseInt(p[2].trim()),
+                    Integer.parseInt(p[0].trim()), p.length > 3 ? p[3] : "");
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    private static int[] parseInts(String csv) {
+        if (csv == null || csv.trim().isEmpty()) {
+            return new int[0];
+        }
+        String[] p = csv.split(",");
+        int[] out = new int[p.length];
+        try {
+            for (int i = 0; i < p.length; i++) {
+                out[i] = Integer.parseInt(p[i].trim());
+            }
+        } catch (NumberFormatException e) {
+            return new int[0];
+        }
+        return out;
     }
 
     /**
@@ -687,7 +856,9 @@ public class Team {
                 java.util.List.copyOf(oocNames),
                 teamPollScore,
                 rankTeamPollScore,
-                HC.toRecord(), OC.toRecord(), DC.toRecord(),
+                HC != null ? HC.toRecord() : null,
+                OC != null ? OC.toRecord() : null,
+                DC != null ? DC.toRecord() : null,
                 roster,
                 new ArrayList<>(teamHistory),
                 teamRecords.toRecordList(),
@@ -704,7 +875,8 @@ public class Team {
                 teamStadium,
                 seasonBaseline(),
                 playbookOffNum,
-                playbookDefNum
+                playbookDefNum,
+                stateRecord()
         );
     }
 

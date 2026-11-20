@@ -35,6 +35,20 @@ public class SaveManager {
     static final String SETTINGS_PREFIX = "OPT:";
     /** A coach without a job (free agent or retired); older builds skip the line. */
     static final String FREE_AGENT_COACH_PREFIX = "CFA:";
+    /** Team state ({@link LeagueRecord.TeamRecord#state()}), after T:; key=value pairs. */
+    static final String TEAM_STATE_PREFIX = "TX:";
+    /** Conference state ({@link LeagueRecord.ConferenceRecord#state()}), after C:. */
+    static final String CONF_STATE_PREFIX = "CX:";
+    /** League scalars ({@link LeagueRecord.LeagueState#scalars()}). */
+    static final String LEAGUE_STATE_PREFIX = "LS:";
+    /** One league-history season row (entries joined with %). */
+    static final String LEAGUE_HISTORY_PREFIX = "LH:";
+    /** One season's player-of-the-year history line. */
+    static final String HEISMAN_HISTORY_PREFIX = "HH:";
+    /** Bowl names, tab-separated, in bowl-slot order. */
+    static final String BOWL_NAMES_PREFIX = "BN:";
+    /** The playoff field in seed order, tab-separated team names. */
+    static final String PLAYOFF_TEAMS_PREFIX = "PO:";
     private static final String END_TOKEN = "END";
 
     /** Result of loading a new-format save, including the resolved schema version. */
@@ -113,6 +127,22 @@ public class SaveManager {
         if (league.settings() != null) {
             writer.write(SETTINGS_PREFIX + league.settings().toSaveLine() + "\n");
         }
+        LeagueRecord.LeagueState state = league.state();
+        if (state != null) {
+            writer.write(LEAGUE_STATE_PREFIX + state.scalars().toSaveLine() + "\n");
+            for (String row : state.leagueHistory()) {
+                writer.write(LEAGUE_HISTORY_PREFIX + singleLine(row) + "\n");
+            }
+            for (String row : state.heismanHistory()) {
+                writer.write(HEISMAN_HISTORY_PREFIX + singleLine(row) + "\n");
+            }
+            if (!state.bowlNames().isEmpty()) {
+                writer.write(BOWL_NAMES_PREFIX + joinTabs(state.bowlNames()) + "\n");
+            }
+            if (!state.playoffTeams().isEmpty()) {
+                writer.write(PLAYOFF_TEAMS_PREFIX + joinTabs(state.playoffTeams()) + "\n");
+            }
+        }
 
         // Global Hall of Fame
         for (PlayerRecord p : league.leagueHoF()) {
@@ -141,6 +171,9 @@ public class SaveManager {
                 confLine += "|" + cw;
             }
             writer.write(confLine + "\n");
+            if (!c.state().isEmpty()) {
+                writer.write(CONF_STATE_PREFIX + c.state().toSaveLine() + "\n");
+            }
             for (LeagueRecord.TeamRecord t : c.teams()) {
                 writer.write(TEAM_PREFIX + sanitizeInlineValue(t.name()) + "\t" + sanitizeInlineValue(t.abbr()) + "\t"
                         + t.prestige() + "\t" + t.wins() + "\t" + t.losses() + "\t"
@@ -157,11 +190,20 @@ public class SaveManager {
                         + t.teamStadium()
                         + seasonBaselineFields(t.seasonBaseline())
                         + playbookFields(t) + "\n");
-                
-                // Coaches
-                writer.write(COACH_PREFIX + "HC," + Persistence.toCsv(t.headCoach()) + "\n");
-                writer.write(COACH_PREFIX + "OC," + Persistence.toCsv(t.offenseCoach()) + "\n");
-                writer.write(COACH_PREFIX + "DC," + Persistence.toCsv(t.defenseCoach()) + "\n");
+                if (!t.state().isEmpty()) {
+                    writer.write(TEAM_STATE_PREFIX + t.state().toSaveLine() + "\n");
+                }
+
+                // Coaches (a post lies vacant between firing and the coaching carousel)
+                if (t.headCoach() != null) {
+                    writer.write(COACH_PREFIX + "HC," + Persistence.toCsv(t.headCoach()) + "\n");
+                }
+                if (t.offenseCoach() != null) {
+                    writer.write(COACH_PREFIX + "OC," + Persistence.toCsv(t.offenseCoach()) + "\n");
+                }
+                if (t.defenseCoach() != null) {
+                    writer.write(COACH_PREFIX + "DC," + Persistence.toCsv(t.defenseCoach()) + "\n");
+                }
 
                 // Roster
                 for (PlayerRecord p : t.roster()) {
@@ -213,6 +255,30 @@ public class SaveManager {
         } finally {
             writer.close();
         }
+    }
+
+    private static String singleLine(String value) {
+        return value == null ? "" : value.replace('\n', ' ').replace('\r', ' ');
+    }
+
+    private static String joinTabs(List<String> values) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < values.size(); i++) {
+            if (i > 0) {
+                sb.append('\t');
+            }
+            String v = values.get(i);
+            sb.append(v == null ? "" : singleLine(v).replace('\t', ' '));
+        }
+        return sb.toString();
+    }
+
+    private static List<String> splitTabs(String body) {
+        List<String> out = new ArrayList<>();
+        for (String s : body.split("\t", -1)) {
+            out.add(s);
+        }
+        return out;
     }
 
     private static String sanitizeInlineValue(String value) {
@@ -267,6 +333,13 @@ public class SaveManager {
         LeagueRecord.SeasonBaseline teamSeasonBaseline = null;
         int teamPlaybookOffense = -1;
         int teamPlaybookDefense = -1;
+        LeagueRecord.StateBag teamState = LeagueRecord.StateBag.EMPTY;
+        List<LeagueRecord.StateBag> confStates = new ArrayList<>();
+        LeagueRecord.StateBag leagueScalars = null;
+        List<String> leagueHistory = new ArrayList<>();
+        List<String> heismanHistory = new ArrayList<>();
+        List<String> bowlNames = new ArrayList<>();
+        List<String> playoffTeams = new ArrayList<>();
         List<LeagueRecord.GameRecord> gameRecords = new ArrayList<>();
         LeagueRecord.Settings settings = null;
         String schemaVersion = null;
@@ -294,6 +367,23 @@ public class SaveManager {
                 recruitingStarted = h.recruitingStarted();
             } else if (line.startsWith(SETTINGS_PREFIX)) {
                 settings = LeagueRecord.Settings.fromSaveLine(line.substring(SETTINGS_PREFIX.length()));
+            } else if (line.startsWith(LEAGUE_STATE_PREFIX)) {
+                leagueScalars = LeagueRecord.StateBag.fromSaveLine(line.substring(LEAGUE_STATE_PREFIX.length()));
+            } else if (line.startsWith(LEAGUE_HISTORY_PREFIX)) {
+                leagueHistory.add(line.substring(LEAGUE_HISTORY_PREFIX.length()));
+            } else if (line.startsWith(HEISMAN_HISTORY_PREFIX)) {
+                heismanHistory.add(line.substring(HEISMAN_HISTORY_PREFIX.length()));
+            } else if (line.startsWith(BOWL_NAMES_PREFIX)) {
+                bowlNames = splitTabs(line.substring(BOWL_NAMES_PREFIX.length()));
+            } else if (line.startsWith(PLAYOFF_TEAMS_PREFIX)) {
+                playoffTeams = splitTabs(line.substring(PLAYOFF_TEAMS_PREFIX.length()));
+            } else if (line.startsWith(CONF_STATE_PREFIX)) {
+                if (!confStates.isEmpty()) {
+                    confStates.set(confStates.size() - 1,
+                            LeagueRecord.StateBag.fromSaveLine(line.substring(CONF_STATE_PREFIX.length())));
+                }
+            } else if (line.startsWith(TEAM_STATE_PREFIX)) {
+                teamState = LeagueRecord.StateBag.fromSaveLine(line.substring(TEAM_STATE_PREFIX.length()));
             } else if (line.startsWith("HOF:")) {
                 hof.add(PlayerRecord.fromCsv(line.substring(4)));
             } else if (line.startsWith("LR:")) {
@@ -322,6 +412,7 @@ public class SaveManager {
                 }
                 currentConf = new LeagueRecord.ConferenceRecord(cname, List.copyOf(confOoc), confTeams);
                 conferences.add(currentConf);
+                confStates.add(LeagueRecord.StateBag.EMPTY);
             } else if (line.startsWith(TEAM_PREFIX)) {
                 hc = null;
                 oc = null;
@@ -336,6 +427,14 @@ public class SaveManager {
                 teamPracticePositionGroup = "";
                 teamFocusIntensity = "";
                 teamNilCollectiveLevel = 0;
+                // Optional fields must not carry over from the previous team.
+                teamPrevRankTeamPollScore = 0;
+                teamRivalName = "";
+                teamRivalryTrophyName = "";
+                teamRivalryWins = 0;
+                teamHoldsRivalryTrophy = false;
+                teamStadiumLevel = 1;
+                teamState = LeagueRecord.StateBag.EMPTY;
                 teamSeasonBaseline = null;
                 teamPlaybookOffense = -1;
                 teamPlaybookDefense = -1;
@@ -433,7 +532,8 @@ public class SaveManager {
                         teamPracticePositionGroup, teamFocusIntensity,
                         teamNilCollectiveLevel, "", teamPrevRankTeamPollScore,
                         teamRivalName, teamRivalryTrophyName, teamRivalryWins, teamHoldsRivalryTrophy,
-                        teamStadiumLevel, teamSeasonBaseline, teamPlaybookOffense, teamPlaybookDefense));
+                        teamStadiumLevel, teamSeasonBaseline, teamPlaybookOffense, teamPlaybookDefense,
+                        teamState));
             } else if (line.startsWith(GAME_PREFIX)) {
                 gameRecords.add(LeagueRecord.GameRecord.fromSaveLine(line.substring(GAME_PREFIX.length())));
             }
@@ -446,8 +546,16 @@ public class SaveManager {
         if (schemaVersion == null) {
             schemaVersion = SaveSchema.unversionedNewFormatDefault();
         }
-        LeagueRecord raw = new LeagueRecord(leagueName, year, week, conferences, hof, lRecords, heisman, champ,
-                List.copyOf(gameRecords), rngSeed, settings, recruitingStarted, freeAgentCoaches, seasonWeeks);
+        List<LeagueRecord.ConferenceRecord> confs = new ArrayList<>(conferences.size());
+        for (int i = 0; i < conferences.size(); i++) {
+            LeagueRecord.ConferenceRecord c = conferences.get(i);
+            confs.add(new LeagueRecord.ConferenceRecord(c.name(), c.oocWeeks(), c.teams(), confStates.get(i)));
+        }
+        LeagueRecord.LeagueState leagueState = leagueScalars == null ? null
+                : new LeagueRecord.LeagueState(leagueHistory, heismanHistory, bowlNames, playoffTeams, leagueScalars);
+        LeagueRecord raw = new LeagueRecord(leagueName, year, week, confs, hof, lRecords, heisman, champ,
+                List.copyOf(gameRecords), rngSeed, settings, recruitingStarted, freeAgentCoaches, seasonWeeks,
+                leagueState);
         LeagueRecord migrated = SaveSchema.migrate(schemaVersion, raw);
         return new LoadResult(migrated, schemaVersion);
     }
