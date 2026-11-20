@@ -1054,10 +1054,10 @@ public class Game implements Serializable {
             if (!playingOT) {
                 //Log the turnover on downs, reset down and distance, give possession to the defense, exit this runPlay()
                 gameEventLog.append(getEventLog()).append("TURNOVER ON DOWNS!\n").append(offense.getAbbr()).append(" failed to convert on ").append(gameDown - 1).append("th down. ").append(defense.getAbbr()).append(" takes over possession on downs.");
-                momentum.turnover(gamePoss);
 
                 //Turn over on downs, change possession, set to first down and 10 yards to go
                 gamePoss = !gamePoss;
+                momentum.turnover(gamePoss); // credit the team taking over
                 gameDown = 1;
                 gameYardsNeed = 10;
                 //and flip which direction the ball is moving in
@@ -1066,6 +1066,7 @@ public class Game implements Serializable {
             } else {
                 //OT is over for the offense, log the turnover on downs, run resetForOT().
                 gameEventLog.append(getEventLog()).append("TURNOVER ON DOWNS!\n").append(offense.getAbbr()).append(" failed to convert on ").append(gameDown - 1).append("th down in OT and their possession is over.");
+                momentum.turnover(!gamePoss);
                 resetForOT();
 
             }
@@ -1845,6 +1846,7 @@ public class Game implements Serializable {
                 selLB.gameSim = selLB.getRatTackle() * SimRandom.nextDouble() * 65;
             }
             recordRecFumble(offense, selRB, selWR, selTE, selDL, selLB, selCB, selS, pos);
+            momentum.turnover(!gamePoss); // the defense recovers
 
             if (gamePoss) { // home possession
                 homeTurnovers++;
@@ -1993,6 +1995,7 @@ public class Game implements Serializable {
                 }
 
                 recordRushFumble(offense, selQB, selRB, selDL, selLB, selCB, selS);
+                momentum.turnover(!gamePoss); // the defense recovers
 
                 if (!playingOT) {
                     gameDown = 1;
@@ -2985,8 +2988,9 @@ public class Game implements Serializable {
 
     private void recordInterception(Team offense, PlayerQB selQB, PlayerDL selDL, PlayerLB selLB, PlayerCB selCB, PlayerS selS, String position) {
         Player interceptor = statRecorder.recordInterception(offense, selQB, selDL, selLB, selCB, selS, position);
-        // Rule-engine state change (kept out of the stat recorder)
-        momentum.turnover(gamePoss);
+        // Rule-engine state change (kept out of the stat recorder). The defense made
+        // the pick: it used to be credited to the offense, before possession flipped.
+        momentum.turnover(!gamePoss);
         gameTime -= timePerPlay * SimRandom.nextDouble();
         if (playingOT) {
             resetForOT();
