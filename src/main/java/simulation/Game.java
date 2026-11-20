@@ -710,22 +710,28 @@ public class Game implements Serializable {
         int rbN = t.getTeamRBs().size();
         int cbN = t.getTeamCBs().size();
         for (int i = 0; i < Math.min(t.startersWR, wrN); i++) {
+            if (t.getTeamWRs().get(i).injury != null) continue;
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamWRs().get(i).name, "WR", t.getTeamWRs().get(i).getRatSpeed(), (float) (starterPenalty * t.getTeamWRs().get(i).getRatSpeed() * SimRandom.nextDouble())));
         }
         for (int i = 0; i < Math.min(t.startersRB, rbN); i++) {
+            if (t.getTeamRBs().get(i).injury != null) continue;
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamRBs().get(i).name, "RB", t.getTeamRBs().get(i).getRatSpeed(), (float) (starterPenalty * t.getTeamRBs().get(i).getRatSpeed() * SimRandom.nextDouble())));
         }
         for (int i = 0; i < Math.min(t.startersCB, cbN); i++) {
+            if (t.getTeamCBs().get(i).injury != null) continue;
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamCBs().get(i).name, "CB", t.getTeamCBs().get(i).getRatSpeed(), (float) (starterPenalty * t.getTeamCBs().get(i).getRatSpeed() * SimRandom.nextDouble())));
         }
 
         for (int i = t.startersWR; i < Math.min(t.startersWR + t.subWR, wrN); i++) {
+            if (t.getTeamWRs().get(i).injury != null) continue;
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamWRs().get(i).name, "WR", t.getTeamWRs().get(i).getRatSpeed(), (float) (t.getTeamWRs().get(i).getRatSpeed() * SimRandom.nextDouble())));
         }
         for (int i = t.startersRB; i < Math.min(t.startersRB + t.subRB, rbN); i++) {
+            if (t.getTeamRBs().get(i).injury != null) continue;
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamRBs().get(i).name, "RB", t.getTeamRBs().get(i).getRatSpeed(), (float) (t.getTeamRBs().get(i).getRatSpeed() * SimRandom.nextDouble())));
         }
         for (int i = t.startersCB; i < Math.min(t.startersCB + t.subCB, cbN); i++) {
+            if (t.getTeamCBs().get(i).injury != null) continue;
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamCBs().get(i).name, "CB", t.getTeamCBs().get(i).getRatSpeed(), (float) (t.getTeamCBs().get(i).getRatSpeed() * SimRandom.nextDouble())));
         }
 
@@ -777,19 +783,19 @@ public class Game implements Serializable {
 
         for (int i = specialTeams.startersLB; i < Math.min(specialTeams.startersLB + specialTeams.subLB, lbN); i++) {
             PlayerLB lb = specialTeams.getLB(i);
-            if (lb == null) continue;
+            if (lb == null || lb.injury != null) continue;
             ST += lb.getRatSpeed();
             teamST.add(new PlayerST(specialTeams.getAbbr(), lb.name, "LB", lb.getRatSpeed(), lb.getRatTackle()));
         }
         for (int i = specialTeams.startersCB; i < Math.min(specialTeams.startersCB + specialTeams.subCB, cbN); i++) {
             PlayerCB cb = specialTeams.getCB(i);
-            if (cb == null) continue;
+            if (cb == null || cb.injury != null) continue;
             ST += cb.getRatSpeed();
             teamST.add(new PlayerST(specialTeams.getAbbr(), cb.name, "CB", cb.getRatSpeed(), cb.getRatTackle()));
         }
         for (int i = specialTeams.startersS; i < Math.min(specialTeams.startersS + specialTeams.subS, sN); i++) {
             PlayerS s = specialTeams.getS(i);
-            if (s == null) continue;
+            if (s == null || s.injury != null) continue;
             ST += s.getRatSpeed();
             teamST.add(new PlayerST(specialTeams.getAbbr(), s.name, "S", s.getRatSpeed(), s.getRatTackle()));
         }
@@ -1219,6 +1225,69 @@ public class Game implements Serializable {
 
     }
 
+    /**
+     * The players on the field at one position: the depth chart from {@code start}
+     * (1 when the starters are benched). A starter who is hurt or out of gas gives
+     * way to the next fresh, healthy backup, a different one for each, so two tired
+     * linemen no longer share one sub (or skip the first one). Falls back to a tired
+     * but healthy starter, then anyone healthy, and only then to the starter as-is,
+     * so the lineup always has {@code starters} players when the depth chart has any.
+     */
+    static <T extends Player> List<T> lineup(List<T> depth, int starters, int start) {
+        List<T> out = new ArrayList<>(Math.max(0, starters));
+        int size = depth.size();
+        if (size == 0) return out;
+        int next = start + starters;
+        for (int i = start; i < start + starters; i++) {
+            T p = i < size ? depth.get(i) : null;
+            if (p != null && p.injury == null && p.gameFatigue > 0 && !out.contains(p)) {
+                out.add(p);
+                continue;
+            }
+            T sub = null;
+            while (sub == null && next < size) {
+                T c = depth.get(next++);
+                if (c.injury == null && c.gameFatigue > 0 && !out.contains(c)) sub = c;
+            }
+            if (sub == null && p != null && p.injury == null && !out.contains(p)) sub = p;
+            if (sub == null) {
+                for (T c : depth) {
+                    if (c.injury == null && !out.contains(c)) {
+                        sub = c;
+                        break;
+                    }
+                }
+            }
+            if (sub == null) sub = p != null ? p : depth.get(0);
+            out.add(sub);
+        }
+        return out;
+    }
+
+    /**
+     * The first healthy player at or after {@code start} on the depth chart (then
+     * before it). Players hurt earlier in this game used to keep taking snaps.
+     */
+    static <T extends Player> T firstHealthy(List<T> depth, int start) {
+        int size = depth.size();
+        if (size == 0) return null;
+        for (int i = Math.max(0, start); i < size; i++) {
+            if (depth.get(i).injury == null) return depth.get(i);
+        }
+        for (int i = 0; i < Math.min(start, size); i++) {
+            if (depth.get(i).injury == null) return depth.get(i);
+        }
+        return depth.get(start < size ? Math.max(0, start) : 0);
+    }
+
+    private static PlayerK kicker(Team t) {
+        return firstHealthy(t.getTeamKs(), 0);
+    }
+
+    private static PlayerS topSafety(Team t) {
+        return firstHealthy(t.getTeamSs(), 0);
+    }
+
     private void passingPlay(Team offense, Team defense) {
         int x = benchStarters() ? 1 : 0;
 
@@ -1244,120 +1313,63 @@ public class Game implements Serializable {
         ArrayList<PlayerS> Safety = new ArrayList<>();
 
         //Receiver Options
-        for (int i = 0 + x; i < offense.startersWR + x; ++i) {
-            if (offense.getWR(i).gameFatigue > 0) {
-                offense.getWR(i).gameSim = Math.pow(offense.getWR(i).ratOvr, 1) * SimRandom.nextDouble();
-                offense.getWR(i).posDepth = i;
-                offense.getWR(i).gameSnaps++;
-                receiver.add(offense.getWR(i));
-                WideReceiver.add(offense.getWR(i));
-            } else {
-                offense.getWR(offense.startersWR).gameSim = Math.pow(offense.getWR(offense.startersWR).ratOvr, 1) * SimRandom.nextDouble();
-                offense.getWR(offense.startersWR).posDepth = i;
-                offense.getWR(offense.startersWR).gameSnaps++;
-                receiver.add(offense.getWR(offense.startersWR));
-                WideReceiver.add(offense.getWR(offense.startersWR));
-            }
+        List<PlayerWR> wrs = lineup(offense.getTeamWRs(), offense.startersWR, x);
+        for (int slot = 0; slot < wrs.size(); ++slot) {
+            PlayerWR wr = wrs.get(slot);
+            wr.gameSim = Math.pow(wr.ratOvr, 1) * SimRandom.nextDouble();
+            wr.posDepth = slot + x;
+            wr.gameSnaps++;
+            receiver.add(wr);
+            WideReceiver.add(wr);
         }
 
         double TEBonus;
         TEBonus = offense.getPlaybookOffense().getPassUsage() * 0.15;
-        for (int i = 0 + x; i < offense.startersTE + x; ++i) {
-            if (offense.getTE(i).gameFatigue > 0) {
-                if (gameYardLine > 80) {
-                    offense.getTE(i).gameSim = Math.pow(((offense.getTE(i).getRatCatch() + offense.getTE(i).getRatSpeed()) / 2), 1) * SimRandom.nextDouble() * 1.25;
-                } else {
-                    offense.getTE(i).gameSim = Math.pow(((offense.getTE(i).getRatCatch() + offense.getTE(i).getRatSpeed()) / 2), 1) * SimRandom.nextDouble() * (.70 + TEBonus);
-                }
-                offense.getTE(i).gameSnaps++;
-                receiver.add(offense.getTE(i));
-                TightEnd.add(offense.getTE(i));
+        for (PlayerTE te : lineup(offense.getTeamTEs(), offense.startersTE, x)) {
+            if (gameYardLine > 80) {
+                te.gameSim = Math.pow(((te.getRatCatch() + te.getRatSpeed()) / 2), 1) * SimRandom.nextDouble() * 1.25;
             } else {
-                if (gameYardLine > 80) {
-                    offense.getTE(offense.startersTE).gameSim = Math.pow(((offense.getTE(offense.startersTE).getRatCatch() + offense.getTE(offense.startersTE).getRatSpeed()) / 2), 1) * SimRandom.nextDouble() * 1.25;
-                } else {
-                    offense.getTE(offense.startersTE).gameSim = Math.pow(((offense.getTE(offense.startersTE).getRatCatch() + offense.getTE(offense.startersTE).getRatSpeed()) / 2), 1) * SimRandom.nextDouble() * (.70 + TEBonus);
-                }
-                offense.getTE(offense.startersTE).gameSnaps++;
-                receiver.add(offense.getTE(offense.startersTE));
-                TightEnd.add(offense.getTE(offense.startersTE));
+                te.gameSim = Math.pow(((te.getRatCatch() + te.getRatSpeed()) / 2), 1) * SimRandom.nextDouble() * (.70 + TEBonus);
             }
+            te.gameSnaps++;
+            receiver.add(te);
+            TightEnd.add(te);
         }
         double RBBonus;
         RBBonus = offense.getPlaybookOffense().getPassUsage() * 0.10;
-        for (int i = 0 + x; i < offense.startersRB + x; ++i) {
-            if (offense.getRB(i).gameFatigue > 0) {
-                offense.getRB(i).gameSim = Math.pow(((offense.getRB(i).getRatCatch() + offense.getRB(i).getRatSpeed()) / 2), 1) * SimRandom.nextDouble() * (.70 + RBBonus);
-                offense.getRB(i).gameSnaps++;
-                receiver.add(offense.getRB(i));
-                RunningBack.add(offense.getRB(i));
-            } else {
-                offense.getRB(offense.startersRB).gameSim = Math.pow(((offense.getRB(offense.startersRB).getRatCatch() + offense.getRB(offense.startersRB).getRatSpeed()) / 2), 1) * SimRandom.nextDouble() * (.70 + RBBonus);
-                offense.getRB(offense.startersRB).gameSnaps++;
-                receiver.add(offense.getRB(offense.startersRB));
-                RunningBack.add(offense.getRB(offense.startersRB));
-            }
+        for (PlayerRB rb : lineup(offense.getTeamRBs(), offense.startersRB, x)) {
+            rb.gameSim = Math.pow(((rb.getRatCatch() + rb.getRatSpeed()) / 2), 1) * SimRandom.nextDouble() * (.70 + RBBonus);
+            rb.gameSnaps++;
+            receiver.add(rb);
+            RunningBack.add(rb);
         }
 
-        int z = 0; //o-line counter
-        teamOLs = new ArrayList<>();
-        for (int i = 0 + x; i < offense.startersOL + x; ++i) {
-            if (offense.getOL(i).gameFatigue > 0) {
-                offense.getOL(i).gameSnaps++;
-                teamOLs.add(offense.getOL(i));
-            } else {
-                z++;
-                offense.getOL(offense.startersOL + z).gameSnaps++;
-                teamOLs.add(offense.getOL(offense.startersOL + z));
-            }
+        teamOLs = new ArrayList<>(lineup(offense.getTeamOLs(), offense.startersOL, x));
+        for (PlayerOL ol : teamOLs) {
+            ol.gameSnaps++;
         }
 
-        for (int i = 0 + x; i < defense.startersLB + x; ++i) {
-            if (defense.getLB(i).gameFatigue > 0) {
-                defense.getLB(i).gameSim = Math.pow(defense.getLB(i).getRatCoverage(), 1) * SimRandom.nextDouble();
-                defense.getLB(i).gameSnaps++;
-                Linebacker.add(defense.getLB(i));
-            } else {
-                defense.getLB(defense.startersLB).gameSim = Math.pow(defense.getLB(defense.startersLB).getRatCoverage(), 1) * SimRandom.nextDouble();
-                defense.getLB(defense.startersLB + 1).gameSim = Math.pow(defense.getLB(defense.startersLB + 1).getRatCoverage(), 1) * SimRandom.nextDouble();
-                defense.getLB(defense.startersLB).gameSnaps++;
-                defense.getLB(defense.startersLB + 1).gameSnaps++;
-                Linebacker.add(defense.getLB(defense.startersLB));
-                Linebacker.add(defense.getLB(defense.startersLB + 1));
-            }
+        for (PlayerLB lb : lineup(defense.getTeamLBs(), defense.startersLB, x)) {
+            lb.gameSim = Math.pow(lb.getRatCoverage(), 1) * SimRandom.nextDouble();
+            lb.gameSnaps++;
+            Linebacker.add(lb);
         }
 
-        z = 0; //o-line counter
         teamDLs = new ArrayList<>();
-        for (int i = 0 + x; i < defense.startersDL + x; ++i) {
-            if (defense.getDL(i).gameFatigue > 0) {
-                defense.getDL(i).gameSim = Math.pow(defense.getDL(i).getRatPassRush(), 1) * SimRandom.nextDouble();
-                defense.getDL(i).gameSnaps++;
-                DLineman.add(defense.getDL(i));
-                teamDLs.add(defense.getDL(i));
-            } else {
-                z++;
-                defense.getDL(defense.startersDL + z).gameSim = Math.pow(defense.getDL(defense.startersDL + z).getRatPassRush(), 1) * SimRandom.nextDouble();
-                defense.getDL(defense.startersDL + 1 + z).gameSim = Math.pow(defense.getDL(defense.startersDL + 1 + z).getRatPassRush(), 1) * SimRandom.nextDouble();
-                defense.getDL(defense.startersDL + z).gameSnaps++;
-                defense.getDL(defense.startersDL + 1 + z).gameSnaps++;
-                DLineman.add(defense.getDL(defense.startersDL + z));
-                DLineman.add(defense.getDL(defense.startersDL + 1 + z));
-                teamDLs.add(defense.getDL(defense.startersDL + z));
-            }
+        for (PlayerDL dl : lineup(defense.getTeamDLs(), defense.startersDL, x)) {
+            dl.gameSim = Math.pow(dl.getRatPassRush(), 1) * SimRandom.nextDouble();
+            dl.gameSnaps++;
+            DLineman.add(dl);
+            teamDLs.add(dl);
         }
 
-        for (int i = 0 + x; i < defense.startersS + x; ++i) {
-            if (defense.getS(i).gameFatigue > 0) {
-                defense.getS(i).gameSim = Math.pow(defense.getS(i).getRatCoverage(), 1) * SimRandom.nextDouble();
-                defense.getS(i).gameSnaps++;
-                Safety.add(defense.getS(i));
-            } else {
-                defense.getS(defense.startersS).gameSim = Math.pow(defense.getS(defense.startersS).getRatCoverage(), 1) * SimRandom.nextDouble();
-                defense.getS(defense.startersS).gameSnaps++;
-                Safety.add(defense.getS(defense.startersS));
-            }
+        for (PlayerS s : lineup(defense.getTeamSs(), defense.startersS, x)) {
+            s.gameSim = Math.pow(s.getRatCoverage(), 1) * SimRandom.nextDouble();
+            s.gameSnaps++;
+            Safety.add(s);
         }
+        List<PlayerCB> cbs = lineup(defense.getTeamCBs(), defense.startersCB, x);
+
         //Rank Players
         Collections.sort(WideReceiver, new CompGamePlayerPicker());
         Collections.sort(TightEnd, new CompGamePlayerPicker());
@@ -1369,7 +1381,7 @@ public class Game implements Serializable {
 
 
         //Choose Action Players
-        selQB = offense.getQB(0 + x);
+        selQB = firstHealthy(offense.getTeamQBs(), x);
         selRB = RunningBack.get(0);
         selTE = TightEnd.get(0);
         selWR = WideReceiver.get(0);
@@ -1377,11 +1389,10 @@ public class Game implements Serializable {
         selDL = DLineman.get(0);
         selLB = Linebacker.get(0);
         selLB2 = Linebacker.size() > 1 ? Linebacker.get(1) : Linebacker.get(0);
-        selCB = defense.getCB(WideReceiver.get(0).posDepth);
+        // The corner lined up across from the target.
+        selCB = cbs.get(Math.max(0, Math.min(cbs.size() - 1, WideReceiver.get(0).posDepth - x)));
         selS = Safety.get(0);
         selS2 = Safety.size() > 1 ? Safety.get(1) : Safety.get(0);
-
-        if (selCB.gameFatigue <= 0) selCB = defense.getCB(defense.startersCB);
 
         selQB.gameSnaps++;
 
@@ -1440,99 +1451,52 @@ public class Game implements Serializable {
         // Linear in OVR (was ^1.5) so RB1 takes ~55-60% of the backs' carries
         // instead of 65-75%. Scaled by ~sqrt(85) to keep the same magnitude as
         // the QB's speed^1.485 draw in the shared rusher pool below.
-        for (int i = 0 + x; i < offense.startersRB + x; ++i) {
-            if (offense.getRB(i).gameFatigue > 0) {
-                offense.getRB(i).gameSim = RB_CARRY_SCALE * offense.getRB(i).ratOvr * SimRandom.nextDouble();
-                offense.getRB(i).gameSnaps++;
-                rusher.add(offense.getRB(i));
-                RunningBack.add(offense.getRB(i));
-            } else {
-                offense.getRB(offense.startersRB).gameSim = RB_CARRY_SCALE * offense.getRB(offense.startersRB).ratOvr * SimRandom.nextDouble();
-                offense.getRB(offense.startersRB).gameSnaps++;
-                rusher.add(offense.getRB(offense.startersRB));
-                RunningBack.add(offense.getRB(offense.startersRB));
-            }
+        for (PlayerRB rb : lineup(offense.getTeamRBs(), offense.startersRB, x)) {
+            rb.gameSim = RB_CARRY_SCALE * rb.ratOvr * SimRandom.nextDouble();
+            rb.gameSnaps++;
+            rusher.add(rb);
+            RunningBack.add(rb);
         }
 
+        selQB = firstHealthy(offense.getTeamQBs(), x);
         if (offense.getPlaybookOffense().featuresQbRuns())
-            offense.getQB(0 + x).gameSim = Math.pow(offense.getQB(0 + x).getRatSpeed(), 1.485) * SimRandom.nextDouble();
+            selQB.gameSim = Math.pow(selQB.getRatSpeed(), 1.485) * SimRandom.nextDouble();
         else
-            offense.getQB(0 + x).gameSim = 0.25 * Math.pow(offense.getQB(0 + x).getRatSpeed(), 1.485) * SimRandom.nextDouble();
-        rusher.add(offense.getQB(0 + x));
+            selQB.gameSim = 0.25 * Math.pow(selQB.getRatSpeed(), 1.485) * SimRandom.nextDouble();
+        rusher.add(selQB);
 
-        int z = 0; //o-line counter
-        teamOLs = new ArrayList<>();
-        for (int i = 0 + x; i < offense.startersOL + x; ++i) {
-            if (offense.getOL(i).gameFatigue > 0) {
-                offense.getOL(i).gameSnaps++;
-                teamOLs.add(offense.getOL(i));
-            } else {
-                z++;
-                offense.getOL(offense.startersOL + z).gameSnaps++;
-                teamOLs.add(offense.getOL(offense.startersOL + z));
-            }
+        teamOLs = new ArrayList<>(lineup(offense.getTeamOLs(), offense.startersOL, x));
+        for (PlayerOL ol : teamOLs) {
+            ol.gameSnaps++;
         }
 
-        z = 0; //d-line counter
         teamDLs = new ArrayList<>();
-        for (int i = 0 + x; i < defense.startersDL + x; ++i) {
-            if (defense.getDL(i).gameFatigue > 0) {
-                defense.getDL(i).gameSim = Math.pow(defense.getDL(i).getRatRunStop(), 1) * SimRandom.nextDouble();
-                defense.getDL(i).gameSnaps++;
-                DLineman.add(defense.getDL(i));
-                teamDLs.add(defense.getDL(i));
-            } else {
-                defense.getDL(defense.startersDL + z).gameSim = Math.pow(defense.getDL(defense.startersDL + z).getRatRunStop(), 1) * SimRandom.nextDouble();
-                defense.getDL(defense.startersDL + 1 + z).gameSim = Math.pow(defense.getDL(defense.startersDL + 1 + z).getRatRunStop(), 1) * SimRandom.nextDouble();
-                defense.getDL(defense.startersDL + z).gameSnaps++;
-                defense.getDL(defense.startersDL + 1 + z).gameSnaps++;
-                DLineman.add(defense.getDL(defense.startersDL + z));
-                DLineman.add(defense.getDL(defense.startersDL + 1 + z));
-                teamDLs.add(defense.getDL(defense.startersDL + z));
-            }
+        for (PlayerDL dl : lineup(defense.getTeamDLs(), defense.startersDL, x)) {
+            dl.gameSim = Math.pow(dl.getRatRunStop(), 1) * SimRandom.nextDouble();
+            dl.gameSnaps++;
+            DLineman.add(dl);
+            teamDLs.add(dl);
         }
 
-        for (int i = 0 + x; i < defense.startersLB + x; ++i) {
-            if (defense.getLB(i).gameFatigue > 0) {
-                defense.getLB(i).gameSim = Math.pow(defense.getLB(i).getRatRunStop(), 1) * SimRandom.nextDouble();
-                defense.getLB(i).gameSnaps++;
-                Linebacker.add(defense.getLB(i));
-            } else {
-                defense.getLB(defense.startersLB).gameSim = Math.pow(defense.getLB(defense.startersLB).getRatRunStop(), 1) * SimRandom.nextDouble();
-                defense.getLB(defense.startersLB + 1).gameSim = Math.pow(defense.getLB(defense.startersLB + 1).getRatRunStop(), 1) * SimRandom.nextDouble();
-                defense.getLB(defense.startersLB).gameSnaps++;
-                defense.getLB(defense.startersLB + 1).gameSnaps++;
-                Linebacker.add(defense.getLB(defense.startersLB));
-                Linebacker.add(defense.getLB(defense.startersLB + 1));
-            }
+        for (PlayerLB lb : lineup(defense.getTeamLBs(), defense.startersLB, x)) {
+            lb.gameSim = Math.pow(lb.getRatRunStop(), 1) * SimRandom.nextDouble();
+            lb.gameSnaps++;
+            Linebacker.add(lb);
         }
 
-        for (int i = 0 + x; i < defense.startersCB + x; ++i) {
-            if (defense.getCB(i).gameFatigue > 0) {
-                defense.getCB(i).gameSim = Math.pow(defense.getCB(i).getRatTackle(), 1) * SimRandom.nextDouble();
-                defense.getCB(i).gameSnaps++;
-                Cornerback.add(defense.getCB(i));
-            } else {
-                defense.getCB(defense.startersCB).gameSim = Math.pow(defense.getCB(defense.startersCB).getRatTackle(), 1) * SimRandom.nextDouble();
-                defense.getCB(defense.startersCB).gameSnaps++;
-                Cornerback.add(defense.getCB(defense.startersCB));
-            }
+        for (PlayerCB cb : lineup(defense.getTeamCBs(), defense.startersCB, x)) {
+            cb.gameSim = Math.pow(cb.getRatTackle(), 1) * SimRandom.nextDouble();
+            cb.gameSnaps++;
+            Cornerback.add(cb);
         }
 
-        for (int i = 0 + x; i < defense.startersS + x; ++i) {
-            if (defense.getS(i).gameFatigue > 0) {
-                defense.getS(i).gameSim = Math.pow(defense.getS(i).getRatRunStop(), 1) * SimRandom.nextDouble();
-                defense.getS(i).gameSnaps++;
-                Safety.add(defense.getS(i));
-            } else {
-                defense.getS(defense.startersS).gameSim = Math.pow(defense.getS(defense.startersS).getRatRunStop(), 1) * SimRandom.nextDouble();
-                defense.getS(defense.startersS).gameSnaps++;
-                Safety.add(defense.getS(defense.startersS));
-            }
+        for (PlayerS s : lineup(defense.getTeamSs(), defense.startersS, x)) {
+            s.gameSim = Math.pow(s.getRatRunStop(), 1) * SimRandom.nextDouble();
+            s.gameSnaps++;
+            Safety.add(s);
         }
 
         //Rank Players
-        Collections.sort(TightEnd, new CompGamePlayerPicker());
         Collections.sort(RunningBack, new CompGamePlayerPicker());
         Collections.sort(rusher, new CompGamePlayerPicker());
         Collections.sort(Linebacker, new CompGamePlayerPicker());
@@ -1541,17 +1505,13 @@ public class Game implements Serializable {
 
 
         //Choose Action Players
-        selQB = offense.getQB(0 + x);
         selRB = RunningBack.get(0);
-        selTE = offense.getTE(0 + x);
+        selTE = lineup(offense.getTeamTEs(), offense.startersTE, x).get(0);
         selDL = DLineman.get(0);
         selLB = Linebacker.get(0);
         selCB = Cornerback.get(0);
         selS = Safety.get(0);
         selS2 = Safety.size() > 1 ? Safety.get(1) : Safety.get(0);
-
-        if (selTE.gameFatigue <= 0) selTE = offense.getTE(offense.startersTE);
-        if (selS.gameFatigue <= 0) selS = defense.getS(defense.startersS);
 
         selQB.gameSnaps++;
         selTE.gameSnaps++;
@@ -1625,8 +1585,8 @@ public class Game implements Serializable {
                 int qbSkill = (2 * selQB.getRatPassAcc() + selQB.ratIntelligence) / 3;
                 int schemeEdge = defense.getPlaybookDefense().getPassRush() - offense.getPlaybookOffense().getPassProtection();
                 int coverage = pos.equals("WR") ? selCB.getRatCoverage() : selLB.getRatCoverage();
-                double pickChance = interceptionChance(qbSkill, pressureOnQB, defense.getS(0).ratOvr, coverage, schemeEdge);
-                pickChance += getArchetypeIntBonus(defense.getS(0), pickChance);
+                double pickChance = interceptionChance(qbSkill, pressureOnQB, topSafety(defense).ratOvr, coverage, schemeEdge);
+                pickChance += getArchetypeIntBonus(topSafety(defense), pickChance);
                 if (SimRandom.nextDouble() < pickChance) {
                     //Interception
                     // Who comes down with it. Safeties took ~17% of picks (FBS ~35%), and on
@@ -1762,7 +1722,7 @@ public class Game implements Serializable {
                     yardsGain = (int) (((selQB.getRatPassPow()) + (selTE.getRatSpeed()) - (selLB.getRatSpeed())) * SimRandom.nextDouble() / PASS_DEPTH_DIVISOR //STRATEGIES
                             + offense.getPlaybookOffense().getPassPotential() - defense.getPlaybookDefense().getPassCoverage());
                     //see if receiver can get yards after catch
-                    escapeChance = ((selTE.getRatEvasion()) * 3 - selLB.getRatTackle() - defense.getS(0).ratOvr) * SimRandom.nextDouble()  //STRATEGIES
+                    escapeChance = ((selTE.getRatEvasion()) * 3 - selLB.getRatTackle() - topSafety(defense).ratOvr) * SimRandom.nextDouble()  //STRATEGIES
                             + offense.getPlaybookOffense().getPassPotential() - defense.getPlaybookDefense().getPassCoverage()
                             + getArchetypeYacBonus(selTE);
                 } else {
@@ -1770,7 +1730,7 @@ public class Game implements Serializable {
                     yardsGain = (int) (((selQB.getRatPassPow()) + (selRB.getRatSpeed()) - (selLB.getRatSpeed())) * SimRandom.nextDouble() / PASS_DEPTH_DIVISOR //STRATEGIES
                             + offense.getPlaybookOffense().getPassPotential() - defense.getPlaybookDefense().getPassCoverage()) - 2;  //subtract 2 for screen pass behind line of scrimmage
                     //see if receiver can get yards after catch
-                    escapeChance = ((selRB.getRatEvasion()) * 3 - selLB2.getRatTackle() - defense.getS(0).ratOvr) * SimRandom.nextDouble()  //STRATEGIES
+                    escapeChance = ((selRB.getRatEvasion()) * 3 - selLB2.getRatTackle() - topSafety(defense).ratOvr) * SimRandom.nextDouble()  //STRATEGIES
                             + offense.getPlaybookOffense().getPassPotential() - defense.getPlaybookDefense().getPassCoverage()
                             + getArchetypeYacBonus(selRB);
                 }
@@ -2016,7 +1976,7 @@ public class Game implements Serializable {
         } else {
             gameTime -= timePerPlay + timePerPlay * SimRandom.nextDouble();
             //check for fumble (wet weather increases the odds)
-            double fumChance = ((defense.getS(0).getRatTackle() + selLB.getRatTackle()) / 2 + defense.getCompositeDLRush() - getHFadv()) / 2 + offense.getPlaybookOffense().getRunProtection();  //STRATEGIES
+            double fumChance = ((topSafety(defense).getRatTackle() + selLB.getRatTackle()) / 2 + defense.getCompositeDLRush() - getHFadv()) / 2 + offense.getPlaybookOffense().getRunProtection();  //STRATEGIES
             if (100 * SimRandom.nextDouble() < fumChance * weather.fumbleMultiplier() / FUMBLE_DIVISOR) {
                 //Fumble!
 
@@ -2263,7 +2223,7 @@ public class Game implements Serializable {
 
     /** True when a field goal from the current spot is within the kicker's range. */
     private boolean fgInRange(Team offense) {
-        PlayerK k = offense.getK(0);
+        PlayerK k = kicker(offense);
         return k != null && (117 - gameYardLine) <= fgMaxRange(k);
     }
 
@@ -2417,7 +2377,7 @@ public class Game implements Serializable {
     //KICKING PLAYS
 
     private void fieldGoalAtt(Team offense, Team defense) {
-        PlayerK selK = offense.getK(0);
+        PlayerK selK = kicker(offense);
         if (selK == null) {
             // No kicker available — turn the ball over at the attempt spot.
             gameEventLog.append(getEventLog()).append(offense.getAbbr())
@@ -2553,10 +2513,10 @@ public class Game implements Serializable {
 
     private boolean attemptTwoPoint(Team offense, Team defense, String lead) {
         boolean successConversion = false;
-        PlayerRB rushBack = offense.getRB(0);
-        PlayerQB qb = offense.getQB(0);
-        PlayerWR wr = offense.getWR(0);
-        PlayerCB cb = defense.getCB(0);
+        PlayerRB rushBack = firstHealthy(offense.getTeamRBs(), 0);
+        PlayerQB qb = firstHealthy(offense.getTeamQBs(), 0);
+        PlayerWR wr = firstHealthy(offense.getTeamWRs(), 0);
+        PlayerCB cb = firstHealthy(defense.getTeamCBs(), 0);
         if (SimRandom.nextDouble() <= 0.50) {
             //rushing
             if (rushBack == null) {
@@ -2601,7 +2561,7 @@ public class Game implements Serializable {
     }
 
     private void kickXP(Team offense, Team defense) {
-        PlayerK selK = offense.getK(0);
+        PlayerK selK = kicker(offense);
         if (selK != null) {
             selK.gameSnaps++;
         }
@@ -2653,7 +2613,7 @@ public class Game implements Serializable {
     private void kickOff(Team offense, Team defense) {
         PlayerReturner returner = selectReturner();
         int specialTeams = getSpecialTeamsD(offense);
-        PlayerK kicker = offense.getK(0);
+        PlayerK kicker = kicker(offense);
         gameYardLine = 65;
 
         if (gameTime <= 0) return;
@@ -2721,7 +2681,7 @@ public class Game implements Serializable {
         else {
             PlayerReturner returner = selectReturner();
             int specialTeams = getSpecialTeamsD(offense);
-            PlayerK kicker = offense.getK(0);
+            PlayerK kicker = kicker(offense);
 
             //Decide whether to onside kick. Only if losing but within 8 points with < 3 min to go
             if (kicker != null && gameTime < 180 && ((gamePoss && (awayScore - homeScore) <= 8 && (awayScore - homeScore) > 0)
@@ -2853,7 +2813,7 @@ public class Game implements Serializable {
         // the receiver started near its 25 whether the punt came from the punting
         // team's 10 or from the opponent's 40.
         String puntFrom = offense.getAbbr() + " punts from the " + gameYardLine + " yard line. ";
-        gameYardLine = returnPlay(100 - gameYardLine, offense.getK(0), returner, specialTeams, false);
+        gameYardLine = returnPlay(100 - gameYardLine, kicker(offense), returner, specialTeams, false);
         gamePoss = !gamePoss;
 
         //Touchdown...
@@ -3384,6 +3344,9 @@ public class Game implements Serializable {
         }
         for (int i = 0; i < team.startersLB; ++i) {
             recoupOne(team.getLB(i), gain);
+        }
+        for (int i = 0; i < team.startersCB; ++i) {
+            recoupOne(team.getCB(i), gain);
         }
         for (int i = 0; i < team.startersS; ++i) {
             recoupOne(team.getS(i), gain);
