@@ -1964,6 +1964,46 @@ public class Team {
         }
     }
 
+    /**
+     * Trims a CPU roster to {@link RosterRules#MAX_PLAYERS}: the cap was only
+     * enforced on the user's recruiting board, and CPU classes plus transfers
+     * pushed rosters into the 80s. Cuts the lowest-value players beyond each
+     * position's minimum (the best {@code MIN_*} at each position are kept, so
+     * starters and the depth chart are never touched).
+     *
+     * @return how many players were cut
+     */
+    public int enforceRosterCap() {
+        ArrayList<Player> players = getAllPlayers();
+        int excess = players.size() - RosterRules.MAX_PLAYERS;
+        if (excess <= 0 || userControlled) return 0;
+
+        java.util.Map<String, ArrayList<Player>> byPos = new java.util.LinkedHashMap<>();
+        for (Player p : players) byPos.computeIfAbsent(p.position, k -> new ArrayList<>()).add(p);
+        ArrayList<Player> cuttable = new ArrayList<>();
+        for (java.util.Map.Entry<String, ArrayList<Player>> e : byPos.entrySet()) {
+            ArrayList<Player> group = e.getValue();
+            group.sort((a, b) -> Double.compare(rosterValue(b), rosterValue(a)));
+            int keep = Math.max(RosterRules.minForPosition(e.getKey()), 1);
+            for (int i = keep; i < group.size(); i++) cuttable.add(group.get(i));
+        }
+        cuttable.sort((a, b) -> Double.compare(rosterValue(a), rosterValue(b)));
+        int cut = 0;
+        for (int i = 0; i < cuttable.size() && cut < excess; i++) {
+            removePlayer(cuttable.get(i));
+            playersInjured.remove(cuttable.get(i));
+            cut++;
+        }
+        if (cut > 0) sortPlayers();
+        return cut;
+    }
+
+    /** Keep-or-cut value: current rating plus room to grow, weighted toward young players. */
+    private static double rosterValue(Player p) {
+        double growth = Math.max(0, p.ratPot - p.ratOvr);
+        return p.ratOvr + growth * (p.year <= 2 ? 0.5 : 0.2);
+    }
+
     public void cutPlayer(Player p) {
 
         if(p.troubledTimes > 1) {

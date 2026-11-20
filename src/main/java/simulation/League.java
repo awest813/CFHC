@@ -7393,6 +7393,8 @@ Then conferences can see if they want to add them to their list if the teams mee
             c.resetSeasonAwards();
         }
         for (Team t : teamList) {
+            // Recruiting and the transfer portal are done: hold CPU rosters to the cap.
+            t.enforceRosterCap();
             t.resetSeasonStats();
             // CPU staffs call their own books with this year's coordinators and QB;
             // they used to keep the book they were created with for the whole career.
