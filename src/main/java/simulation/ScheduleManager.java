@@ -196,6 +196,15 @@ public final class ScheduleManager {
 
     /** Creates and attaches one OOC game; {@link #alignToWeeks} moves it to its week. */
     private static Game scheduleOocGame(League league, Team a, Team b) {
+        // Home field goes to the side with fewer home games so far (an FCS
+        // filler always travels), which keeps home/away close to 6/6.
+        boolean bIsFcs = b.getConference() != null && b.getConference().contains("FCS");
+        boolean aIsFcs = a.getConference() != null && a.getConference().contains("FCS");
+        if (aIsFcs || (!bIsFcs && homeGames(b) < homeGames(a))) {
+            Team swap = a;
+            a = b;
+            b = swap;
+        }
         Game oocGame = new Game(a, b, "OOC");
 
         // Append OOC games (don't insert by week — insertion fails when
@@ -285,6 +294,14 @@ public final class ScheduleManager {
             }
             t.gameSchedule.addAll(extra); // only if a team somehow has more games than weeks
         }
+    }
+
+    private static int homeGames(Team t) {
+        int n = 0;
+        for (Game g : t.gameSchedule) {
+            if (g != null && !g.isByeWeek() && g.homeTeam == t) n++;
+        }
+        return n;
     }
 
     /** True when the two teams already meet on the current schedule. */
