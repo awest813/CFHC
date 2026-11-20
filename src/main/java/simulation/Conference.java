@@ -335,37 +335,84 @@ public class Conference {
         }
     }
 
-    //NO DIVISIONS SCHEDULE EVEN TEAMS ONLY
+    /**
+     * Conference rounds each team sits out (0-based, below the number of
+     * conference rounds). Only odd-sized conferences have them; ScheduleManager
+     * turns each into an extra OOC week so every team still plays 12 games.
+     */
+    final java.util.IdentityHashMap<Team, ArrayList<Integer>> confByeRounds = new java.util.IdentityHashMap<>();
+
+    /**
+     * Round-robin rounds for {@code n} teams by the circle method; rounds[r] lists
+     * {home, away} index pairs. An odd {@code n} gets a phantom opponent, so one
+     * team sits out each round. Asking for more rounds than a single round robin
+     * has ({@code n - 1} or {@code n}) repeats it from the top, the fewest
+     * rematches possible. Home/away is balanced greedily: the team with fewer
+     * home games so far hosts.
+     */
+    static java.util.List<java.util.List<int[]>> roundRobinRounds(int n, int rounds) {
+        java.util.List<java.util.List<int[]>> out = new ArrayList<>();
+        if (n < 2 || rounds <= 0) {
+            for (int r = 0; r < Math.max(0, rounds); r++) out.add(new ArrayList<>());
+            return out;
+        }
+        int m = (n % 2 == 0) ? n : n + 1;   // index n is the phantom when n is odd
+        int cycle = m - 1;
+        int[] homes = new int[n];
+        int[] lastHome = new int[n];         // 1 home, -1 away, 0 none yet
+        for (int r = 0; r < rounds; r++) {
+            int rr = r % cycle;
+            java.util.List<int[]> round = new ArrayList<>();
+            for (int k = 0; k < m / 2; k++) {
+                int a = (k == 0) ? m - 1 : (rr + k) % cycle;
+                int b = (k == 0) ? rr : (rr + cycle - k) % cycle;
+                if (a >= n || b >= n) continue; // phantom: the other team has a bye
+                boolean aHome;
+                if (homes[a] != homes[b]) aHome = homes[a] < homes[b];
+                else if (lastHome[a] != lastHome[b]) aHome = lastHome[a] < lastHome[b];
+                else aHome = ((r + k) % 2 == 0);
+                int h = aHome ? a : b;
+                int v = aHome ? b : a;
+                homes[h]++;
+                lastHome[h] = 1;
+                lastHome[v] = -1;
+                round.add(new int[]{h, v});
+            }
+            out.add(round);
+        }
+        return out;
+    }
+
+    /**
+     * Conference round robin over {@code confWeeks} rounds (12 minus the OOC
+     * games). Even and odd conference sizes both get distinct opponents while the
+     * round robin lasts (the old rotation was modulo n-1, valid only for even n,
+     * and gave odd conferences rematches). In an odd conference the team sitting
+     * out a round is recorded in {@link #confByeRounds} and gets an OOC game then.
+     */
     private void setUpOriginalSchedule() {
-        //schedule in conf matchups;
-        int confSize = confTeams.size() - 1;
         oocGames = getOOCGames();
+        confByeRounds.clear();
 
         int confWeeks = League.REGULAR_SEASON_GAMES - oocGames;
         if(league.enableUnivProRel) confWeeks = League.REGULAR_SEASON_GAMES;
 
-        for (int r = 0; r < confWeeks; ++r) {
-            for (int g = 0; g < (confTeams.size()/ 2); ++g) {
-                Team a = confTeams.get((r + g) % confSize);
-                Team b;
-                if (g == 0) {
-                    b = confTeams.get(confSize);
-                } else {
-                    b = confTeams.get((confSize - g + r) % confSize);
-                }
-
-                Game gm;
-
-                if (r%2 == 0) {
-                    gm = new Game(a, b, "Conference");
-                } else {
-                    gm = new Game(b, a, "Conference");
-                }
-
-                a.addGameToSchedule(gm);
-                b.addGameToSchedule(gm);
+        int n = confTeams.size();
+        java.util.List<java.util.List<int[]>> rounds = roundRobinRounds(n, confWeeks);
+        for (int r = 0; r < rounds.size(); ++r) {
+            boolean[] plays = new boolean[n];
+            for (int[] pair : rounds.get(r)) {
+                Team home = confTeams.get(pair[0]);
+                Team away = confTeams.get(pair[1]);
+                Game gm = new Game(home, away, "Conference");
+                home.addGameToSchedule(gm);
+                away.addGameToSchedule(gm);
                 confRoundOf.put(gm, r);
-
+                plays[pair[0]] = true;
+                plays[pair[1]] = true;
+            }
+            for (int t = 0; t < n; t++) {
+                if (!plays[t]) confByeRounds.computeIfAbsent(confTeams.get(t), k -> new ArrayList<>()).add(r);
             }
         }
     }
@@ -470,15 +517,17 @@ public class Conference {
 
     public void setUpCrossDivisionSchedule(){
         int games = (12-getOOCGames()) - getDivGames();
-        int divTeams = divisions.get(0).divTeams.size()-1;
+        int sizeA = divisions.get(0).divTeams.size();
+        int sizeB = divisions.get(1).divTeams.size();
+        if (sizeA == 0 || sizeB == 0) return;
 
         for(int g = 0; g < games; g++) {
             Game gm;
-            for(int t = 0; t < divisions.get(0).divTeams.size(); t++) {
-
-                PlatformLog.d("t", t + " " + (t % divisions.get(0).divTeams.size()));
-                Team a = divisions.get(0).divTeams.get(t % divTeams);
-                Team b = divisions.get(1).divTeams.get((t+g) % divTeams);
+            for(int t = 0; t < Math.min(sizeA, sizeB); t++) {
+                // Index each division by its own size; using size-1 sent the last
+                // team to slot 0 and gave that team two cross-division games a week.
+                Team a = divisions.get(0).divTeams.get(t);
+                Team b = divisions.get(1).divTeams.get((t+g) % sizeB);
 
                 if(g % 2 == 0) {
                     gm = new Game(a, b,"Conference");
@@ -500,47 +549,6 @@ public class Conference {
         for (int d = 0; d < divisions.size(); d++) {
             divisions.get(d).setUpDivisionSchedule(divWeeks);
         }
-    }
-
-    private void setUpNoDivisionSchedule() {
-        //schedule in conf matchups
-        int confSize = confTeams.size() - 1;
-        oocGames = getOOCGames();
-
-        int confWeeks = League.REGULAR_SEASON_GAMES - oocGames;
-        if(league.enableUnivProRel) confWeeks = League.REGULAR_SEASON_GAMES;
-
-        Team bye = new Team("BYE", "BYE", "BYE", 0, "BYE", 0, league);
-        for (int t = 0; t < confTeams.size(); ++t) {
-            Team a = confTeams.get(t);
-            a.addGameToSchedule(new Game(a, bye, "BYE WEEK"));
-        }
-
-
-        for (int r = 0; r < confWeeks; ++r) {
-            for (int g = 0; g < (confTeams.size()/ 2); ++g) {
-                Team a = confTeams.get((r + g) % confSize);
-                Team b;
-                if (g == 0) {
-                    b = confTeams.get(confSize);
-                } else {
-                    b = confTeams.get((confSize - g + r) % confSize);
-                }
-
-                Game gm;
-
-                if (r%2 == 0) {
-                    gm = new Game(a, b, "Conference");
-                } else {
-                    gm = new Game(b, a, "Conference");
-                }
-
-                a.addGameToSchedule(gm);
-                b.addGameToSchedule(gm);
-
-            }
-        }
-        confTeams.remove(bye);
     }
 
     /**

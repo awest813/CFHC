@@ -16,47 +16,28 @@ public class Division {
         this.league = league;
     }
 
+    /**
+     * Division round robin over {@code divWeeks} rounds. Uses the conference's
+     * circle method, which handles odd divisions with a phantom opponent; the old
+     * parity check was inverted and added the phantom to even divisions instead.
+     * A team sitting out a round gets a bye that week.
+     */
     public void setUpDivisionSchedule(int divWeeks) {
-        int divSize = divTeams.size()-1;
         Team bye = new Team("BYE", "BYE", "BYE", 0, "BYE", 0, league);
-
-        if(divSize % 2 != 0) {
-            divTeams.add(bye);
-            divSize = divTeams.size()-1;
-            divWeeks++;
-        }
-
-        int games = divTeams.size()/2;
-        for (int r = 0; r < divWeeks; ++r) {
-            for (int g = 0; g < games; ++g) {
-                Team a = divTeams.get((r + g) % divSize);
-                Team b;
-                if (g == 0) {
-                    b = divTeams.get(divSize);
-                } else {
-                    b = divTeams.get((divSize - g + r) % divSize);
-                }
-
-                Game gm;
-
-                if (r%2 == 0) {
-                    gm = new Game(a, b, "Division");
-                } else {
-                    gm = new Game(b, a, "Division");
-                }
-
-                a.addGameToSchedule(gm);
-                b.addGameToSchedule(gm);
-
+        java.util.List<java.util.List<int[]>> rounds = Conference.roundRobinRounds(divTeams.size(), divWeeks);
+        for (java.util.List<int[]> round : rounds) {
+            boolean[] plays = new boolean[divTeams.size()];
+            for (int[] pair : round) {
+                Team home = divTeams.get(pair[0]);
+                Team away = divTeams.get(pair[1]);
+                Game gm = new Game(home, away, "Division");
+                home.addGameToSchedule(gm);
+                away.addGameToSchedule(gm);
+                plays[pair[0]] = true;
+                plays[pair[1]] = true;
             }
-        }
-
-        divTeams.remove(bye);
-
-        if(divSize % 2 == 0) {
-            for (int g = 0; g < divSize; ++g) {
-                Team a = divTeams.get(g);
-                a.addGameToSchedule(new Game(a, bye, "BYE WEEK"));
+            for (int t = 0; t < divTeams.size(); t++) {
+                if (!plays[t]) divTeams.get(t).addGameToSchedule(new Game(divTeams.get(t), bye, "BYE WEEK"));
             }
         }
     }
