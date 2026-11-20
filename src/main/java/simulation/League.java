@@ -4678,7 +4678,11 @@ public class League {
                                 transferQBs.remove(i);
                                 --i;
                                 break;
-                            } else if (user != null && user.getQbTransferNum() == 0) {
+                            } else if (teamList.get(t).isUserControlled() && user != null && user.getQbTransferNum() == 0) {
+                                // Offered to the user only when the user's own program is the
+                                // fit; a CPU team that already took a transfer QB used to land
+                                // here too and hand any QB to the user. Otherwise the next team
+                                // in line is tried, or he stays in the portal.
                                 user.incrementQbTransferNum();
                                 bridge.transferPlayer(transferQBs.get(i));
                                 transferQBs.remove(i);
@@ -4725,7 +4729,7 @@ public class League {
                 for (int n = 0; n < teamList.size(); ++n) {
                     int t = (rand + n) % teamList.size();
                     if (teamList.get(t).getTeamWRs().size() < 3 || teamList.get(t).getTeamWRs().get(0).ratOvr < transferWRs.get(i).ratOvr) {
-                        if (Math.abs(teamList.get(t).getLocation() - transferWRs.get(i).getRegion()) < 1) {
+                        if (Math.abs(teamList.get(t).getLocation() - transferWRs.get(i).getRegion()) < loc) {
                             if (!teamList.get(t).isUserControlled()) {
                                 newsStories.get(currentWeek + 1).add(teamList.get(t).getName() + " Transfer News>" + transferWRs.get(i).getYrStr() + " WR " + transferWRs.get(i).name + "(" + transferWRs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ". He was previously enrolled at " +
                                         transferWRs.get(i).team.getAbbr() + " .");
@@ -4784,7 +4788,9 @@ public class League {
                 rand = SimRandom.nextInt((max - min) + 1) + min;
                 for (int n = 0; n < teamList.size(); ++n) {
                     int t = (rand + n) % teamList.size();
-                    if (teamList.get(t).getTeamOLs().size() < 5 || teamList.get(t).getTeamOLs().get(0).ratOvr < transferOLs.get(i).ratOvr && Math.abs(teamList.get(t).getLocation() - transferOLs.get(i).getRegion()) < loc) {
+                    // Need (short on OL or an upgrade) and region both apply; && bound tighter
+                    // than ||, so any team short on OL took a lineman from anywhere.
+                    if ((teamList.get(t).getTeamOLs().size() < 5 || teamList.get(t).getTeamOLs().get(0).ratOvr < transferOLs.get(i).ratOvr) && Math.abs(teamList.get(t).getLocation() - transferOLs.get(i).getRegion()) < loc) {
                         if (!teamList.get(t).isUserControlled()) {
                             newsStories.get(currentWeek + 1).add(teamList.get(t).getName() + " Transfer News>" + transferOLs.get(i).getYrStr() + " OL " + transferOLs.get(i).name + "(" + transferOLs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ". He was previously enrolled at " +
                                     transferOLs.get(i).team.getAbbr() + " .");
