@@ -1763,6 +1763,7 @@ public class League {
         upgradeFacilities();
         upgradeNilCollectives();
         upgradeStadiums();
+        applyOffseasonBudgetExpenses();
 
         sb = new StringBuilder();
         for (int i = 0; i < teamList.size(); i++) {
@@ -2271,9 +2272,44 @@ public class League {
                 tm.setTeamBudget(tm.getTeamBudget() - baselineCost * (tm.getTeamFacilities() + 1));
                 tm.setFacilityUpgrade(true);
                 tm.setTeamFacilities(tm.getTeamFacilities() + 1);
-                tm.setTeamPrestige(tm.getTeamPrestige() + tm.getTeamFacilities());
+                tm.setTeamPrestige(Team.applyPrestigeGain(tm.getTeamPrestige(), tm.getTeamFacilities()));
                 tm.getHeadCoach().baselinePrestige += tm.getTeamFacilities();
             }
+        }
+    }
+
+    /** Budget a program can carry before athletic-department spending grows (prestige 0). */
+    static final int BUDGET_SOFT_CAP_BASE = 12000;
+    /** Extra soft-cap room per prestige point. */
+    static final int BUDGET_SOFT_CAP_PER_PRESTIGE = 200;
+    /** Share of the budget above the soft cap spent each offseason. */
+    static final double BUDGET_OVER_CAP_SPEND = 0.50;
+    /** Yearly upkeep per facilities level and per stadium expansion tier. */
+    static final int FACILITY_UPKEEP_PER_LEVEL = 1200;
+    static final int STADIUM_UPKEEP_PER_TIER = 1500;
+
+    /** Soft cap for a program's athletic budget: richer, more prestigious programs carry more. */
+    public static int budgetSoftCap(int prestige) {
+        return BUDGET_SOFT_CAP_BASE + BUDGET_SOFT_CAP_PER_PRESTIGE * Math.max(0, prestige);
+    }
+
+    /**
+     * Offseason running costs, after the year's facility, NIL and stadium
+     * purchases: upkeep for what a program has built, plus department spending
+     * of a share of whatever sits above the soft cap. Revenue arrives every week
+     * but upgrades were the only outflow, so budgets compounded without bound
+     * (league max ~9K to ~60K in 15 seasons while facilities stalled at level
+     * 4). Never takes a budget below zero.
+     */
+    public void applyOffseasonBudgetExpenses() {
+        for (Team tm : teamList) {
+            int budget = tm.getTeamBudget();
+            int upkeep = FACILITY_UPKEEP_PER_LEVEL * tm.getTeamFacilities()
+                    + STADIUM_UPKEEP_PER_TIER * Math.max(0, tm.teamStadium - 1);
+            budget -= Math.min(upkeep, budget / 2);
+            int over = budget - budgetSoftCap(tm.getTeamPrestige());
+            if (over > 0) budget -= (int) Math.round(over * BUDGET_OVER_CAP_SPEND);
+            tm.setTeamBudget(budget);
         }
     }
 
@@ -2343,7 +2379,7 @@ public class League {
                 tm.setTeamBudget(tm.getTeamBudget() - cost);
                 tm.nilCollectiveLevel = next;
                 tm.nilCollectiveUpgrade = true;
-                tm.setTeamPrestige(tm.getTeamPrestige() + 1);
+                tm.setTeamPrestige(Team.applyPrestigeGain(tm.getTeamPrestige(), 1));
             }
         }
     }

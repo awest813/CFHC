@@ -302,8 +302,37 @@ public class Team {
     public static final double NFL_CHANCE = 0.66;
     public static final double NFL_CHANCE_SOPH = 0.330;
 
-    /** Soft ceiling on program prestige; see {@link #calcSeasonPrestige()}. */
-    public static final int PRESTIGE_SOFT_MAX = 200;
+    /**
+     * Ceiling of the 0-100 prestige scale the data (top programs start near 92),
+     * recruiting tiers and UI bars are built for; see {@link #applyPrestigeGain}.
+     * Was 200, so dynasties drifted to 110-120.
+     */
+    public static final int PRESTIGE_SOFT_MAX = 100;
+    /** Above this, prestige gains are compressed, fading to nothing at the max. */
+    public static final int PRESTIGE_SOFT_KNEE = 85;
+
+    /**
+     * Prestige after a gain or loss. Losses apply in full; each point gained
+     * above {@link #PRESTIGE_SOFT_KNEE} sticks with probability
+     * (MAX - current) / (MAX - KNEE), so elite programs approach 100 ever more
+     * slowly instead of piling up at a hard clamp. Result is within 0..MAX.
+     */
+    public static int applyPrestigeGain(int current, int change) {
+        int p = current;
+        if (change <= 0) {
+            p += change;
+        } else {
+            for (int i = 0; i < change; i++) {
+                if (p < PRESTIGE_SOFT_KNEE) {
+                    p++;
+                } else if (p < PRESTIGE_SOFT_MAX && SimRandom.nextDouble()
+                        < (PRESTIGE_SOFT_MAX - p) / (double) (PRESTIGE_SOFT_MAX - PRESTIGE_SOFT_KNEE)) {
+                    p++;
+                }
+            }
+        }
+        return Math.max(0, Math.min(PRESTIGE_SOFT_MAX, p));
+    }
 
     public static double knockdownRet = 0.925;
     public static double knockdownFired = 0.975;
@@ -1470,15 +1499,9 @@ public class Team {
             if (nflPts > 1) nflPts = 1;
         }
 
-        newPrestige += prestigeChange + ccPts + ncwPts + nflPts + disPts;
-
-        // Mirror the floor with a soft ceiling. Without this, a dominant team
-        // (repeated national titles + conference championships) accumulates
-        // prestige indefinitely — a 100-season career run reached 250+ for
-        // Clemson. PrestigeBoundsTest documents 200 as the soft max above which
-        // values signal corruption, so clamp here.
-        if (newPrestige < 0) newPrestige = 0;
-        if (newPrestige > PRESTIGE_SOFT_MAX) newPrestige = PRESTIGE_SOFT_MAX;
+        // Soft ceiling: without it a dominant team (repeated titles and
+        // conference championships) accumulates prestige indefinitely.
+        newPrestige = applyPrestigeGain(newPrestige, prestigeChange + ccPts + ncwPts + nflPts + disPts);
 
         int[] PrestigeScore = {newPrestige, prestigeChange, ccPts, ncwPts, nflPts, disPts};
         return PrestigeScore;
@@ -3471,6 +3494,7 @@ public class Team {
             teamDisciplineScore -= penalty*1.65;
             teamBudget -= (penalty * 250);
         }
+        teamBudget = Math.max(0, teamBudget);
 
         if(choice == 1 || choice == 2) {
             player.isSuspended = true;
@@ -5616,7 +5640,8 @@ public class Team {
 
     // Budget/facilities
     public int getTeamBudget() { return teamBudget; }
-    public void setTeamBudget(int budget) { this.teamBudget = budget; }
+    /** Budgets never go below zero (a buyout or fine takes what is there). */
+    public void setTeamBudget(int budget) { this.teamBudget = Math.max(0, budget); }
     public int getTeamRecruitBudget() { return teamRecruitBudget; }
     public void setTeamRecruitBudget(int budget) { this.teamRecruitBudget = budget; }
     public int getTeamDisciplineBudget() { return teamDiscplineBudget; }
