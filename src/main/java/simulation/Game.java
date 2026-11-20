@@ -2402,6 +2402,9 @@ public class Game implements Serializable {
         if (!playingOT && SimRandom.nextDouble() < 0.012) {
             gameEventLog.append(getEventLog()).append("BLOCKED! ").append(defense.getAbbr())
                     .append(" breaks through and blocks the field goal attempt!");
+            // A blocked kick is still an attempt (it used to count nowhere).
+            selK.recordFGAtt(1);
+            selK.gameFGAttempts++;
             if (!playingOT) {
                 gameYardLine = Math.max(100 - (gameYardLine + 5), 20);
                 gameDown = 1;
@@ -2480,11 +2483,11 @@ public class Game implements Serializable {
                 //miss
                 gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" K ").append(selK.name).append(" missed the ").append(110 - gameYardLine).append(" yard FG.");
                 selK.recordFGAtt(1);
+                selK.gameFGAttempts++; // overtime misses used to skip the game line
                 if (!playingOT) {
                     gameYardLine = Math.max(100 - gameYardLine, 20); //Misses inside the 20 = defense takes over on the 20
                     gameDown = 1;
                     gameYardsNeed = 10;
-                    selK.gameFGAttempts++;
                     gamePoss = !gamePoss;
                 } else resetForOT();
             }
