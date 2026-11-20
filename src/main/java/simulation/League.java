@@ -5438,7 +5438,7 @@ Then conferences can see if they want to add them to their list if the teams mee
 
                     Team FCS = new Team(fcsName, "FCS", "Independent", 35, "A", (int) (SimRandom.nextDouble() * 6), this, true);
                     FCS.setAbbr(FCS.getName().substring(0, 3));
-                    FCS.setRankTeamPollScore(teamList.size());
+                    FCS.setRankTeamPollScore(teamList.size() + 1); // ranked last, below the current last place
                     teamList.add(FCS);
                     indy.confTeams.add(FCS);
                     fcsPromotionsUsed++;
@@ -5521,7 +5521,7 @@ Then conferences can see if they want to add them to their list if the teams mee
 
                         Team FCS = new Team(fcsName, "FCS", "Antdroid", 35, "A", (int) (SimRandom.nextDouble() * 6), this, true);
                         FCS.setAbbr(FCS.getName().substring(0, 3));
-                        FCS.setRankTeamPollScore(teamList.size());
+                        FCS.setRankTeamPollScore(teamList.size() + 1); // ranked last, below the current last place
                         teamList.add(FCS);
                         antdroid.confTeams.add(FCS);
                         fcsPromotionsUsed++;
