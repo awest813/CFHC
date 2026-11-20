@@ -249,7 +249,7 @@ public class Game implements Serializable {
     private int winSales = 150;
 
     //Injury
-    private double injuryFreq = 0.95;
+    private double injuryFreq = 0.91;
     private int injuryChance = 150;
 
     //GAME SETUP
@@ -3365,7 +3365,11 @@ public class Game implements Serializable {
 
     private void checkInjury(Player p, Team t) {
 
-        if (p.ratDurability / injuryChance < SimRandom.nextDouble()) {
+        // Durability shields a player: the injury roll passes with chance
+        // 1 - durability/150. This was int division (always 0), so every check
+        // passed whatever the durability; injuryFreq was raised to keep the
+        // league-wide rate about where it was.
+        if ((double) p.ratDurability / injuryChance < SimRandom.nextDouble()) {
 
             if (.5 < SimRandom.nextDouble()) {
                 if(p.gameFatigue < 50) {
