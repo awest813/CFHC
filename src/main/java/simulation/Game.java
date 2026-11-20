@@ -409,6 +409,20 @@ public class Game implements Serializable {
     // Game environment: weather + momentum + crowd play adjustments
     // ---------------------------------------------------------------
 
+    /** True for conference title games, bowls and playoff rounds. */
+    boolean isPostseason() {
+        return isNeutralSite() || gameName.contains("CCG") || gameName.equals("First Round");
+    }
+
+    /** Crowd multiplier over a regular-season gate: bigger games draw bigger crowds. */
+    double postseasonGateMultiplier() {
+        if (gameName.contains("CCG")) return 1.5;
+        if (gameName.equals("NCG") || gameName.contains("Championship")) return 4;
+        if (gameName.contains("Semis") || gameName.contains("Semifinal")) return 2.5;
+        if (isPostseason()) return 1.25;
+        return 1;
+    }
+
     /**
      * True for championship/neutral-site games: no home-field edge and no home
      * crowd. The single source for both {@link #getHFadv()} and {@link #crowdAdv()}.
@@ -1002,19 +1016,13 @@ public class Game implements Serializable {
             homeTeam.healInjury(1);
             awayTeam.healInjury(1);
 
-            if (!gameName.equals("Conference") && !gameName.equals("OOC")) {
-                int attendance = ((homeTeam.getTeamPrestige() * 2 + awayTeam.getTeamPrestige()) / 3);
-                int homeAdd = (int) (tickets * .75 * attendance) + (int) (merch * SimRandom.nextDouble() * homeTeam.getTeamPrestige());
-                homeAdd = (int) (homeAdd * homeTeam.getHomeGameRevenueMultiplier());
-                homeTeam.setTeamBudget(homeTeam.getTeamBudget() + homeAdd);
-                awayTeam.setTeamBudget(awayTeam.getTeamBudget() + (int) (tickets * .25 * attendance));
-            } else {
+            {
+                // Gate revenue. The branch test used to send everything but "Conference"
+                // and "OOC" games (bowls, playoffs, the CCG, division games) to a small
+                // flat formula, so the postseason multipliers below were unreachable.
                 int attendance = ((homeTeam.getTeamPrestige() * 2 + awayTeam.getTeamPrestige()) / 3);
                 if (homecomingGame) attendance = (int) (attendance * 1.15);
-                if(gameName.contains("CCG")) attendance = (int) (attendance * 1.5);
-                else if(gameName.contains("NCG")) attendance = (int) (attendance * 4);
-                else if(gameName.contains("Semis")) attendance = (int) (attendance * 2.5);
-                else attendance = (int) (attendance * 2);
+                attendance = (int) (attendance * 2 * postseasonGateMultiplier());
                 int homeAdd = (int) (1.25 * tickets * .50 * attendance) + (int) (2 * merch * SimRandom.nextDouble() * homeTeam.getTeamPrestige());
                 homeAdd = (int) (homeAdd * homeTeam.getHomeGameRevenueMultiplier());
                 // Stadium: revenue follows butts in seats (bounded vs the old path).
