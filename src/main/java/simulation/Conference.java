@@ -792,6 +792,12 @@ public class Conference {
         return java.util.Collections.unmodifiableList(confTeams);
     }
 
+    /** Clears last season's All-Conference team so the next one is picked fresh. */
+    public void resetSeasonAwards() {
+        allConfPlayers.clear();
+        allConfCoach.clear();
+    }
+
     /**
      * Get the allConfPlayers by sorting all the conf's players by their Heisman score
      * Should be only called after week 13

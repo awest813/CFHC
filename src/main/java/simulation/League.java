@@ -2419,7 +2419,7 @@ public class League {
      *
      * @return string of the ceremony.
      */
-    public String getLinemanPOTYStr() {
+    private String decideLinemanPOTY() {
         if (!linemanPOTYDecided) {
             linemanPOTYDecided = true;
             linemanPOTYCandidates = getLinemanPOTY();
@@ -2428,6 +2428,8 @@ public class League {
                 return linemanPOTYWinnerStrFull;
             }
             linemanPOTY = linemanPOTYCandidates.get(0);
+            // Counted here, once per award (a DL can win both Defensive and Lineman
+            // of the Year); Player.addSeasonAwards does not count POTY again.
             linemanPOTY.wonHeisman = true;
             linemanPOTY.recordHeismans(1);
             linemanPOTY.team.getHeadCoach().recordHeismans(1);
@@ -2586,14 +2588,14 @@ public class League {
                 scheduleNormalCFP();
             }
 
+            // The regular season is complete: decide every award now, in the engine.
+            decideSeasonAwards();
+
         } else if (currentWeek == regSeasonWeeks) {
-            ArrayList<Player> heismans = getHeisman();
-            if (defPOTYCandidates == null || defPOTYCandidates.isEmpty()) {
-                defPOTYCandidates = getDefPOTY();
-            }
-            if (!heismans.isEmpty() && defPOTYCandidates != null && !defPOTYCandidates.isEmpty()) {
-                Player off = heismans.get(0);
-                Player def = defPOTYCandidates.get(0);
+            ensureSeasonAwardsForRead();
+            if (heisman != null && defPOTY != null) {
+                Player off = heisman;
+                Player def = defPOTY;
                 heismanHistory.add(off.position + " " + off.getInitialName() + " [" + off.getYrStr() + "], "
                         + off.team.getAbbr() + " (" + off.team.getWins() + "-" + off.team.getLosses() + ")>" +
                         def.position + " " + def.getInitialName() + " [" + def.getYrStr() + "], "
@@ -3152,6 +3154,77 @@ public class League {
     }
 
 
+    /** True once this season's awards have been decided by {@link #decideSeasonAwards()}. */
+    public boolean seasonAwardsDecided;
+
+    private static final String AWARDS_NOT_YET = "Season awards are announced after the conference championship games.";
+
+    /**
+     * Decides every end-of-regular-season award once: Player, Defensive and
+     * Lineman of the Year, Coach of the Year, Freshman of the Year, the
+     * All-American, All-Freshman and All-Conference teams. The engine calls it
+     * after conference championship week ({@link #playWeek()}), so Android,
+     * desktop and bulk sims all get the same awards whether or not a dialog is
+     * ever opened. Idempotent.
+     */
+    public void decideSeasonAwards() {
+        if (seasonAwardsDecided) return;
+        seasonAwardsDecided = true;
+        decideHeismanCeremony();
+        decideDefensePOTY();
+        decideLinemanPOTY();
+        decideCoachAward();
+        decideFreshmanCeremony();
+        decideAllFreshman();
+        decideAllAmericans();
+        for (Conference c : conferences) {
+            if (!c.confTeams.isEmpty()) c.getAllConfPlayers();
+        }
+    }
+
+    /**
+     * Readers call this before reading award state. Normally a no-op; a save
+     * loaded during the postseason (award flags are not persisted) decides the
+     * awards on first read, as long as the players have not advanced yet.
+     */
+    private void ensureSeasonAwardsForRead() {
+        if (!seasonAwardsDecided
+                && currentWeek >= SeasonFlowOrder.bowlWeek1(regSeasonWeeks)
+                && currentWeek < SeasonFlowOrder.graduationWeek(regSeasonWeeks)) {
+            decideSeasonAwards();
+        }
+    }
+
+    /** Player of the Year ceremony text; a pure reader. */
+    public String getHeismanCeremonyStr() {
+        ensureSeasonAwardsForRead();
+        return heismanDecided && heismanWinnerStrFull != null ? heismanWinnerStrFull : AWARDS_NOT_YET;
+    }
+
+    /** Defensive Player of the Year ceremony text; a pure reader. */
+    public String getDefensePOTYStr() {
+        ensureSeasonAwardsForRead();
+        return defPOTYDecided && defPOTYWinnerStrFull != null ? defPOTYWinnerStrFull : AWARDS_NOT_YET;
+    }
+
+    /** Lineman of the Year ceremony text; a pure reader. */
+    public String getLinemanPOTYStr() {
+        ensureSeasonAwardsForRead();
+        return linemanPOTYDecided && linemanPOTYWinnerStrFull != null ? linemanPOTYWinnerStrFull : AWARDS_NOT_YET;
+    }
+
+    /** Freshman of the Year ceremony text; a pure reader. */
+    public String getFreshmanCeremonyStr() {
+        ensureSeasonAwardsForRead();
+        return freshmanDecided && freshmanWinnerStrFull != null ? freshmanWinnerStrFull : AWARDS_NOT_YET;
+    }
+
+    /** Coach of the Year text; a pure reader. */
+    public String getCoachAwardStr() {
+        ensureSeasonAwardsForRead();
+        return coachAwardDecided && coachWinnerStrFull != null ? coachWinnerStrFull : AWARDS_NOT_YET;
+    }
+
     /**
      * Calculates who wins the Heisman.
      *
@@ -3166,7 +3239,7 @@ public class League {
      *
      * @return string of the heisman ceremony.
      */
-    public String getHeismanCeremonyStr() {
+    private String decideHeismanCeremony() {
         boolean putNewsStory = false;
         if (!heismanDecided) {
             heismanDecided = true;
@@ -3179,6 +3252,8 @@ public class League {
                 return heismanWinnerStrFull;
             }
             heisman = heismanCandidates.get(0);
+            // Counted here, once per award (a DL can win both Defensive and Lineman
+            // of the Year); Player.addSeasonAwards does not count POTY again.
             heisman.wonHeisman = true;
             heisman.recordHeismans(1);
             heisman.team.getHeadCoach().recordHeismans(1);
@@ -3221,7 +3296,7 @@ public class League {
      *
      * @return string of the heisman ceremony.
      */
-    public String getDefensePOTYStr() {
+    private String decideDefensePOTY() {
         boolean putNewsStory = false;
         if (!defPOTYDecided) {
             defPOTYDecided = true;
@@ -3232,6 +3307,8 @@ public class League {
                 return defPOTYWinnerStrFull;
             }
             defPOTY = defPOTYCandidates.get(0);
+            // Counted here, once per award (a DL can win both Defensive and Lineman
+            // of the Year); Player.addSeasonAwards does not count POTY again.
             defPOTY.wonHeisman = true;
             defPOTY.recordHeismans(1);
             defPOTY.team.getHeadCoach().recordHeismans(1);
@@ -3376,8 +3453,8 @@ public class League {
      *
      * @return string list of all americans
      */
-    public String getAllFreshmanStr() {
-        if (allFreshman.isEmpty()) {
+    private void decideAllFreshman() {
+        if (allFreshman.isEmpty() && fQBs != null) {
 
             if (fQBs.size() > 0) {
                 allFreshman.add(fQBs.get(0));
@@ -3458,6 +3535,11 @@ public class League {
             }
         }
 
+    }
+
+    /** All-Freshman team; a pure reader (picked once by {@link #decideSeasonAwards()}). */
+    public String getAllFreshmanStr() {
+        ensureSeasonAwardsForRead();
         StringBuilder allFreshmanTeam = new StringBuilder();
         for (int i = 0; i < allFreshman.size(); ++i) {
             Player p = allFreshman.get(i);
@@ -3474,18 +3556,22 @@ public class League {
      *
      * @return string of the heisman ceremony.
      */
-    public String getFreshmanCeremonyStr() {
+    private String decideFreshmanCeremony() {
         boolean putNewsStory = false;
         if (!freshmanDecided) {
             freshmanDecided = true;
             freshmanCandidates = getTopFreshman();
+            if (freshmanCandidates.isEmpty()) {
+                freshmanWinnerStrFull = "No Freshman Player of the Year candidates this season.";
+                return freshmanWinnerStrFull;
+            }
             freshman = freshmanCandidates.get(0);
             freshman.wonTopFreshman = true;
             freshman.team.getHeadCoach().recordTopFreshman(1);
             putNewsStory = true;
             //full results string
             String heismanTop5 = "\n";
-            for (int i = 0; i < 5; ++i) {
+            for (int i = 0; i < Math.min(5, freshmanCandidates.size()); ++i) {
                 Player p = freshmanCandidates.get(i);
                 heismanTop5 += (i + 1) + ". " + p.getAwardStats();
             }
@@ -3507,13 +3593,17 @@ public class League {
         }
     }
 
-    public String getCoachAwardStr() {
+    private String decideCoachAward() {
         if (!coachAwardDecided) {
             coachAwardDecided = true;
             ArrayList<HeadCoach> coachCandidates = rankHC();
+            if (coachCandidates.isEmpty()) {
+                coachWinnerStrFull = "No Head Coach of the Year candidates this season.";
+                return coachWinnerStrFull;
+            }
             coachWinner = coachCandidates.get(0);
             String coachAwardTopList = "";
-            for (int i = 0; i < 5; ++i) {
+            for (int i = 0; i < Math.min(5, coachCandidates.size()); ++i) {
                 HeadCoach p = coachCandidates.get(i);
                 HeadCoach hc = (HeadCoach) p;
                 coachAwardTopList += (i + 1) + ". " + hc.name + ": " + ((HeadCoach) p).getCoachScore() + " votes\n";
@@ -3545,7 +3635,7 @@ public class League {
      *
      * @return string list of all americans
      */
-    public String getAllAmericanStr() {
+    private void decideAllAmericans() {
         if (allAmericans.isEmpty()) {
             ArrayList<PlayerQB> qbs = new ArrayList<>();
             ArrayList<PlayerRB> rbs = new ArrayList<>();
@@ -3676,6 +3766,16 @@ public class League {
             }
         }
 
+    }
+
+    /**
+     * First and second All-American teams. A pure reader: the teams are picked
+     * once, by {@link #decideSeasonAwards()}.
+     *
+     * @return string list of all americans
+     */
+    public String getAllAmericanStr() {
+        ensureSeasonAwardsForRead();
         StringBuilder allAmerican = new StringBuilder();
         allAmerican.append("[FIRST TEAM ALL-AMERICANS]\n\n>");
         for (int i = 0; i < allAmericans.size(); ++i) {
@@ -3704,6 +3804,8 @@ public class League {
      * @return string of the conference team
      */
     public String getAllConfStr(int confNum) {
+        ensureSeasonAwardsForRead();
+        if (!seasonAwardsDecided) return "";
         ArrayList<Player> allConfPlayers = conferences.get(confNum).getAllConfPlayers();
         ArrayList<HeadCoach> allConfCoaches = conferences.get(confNum).allConfCoach;
 
@@ -6449,7 +6551,6 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public ArrayList<PlayerQB> rankQB() {
-        heisman = null;
         ArrayList<PlayerQB> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             for (int qb = 0; qb < teamList.get(i).getTeamQBs().size(); ++qb) {
@@ -6461,7 +6562,6 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public ArrayList<PlayerRB> rankRB() {
-        heisman = null;
         ArrayList<PlayerRB> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             for (int rb = 0; rb < teamList.get(i).getTeamRBs().size(); ++rb) {
@@ -6473,7 +6573,6 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public ArrayList<PlayerWR> rankWR() {
-        heisman = null;
         ArrayList<PlayerWR> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             for (int wr = 0; wr < teamList.get(i).getTeamWRs().size(); ++wr) {
@@ -6485,7 +6584,6 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public ArrayList<PlayerTE> rankTE() {
-        heisman = null;
         ArrayList<PlayerTE> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             for (int te = 0; te < teamList.get(i).getTeamTEs().size(); ++te) {
@@ -6497,7 +6595,6 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public ArrayList<PlayerOL> rankOL() {
-        heisman = null;
         ArrayList<PlayerOL> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             for (int te = 0; te < teamList.get(i).getTeamOLs().size(); ++te) {
@@ -6509,7 +6606,6 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public ArrayList<PlayerK> rankK() {
-        heisman = null;
         ArrayList<PlayerK> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             for (int te = 0; te < teamList.get(i).getTeamKs().size(); ++te) {
@@ -6521,7 +6617,6 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public ArrayList<PlayerDL> rankDL() {
-        heisman = null;
         ArrayList<PlayerDL> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             for (int dl = 0; dl < teamList.get(i).getTeamDLs().size(); ++dl) {
@@ -6533,7 +6628,6 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public ArrayList<PlayerLB> rankLB() {
-        heisman = null;
         ArrayList<PlayerLB> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             for (int lb = 0; lb < teamList.get(i).getTeamLBs().size(); ++lb) {
@@ -6545,7 +6639,6 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public ArrayList<PlayerCB> rankCB() {
-        heisman = null;
         ArrayList<PlayerCB> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             for (int cb = 0; cb < teamList.get(i).getTeamCBs().size(); ++cb) {
@@ -6557,7 +6650,6 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public ArrayList<PlayerS> rankS() {
-        heisman = null;
         ArrayList<PlayerS> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             for (int s = 0; s < teamList.get(i).getTeamSs().size(); ++s) {
@@ -6569,7 +6661,6 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public ArrayList<HeadCoach> rankHC() {
-        heisman = null;
         ArrayList<HeadCoach> coachCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             if (teamList.get(i).getHeadCoach() != null) {
@@ -7199,6 +7290,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         linemanPOTYCandidates = new ArrayList<>();
         linemanPOTYWinnerStrFull = "";
         hasScheduledBowls = false;
+        seasonAwardsDecided = false;
         heisman = null;
         defPOTY = null;
         freshman = null;
@@ -7211,6 +7303,12 @@ Then conferences can see if they want to add them to their list if the teams mee
         allFreshman = new ArrayList<>();
         playoffTeams = new ArrayList<>();
         cfpGames = new Game[15];
+        // Last season's postseason games: Bowl Watch and the postseason summary read
+        // these arrays, and stale played bowls used to show until new ones replaced them.
+        bowlGames = new Game[bowlGames != null ? bowlGames.length : 0];
+        semiG14 = null;
+        semiG23 = null;
+        // ncg stays: last season's title game is still read for summaries and history.
 
         // Clear transfer pools (they were consumed during the offseason)
         transferQBs = new ArrayList<>();
@@ -7230,6 +7328,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         // Reset per-team season state and conference schedule bookkeeping
         for (Conference c : conferences) {
             c.oocWeeks.clear();
+            c.resetSeasonAwards();
         }
         for (Team t : teamList) {
             t.resetSeasonStats();
