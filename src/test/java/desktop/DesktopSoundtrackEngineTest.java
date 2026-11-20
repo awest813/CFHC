@@ -78,4 +78,102 @@ public class DesktopSoundtrackEngineTest {
         assertTrue(SoundtrackEngine.Track.RECRUITING_GROOVE.getDisplayName()
                 .contains("Semper Fidelis"));
     }
+
+    @Test
+    public void rapidSwitching_leavesAtMostOneLiveSession() throws Exception {
+        DesktopSoundtrackEngine engine = new DesktopSoundtrackEngine();
+        try {
+            SoundtrackEngine.Track[] tracks = SoundtrackEngine.Track.values();
+            for (int i = 0; i < 40; i++) {
+                engine.play(tracks[i % tracks.length]);
+                if (i % 7 == 0) engine.pause();
+                if (i % 7 == 1) engine.resume();
+            }
+            engine.play(SoundtrackEngine.Track.OFFSEASON_CALM);
+            assertEquals(SoundtrackEngine.Track.OFFSEASON_CALM, engine.getCurrentTrack());
+            assertEquals(SoundtrackEngine.State.PLAYING, engine.getState());
+            // Cancelled sessions exit promptly; only the last one may remain.
+            long deadline = System.currentTimeMillis() + 5000;
+            while (liveSessions() > 1 && System.currentTimeMillis() < deadline) {
+                Thread.sleep(25);
+            }
+            assertTrue("live soundtrack threads: " + liveSessions(), liveSessions() <= 1);
+            engine.stop();
+            deadline = System.currentTimeMillis() + 5000;
+            while (liveSessions() > 0 && System.currentTimeMillis() < deadline) {
+                Thread.sleep(25);
+            }
+            assertEquals(0, liveSessions());
+        } finally {
+            engine.dispose();
+        }
+    }
+
+    @Test
+    public void pauseSurvivesTrackSwitchContract() {
+        DesktopSoundtrackEngine engine = new DesktopSoundtrackEngine();
+        try {
+            engine.play(SoundtrackEngine.Track.DASHBOARD_ORGAN);
+            engine.pause();
+            assertEquals(SoundtrackEngine.State.PAUSED, engine.getState());
+            engine.resume();
+            assertEquals(SoundtrackEngine.State.PLAYING, engine.getState());
+            engine.play(SoundtrackEngine.Track.DASHBOARD_ORGAN); // same track: no restart
+            assertEquals(SoundtrackEngine.State.PLAYING, engine.getState());
+        } finally {
+            engine.dispose();
+        }
+    }
+
+    @Test
+    public void legacyVolumePref_migratesToSameLoudness() throws Exception {
+        java.util.prefs.Preferences node = java.util.prefs.Preferences.userRoot()
+                .node("cfhc/test/audio-migration-" + System.nanoTime());
+        try {
+            node.putFloat("old", 0.49f);
+            float level = DesktopAudioPrefs.readLevel(node, "new", "old", 0.8f);
+            assertEquals(0.7f, level, 1e-4f);
+            assertEquals(0.7f, node.getFloat("new", -1f), 1e-4f);
+            assertEquals(0.8f, DesktopAudioPrefs.readLevel(node, "absent", "absent_old", 0.8f), 0f);
+        } finally {
+            node.removeNode();
+        }
+    }
+
+    private static int liveSessions() {
+        int n = 0;
+        for (Thread t : Thread.getAllStackTraces().keySet()) {
+            if (t.isAlive() && t.getName().startsWith("cfhc-soundtrack-")) n++;
+        }
+        return n;
+    }
+
+    @Test
+    public void everyTrack_streamsAs16BitLittleEndianPcm() throws Exception {
+        for (SoundtrackEngine.Track t : SoundtrackEngine.Track.values()) {
+            String res = DesktopSoundtrackEngine.soundtrackResource(t);
+            byte[] bytes;
+            try (InputStream in = getClass().getClassLoader().getResourceAsStream(res)) {
+                assertNotNull(res, in);
+                bytes = simulation.IoStreams.readAllBytes(in);
+            }
+            try (javax.sound.sampled.AudioInputStream pcm = DesktopSoundtrackEngine.openPcm(bytes)) {
+                javax.sound.sampled.AudioFormat f = pcm.getFormat();
+                assertEquals(javax.sound.sampled.AudioFormat.Encoding.PCM_SIGNED, f.getEncoding());
+                assertEquals(16, f.getSampleSizeInBits());
+                assertFalse(f.isBigEndian());
+                // Stream ~1 s and make sure it is real audio, not silence.
+                byte[] buf = new byte[(int) f.getFrameRate() * f.getFrameSize()];
+                int total = 0, r, calls = 0;
+                while (total < buf.length && calls++ < 1_000_000
+                        && (r = pcm.read(buf, total, buf.length - total)) != -1) total += r;
+                assertTrue(t + " produced no PCM", total > buf.length / 2);
+                long peak = 0;
+                for (int i = 0; i + 1 < total; i += 2) {
+                    peak = Math.max(peak, Math.abs((short) ((buf[i] & 0xff) | (buf[i + 1] << 8))));
+                }
+                assertTrue(t + " is silent", peak > 500);
+            }
+        }
+    }
 }

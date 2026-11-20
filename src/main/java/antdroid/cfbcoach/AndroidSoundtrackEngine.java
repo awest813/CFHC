@@ -16,119 +16,227 @@ import simulation.SoundtrackEngine;
  * march recordings stay desktop-only to keep the APK lean — tracks without
  * a bundled file degrade to silence while honoring the state contract.
  *
- * <p>The activity owns the lifecycle: created in onCreate, paused/resumed
- * with the activity, released in onDestroy. The engine manages its own
- * audio focus (BGM ducks out for phone calls and other apps' audio) —
- * {@link MainActivity} should also register the becoming-noisy receiver via
- * {@link #pauseForNoisyDevice()} / {@link #setNoisyReceiverActive(boolean)}
- * around onResume/onPause so unplugging headphones silences the speaker.
+ * <p>Two layers of state:
+ * <ul>
+ *   <li>{@link #getState()} is the logical contract the screens see
+ *       (PLAYING / PAUSED / STOPPED), driven only by play/pause/resume/stop.</li>
+ *   <li>Whether the MediaPlayer is actually running is derived from that state
+ *       plus mute and audio focus in {@link #updateOutput()}.</li>
+ * </ul>
+ *
+ * <p>Audio focus is only held while music is actually audible: a muted
+ * soundtrack, a paused activity, or a track with no bundled file never
+ * requests focus, so the game doesn't pause the player's own podcast or music.
+ * Focus is re-requested on every resume/unmute (after a permanent loss the
+ * system no longer calls us back), and delayed focus gain covers a phone call
+ * in progress at launch.
+ *
+ * <p>All calls arrive on the main thread (activity lifecycle and focus
+ * callbacks both use the main looper).
  */
 public class AndroidSoundtrackEngine implements SoundtrackEngine {
 
     private static final String TAG = "AndroidSoundtrackEngine";
+    /** Volume multiplier while another app holds transient "may duck" focus. */
+    private static final float DUCK_FACTOR = 0.25f;
 
     private final Context appContext;
     private final AudioManager audioManager;
     private MediaPlayer player;
-    private volatile boolean paused = false;
-    private volatile float volume = 0.4f;
-    private volatile boolean muted = false;
-    private volatile Track currentTrack;
-    private volatile State state = State.STOPPED;
+    private float volume = simulation.AudioLevels.DEFAULT_MUSIC_VOLUME;
+    private boolean muted = false;
+    private Track currentTrack;
+    private State state = State.STOPPED;
 
-    /** Audio-focus bookkeeping: only auto-resume what focus loss paused. */
-    private volatile boolean focusGranted = false;
-    private volatile boolean pausedByFocusLoss = false;
+    /** We currently hold audio focus. */
+    private boolean focusGranted = false;
+    /** A focus request is outstanding (AUDIOFOCUS_REQUEST_DELAYED). */
+    private boolean focusPending = false;
+    /** Transient loss: hold position silently until AUDIOFOCUS_GAIN. */
+    private boolean focusSuspended = false;
+    private boolean ducked = false;
     private AudioFocusRequest focusRequest; // API 26+
-    private final AudioManager.OnAudioFocusChangeListener focusListener =
-            new AudioManager.OnAudioFocusChangeListener() {
-                @Override
-                public void onAudioFocusChange(int change) {
-                    switch (change) {
-                        case AudioManager.AUDIOFOCUS_LOSS:
-                        case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-                        case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                            if (state == State.PLAYING) {
-                                pausedByFocusLoss = true;
-                                pauseInternal();
-                            }
-                            break;
-                        case AudioManager.AUDIOFOCUS_GAIN:
-                            if (pausedByFocusLoss) {
-                                pausedByFocusLoss = false;
-                                resumeInternal();
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            };
+
+    private final AudioManager.OnAudioFocusChangeListener focusListener = this::onFocusChange;
 
     public AndroidSoundtrackEngine(Context context) {
         this.appContext = context.getApplicationContext();
         this.audioManager = (AudioManager) appContext.getSystemService(Context.AUDIO_SERVICE);
     }
 
+    // ── Contract ─────────────────────────────────────────────────────────
+
     @Override
     public void play(Track track) {
         if (track == currentTrack && state == State.PLAYING) return;
         releasePlayer();
         currentTrack = track;
-        paused = false;
-        pausedByFocusLoss = false;
-        if (!requestFocus()) {
-            // Focus refused (phone call in progress): honor the contract, wait
-            // for AUDIOFOCUS_GAIN to actually start.
-            state = State.PAUSED;
-            pausedByFocusLoss = true;
-            preparePlayerFor(track);
-            return;
-        }
-        startPlayback(track);
-    }
-
-    private void startPlayback(Track track) {
-        int resId = resIdFor(track);
-        if (resId == 0) {
-            // Track not bundled on Android (APK size) — stay silent but keep
-            // the state contract so screen code can switch tracks freely.
-            state = State.PLAYING;
-            return;
-        }
-        if (!preparePlayerFor(track) || player == null) {
-            return;
-        }
-        player.start();
         state = State.PLAYING;
+        updateOutput();
     }
 
-    /** Creates + configures the MediaPlayer. False (state=STOPPED) on failure. */
-    private boolean preparePlayerFor(Track track) {
-        int resId = resIdFor(track);
-        if (resId == 0) {
-            return true; // contract-only track handled by the caller
+    @Override
+    public void pause() {
+        if (state != State.PLAYING) return;
+        state = State.PAUSED;
+        updateOutput();
+    }
+
+    @Override
+    public void resume() {
+        if (state != State.PAUSED) return;
+        state = State.PLAYING;
+        updateOutput();
+    }
+
+    @Override
+    public void stop() {
+        releasePlayer();
+        currentTrack = null;
+        state = State.STOPPED;
+        updateOutput();
+    }
+
+    @Override
+    public void setVolume(float v) {
+        volume = simulation.AudioLevels.clamp(v);
+        applyVolume();
+    }
+
+    @Override public float getVolume() { return volume; }
+
+    @Override
+    public void setMuted(boolean m) {
+        if (muted == m) return;
+        muted = m;
+        updateOutput();
+    }
+
+    @Override public boolean isMuted() { return muted; }
+    @Override public Track getCurrentTrack() { return currentTrack; }
+    @Override public State getState() { return state; }
+
+    @Override
+    public float getAmplitude() {
+        MediaPlayer p = player;
+        try {
+            return p != null && p.isPlaying() ? 0.5f : 0f;
+        } catch (IllegalStateException e) {
+            return 0f;
         }
-        player = MediaPlayer.create(appContext, resId);
-        if (player == null) {
+    }
+
+    @Override
+    public void dispose() {
+        releasePlayer();
+        currentTrack = null;
+        state = State.STOPPED;
+        abandonFocus();
+    }
+
+    /**
+     * Headphones unplugged (AUDIO_BECOMING_NOISY): silence the speaker. The
+     * activity's next onResume resumes it, as with any other pause.
+     */
+    public void pauseForNoisyDevice() {
+        pause();
+    }
+
+    // ── Output: reconcile player + focus with the logical state ─────────
+
+    /** True when the current state wants sound out of the speaker. */
+    private boolean wantsSound() {
+        return state == State.PLAYING && !muted && currentTrack != null
+                && resIdFor(currentTrack) != 0;
+    }
+
+    private void updateOutput() {
+        if (!wantsSound()) {
+            pausePlayer();
+            if (!focusSuspended) {
+                // Not audible by choice (muted / paused / stopped): give focus
+                // back so other apps' audio isn't held off by a silent game.
+                abandonFocus();
+            }
+            return;
+        }
+        if (!focusGranted) {
+            if (focusPending) return; // AUDIOFOCUS_GAIN will call back
+            if (!requestFocus()) return; // refused/delayed: stay silent
+        }
+        if (focusSuspended) return;
+        if (player == null && !preparePlayer(currentTrack)) return;
+        applyVolume();
+        try {
+            if (!player.isPlaying()) player.start();
+        } catch (IllegalStateException e) {
+            // Player errored while idle — rebuild once and retry.
+            PlatformLog.w(TAG, "start hit a dead player; rebuilding", e);
+            releasePlayer();
+            if (preparePlayer(currentTrack)) {
+                try {
+                    player.start();
+                } catch (IllegalStateException e2) {
+                    PlatformLog.w(TAG, "rebuilt player failed to start", e2);
+                    releasePlayer();
+                }
+            }
+        }
+    }
+
+    private void onFocusChange(int change) {
+        switch (change) {
+            case AudioManager.AUDIOFOCUS_GAIN:
+                focusGranted = true;
+                focusPending = false;
+                focusSuspended = false;
+                ducked = false;
+                updateOutput();
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
+                ducked = true;
+                applyVolume();
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
+                focusSuspended = true;
+                pausePlayer();
+                break;
+            case AudioManager.AUDIOFOCUS_LOSS:
+                // Permanent: the system will not call back. Release our
+                // request; the next resume()/unmute re-requests it.
+                focusSuspended = false;
+                ducked = false;
+                pausePlayer();
+                abandonFocus();
+                break;
+            default:
+                break;
+        }
+    }
+
+    // ── MediaPlayer ─────────────────────────────────────────────────────
+
+    /** Creates + configures the MediaPlayer. False on failure. */
+    private boolean preparePlayer(Track track) {
+        int resId = resIdFor(track);
+        if (resId == 0) return false;
+        MediaPlayer p = MediaPlayer.create(appContext, resId);
+        if (p == null) {
             PlatformLog.w(TAG, "MediaPlayer.create failed for track " + track);
-            state = State.STOPPED;
             return false;
         }
-        player.setLooping(true);
-        player.setOnErrorListener((mp, what, extra) -> {
-            // Mid-play codec/media-server error: without this the player sits
-            // in Error state while `state` claims PLAYING, and the next
-            // resume() would throw IllegalStateException.
+        p.setLooping(true);
+        p.setOnErrorListener((mp, what, extra) -> {
+            // Mid-play codec/media-server error: drop the player; the next
+            // updateOutput() (resume / unmute / focus gain) rebuilds it.
             PlatformLog.w(TAG, "MediaPlayer error what=" + what + " extra=" + extra);
-            releasePlayer();
-            state = State.STOPPED;
-            return true; // handled — do not invoke the default error dialog
+            if (player == mp) releasePlayer();
+            return true; // handled — no default error dialog
         });
-        player.setOnCompletionListener(mp -> {
-            // Looping players should never complete; if they do (looping lost
-            // on some OEM builds), restart rather than sit in a dead state.
-            if (state == State.PLAYING && currentTrack != null) {
+        p.setOnCompletionListener(mp -> {
+            // Looping players should never complete; some OEM builds drop the
+            // loop flag — restart rather than sit in a dead state.
+            if (player == mp && wantsSound()) {
                 try {
                     mp.seekTo(0);
                     mp.start();
@@ -137,111 +245,54 @@ public class AndroidSoundtrackEngine implements SoundtrackEngine {
                     PlatformLog.w(TAG, "completion restart failed", e);
                 }
             }
-            releasePlayer();
-            state = State.STOPPED;
+            if (player == mp) releasePlayer();
         });
+        player = p;
         applyVolume();
         return true;
     }
 
-    @Override
-    public void pause() {
-        pausedByFocusLoss = false; // explicit pause: focus gain must not resume
-        pauseInternal();
-    }
-
-    private void pauseInternal() {
-        if (state != State.PLAYING) {
-            return;
-        }
-        paused = true;
-        state = State.PAUSED;
+    private void pausePlayer() {
         MediaPlayer p = player;
         if (p == null) return;
         try {
             if (p.isPlaying()) p.pause();
         } catch (IllegalStateException ignored) {
-            // Raced a media error — the error listener already cleaned up.
+            // Raced a media error — the error listener cleans up.
         }
     }
 
-    @Override
-    public void resume() {
-        if (!focusGranted) {
-            // Focus is held elsewhere (call in progress): stay paused; the
-            // focus listener resumes when focus returns.
-            return;
+    private void applyVolume() {
+        MediaPlayer p = player;
+        if (p == null) return;
+        Track t = currentTrack;
+        float v = simulation.AudioLevels.amplitude(volume)
+                * (t != null ? t.getGainTrim() : 1f)
+                * (ducked ? DUCK_FACTOR : 1f);
+        try {
+            p.setVolume(v, v);
+        } catch (IllegalStateException ignored) {
+            // Player already released.
         }
-        resumeInternal();
     }
 
-    private void resumeInternal() {
-        if (state != State.PAUSED || player == null) {
-            return;
+    private void releasePlayer() {
+        MediaPlayer p = player;
+        player = null;
+        if (p == null) return;
+        try {
+            if (p.isPlaying()) p.stop();
+        } catch (IllegalStateException ignored) {
         }
         try {
-            player.start();
-            paused = false;
-            state = State.PLAYING;
-        } catch (IllegalStateException e) {
-            // Player errored while paused — rebuild and restart the track.
-            PlatformLog.w(TAG, "resume hit a dead player; restarting track", e);
-            Track track = currentTrack;
-            releasePlayer();
-            if (track != null) {
-                state = State.PLAYING;
-                if (!preparePlayerFor(track)) {
-                    return;
-                }
-                player.start();
-            }
+            p.release();
+        } catch (Exception ignored) {
         }
     }
 
-    @Override
-    public void stop() {
-        abandonFocus();
-        releasePlayer();
-        currentTrack = null;
-        state = State.STOPPED;
-    }
+    // ── Audio focus ─────────────────────────────────────────────────────
 
-    @Override
-    public void setVolume(float v) {
-        volume = Math.max(0f, Math.min(1f, v));
-        applyVolume();
-    }
-
-    @Override public float getVolume() { return volume; }
-
-    @Override
-    public void setMuted(boolean m) {
-        muted = m;
-        applyVolume();
-    }
-
-    @Override public boolean isMuted() { return muted; }
-    @Override public Track getCurrentTrack() { return currentTrack; }
-    @Override public State getState() { return state; }
-    @Override public float getAmplitude() { return state == State.PLAYING ? 0.5f : 0f; }
-
-    @Override
-    public void dispose() {
-        abandonFocus();
-        releasePlayer();
-        currentTrack = null;
-        state = State.STOPPED;
-    }
-
-    /**
-     * Headphones unplugged (AUDIO_BECOMING_NOISY): silence the speaker.
-     * Called from MainActivity's receiver around onResume/onPause.
-     */
-    public void pauseForNoisyDevice() {
-        pausedByFocusLoss = false;
-        pauseInternal();
-    }
-
+    /** True when focus is granted now; a delayed grant arrives via the listener. */
     private boolean requestFocus() {
         if (audioManager == null) {
             focusGranted = true; // no audio service (rare) — play anyway
@@ -255,24 +306,32 @@ public class AndroidSoundtrackEngine implements SoundtrackEngine {
                                 .setUsage(AudioAttributes.USAGE_GAME)
                                 .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
                                 .build())
+                        .setAcceptsDelayedFocusGain(true)
+                        .setWillPauseWhenDucked(false)
                         .setOnAudioFocusChangeListener(focusListener)
                         .build();
             }
             result = audioManager.requestAudioFocus(focusRequest);
         } else {
-            // Legacy pre-O path (deprecated on O+, functional everywhere).
             //noinspection deprecation
             result = audioManager.requestAudioFocus(focusListener,
                     AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
         }
         focusGranted = result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
+        focusPending = Build.VERSION.SDK_INT >= 26
+                && result == AudioManager.AUDIOFOCUS_REQUEST_DELAYED;
+        focusSuspended = false;
+        ducked = false;
         return focusGranted;
     }
 
     private void abandonFocus() {
+        boolean held = focusGranted || focusPending;
         focusGranted = false;
-        pausedByFocusLoss = false;
-        if (audioManager == null) return;
+        focusPending = false;
+        focusSuspended = false;
+        ducked = false;
+        if (!held || audioManager == null) return;
         try {
             if (Build.VERSION.SDK_INT >= 26 && focusRequest != null) {
                 audioManager.abandonAudioFocusRequest(focusRequest);
@@ -280,32 +339,6 @@ public class AndroidSoundtrackEngine implements SoundtrackEngine {
                 //noinspection deprecation
                 audioManager.abandonAudioFocus(focusListener);
             }
-        } catch (Exception ignored) {
-        }
-    }
-
-    private void applyVolume() {
-        MediaPlayer p = player;
-        if (p == null) return;
-        float v = muted ? 0f : volume;
-        try {
-            p.setVolume(v, v);
-        } catch (IllegalStateException ignored) {
-            // Player already released.
-        }
-    }
-
-    private void releasePlayer() {
-        MediaPlayer p = player;
-        player = null;
-        paused = false;
-        if (p == null) return;
-        try {
-            if (p.isPlaying()) p.stop();
-        } catch (IllegalStateException ignored) {
-        }
-        try {
-            p.release();
         } catch (Exception ignored) {
         }
     }

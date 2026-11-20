@@ -68,6 +68,7 @@ public final class SeasonController {
 
     private void handleInSeasonWeek(SeasonAdvanceResult.Builder result) {
         int weekBefore = league.currentWeek;
+        java.util.List<Game> userUnplayed = unplayedUserGames();
         league.playWeek();
         result.weekAdvanced();
 
@@ -80,42 +81,82 @@ public final class SeasonController {
         }
 
         result.weekDigest(league.buildWeekDigest(weekBefore));
-        result.audioEvent(weekAudioEvent(weekBefore));
+        result.audioEvent(weekAudioEvent(weekBefore, justPlayed(userUnplayed)));
         updateInSeasonStatus(result);
     }
 
+    /** The user's real (non-bye) games that have not been played yet. */
+    private java.util.List<Game> unplayedUserGames() {
+        java.util.List<Game> out = new java.util.ArrayList<>();
+        if (league.userTeam == null || league.userTeam.getGameSchedule() == null) {
+            return out;
+        }
+        for (Game g : league.userTeam.getGameSchedule()) {
+            if (g != null && !g.hasPlayed && !g.isByeWeek()) {
+                out.add(g);
+            }
+        }
+        return out;
+    }
+
+    /** The user game this advance played, or null (bye, eliminated, not in the postseason). */
+    private static Game justPlayed(java.util.List<Game> before) {
+        for (Game g : before) {
+            if (g.hasPlayed) {
+                return g;
+            }
+        }
+        return null;
+    }
+
     /**
-     * Result-atmosphere audio cue for the week just played: postseason crowd noise,
-     * the championship organ, a roar for a ranked upset, a cheer for a routine win.
+     * The single result cue for the week just played — platforms play only
+     * this (plus their own click feedback when it is null), so cues never
+     * stack. Keyed off the user's actual game this week:
+     * <ul>
+     *   <li>loss → LOSS</li>
+     *   <li>national title → FIGHT_SONG</li>
+     *   <li>conference title / bowl / playoff win, or a ranked upset → CROWD_ROAR</li>
+     *   <li>the win that makes the team bowl eligible → FIRST_DOWN ("moving the chains")</li>
+     *   <li>any other win → TOUCHDOWN_CHEER</li>
+     *   <li>title game played without the user → STADIUM_ORGAN (season finale)</li>
+     * </ul>
      */
-    private AudioEvent weekAudioEvent(int weekPlayed) {
-        if (league.userTeam == null) {
+    AudioEvent weekAudioEvent(int weekPlayed, Game g) {
+        Team user = league.userTeam;
+        if (user == null) {
             return null;
         }
+        if (g == null) {
+            return weekPlayed == SeasonFlowOrder.nationalChampionshipWeek(regSeasonWeeks)
+                    ? AudioEvent.STADIUM_ORGAN : null;
+        }
+        boolean home = g.homeTeam == user;
+        int us = home ? g.homeScore : g.awayScore;
+        int them = home ? g.awayScore : g.homeScore;
+        if (us <= them) {
+            return AudioEvent.LOSS;
+        }
         if (weekPlayed == SeasonFlowOrder.nationalChampionshipWeek(regSeasonWeeks)) {
-            return AudioEvent.STADIUM_ORGAN;
+            return AudioEvent.FIGHT_SONG;
         }
         if (weekPlayed >= SeasonFlowOrder.conferenceChampionshipWeek(regSeasonWeeks)) {
             return AudioEvent.CROWD_ROAR;
         }
-        Game g = league.findPlayedUserGame(weekPlayed);
-        if (g == null) {
-            return null;
-        }
-        boolean home = g.homeTeam == league.userTeam;
-        int us = home ? g.homeScore : g.awayScore;
-        int them = home ? g.awayScore : g.homeScore;
-        if (us <= them) {
-            return null;
-        }
         Team opp = home ? g.awayTeam : g.homeTeam;
         int oppRank = opp.getRankTeamPollScore();
-        int ourRank = league.userTeam.getRankTeamPollScore();
+        int ourRank = user.getRankTeamPollScore();
         if (oppRank >= 1 && oppRank <= 25 && oppRank + 4 < ourRank) {
             return AudioEvent.CROWD_ROAR; // upset over a better-ranked opponent
         }
+        if (user.getWins() == BOWL_ELIGIBLE_WINS) {
+            return AudioEvent.FIRST_DOWN;
+        }
         return AudioEvent.TOUCHDOWN_CHEER;
     }
+
+    /** Wins needed for bowl eligibility. */
+    private static final int BOWL_ELIGIBLE_WINS = 6;
 
     private void updateInSeasonStatus(SeasonAdvanceResult.Builder result) {
         if (league.currentWeek == SeasonFlowOrder.bowlWeek1(regSeasonWeeks)) {

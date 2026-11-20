@@ -910,6 +910,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     setupCoachStyle();
                 } else {
                     // Toast, not snackbar: the name dialog stays open on top.
+                    uiSounds().play(AudioEvent.ERROR);
                     Toast.makeText(MainActivity.this, R.string.setup_name_invalid,
                                 Toast.LENGTH_SHORT).show();
                 }
@@ -1413,21 +1414,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Game Summary
     public void showGameDialog(Game g) {
-        playGameSound(g);
+        // No result cue here: the week's cue already played when it was simmed,
+        // and re-opening an old box score should not replay it.
+        audioManager.play(AudioEvent.UI_CLICK);
         GameDialogController.show(this, g, userTeam);
-    }
-
-    private void playGameSound(Game g) {
-        if (g == null || !g.hasPlayed) return;
-        boolean isUserGame = userTeam != null && (g.awayTeam == userTeam || g.homeTeam == userTeam);
-        if (!isUserGame) return;
-        int userScore = g.homeTeam == userTeam ? g.homeScore : g.awayScore;
-        int oppScore = g.homeTeam == userTeam ? g.awayScore : g.homeScore;
-        if (userScore > oppScore) {
-            audioManager.play(AudioEvent.WIN);
-        } else {
-            audioManager.play(AudioEvent.LOSS);
-        }
     }
 
     //Weekly Scoreboard
@@ -1466,8 +1456,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Simulate Week
     private void simulateWeek() {
-        audioManager.play(AudioEvent.ADVANCE);
         if (simLeague != null && simLeague.recruitingPhaseActive) {
+            audioManager.play(AudioEvent.ADVANCE);
             // Recruiting is a hard gate — do not re-run offseason/recruiting handlers.
             if (SimulationFacade.needsUserRecruiting(simLeague)) {
                 beginRecruiting();
@@ -1486,10 +1476,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         resetUI();
         autosaveWhenIdle();
 
+        // One cue per advance: the week's result cue, else plain click feedback.
+        AudioEvent cue = advance != null ? advance.getAudioEvent() : null;
+        audioManager.play(cue != null ? cue : AudioEvent.ADVANCE);
         if (advance != null) {
-            if (advance.getAudioEvent() != null) {
-                audioManager.play(advance.getAudioEvent());
-            }
             String digest = advance.getWeekDigest();
             if (digest != null && !digest.isEmpty()) {
                 showWeekDigestDialog(digest);
@@ -2364,6 +2354,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 return CustomUniverseParser.parse(inputStream, conferences, teams, bowls);
             }
         } catch (Exception e) {
+            uiSounds().play(AudioEvent.ERROR);
             Toast.makeText(MainActivity.this, R.string.toast_import_unreadable, Toast.LENGTH_SHORT).show();
             throw new IOException("Unable to import custom universe", e);
         }
@@ -2419,6 +2410,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             importCustomData(uri.toString());
         } catch (IOException e) {
             PlatformLog.e("MainActivity", "Import from document failed", e);
+            uiSounds().play(AudioEvent.ERROR);
             Toast.makeText(this, R.string.toast_import_failed, Toast.LENGTH_SHORT).show();
         }
     }

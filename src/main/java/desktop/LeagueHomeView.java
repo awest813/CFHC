@@ -925,6 +925,7 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
      */
     public boolean requestQuitFromOs() {
         if (bulkRunning) {
+            audioManager.play(AudioEvent.ERROR);
             JOptionPane.showMessageDialog(this,
                     DesktopTheme.messageForDialog(
                             "A bulk simulation is running. Stop it (the progress dialog's close box)\n"
@@ -1121,8 +1122,11 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
 
         int weekBefore = leagueCore.currentWeek;
         bridge.clearNewSeasonPending();
-        audioManager.play(AudioEvent.ADVANCE);
         simulation.SeasonAdvanceResult advance = controller.advanceWeek();
+        // One cue per advance: the week's result cue (chosen by SeasonController
+        // from the user's game), else plain click feedback. Never both.
+        audioManager.play(advance.getAudioEvent() != null
+                ? advance.getAudioEvent() : AudioEvent.ADVANCE);
         markDirty();
 
         // Android polls disciplineAction after each week; desktop must do the same.
@@ -1141,9 +1145,6 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
             startNewSeason();
         } else {
             refresh();
-            if (advance.getAudioEvent() != null) {
-                audioManager.play(advance.getAudioEvent());
-            }
             // Show week-in-review (result + league texture) for the user team
             showWeekResultSummary(weekBefore, advance.getWeekDigest());
         }
@@ -1176,12 +1177,6 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
         String site = DesktopWeekResult.userIsHome(g, leagueCore.userTeam) ? "vs " : "at ";
         int score = DesktopWeekResult.userScore(g, leagueCore.userTeam);
         int oppScore = DesktopWeekResult.opponentScore(g, leagueCore.userTeam);
-
-        if (score > oppScore) {
-            audioManager.play(AudioEvent.WIN);
-        } else {
-            audioManager.play(AudioEvent.LOSS);
-        }
 
         String result = score > oppScore ? "WIN" : (score < oppScore ? "LOSS" : "TIE");
 
@@ -1312,6 +1307,7 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
             persistRecruitingCheckpointQuietly();
             PlatformLog.i(TAG, "League saved to " + target.getAbsolutePath());
         } else {
+            audioManager.play(AudioEvent.ERROR);
             JOptionPane.showMessageDialog(this,
                     DesktopTheme.messageForDialog("Failed to save league to:\n" + target.getAbsolutePath()),
                     "Save Failed", JOptionPane.ERROR_MESSAGE);
@@ -1351,6 +1347,7 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
 
         File file = chooser.getSelectedFile();
         if (!file.isFile()) {
+            audioManager.play(AudioEvent.ERROR);
             JOptionPane.showMessageDialog(this,
                     DesktopTheme.messageForDialog("File not found:\n" + file.getAbsolutePath()),
                     "Open Failed", JOptionPane.ERROR_MESSAGE);
@@ -1383,6 +1380,7 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
                 wait.setVisible(false);
                 wait.dispose();
                 if (failure.get() != null) {
+                    audioManager.play(AudioEvent.ERROR);
                     JOptionPane.showMessageDialog(this,
                             DesktopTheme.messageForDialog(simulation.SaveLoadMessages.loadFailureMessage(failure.get())),
                             "Open Failed", JOptionPane.ERROR_MESSAGE);
@@ -1436,6 +1434,7 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
                     "Export Successful", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception ex) {
             PlatformLog.e(TAG, "Error exporting league", ex);
+            audioManager.play(AudioEvent.ERROR);
             JOptionPane.showMessageDialog(this,
                     DesktopTheme.messageForDialog("Failed to export league:\n" + ex.getMessage()),
                     "Export Failed", JOptionPane.ERROR_MESSAGE);
@@ -1479,6 +1478,7 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
             PlatformLog.i(TAG, kind + " CSV imported from " + importFile.getAbsolutePath());
         } catch (Exception ex) {
             PlatformLog.e(TAG, "Error importing " + kind + " CSV", ex);
+            audioManager.play(AudioEvent.ERROR);
             JOptionPane.showMessageDialog(this,
                     DesktopTheme.messageForDialog(
                             simulation.SaveLoadMessages.loadFailureMessage(ex)),
@@ -1529,6 +1529,7 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
                 res = (DesktopResourceProvider) provider;
             }
             if (res == null) {
+                audioManager.play(AudioEvent.ERROR);
                 JOptionPane.showMessageDialog(this,
                         DesktopTheme.messageForDialog(
                         "Cannot resolve resource provider for custom universe import."),
@@ -1568,6 +1569,7 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
             PlatformLog.i(TAG, "Custom universe imported from " + importFile.getAbsolutePath());
         } catch (Exception ex) {
             PlatformLog.e(TAG, "Error importing custom universe", ex);
+            audioManager.play(AudioEvent.ERROR);
             JOptionPane.showMessageDialog(this,
                     DesktopTheme.messageForDialog("Failed to import custom universe:\n" + ex.getMessage()),
                     "Import Failed", JOptionPane.ERROR_MESSAGE);
@@ -2120,10 +2122,12 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
     private void switchSoundtrackForScreen(String screenTitle) {
         if (soundtrackEngine == null) return;
         SoundtrackEngine.Track desired;
-        int wk = leagueCore.currentWeek;
-        int reg = leagueCore.regSeasonWeeks;
-        boolean inPostseason = wk > reg && wk <= reg + 3;
-        boolean inOffseason = wk > reg + 3 && wk < reg + 13;
+        // Phase of the week about to be played (SeasonFlowOrder is the one
+        // source of week math; hand-rolled ranges missed bowl week 1).
+        simulation.SeasonFlowOrder.Phase phase = simulation.SeasonFlowOrder.phaseAt(leagueCore);
+        boolean inPostseason = phase == simulation.SeasonFlowOrder.Phase.POSTSEASON
+                || phase == simulation.SeasonFlowOrder.Phase.NATIONAL_CHAMPIONSHIP;
+        boolean inOffseason = phase == simulation.SeasonFlowOrder.Phase.OFFSEASON;
         if ("Recruiting".equals(screenTitle)) {
             desired = SoundtrackEngine.Track.RECRUITING_GROOVE;
         } else if (inOffseason) {
@@ -2228,6 +2232,7 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
         if (error == null) {
             return true;
         }
+        audioManager.play(AudioEvent.ERROR);
         JOptionPane.showMessageDialog(this,
                 DesktopTheme.messageForDialog(
                         "Could not write recruiting checkpoint:\n" + error),

@@ -140,4 +140,16 @@ public class DesktopAudioManagerTest {
             manager.dispose();
         }
     }
+
+    @Test
+    public void everyAudioEvent_hasADecodedSound() {
+        DesktopAudioManager manager = new DesktopAudioManager();
+        try {
+            for (AudioEvent e : AudioEvent.values()) {
+                assertTrue("no sound for " + e, manager.hasSound(e));
+            }
+        } finally {
+            manager.dispose();
+        }
+    }
 }

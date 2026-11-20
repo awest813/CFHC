@@ -92,10 +92,12 @@ public class WeekTextureTest {
         assertTrue("Digest should name the user team somewhere",
                 digest.contains(userTeam.getName()) || digest.contains(userTeam.getAbbr()));
 
-        // Audio: non-postseason weeks may only cue cheer/roar on a user win, or nothing.
+        // Audio: a regular week cues the user's result (win cue or LOSS), or
+        // nothing on a bye. Never a postseason/title cue.
         AudioEvent audio = result.getAudioEvent();
-        assertTrue("In-season audio must be null or a win cue",
-                audio == null || audio == AudioEvent.TOUCHDOWN_CHEER || audio == AudioEvent.CROWD_ROAR);
+        assertTrue("In-season audio must be null, a win cue, or LOSS: " + audio,
+                audio == null || audio == AudioEvent.TOUCHDOWN_CHEER || audio == AudioEvent.CROWD_ROAR
+                        || audio == AudioEvent.FIRST_DOWN || audio == AudioEvent.LOSS);
     }
 
     @Test

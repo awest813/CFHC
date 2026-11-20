@@ -17,17 +17,33 @@ public interface SoundtrackEngine {
     /** Music tracks — bundled recordings (Pixabay / public-domain marches). */
     enum Track {
         /** "Marching Band" (stereo_color, Pixabay) — default dashboard ambience. */
-        DASHBOARD_ORGAN("Marching Band \u2014 stereo_color (Pixabay)"),
+        DASHBOARD_ORGAN("Marching Band \u2014 stereo_color (Pixabay)", -5.7f),
         /** "The Stars and Stripes Forever" (Sousa) — postseason / scoreboard. */
-        FIGHT_SONG("Stars and Stripes Forever \u2014 USMC Band"),
+        FIGHT_SONG("Stars and Stripes Forever \u2014 USMC Band", 0f),
         /** "National Emblem" (Bagley) — offseason menu music. */
-        OFFSEASON_CALM("National Emblem March \u2014 U.S. Army Band"),
+        OFFSEASON_CALM("National Emblem March \u2014 U.S. Army Band", -3.4f),
         /** "Semper Fidelis" (Sousa) — recruiting screen. */
-        RECRUITING_GROOVE("Semper Fidelis March \u2014 U.S. Navy Band");
+        RECRUITING_GROOVE("Semper Fidelis March \u2014 U.S. Navy Band", -1.8f);
 
         private final String displayName;
-        Track(String displayName) { this.displayName = displayName; }
+        private final float gainTrimDb;
+
+        Track(String displayName, float gainTrimDb) {
+            this.displayName = displayName;
+            this.gainTrimDb = gainTrimDb;
+        }
+
         public String getDisplayName() { return displayName; }
+
+        /**
+         * Loudness-matching trim in dB. The recordings span −12.1 to −17.8 LUFS
+         * and all peak near 0 dBFS, so the louder ones are trimmed down to the
+         * quietest (−17.8 LUFS) — switching screens no longer jumps ~6 LU.
+         */
+        public float getGainTrimDb() { return gainTrimDb; }
+
+        /** {@link #getGainTrimDb()} as a linear amplitude multiplier. */
+        public float getGainTrim() { return (float) Math.pow(10.0, gainTrimDb / 20.0); }
     }
 
     enum State { PLAYING, PAUSED, STOPPED }
@@ -71,7 +87,7 @@ public interface SoundtrackEngine {
         @Override public void resume() {}
         @Override public void stop() {}
         @Override public void setVolume(float volume) {}
-        @Override public float getVolume() { return 0.7f; }
+        @Override public float getVolume() { return AudioLevels.DEFAULT_MUSIC_VOLUME; }
         @Override public void setMuted(boolean muted) {}
         @Override public boolean isMuted() { return false; }
         @Override public Track getCurrentTrack() { return null; }

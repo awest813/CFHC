@@ -4,10 +4,13 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.EnumMap;
+import java.util.EnumSet;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -21,6 +24,7 @@ import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 import simulation.AudioEvent;
+import simulation.AudioLevels;
 import simulation.AudioManager;
 import simulation.PlatformLog;
 
@@ -31,36 +35,68 @@ public class DesktopAudioManager implements AudioManager {
     private static final java.util.prefs.Preferences PREFS =
             java.util.prefs.Preferences.userRoot().node("cfhc/desktop/audio");
 
-    private final Map<AudioEvent, byte[]> audioCache = new HashMap<>();
-    private final List<Clip> activeClips = new ArrayList<>();
-    private final java.util.Set<AudioEvent> warnedMissing = new java.util.HashSet<>();
-    private float volume = PREFS.getFloat("sfx_volume", 0.7f);
+    /** Overlapping cues beyond this cut the oldest (UI mashing stays tidy). */
+    static final int MAX_ACTIVE_CLIPS = 6;
+
+    /** Decoded PCM per event (SFX are short WAVs — decoding once is cheap). */
+    private final Map<AudioEvent, Pcm> audioCache = new EnumMap<>(AudioEvent.class);
+    private final Deque<Clip> activeClips = new ArrayDeque<>();
+    private final java.util.Set<AudioEvent> warnedMissing =
+            java.util.Collections.synchronizedSet(EnumSet.noneOf(AudioEvent.class));
+    private volatile float volume = DesktopAudioPrefs.readLevel(PREFS, "sfx_level", "sfx_volume",
+            AudioLevels.DEFAULT_SFX_VOLUME);
     private volatile boolean muted = PREFS.getBoolean("sfx_muted", false);
     private volatile boolean available = false;
+    private volatile boolean disposed = false;
+
+    /** Opening a Clip can take tens of ms on some mixers — never on the EDT. */
+    private final ExecutorService player = Executors.newSingleThreadExecutor(r -> {
+        Thread t = new Thread(r, "cfhc-sfx");
+        t.setDaemon(true);
+        return t;
+    });
+
+    private static final class Pcm {
+        final byte[] bytes;
+        final AudioFormat format;
+        Pcm(byte[] bytes, AudioFormat format) { this.bytes = bytes; this.format = format; }
+    }
 
     public DesktopAudioManager() {
         preloadSounds();
     }
 
     private void preloadSounds() {
-        int loaded = 0;
         for (AudioEvent event : AudioEvent.values()) {
             String base = fileBaseFor(event);
             // Prefer the generated WAV SFX (clean, well-levelled, no SPI
-            // needed); fall back to the bundled OGG if the WAV is absent.
+            // needed); fall back to an OGG if the WAV is absent.
             byte[] data = readSoundResource(base + ".wav");
             if (data == null) {
                 data = readSoundResource(base + ".ogg");
             }
-            if (data != null) {
-                audioCache.put(event, data);
-                loaded++;
-            }
+            if (data == null) continue;
+            Pcm pcm = decode(event, data);
+            if (pcm != null) audioCache.put(event, pcm);
         }
-        available = loaded > 0;
+        available = !audioCache.isEmpty();
         if (!available) {
             PlatformLog.w(TAG, "No sound files loaded — audio is disabled");
         }
+    }
+
+    /** Decodes one cue; a bad file only loses that cue, never the whole session. */
+    private static Pcm decode(AudioEvent event, byte[] data) {
+        try (AudioInputStream ais = AudioDecoding.toPcm(
+                AudioSystem.getAudioInputStream(new ByteArrayInputStream(data)))) {
+            return new Pcm(readAllBytes(ais), ais.getFormat());
+        } catch (UnsupportedAudioFileException e) {
+            PlatformLog.e(TAG, "Unsupported audio format for: " + event.name()
+                    + " (is vorbisspi/jorbis/tritonus on the classpath?)", e);
+        } catch (Exception e) {
+            PlatformLog.e(TAG, "Failed to decode sound: " + event.name(), e);
+        }
+        return null;
     }
 
     private static byte[] readSoundResource(String fileName) {
@@ -74,9 +110,14 @@ public class DesktopAudioManager implements AudioManager {
         }
     }
 
-    /** Whether any sound assets were loaded and playback has not been permanently disabled. */
+    /** Whether any sound assets were loaded. */
     boolean isAvailable() {
         return available;
+    }
+
+    /** Whether {@code event} has a decoded sound. */
+    boolean hasSound(AudioEvent event) {
+        return audioCache.containsKey(event);
     }
 
     static String fileNameFor(AudioEvent event) {
@@ -111,71 +152,67 @@ public class DesktopAudioManager implements AudioManager {
 
     @Override
     public void play(AudioEvent event) {
-        if (muted || !available) return;
-        byte[] data = audioCache.get(event);
-        if (data == null) {
-            // Warn once per event — some cues legitimately have no asset, and
-            // a per-week warning is log noise.
+        if (muted || !available || disposed || event == null) return;
+        Pcm pcm = audioCache.get(event);
+        if (pcm == null) {
+            // Warn once per event — a cue with no asset is log noise per week.
             if (warnedMissing.add(event)) {
                 PlatformLog.w(TAG, "No audio data for event: " + event.name());
             }
             return;
         }
-
-        AudioInputStream ais = null;
-        Clip clip = null;
-        boolean started = false;
         try {
-            ais = AudioDecoding.toPcm(
-                    AudioSystem.getAudioInputStream(new ByteArrayInputStream(data)));
-            try {
-                clip = AudioSystem.getClip();
-                clip.open(ais);
-                applyVolume(clip);
-                final Clip toClose = clip;
-                clip.addLineListener(e -> {
-                    if (e.getType() == LineEvent.Type.STOP) {
-                        try { toClose.close(); } catch (Exception ignored) {}
-                        synchronized (activeClips) {
-                            activeClips.remove(toClose);
-                        }
+            player.execute(() -> playNow(pcm));
+        } catch (java.util.concurrent.RejectedExecutionException ignored) {
+            // Disposed concurrently.
+        }
+    }
+
+    private void playNow(Pcm pcm) {
+        if (disposed || muted) return;
+        Clip clip = null;
+        try (AudioInputStream ais = new AudioInputStream(new ByteArrayInputStream(pcm.bytes),
+                pcm.format, pcm.bytes.length / pcm.format.getFrameSize())) {
+            clip = AudioSystem.getClip();
+            clip.open(ais);
+            applyVolume(clip);
+            final Clip toClose = clip;
+            clip.addLineListener(e -> {
+                if (e.getType() == LineEvent.Type.STOP) {
+                    try { toClose.close(); } catch (Exception ignored) {}
+                    synchronized (activeClips) {
+                        activeClips.remove(toClose);
                     }
-                });
-                clip.start();
-                started = true;
-                synchronized (activeClips) {
-                    activeClips.add(clip);
                 }
-            } catch (LineUnavailableException clipEx) {
-                if (clip != null) clip.close();
-                // Never block the EDT on the synchronous SourceDataLine drain path.
-                Thread fallback = new Thread(
-                        () -> playViaSourceDataLine(data),
-                        "cfhc-audio-fallback");
-                fallback.setDaemon(true);
-                fallback.start();
+            });
+            Clip evicted = null;
+            synchronized (activeClips) {
+                if (activeClips.size() >= MAX_ACTIVE_CLIPS) {
+                    evicted = activeClips.pollFirst();
+                }
+                activeClips.addLast(clip);
             }
-        } catch (UnsupportedAudioFileException e) {
-            PlatformLog.e(TAG, "Unsupported audio format for: " + event.name()
-                    + " (is vorbisspi/jorbis/tritonus on the classpath?)", e);
-            available = false;
+            if (evicted != null) {
+                try { evicted.stop(); evicted.close(); } catch (Exception ignored) {}
+            }
+            clip.start();
+            clip = null; // owned by the listener now
+        } catch (LineUnavailableException clipEx) {
+            // No Clip available: stream it (we are already off the EDT).
+            playViaSourceDataLine(pcm);
         } catch (Exception e) {
             // Transient mixer/line issues must not permanently mute the session.
-            PlatformLog.e(TAG, "Failed to play sound: " + event.name(), e);
+            PlatformLog.e(TAG, "Failed to play sound", e);
         } finally {
-            if (ais != null) {
-                try { ais.close(); } catch (IOException ignored) {}
-            }
-            if (clip != null && !started) {
-                clip.close();
+            if (clip != null) {
+                try { clip.close(); } catch (Exception ignored) {}
             }
         }
     }
 
-    private void playViaSourceDataLine(byte[] data) {
-        try (AudioInputStream ais = AudioDecoding.toPcm(
-                AudioSystem.getAudioInputStream(new ByteArrayInputStream(data)))) {
-            AudioFormat format = ais.getFormat();
+    private void playViaSourceDataLine(Pcm pcm) {
+        try {
+            AudioFormat format = pcm.format;
             DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
             if (!AudioSystem.isLineSupported(info)) {
                 PlatformLog.w(TAG, "SourceDataLine not supported for format: " + format);
@@ -183,18 +220,9 @@ public class DesktopAudioManager implements AudioManager {
             }
             SourceDataLine line = (SourceDataLine) AudioSystem.getLine(info);
             line.open(format);
-            if (line.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
-                FloatControl gain = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
-                float dB = volume > 0 ? (float) (Math.log10(volume) * 20.0) : -80f;
-                dB = Math.max(gain.getMinimum(), Math.min(gain.getMaximum(), dB));
-                gain.setValue(dB);
-            }
+            setGain(line);
             line.start();
-            byte[] buffer = new byte[4096];
-            int bytesRead;
-            while ((bytesRead = ais.read(buffer)) != -1) {
-                line.write(buffer, 0, bytesRead);
-            }
+            line.write(pcm.bytes, 0, pcm.bytes.length - pcm.bytes.length % format.getFrameSize());
             line.drain();
             line.stop();
             line.close();
@@ -204,9 +232,13 @@ public class DesktopAudioManager implements AudioManager {
     }
 
     private void applyVolume(Clip clip) {
-        if (clip.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
-            FloatControl gain = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
-            float dB = volume > 0 ? (float) (Math.log10(volume) * 20.0) : -80f;
+        setGain(clip);
+    }
+
+    private void setGain(javax.sound.sampled.Line line) {
+        if (line.isControlSupported(FloatControl.Type.MASTER_GAIN)) {
+            FloatControl gain = (FloatControl) line.getControl(FloatControl.Type.MASTER_GAIN);
+            float dB = AudioLevels.decibels(volume);
             dB = Math.max(gain.getMinimum(), Math.min(gain.getMaximum(), dB));
             gain.setValue(dB);
         }
@@ -214,8 +246,8 @@ public class DesktopAudioManager implements AudioManager {
 
     @Override
     public void setVolume(float vol) {
-        this.volume = Math.max(0, Math.min(1, vol));
-        PREFS.putFloat("sfx_volume", this.volume);
+        this.volume = AudioLevels.clamp(vol);
+        PREFS.putFloat("sfx_level", this.volume);
     }
 
     @Override
@@ -236,6 +268,8 @@ public class DesktopAudioManager implements AudioManager {
 
     @Override
     public void dispose() {
+        disposed = true;
+        player.shutdownNow();
         audioCache.clear();
         synchronized (activeClips) {
             for (Clip c : activeClips) {

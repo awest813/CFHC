@@ -42,4 +42,27 @@ final class AudioDecoding {
                 false);
         return AudioSystem.getAudioInputStream(target, in);
     }
+
+    /**
+     * Like {@link #toPcm} but always yields signed 16-bit little-endian PCM
+     * (converting 8-bit, big-endian, or float PCM too), for code that
+     * processes samples itself.
+     */
+    static AudioInputStream toPcm16(AudioInputStream in) {
+        AudioInputStream pcm = toPcm(in);
+        AudioFormat fmt = pcm.getFormat();
+        if (AudioFormat.Encoding.PCM_SIGNED.equals(fmt.getEncoding())
+                && fmt.getSampleSizeInBits() == 16 && !fmt.isBigEndian()) {
+            return pcm;
+        }
+        AudioFormat target = new AudioFormat(
+                AudioFormat.Encoding.PCM_SIGNED,
+                fmt.getSampleRate(),
+                16,
+                fmt.getChannels(),
+                fmt.getChannels() * 2,
+                fmt.getSampleRate(),
+                false);
+        return AudioSystem.getAudioInputStream(target, pcm);
+    }
 }
