@@ -191,13 +191,8 @@ public final class LeagueLaunchCoordinator {
                     if (inputStream == null) {
                         throw new IOException("Unable to open imported save stream");
                     }
-                    League league = new League(inputStream, playerNames, lastNames, bridge);
+                    League league = importLeague(inputStream, filesDir, playerNames, lastNames, bridge);
                     Team userTeam = league.userTeam;
-                    if (userTeam == null) {
-                        throw new IOException("Imported save did not contain a user team");
-                    }
-                    userTeam.getHeadCoach().user = true;
-                    league.updateTeamTalentRatings();
                     return new LaunchResult(league, userTeam, userTeam, league.getYear(), true, false, false);
                 }
             } else if (request.action == LaunchRequest.Action.RESUME_AUTOSAVE) {
@@ -230,10 +225,49 @@ public final class LeagueLaunchCoordinator {
         if (userTeam == null) {
             throw new IOException("Loaded save did not contain a user team");
         }
-        userTeam.getHeadCoach().user = true;
+        if (userTeam.getHeadCoach() != null) {
+            userTeam.getHeadCoach().user = true;
+        }
         league.rebuildScheduleIfNeeded();
         league.updateTeamTalentRatings();
         return league;
+    }
+
+    /**
+     * Loads an imported save of either format. {@code League(InputStream)} reads only
+     * the legacy text format, so a current-format (V:/L:) export always failed with
+     * "did not contain a user team"; the file constructor detects the format. The
+     * stream is staged in a temp file (in {@code filesDir} when given), removed after.
+     */
+    static League importLeague(InputStream inputStream, File filesDir, String playerNames, String lastNames,
+                               GameUiBridge bridge) throws IOException {
+        File dir = filesDir != null && filesDir.isDirectory() ? filesDir : null;
+        File tempImport = File.createTempFile("cfhc-import-", ".cfb", dir);
+        try {
+            IoStreams.copyToFile(inputStream, tempImport);
+            League league;
+            try {
+                // recruitingChk=false: the legacy recruiting checkpoint would hand the
+                // UI this temp file, and the stream import never resumed recruiting.
+                league = new League(tempImport, playerNames, lastNames, bridge, false);
+            } catch (IllegalStateException ex) {
+                throw new IOException("Imported save could not be read: " + ex.getMessage(), ex);
+            }
+            Team userTeam = league.userTeam;
+            if (userTeam == null) {
+                throw new IOException("Imported save did not contain a user team");
+            }
+            if (userTeam.getHeadCoach() != null) {
+                userTeam.getHeadCoach().user = true;
+            }
+            league.rebuildScheduleIfNeeded();
+            league.updateTeamTalentRatings();
+            return league;
+        } finally {
+            if (!tempImport.delete()) {
+                tempImport.deleteOnExit();
+            }
+        }
     }
 
     private static League buildLeagueFromMode(LaunchRequest.PrestigeMode prestigeMode,
