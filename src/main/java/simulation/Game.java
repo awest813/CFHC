@@ -901,6 +901,10 @@ public class Game implements Serializable {
                 gameYardsNeed = 10;
 
                 while (playingOT) {
+                    if (numOT >= 3) {
+                        overtimeConversionRound();
+                        continue;
+                    }
                     if (gamePoss) runPlay(homeTeam, awayTeam);
                     else runPlay(awayTeam, homeTeam);
                 }
@@ -2515,6 +2519,75 @@ public class Game implements Serializable {
 
     }
 
+    /**
+     * One two-point try: a run or a throw from the 3. {@code lead} opens the log
+     * line (the touchdown call, or the overtime shootout call). Returns whether it
+     * was good; the points are already on the board when it was.
+     */
+    /**
+     * One half of a third-or-later overtime: the side with the ball runs a single
+     * two-point play (no drive from the 25), then possession passes as at the end
+     * of any overtime series.
+     */
+    private void overtimeConversionRound() {
+        Team offense = gamePoss ? homeTeam : awayTeam;
+        Team defense = gamePoss ? awayTeam : homeTeam;
+        gameYardLine = 97;
+        gameDown = 1;
+        gameYardsNeed = 3;
+        attemptTwoPoint(offense, defense, "OVERTIME TWO-POINT TRY: " + offense.getAbbr() + " from the 3.");
+        resetForOT();
+    }
+
+    private boolean attemptTwoPoint(Team offense, Team defense, String lead) {
+        boolean successConversion = false;
+        PlayerRB rushBack = offense.getRB(0);
+        PlayerQB qb = offense.getQB(0);
+        PlayerWR wr = offense.getWR(0);
+        PlayerCB cb = defense.getCB(0);
+        if (SimRandom.nextDouble() <= 0.50) {
+            //rushing
+            if (rushBack == null) {
+                gameEventLog.append(getEventLogScoring()).append(lead)
+                        .append(" 2pt conversion failed — no available rusher.");
+            } else {
+                int blockAdv = (int) offense.getCompositeOLRush() - (int) defense.getCompositeDLRush();
+                int yardsGain = (int) ((rushBack.getRatSpeed() + blockAdv) * SimRandom.nextDouble() / 6);
+                if (yardsGain > 5) {
+                    successConversion = true;
+                    if (gamePoss) { // home possession
+                        homeScore += 2;
+                    } else {
+                        awayScore += 2;
+                    }
+                    addPointsQuarter(2);
+                    gameEventLog.append(getEventLogScoring()).append(lead).append(" ").append(rushBack.name).append(" rushed for the 2pt conversion.");
+                } else {
+                    gameEventLog.append(getEventLogScoring()).append(lead).append(" ").append(rushBack.name).append(" stopped at the line of scrimmage, failed the 2pt conversion.");
+                }
+            }
+        } else if (qb == null || wr == null || cb == null) {
+            gameEventLog.append(getEventLogScoring()).append(lead)
+                    .append(" 2pt conversion failed — depleted skill-position depth.");
+        } else {
+            int pressureOnQB = (int) defense.getCompositeDLPass() * 2 - (int) offense.getCompositeOLPass();
+            double completion = ((qb.getRatPassAcc()) + wr.getRatCatch() - cb.getRatCoverage()) / 2 + 25 - pressureOnQB / 20;
+            if (100 * SimRandom.nextDouble() < completion) {
+                successConversion = true;
+                if (gamePoss) { // home possession
+                    homeScore += 2;
+                } else {
+                    awayScore += 2;
+                }
+                addPointsQuarter(2);
+                gameEventLog.append(getEventLogScoring()).append(lead).append(" ").append(qb.name).append(" completed the pass to ").append(wr.name).append(" for the 2pt conversion.");
+            } else {
+                gameEventLog.append(getEventLogScoring()).append(lead).append(" ").append(qb.name).append("'s pass incomplete to ").append(wr.name).append(" for the failed 2pt conversion.");
+            }
+        }
+        return successConversion;
+    }
+
     private void kickXP(Team offense, Team defense) {
         PlayerK selK = offense.getK(0);
         if (selK != null) {
@@ -2533,54 +2606,11 @@ public class Game implements Serializable {
                 //Just rubbing in the win or saving some pride
             else gameEventLog.append(getEventLogScoring()).append("TOUCHDOWN!\n").append(tdInfo);
         } else {
-            if ((numOT >= 3) || (((gamePoss && (awayScore - homeScore) == 2) || (!gamePoss && (homeScore - awayScore) == 2)) && gameTime < 300)) {
-                //go for 2
-                boolean successConversion = false;
-                PlayerRB rushBack = offense.getRB(0);
-                PlayerQB qb = offense.getQB(0);
-                PlayerWR wr = offense.getWR(0);
-                PlayerCB cb = defense.getCB(0);
-                if (SimRandom.nextDouble() <= 0.50) {
-                    //rushing
-                    if (rushBack == null) {
-                        gameEventLog.append(getEventLogScoring()).append("TOUCHDOWN!\n").append(tdInfo)
-                                .append(" 2pt conversion failed — no available rusher.");
-                    } else {
-                        int blockAdv = (int) offense.getCompositeOLRush() - (int) defense.getCompositeDLRush();
-                        int yardsGain = (int) ((rushBack.getRatSpeed() + blockAdv) * SimRandom.nextDouble() / 6);
-                        if (yardsGain > 5) {
-                            successConversion = true;
-                            if (gamePoss) { // home possession
-                                homeScore += 2;
-                            } else {
-                                awayScore += 2;
-                            }
-                            addPointsQuarter(2);
-                            gameEventLog.append(getEventLogScoring()).append("TOUCHDOWN!\n").append(tdInfo).append(" ").append(rushBack.name).append(" rushed for the 2pt conversion.");
-                        } else {
-                            gameEventLog.append(getEventLogScoring()).append("TOUCHDOWN!\n").append(tdInfo).append(" ").append(rushBack.name).append(" stopped at the line of scrimmage, failed the 2pt conversion.");
-                        }
-                    }
-                } else if (qb == null || wr == null || cb == null) {
-                    gameEventLog.append(getEventLogScoring()).append("TOUCHDOWN!\n").append(tdInfo)
-                            .append(" 2pt conversion failed — depleted skill-position depth.");
-                } else {
-                    int pressureOnQB = (int) defense.getCompositeDLPass() * 2 - (int) offense.getCompositeOLPass();
-                    double completion = ((qb.getRatPassAcc()) + wr.getRatCatch() - cb.getRatCoverage()) / 2 + 25 - pressureOnQB / 20;
-                    if (100 * SimRandom.nextDouble() < completion) {
-                        successConversion = true;
-                        if (gamePoss) { // home possession
-                            homeScore += 2;
-                        } else {
-                            awayScore += 2;
-                        }
-                        addPointsQuarter(2);
-                        gameEventLog.append(getEventLogScoring()).append("TOUCHDOWN!\n").append(tdInfo).append(" ").append(qb.name).append(" completed the pass to ").append(wr.name).append(" for the 2pt conversion.");
-                    } else {
-                        gameEventLog.append(getEventLogScoring()).append("TOUCHDOWN!\n").append(tdInfo).append(" ").append(qb.name).append("'s pass incomplete to ").append(wr.name).append(" for the failed 2pt conversion.");
-                    }
-                }
-
+            // NCAA overtime (2021 rules): from the second overtime a touchdown must be
+            // followed by a two-point try; from the third on there are no drives at all
+            // (see overtimeConversionRound).
+            if ((playingOT && numOT >= 2) || (((gamePoss && (awayScore - homeScore) == 2) || (!gamePoss && (homeScore - awayScore) == 2)) && gameTime < 300)) {
+                attemptTwoPoint(offense, defense, "TOUCHDOWN!\n" + tdInfo);
             } else {
                 //kick XP
                 if (selK == null) {
@@ -2742,7 +2772,27 @@ public class Game implements Serializable {
         }
     }
 
+    /**
+     * Fourth down in overtime, where every 4th-down call that would punt lands
+     * (the coach's PUNT crunch call included). A punt used to flip possession
+     * without ending the series, so the other side got two possessions in the
+     * period. College overtime has no punts: kick if in range, otherwise go for it.
+     */
+    private void overtimeFourthDown(Team offense, Team defense) {
+        if (fgInRange(offense)) {
+            fieldGoalAtt(offense, defense);
+        } else if (SimRandom.nextDouble() < shortYardageRunChance(gameYardsNeed, offense.getPlaybookOffense())) {
+            rushingPlay(offense, defense);
+        } else {
+            passingPlay(offense, defense);
+        }
+    }
+
     private void puntPlay(Team offense, Team defense) {
+        if (playingOT) {
+            overtimeFourthDown(offense, defense);
+            return;
+        }
         // Desperate fake punt: trailing by a score-and-a-half late, deep in own territory.
         boolean offenseTrailing = (offense == homeTeam) ? homeScore < awayScore : awayScore < homeScore;
         int deficit = offenseTrailing
@@ -3078,6 +3128,12 @@ public class Game implements Serializable {
         gameEventLog.append(getEventLogScoring()).append("SAFETY!\n").append(ballCarrier)
                 .append(" was tackled in the endzone").append(defender.isEmpty() ? "" : " by " + defender)
                 .append("! Result is a Safety and ").append(scoring.getAbbr()).append(" will get possession.");
+        if (playingOT) {
+            // No free kick in overtime (the clock reads -1, so freeKick did nothing and
+            // the offense snapped again from its own end zone): the possession is over.
+            resetForOT();
+            return;
+        }
         if (gamePoss) {
             freeKick(homeTeam, awayTeam);
         } else {
