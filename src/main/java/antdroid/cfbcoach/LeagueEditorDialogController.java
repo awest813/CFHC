@@ -28,7 +28,7 @@ public final class LeagueEditorDialogController {
 
     public static void show(final MainActivity activity, final League simLeague) {
         final Team[] currentTeam = {activity.userTeam};
-        final Conference[] currentConference = {simLeague.getConferences().get(simLeague.getConfNumber(activity.userTeam.getConference()))};
+        final Conference[] currentConference = {simLeague.conferenceOf(activity.userTeam)};
 
         AlertDialog.Builder GameEditor = Dialogs.builder(activity);
         GameEditor.setTitle("Game Universe Editor v2 (BETA)")
