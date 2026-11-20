@@ -149,6 +149,11 @@ public class TeamFinance {
         return Math.max(0, Math.min(100, approval));
     }
 
+    /** The user's head coach can only lose the job when career movement is on. */
+    private boolean userCanBeFired() {
+        return !team.userControlled || team.league.isCareerMode();
+    }
+
     public void coachContracts(int totalPDiff) {
         int max = 78;
         int min = 60;
@@ -218,7 +223,9 @@ public class TeamFinance {
                 } else if (getAdApproval() >= 25
                         && ((totalPDiff < 0 && (team.teamPrestige - team.teamPrestigeStart) > 2)
                             || (team.rankTeamPrestige > 15 && (team.teamPrestige - team.teamPrestigeStart) > 2))) {
-                    if (SimRandom.nextDouble() > 0.40) {
+                    // Without career movement the user's coach is never fired, so the
+                    // polarizing-firing roll always lands on the prove-it deal for them.
+                    if (SimRandom.nextDouble() > 0.40 || !userCanBeFired()) {
                         team.HC.contractLength = 2;
                         team.HC.contractYear = 0;
                         team.league.addNewsStory(team.league.currentWeek + 1,"2-Year Prove-It Contract Given by " + team.name + ">" + team.name + " has an additional 2-year contract to " + team.HC.name +
@@ -247,7 +254,9 @@ public class TeamFinance {
                     team.newCoachTeamChanges();
                     team.league.addCoach(new HeadCoach(team.HC, team));
                     team.HC = null;
-                } else if ((team.league.isCareerMode() && totalPDiff < -2 && team.rankTeamPollScore > 15) || (team.rankTeamPollScore > 25 && totalPDiff < -1)) {
+                } else if (team.userControlled
+                        ? userCanBeFired() && ((totalPDiff < -2 && team.rankTeamPollScore > 15) || (team.rankTeamPollScore > 25 && totalPDiff < -1))
+                        : team.league.isCareerMode() && totalPDiff < -2 && team.rankTeamPollScore > 15) {
                     team.fired = true;
                     String buyout = applyBuyout(team.HC, headCoachSalary());
                     team.league.addNewsStory(team.league.currentWeek + 1,"Head Coach Firing at " + team.name + ">" + team.strRankTeamRecord() + " has fired their head coach, " + team.HC.name +
@@ -323,6 +332,16 @@ public class TeamFinance {
                         coord.contractLength = 3;
                         coord.contractYear = 0;
                         coord.baselinePrestige = 0;
+                    } else if ((cpres < -2 && team.rankTeamPollScore > 15) || (team.rankTeamPollScore > 25 && cpres < -1)) {
+                        // Checked before the generic cpres < 0 coin flip, which used to catch
+                        // every negative case first and made this branch unreachable.
+                        team.league.addNewsStory(team.league.currentWeek + 1,"Coordinator Firing at " + team.name + ">" + team.strRankTeamRecord() + " has fired their " + coord.position + ", " + coord.name +
+                                " after a disappointing tenure.");
+                        team.league.addNewsHeadline(team.name + " has fired " + coord.position + " " + coord.name + ".");
+                        team.league.addCoach(new HeadCoach(coord, team));
+                        if(pos.equals("OC")) team.OC = null;
+                        else if(pos.equals("DC")) team.DC = null;
+
                     } else if (cpres < 0) {
                         if (SimRandom.nextDouble() > 0.50) {
                             coord.contractLength = 1;
@@ -336,14 +355,6 @@ public class TeamFinance {
                             if(pos.equals("OC")) team.OC = null;
                             else if(pos.equals("DC")) team.DC = null;
                         }
-                    } else if (cpres < -2 && team.rankTeamPollScore > 15 || team.rankTeamPollScore > 25 && cpres < -1) {
-                        team.league.addNewsStory(team.league.currentWeek + 1,"Coordinator Firing at " + team.name + ">" + team.strRankTeamRecord() + " has fired their " + coord.position + ", " + coord.name +
-                                " after a disappointing tenure.");
-                        team.league.addNewsHeadline(team.name + " has fired " + coord.position + " " + coord.name + ".");
-                        team.league.addCoach(new HeadCoach(coord, team));
-                        if(pos.equals("OC")) team.OC = null;
-                        else if(pos.equals("DC")) team.DC = null;
-
                     } else {
                         coord.contractLength = 2;
                         coord.contractYear = 0;
