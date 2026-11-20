@@ -96,7 +96,8 @@ public class BowlManager {
             Collections.sort(byPoll, new CompTeamPoll());
             for (Team team : byPoll) {
                 if (field.size() >= League.EXPANDED_PLAYOFF_TEAM_COUNT) break;
-                if (!field.contains(team)) field.add(team);
+                // Bowl-banned teams are not eligible for the postseason at all.
+                if (!field.contains(team) && !team.isBowlBan()) field.add(team);
             }
         }
         Collections.sort(field, new CompTeamPoll());
