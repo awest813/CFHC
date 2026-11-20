@@ -318,7 +318,9 @@ public class Game implements Serializable {
         int footIQadv = (int) ((homeTeam.getCompositeFootIQ() - awayTeam.getCompositeFootIQ()) / 5);
         if (footIQadv > 3) footIQadv = 3;
         if (footIQadv < -3) footIQadv = -3;
-        if (gameName.contains("Bowl") || gameName.contains("NC") || gameName.contains("SF"))
+        // Same neutral-site rule as the crowd: playoff games are named "Quarterfinal"
+        // and "Semifinal", which the old "Bowl"/"NC"/"SF" check missed.
+        if (isNeutralSite())
             return 0;
         if (gamePoss) {
             return 3 + footIQadv;
@@ -327,8 +329,8 @@ public class Game implements Serializable {
         }
     }
 
+    /** The offense's coaching edge for this snap. Pure: the AI's counter-scheme rolls happen once per half. */
     private int getCoachAdv() {
-        coachingStrategyAdjustments();
         HeadCoach homeHC = homeTeam.getHeadCoach();
         HeadCoach awayHC = awayTeam.getHeadCoach();
         OC homeOC = homeTeam.getOC();
@@ -407,11 +409,14 @@ public class Game implements Serializable {
     // Game environment: weather + momentum + crowd play adjustments
     // ---------------------------------------------------------------
 
-    /** True for championship/neutral-site games (no home crowd effect). */
-    private boolean isNeutralSite() {
+    /**
+     * True for championship/neutral-site games: no home-field edge and no home
+     * crowd. The single source for both {@link #getHFadv()} and {@link #crowdAdv()}.
+     */
+    boolean isNeutralSite() {
         return gameName.contains("Bowl") || gameName.contains("Championship")
                 || gameName.contains("Semifinal") || gameName.contains("Semis")
-                || gameName.contains("Quarterfinal");
+                || gameName.contains("Quarterfinal") || gameName.equals("NCG");
     }
 
     /** Home-crowd lift from prestige and a hot streak; zero at neutral sites. */
@@ -873,6 +878,10 @@ public class Game implements Serializable {
 
             awayTeam.addGamesStartedPlayers();
             homeTeam.addGamesStartedPlayers();
+
+            // AI staffs pick their counter-schemes once per half (they used to re-roll
+            // on every getCoachAdv call, two or three times a pass play).
+            coachingStrategyAdjustments();
 
             kickOff(homeTeam, awayTeam);
 
@@ -1580,7 +1589,10 @@ public class Game implements Serializable {
         int defPressure = getDefPassPressure(defense, selLB2);
 
         //get how much pressure there is on qb, check if sack
-        int pressureOnQB = 2 * defPressure - offProtection + getHFadv() + getCoachAdv();
+        // Home field and coaching edges are the offense's, so they ease the pressure
+        // (they used to add to it, sacking the home and better-coached side more).
+        int offenseEdge = getHFadv() + getCoachAdv();
+        int pressureOnQB = 2 * defPressure - offProtection - offenseEdge;
         // SACK OUTCOME
         if (SimRandom.nextDouble() < sackChance(pressureOnQB)) {
 
@@ -1647,21 +1659,21 @@ public class Game implements Serializable {
             double completion, coverage;
 
             if (pos.equals("WR")) {
-                completion = getHFadv() + getCoachAdv() + environmentAdj(offense, true) + 2 * offense.getPlaybookOffense().getPassProtection() + 4 * offense.getPlaybookOffense().getPassPref() +
+                completion = offenseEdge + environmentAdj(offense, true) + 2 * offense.getPlaybookOffense().getPassProtection() + 4 * offense.getPlaybookOffense().getPassPref() +
                         1.5 * (selQB.getRatPassAcc()) + (selWR.getRatCatch()) + getArchetypeCompletionBonus(selQB, pressureOnQB);
 
                 coverage = 2 * defense.getPlaybookDefense().getPassRush() + 4 * defense.getPlaybookDefense().getPassCoverage() + (selCB.getRatCoverage()) + pressureOnQB
                         + getArchetypeDeflectionBonus(selCB) + getArchetypePressBonus(selCB) + getArchetypeDeepRecoveryBonus(selCB);
 
             } else if (pos.equals("TE")) {
-                completion = getHFadv() + getCoachAdv() + environmentAdj(offense, true) + 2 * offense.getPlaybookOffense().getPassProtection() + 4 * offense.getPlaybookOffense().getPassPref() +
+                completion = offenseEdge + environmentAdj(offense, true) + 2 * offense.getPlaybookOffense().getPassProtection() + 4 * offense.getPlaybookOffense().getPassPref() +
                         1.5 * (selQB.getRatPassAcc()) + (selTE.getRatCatch()) + getArchetypeCompletionBonus(selQB, pressureOnQB);
 
                 coverage = 2 * defense.getPlaybookDefense().getPassRush() + 4 * defense.getPlaybookDefense().getPassCoverage() + (selLB.getRatCoverage()) + pressureOnQB
                         + getArchetypeCoverageBonus(selLB);
 
             } else {
-                completion = getHFadv() + getCoachAdv() + environmentAdj(offense, true) + 2 * offense.getPlaybookOffense().getPassProtection() + 4 * offense.getPlaybookOffense().getPassPref() +
+                completion = offenseEdge + environmentAdj(offense, true) + 2 * offense.getPlaybookOffense().getPassProtection() + 4 * offense.getPlaybookOffense().getPassPref() +
                         1.5 * (selQB.getRatPassAcc()) + (selRB.getRatCatch()) + getArchetypeCompletionBonus(selQB, pressureOnQB);
 
                 coverage = 2 * defense.getPlaybookDefense().getPassRush() + 4 * defense.getPlaybookDefense().getPassCoverage() + (selLB2.getRatCoverage()) + pressureOnQB
@@ -3294,6 +3306,8 @@ public class Game implements Serializable {
                     }
                 }
             }
+
+            coachingStrategyAdjustments();
 
             gamePoss = false;
             kickOff(awayTeam, homeTeam);
