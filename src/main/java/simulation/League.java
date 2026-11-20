@@ -1599,6 +1599,16 @@ public class League {
         // New-format loads skip setupSeason(), which normally allocates weekly news/score
         // buckets. Without this, preseasonNews/topRecruits NPEs on newsStories.
         ensureSeasonWeekListsCapacity(Math.max(seasonWeeks, currentWeek + 4));
+        afterSaveLoaded();
+    }
+
+    /**
+     * Season-flow fixups once a save is applied; kept out of the record parsing
+     * above (which only calls this). Team conference names follow the conference
+     * that holds them (old saves wrote "CUSA").
+     */
+    private void afterSaveLoaded() {
+        syncTeamConferenceNames();
     }
 
     /**
@@ -2026,15 +2036,55 @@ public class League {
      * @param conf conference name
      * @return int of number 0-5
      */
+    /**
+     * Index of the conference named {@code conf}, accepting old spellings (see
+     * {@link #canonicalConferenceName}); -1 when no conference has that name.
+     * Unknown names used to return 0, so realignment could edit the ACC when it
+     * meant another conference.
+     */
     public int getConfNumber(String conf) {
-        boolean complete = false;
-        int i = 0;
-        while (i < conferences.size() && !complete) {
-            if (conf.equals(conferences.get(i).confName)) {
-                return i;
-            } else i++;
+        if (conf == null) return -1;
+        String canonical = canonicalConferenceName(conf);
+        for (int i = 0; i < conferences.size(); i++) {
+            String name = conferences.get(i).confName;
+            if (conf.equals(name) || canonical.equals(name)) return i;
         }
-        return 0;
+        for (int i = 0; i < conferences.size(); i++) {
+            if (canonical.equalsIgnoreCase(conferences.get(i).confName)) return i;
+        }
+        return -1;
+    }
+
+    /**
+     * Current spelling of a conference name. Bundled team data and saves used
+     * "CUSA" while the conference itself is "Conference USA".
+     */
+    public static String canonicalConferenceName(String conf) {
+        if (conf == null) return null;
+        if (conf.equalsIgnoreCase("CUSA") || conf.equalsIgnoreCase("C-USA")) return "Conference USA";
+        return conf;
+    }
+
+    /** The conference whose member list holds {@code t}, or null. */
+    public Conference conferenceOf(Team t) {
+        for (Conference c : conferences) {
+            if (c.confTeams.contains(t)) return c;
+        }
+        int i = t != null ? getConfNumber(t.getConference()) : -1;
+        return i >= 0 ? conferences.get(i) : null;
+    }
+
+    /**
+     * Makes every team's conference name match the conference that holds it
+     * (old saves and custom data can carry an alias such as "CUSA"). Runs at
+     * schedule build and after a save loads.
+     */
+    public void syncTeamConferenceNames() {
+        for (Conference c : conferences) {
+            for (Team t : c.confTeams) {
+                if (!c.confName.equals(t.getConference())) t.setConference(c.confName);
+            }
+        }
     }
 
     public void sortTeamList() {
@@ -5154,7 +5204,7 @@ Then conferences can see if they want to add them to their list if the teams mee
                     for (int i = 0; i < promoteTeamList.size(); i++) {
                         if (promoteTeamList.get(i).getTeamPrestige() > (conf.confRelegateMin * 1.2) && SimRandom.nextDouble() < realignmentChance && Math.abs(promoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2) {
                             final Team teamA = promoteTeamList.get(i);
-                            conferences.get(getConfNumber(teamA.getConference())).confTeams.remove(teamA);
+                            conferenceOf(teamA).confTeams.remove(teamA);
                             teamA.setConference(conf.confName);
                             conf.confTeams.add(teamA);
 
@@ -5199,7 +5249,7 @@ Then conferences can see if they want to add them to their list if the teams mee
                     for (int i = 0; i < promoteTeamList.size(); i++) {
                         if (promoteTeamList.get(i).getTeamPrestige() > (conf.confRelegateMin * 1.2) && SimRandom.nextDouble() < realignmentChance && Math.abs(promoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2) {
                             final Team teamA = promoteTeamList.get(i);
-                            conferences.get(getConfNumber(teamA.getConference())).confTeams.remove(teamA);
+                            conferenceOf(teamA).confTeams.remove(teamA);
                             teamA.setConference(conf.confName);
                             conf.confTeams.add(teamA);
 
@@ -5241,8 +5291,8 @@ Then conferences can see if they want to add them to their list if the teams mee
                         if (demoteTeamList.get(i).getTeamPrestige() > conf.confPromoteMin && SimRandom.nextDouble() < realignmentChance && Math.abs(demoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2 && !demoteTeamList.get(i).getConference().equals(conferences.get(c).confName)) {
                             final Team teamA = demoteTeamList.get(i);
                             final String oldConf = teamA.getConference();
-                            if (conferences.get(getConfNumber(teamA.getConference())).confTeams.size() > conferences.get(getConfNumber(teamA.getConference())).minConfTeams && conferences.get(getConfNumber(teamA.getConference())).confTeams.size() > minConfTeams) {
-                                conferences.get(getConfNumber(teamA.getConference())).confTeams.remove(teamA);
+                            if (conferenceOf(teamA).confTeams.size() > conferenceOf(teamA).minConfTeams && conferenceOf(teamA).confTeams.size() > minConfTeams) {
+                                conferenceOf(teamA).confTeams.remove(teamA);
                                 teamA.setConference(conf.confName);
                                 conf.confTeams.add(teamA);
 
@@ -5278,11 +5328,11 @@ Then conferences can see if they want to add them to their list if the teams mee
                 if (conferences.get(c).confTeams.size() < maxConfTeams && conferences.get(c).confTeams.size() >= conferences.get(c).minConfTeams) {
                     Conference conf = conferences.get(c);
                     for (int i = 0; i < promoteTeamList.size(); i++) {
-                        if (promoteTeamList.get(i).getTeamPrestige() > conf.confPromoteMin && SimRandom.nextDouble() < realignmentChance && Math.abs(promoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2 && !promoteTeamList.get(i).getConference().equals(conferences.get(c).confName) && conferences.get(getConfNumber(promoteTeamList.get(i).getConference())).confPrestige < conf.confPrestige) {
+                        if (promoteTeamList.get(i).getTeamPrestige() > conf.confPromoteMin && SimRandom.nextDouble() < realignmentChance && Math.abs(promoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2 && !promoteTeamList.get(i).getConference().equals(conferences.get(c).confName) && conferenceOf(promoteTeamList.get(i)).confPrestige < conf.confPrestige) {
                             final Team teamA = promoteTeamList.get(i);
                             final String oldConf = teamA.getConference();
-                            if (conferences.get(getConfNumber(teamA.getConference())).confTeams.size() > conferences.get(getConfNumber(teamA.getConference())).minConfTeams && conferences.get(getConfNumber(teamA.getConference())).confTeams.size() > minConfTeams) {
-                                conferences.get(getConfNumber(teamA.getConference())).confTeams.remove(teamA);
+                            if (conferenceOf(teamA).confTeams.size() > conferenceOf(teamA).minConfTeams && conferenceOf(teamA).confTeams.size() > minConfTeams) {
+                                conferenceOf(teamA).confTeams.remove(teamA);
                                 teamA.setConference(conf.confName);
                                 conf.confTeams.add(teamA);
 
@@ -5315,8 +5365,8 @@ Then conferences can see if they want to add them to their list if the teams mee
                         final Team teamA = demoteTeamList.get(i);
                         final String oldConf = teamA.getConference();
 
-                        if (conferences.get(getConfNumber(teamA.getConference())).confTeams.size() > conferences.get(getConfNumber(teamA.getConference())).minConfTeams && conferences.get(getConfNumber(teamA.getConference())).confTeams.size() > minConfTeams) {
-                            conferences.get(getConfNumber(teamA.getConference())).confTeams.remove(teamA);
+                        if (conferenceOf(teamA).confTeams.size() > conferenceOf(teamA).minConfTeams && conferenceOf(teamA).confTeams.size() > minConfTeams) {
+                            conferenceOf(teamA).confTeams.remove(teamA);
                             teamA.setConference(indy.confName);
                             indy.confTeams.add(teamA);
 
@@ -5509,8 +5559,8 @@ Then conferences can see if they want to add them to their list if the teams mee
                         if (qualified.size() >= 2) {
                             final Team teamA = qualified.get(0);
                             final Team teamB = qualified.get(1);
-                            conferences.get(getConfNumber(teamA.getConference())).confTeams.remove(teamA);
-                            conferences.get(getConfNumber(teamB.getConference())).confTeams.remove(teamB);
+                            conferenceOf(teamA).confTeams.remove(teamA);
+                            conferenceOf(teamB).confTeams.remove(teamB);
                             teamA.setConference(conf.confName);
                             teamB.setConference(conf.confName);
                             conf.confTeams.add(teamA);

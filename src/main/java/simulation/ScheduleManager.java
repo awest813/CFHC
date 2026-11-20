@@ -21,6 +21,9 @@ public final class ScheduleManager {
      * prestige averages, news lists, and other post-schedule season setup.
      */
     public static void scheduleRegularSeason(League league) {
+        // Same-conference checks below compare names; old data spelled some differently.
+        league.syncTeamConferenceNames();
+
         // Rivalries exist before scheduling so the OOC slate can honor them.
         league.generateRivalries();
 
