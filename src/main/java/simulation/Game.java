@@ -105,6 +105,12 @@ public class Game implements Serializable {
     int homeTimeouts = 3;
     int awayTimeouts = 3;
     private boolean twoMinuteWarned;
+    /** Coin toss: whether the home team receives the opening kickoff (the other side gets the second half's). */
+    private boolean homeReceivesOpening;
+    /** Seconds the coached team banked by burning timeouts entering the fourth quarter. */
+    private int timeoutClockBank;
+    /** Clock when the last touchdown was scored: the try after it counts in that quarter. */
+    private int touchdownClock;
     private boolean homeHalfAdjustment;
     private boolean awayHalfAdjustment;
 
@@ -485,7 +491,13 @@ public class Game implements Serializable {
             return new PenaltyCall(true, holding ? "Holding" : "False Start", holding ? 10 : 5, false);
         }
         if (roll < offChance + defChance) {
-            return new PenaltyCall(false, SimRandom.nextDouble() < 0.5 ? "Defensive Offsides" : "Pass Interference", 5, true);
+            if (SimRandom.nextDouble() < 0.5) {
+                // Offsides: 5 yards, a first down only if that reaches the marker.
+                return new PenaltyCall(false, "Defensive Offsides", 5, false);
+            }
+            // Pass interference: a spot foul, here 5-15 yards downfield (the college cap)
+            // and always a first down. It was 5 yards with a coin-flip first down.
+            return new PenaltyCall(false, "Pass Interference", 5 + (int) (SimRandom.nextDouble() * 11), true);
         }
         return null;
     }
@@ -521,7 +533,7 @@ public class Game implements Serializable {
             }
             gameYardLine += yards;
             gameYardsNeed -= yards;
-            if (SimRandom.nextDouble() < 0.5 || gameYardsNeed <= 0) {
+            if (call.autoFirstDown() || gameYardsNeed <= 0) {
                 gameDown = 1;
                 gameYardsNeed = Math.min(10, 100 - gameYardLine);
                 gameEventLog.append(getEventLog()).append("PENALTY! ").append(defense.getAbbr()).append(" ")
@@ -903,13 +915,26 @@ public class Game implements Serializable {
             // on every getCoachAdv call, two or three times a pass play).
             coachingStrategyAdjustments();
 
-            kickOff(homeTeam, awayTeam);
+            // Coin toss for the opening kickoff (the home side always received it).
+            homeReceivesOpening = SimRandom.nextDouble() < 0.5;
+            gameEventLog.append("\n").append(homeReceivesOpening ? homeTeam.getAbbr() : awayTeam.getAbbr())
+                    .append(" wins the coin toss and will receive.");
+            if (homeReceivesOpening) {
+                gamePoss = false;
+                kickOff(awayTeam, homeTeam);
+            } else {
+                gamePoss = true;
+                kickOff(homeTeam, awayTeam);
+            }
 
             // Regulation
             while (gameTime > 0) {
                 //play ball!
+                Team offense = gamePoss ? homeTeam : awayTeam;
+                int clockBefore = gameTime;
                 if (gamePoss) runPlay(homeTeam, awayTeam);
                 else runPlay(awayTeam, homeTeam);
+                spendBankedTimeout(offense, clockBefore);
             }
 
             // Add last play
@@ -1139,14 +1164,17 @@ public class Game implements Serializable {
                 if (gameYardLine >= 90) preferRush += 0.15;
             }
 
-            //Under 20 seconds to play: winning team kneels, trailing team goes for it
-            if (gameTime <= 20 && !playingOT) {
-                if ((gamePoss && (homeScore > awayScore)) || (!gamePoss && (awayScore > homeScore))) {
-                    gameTime -= timePerPlay * SimRandom.nextDouble();
-                    gameDown++;
-                    gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" kneels to run out the clock.");
-                    return;
-                }
+            //Under 20 seconds to play: winning team kneels, trailing team goes for it.
+            // A kneel runs a full play's clock; on fourth down the leader only kneels
+            // when that is sure to end the game (a fourth-down kneel used to hand the
+            // ball over on downs with time left), otherwise it plays fourth down as usual.
+            if (gameTime <= 20 && !playingOT && offenseLeading && (gameDown < 4 || gameTime <= timePerPlay)) {
+                gameTime -= timePerPlay + timePerPlay * SimRandom.nextDouble();
+                gameDown++;
+                gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" kneels to run out the clock.");
+                return;
+            }
+            if (gameTime <= 20 && !playingOT && !offenseLeading) {
                 //Down by 3 or less, or tied, and you have the ball
                 if (((gamePoss && (awayScore - homeScore) <= 3) || (!gamePoss && (homeScore - awayScore) <= 3)) && gameYardLine > 60
                         && fgInRange(offense)) {
@@ -2521,6 +2549,7 @@ public class Game implements Serializable {
         gameYardLine = 97;
         gameDown = 1;
         gameYardsNeed = 3;
+        touchdownClock = gameTime; // the try is scored in this overtime
         attemptTwoPoint(offense, defense, "OVERTIME TWO-POINT TRY: " + offense.getAbbr() + " from the 3.");
         resetForOT();
     }
@@ -2546,7 +2575,7 @@ public class Game implements Serializable {
                     } else {
                         awayScore += 2;
                     }
-                    addPointsQuarter(2);
+                    addTryPoints(2);
                     gameEventLog.append(getEventLogScoring()).append(lead).append(" ").append(rushBack.name).append(" rushed for the 2pt conversion.");
                 } else {
                     gameEventLog.append(getEventLogScoring()).append(lead).append(" ").append(rushBack.name).append(" stopped at the line of scrimmage, failed the 2pt conversion.");
@@ -2565,7 +2594,7 @@ public class Game implements Serializable {
                 } else {
                     awayScore += 2;
                 }
-                addPointsQuarter(2);
+                addTryPoints(2);
                 gameEventLog.append(getEventLogScoring()).append(lead).append(" ").append(qb.name).append(" completed the pass to ").append(wr.name).append(" for the 2pt conversion.");
             } else {
                 gameEventLog.append(getEventLogScoring()).append(lead).append(" ").append(qb.name).append("'s pass incomplete to ").append(wr.name).append(" for the failed 2pt conversion.");
@@ -2610,7 +2639,7 @@ public class Game implements Serializable {
                         awayScore += 1;
                     }
                     gameEventLog.append(getEventLogScoring()).append("TOUCHDOWN!\n").append(tdInfo).append(" ").append(selK.name).append(" made the XP.");
-                    addPointsQuarter(1);
+                    addTryPoints(1);
                     selK.recordXPMade(1);
                     selK.gameXPMade++;
                     selK.recordXPAtt(1);
@@ -3139,6 +3168,16 @@ public class Game implements Serializable {
     //CLOCK AND HEALTH MANAGEMENT
 
     private void addPointsQuarter(int points) {
+        if (points == 6) touchdownClock = gameTime;
+        addPointsQuarter(points, gameTime);
+    }
+
+    /** Points for the try after a touchdown, counted in the touchdown's quarter (it used to slip into the next one). */
+    private void addTryPoints(int points) {
+        addPointsQuarter(points, touchdownClock);
+    }
+
+    private void addPointsQuarter(int points, int gameTime) {
         momentum.score(gamePoss, points);
         if (gamePoss) {
             //home poss
@@ -3233,6 +3272,23 @@ public class Game implements Serializable {
         }
     }
 
+    /**
+     * A banked timeout stops the clock after a fourth-quarter snap by the coached
+     * offense that kept the ball: the runoff past 10 seconds comes back, up to what
+     * is banked. The clock never ends up above where the snap started, and never
+     * comes back once it has hit 0:00.
+     */
+    private void spendBankedTimeout(Team offense, int clockBefore) {
+        if (timeoutClockBank <= 0 || offense != coachedTeam || playingOT) return;
+        if (gameTime <= 0 || gameTime >= 900 || clockBefore > 900) return;
+        if ((offense == homeTeam) != gamePoss) return;
+        int saved = Math.min(timeoutClockBank, clockBefore - gameTime - 10);
+        if (saved > 0) {
+            gameTime += saved;
+            timeoutClockBank -= saved;
+        }
+    }
+
     private void quarterCheck() {
         if (gameTime < 2700 && !QT1) {
             QT1 = true;
@@ -3284,8 +3340,14 @@ public class Game implements Serializable {
 
             coachingStrategyAdjustments();
 
-            gamePoss = false;
-            kickOff(awayTeam, homeTeam);
+            // The team that did not receive the opening kickoff receives this one.
+            if (homeReceivesOpening) {
+                gamePoss = true;
+                kickOff(homeTeam, awayTeam);
+            } else {
+                gamePoss = false;
+                kickOff(awayTeam, homeTeam);
+            }
 
         } else if (gameTime < 900 && !QT3) {
             QT3 = true;
@@ -3316,7 +3378,10 @@ public class Game implements Serializable {
                     int burn = Math.min(Math.max(0, plan.timeoutsToBurn), left);
                     if (burn > 0) {
                         if (coachedTeam == homeTeam) homeTimeouts -= burn; else awayTimeouts -= burn;
-                        gameTime += 35 * burn; // saved clock from the whistle stops
+                        // Saved clock from the whistle stops, spent as the coached offense's
+                        // plays end (spendBankedTimeout). It used to be added to the clock
+                        // here, starting the fourth quarter at 15:35+ (shown as Q3).
+                        timeoutClockBank += 35 * burn;
                         gameEventLog.append("\n").append(coachedTeam.getAbbr()).append(" burns ").append(burn)
                                 .append(" timeout").append(burn == 1 ? "" : "s").append(" entering the fourth quarter.");
                     }
