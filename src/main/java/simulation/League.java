@@ -1605,10 +1605,16 @@ public class League {
     /**
      * Season-flow fixups once a save is applied; kept out of the record parsing
      * above (which only calls this). Team conference names follow the conference
-     * that holds them (old saves wrote "CUSA").
+     * that holds them (old saves wrote "CUSA"). A legacy 13-week save loaded at
+     * week 0 has nothing in flight, so it moves to the standard calendar now
+     * instead of playing the season on the old one, which left the 12th game
+     * unplayed.
      */
     private void afterSaveLoaded() {
         syncTeamConferenceNames();
+        if (regSeasonWeeks == LEGACY_REG_SEASON_WEEKS && currentWeek == 0) {
+            regSeasonWeeks = STANDARD_REG_SEASON_WEEKS;
+        }
     }
 
     /**
