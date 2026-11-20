@@ -38,7 +38,8 @@ public final class Persistence {
           .append(r.isInjured()).append(",").append(r.injuryDuration()).append(",")
           .append(r.injuryDescription() == null ? "" : r.injuryDescription().replace(",", ";").replace("&", "_AMP_"))
           .append(",").append(escapeAmp(r.archetypeTag() == null ? "" : r.archetypeTag()))
-          .append(",").append(escapeAmp(r.mentorName() == null ? "" : r.mentorName()));
+          .append(",").append(escapeAmp(r.mentorName() == null ? "" : r.mentorName()))
+          .append(",").append(r.ratOvrStart()).append(",").append(r.ratImprovement());
         
         sb.append("&");
 

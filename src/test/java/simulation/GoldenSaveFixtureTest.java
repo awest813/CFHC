@@ -61,7 +61,8 @@ public class GoldenSaveFixtureTest {
         League loaded = loadFixture();
         assertNotNull(loaded);
         assertFalse("Fixture league must have teams", loaded.getTeamList().isEmpty());
-        assertEquals(League.CURRENT_SAVE_VERSION, loaded.saveVer);
+        // The checked-in fixture is a v1.4e save: older generations must keep loading.
+        assertTrue("Fixture version should be supported: " + loaded.saveVer, SaveSchema.isSupported(loaded.saveVer));
         assertTrue("Season year should be positive", loaded.getYear() > 0);
         String body = new String(Files.readAllBytes(fixtureCfB.toPath()), java.nio.charset.StandardCharsets.UTF_8);
         assertTrue("Header should use SaveManager L: format", body.contains("L:"));

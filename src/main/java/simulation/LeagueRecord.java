@@ -30,7 +30,9 @@ public record LeagueRecord(
     Boolean recruitingStarted,
     List<StaffRecord> coachFreeAgents,
     /** Weeks before the postseason; 0 = not stored (pre-fix save, treated as legacy 13). */
-    int regSeasonWeeks
+    int regSeasonWeeks,
+    /** History, bowl names and postseason bookkeeping; null for saves that predate it. */
+    LeagueState state
 ) {
     public LeagueRecord {
         if (rngSeed < 0) {
@@ -42,13 +44,24 @@ public record LeagueRecord(
         coachFreeAgents = coachFreeAgents == null ? List.of() : List.copyOf(coachFreeAgents);
     }
 
+    /** Pre-{@link LeagueState} call shape. */
+    public LeagueRecord(String leagueName, int year, int currentWeek, List<ConferenceRecord> conferences,
+                        List<PlayerRecord> leagueHoF, List<DataRecord> leagueRecords,
+                        String heismanWinnerName, String nationalChampName,
+                        List<GameRecord> scheduledGames, long rngSeed, Settings settings,
+                        Boolean recruitingStarted, List<StaffRecord> coachFreeAgents, int regSeasonWeeks) {
+        this(leagueName, year, currentWeek, conferences, leagueHoF, leagueRecords, heismanWinnerName,
+                nationalChampName, scheduledGames, rngSeed, settings, recruitingStarted, coachFreeAgents,
+                regSeasonWeeks, null);
+    }
+
     /** Pre-settings call shape: saves and callers without {@link Settings}. */
     public LeagueRecord(String leagueName, int year, int currentWeek, List<ConferenceRecord> conferences,
                         List<PlayerRecord> leagueHoF, List<DataRecord> leagueRecords,
                         String heismanWinnerName, String nationalChampName,
                         List<GameRecord> scheduledGames, long rngSeed) {
         this(leagueName, year, currentWeek, conferences, leagueHoF, leagueRecords, heismanWinnerName,
-                nationalChampName, scheduledGames, rngSeed, null, null, null, 0);
+                nationalChampName, scheduledGames, rngSeed, null, null, null, 0, null);
     }
 
     /**
@@ -155,11 +168,156 @@ public record LeagueRecord(
         }
     }
     // Nested records for structured hierarchy
+    /**
+     * {@code state}: TV deal and division names ({@link StateBag} keys {@code tv},
+     * {@code tvYears}, {@code tvBonus}, {@code tvName}, {@code divA}, {@code divB});
+     * empty for saves that predate it.
+     */
     public record ConferenceRecord(
         String name,
         List<Integer> oocWeeks,
-        List<TeamRecord> teams
-    ) {}
+        List<TeamRecord> teams,
+        StateBag state
+    ) {
+        public ConferenceRecord {
+            if (state == null) {
+                state = StateBag.EMPTY;
+            }
+        }
+
+        /** Pre-state call shape. */
+        public ConferenceRecord(String name, List<Integer> oocWeeks, List<TeamRecord> teams) {
+            this(name, oocWeeks, teams, StateBag.EMPTY);
+        }
+    }
+
+    /**
+     * Ordered {@code key=value} pairs written as one tab-separated save line. Readers
+     * ignore keys they do not know and fall back to a default for missing or
+     * unreadable ones, so fields can be added without breaking older saves.
+     */
+    public record StateBag(java.util.Map<String, String> values) {
+        public static final StateBag EMPTY = new StateBag(java.util.Map.of());
+
+        public StateBag {
+            values = values == null ? java.util.Map.of()
+                    : java.util.Collections.unmodifiableMap(new java.util.LinkedHashMap<>(values));
+        }
+
+        public boolean isEmpty() {
+            return values.isEmpty();
+        }
+
+        public boolean has(String key) {
+            return values.containsKey(key);
+        }
+
+        public String str(String key, String fallback) {
+            String v = values.get(key);
+            return v != null ? v : fallback;
+        }
+
+        public int integer(String key, int fallback) {
+            try {
+                return Integer.parseInt(values.get(key).trim());
+            } catch (RuntimeException e) {
+                return fallback;
+            }
+        }
+
+        public double dbl(String key, double fallback) {
+            try {
+                return Double.parseDouble(values.get(key).trim());
+            } catch (RuntimeException e) {
+                return fallback;
+            }
+        }
+
+        public boolean bool(String key, boolean fallback) {
+            String v = values.get(key);
+            if ("1".equals(v) || "true".equalsIgnoreCase(v)) {
+                return true;
+            }
+            if ("0".equals(v) || "false".equalsIgnoreCase(v)) {
+                return false;
+            }
+            return fallback;
+        }
+
+        /** Tab-separated {@code key=value} pairs; tabs and line breaks in values become spaces. */
+        public String toSaveLine() {
+            StringBuilder sb = new StringBuilder();
+            for (java.util.Map.Entry<String, String> e : values.entrySet()) {
+                if (sb.length() > 0) {
+                    sb.append('\t');
+                }
+                String v = e.getValue() == null ? "" : e.getValue();
+                sb.append(e.getKey()).append('=')
+                        .append(v.replace('\t', ' ').replace('\n', ' ').replace('\r', ' '));
+            }
+            return sb.toString();
+        }
+
+        public static StateBag fromSaveLine(String line) {
+            java.util.LinkedHashMap<String, String> kv = new java.util.LinkedHashMap<>();
+            if (line != null) {
+                for (String pair : line.split("\t")) {
+                    int eq = pair.indexOf('=');
+                    if (eq > 0) {
+                        kv.put(pair.substring(0, eq).trim(), pair.substring(eq + 1));
+                    }
+                }
+            }
+            return new StateBag(kv);
+        }
+
+        /** Insertion-ordered builder; values are stringified. */
+        public static final class Builder {
+            private final java.util.LinkedHashMap<String, String> kv = new java.util.LinkedHashMap<>();
+
+            public Builder put(String key, Object value) {
+                kv.put(key, value == null ? "" : String.valueOf(value));
+                return this;
+            }
+
+            public Builder flag(String key, boolean value) {
+                kv.put(key, value ? "1" : "0");
+                return this;
+            }
+
+            public StateBag build() {
+                return new StateBag(kv);
+            }
+        }
+    }
+
+    /**
+     * League-wide state beyond the header: the season-by-season history (it sets the
+     * season year and realignment eligibility), the bowl names, and the postseason
+     * bookkeeping a save made during the postseason needs to resume.
+     *
+     * <p>{@code leagueHistory} rows are a season's entries joined with {@code %};
+     * {@code playoffTeams} is the playoff field in seed order. {@code scalars} holds
+     * {@code bowlsScheduled}, {@code playoffWeek}, {@code userTeam},
+     * {@code longestStreak}, {@code yearStartStreak} and {@code postseason}.
+     */
+    public record LeagueState(
+            List<String> leagueHistory,
+            List<String> heismanHistory,
+            List<String> bowlNames,
+            List<String> playoffTeams,
+            StateBag scalars
+    ) {
+        public LeagueState {
+            leagueHistory = leagueHistory == null ? List.of() : List.copyOf(leagueHistory);
+            heismanHistory = heismanHistory == null ? List.of() : List.copyOf(heismanHistory);
+            bowlNames = bowlNames == null ? List.of() : List.copyOf(bowlNames);
+            playoffTeams = playoffTeams == null ? List.of() : List.copyOf(playoffTeams);
+            if (scalars == null) {
+                scalars = StateBag.EMPTY;
+            }
+        }
+    }
 
     /**
      * {@code playbookOffense} / {@code playbookDefense}: the team's scheme numbers
@@ -195,8 +353,33 @@ public record LeagueRecord(
         int teamStadium,
         SeasonBaseline seasonBaseline,
         int playbookOffense,
-        int playbookDefense
+        int playbookDefense,
+        /**
+         * Program and season state not covered above (conference, division, location,
+         * budget, discipline, facilities, sanctions, career totals, win streak,
+         * postseason flags, season stat totals, contract status). Empty for saves
+         * that predate it; {@code Team#toRecord} lists the keys.
+         */
+        StateBag state
     ) {
+        /** Pre-state call shape. */
+        public TeamRecord(String name, String abbr, int prestige, int wins, int losses,
+                          List<Integer> oocWeeks, List<String> oocOpponentNames,
+                          float teamPollScore, int rankTeamPollScore,
+                          StaffRecord headCoach, StaffRecord offenseCoach, StaffRecord defenseCoach,
+                          List<PlayerRecord> roster, List<TeamHistoryRecord> history, List<DataRecord> records,
+                          String practiceFocus, String practicePositionGroup, String focusIntensity,
+                          int nilCollectiveLevel, String nickname, int prevRankTeamPollScore,
+                          String rivalName, String rivalryTrophyName, int rivalryWins,
+                          boolean holdsRivalryTrophy, int teamStadium, SeasonBaseline seasonBaseline,
+                          int playbookOffense, int playbookDefense) {
+            this(name, abbr, prestige, wins, losses, oocWeeks, oocOpponentNames, teamPollScore,
+                    rankTeamPollScore, headCoach, offenseCoach, defenseCoach, roster, history, records,
+                    practiceFocus, practicePositionGroup, focusIntensity, nilCollectiveLevel, nickname,
+                    prevRankTeamPollScore, rivalName, rivalryTrophyName, rivalryWins, holdsRivalryTrophy,
+                    teamStadium, seasonBaseline, playbookOffense, playbookDefense, StateBag.EMPTY);
+        }
+
         /** Pre-baseline call shape: saves and callers without a {@link SeasonBaseline}. */
         public TeamRecord(String name, String abbr, int prestige, int wins, int losses,
                           List<Integer> oocWeeks, List<String> oocOpponentNames,
@@ -211,7 +394,7 @@ public record LeagueRecord(
                     rankTeamPollScore, headCoach, offenseCoach, defenseCoach, roster, history, records,
                     practiceFocus, practicePositionGroup, focusIntensity, nilCollectiveLevel, nickname,
                     prevRankTeamPollScore, rivalName, rivalryTrophyName, rivalryWins, holdsRivalryTrophy,
-                    teamStadium, null, -1, -1);
+                    teamStadium, null, -1, -1, StateBag.EMPTY);
         }
 
         public TeamRecord {
@@ -250,6 +433,9 @@ public record LeagueRecord(
             }
             if (playbookDefense < 0 || playbookDefense >= Team.DEFENSE_PLAYBOOKS) {
                 playbookDefense = -1;
+            }
+            if (state == null) {
+                state = StateBag.EMPTY;
             }
         }
     }

@@ -41,8 +41,39 @@ public record PlayerRecord(
     int injuryDuration,
     String injuryDescription,
     String archetypeTag,
-    String mentorName
+    String mentorName,
+    /** Overall at the last progression step; -1 when the save predates it (then the current overall). */
+    int ratOvrStart,
+    /** Overall gained at the last progression step (shown as "+N"); 0 when unknown. */
+    int ratImprovement
 ) {
+    /** Pre-progression call shape. */
+    public PlayerRecord(String position, String name, String teamName, int year, int homeState,
+                        int character, int ratIntelligence, int recruitRating, boolean isTransfer,
+                        boolean wasRedshirt, int ratPot, int ratDurability, int ratOvr, int cost,
+                        int[] attributes, int height, int weight, boolean isSuspended, int weeksSuspended,
+                        int troubledTimes, double talentNFL, int[] stats, List<int[]> careerStats,
+                        int[] awards, boolean isRedshirt, boolean isMedicalRS, boolean isGradTransfer,
+                        boolean isWalkOn, boolean isInjured, int injuryDuration, String injuryDescription,
+                        String archetypeTag, String mentorName) {
+        this(position, name, teamName, year, homeState, character, ratIntelligence, recruitRating,
+                isTransfer, wasRedshirt, ratPot, ratDurability, ratOvr, cost, attributes, height, weight,
+                isSuspended, weeksSuspended, troubledTimes, talentNFL, stats, careerStats, awards,
+                isRedshirt, isMedicalRS, isGradTransfer, isWalkOn, isInjured, injuryDuration,
+                injuryDescription, archetypeTag, mentorName, -1, 0);
+    }
+
+    private static int optionalInt(String[] basic, int at, int fallback) {
+        if (basic.length <= at) {
+            return fallback;
+        }
+        try {
+            return Integer.parseInt(basic[at].trim());
+        } catch (NumberFormatException e) {
+            return fallback;
+        }
+    }
+
     public static PlayerRecord fromCsv(String csv) {
         String[] parts = csv.split("&");
         String[] basic = parts[0].split(",");
@@ -130,7 +161,9 @@ public record PlayerRecord(
             basic.length > 28 ? Integer.parseInt(basic[28]) : 0,
             basic.length > 29 ? Persistence.unescapeAmp(basic[29].replace(';', ',')) : "",
             basic.length > 30 ? Persistence.unescapeAmp(basic[30]) : "",
-            basic.length > 31 ? Persistence.unescapeAmp(basic[31]) : ""
+            basic.length > 31 ? Persistence.unescapeAmp(basic[31]) : "",
+            optionalInt(basic, 32, -1),
+            optionalInt(basic, 33, 0)
         );
     }
 }

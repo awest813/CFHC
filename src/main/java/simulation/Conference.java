@@ -122,9 +122,17 @@ public class Conference {
         this.confTeams = new ArrayList<>();
         this.allConfCoach = new ArrayList<>();
         this.allConfPlayers = new ArrayList<>();
+        LeagueRecord.StateBag state = record.state();
         this.divisions = new ArrayList<Division>();
-        this.divisions.add(new Division("A", league));
-        this.divisions.add(new Division("B", league));
+        this.divisions.add(new Division(state.str("divA", "A"), league));
+        this.divisions.add(new Division(state.str("divB", "B"), league));
+        if (!state.isEmpty()) {
+            this.confTV = state.bool("tv", false);
+            this.confTVContract = state.integer("tvYears", 0);
+            this.confTVBonus = state.integer("tvBonus", 0);
+            String tvName = state.str("tvName", "");
+            this.TV = tvName.isEmpty() ? null : tvName;
+        }
         this.oocWeeks = new ArrayList<>();
         if (record.oocWeeks() != null) {
             this.oocWeeks.addAll(record.oocWeeks());
@@ -132,7 +140,11 @@ public class Conference {
 
         for (LeagueRecord.TeamRecord tr : record.teams()) {
             Team t = new Team(tr, league);
-            t.setConference(confName);
+            // Keep the team's own saved conference string so a load reproduces the
+            // in-memory league exactly; saves that predate it take the conference's name.
+            if (t.getConference() == null || t.getConference().isEmpty()) {
+                t.setConference(confName);
+            }
             confTeams.add(t);
             league.addTeam(t);
         }
@@ -144,7 +156,25 @@ public class Conference {
         for (Team t : confTeams) {
             teams.add(t.toRecord());
         }
-        return new LeagueRecord.ConferenceRecord(confName, java.util.List.copyOf(oocWeeks), teams);
+        LeagueRecord.StateBag state = new LeagueRecord.StateBag.Builder()
+                .flag("tv", confTV)
+                .put("tvYears", confTVContract)
+                .put("tvBonus", confTVBonus)
+                .put("tvName", TV != null ? TV : "")
+                .put("divA", divisions.size() > 0 ? divisions.get(0).divName : "A")
+                .put("divB", divisions.size() > 1 ? divisions.get(1).divName : "B")
+                .build();
+        return new LeagueRecord.ConferenceRecord(confName, java.util.List.copyOf(oocWeeks), teams, state);
+    }
+
+    /** The conference title game once scheduled this season, else null. */
+    Game getChampionshipGame() {
+        return ccg;
+    }
+
+    /** Load-time restore of the scheduled conference title game (see League#applyLeagueRecord). */
+    void restoreChampionshipGame(Game game) {
+        ccg = game;
     }
 
 
