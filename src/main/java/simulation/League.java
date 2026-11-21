@@ -114,10 +114,11 @@ public class League {
      * v1.5a added team/conference/league state lines (TX:, CX:, LS:, LH:, HH:, BN:, PO:);
      * v1.5b added everything else held between two weeks (news, awards, offseason
      * lists, FCS opponents, the RNG position; see {@link SaveStateCodec}) so a reload
-     * plays on exactly as if the game was never saved. v1.5a and v1.4e saves still
-     * load; see {@link SaveSchema} for what they default.
+     * plays on exactly as if the game was never saved. v1.5c added the played games'
+     * box scores ({@link BoxScoreCodec}). v1.5b, v1.5a and v1.4e saves still load;
+     * see {@link SaveSchema} for what they default.
      */
-    public static final String CURRENT_SAVE_VERSION = "v1.5b";
+    public static final String CURRENT_SAVE_VERSION = "v1.5c";
 
     public static GameUiBridge bridgeOrNoOp(GameUiBridge bridge) {
         return bridge == null ? GameUiBridge.NO_OP : bridge;
@@ -1480,6 +1481,7 @@ public class League {
         // v1.5b: which saved FCS opponent plays in each game ("slot:index").
         java.util.List<String> fcsGames = new ArrayList<>();
         java.util.List<String> overtimes = new ArrayList<>(); // "slot:periods", shown in game summaries
+        java.util.Map<Integer, Game> bySlot = new java.util.LinkedHashMap<>(); // v1.5c box scores
         int slot = 0;
         for (Team t : teamList) {
             java.util.List<Game> schedule = t.getGameSchedule();
@@ -1498,11 +1500,16 @@ public class League {
                 if (g.numOT > 0) {
                     overtimes.add(slot + ":" + g.numOT);
                 }
+                bySlot.put(slot, g);
                 out.add(LeagueRecord.GameRecord.fromGame(g, slot++).withScheduleSlots(home + 1, away + 1));
             }
         }
         codec.putList("fcsGames", fcsGames);
         codec.putList("overtimes", overtimes);
+        java.util.List<String> boxScores = BoxScoreCodec.encode(bySlot);
+        if (!boxScores.isEmpty()) {
+            codec.putList(BoxScoreCodec.KEY, boxScores);
+        }
         return out;
     }
 
@@ -1525,11 +1532,12 @@ public class League {
      * exactly from the write order: the owning team wrote its new games in slot order,
      * so each takes the owner's earliest free slot.
      */
-    private void restoreScheduledGames(java.util.List<LeagueRecord.GameRecord> games,
+    private java.util.Map<Integer, Game> restoreScheduledGames(java.util.List<LeagueRecord.GameRecord> games,
                                        java.util.Map<Integer, Team> savedFcs,
                                        java.util.Map<Integer, Integer> overtimes) {
+        java.util.Map<Integer, Game> bySlot = new java.util.HashMap<>();
         if (games == null || games.isEmpty()) {
-            return;
+            return bySlot;
         }
         java.util.ArrayList<LeagueRecord.GameRecord> sorted = new java.util.ArrayList<>(games);
         sorted.sort(java.util.Comparator.comparingInt(LeagueRecord.GameRecord::slot));
@@ -1577,6 +1585,7 @@ public class League {
             g.homeScore = gr.homeScore();
             g.awayScore = gr.awayScore();
             g.numOT = overtimes.getOrDefault(gr.slot(), g.numOT);
+            bySlot.put(gr.slot(), g);
 
             int homeIndex = gr.homeScheduleIndex();
             int awayIndex = gr.awayScheduleIndex();
@@ -1615,6 +1624,7 @@ public class League {
                 }
             }
         }
+        return bySlot;
     }
 
     private static boolean isFree(java.util.ArrayList<Game> list, int index) {
@@ -1756,8 +1766,13 @@ public class League {
             playoffWeek = state.scalars().integer("playoffWeek", playoffWeek);
         }
 
-        restoreScheduledGames(record.scheduledGames(), codec != null ? fcsGameSlots(state) : java.util.Map.of(),
+        java.util.Map<Integer, Game> gamesBySlot = restoreScheduledGames(record.scheduledGames(),
+                codec != null ? fcsGameSlots(state) : java.util.Map.of(),
                 codec != null ? slotInts(state, "overtimes") : java.util.Map.of());
+        if (state != null) {
+            // v1.5c: the played games' box scores; older saves have none to restore.
+            BoxScoreCodec.apply(state.lists().get(BoxScoreCodec.KEY), gamesBySlot);
+        }
         rebuildSeasonResultsFromSchedules();
         restorePostseasonGames(state);
         if (codec != null) {

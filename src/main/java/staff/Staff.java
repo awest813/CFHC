@@ -51,6 +51,19 @@ public class Staff {
     public ArrayList<String> history;
     public int[] awards;
 
+    /**
+     * Gives this coach its own copy of {@code from}'s career stats, history and awards.
+     * The copy constructors (a coach re-hired, promoted or sent to the pool as a new
+     * object) used to share the arrays, so the old object, still held as the coach of
+     * the year, a rising star or a pool entry, kept changing with the new one; a save
+     * wrote them apart and a reload stopped that, so the two paths diverged.
+     */
+    protected final void copyCareerFrom(Staff from) {
+        stats = from.stats != null ? from.stats.clone() : null;
+        history = from.history != null ? new ArrayList<>(from.history) : null;
+        awards = from.awards != null ? from.awards.clone() : null;
+    }
+
     private int statsCount = 10;
     private int awardCount = 7;
 

@@ -4968,8 +4968,10 @@ public class Team {
             int totalScore = 10 * score + statScore;
             int avgScore = totalScore / (p.year);
             if (score > 99 || statScore > 28000 || totalScore > 28750 || avgScore > 7450) {
-                // HOFer
-                PlayerRecord record = p.toRecord();
+                // HOFer. The entry gets its own copy of the career arrays: sharing the
+                // leaving player's made it change with him until the next season, but
+                // not after a reload (the save writes the two apart).
+                PlayerRecord record = p.toRecord().withCopiedCareer();
                 hallOfFame.add(record);
                 league.addToHallOfFame(record);
                 HoFCount++;

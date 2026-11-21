@@ -74,6 +74,28 @@ public record PlayerRecord(
         }
     }
 
+    /**
+     * The same record with its own copies of the stats, career and award arrays
+     * ({@link positions.Player#toRecord()} shares the player's), for records that
+     * outlive the moment, such as a Hall of Fame entry.
+     */
+    public PlayerRecord withCopiedCareer() {
+        List<int[]> career = null;
+        if (careerStats != null) {
+            career = new ArrayList<>(careerStats.size());
+            for (int[] y : careerStats) {
+                career.add(y != null ? y.clone() : null);
+            }
+        }
+        return new PlayerRecord(position, name, teamName, year, homeState, character, ratIntelligence,
+                recruitRating, isTransfer, wasRedshirt, ratPot, ratDurability, ratOvr, cost,
+                attributes != null ? attributes.clone() : null, height, weight, isSuspended, weeksSuspended,
+                troubledTimes, talentNFL, stats != null ? stats.clone() : null, career,
+                awards != null ? awards.clone() : null, isRedshirt, isMedicalRS, isGradTransfer, isWalkOn,
+                isInjured, injuryDuration, injuryDescription, archetypeTag, mentorName, ratOvrStart,
+                ratImprovement);
+    }
+
     public static PlayerRecord fromCsv(String csv) {
         String[] parts = csv.split("&");
         String[] basic = parts[0].split(",");

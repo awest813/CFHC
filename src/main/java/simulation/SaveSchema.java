@@ -42,9 +42,17 @@ public final class SaveSchema {
      */
     public static final String V1_5A = "v1.5a";
 
+    /**
+     * The generation with the full between-weeks state but without the played games'
+     * box scores (the v1.5c {@code LL:boxScores} list). It loads through the same
+     * reader; its past games show only their final scores.
+     */
+    public static final String V1_5B = "v1.5b";
+
     static {
         LinkedHashSet<String> versions = new LinkedHashSet<>();
         versions.add(League.CURRENT_SAVE_VERSION);
+        versions.add(V1_5B);
         versions.add(V1_5A);
         versions.add(V1_4E);
         SUPPORTED = Collections.unmodifiableSet(versions);
@@ -106,15 +114,15 @@ public final class SaveSchema {
     }
 
     /**
-     * Migration hook. v1.4e and v1.5a to the current version are identity at the
+     * Migration hook. v1.4e, v1.5a and v1.5b to the current version are identity at the
      * record level: the fields later versions added are optional lines, and
      * {@code League} defaults them (or rebuilds them from the schedules) when a record
      * does not carry them ({@link LeagueRecord.LeagueState#hasFullState()} tells which).
      */
     public static LeagueRecord migrate(String fromVersion, LeagueRecord record) throws IOException {
         String normalized = requireSupported(fromVersion);
-        if (League.CURRENT_SAVE_VERSION.equals(normalized) || V1_5A.equals(normalized)
-                || V1_4E.equals(normalized)) {
+        if (League.CURRENT_SAVE_VERSION.equals(normalized) || V1_5B.equals(normalized)
+                || V1_5A.equals(normalized) || V1_4E.equals(normalized)) {
             return record;
         }
         throw new IOException(unsupportedMessage(normalized));
