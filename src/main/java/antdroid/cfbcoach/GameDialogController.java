@@ -3,7 +3,10 @@ package antdroid.cfbcoach;
 import androidx.appcompat.app.AlertDialog;
 import android.content.DialogInterface;
 import android.view.View;
+import android.view.Gravity;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -12,6 +15,9 @@ import simulation.Game;
 import simulation.PlaybookDefense;
 import simulation.PlaybookOffense;
 import simulation.Team;
+
+import androidx.core.content.ContextCompat;
+import androidx.core.widget.TextViewCompat;
 
 final class GameDialogController {
     private GameDialogController() {
@@ -30,7 +36,7 @@ final class GameDialogController {
 
         AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle(g.awayTeam.getName() + " @ " + g.homeTeam.getName() + ": " + g.gameName)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.action_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // Do nothing
@@ -99,6 +105,7 @@ final class GameDialogController {
         gameC.setText(PlatformUiHelper.valueAt(gameStr, 1));
         final TextView gameR = dialog.findViewById(R.id.gameDialogRight);
         gameR.setText(PlatformUiHelper.valueAt(gameStr, 2));
+        alignColumns(gameL, gameC, gameR);
 
         final View ql = dialog.findViewById(R.id.gameDialogQBLeft);
         final View qc = dialog.findViewById(R.id.gameDialogQBCenter);
@@ -133,8 +140,14 @@ final class GameDialogController {
         ((TextView)kc).setText(PlatformUiHelper.valueAt(gameStr, 16));
         ((TextView)kr).setText(PlatformUiHelper.valueAt(gameStr, 17));
         ((TextView)bottom).setText(PlatformUiHelper.valueAt(gameStr, 18) + "\n\n");
+        // Engine columns are line-aligned (labels | away | home); lay them out row by row.
+        final View qTable = alignColumns((TextView) ql, (TextView) qc, (TextView) qr);
+        final View rTable = alignColumns((TextView) rl, (TextView) rc, (TextView) rr);
+        final View wTable = alignColumns((TextView) wl, (TextView) wc, (TextView) wr);
+        final View dTable = alignColumns((TextView) dl, (TextView) dc, (TextView) dr);
+        final View kTable = alignColumns((TextView) kl, (TextView) kc, (TextView) kr);
 
-        String[] selection = {"menu >> Game Summary", "menu >> Offense Stats", "menu >> Defense Stats", "menu >> Special Teams Stats", "menu >> Game Play Log"};
+        String[] selection = activity.getResources().getStringArray(R.array.boxscore_views);
         Spinner potySpinner = dialog.findViewById(R.id.boxscoreMenu);
         PlatformUiHelper.avoidSpinnerDropdownFocus(potySpinner);
         ArrayAdapter<String> boxMenu = new ArrayAdapter<>(activity, android.R.layout.simple_spinner_item, selection);
@@ -144,26 +157,12 @@ final class GameDialogController {
         potySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                ql.setVisibility(View.GONE); qc.setVisibility(View.GONE); qr.setVisibility(View.GONE);
-                rl.setVisibility(View.GONE); rc.setVisibility(View.GONE); rr.setVisibility(View.GONE);
-                wl.setVisibility(View.GONE); wc.setVisibility(View.GONE); wr.setVisibility(View.GONE);
-                dl.setVisibility(View.GONE); dc.setVisibility(View.GONE); dr.setVisibility(View.GONE);
-                kl.setVisibility(View.GONE); kc.setVisibility(View.GONE); kr.setVisibility(View.GONE);
-                bottom.setVisibility(View.GONE);
-
-                if (position == 0) {
-                    // Summary only
-                } else if (position == 1) {
-                    ql.setVisibility(View.VISIBLE); qc.setVisibility(View.VISIBLE); qr.setVisibility(View.VISIBLE);
-                    rl.setVisibility(View.VISIBLE); rc.setVisibility(View.VISIBLE); rr.setVisibility(View.VISIBLE);
-                    wl.setVisibility(View.VISIBLE); wc.setVisibility(View.VISIBLE); wr.setVisibility(View.VISIBLE);
-                } else if (position == 2) {
-                    dl.setVisibility(View.VISIBLE); dc.setVisibility(View.VISIBLE); dr.setVisibility(View.VISIBLE);
-                } else if (position == 3) {
-                    kl.setVisibility(View.VISIBLE); kc.setVisibility(View.VISIBLE); kr.setVisibility(View.VISIBLE);
-                } else if (position == 4) {
-                    bottom.setVisibility(View.VISIBLE);
-                }
+                qTable.setVisibility(position == 1 ? View.VISIBLE : View.GONE);
+                rTable.setVisibility(position == 1 ? View.VISIBLE : View.GONE);
+                wTable.setVisibility(position == 1 ? View.VISIBLE : View.GONE);
+                dTable.setVisibility(position == 2 ? View.VISIBLE : View.GONE);
+                kTable.setVisibility(position == 3 ? View.VISIBLE : View.GONE);
+                bottom.setVisibility(position == 4 ? View.VISIBLE : View.GONE);
             }
 
             @Override
@@ -176,7 +175,7 @@ final class GameDialogController {
 
         AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle(g.awayTeam.getName() + " @ " + g.homeTeam.getName() + ": " + g.gameName)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.action_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // Do nothing
@@ -190,11 +189,15 @@ final class GameDialogController {
         ((TextView)dialog.findViewById(R.id.gameScoutDialogLeft)).setText(PlatformUiHelper.valueAt(gameStr, 0));
         ((TextView)dialog.findViewById(R.id.gameScoutDialogCenter)).setText(PlatformUiHelper.valueAt(gameStr, 1));
         ((TextView)dialog.findViewById(R.id.gameScoutDialogRight)).setText(PlatformUiHelper.valueAt(gameStr, 2));
+        alignColumns(dialog.findViewById(R.id.gameScoutDialogLeft),
+                dialog.findViewById(R.id.gameScoutDialogCenter), dialog.findViewById(R.id.gameScoutDialogRight));
         ((TextView)dialog.findViewById(R.id.gameScoutDialogBottom)).setText(PlatformUiHelper.valueAt(gameStr, 3));
 
         if (g.awayTeam == userTeam || g.homeTeam == userTeam) {
-            ((TextView)dialog.findViewById(R.id.textScoutOffenseStrategy)).setText(userTeam.getAbbr() + " Off Scheme:");
-            ((TextView)dialog.findViewById(R.id.textScoutDefenseStrategy)).setText(userTeam.getAbbr() + " Def Scheme:");
+            ((TextView)dialog.findViewById(R.id.textScoutOffenseStrategy)).setText(
+                    activity.getString(R.string.scout_offense_scheme_format, userTeam.getAbbr()));
+            ((TextView)dialog.findViewById(R.id.textScoutDefenseStrategy)).setText(
+                    activity.getString(R.string.scout_defense_scheme_format, userTeam.getAbbr()));
 
             final PlaybookOffense[] tsOff = userTeam.getPlaybookOff();
             final PlaybookDefense[] tsDef = userTeam.getPlaybookDef();
@@ -245,6 +248,79 @@ final class GameDialogController {
             dialog.findViewById(R.id.textScoutOffenseStrategy).setVisibility(View.GONE);
             dialog.findViewById(R.id.textScoutDefenseStrategy).setVisibility(View.GONE);
         }
+    }
+
+    /**
+     * The engine sends a box-score section as three newline-aligned columns: labels
+     * (shown above the values in the old layout, so nothing lined up), away values and
+     * home values. Rebuild it as one row per line, "away | label | home", in place of the
+     * label view, and hide the original views. Returns the table so callers can toggle it.
+     */
+    static View alignColumns(TextView labels, TextView away, TextView home) {
+        android.content.Context ctx = labels.getContext();
+        String[] l = labels.getText().toString().split("\n", -1);
+        String[] a = away.getText().toString().split("\n", -1);
+        String[] h = home.getText().toString().split("\n", -1);
+        int n = Math.max(l.length, Math.max(a.length, h.length));
+        while (n > 0 && cell(l, n - 1).isEmpty() && cell(a, n - 1).isEmpty() && cell(h, n - 1).isEmpty()) n--;
+
+        LinearLayout table = new LinearLayout(ctx);
+        table.setOrientation(LinearLayout.VERTICAL);
+        int pad = ctx.getResources().getDimensionPixelSize(R.dimen.cf_space_xs);
+        for (int i = 0; i < n; i++) {
+            String label = cell(l, i);
+            String av = cell(a, i);
+            String hv = cell(h, i);
+            boolean section = label.startsWith("[") && label.endsWith("]");
+            if (section) label = label.substring(1, label.length() - 1);
+            LinearLayout row = new LinearLayout(ctx);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setPadding(0, pad / 2, 0, pad / 2);
+            if (label.isEmpty() && av.isEmpty() && hv.isEmpty()) {
+                row.setMinimumHeight(pad * 2); // blank line in the engine text = group gap
+            }
+            boolean header = label.isEmpty() && !(av.isEmpty() && hv.isEmpty());
+            row.addView(column(ctx, av, Gravity.START, header ? R.color.cf_text_primary : R.color.cf_text_secondary,
+                    header, 1f));
+            TextView mid = column(ctx, label, Gravity.CENTER_HORIZONTAL,
+                    section ? R.color.cf_gold : R.color.cf_text_muted, section, 0.9f);
+            row.addView(mid);
+            row.addView(column(ctx, hv, Gravity.END, header ? R.color.cf_text_primary : R.color.cf_text_secondary,
+                    header, 1f));
+            table.addView(row);
+        }
+
+        ViewGroup parent = (ViewGroup) labels.getParent();
+        int index = parent.indexOfChild(labels);
+        table.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT));
+        parent.addView(table, index);
+        table.setVisibility(labels.getVisibility());
+        labels.setVisibility(View.GONE);
+        View valuesRow = (View) away.getParent();
+        if (valuesRow != parent) {
+            valuesRow.setVisibility(View.GONE);
+        } else {
+            away.setVisibility(View.GONE);
+            home.setVisibility(View.GONE);
+        }
+        return table;
+    }
+
+    private static String cell(String[] col, int i) {
+        return i < col.length ? col[i].trim() : "";
+    }
+
+    private static TextView column(android.content.Context ctx, String text, int gravity, int color,
+                                   boolean bold, float weight) {
+        TextView tv = new TextView(ctx);
+        TextViewCompat.setTextAppearance(tv, R.style.TextAppearance_Cfhc_Cf_Stat);
+        tv.setTextColor(ContextCompat.getColor(ctx, color));
+        if (bold) tv.setTypeface(tv.getTypeface(), android.graphics.Typeface.BOLD);
+        tv.setGravity(gravity);
+        tv.setText(text);
+        tv.setLayoutParams(new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, weight));
+        return tv;
     }
 
     private static int scoreAt(int[] scores, int index) {
