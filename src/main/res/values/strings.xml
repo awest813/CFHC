@@ -193,7 +193,6 @@
     <string name="player_search_title">League Player Search</string>
     <string name="player_search_subtitle">Filter and inspect any player across the collegiate landscape.</string>
     <string name="player_search_hint">Search player name…</string>
-    <string name="player_search_count_format">%1$d players found</string>
     <string name="player_search_no_results">No players found matching your criteria.</string>
     <string name="player_search_tap_hint">Tap any player to inspect ratings and career stats.</string>
 
@@ -203,5 +202,4 @@
     <string name="transfer_tab_registry">Portal Registry</string>
     <string name="transfer_tab_team">Your Program</string>
     <string name="transfer_tab_league">League Summary</string>
-    <string name="transfer_portal_count_format">%1$d transfers in portal</string>
 </resources>

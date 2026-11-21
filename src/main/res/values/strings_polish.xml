@@ -41,6 +41,22 @@
         <item quantity="other">Suspend %1$d Games</item>
     </plurals>
 
+    <!-- Transfer summary count -->
+    <plurals name="dlg_portal_summary_count">
+        <item quantity="one">%1$,d transfer</item>
+        <item quantity="other">%1$,d transfers</item>
+    </plurals>
+
+    <!-- Depth chart: wrong number of starters picked -->
+    <plurals name="lineup_wrong_count">
+        <item quantity="one">Pick exactly %1$d starter. You have %2$d selected.</item>
+        <item quantity="other">Pick exactly %1$d starters. You have %2$d selected.</item>
+    </plurals>
+
+    <!-- Scouting report scheme pickers (default label before the team abbreviation is known) -->
+    <string name="scout_offense_scheme">Offensive scheme</string>
+    <string name="scout_defense_scheme">Defensive scheme</string>
+
     <!-- Player search result count -->
     <plurals name="player_search_found">
         <item quantity="one">%1$,d player found</item>

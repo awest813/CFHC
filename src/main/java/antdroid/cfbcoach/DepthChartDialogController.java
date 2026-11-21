@@ -83,7 +83,7 @@ final class DepthChartDialogController {
                     updateLineupList(userTeam, positionSpinner, teamLineupAdapter, positionNumberRequired, positionPlayers, textLineupPositionDescription);
                     Toast.makeText(activity, activity.getString(R.string.lineup_saved, positionSelection[positionSpinner]), Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(activity, activity.getString(R.string.lineup_wrong_count, teamLineupAdapter.playersRequired, teamLineupAdapter.playersSelected.size()), Toast.LENGTH_LONG).show();
+                    Toast.makeText(activity, activity.getResources().getQuantityString(R.plurals.lineup_wrong_count, teamLineupAdapter.playersRequired, teamLineupAdapter.playersRequired, teamLineupAdapter.playersSelected.size()), Toast.LENGTH_LONG).show();
                 }
             }
         });

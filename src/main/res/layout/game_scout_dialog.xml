@@ -113,6 +113,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/cf_space_sm"
                 android:labelFor="@+id/spinnerScoutOffenseStrategy"
+                android:text="@string/scout_offense_scheme"
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
                 android:textColor="@color/cf_text_primary"
                 tools:text="Offensive Scheme:" />
@@ -131,6 +132,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/cf_space_md"
                 android:labelFor="@+id/spinnerScoutDefenseStrategy"
+                android:text="@string/scout_defense_scheme"
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
                 android:textColor="@color/cf_text_primary"
                 tools:text="Defensive Scheme:" />

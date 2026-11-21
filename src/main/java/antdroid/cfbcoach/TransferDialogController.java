@@ -232,7 +232,7 @@ public final class TransferDialogController {
         layoutRegistry.setVisibility(View.VISIBLE);
         List<TransferSummaryLine> rows = TransferSummaryLine.parse(raw);
         int players = TransferSummaryLine.playerCount(rows);
-        textCount.setText(activity.getString(R.string.dlg_portal_summary_count, players));
+        textCount.setText(activity.getResources().getQuantityString(R.plurals.dlg_portal_summary_count, players, players));
         ui.RecyclerLists.setOnItemClickListener(listPlayers, null);
         if (players == 0) {
             textEmpty.setText(emptyCopy);
