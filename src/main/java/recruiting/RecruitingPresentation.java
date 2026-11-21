@@ -58,7 +58,7 @@ public final class RecruitingPresentation {
         return null;
     }
 
-    /** Short board tag: "COMMITTED" (to a rival), "DECIDING" (decides on the next signing), or "". */
+    /** Short board tag: "COMMITTED" (to a rival), "Deciding" (decides on the next signing), "Contested", or "". */
     public static String statusTag(RecruitingSessionData sessionData, RecruitingPlayerRecord recruit) {
         if (sessionData == null || recruit == null) {
             return "";
@@ -67,7 +67,7 @@ public final class RecruitingPresentation {
             return "COMMITTED";
         }
         int left = sessionData.signingsUntilDecision(recruit);
-        return left == 1 ? "DECIDING" : left > 1 ? "Contested" : "";
+        return left == 1 ? "Deciding" : left > 1 ? "Contested" : "";
     }
 
     /** Notice after a signing: who just committed to a rival, or null when nobody did. */
@@ -310,7 +310,9 @@ public final class RecruitingPresentation {
             return "Committed: " + committed;
         }
         String tag = statusTag(sessionData, recruit);
-        return tag.isEmpty() ? getPlayerListRightLabel(recruit) : tag + " " + getPlayerListRightLabel(recruit);
+        // "Contested \u00b7 * * *" rather than "Contested Grade: * * *".
+        return tag.isEmpty() ? getPlayerListRightLabel(recruit)
+                : tag + " \u00b7 " + getStarGrade(recruit.stars());
     }
 
     public static String getPlayerListRightLabel(RecruitingPlayerRecord recruit) {
