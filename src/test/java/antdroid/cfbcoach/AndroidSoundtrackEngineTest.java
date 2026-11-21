@@ -100,4 +100,27 @@ public class AndroidSoundtrackEngineTest {
                 shadowAudio.getLastAbandonedAudioFocusRequest());
         engine.dispose();
     }
+
+    @Test
+    public void headphonesUnplugged_pauses_andTurningMusicBackOnResumes() {
+        AndroidSoundtrackEngine engine = new AndroidSoundtrackEngine(context);
+        engine.play(SoundtrackEngine.Track.DASHBOARD_ORGAN);
+        engine.pauseForNoisyDevice();
+        assertEquals(SoundtrackEngine.State.PAUSED, engine.getState());
+        engine.setMuted(true);   // settings: music off ...
+        engine.setMuted(false);  // ... and on again
+        assertEquals(SoundtrackEngine.State.PLAYING, engine.getState());
+        engine.dispose();
+    }
+
+    @Test
+    public void ordinaryPause_isNotResumedByTheMusicToggle() {
+        AndroidSoundtrackEngine engine = new AndroidSoundtrackEngine(context);
+        engine.play(SoundtrackEngine.Track.DASHBOARD_ORGAN);
+        engine.pause(); // app in the background
+        engine.setMuted(true);
+        engine.setMuted(false);
+        assertEquals(SoundtrackEngine.State.PAUSED, engine.getState());
+        engine.dispose();
+    }
 }

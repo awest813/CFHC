@@ -188,14 +188,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         theme = GameNavigation.getTheme(getIntent(), 1);
         flowManager = new AndroidGameFlowManager(this, theme);
         audioManager = new AndroidAudioManager(this);
-        soundtrackEngine = new AndroidSoundtrackEngine(this);
+        CfhcApplication app = CfhcApplication.from(this);
+        // App-scoped when available, so music survives the hop into Recruiting.
+        soundtrackEngine = app != null ? app.soundtrack() : new AndroidSoundtrackEngine(this);
         applyPersistedAudioPrefs();
         soundtrackEngine.play(simulation.SoundtrackEngine.Track.DASHBOARD_ORGAN);
-        CfhcApplication app = CfhcApplication.from(this);
-        if (app != null) {
-            app.addForegroundListener(appForegroundListener);
-            setNoisyReceiverRegistered(true);
-        }
         saveLoadService = new simulation.SaveLoadService(getFilesDir());
         if(theme == 1) setTheme(R.style.AppThemeLight);
 
@@ -2650,11 +2647,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         PlatformUiHelper.showImmersive(alert);
     }
 
+    /** Headphones unplugged (only used without the app-level owner, e.g. odd test setups). */
     private final android.content.BroadcastReceiver noisyAudioReceiver =
             new android.content.BroadcastReceiver() {
                 @Override
                 public void onReceive(android.content.Context context, android.content.Intent intent) {
-                    // Headphones unplugged: silence the speaker immediately.
                     if (soundtrackEngine != null) {
                         soundtrackEngine.pauseForNoisyDevice();
                     }
@@ -2662,22 +2659,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             };
 
     private boolean noisyReceiverRegistered = false;
-
-    /**
-     * Music follows the app, not this screen: opening Recruiting (its own
-     * activity) used to pause it via onPause. Leaving the app pauses it and
-     * coming back resumes it. The headphones-unplugged receiver follows the
-     * same lifecycle so it also works while Recruiting is on top.
-     */
-    private final CfhcApplication.ForegroundListener appForegroundListener = foreground -> {
-        if (foreground) {
-            setNoisyReceiverRegistered(true);
-            if (soundtrackEngine != null) soundtrackEngine.resume();
-        } else {
-            if (soundtrackEngine != null) soundtrackEngine.pause();
-            setNoisyReceiverRegistered(false);
-        }
-    };
 
     private void setNoisyReceiverRegistered(boolean on) {
         if (on == noisyReceiverRegistered) return;
@@ -2696,8 +2677,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     protected void onPause() {
-        // Without the app-level tracker (unusual test setups) fall back to the
-        // per-screen behavior.
+        // Music normally follows the whole app (CfhcApplication); without that
+        // owner fall back to per-screen behavior.
         if (CfhcApplication.from(this) == null) {
             if (soundtrackEngine != null) soundtrackEngine.pause();
             setNoisyReceiverRegistered(false);
@@ -2717,15 +2698,15 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onDestroy() {
         cancelBulk = true; // a bulk worker must not keep advancing a league nobody shows
-        CfhcApplication app = CfhcApplication.from(this);
-        if (app != null) app.removeForegroundListener(appForegroundListener);
         setNoisyReceiverRegistered(false);
         if (audioManager != null) {
             audioManager.dispose();
             audioManager = null;
         }
         if (soundtrackEngine != null) {
-            soundtrackEngine.dispose();
+            // The app-scoped engine outlives this screen (Recruiting may be
+            // opening); only a screen-owned fallback engine is released here.
+            if (CfhcApplication.from(this) == null) soundtrackEngine.dispose();
             soundtrackEngine = null;
         }
         super.onDestroy();

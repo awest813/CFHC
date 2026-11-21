@@ -70,6 +70,8 @@ public class AndroidSoundtrackEngine implements SoundtrackEngine {
     public void play(Track track) {
         if (track == currentTrack && state == State.PLAYING) return;
         releasePlayer();
+        playerErrors = 0;
+        pausedByNoisyDevice = false;
         currentTrack = track;
         state = State.PLAYING;
         updateOutput();
@@ -84,6 +86,7 @@ public class AndroidSoundtrackEngine implements SoundtrackEngine {
 
     @Override
     public void resume() {
+        pausedByNoisyDevice = false;
         if (state != State.PAUSED) return;
         state = State.PLAYING;
         updateOutput();
@@ -107,9 +110,13 @@ public class AndroidSoundtrackEngine implements SoundtrackEngine {
 
     @Override
     public void setMuted(boolean m) {
-        if (muted == m) return;
+        boolean wasMuted = muted;
         muted = m;
-        updateOutput();
+        if (!m && pausedByNoisyDevice && state == State.PAUSED) {
+            // "Music on" in settings after unplugging headphones: play again.
+            state = State.PLAYING;
+        }
+        if (wasMuted != m || state == State.PLAYING) updateOutput();
     }
 
     @Override public boolean isMuted() { return muted; }
@@ -135,12 +142,19 @@ public class AndroidSoundtrackEngine implements SoundtrackEngine {
     }
 
     /**
-     * Headphones unplugged (AUDIO_BECOMING_NOISY): silence the speaker. The
-     * activity's next onResume resumes it, as with any other pause.
+     * Headphones unplugged (AUDIO_BECOMING_NOISY): silence the speaker. It stays
+     * paused (Android convention) until the app returns to the foreground or the
+     * player turns music on again in settings.
      */
     public void pauseForNoisyDevice() {
-        pause();
+        if (state == State.PLAYING) {
+            pausedByNoisyDevice = true;
+            pause();
+        }
     }
+
+    /** Paused because headphones were unplugged; switching music back on resumes it. */
+    private boolean pausedByNoisyDevice = false;
 
     // ── Output: reconcile player + focus with the logical state ─────────
 
@@ -230,7 +244,10 @@ public class AndroidSoundtrackEngine implements SoundtrackEngine {
             // Mid-play codec/media-server error: drop the player; the next
             // updateOutput() (resume / unmute / focus gain) rebuilds it.
             PlatformLog.w(TAG, "MediaPlayer error what=" + what + " extra=" + extra);
-            if (player == mp) releasePlayer();
+            if (player == mp) {
+                releasePlayer();
+                onPlayerLost();
+            }
             return true; // handled — no default error dialog
         });
         p.setOnCompletionListener(mp -> {
@@ -245,11 +262,31 @@ public class AndroidSoundtrackEngine implements SoundtrackEngine {
                     PlatformLog.w(TAG, "completion restart failed", e);
                 }
             }
-            if (player == mp) releasePlayer();
+            if (player == mp) {
+                releasePlayer();
+                onPlayerLost();
+            }
         });
         player = p;
         applyVolume();
         return true;
+    }
+
+    /** Media errors since the last play(): one rebuild, then stay silent. */
+    private int playerErrors = 0;
+
+    /**
+     * The player died while music should be playing. Rebuild it once; if that
+     * fails too, give audio focus back, since holding focus for a silent game
+     * kept other apps' audio paused.
+     */
+    private void onPlayerLost() {
+        if (!wantsSound()) return;
+        if (++playerErrors <= 1) {
+            updateOutput();
+        } else {
+            abandonFocus();
+        }
     }
 
     private void pausePlayer() {

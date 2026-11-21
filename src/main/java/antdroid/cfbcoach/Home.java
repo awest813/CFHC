@@ -145,6 +145,10 @@ public class Home extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        // The launcher has no music: stop the app-wide soundtrack when the
+        // player backs out of a league to here.
+        CfhcApplication app = CfhcApplication.from(this);
+        if (app != null) app.soundtrack().stop();
         updateSaveSlotHint();
     }
 

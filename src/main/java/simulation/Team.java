@@ -2311,6 +2311,9 @@ public class Team {
             if (p.injury == null && SimRandom.nextDouble() < intensity.injuryModifier()) {
                 int dur = 1 + (int)(SimRandom.nextDouble() * 3);
                 p.injury = new Injury(dur, "Practice (intense)", p);
+                // Register it like a game injury, so the injury report, box
+                // score and healing pass all see it.
+                addPlayerInjured(p);
             }
         }
     }

@@ -132,7 +132,7 @@ public class StandingsPanel implements LeagueScreen {
 
     private JPanel buildConferencePanel(Conference conf, LeagueScreenContext ctx) {
         String headerText = conf.confName;
-        if (conf.confTV) {
+        if (conf.confTV && conf.TV != null && !conf.TV.isEmpty()) {
             // The network the conference signed with (getTVName() rolls a new random
             // name, so every redraw showed a different one and drew the season's RNG).
             headerText += "  (" + conf.TV + ")";

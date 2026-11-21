@@ -7,6 +7,10 @@ import android.os.Bundle;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import android.content.BroadcastReceiver;
+import android.content.Intent;
+import android.content.IntentFilter;
+
 import simulation.PlatformLog;
 
 /**
@@ -29,6 +33,56 @@ public class CfhcApplication extends Application {
     public static CfhcApplication from(Context context) {
         Context app = context.getApplicationContext();
         return app instanceof CfhcApplication ? (CfhcApplication) app : null;
+    }
+
+    /**
+     * The soundtrack lives with the app, not a screen. MainActivity finishes
+     * itself when it opens Recruiting (its own activity), and disposing a
+     * per-activity engine there stopped the music as Recruiting opened. Music
+     * pauses when the whole app leaves the foreground, resumes when it
+     * returns, and the Home screen stops it.
+     */
+    private AndroidSoundtrackEngine soundtrack;
+    private boolean noisyReceiverRegistered = false;
+    private final BroadcastReceiver noisyAudioReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            // Headphones unplugged: silence the speaker immediately.
+            if (soundtrack != null) soundtrack.pauseForNoisyDevice();
+        }
+    };
+
+    /** The app-wide soundtrack engine (created on first use). */
+    public AndroidSoundtrackEngine soundtrack() {
+        if (soundtrack == null) {
+            soundtrack = new AndroidSoundtrackEngine(this);
+        }
+        return soundtrack;
+    }
+
+    private void onForegroundChangedForMusic(boolean foreground) {
+        if (foreground) {
+            setNoisyReceiverRegistered(true);
+            if (soundtrack != null) soundtrack.resume();
+        } else {
+            if (soundtrack != null) soundtrack.pause();
+            setNoisyReceiverRegistered(false);
+        }
+    }
+
+    private void setNoisyReceiverRegistered(boolean on) {
+        if (on == noisyReceiverRegistered) return;
+        try {
+            if (on) {
+                registerReceiver(noisyAudioReceiver,
+                        new IntentFilter(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY));
+            } else {
+                unregisterReceiver(noisyAudioReceiver);
+            }
+            noisyReceiverRegistered = on;
+        } catch (IllegalArgumentException ignored) {
+            noisyReceiverRegistered = false;
+        }
     }
 
     public boolean isInForeground() {
@@ -76,6 +130,7 @@ public class CfhcApplication extends Application {
     }
 
     private void notifyForeground(boolean foreground) {
+        onForegroundChangedForMusic(foreground);
         for (ForegroundListener l : foregroundListeners) {
             l.onAppForegroundChanged(foreground);
         }
