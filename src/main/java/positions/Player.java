@@ -524,9 +524,16 @@ public class Player {
 
         ratOvr = getOverall();
 
-        stats = p.stats;
-        careerStats = p.careerStats;
-        awards = p.awards;
+        // Own copies: sharing the arrays made both objects record into one
+        // stat line (and diverge from a save/load round trip).
+        stats = p.stats != null ? p.stats.clone() : null;
+        if (p.careerStats != null) {
+            careerStats = new ArrayList<>(p.careerStats.size());
+            for (int[] season : p.careerStats) careerStats.add(season != null ? season.clone() : null);
+        } else {
+            careerStats = null;
+        }
+        awards = p.awards != null ? p.awards.clone() : null;
 
         isTransfer = p.isTransfer;
         isGradTransfer = p.isGradTransfer;
