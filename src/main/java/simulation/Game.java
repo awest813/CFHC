@@ -212,7 +212,13 @@ public class Game implements Serializable {
     private final int escapeValue = 150;
     private static final double RB_CARRY_SCALE = 9.2;
     /** Divides passing depth (arm + receiver speed - defender speed) into air yards. */
-    static final double PASS_DEPTH_DIVISOR = 4.6;
+    static final double PASS_DEPTH_DIVISOR = 4.3;
+    /**
+     * Flat completion edge for timing routes. With it and the 4.3 depth divisor
+     * (was 4.6), passing lands near FBS norms (~62% completions, ~7 yards per
+     * attempt); it ran ~60% / 6.6, part of why scoring sat at ~24 a team.
+     */
+    static final double PASS_TIMING_BONUS = 10;
     /** Chance a receiver who shakes free after the catch reaches the open field. */
     static final double PASS_BREAKAWAY_CHANCE = 0.20;
     /** Divides the carrier's speed plus blocking into yards before contact. */
@@ -490,21 +496,30 @@ public class Game implements Serializable {
     private PenaltyCall rollPreSnapPenalty(Team offense, Team defense) {
         int offDiscipline = offense.getStaffDiscipline();
         int defDiscipline = defense.getStaffDiscipline();
-        double offChance = 0.015 + (100 - Math.min(100, offDiscipline)) / 100.0 * 0.045;
-        double defChance = 0.015 + (100 - Math.min(100, defDiscipline)) / 100.0 * 0.045;
+        // Base rate tuned so a team draws ~6 flags for ~50 yards a game (FBS);
+        // it ran ~4.6 for ~32.
+        double offChance = 0.022 + (100 - Math.min(100, offDiscipline)) / 100.0 * 0.045;
+        double defChance = 0.022 + (100 - Math.min(100, defDiscipline)) / 100.0 * 0.045;
         double roll = SimRandom.nextDouble();
         if (roll < offChance) {
-            boolean holding = SimRandom.nextDouble() < 0.4;
-            return new PenaltyCall(true, holding ? "Holding" : "False Start", holding ? 10 : 5, false);
+            double kind = SimRandom.nextDouble();
+            if (kind < 0.40) return new PenaltyCall(true, "False Start", 5, false);
+            if (kind < 0.80) return new PenaltyCall(true, "Holding", 10, false);
+            return new PenaltyCall(true, "Delay of Game", 5, false);
         }
         if (roll < offChance + defChance) {
-            if (SimRandom.nextDouble() < 0.5) {
+            double kind = SimRandom.nextDouble();
+            if (kind < 0.35) {
                 // Offsides: 5 yards, a first down only if that reaches the marker.
                 return new PenaltyCall(false, "Defensive Offsides", 5, false);
             }
-            // Pass interference: a spot foul, here 5-15 yards downfield (the college cap)
-            // and always a first down. It was 5 yards with a coin-flip first down.
-            return new PenaltyCall(false, "Pass Interference", 5 + (int) (SimRandom.nextDouble() * 11), true);
+            if (kind < 0.65) {
+                // Pass interference: a spot foul, here 5-15 yards downfield (the college cap)
+                // and always a first down.
+                return new PenaltyCall(false, "Pass Interference", 5 + (int) (SimRandom.nextDouble() * 11), true);
+            }
+            if (kind < 0.88) return new PenaltyCall(false, "Defensive Holding", 10, true);
+            return new PenaltyCall(false, "Personal Foul", 15, true);
         }
         return null;
     }
@@ -1154,6 +1169,12 @@ public class Game implements Serializable {
                 preferRush += 0.25;
                 preferPass -= 0.10;
             }
+            // Four scores up in the second half: it's a running clock and the
+            // backups are in; winners kept dropping 21-28 on fourth quarters.
+            if (!playingOT && gameTime <= 1800 && offenseLead >= 28 && gameDown < 4) {
+                preferRush += 0.40;
+                preferPass -= 0.20;
+            }
             if (hurryUpPass) {
                 preferPass += 0.45 + 0.15 * SimRandom.nextDouble();
                 preferRush -= 0.15;
@@ -1694,21 +1715,21 @@ public class Game implements Serializable {
 
             if (pos.equals("WR")) {
                 completion = offenseEdge + environmentAdj(offense, true) + 2 * offense.getPlaybookOffense().getPassProtection() + 4 * offense.getPlaybookOffense().getPassPref() +
-                        1.5 * (selQB.getRatPassAcc()) + (selWR.getRatCatch()) + getArchetypeCompletionBonus(selQB, pressureOnQB);
+                        PASS_TIMING_BONUS + 1.5 * (selQB.getRatPassAcc()) + (selWR.getRatCatch()) + getArchetypeCompletionBonus(selQB, pressureOnQB);
 
                 coverage = 2 * defense.getPlaybookDefense().getPassRush() + 4 * defense.getPlaybookDefense().getPassCoverage() + (selCB.getRatCoverage()) + pressureOnQB
                         + getArchetypeDeflectionBonus(selCB) + getArchetypePressBonus(selCB) + getArchetypeDeepRecoveryBonus(selCB);
 
             } else if (pos.equals("TE")) {
                 completion = offenseEdge + environmentAdj(offense, true) + 2 * offense.getPlaybookOffense().getPassProtection() + 4 * offense.getPlaybookOffense().getPassPref() +
-                        1.5 * (selQB.getRatPassAcc()) + (selTE.getRatCatch()) + getArchetypeCompletionBonus(selQB, pressureOnQB);
+                        PASS_TIMING_BONUS + 1.5 * (selQB.getRatPassAcc()) + (selTE.getRatCatch()) + getArchetypeCompletionBonus(selQB, pressureOnQB);
 
                 coverage = 2 * defense.getPlaybookDefense().getPassRush() + 4 * defense.getPlaybookDefense().getPassCoverage() + (selLB.getRatCoverage()) + pressureOnQB
                         + getArchetypeCoverageBonus(selLB);
 
             } else {
                 completion = offenseEdge + environmentAdj(offense, true) + 2 * offense.getPlaybookOffense().getPassProtection() + 4 * offense.getPlaybookOffense().getPassPref() +
-                        1.5 * (selQB.getRatPassAcc()) + (selRB.getRatCatch()) + getArchetypeCompletionBonus(selQB, pressureOnQB);
+                        PASS_TIMING_BONUS + 1.5 * (selQB.getRatPassAcc()) + (selRB.getRatCatch()) + getArchetypeCompletionBonus(selQB, pressureOnQB);
 
                 coverage = 2 * defense.getPlaybookDefense().getPassRush() + 4 * defense.getPlaybookDefense().getPassCoverage() + (selLB2.getRatCoverage()) + pressureOnQB
                         + getArchetypeCoverageBonus(selLB2);
@@ -2050,6 +2071,10 @@ public class Game implements Serializable {
             else resetForOT();
         } else {
             gameTime -= timePerPlay + timePerPlay * SimRandom.nextDouble();
+            if (milkingClock(offense)) {
+                // Protecting a lead: huddle up and let the play clock run down.
+                gameTime -= 10 + 8 * SimRandom.nextDouble();
+            }
             //check for fumble (wet weather increases the odds)
             double fumChance = ((topSafety(defense).getRatTackle() + selLB.getRatTackle()) / 2 + defense.getCompositeDLRush() - getHFadv()) / 2 + offense.getPlaybookOffense().getRunProtection();  //STRATEGIES
             if (100 * SimRandom.nextDouble() < fumChance * weather.fumbleMultiplier() / FUMBLE_DIVISOR) {
@@ -2196,6 +2221,17 @@ public class Game implements Serializable {
      * left, fourth quarter only) kept stars padding stats through blowouts,
      * producing 6,500-7,000 yard passing seasons.
      */
+    /**
+     * The offense is protecting a lead and running the clock between snaps:
+     * any lead in the last eight minutes, or three scores up in the second half.
+     */
+    private boolean milkingClock(Team offense) {
+        if (playingOT) return false;
+        int lead = offense == homeTeam ? homeScore - awayScore : awayScore - homeScore;
+        if (lead <= 0) return false;
+        return gameTime <= 480 || (gameTime <= 1800 && lead >= 17);
+    }
+
     /** Scores level for the team with the ball. */
     private boolean offenseTied() {
         return homeScore == awayScore;
@@ -2610,7 +2646,9 @@ public class Game implements Serializable {
             } else {
                 int blockAdv = (int) offense.getCompositeOLRush() - (int) defense.getCompositeDLRush();
                 int yardsGain = (int) ((rushBack.getRatSpeed() + blockAdv) * SimRandom.nextDouble() / 6);
-                if (yardsGain > 5) {
+                // Needs a clean 3 yards against a goal-line defense: FBS converts
+                // ~45% of two-point tries; this ran ~60%.
+                if (yardsGain > 6) {
                     successConversion = true;
                     if (gamePoss) { // home possession
                         homeScore += 2;
@@ -2628,7 +2666,8 @@ public class Game implements Serializable {
                     .append(" 2pt conversion failed — depleted skill-position depth.");
         } else {
             int pressureOnQB = (int) defense.getCompositeDLPass() * 2 - (int) offense.getCompositeOLPass();
-            double completion = ((qb.getRatPassAcc()) + wr.getRatCatch() - cb.getRatCoverage()) / 2 + 25 - pressureOnQB / 20;
+            // Compressed field: no room to work, so far below a normal completion rate.
+            double completion = ((qb.getRatPassAcc()) + wr.getRatCatch() - cb.getRatCoverage()) / 2 + 12 - pressureOnQB / 20;
             if (100 * SimRandom.nextDouble() < completion) {
                 successConversion = true;
                 if (gamePoss) { // home possession
@@ -2666,7 +2705,7 @@ public class Game implements Serializable {
             // NCAA overtime (2021 rules): from the second overtime a touchdown must be
             // followed by a two-point try; from the third on there are no drives at all
             // (see overtimeConversionRound).
-            if ((playingOT && numOT >= 2) || (((gamePoss && (awayScore - homeScore) == 2) || (!gamePoss && (homeScore - awayScore) == 2)) && gameTime < 300)) {
+            if ((playingOT && numOT >= 2) || (!playingOT && wantsTwoPoint())) {
                 attemptTwoPoint(offense, defense, "TOUCHDOWN!\n" + tdInfo);
             } else {
                 //kick XP
@@ -2703,9 +2742,8 @@ public class Game implements Serializable {
 
         if (gameTime <= 0) return;
         else {
-            //Decide whether to onside kick. Only if losing but within 8 points with < 3 min to go
-            if (kicker != null && gameTime < 180 && ((gamePoss && (awayScore - homeScore) <= 8 && (awayScore - homeScore) > 0)
-                    || (!gamePoss && (homeScore - awayScore) <= 8 && (homeScore - awayScore) > 0))) {
+            // Onside when trailing late (see wantsOnsideKick).
+            if (kicker != null && wantsOnsideKick()) {
                 // Yes, do onside
                 if (SimRandom.nextDouble() < onsideRecoveryChance(kicker.getRatKickFum())) {
                     //Success!
@@ -2768,9 +2806,8 @@ public class Game implements Serializable {
             int specialTeams = getSpecialTeamsD(offense);
             PlayerK kicker = kicker(offense);
 
-            //Decide whether to onside kick. Only if losing but within 8 points with < 3 min to go
-            if (kicker != null && gameTime < 180 && ((gamePoss && (awayScore - homeScore) <= 8 && (awayScore - homeScore) > 0)
-                    || (!gamePoss && (homeScore - awayScore) <= 8 && (homeScore - awayScore) > 0))) {
+            // Onside when trailing late (see wantsOnsideKick).
+            if (kicker != null && wantsOnsideKick()) {
                 // Yes, do onside
                 if (SimRandom.nextDouble() < onsideRecoveryChance(kicker.getRatKickFum())) {
                     //Success!
@@ -3020,6 +3057,41 @@ public class Game implements Serializable {
     /** Kickoff distance: 58-78 yards for an 80-power leg, a yard more per 4 points of power. */
     static int kickoffDistance(int power) {
         return 58 + (power - 80) / 4 + (int) (SimRandom.nextDouble() * 20);
+    }
+
+    /**
+     * Second-half two-point chart, from the scoring team's side after the
+     * touchdown and before the try. Going for two when it changes how many
+     * scores the game is: up 1 (a field goal can't tie), up 5 (a TD and XP
+     * can't beat you), up 12 (two TDs and XPs only tie), down 2 (tie), down 5
+     * (field goal ties), down 10 (one score). It used to fire only when down
+     * exactly 2 inside five minutes, so regulation two-point tries never
+     * happened (FBS sees ~0.4 a game).
+     */
+    boolean wantsTwoPoint() {
+        if (gameTime > 1800) return false; // second half: chart coaches start in the third quarter
+        int margin = gamePoss ? homeScore - awayScore : awayScore - homeScore;
+        switch (margin) {
+            case 1: case 5: case 12:
+            case -2: case -5: case -10:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Whether the kicking team tries an onside kick: down one score (1-8) in
+     * the last three minutes, or down two scores (9-16) in the last five,
+     * when it needs the ball back twice. Was one-score-only, so teams down
+     * two touchdowns late kicked deep and lost.
+     */
+    boolean wantsOnsideKick() {
+        if (playingOT) return false;
+        int deficit = gamePoss ? awayScore - homeScore : homeScore - awayScore;
+        if (deficit >= 1 && deficit <= 8) return gameTime < 180;
+        if (deficit >= 9 && deficit <= 16) return gameTime < 300;
+        return false;
     }
 
     /**

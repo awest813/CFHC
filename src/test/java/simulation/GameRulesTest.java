@@ -386,6 +386,57 @@ public class GameRulesTest {
     }
 
     @Test
+    public void twoPointChart_secondHalfOnly_onScoreChangingMargins() {
+        Game g = liveGame();
+        g.gamePoss = true;
+        int[][] yes = {{13, 12}, {12, 14}, {20, 15}, {10, 15}, {26, 14}, {10, 20}};
+        int[][] no = {{14, 7}, {7, 7}, {21, 14}, {10, 13}, {3, 10}};
+        g.gameTime = 600;
+        for (int[] sc : yes) {
+            g.homeScore = sc[0]; g.awayScore = sc[1];
+            assertTrue("go for two at " + sc[0] + "-" + sc[1], g.wantsTwoPoint());
+        }
+        for (int[] sc : no) {
+            g.homeScore = sc[0]; g.awayScore = sc[1];
+            assertFalse("kick at " + sc[0] + "-" + sc[1], g.wantsTwoPoint());
+        }
+        g.gameTime = 2400; // first half: always kick
+        g.homeScore = 13; g.awayScore = 12;
+        assertFalse(g.wantsTwoPoint());
+    }
+
+    @Test
+    public void onsideKick_downOneScoreLate_orTwoScoresInLastFive() {
+        Game g = liveGame();
+        g.gamePoss = true; // home kicking
+        g.homeScore = 20; g.awayScore = 27; g.gameTime = 150;
+        assertTrue(g.wantsOnsideKick());
+        g.gameTime = 250;
+        assertFalse("one score with four minutes left: kick deep", g.wantsOnsideKick());
+        g.homeScore = 14; g.awayScore = 28;
+        assertTrue("two scores down inside five minutes", g.wantsOnsideKick());
+        g.homeScore = 7; g.awayScore = 35;
+        assertFalse("game is out of reach", g.wantsOnsideKick());
+        g.homeScore = 28; g.awayScore = 21;
+        assertFalse("leading teams kick deep", g.wantsOnsideKick());
+    }
+
+    @Test
+    public void blowouts_staySane() {
+        List<Team> teams = league.getTeamList();
+        int over70 = 0;
+        int n = 600;
+        for (int i = 0; i < n; i++) {
+            Game g = new Game(teams.get(i % teams.size()), teams.get((i * 7 + 3) % teams.size()), "OOC");
+            if (g.homeTeam == g.awayTeam) continue;
+            g.playGame();
+            if (Math.max(g.homeScore, g.awayScore) >= 70) over70++;
+            assertTrue("absurd score " + g.homeScore + "-" + g.awayScore, Math.max(g.homeScore, g.awayScore) < 110);
+        }
+        assertTrue("70-point games should be rare: " + over70, over70 <= n / 50);
+    }
+
+    @Test
     public void injuriesDuringAGame_benchThePlayer() {
         // Once the log says a player is out of the game, he never shows up in it
         // again (he used to keep catching, running and throwing).
