@@ -29,10 +29,22 @@ public class TeamStatsList extends RowAdapter<String> {
         simulation.rows.TeamStatRow row = simulation.rows.TeamStatRow.parse(values[position]);
         // Engine order is value, label, rank. The row reads label, then the number, then the rank.
         textLeft.setText(row.label());
-        textCenter.setText(row.value());
+        textCenter.setText(groupDigits(row.value()));
         textRight.setText(row.rank());
 
         return;
+    }
+
+    /** "34350" reads as "34,350" (locale grouping); decimals, records and ranks pass through. */
+    static String groupDigits(String value) {
+        if (value == null) return "";
+        String v = value.trim();
+        if (!v.matches("-?\\d{4,}")) return value;
+        try {
+            return java.text.NumberFormat.getIntegerInstance().format(Long.parseLong(v));
+        } catch (NumberFormatException e) {
+            return value;
+        }
     }
 
 }
