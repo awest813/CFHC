@@ -176,7 +176,7 @@ public class TeamFinance {
             // used to apply the firing one on top of it.
             team.resetDisciplineForNewCoach();
             team.league.addNewsStory(team.league.currentWeek + 1,team.name + " Coaching Retirement>" + oldCoach + " has announced his retirement at the age of " + age +
-                    ". His former team, " + team.name + " have not announced a new successor to replace the retired coach. Head Coach " + oldCoach + " had a career record of " + wins + "-" + losses + ".");
+                    ". His former team, " + team.name + " has not announced a new successor to replace the retired coach. Head Coach " + oldCoach + " had a career record of " + wins + "-" + losses + ".");
             team.league.addNewsHeadline(team.name + " coach " + oldCoach + " has announced his retirement at age " + age + ".");
             team.HC = null;
         }
@@ -184,7 +184,7 @@ public class TeamFinance {
         if (!team.retired) {
             if (!team.userControlled && ((team.teamPrestige > (team.HC.baselinePrestige + 9) && team.rankTeamPrestige > (int) (team.league.countTeam * 0.35) && team.HC.age < 50) || (team.teamPrestige > (team.HC.baselinePrestige + 12) && team.confPrestige < team.league.confAvg && team.rankTeamPrestige < (int) (team.league.countTeam * 0.20) && team.HC.age < 48))) {
                 team.league.addNewsStory(team.league.currentWeek + 1,"Head Coach Rumor Mill>After another successful season at " + team.name + ", " + age + " year old head coach " + team.HC.name + " has moved to the top of" +
-                        " many of the schools looking for a replacement at that position. He has a career record of " + wins + "-" + losses + ". ");
+                        " many schools' lists for a head coaching vacancy. He has a career record of " + wins + "-" + losses + ".");
                 team.league.addNewsHeadline(team.name + " " + team.HC.position + " " + team.HC.name + " rumored for a bigger program?");
                 if (SimRandom.nextDouble() > 0.50) {
                     team.league.coachStarList.add(team.HC);
@@ -309,7 +309,7 @@ public class TeamFinance {
             if(coord.getWins() > 0) team.league.addCoachFreeAgent(new HeadCoach(coord, team));
             String oldCoach = coord.name;
             team.league.addNewsStory(team.league.currentWeek + 1,team.name + " Coordinator Retirement>" + coord.position + " " + oldCoach + " has announced his retirement at the age of " + age +
-                    ". His former team, " + team.name + " have not announced a new successor to replace the retired coordinator.");
+                    ". His former team, " + team.name + " has not announced a new successor to replace the retired coordinator.");
             team.league.addNewsHeadline(team.name + " " + coord.position + " " + oldCoach + " has announced his retirement at age " + age + ".");
             if(pos.equals("OC")) team.OC = null;
             if(pos.equals("DC")) team.DC = null;

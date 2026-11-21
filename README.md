@@ -111,6 +111,8 @@ java -jar build/libs/CFHC-desktop-1.5.jar help
 | `new` | New-game flow, then league UI |
 | `play <file.cfb>` / `view <file>` | Load a save (prompts for a user team if needed) |
 | `inspect <file>` | Print save metadata |
+| `stability` | Headless smoke test: a new league through 3 full seasons with invariant checks |
+| `bench [seasons] [seed]` | Headless timings: per game, per week, per season, save/load, heap |
 | `help` | Usage |
 
 Unsigned jpackage packaging (JDK `jpackage` required):
@@ -177,7 +179,7 @@ More detail: [docs/platform-expansion.md](docs/platform-expansion.md).
 ## Features (summary)
 
 - **Career:** hiring, staff, facilities, contracts, promotions and pressure
-- **Recruiting:** full cycle, large name pools, scholarships, transfers, redshirt options
+- **Recruiting:** one national prospect pool shared by every program (rivals commit early and contest your targets), scholarships, transfers, redshirt options
 - **Simulation:** play-by-play, multiple schemes, stats, news, awards, progression; weather, penalties, momentum and timeouts; interactive coaching (opt-in gameplan / halftime / crunch-time decisions)
 - **League:** conferences, bowls (with tie-ins), playoff options, AP/Coaches polls, prestige, infractions, rivalries and trophies, senior day / homecoming, realignment (with optional limits on FCS schools moving up), history; offseason coaching carousel, transfer portal, draft night and signing day
 - **Customization:** CSV import for universes/rosters/coaches; in-game renames; light/dark themes
@@ -190,6 +192,7 @@ More detail: [docs/platform-expansion.md](docs/platform-expansion.md).
 | Doc | Contents |
 |:---|:---|
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Priorities, technical debt, planned work |
+| [docs/release-notes-next.md](docs/release-notes-next.md) | Draft notes for the next release (changes since v1.5.0) |
 | [docs/THREADING.md](docs/THREADING.md) | Single-thread engine mutation contract |
 | [docs/platform-expansion.md](docs/platform-expansion.md) | Cross-platform bridge and migration notes |
 | [docs/desktop-release-notes-1.4e.md](docs/desktop-release-notes-1.4e.md) | Desktop 1.4e run / save / attribution notes |
