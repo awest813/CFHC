@@ -7,7 +7,10 @@
     <string name="picker_all_conferences">All conferences</string>
     <string name="picker_list_desc">Programs available to coach</string>
     <string name="picker_prestige_label">Prestige</string>
-    <string name="picker_count">%1$d programs</string>
+    <plurals name="picker_count">
+        <item quantity="one">%1$d program</item>
+        <item quantity="other">%1$d programs</item>
+    </plurals>
     <string name="picker_preparing_title">Preparing Program</string>
     <string name="picker_preparing_message">Setting up your staff, rankings, and season outlook…</string>
 </resources>

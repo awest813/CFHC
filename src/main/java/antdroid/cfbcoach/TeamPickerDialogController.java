@@ -76,7 +76,7 @@ public final class TeamPickerDialogController {
                 }
                 teams.sort(Comparator.comparing(Team::getName, String.CASE_INSENSITIVE_ORDER));
                 rows.replace(teams);
-                count.setText(activity.getString(R.string.picker_count, teams.size()));
+                count.setText(activity.getResources().getQuantityString(R.plurals.picker_count, teams.size(), teams.size()));
                 list.scrollToPosition(0);
             }
 

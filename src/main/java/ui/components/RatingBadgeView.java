@@ -39,7 +39,8 @@ public class RatingBadgeView extends LinearLayout {
         value.setText(rating > 0 ? String.valueOf(rating) : "—");
         grade.setText(RatingScale.grade(rating));
         stars.setStars(RatingScale.stars(rating));
-        setContentDescription(getContext().getString(R.string.cmp_rating_a11y, rating, RatingScale.grade(rating),
-                RatingScale.stars(rating)));
+        int starCount = RatingScale.stars(rating);
+        setContentDescription(getContext().getResources().getQuantityString(R.plurals.cmp_rating_a11y, starCount,
+                rating, RatingScale.grade(rating), starCount));
     }
 }
