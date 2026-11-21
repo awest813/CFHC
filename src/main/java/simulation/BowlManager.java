@@ -25,36 +25,35 @@ public class BowlManager {
                 // which also scheduled every bowl from mid-season standings and
                 // set hasScheduledBowls, so opening Bowl Watch before the season
                 // ended left the real postseason with no bowl games at all.
-                return expPlayoffFieldText(selectExpPlayoffField(getQualifiedTeams()), true);
+                return expPlayoffFieldText(selectExpPlayoffField(qualifiedTeamsByCurrentPoll()), true);
             } else {
-                league.setTeamRanks();
-                for (int i = 0; i < league.teamList.size(); ++i) {
-                    league.teamList.get(i).updatePollScore();
-                    if (league.teamList.get(i).isBowlBan())
-                        league.teamList.get(i).setTeamPollScore(0);
-                }
-                Collections.sort(league.teamList, new CompTeamPoll());
+                // Read-only projection from this week's poll (the engine ranks the
+                // league after every week). This used to re-rank the whole league,
+                // zero banned teams' poll scores and re-sort the team list the next
+                // week is played in, so opening Bowl Watch changed the season; a
+                // small custom league also ran off the end of the list.
+                ArrayList<Team> byPoll = new ArrayList<>(league.teamList);
+                final CompTeamPoll poll = new CompTeamPoll();
+                byPoll.sort((a, b) -> {
+                    if (a.isBowlBan() != b.isBowlBan()) return a.isBowlBan() ? 1 : -1;
+                    return poll.compare(a, b);
+                });
 
                 StringBuilder sb = new StringBuilder();
-                Team t1;
-                Team t2;
-
+                if (byPoll.size() < 4) {
+                    return "Not enough teams for a playoff.";
+                }
                 sb.append("Semifinal 1v4:\n\t\t");
-                t1 = league.teamList.get(0);
-                t2 = league.teamList.get(3);
-                sb.append(t1.strRep() + " vs " + t2.strRep() + "\n\n");
+                sb.append(byPoll.get(0).strRep() + " vs " + byPoll.get(3).strRep() + "\n\n");
 
                 sb.append("Semifinal 2v3:\n\t\t");
-                t1 = league.teamList.get(1);
-                t2 = league.teamList.get(2);
-                sb.append(t1.strRep() + " vs " + t2.strRep() + "\n\n");
+                sb.append(byPoll.get(1).strRep() + " vs " + byPoll.get(2).strRep() + "\n\n");
 
                 int t = 4;
                 for (int g = 0; g < league.bowlNames.length; g++) {
+                    if (t + 4 >= byPoll.size()) break;
                     sb.append(league.bowlNames[g] + ":\n\t\t");
-                    t1 = league.teamList.get(t);
-                    t2 = league.teamList.get(t + 4);
-                    sb.append(t1.strRep() + " vs " + t2.strRep() + "\n\n");
+                    sb.append(byPoll.get(t).strRep() + " vs " + byPoll.get(t + 4).strRep() + "\n\n");
                     t++;
                     if (t % 8 == 0) t = t + 8;
                 }
@@ -375,6 +374,22 @@ public class BowlManager {
                 league.newsHeadlines.add(g.awayTeam.getName() + " reaches the national title game!");
             }
         }
+    }
+
+    /**
+     * The bowl-eligible teams in this week's poll order, without re-ranking the
+     * league: the projection screens read. {@link #getQualifiedTeams()} re-ranks
+     * and re-sorts the league's own team list (right for scheduling the real
+     * postseason, but opening Playoff Watch used to do it too, mid-season).
+     */
+    ArrayList<Team> qualifiedTeamsByCurrentPoll() {
+        ArrayList<Team> bowlTeams = new ArrayList<>();
+        ArrayList<Team> byPoll = new ArrayList<>(league.teamList);
+        Collections.sort(byPoll, new CompTeamPoll());
+        for (Team t : byPoll) {
+            if (!t.isBowlBan() && t.getWins() >= 6) bowlTeams.add(t);
+        }
+        return bowlTeams;
     }
 
     public ArrayList<Team> getQualifiedTeams() {

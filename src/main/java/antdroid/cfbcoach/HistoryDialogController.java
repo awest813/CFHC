@@ -172,13 +172,22 @@ public final class HistoryDialogController {
         chart.setModel(new simulation.TrendChartModel(values, labels, minY, maxY, yLabeler), numHorizontalLabels);
     }
 
+    /** Highest current prestige in the league (0 for an empty league), without reordering it. */
+    static int topPrestige(League simLeague) {
+        int top = 0;
+        for (Team t : simLeague.getTeamList()) top = Math.max(top, t.teamPrestige);
+        return top;
+    }
+
     /** Charts store "teams - rank" so better seasons plot higher; the axis shows the rank. */
     private static simulation.TrendChartModel.ValueLabeler rankLabeler(final int teams) {
         return v -> Integer.toString(teams - (int) Math.round(v));
     }
 
     private static void teamPrestigeGraphView(MainActivity activity, Team currentTeam, League simLeague) {
-        simLeague.sortTeamList();
+        // Read-only: the axis tops out above the most prestigious program. This used to
+        // sort the league's team list (the order the season is played in), so opening
+        // a chart changed results and a reload no longer matched an unbroken run.
         showGraphDialog(activity,
                 currentTeam.getName() + ": Prestige History",
                 currentTeam.getName() + " Prestige Trend",
@@ -190,7 +199,7 @@ public final class HistoryDialogController {
                     public String createLabel(int i) { return Integer.toString(currentTeam.getTeamHistory().get(i).year); }
                     public int getDataCount() { return currentTeam.getTeamHistory().size(); }
                 },
-                5, simLeague.getTeamList().get(0).teamPrestige + 10.0, 0.0, null);
+                5, topPrestige(simLeague) + 10.0, 0.0, null);
     }
 
     private static void teamRankingGraphView(MainActivity activity, Team currentTeam,
@@ -210,7 +219,9 @@ public final class HistoryDialogController {
     }
 
     private static void coachGraphView(MainActivity activity, final Staff hc, League simLeague) {
-        simLeague.sortTeamList();
+        // Read-only: the axis tops out above the most prestigious program. This used to
+        // sort the league's team list (the order the season is played in), so opening
+        // a chart changed results and a reload no longer matched an unbroken run.
         showGraphDialog(activity,
                 hc.getName() + ": Prestige History",
                 hc.getName() + " Prestige Trend",
@@ -233,7 +244,7 @@ public final class HistoryDialogController {
                     public String createLabel(int i) { return hc.history.get(i).split(":")[0]; }
                     public int getDataCount() { return hc.history.size(); }
                 },
-                4, simLeague.getTeamList().get(0).teamPrestige + 10.0, 0.0, null);
+                4, topPrestige(simLeague) + 10.0, 0.0, null);
     }
 
     private static void coachGraphViewRank(MainActivity activity, final Staff hc, League simLeague) {

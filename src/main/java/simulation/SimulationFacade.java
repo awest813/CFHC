@@ -408,13 +408,19 @@ public final class SimulationFacade {
         if (userTeam == null) {
             throw new IllegalArgumentException("userTeam is required");
         }
-        userTeam.sortPlayers();
+        // Desktop builds this whenever its window opens (any week, and again after
+        // every load). It used to sort the roster (resetting a hand-set depth chart)
+        // and draw the prospect class from the season's random stream, so opening
+        // the app moved that stream and a reloaded save played out differently
+        // from an unbroken run. The board now comes from its own stream, keyed to
+        // the league, season and school: the same board whenever it is built.
         StringBuilder sb = new StringBuilder(buildRecruitingHeader(userTeam));
         for (Player player : userTeam.getAllPlayers()) {
             sb.append(Persistence.toCsv(player.toRecord())).append("%\n");
         }
         sb.append("END_TEAM_INFO%\n");
-        sb.append(userTeam.getRecruitsInfoSaveFile());
+        long boardKey = 31L * (userTeam.league != null ? userTeam.league.getYear() : 0) + userTeam.getName().hashCode();
+        sb.append(SimRandom.onSideStream(boardKey, userTeam::getRecruitsInfoSaveFile));
         return sb.toString();
     }
 

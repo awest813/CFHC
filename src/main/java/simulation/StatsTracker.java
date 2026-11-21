@@ -507,8 +507,14 @@ public class StatsTracker {
 
     public int getStaffDiscipline() {
         int staff;
-        staff = (3 * team.HC.ratDiscipline + team.OC.ratDiscipline + team.DC.ratDiscipline) / 5;
+        // A vacant post (offseason, between the carousel and the hires) counts as an
+        // average 50; the morale card on both platforms threw here.
+        staff = (3 * discipline(team.HC) + discipline(team.OC) + discipline(team.DC)) / 5;
         return staff;
+    }
+
+    private static int discipline(staff.Staff s) {
+        return s != null ? s.ratDiscipline : 50;
     }
 
     // Section 6: Team Info

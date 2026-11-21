@@ -155,6 +155,29 @@ public final class SimRandom {
         }
     }
 
+    /**
+     * Runs {@code body} on a side stream derived from the bound seed and
+     * {@code streamKey}, then puts the league stream back exactly where it was.
+     * For content a screen may build at any time (the recruiting board): it comes
+     * out the same whenever it is built, and building it never moves the season's
+     * stream (so a reload still matches an unbroken run).
+     */
+    public static <T> T onSideStream(long streamKey, java.util.function.Supplier<T> body) {
+        long savedState = state;
+        boolean savedHave = haveSpareGaussian;
+        double savedSpare = spareGaussian;
+        state = mix64(mixSeed(seed) ^ mix64(streamKey + GOLDEN_GAMMA));
+        haveSpareGaussian = false;
+        spareGaussian = 0;
+        try {
+            return body.get();
+        } finally {
+            state = savedState;
+            haveSpareGaussian = savedHave;
+            spareGaussian = savedSpare;
+        }
+    }
+
     /** Generates a new league seed from environmental entropy. */
     public static long freshSeed() {
         if (pinnedSeed != null) {

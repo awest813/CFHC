@@ -1391,8 +1391,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         }
 
-        for(int i = 0; i < simLeague.getCoachDatabase().size(); i++) {
-            if(simLeague.getCoachDatabase().get(i).name.equals(nameHC)) return simLeague.getCoachDatabase().get(i);
+        for (Staff s : simLeague.getCoachDatabase()) {
+            if (s.name.equals(nameHC)) return s;
         }
         return p;
     }
