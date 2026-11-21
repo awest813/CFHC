@@ -31,10 +31,13 @@ public class Injury {
         player.ratDurability -= duration;
         if (player.ratDurability < 0) player.ratDurability = 0;
         if (player.ratOvr > 85 && duration > 4) {
-            player.team.league.addNewsStory(player.team.league.currentWeek + 1, "Injury Report>A major injury was sustained by " + player.team.getName() + "'s star " + player.position + ", " + player.name + " today. During the game, " + player.name + " suffered a " + description
-                    + " injury and will be out for " + duration + " weeks.");
-            player.team.league.addNewsHeadline("A major injury was sustained by " + player.team.getName() + " " + player.position + " " + player.name + " suffered a " + description
-                    + " injury and will be out for " + duration + " weeks.");
+            String out = duration + (duration == 1 ? " week." : " weeks.");
+            String injury = AwardText.withArticle(description.toLowerCase(java.util.Locale.ROOT));
+            player.team.league.addNewsStory(player.team.league.currentWeek + 1, "Injury Report>A major injury was sustained by "
+                    + player.team.getName() + "'s star " + player.position + ", " + player.name + " today. During the game, "
+                    + player.name + " suffered " + injury + " injury and will be out for " + out);
+            player.team.league.addNewsHeadline(player.team.getName() + " " + player.position + " " + player.name
+                    + " suffered " + injury + " injury and will be out for " + out);
         }
         // Medical redshirt: season-ending injury suffered early in the season.
         // Window derived from regSeasonWeeks so custom season lengths behave.

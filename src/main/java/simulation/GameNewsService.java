@@ -110,13 +110,13 @@ public class GameNewsService {
             if (game.awayTeam.getRankTeamPollScore() < 11 && game.homeTeam.getRankTeamPollScore() < 11 && !game.awayTeam.getName().contains("FCS") && !game.homeTeam.getName().contains("FCS")) {
                 game.homeTeam.league.addNewsStory(game.homeTeam.league.currentWeek + 1, "Upcoming Game: #" + game.awayTeam.getRankTeamPollScore() + " " + game.awayTeam.getName() + " vs #" +
                         game.homeTeam.getRankTeamPollScore() + " " + game.homeTeam.getName() + ">The premier game of the week has " + game.awayTeam.getStrAbbrWL() + " visiting " + game.homeTeam.getStrAbbrWL() + ", as these two Top Ten teams fight for a crucial playoff spot. " +
-                        game.awayTeam.getName() + " plays a " + game.awayTeam.getPlaybookOffense().getStratName() + " offense, which is averaging " + (game.awayTeam.getTeamYards() / Math.max(1, game.awayTeam.numGames())) + " yards per game. " + game.homeTeam.getName() + " plays a " +
-                        game.homeTeam.getPlaybookOffense().getStratName() + " offense, averaging " + (game.homeTeam.getTeamYards() / Math.max(1, game.homeTeam.numGames())) + " yards per game.");
+                        game.awayTeam.getName() + " plays " + AwardText.withArticle(game.awayTeam.getPlaybookOffense().getStratName()) + " offense, which is averaging " + (game.awayTeam.getTeamYards() / Math.max(1, game.awayTeam.numGames())) + " yards per game. " + game.homeTeam.getName() + " plays " +
+                        AwardText.withArticle(game.homeTeam.getPlaybookOffense().getStratName()) + " offense, averaging " + (game.homeTeam.getTeamYards() / Math.max(1, game.homeTeam.numGames())) + " yards per game.");
             } else if (game.awayTeam.getRankTeamPollScore() < 26 && game.homeTeam.getRankTeamPollScore() < 26 && !game.awayTeam.getName().contains("FCS") && !game.homeTeam.getName().contains("FCS")) {
                 game.homeTeam.league.addNewsStory(game.homeTeam.league.currentWeek + 1, "Upcoming Game: #" + game.awayTeam.getRankTeamPollScore() + " " + game.awayTeam.getName() + " vs #" +
                         game.homeTeam.getRankTeamPollScore() + " " + game.homeTeam.getName() + ">Next week, " + game.awayTeam.getStrAbbrWL() + " visits " + game.homeTeam.getStrAbbrWL() + " in a battle of two ranked schools. " +
-                        game.awayTeam.getName() + " plays a " + game.awayTeam.getPlaybookOffense().getStratName() + " offense, which is averaging " + (game.awayTeam.getTeamYards() / Math.max(1, game.awayTeam.numGames())) + " yards per game. " + game.homeTeam.getName() + " plays a " +
-                        game.homeTeam.getPlaybookOffense().getStratName() + " offense, averaging " + (game.homeTeam.getTeamYards() / Math.max(1, game.homeTeam.numGames())) + " yards per game.");
+                        game.awayTeam.getName() + " plays " + AwardText.withArticle(game.awayTeam.getPlaybookOffense().getStratName()) + " offense, which is averaging " + (game.awayTeam.getTeamYards() / Math.max(1, game.awayTeam.numGames())) + " yards per game. " + game.homeTeam.getName() + " plays " +
+                        AwardText.withArticle(game.homeTeam.getPlaybookOffense().getStratName()) + " offense, averaging " + (game.homeTeam.getTeamYards() / Math.max(1, game.homeTeam.numGames())) + " yards per game.");
             }
             if (game.awayTeam.league.currentWeek + 2 < game.awayTeam.league.regSeasonWeeks + 5)
                 game.awayTeam.league.addWeeklyScore(game.homeTeam.league.currentWeek + 2, game.gameName + ">" + game.awayTeam.strRankTeamRecord() + "\n" + game.homeTeam.strRankTeamRecord());
@@ -128,14 +128,14 @@ public class GameNewsService {
             if (game.awayTeam.getRankTeamPollScore() < 11 && game.homeTeam.getRankTeamPollScore() < 11 && !game.awayTeam.getName().contains("FCS") && !game.homeTeam.getName().contains("FCS")) {
                 game.homeTeam.league.addNewsStory(0, "Kick-Off: #" + game.awayTeam.getRankTeamPollScore() + " " + game.awayTeam.getName() + " vs #" +
                         game.homeTeam.getRankTeamPollScore() + " " + game.homeTeam.getName() + ">The season kicks off with an exciting game between vistors " + game.awayTeam.getName() + " and home team, " + game.homeTeam.getName() + ". " +
-                        "These two teams are in the pre-season Top Ten, and both are expected to have big seasons this year. " + game.awayTeam.getName() + " plays a " + game.awayTeam.getPlaybookOffense().getStratName() + " offense, while " + game.homeTeam.getName() + " plays a " +
-                        game.homeTeam.getPlaybookOffense().getStratName() + " offense.");
+                        "These two teams are in the pre-season Top Ten, and both are expected to have big seasons this year. " + game.awayTeam.getName() + " plays " + AwardText.withArticle(game.awayTeam.getPlaybookOffense().getStratName()) + " offense, while " + game.homeTeam.getName() + " plays " +
+                        AwardText.withArticle(game.homeTeam.getPlaybookOffense().getStratName()) + " offense.");
 
             } else if (game.awayTeam.getRankTeamPollScore() < 26 && game.homeTeam.getRankTeamPollScore() < 26 && !game.awayTeam.getName().contains("FCS") && !game.homeTeam.getName().contains("FCS")) {
                 game.homeTeam.league.addNewsStory(0, "Kick-Off: #" + game.awayTeam.getRankTeamPollScore() + " " + game.awayTeam.getName() + " vs #" +
                         game.homeTeam.getRankTeamPollScore() + " " + game.homeTeam.getName() + ">The " + game.homeTeam.league.getYear() + " season starts off with " + game.awayTeam.getName() + " visiting " + game.homeTeam.getName()
-                        + " in one of the interesting early season games pitting two ranked teams. " + game.awayTeam.getName() + " plays a " + game.awayTeam.getPlaybookOffense().getStratName() + " offense, while " + game.homeTeam.getName() + " plays a " +
-                        game.homeTeam.getPlaybookOffense().getStratName() + " offense.");
+                        + " in one of the interesting early season games pitting two ranked teams. " + game.awayTeam.getName() + " plays " + AwardText.withArticle(game.awayTeam.getPlaybookOffense().getStratName()) + " offense, while " + game.homeTeam.getName() + " plays " +
+                        AwardText.withArticle(game.homeTeam.getPlaybookOffense().getStratName()) + " offense.");
             }
         }
         game.awayTeam.league.addWeeklyScore(1, game.gameName + ">" + game.awayTeam.strRankTeamRecord() + "\n" + game.homeTeam.strRankTeamRecord());
