@@ -97,6 +97,12 @@ final class DepthChartDialogController {
         dialog.setCancelable(false);
         PlatformUiHelper.showImmersive(dialog);
 
+        // The shell is shared with the depth chart: relabel its pill and footer hint.
+        TextView pill = dialog.findViewById(R.id.textLineupPill);
+        if (pill != null) pill.setText(R.string.redshirt_pill);
+        TextView hint = dialog.findViewById(R.id.textLineupHint);
+        if (hint != null) hint.setText(R.string.redshirt_hint);
+
         final String[] positionSelection = POSITION_NAMES;
         final int[] positionNumberRequired = {userTeam.minQBs, userTeam.minRBs, userTeam.minWRs, userTeam.minTEs, userTeam.minOLs, userTeam.minKs, userTeam.minDLs, userTeam.minLBs, userTeam.minCBs, userTeam.minSs};
         final Spinner teamLineupPositionSpinner = dialog.findViewById(R.id.spinnerTeamLineupPosition);

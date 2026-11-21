@@ -60,7 +60,16 @@ public final class PlatformUiHelper {
     private static void bindShell(AlertDialog dialog, int titleId, int subtitleId, String title, String subtitle) {
         TextView shellTitle = dialog.findViewById(titleId);
         TextView shellSubtitle = dialog.findViewById(subtitleId);
-        if (shellTitle != null) shellTitle.setText(title);
+        if (shellTitle != null) {
+            shellTitle.setText(title);
+            // The shell card is the header: drop the window title row above it so the
+            // dialog doesn't open with the same title twice. The window title stays set
+            // for accessibility services.
+            View titleRow = dialog.findViewById(androidx.appcompat.R.id.topPanel);
+            if (titleRow != null && title != null && !title.trim().isEmpty()) {
+                titleRow.setVisibility(View.GONE);
+            }
+        }
         if (shellSubtitle != null) {
             shellSubtitle.setText(subtitle);
             shellSubtitle.setVisibility(subtitle == null || subtitle.trim().isEmpty() ? View.GONE : View.VISIBLE);

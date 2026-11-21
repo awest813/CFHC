@@ -32,6 +32,7 @@
                 style="@style/Widget.Cfhc.Pill.Emerald"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:id="@+id/textLineupPill"
                 android:text="@string/dlg_pill_depth" />
 
             <TextView
@@ -85,6 +86,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/cf_space_sm"
         android:gravity="center"
+        android:id="@+id/textLineupHint"
         android:text="@string/dlg_lineup_hint"
         android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption"
         android:textColor="@color/cf_text_muted" />

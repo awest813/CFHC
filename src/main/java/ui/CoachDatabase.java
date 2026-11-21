@@ -66,6 +66,15 @@ public class CoachDatabase  extends RowAdapter<String> {
         textCenter.setTextColor(color(R.color.cf_text_primary));
         textRight.setTextColor(color(R.color.cf_text_primary));
 
+        if (message) {
+            // Empty-state note: secondary body copy like the other list dialogs, not an
+            // emerald "active coach" row, and nothing to open on tap.
+            textCenter.setTextColor(color(R.color.cf_text_secondary));
+            textCenter.setOnClickListener(null);
+            textCenter.setClickable(false);
+            return;
+        }
+
         if (!center.contains("[U]") && !center.contains("[R]")) {
             // Active (employed) coach
             textCenter.setTextColor(color(R.color.cf_emerald));
