@@ -773,6 +773,19 @@ public class Game implements Serializable {
                 }
             }
         }
+        // CPU staffs only run a read-option book with a quarterback who can run
+        // it (Team.getCPUOffense), but the book was picked in the preseason: when
+        // the running QB is hurt or suspended, his backup ran the option all game.
+        keepOptionBookForRunningQb(homeTeam, homeOffense);
+        keepOptionBookForRunningQb(awayTeam, awayOffense);
+    }
+
+    private static void keepOptionBookForRunningQb(Team t, int seasonBook) {
+        if (t.isUserControlled()) return;
+        if (PlaybookOffense.forIndex(t.getPlaybookOffNum()).featuresQbRuns()
+                && t.starterQbSpeed() < Team.READ_OPTION_QB_SPEED) {
+            t.setPlaybookOffNum(PlaybookOffense.forIndex(seasonBook).featuresQbRuns() ? t.getCPUOffense() : seasonBook);
+        }
     }
 
     private void getReturner(Team t) {
