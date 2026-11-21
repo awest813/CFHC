@@ -2172,7 +2172,7 @@ public class Team {
     }
 
     public void midSeasonProgression() {
-        PracticeFocus pf = userControlled ? practiceFocus : PracticeFocus.BALANCED;
+        PracticeFocus pf = practiceFocus != null ? practiceFocus : PracticeFocus.BALANCED;
         for(Player p : getAllPlayers()) {
             p.midSeasonProgression(pf);
         }
@@ -2202,7 +2202,7 @@ public class Team {
         ArrayList<Player> players = getAllPlayers();
 
         int i = 0;
-        PracticeFocus pf = userControlled ? practiceFocus : PracticeFocus.BALANCED;
+        PracticeFocus pf = practiceFocus != null ? practiceFocus : PracticeFocus.BALANCED;
         while (i < players.size()) {
             if ((players.get(i).year >= 4 && !players.get(i).isTransfer && !players.get(i).isRedshirt)
                     || (players.get(i).year == 3 && players.get(i).ratOvr > NFL_OVR && SimRandom.nextDouble() < NFL_CHANCE)
@@ -2265,11 +2265,13 @@ public class Team {
     }
 
     /**
-     * Apply weekly practice outcomes for the user team (CPU uses BALANCED with no weekly changes).
+     * Apply weekly practice outcomes. CPU staffs pick their own focus each
+     * preseason ({@link #chooseCpuPracticeFocus()}); they used to be stuck on
+     * BALANCED, which adds nothing, so any focus gave the user's players free
+     * growth no other program could match.
      * Called each regular-season week from League.playWeek().
      */
     public void applyWeeklyPractice() {
-        if (!userControlled) return;
         if (league.currentWeek > league.regSeasonWeeks) return;
         PracticeFocus focus = practiceFocus != null ? practiceFocus : PracticeFocus.BALANCED;
         if (focus == PracticeFocus.BALANCED) return;
@@ -2285,6 +2287,37 @@ public class Team {
                 p.injury = new Injury(dur, "Practice (intense)", p);
             }
         }
+    }
+
+    /**
+     * CPU practice plan: drill the roster's weakest trait group (football IQ,
+     * position fundamentals, athleticism, or durability), all position groups,
+     * normal intensity. Deterministic (no random draws); the user's team keeps
+     * whatever the user chose.
+     */
+    public void chooseCpuPracticeFocus() {
+        if (userControlled) return;
+        double iq = 0, fund = 0, ath = 0, dur = 0;
+        int n = 0;
+        for (Player p : getAllPlayers()) {
+            iq += p.ratIntelligence;
+            fund += (p.ratAttr1 + p.ratAttr2) / 2.0;
+            ath += (p.ratAttr3 + p.ratAttr4) / 2.0;
+            dur += p.ratDurability;
+            n++;
+        }
+        practicePositionGroup = PracticeFocus.PositionGroup.ALL;
+        focusIntensity = PracticeFocus.FocusIntensity.NORMAL;
+        if (n == 0) {
+            practiceFocus = PracticeFocus.BALANCED;
+            return;
+        }
+        PracticeFocus best = PracticeFocus.FOOTBALL_IQ;
+        double low = iq;
+        if (fund < low) { low = fund; best = PracticeFocus.FUNDAMENTALS; }
+        if (ath < low) { low = ath; best = PracticeFocus.ATHLETICISM; }
+        if (dur < low) { best = PracticeFocus.PHYSICAL; }
+        practiceFocus = best;
     }
 
     /** Mentees come from the freshman and sophomore classes (redshirts included). */
@@ -2928,7 +2961,9 @@ public class Team {
             // Pipeline: needs counted only heads, so a room of three upperclass QBs
             // signed no QB until all three left at once (~7% of CPU programs went
             // three straight classes without one, then started a true freshman).
-            qb = Math.max(qb, pipelineNeed(teamQBs, 2));
+            // Two young QBs (a redshirt stays "young" an extra year, so a target
+            // of one still allowed three-class QB droughts).
+            qb = Math.max(qb, pipelineNeed(teamQBs, 4));
             rb = Math.max(rb, pipelineNeed(teamRBs, startersRB + subRB));
             wr = Math.max(wr, pipelineNeed(teamWRs, startersWR + subWR));
             te = Math.max(te, pipelineNeed(teamTEs, startersTE + subTE));

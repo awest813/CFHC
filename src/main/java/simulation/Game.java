@@ -1246,14 +1246,14 @@ public class Game implements Serializable {
                 } else {
                     gameTime -= Math.min(gameTime, KNEEL_RUNOFF);
                 }
-                gameDown++;
                 gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" takes a knee.");
+                kneelLoss();
                 return;
             }
             if (gameTime <= 20 && !playingOT && offenseLeading && (gameDown < 4 || gameTime <= timePerPlay)) {
                 gameTime -= timePerPlay + timePerPlay * SimRandom.nextDouble();
-                gameDown++;
                 gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" kneels to run out the clock.");
+                kneelLoss();
                 return;
             }
             if (gameTime <= 20 && !playingOT && !offenseLeading) {
@@ -1268,9 +1268,9 @@ public class Game implements Serializable {
                     // (it used to throw a Hail Mary from anywhere).
                     if (gameDown < 4) {
                         gameTime -= timePerPlay + timePerPlay * SimRandom.nextDouble();
-                        gameDown++;
                         gameEventLog.append(getEventLog()).append(offense.getAbbr())
                                 .append(" kneels and takes its chances in overtime.");
+                        kneelLoss();
                     } else {
                         // Fourth down: kneeling would hand over the ball in range.
                         puntPlay(offense, defense);
@@ -2375,6 +2375,18 @@ public class Game implements Serializable {
         int lead = offense == homeTeam ? homeScore - awayScore : awayScore - homeScore;
         if (lead <= 0) return false;
         return gameTime <= 480 || (gameTime <= 1800 && lead >= 17);
+    }
+
+    /**
+     * A kneel: next down, a yard lost (never into the end zone). It used to keep
+     * the spot, so a victory formation never cost field position.
+     */
+    private void kneelLoss() {
+        gameDown++;
+        if (gameYardLine > 1) {
+            gameYardLine--;
+            gameYardsNeed++;
+        }
     }
 
     /** Scores level for the team with the ball. */

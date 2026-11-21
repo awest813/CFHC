@@ -62,6 +62,9 @@ public final class SeasonController {
         // Fold preseason roster/depth-chart/redshirt changes into talent and
         // projections at one fixed step, identically on every platform (this
         // used to happen only when Android's Season Goals screen was opened).
+        for (Team t : league.getTeamList()) {
+            t.chooseCpuPracticeFocus();
+        }
         league.updateTeamTalentRatings();
         league.setTeamBenchMarks();
         league.preseasonNews();

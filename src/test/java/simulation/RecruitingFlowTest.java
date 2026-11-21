@@ -134,7 +134,7 @@ public class RecruitingFlowTest {
     /** What a CPU class must sign: each position's shortfall or its pipeline need (Team.pipelineNeed), whichever is more. */
     private static int shortfall(Team t) {
         int total = 0;
-        total += need(t.getTeamQBs(), RosterRules.MIN_QBS, 2);
+        total += need(t.getTeamQBs(), RosterRules.MIN_QBS, 4); // two young QBs (Team: pipelineNeed(teamQBs, 4))
         total += need(t.getTeamRBs(), RosterRules.MIN_RBS, RosterRules.STARTERS_RB + RosterRules.SUB_RB);
         total += need(t.getTeamWRs(), RosterRules.MIN_WRS, RosterRules.STARTERS_WR + RosterRules.SUB_WR);
         total += need(t.getTeamTEs(), RosterRules.MIN_TES, RosterRules.STARTERS_TE + RosterRules.SUB_TE);

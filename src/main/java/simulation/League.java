@@ -3306,8 +3306,9 @@ public class League {
             for (int i = 0; i < conferences.size(); ++i) {
                 conferences.get(i).playWeek();
             }
-            if (userTeam != null) {
-                userTeam.applyWeeklyPractice();
+            // Every program practices (team-list order, so draws stay deterministic).
+            for (Team t : teamList) {
+                t.applyWeeklyPractice();
             }
         }
 
@@ -4919,6 +4920,26 @@ public class League {
 
     //COACHING CAROUSEL HIRING METHOD
     //THIS METHOD TAKES THE COACH LIST CREATED AFTER FIRING AND PUTS IT INTO A POPULATION FOR TEAMS WITH NO COACHES TO HIRE FROM
+    /** Overall of the better of a team's coordinators, or -1 with none. */
+    static int bestCoordinatorOvr(Team t, int[] wt) {
+        int best = -1;
+        if (t.getOC() != null) best = Math.max(best, t.getOC().getStaffOverall(wt));
+        if (t.getDC() != null) best = Math.max(best, t.getDC().getStaffOverall(wt));
+        return best;
+    }
+
+    /** Best overall among fired head coaches eligible for {@code t} (not its own last coach). */
+    private int bestFiredCoachOvrFor(Team t, int[] wt) {
+        int best = -1;
+        for (Staff c : coachList) {
+            if (c == null) continue;
+            String prevTeam = c.team != null && c.team.getName() != null ? c.team.getName() : "N/A";
+            int o = c.getStaffOverall(wt);
+            if (o >= t.getMinCoachHireReq() && !t.getName().equals(prevTeam)) best = Math.max(best, o);
+        }
+        return best;
+    }
+
     public void coachCarousel() {
         int[] ovr = {1,1,1,1};
         Collections.sort(teamList, new CompTeamPrestige());
@@ -4958,9 +4979,12 @@ public class League {
             }
         }
 
-        //Assistants Promoted
+        //Assistants Promoted (early: only when the in-house coordinator is at
+        // least as good as the best fired head coach this program could hire in
+        // the next pass; it used to promote ~40% of openings blind)
         for (int t = 0; t < teamList.size(); ++t) {
-            if (teamList.get(t).getHeadCoach() == null && SimRandom.nextDouble() > 0.60) {
+            if (teamList.get(t).getHeadCoach() == null && SimRandom.nextDouble() > 0.60
+                    && bestCoordinatorOvr(teamList.get(t), ovr) >= bestFiredCoachOvrFor(teamList.get(t), ovr)) {
                 teamList.get(t).promoteCoach();
                 teamList.get(t).getHeadCoach().history.add("");
                 newsStories.get(currentWeek + 1).add("Coaching Promotion: " + teamList.get(t).getName() + ">Following the departure of their previous head coach, " + teamList.get(t).strRankTeamRecord() + " has promoted assistant " + teamList.get(t).getHeadCoach().name +
