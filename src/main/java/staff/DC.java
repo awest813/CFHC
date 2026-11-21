@@ -95,9 +95,7 @@ public class DC extends Staff {
 
         ratOvr = getStaffOverall(overallWt);
 
-        stats = staff.stats;
-        history = staff.history;
-        awards = staff.awards;
+        copyCareerFrom(staff);
         retired = staff.retired;
         schemeArchetypes = staff.schemeArchetypes;
 
