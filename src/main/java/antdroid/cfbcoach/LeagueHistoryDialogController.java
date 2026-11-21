@@ -26,7 +26,7 @@ final class LeagueHistoryDialogController {
     static void show(final MainActivity activity, final League simLeague, final Team userTeam) {
         AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("League History / Records")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.action_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // Do nothing
@@ -83,7 +83,7 @@ final class LeagueHistoryDialogController {
     static void showLeagueHistoryStats(final MainActivity activity, final League simLeague, final Team userTeam) {
         AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("League Stats")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.action_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // Do nothing
@@ -145,7 +145,7 @@ final class LeagueHistoryDialogController {
         ArrayList<String> userNames = simLeague.getUserNames();
         AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("Head Coach Database")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.action_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // Do nothing

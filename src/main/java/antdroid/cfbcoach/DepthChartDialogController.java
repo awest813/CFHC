@@ -83,7 +83,7 @@ final class DepthChartDialogController {
                     updateLineupList(userTeam, positionSpinner, teamLineupAdapter, positionNumberRequired, positionPlayers, textLineupPositionDescription);
                     Toast.makeText(activity, activity.getString(R.string.lineup_saved, positionSelection[positionSpinner]), Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(activity, activity.getString(R.string.lineup_wrong_count, teamLineupAdapter.playersRequired, teamLineupAdapter.playersSelected.size()), Toast.LENGTH_LONG).show();
+                    Toast.makeText(activity, activity.getResources().getQuantityString(R.plurals.lineup_wrong_count, teamLineupAdapter.playersRequired, teamLineupAdapter.playersRequired, teamLineupAdapter.playersSelected.size()), Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -96,6 +96,12 @@ final class DepthChartDialogController {
         final AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
         PlatformUiHelper.showImmersive(dialog);
+
+        // The shell is shared with the depth chart: relabel its pill and footer hint.
+        TextView pill = dialog.findViewById(R.id.textLineupPill);
+        if (pill != null) pill.setText(R.string.redshirt_pill);
+        TextView hint = dialog.findViewById(R.id.textLineupHint);
+        if (hint != null) hint.setText(R.string.redshirt_hint);
 
         final String[] positionSelection = POSITION_NAMES;
         final int[] positionNumberRequired = {userTeam.minQBs, userTeam.minRBs, userTeam.minWRs, userTeam.minTEs, userTeam.minOLs, userTeam.minKs, userTeam.minDLs, userTeam.minLBs, userTeam.minCBs, userTeam.minSs};

@@ -338,7 +338,7 @@ public final class SettingsDialogController {
             if (fixProRel != null) fixProRel.setVisibility(View.INVISIBLE);
         } else {
             if (activity.userTeam.getHeadCoach() != null && activity.userTeam.getHeadCoach().age >= 55 && !simLeague.neverRetire) {
-                if (changeTeamsButton != null) changeTeamsButton.setText("RETIRE");
+                if (changeTeamsButton != null) changeTeamsButton.setText("Retire");
             }
             if (simLeague.currentWeek < simLeague.regSeasonWeeks + 6) {
                 if (changeTeamsButton != null) changeTeamsButton.setVisibility(View.INVISIBLE);
@@ -461,7 +461,7 @@ public final class SettingsDialogController {
         builder.setTitle("Confirmation")
                 .setMessage("Are you sure you want to restore bowl names to game default names?")
                 .setCancelable(false)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.action_yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         activity.fixBowlNames();
@@ -469,7 +469,7 @@ public final class SettingsDialogController {
                         dialog.dismiss();
                     }
                 })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.action_no, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();
@@ -483,7 +483,7 @@ public final class SettingsDialogController {
         builder.setTitle("Confirmation")
                 .setMessage("Are you sure you want to convert to Promotion-Relegation Mode?")
                 .setCancelable(false)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.action_yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         simLeague.enableUnivProRel = true;
@@ -496,7 +496,7 @@ public final class SettingsDialogController {
                         activity.resetTeamUI();
                     }
                 })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.action_no, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         dialog.dismiss();

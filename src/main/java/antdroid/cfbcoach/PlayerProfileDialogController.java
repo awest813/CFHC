@@ -13,13 +13,13 @@ public final class PlayerProfileDialogController {
         PlayerProfileSnapshot snapshot = PlayerProfileSnapshot.fromPlayer(p);
 
         AlertDialog.Builder builder = Dialogs.builder(activity);
-        builder.setTitle("Player Profile")
+        builder.setTitle(R.string.profile_title)
                 .setView(activity.getLayoutInflater().inflate(R.layout.player_profile, null, false))
-                .setPositiveButton("Close", (dialog, which) -> {});
+                .setPositiveButton(R.string.action_close, (dialog, which) -> {});
 
         if (p.team == userTeam) {
-            builder.setNegativeButton("Dev Plan", (dialog, which) -> PlayerDevelopmentDialogController.show(activity, p, userTeam));
-            builder.setNeutralButton("Cut", (dialog, which) -> showCutDialog(activity, p, userTeam));
+            builder.setNegativeButton(R.string.profile_dev_plan, (dialog, which) -> PlayerDevelopmentDialogController.show(activity, p, userTeam));
+            builder.setNeutralButton(R.string.profile_cut, (dialog, which) -> showCutDialog(activity, p, userTeam));
         }
 
         AlertDialog dialog = builder.create();
@@ -30,14 +30,13 @@ public final class PlayerProfileDialogController {
 
     static void showCutDialog(MainActivity activity, Player p, Team userTeam) {
         AlertDialog.Builder builder = Dialogs.builder(activity);
-        builder.setTitle("Player Cut")
-                .setMessage("Are you sure you want to cut " + p.position + " " + p.getName()
-                        + "?\n\nIf this cut occurs during season, he may be replaced with a walk-on to fill roster spots.")
-                .setPositiveButton("Cut Player", (dialog, which) -> {
+        builder.setTitle(R.string.profile_cut_title)
+                .setMessage(activity.getString(R.string.profile_cut_message_format, p.position, p.getName()))
+                .setPositiveButton(R.string.profile_cut_action, (dialog, which) -> {
                     userTeam.cutPlayer(p);
                     activity.resetUI();
                 })
-                .setNegativeButton("Cancel", (dialog, which) -> {});
+                .setNegativeButton(R.string.action_cancel, (dialog, which) -> {});
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
         activity.showImmersive(dialog);

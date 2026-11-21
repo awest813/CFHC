@@ -54,9 +54,12 @@ public class TeamHome extends RowAdapter<String> {
         textRank.setText(team != null ? rankLabel(team) : valueAt(teamStat, 1));
         textRecord.setText(valueAt(teamStat, 2));
         textSeason.setText(mainAct.getSeasonYearChipText());
-        textWeek.setText(mainAct.getSeasonWeekChipText());
+        // The phase chip beside it names the phase, so the week chip is just "Week 18".
+        String weekChip = mainAct.getSeasonWeekChipText();
+        int dot = weekChip.indexOf(" \u00b7 ");
+        textWeek.setText(dot > 0 ? weekChip.substring(0, dot) : weekChip);
         textPhase.setText(mainAct.getSeasonPhaseChipText());
-        textTeamRatings.setText(valueAt(teamStat, 3));
+        textTeamRatings.setText(formatStatLine(valueAt(teamStat, 3)));
         textInjuries.setText(valueAt(teamStat, 4));
         textSuspensions.setText(valueAt(teamStat, 5));
         String nextGame = valueAt(teamStat, 6);
@@ -153,6 +156,28 @@ public class TeamHome extends RowAdapter<String> {
      * Opponent lines from the engine always append {@code #rank}. Drop marks outside the top 25
      * so an unranked opponent reads as {@code vs Alabama} rather than {@code vs #130 Alabama}.
      */
+    /**
+     * Engine stat line "Offense: 78.72 (109th) | Defense: ... | Facilities: L0": keep each
+     * "Label: value" together (wraps only between stats) and spell the facilities level out.
+     */
+    static String formatStatLine(String text) {
+        if (text == null || text.isEmpty()) {
+            return "";
+        }
+        String spelled = text.replaceAll("Facilities: L(\\d+)", "Facilities: Level $1");
+        String[] lines = spelled.split("\n", -1);
+        StringBuilder out = new StringBuilder(spelled.length());
+        for (int l = 0; l < lines.length; l++) {
+            if (l > 0) out.append('\n');
+            String[] parts = lines[l].split(" \\| ");
+            for (int i = 0; i < parts.length; i++) {
+                if (i > 0) out.append("\u00a0\u00b7  ");
+                out.append(parts[i].trim().replace(' ', '\u00a0'));
+            }
+        }
+        return out.toString();
+    }
+
     static String stripUnrankedMarks(String text) {
         if (text == null || text.isEmpty()) {
             return "";

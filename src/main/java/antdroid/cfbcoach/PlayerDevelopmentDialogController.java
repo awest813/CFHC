@@ -20,7 +20,7 @@ public final class PlayerDevelopmentDialogController {
         AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("Development Plan")
                 .setView(activity.getLayoutInflater().inflate(R.layout.player_dev_plan, null, false))
-                .setPositiveButton("Close", (dialog, which) -> {})
+                .setPositiveButton(R.string.action_close, (dialog, which) -> {})
                 .setNegativeButton("Reset to Default", (dialog, which) -> {
                     p.archetypeTag = "";
                     p.assignArchetype();
@@ -123,12 +123,12 @@ public final class PlayerDevelopmentDialogController {
         confirm.setTitle("Change Development Plan")
                 .setMessage("Set " + p.getName() + "'s development plan to " + displayName
                         + "?\n\nThis changes how their attributes grow each season and which stats get capped.")
-                .setPositiveButton("Confirm", (dialog, which) -> {
+                .setPositiveButton(R.string.action_confirm, (dialog, which) -> {
                     p.archetypeTag = newTag;
                     p.assignArchetype();
                     parentDialog.dismiss();
                 })
-                .setNegativeButton("Cancel", (dialog, which) -> {});
+                .setNegativeButton(R.string.action_cancel, (dialog, which) -> {});
         AlertDialog d = confirm.create();
         d.setCancelable(false);
         activity.showImmersive(d);

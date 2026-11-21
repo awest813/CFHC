@@ -193,12 +193,12 @@
                 <TextView style="@style/Widget.Cfhc.CardTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/dlg_profile_intangibles" />
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:gravity="center_vertical" android:orientation="horizontal">
-                    <TextView android:id="@+id/ppCharacterName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Character" />
+                    <TextView android:id="@+id/ppCharacterName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" android:text="@string/profile_character" />
                     <TextView android:id="@+id/ppCharacter" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" tools:text="60" />
                 </LinearLayout>
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:gravity="center_vertical" android:orientation="horizontal">
-                    <TextView android:id="@+id/ppAwarenessName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Intelligence" />
+                    <TextView android:id="@+id/ppAwarenessName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" android:text="@string/profile_intelligence" />
                     <TextView android:id="@+id/ppAwarness" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" tools:text="77" />
                 </LinearLayout>
             </LinearLayout>
@@ -218,12 +218,12 @@
                 <TextView style="@style/Widget.Cfhc.CardTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/dlg_profile_status" />
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:gravity="center_vertical" android:orientation="horizontal">
-                    <TextView android:id="@+id/ppStatusName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Status" />
+                    <TextView android:id="@+id/ppStatusName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" android:text="@string/profile_status" />
                     <TextView android:id="@+id/ppStatus" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" android:textColor="@color/cf_emerald" android:textStyle="bold" tools:text="Active" />
                 </LinearLayout>
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:gravity="center_vertical" android:orientation="horizontal">
-                    <TextView android:id="@+id/ppDurabilityName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Durability" />
+                    <TextView android:id="@+id/ppDurabilityName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" android:text="@string/profile_durability" />
                     <TextView android:id="@+id/ppDurability" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" tools:text="93" />
                 </LinearLayout>
             </LinearLayout>

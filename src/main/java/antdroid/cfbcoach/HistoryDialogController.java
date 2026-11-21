@@ -21,7 +21,7 @@ public final class HistoryDialogController {
     public static void showTop25History(MainActivity activity, League simLeague, int seasonStart) {
         AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("AP Poll History")
-                .setPositiveButton("OK", (dialog, which) -> {})
+                .setPositiveButton(R.string.action_ok, (dialog, which) -> {})
                 .setView(activity.getLayoutInflater().inflate(R.layout.bowl_ccg_dialog, null, false));
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
@@ -65,7 +65,7 @@ public final class HistoryDialogController {
                                                   int seasonStart) {
         AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle(currentTeam.getName() + " History")
-                .setPositiveButton("OK", (dialog, which) -> {})
+                .setPositiveButton(R.string.action_ok, (dialog, which) -> {})
                 .setView(activity.getLayoutInflater().inflate(R.layout.team_rankings_dialog, null, false));
         final AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
@@ -113,7 +113,7 @@ public final class HistoryDialogController {
                                                League simLeague, int seasonStart) {
         AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("Head Coach History: " + hc.getName())
-                .setPositiveButton("OK", (dialog, which) -> {})
+                .setPositiveButton(R.string.action_ok, (dialog, which) -> {})
                 .setView(activity.getLayoutInflater().inflate(R.layout.team_rankings_dialog, null, false));
         final AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
@@ -154,7 +154,7 @@ public final class HistoryDialogController {
                                          simulation.TrendChartModel.ValueLabeler yLabeler) {
         AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle(title)
-                .setPositiveButton("OK", (dialog, which) -> {})
+                .setPositiveButton(R.string.action_ok, (dialog, which) -> {})
                 .setView(activity.getLayoutInflater().inflate(R.layout.graphview, null, false));
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);

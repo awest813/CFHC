@@ -113,7 +113,7 @@ public final class LeagueEditorDialogController {
 
         Button cancelBtn = dialog.findViewById(R.id.buttonCancelChangeName);
         if (cancelBtn != null) {
-            cancelBtn.setText("BACK");
+            cancelBtn.setText(R.string.action_back);
             cancelBtn.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     activity.updateCurrConference();
@@ -126,7 +126,7 @@ public final class LeagueEditorDialogController {
 
         Button okBtn = dialog.findViewById(R.id.buttonOkChangeName);
         if (okBtn != null) {
-            okBtn.setText("UPDATE");
+            okBtn.setText("Update");
             okBtn.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     String newName = changeNameEditText.getText().toString().trim();

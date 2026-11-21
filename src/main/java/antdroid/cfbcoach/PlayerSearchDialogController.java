@@ -125,7 +125,7 @@ public final class PlayerSearchDialogController {
             searchResults.addAll(found);
             adapter.notifyDataSetChanged();
 
-            textCount.setText(String.format(Locale.ROOT, "%d players found", found.size()));
+            textCount.setText(activity.getResources().getQuantityString(R.plurals.player_search_found, found.size(), found.size()));
             if (found.isEmpty()) {
                 textEmpty.setVisibility(View.VISIBLE);
                 listResults.setVisibility(View.GONE);

@@ -63,48 +63,48 @@
                 android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatAccent"
                 tools:text="#12 Ranked" />
 
-            <LinearLayout
-                android:layout_width="0dp"
+        </LinearLayout>
+        <!-- Team name, nickname and record sit under the rating row so long names
+             and large font scales get the full card width instead of a sliver. -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/cf_space_sm"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/home_teamname"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:paddingStart="@dimen/cf_space_md"
-                android:paddingEnd="0dp">
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Display"
+                tools:text="Pine Valley State" />
 
-                <TextView
-                    android:id="@+id/home_teamname"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="@style/TextAppearance.Cfhc.Cf.Display"
-                    tools:text="Pine Valley State" />
+            <TextView
+                android:id="@+id/home_nickname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:maxLines="1"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.Script"
+                android:textColor="@color/cf_gold"
+                android:textSize="@dimen/cf_text_display"
+                android:visibility="gone"
+                tools:text="Eagles"
+                tools:visibility="visible" />
 
-                <TextView
-                    android:id="@+id/home_nickname"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:textAppearance="@style/TextAppearance.Cfhc.Cf.Script"
-                    android:textColor="@color/cf_gold"
-                    android:textSize="@dimen/cf_text_display"
-                    android:visibility="gone"
-                    tools:text="Eagles"
-                    tools:visibility="visible" />
-
-                <!-- Record: mono, taps to standings -->
-                <TextView
-                    android:id="@+id/home_record"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/cf_space_xs"
-                    android:background="@drawable/bg_cf_list_selector"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:gravity="center_vertical"
-                    android:minHeight="@dimen/cf_touch_target"
-                    android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
-                    tools:text="7 wins and 2 losses" />
-            </LinearLayout>
+            <!-- Record: mono, taps to standings -->
+            <TextView
+                android:id="@+id/home_record"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/cf_space_xs"
+                android:background="@drawable/bg_cf_list_selector"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center_vertical"
+                android:minHeight="@dimen/cf_touch_target"
+                android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold"
+                tools:text="7 wins and 2 losses" />
         </LinearLayout>
 
         <TextView

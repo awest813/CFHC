@@ -89,7 +89,7 @@
             android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatAccent"
             tools:text="24 transfers in portal" />
 
-        <!-- Takes the remaining width (end-aligned, up to two lines) so a long
+        <!-- Takes the remaining width (end-aligned, wrapping as needed) so a long
              hint never runs into the count on narrow dialogs. -->
         <TextView
             android:id="@+id/textTransferTapHint"
@@ -98,7 +98,6 @@
             android:layout_marginStart="@dimen/cf_space_sm"
             android:layout_weight="1"
             android:gravity="end"
-            android:maxLines="2"
             android:text="@string/player_search_tap_hint"
             android:textAppearance="@style/TextAppearance.Cfhc.Cf.Micro" />
     </LinearLayout>

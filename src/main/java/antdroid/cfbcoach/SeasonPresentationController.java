@@ -65,7 +65,10 @@ public final class SeasonPresentationController {
             seasonYearChip.setText(status.yearChip);
         }
         if (seasonWeekChip != null) {
-            seasonWeekChip.setText(status.weekChip);
+            // "Week 18  Offseason": the phase chip beside it already names the phase.
+            String week = status.weekChip == null ? "" : status.weekChip;
+            int gap = week.indexOf("  ");
+            seasonWeekChip.setText(gap > 0 ? week.substring(0, gap) : week);
         }
         if (seasonPhaseChip != null) {
             String phase = status.phaseChip == null ? "" : status.phaseChip.replaceFirst("^Phase\\s+", "");
@@ -119,11 +122,15 @@ public final class SeasonPresentationController {
     }
 
     public static String getSeasonWeekChipText(League simLeague) {
-        return simulation.SeasonPresentation.getSeasonWeekChipText(simLeague);
+        // Engine text pads with two spaces ("Week 18  Offseason"); use the header's dot separator.
+        return simulation.SeasonPresentation.getSeasonWeekChipText(simLeague).replaceFirst(" {2,}", " \u00b7 ");
     }
 
     public static String getSeasonPhaseChipText(League simLeague) {
-        return simulation.SeasonPresentation.getSeasonPhaseChipText(simLeague);
+        // The engine chip reads "Phase  Preseason"; the chip itself already reads as the
+        // phase, so show just "Preseason" (as the desktop header does).
+        String chip = simulation.SeasonPresentation.getSeasonPhaseChipText(simLeague);
+        return chip.startsWith("Phase") ? chip.substring("Phase".length()).trim() : chip;
     }
 }
 

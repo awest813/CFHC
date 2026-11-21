@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Recruit header row (one prospect). Left: "$cost POS Name" (Inter); right: star grade pill (gold mono). -->
+<!-- Recruit header row (one prospect). Left: "POS · $cost" micro label over the name (Inter); right: status + star grade pill (gold). -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -24,10 +24,12 @@
         android:paddingEnd="@dimen/cf_space_sm">
 
         <TextView
+            android:id="@+id/textRecruitMeta"
             style="@style/Widget.Cfhc.CardTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/rec_label_prospect" />
+            android:text="@string/rec_label_prospect"
+            tools:text="QB · $320" />
 
         <TextView
             android:id="@+id/textRecruitLeft"
@@ -38,7 +40,7 @@
             android:maxLines="2"
             android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body"
             android:textColor="@color/cf_text_primary"
-            tools:text="$320 QB Marcus Reed" />
+            tools:text="Marcus Reed" />
     </LinearLayout>
 
     <TextView
@@ -52,5 +54,5 @@
         android:textAlignment="viewEnd"
         android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatAccent"
         android:textColor="@color/cf_gold"
-        tools:text="Grade:  * * * *" />
+        tools:text="★★★★☆" />
 </LinearLayout>

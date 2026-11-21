@@ -12,10 +12,10 @@ final class DisciplineDialogController {
 
     static void showDisciplineAction(final MainActivity activity, final Player player, final String issue, final int gamesA, final int gamesB, final Team userTeam) {
         AlertDialog.Builder builder = Dialogs.builder(activity);
-        builder.setTitle("Discipline Action Required");
+        builder.setTitle(R.string.discipline_title);
         builder.setMessage(player.position + " " + player.getName() + " (" + player.ratOvr + ") violated a team policy related to " + issue + ".\n\nThe team discipline rating is currently " + userTeam.getTeamDisciplineScore() + "%\n\nHow do you want to proceed?");
         builder.setCancelable(false);
-        builder.setPositiveButton("Suspend " + gamesA + " Games", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(activity.getResources().getQuantityString(R.plurals.discipline_suspend_games, gamesA, gamesA), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 userTeam.disciplineAction(player, issue, gamesA, 2);
@@ -24,7 +24,7 @@ final class DisciplineDialogController {
                 activity.resetUI();
             }
         });
-        builder.setNegativeButton("Suspend " + gamesB + " Games", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(activity.getResources().getQuantityString(R.plurals.discipline_suspend_games, gamesB, gamesB), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 userTeam.disciplineAction(player, issue, gamesB, 1);
@@ -33,7 +33,7 @@ final class DisciplineDialogController {
                 activity.resetUI();
             }
         });
-        builder.setNeutralButton("Ignore", new DialogInterface.OnClickListener() {
+        builder.setNeutralButton(R.string.discipline_ignore, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 userTeam.disciplineAction(player, issue, gamesA, 3);

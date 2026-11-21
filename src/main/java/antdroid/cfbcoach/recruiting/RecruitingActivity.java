@@ -188,11 +188,34 @@ public class RecruitingActivity extends AppCompatActivity {
 
         TextView boardStatus = findViewById(R.id.textRecruitBoardStatus);
         if (boardStatus != null) {
-            boardStatus.setText(RecruitingPresentation.buildBoardStatus(sessionData));
+            boardStatus.setText(boardStatusText());
         }
     }
 
 
+
+    /** "913 prospects · 447 committed" for the Board tile (its card label already says "Board"). */
+    private String boardStatusText() {
+        int n = sessionData.availAll.size();
+        if (n == 0) return getString(R.string.rec_board_status_empty);
+        String count = getResources().getQuantityString(R.plurals.rec_board_status_prospects, n, n);
+        return sessionData.isSharedPool()
+                ? getString(R.string.rec_board_status_shared_format, count, sessionData.committedElsewhereCount())
+                : count;
+    }
+
+    /** Five gold stars, the unearned ones dimmed: "★★★☆☆". */
+    static CharSequence starGrade(Context context, int stars) {
+        int filled = Math.max(0, Math.min(5, stars));
+        android.text.SpannableStringBuilder sb = new android.text.SpannableStringBuilder();
+        for (int i = 0; i < 5; i++) sb.append(i < filled ? '\u2605' : '\u2606');
+        if (filled < 5) {
+            sb.setSpan(new android.text.style.ForegroundColorSpan(
+                            androidx.core.content.ContextCompat.getColor(context, R.color.cf_text_muted)),
+                    filled, 5, android.text.Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        return sb;
+    }
 
     //FILTERS & SORTINGS
 
@@ -447,23 +470,48 @@ public class RecruitingActivity extends AppCompatActivity {
         public View getGroupView(int groupPosition, boolean isExpanded,
                                  View convertView, ViewGroup parent) {
             RecruitingPlayerRecord recruit = getGroup(groupPosition);
-            String playerLeft = RecruitingPresentation.getPlayerListLeftLabel(sessionData, recruit);
-            String playerRight = RecruitingPresentation.getPlayerListRightLabel(sessionData, recruit);
+            String committedTo = sessionData.committedTo(recruit);
+            // Position and price go in the micro label so the name reads cleanly.
+            String meta = committedTo != null ? recruit.position()
+                    : context.getString(R.string.rec_row_meta_format, recruit.position(), recruit.cost());
+            CharSequence playerRight;
+            if (committedTo != null) {
+                playerRight = context.getString(R.string.rec_row_committed_format, committedTo);
+            } else {
+                String tag = statusTagLabel(RecruitingPresentation.statusTag(sessionData, recruit));
+                CharSequence stars = starGrade(context, recruit.stars());
+                playerRight = tag == null ? stars : android.text.TextUtils.concat(tag, " \u00b7 ", stars);
+            }
             if (convertView == null) {
                 LayoutInflater infalInflater = (LayoutInflater) context
                         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                 convertView = infalInflater.inflate(R.layout.group_recruit,
                         null);
             }
+            TextView itemMeta = convertView.findViewById(R.id.textRecruitMeta);
+            itemMeta.setText(meta);
             TextView itemL = convertView.findViewById(R.id.textRecruitLeft);
             itemL.setTypeface(itemL.getTypeface(), Typeface.BOLD);
-            itemL.setText(playerLeft);
+            itemL.setText(recruit.name());
             TextView itemR = convertView.findViewById(R.id.textRecruitRight);
             itemR.setTypeface(itemR.getTypeface(), Typeface.BOLD);
             itemR.setText(playerRight);
+            itemR.setContentDescription(committedTo != null ? playerRight
+                    : context.getString(R.string.rec_cd_star_grade, recruit.stars()));
             // Committed elsewhere: still listed (you see who you lost), but dimmed.
             convertView.setAlpha(sessionData.isCommittedElsewhere(recruit) ? 0.55f : 1f);
             return convertView;
+        }
+
+        /** The engine's board tag ("COMMITTED", "Deciding", "Contested") as display copy, or null. */
+        private String statusTagLabel(String tag) {
+            if (tag == null || tag.isEmpty()) return null;
+            switch (tag.toLowerCase(java.util.Locale.ROOT)) {
+                case "committed": return context.getString(R.string.rec_tag_committed);
+                case "deciding": return context.getString(R.string.rec_tag_deciding);
+                case "contested": return context.getString(R.string.rec_tag_contested);
+                default: return tag;
+            }
         }
 
         public boolean hasStableIds() {

@@ -83,7 +83,7 @@ public class RecruitingScreenTest {
                     RecruitingSessionData session = field(activity, "sessionData");
                     assertTrue("the board is the national pool", session.isSharedPool());
                     TextView status = activity.findViewById(R.id.textRecruitBoardStatus);
-                    assertTrue(status.getText().toString(), status.getText().toString().contains("committed)"));
+                    assertTrue(status.getText().toString(), status.getText().toString().contains(" committed"));
 
                     int committed = indexWhere(activity.players, session, true);
                     if (committed < 0) {

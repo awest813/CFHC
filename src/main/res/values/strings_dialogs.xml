@@ -17,7 +17,6 @@
     <string name="dlg_carousel_current">Current</string>
     <string name="dlg_carousel_decline">Decline offers</string>
     <string name="dlg_portal_count">%d in the portal</string>
-    <string name="dlg_portal_summary_count">%d transfers</string>
     <string name="dlg_pill_scout">Scouting</string>
     <string name="dlg_pill_depth">Depth Chart</string>
     <string name="dlg_pill_program">Program</string>
@@ -51,7 +50,7 @@
     <string name="dlg_coach_record">Career record</string>
     <string name="dlg_coach_contract">Contract &amp; status</string>
     <string name="dlg_coach_ratings">Coaching ratings</string>
-    <string name="dlg_coach_overall">Overall rating</string>
+    <string name="dlg_coach_overall">Overall</string>
 
     <!-- Settings -->
     <string name="dlg_settings_section_sound">Sound</string>

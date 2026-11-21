@@ -10,4 +10,20 @@
     <string name="rec_label_measurables">Measurables</string>
     <string name="rec_cd_prospect_avatar">Prospect avatar</string>
     <string name="rec_cd_board_list">Recruiting board, grouped by prospect</string>
+    <!-- Board row micro label: position and signing cost ("QB · $320"). -->
+    <string name="rec_row_meta_format">%1$s · $%2$,d</string>
+    <!-- Board row status pill: tag then stars ("Contested · ★★★☆☆"). -->
+    <string name="rec_row_status_format">%1$s · %2$s</string>
+    <string name="rec_row_committed_format">Committed: %1$s</string>
+    <string name="rec_tag_committed">Committed</string>
+    <string name="rec_tag_deciding">Deciding</string>
+    <string name="rec_tag_contested">Contested</string>
+    <string name="rec_board_status_empty">No prospects available</string>
+    <plurals name="rec_board_status_prospects">
+        <item quantity="one">%1$,d prospect</item>
+        <item quantity="other">%1$,d prospects</item>
+    </plurals>
+    <!-- "913 prospects · 447 committed": the national pool, with how many signed elsewhere. -->
+    <string name="rec_board_status_shared_format">%1$s · %2$,d committed</string>
+    <string name="rec_cd_star_grade">%1$d-star prospect</string>
 </resources>
