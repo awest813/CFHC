@@ -19,7 +19,7 @@ import java.util.Locale;
  */
 public final class PerfBenchmark {
 
-    /** Timings in milliseconds unless noted. */
+    /** Timings in milliseconds unless noted; save and load timings are the best of a few runs. */
     public static final class Result {
         public long seed;
         public int seasons;
@@ -36,6 +36,8 @@ public final class PerfBenchmark {
         public long heapAfterBytes;
         /** The same, for a save taken in the postseason (box scores at their largest). */
         public double midSerializeMs;
+        /** League-thread part of {@link League#snapshotSave()} (box-score compression deferred). */
+        public double midSnapshotMs;
         public double midLoadMs;
         public int midSaveBytes;
         public int midWeek;
@@ -51,8 +53,9 @@ public final class PerfBenchmark {
             out.printf(Locale.US, "serialize save       %8.1f ms%n", serializeMs);
             out.printf(Locale.US, "load save            %8.1f ms%n", loadMs);
             out.printf(Locale.US, "save size            %8.1f KB%n", saveBytes / 1024.0);
-            out.printf(Locale.US, "week-%d save: serialize %.1f ms, load %.1f ms, %.1f KB%n",
-                    midWeek, midSerializeMs, midLoadMs, midSaveBytes / 1024.0);
+            out.printf(Locale.US, "week-%d save: serialize %.1f ms (snapshot on league thread %.1f ms),"
+                    + " load %.1f ms, %.1f KB%n", midWeek, midSerializeMs, midSnapshotMs, midLoadMs,
+                    midSaveBytes / 1024.0);
             out.printf(Locale.US, "heap after %2d seasons %7.1f MB  (league retained, after GC)%n",
                     seasons, heapAfterBytes / (1024.0 * 1024.0));
         }
@@ -122,7 +125,6 @@ public final class PerfBenchmark {
     }
 
     public Result run(long seed, int seasons) throws IOException {
-        PlatformLog.setDebugEnabled(false);
         Result r = new Result();
         r.seed = seed;
         r.seasons = seasons;
@@ -162,12 +164,9 @@ public final class PerfBenchmark {
         }
         long pause = System.nanoTime();
         byte[] midData = league.serializeSave();
-        long m0 = System.nanoTime();
-        for (int i = 0; i < 3; i++) {
-            midData = league.serializeSave();
-        }
-        r.midSerializeMs = (System.nanoTime() - m0) / 1e6 / 3;
         r.midSaveBytes = midData.length;
+        r.midSerializeMs = minMs(TIMING_REPS, league::serializeSave);
+        r.midSnapshotMs = minMs(TIMING_REPS, league::snapshotSave);
         long paused = System.nanoTime() - pause;
         seasonStart += paused;
         allStart += paused;
@@ -183,26 +182,15 @@ public final class PerfBenchmark {
         r.allSeasonsMs = (System.nanoTime() - allStart) / 1e6;
         r.maxStepMs = maxStep[0];
 
-        // Save: warm up, then average a few serializations.
         byte[] data = league.serializeSave();
-        int reps = 5;
-        long s0 = System.nanoTime();
-        for (int i = 0; i < reps; i++) {
-            data = league.serializeSave();
-        }
-        r.serializeMs = (System.nanoTime() - s0) / 1e6 / reps;
         r.saveBytes = data.length;
+        r.serializeMs = minMs(TIMING_REPS, league::serializeSave);
 
         File f = File.createTempFile("cfhc-bench", ".cfb");
         try {
             Files.write(f.toPath(), data);
             String rng = SimRandom.exportState();
-            load(f);
-            long l0 = System.nanoTime();
-            for (int i = 0; i < 3; i++) {
-                load(f);
-            }
-            r.loadMs = (System.nanoTime() - l0) / 1e6 / 3;
+            r.loadMs = minMs(TIMING_REPS, () -> load(f));
             SimRandom.restoreState(rng);
         } finally {
             //noinspection ResultOfMethodCallIgnored
@@ -213,11 +201,7 @@ public final class PerfBenchmark {
         try {
             Files.write(mf.toPath(), midData);
             String rng = SimRandom.exportState();
-            long l0 = System.nanoTime();
-            for (int i = 0; i < 3; i++) {
-                load(mf);
-            }
-            r.midLoadMs = (System.nanoTime() - l0) / 1e6 / 3;
+            r.midLoadMs = minMs(TIMING_REPS, () -> load(mf));
             SimRandom.restoreState(rng);
         } finally {
             //noinspection ResultOfMethodCallIgnored
@@ -231,6 +215,23 @@ public final class PerfBenchmark {
             throw new IllegalStateException();
         }
         return r;
+    }
+
+    /** Save and load timings are the fastest of this many runs (the first warms up). */
+    private static final int TIMING_REPS = 4;
+
+    private interface Timed {
+        Object run() throws IOException;
+    }
+
+    private static double minMs(int reps, Timed work) throws IOException {
+        long best = Long.MAX_VALUE;
+        for (int i = 0; i < reps; i++) {
+            long t0 = System.nanoTime();
+            work.run();
+            best = Math.min(best, System.nanoTime() - t0);
+        }
+        return best / 1e6;
     }
 
     private League load(File f) {

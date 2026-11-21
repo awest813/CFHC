@@ -134,6 +134,7 @@ public class Main {
     /** {@code bench [seasons] [seed]}: prints engine timings for a fresh league. */
     private static void runBenchmark(String[] args) {
         try {
+            simulation.PlatformLog.setDebugEnabled(false);
             int seasons = args.length > 1 ? Integer.parseInt(args[1]) : 10;
             long seed = args.length > 2 ? Long.decode(args[2]) : 0x5A7EDE7L;
             DesktopResourceProvider resources = new DesktopResourceProvider(System.getProperty("user.dir"));
