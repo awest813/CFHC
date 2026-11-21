@@ -306,7 +306,19 @@ public record LeagueRecord(
             List<String> heismanHistory,
             List<String> bowlNames,
             List<String> playoffTeams,
-            StateBag scalars
+            StateBag scalars,
+            /**
+             * Since v1.5b: named lists ({@code LL:} lines) of news, awards, offseason
+             * pools and other league collections (see {@link SaveStateCodec}). Empty
+             * for older saves.
+             */
+            java.util.Map<String, List<String>> lists,
+            /** Since v1.5b: players referenced by the lists but on no saved roster. */
+            List<DetachedPlayer> detachedPlayers,
+            /** Since v1.5b: coaches referenced by the lists but on no staff or pool. */
+            List<DetachedStaff> detachedStaff,
+            /** Since v1.5b: this season's FCS opponents, in first-scheduled order. */
+            List<TeamRecord> fcsTeams
     ) {
         public LeagueState {
             leagueHistory = leagueHistory == null ? List.of() : List.copyOf(leagueHistory);
@@ -316,8 +328,36 @@ public record LeagueRecord(
             if (scalars == null) {
                 scalars = StateBag.EMPTY;
             }
+            lists = lists == null ? java.util.Map.of()
+                    : java.util.Collections.unmodifiableMap(new java.util.LinkedHashMap<>(lists));
+            detachedPlayers = detachedPlayers == null ? List.of() : List.copyOf(detachedPlayers);
+            detachedStaff = detachedStaff == null ? List.of() : List.copyOf(detachedStaff);
+            fcsTeams = fcsTeams == null ? List.of() : List.copyOf(fcsTeams);
+        }
+
+        /** Pre-v1.5b call shape. */
+        public LeagueState(List<String> leagueHistory, List<String> heismanHistory, List<String> bowlNames,
+                           List<String> playoffTeams, StateBag scalars) {
+            this(leagueHistory, heismanHistory, bowlNames, playoffTeams, scalars, null, null, null, null);
+        }
+
+        /** True when the save carries the full v1.5b state (lists, ids, FCS opponents). */
+        public boolean hasFullState() {
+            return lists.containsKey(SaveStateCodec.MARKER);
         }
     }
+
+    /** A player on no saved roster (a departed or pooled player), for the v1.5b id table. */
+    public record DetachedPlayer(String teamName, PlayerRecord player, StateBag state) {
+        public DetachedPlayer {
+            if (state == null) {
+                state = StateBag.EMPTY;
+            }
+        }
+    }
+
+    /** A coach outside every staff and the free-agent pool, for the v1.5b id table. */
+    public record DetachedStaff(String teamName, StaffRecord staff) {}
 
     /**
      * {@code playbookOffense} / {@code playbookDefense}: the team's scheme numbers
@@ -360,8 +400,40 @@ public record LeagueRecord(
          * postseason flags, season stat totals, contract status). Empty for saves
          * that predate it; {@code Team#toRecord} lists the keys.
          */
-        StateBag state
+        StateBag state,
+        /** Since v1.5b: named team lists ({@code TL:} lines); empty for older saves. */
+        java.util.Map<String, List<String>> lists,
+        /** Since v1.5b: per-player extra state ({@code PX:} lines), aligned with {@code roster}. */
+        List<StateBag> rosterState
     ) {
+        /** Pre-v1.5b call shape. */
+        public TeamRecord(String name, String abbr, int prestige, int wins, int losses,
+                          List<Integer> oocWeeks, List<String> oocOpponentNames,
+                          float teamPollScore, int rankTeamPollScore,
+                          StaffRecord headCoach, StaffRecord offenseCoach, StaffRecord defenseCoach,
+                          List<PlayerRecord> roster, List<TeamHistoryRecord> history, List<DataRecord> records,
+                          String practiceFocus, String practicePositionGroup, String focusIntensity,
+                          int nilCollectiveLevel, String nickname, int prevRankTeamPollScore,
+                          String rivalName, String rivalryTrophyName, int rivalryWins,
+                          boolean holdsRivalryTrophy, int teamStadium, SeasonBaseline seasonBaseline,
+                          int playbookOffense, int playbookDefense, StateBag state) {
+            this(name, abbr, prestige, wins, losses, oocWeeks, oocOpponentNames, teamPollScore,
+                    rankTeamPollScore, headCoach, offenseCoach, defenseCoach, roster, history, records,
+                    practiceFocus, practicePositionGroup, focusIntensity, nilCollectiveLevel, nickname,
+                    prevRankTeamPollScore, rivalName, rivalryTrophyName, rivalryWins, holdsRivalryTrophy,
+                    teamStadium, seasonBaseline, playbookOffense, playbookDefense, state, null, null);
+        }
+
+        /** The same record with v1.5b team lists and per-player state attached. */
+        public TeamRecord withExtras(java.util.Map<String, List<String>> extraLists, List<StateBag> extraRosterState) {
+            return new TeamRecord(name, abbr, prestige, wins, losses, oocWeeks, oocOpponentNames, teamPollScore,
+                    rankTeamPollScore, headCoach, offenseCoach, defenseCoach, roster, history, records,
+                    practiceFocus, practicePositionGroup, focusIntensity, nilCollectiveLevel, nickname,
+                    prevRankTeamPollScore, rivalName, rivalryTrophyName, rivalryWins, holdsRivalryTrophy,
+                    teamStadium, seasonBaseline, playbookOffense, playbookDefense, state, extraLists,
+                    extraRosterState);
+        }
+
         /** Pre-state call shape. */
         public TeamRecord(String name, String abbr, int prestige, int wins, int losses,
                           List<Integer> oocWeeks, List<String> oocOpponentNames,
@@ -437,6 +509,10 @@ public record LeagueRecord(
             if (state == null) {
                 state = StateBag.EMPTY;
             }
+            lists = lists == null ? java.util.Map.of()
+                    : java.util.Collections.unmodifiableMap(new java.util.LinkedHashMap<>(lists));
+            rosterState = rosterState == null ? List.of() : java.util.Collections.unmodifiableList(
+                    new java.util.ArrayList<>(rosterState));
         }
     }
 

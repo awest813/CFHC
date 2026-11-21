@@ -129,7 +129,7 @@ public final class SimulationFacade {
                 bridge,
                 true);
         loadedLeague.rebuildScheduleIfNeeded();
-        loadedLeague.updateTeamTalentRatings();
+        loadedLeague.refreshAfterLoad();
         setLeague(loadedLeague, loadedLeague.userTeam, loadedLeague.userTeam);
         return new LeagueLaunchCoordinator.LaunchResult(
                 loadedLeague,
@@ -182,7 +182,7 @@ public final class SimulationFacade {
                         bridge,
                         true);
                 importedLeague.rebuildScheduleIfNeeded();
-                importedLeague.updateTeamTalentRatings();
+                importedLeague.refreshAfterLoad();
                 setLeague(importedLeague, importedLeague.userTeam, importedLeague.userTeam);
                 if (userTeamName != null && !userTeamName.trim().isEmpty()) {
                     selectUserTeam(userTeamName);

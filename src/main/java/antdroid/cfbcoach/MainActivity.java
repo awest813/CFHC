@@ -405,8 +405,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
 
         if (gameState.isLoadedLeague()) {
-            // Set rankings so that not everyone is rank #0
-            simLeague.setTeamRanks();
+            // Set rankings so that not everyone is rank #0 (current saves carry them)
+            simLeague.setTeamRanksAfterLoad();
             examineTeam(userTeam.getName());
             resumeDeferredRecruitingIfNeeded();
         }

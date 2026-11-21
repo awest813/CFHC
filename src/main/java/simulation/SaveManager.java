@@ -49,7 +49,88 @@ public class SaveManager {
     static final String BOWL_NAMES_PREFIX = "BN:";
     /** The playoff field in seed order, tab-separated team names. */
     static final String PLAYOFF_TEAMS_PREFIX = "PO:";
+    /** v1.5b: a named league list, {@code LL:key<TAB>item<TAB>item...}; items escaped. */
+    static final String LEAGUE_LIST_PREFIX = "LL:";
+    /** v1.5b: a named team list inside a team block; same layout as {@code LL:}. */
+    static final String TEAM_LIST_PREFIX = "TL:";
+    /** v1.5b: extra state of the player on the preceding {@code P:} or {@code XP:} line. */
+    static final String PLAYER_STATE_PREFIX = "PX:";
+    /** v1.5b: a player on no saved roster: {@code XP:team<TAB>player csv}. */
+    static final String DETACHED_PLAYER_PREFIX = "XP:";
+    /** v1.5b: a coach on no staff or pool: {@code XS:team<TAB>staff csv}. */
+    static final String DETACHED_STAFF_PREFIX = "XS:";
+    /** v1.5b: starts the block of this season's FCS opponents (team blocks up to END_CONF). */
+    static final String FCS_BLOCK_PREFIX = "XC:";
     private static final String END_TOKEN = "END";
+
+    /**
+     * Records written with enough digits that a float reads back identically
+     * (the old two-decimal format made a reload compare new marks against a
+     * rounded record). US symbols: a device locale with a decimal comma broke the CSV.
+     */
+    private static java.text.DecimalFormat recordFormat() {
+        return new java.text.DecimalFormat("#.#########",
+                java.text.DecimalFormatSymbols.getInstance(java.util.Locale.US));
+    }
+
+    /** Escapes a list item so it fits on one tab-separated line ({@link #unescapeItem}). */
+    static String escapeItem(String v) {
+        if (v == null) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder(v.length() + 8);
+        for (int i = 0; i < v.length(); i++) {
+            char c = v.charAt(i);
+            switch (c) {
+                case '\\': sb.append("\\\\"); break;
+                case '\t': sb.append("\\t"); break;
+                case '\n': sb.append("\\n"); break;
+                case '\r': sb.append("\\r"); break;
+                default: sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
+    static String unescapeItem(String v) {
+        if (v.indexOf('\\') < 0) {
+            return v;
+        }
+        StringBuilder sb = new StringBuilder(v.length());
+        for (int i = 0; i < v.length(); i++) {
+            char c = v.charAt(i);
+            if (c == '\\' && i + 1 < v.length()) {
+                char n = v.charAt(++i);
+                switch (n) {
+                    case 't': sb.append('\t'); break;
+                    case 'n': sb.append('\n'); break;
+                    case 'r': sb.append('\r'); break;
+                    default: sb.append(n);
+                }
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
+
+    private static String listLine(String prefix, String key, List<String> items) {
+        StringBuilder sb = new StringBuilder(prefix).append(escapeItem(key));
+        for (String item : items) {
+            sb.append('\t').append(escapeItem(item));
+        }
+        return sb.append('\n').toString();
+    }
+
+    /** {@code key<TAB>items...} body of an {@code LL:}/{@code TL:} line, unescaped. */
+    private static java.util.Map.Entry<String, List<String>> parseListLine(String body) {
+        String[] p = body.split("\t", -1);
+        List<String> items = new ArrayList<>(Math.max(0, p.length - 1));
+        for (int i = 1; i < p.length; i++) {
+            items.add(unescapeItem(p[i]));
+        }
+        return new java.util.AbstractMap.SimpleImmutableEntry<>(unescapeItem(p[0]), items);
+    }
 
     /** Result of loading a new-format save, including the resolved schema version. */
     public record LoadResult(LeagueRecord record, String schemaVersion) {}
@@ -142,6 +223,20 @@ public class SaveManager {
             if (!state.playoffTeams().isEmpty()) {
                 writer.write(PLAYOFF_TEAMS_PREFIX + joinTabs(state.playoffTeams()) + "\n");
             }
+            for (java.util.Map.Entry<String, List<String>> e : state.lists().entrySet()) {
+                writer.write(listLine(LEAGUE_LIST_PREFIX, e.getKey(), e.getValue()));
+            }
+            for (LeagueRecord.DetachedPlayer d : state.detachedPlayers()) {
+                writer.write(DETACHED_PLAYER_PREFIX + escapeItem(d.teamName()) + "\t"
+                        + Persistence.toCsv(d.player()) + "\n");
+                if (!d.state().isEmpty()) {
+                    writer.write(PLAYER_STATE_PREFIX + d.state().toSaveLine() + "\n");
+                }
+            }
+            for (LeagueRecord.DetachedStaff d : state.detachedStaff()) {
+                writer.write(DETACHED_STAFF_PREFIX + escapeItem(d.teamName()) + "\t"
+                        + Persistence.toCsv(d.staff()) + "\n");
+            }
         }
 
         // Global Hall of Fame
@@ -151,7 +246,7 @@ public class SaveManager {
 
         // Global Records
         for (DataRecord r : league.leagueRecords()) {
-            writer.write("LR:" + r.toCsv(new java.text.DecimalFormat("#.##")) + "\n");
+            writer.write("LR:" + r.toCsv(recordFormat()) + "\n");
         }
 
         for (StaffRecord coach : league.coachFreeAgents()) {
@@ -175,73 +270,14 @@ public class SaveManager {
                 writer.write(CONF_STATE_PREFIX + c.state().toSaveLine() + "\n");
             }
             for (LeagueRecord.TeamRecord t : c.teams()) {
-                writer.write(TEAM_PREFIX + sanitizeInlineValue(t.name()) + "\t" + sanitizeInlineValue(t.abbr()) + "\t"
-                        + t.prestige() + "\t" + t.wins() + "\t" + t.losses() + "\t"
-                        + t.teamPollScore() + "\t" + t.rankTeamPollScore() + "\t"
-                        + sanitizeInlineValue(t.practiceFocus()) + "\t"
-                        + t.nilCollectiveLevel() + "\t"
-                        + sanitizeInlineValue(t.practicePositionGroup()) + "\t"
-                        + sanitizeInlineValue(t.focusIntensity()) + "\t"
-                        + t.prevRankTeamPollScore() + "\t"
-                        + sanitizeInlineValue(t.rivalName()) + "\t"
-                        + sanitizeInlineValue(t.rivalryTrophyName()) + "\t"
-                        + t.rivalryWins() + "\t"
-                        + (t.holdsRivalryTrophy() ? 1 : 0) + "\t"
-                        + t.teamStadium()
-                        + seasonBaselineFields(t.seasonBaseline())
-                        + playbookFields(t) + "\n");
-                if (!t.state().isEmpty()) {
-                    writer.write(TEAM_STATE_PREFIX + t.state().toSaveLine() + "\n");
-                }
-
-                // Coaches (a post lies vacant between firing and the coaching carousel)
-                if (t.headCoach() != null) {
-                    writer.write(COACH_PREFIX + "HC," + Persistence.toCsv(t.headCoach()) + "\n");
-                }
-                if (t.offenseCoach() != null) {
-                    writer.write(COACH_PREFIX + "OC," + Persistence.toCsv(t.offenseCoach()) + "\n");
-                }
-                if (t.defenseCoach() != null) {
-                    writer.write(COACH_PREFIX + "DC," + Persistence.toCsv(t.defenseCoach()) + "\n");
-                }
-
-                // Roster
-                for (PlayerRecord p : t.roster()) {
-                    writer.write(PLAYER_PREFIX + Persistence.toCsv(p) + "\n");
-                }
-
-                // History
-                for (TeamHistoryRecord h : t.history()) {
-                    writer.write(HISTORY_PREFIX + h.summary() + "\n");
-                }
-
-                // Records
-                for (DataRecord r : t.records()) {
-                    writer.write(RECORD_PREFIX + r.toCsv(new java.text.DecimalFormat("#.##")) + "\n");
-                }
-                if ((t.oocWeeks() != null && !t.oocWeeks().isEmpty())
-                        || (t.oocOpponentNames() != null && !t.oocOpponentNames().isEmpty())) {
-                    StringBuilder to = new StringBuilder(TEAM_OOC_PREFIX);
-                    if (t.oocWeeks() != null) {
-                        for (int i = 0; i < t.oocWeeks().size(); i++) {
-                            if (i > 0) {
-                                to.append(",");
-                            }
-                            to.append(t.oocWeeks().get(i));
-                        }
-                    }
-                    to.append("|");
-                    if (t.oocOpponentNames() != null) {
-                        for (int i = 0; i < t.oocOpponentNames().size(); i++) {
-                            if (i > 0) {
-                                to.append(";");
-                            }
-                            to.append(sanitizeInlineValue(t.oocOpponentNames().get(i)).replace(";", " "));
-                        }
-                    }
-                    writer.write(to + "\n");
-                }
-                writer.write(END_TOKEN + "_TEAM\n");
+                writeTeam(writer, t);
+            }
+            writer.write(END_TOKEN + "_CONF\n");
+        }
+        if (state != null && !state.fcsTeams().isEmpty()) {
+            writer.write(FCS_BLOCK_PREFIX + "\n");
+            for (LeagueRecord.TeamRecord t : state.fcsTeams()) {
+                writeTeam(writer, t);
             }
             writer.write(END_TOKEN + "_CONF\n");
         }
@@ -255,6 +291,83 @@ public class SaveManager {
         } finally {
             writer.close();
         }
+    }
+
+    private static void writeTeam(BufferedWriter writer, LeagueRecord.TeamRecord t) throws IOException {
+        writer.write(TEAM_PREFIX + sanitizeInlineValue(t.name()) + "\t" + sanitizeInlineValue(t.abbr()) + "\t"
+                + t.prestige() + "\t" + t.wins() + "\t" + t.losses() + "\t"
+                + t.teamPollScore() + "\t" + t.rankTeamPollScore() + "\t"
+                + sanitizeInlineValue(t.practiceFocus()) + "\t"
+                + t.nilCollectiveLevel() + "\t"
+                + sanitizeInlineValue(t.practicePositionGroup()) + "\t"
+                + sanitizeInlineValue(t.focusIntensity()) + "\t"
+                + t.prevRankTeamPollScore() + "\t"
+                + sanitizeInlineValue(t.rivalName()) + "\t"
+                + sanitizeInlineValue(t.rivalryTrophyName()) + "\t"
+                + t.rivalryWins() + "\t"
+                + (t.holdsRivalryTrophy() ? 1 : 0) + "\t"
+                + t.teamStadium()
+                + seasonBaselineFields(t.seasonBaseline())
+                + playbookFields(t) + "\n");
+        if (!t.state().isEmpty()) {
+            writer.write(TEAM_STATE_PREFIX + t.state().toSaveLine() + "\n");
+        }
+
+        // Coaches (a post lies vacant between firing and the coaching carousel)
+        if (t.headCoach() != null) {
+            writer.write(COACH_PREFIX + "HC," + Persistence.toCsv(t.headCoach()) + "\n");
+        }
+        if (t.offenseCoach() != null) {
+            writer.write(COACH_PREFIX + "OC," + Persistence.toCsv(t.offenseCoach()) + "\n");
+        }
+        if (t.defenseCoach() != null) {
+            writer.write(COACH_PREFIX + "DC," + Persistence.toCsv(t.defenseCoach()) + "\n");
+        }
+
+        // Roster
+        for (int i = 0; i < t.roster().size(); i++) {
+            writer.write(PLAYER_PREFIX + Persistence.toCsv(t.roster().get(i)) + "\n");
+            LeagueRecord.StateBag px = i < t.rosterState().size() ? t.rosterState().get(i) : null;
+            if (px != null && !px.isEmpty()) {
+                writer.write(PLAYER_STATE_PREFIX + px.toSaveLine() + "\n");
+            }
+        }
+
+        // History
+        for (TeamHistoryRecord h : t.history()) {
+            writer.write(HISTORY_PREFIX + h.summary() + "\n");
+        }
+
+        // Records
+        for (DataRecord r : t.records()) {
+            writer.write(RECORD_PREFIX + r.toCsv(recordFormat()) + "\n");
+        }
+        if ((t.oocWeeks() != null && !t.oocWeeks().isEmpty())
+                || (t.oocOpponentNames() != null && !t.oocOpponentNames().isEmpty())) {
+            StringBuilder to = new StringBuilder(TEAM_OOC_PREFIX);
+            if (t.oocWeeks() != null) {
+                for (int i = 0; i < t.oocWeeks().size(); i++) {
+                    if (i > 0) {
+                        to.append(",");
+                    }
+                    to.append(t.oocWeeks().get(i));
+                }
+            }
+            to.append("|");
+            if (t.oocOpponentNames() != null) {
+                for (int i = 0; i < t.oocOpponentNames().size(); i++) {
+                    if (i > 0) {
+                        to.append(";");
+                    }
+                    to.append(sanitizeInlineValue(t.oocOpponentNames().get(i)).replace(";", " "));
+                }
+            }
+            writer.write(to + "\n");
+        }
+        for (java.util.Map.Entry<String, List<String>> e : t.lists().entrySet()) {
+            writer.write(listLine(TEAM_LIST_PREFIX, e.getKey(), e.getValue()));
+        }
+        writer.write(END_TOKEN + "_TEAM\n");
     }
 
     private static String singleLine(String value) {
@@ -341,6 +454,14 @@ public class SaveManager {
         List<String> bowlNames = new ArrayList<>();
         List<String> playoffTeams = new ArrayList<>();
         List<LeagueRecord.GameRecord> gameRecords = new ArrayList<>();
+        java.util.LinkedHashMap<String, List<String>> leagueLists = new java.util.LinkedHashMap<>();
+        java.util.LinkedHashMap<String, List<String>> teamLists = new java.util.LinkedHashMap<>();
+        List<LeagueRecord.StateBag> rosterState = null;
+        List<LeagueRecord.DetachedPlayer> detachedPlayers = new ArrayList<>();
+        List<LeagueRecord.DetachedStaff> detachedStaff = new ArrayList<>();
+        List<LeagueRecord.TeamRecord> fcsTeams = new ArrayList<>();
+        // What the last P:/XP: line was, so a PX: line attaches to it.
+        int lastPlayerLine = 0; // 0 none, 1 roster, 2 detached
         LeagueRecord.Settings settings = null;
         String schemaVersion = null;
         boolean sawLeagueHeader = false;
@@ -373,6 +494,32 @@ public class SaveManager {
                 leagueHistory.add(line.substring(LEAGUE_HISTORY_PREFIX.length()));
             } else if (line.startsWith(HEISMAN_HISTORY_PREFIX)) {
                 heismanHistory.add(line.substring(HEISMAN_HISTORY_PREFIX.length()));
+            } else if (line.startsWith(LEAGUE_LIST_PREFIX)) {
+                java.util.Map.Entry<String, List<String>> e = parseListLine(line.substring(LEAGUE_LIST_PREFIX.length()));
+                leagueLists.put(e.getKey(), e.getValue());
+            } else if (line.startsWith(TEAM_LIST_PREFIX)) {
+                java.util.Map.Entry<String, List<String>> e = parseListLine(line.substring(TEAM_LIST_PREFIX.length()));
+                teamLists.put(e.getKey(), e.getValue());
+            } else if (line.startsWith(PLAYER_STATE_PREFIX)) {
+                LeagueRecord.StateBag px = LeagueRecord.StateBag.fromSaveLine(line.substring(PLAYER_STATE_PREFIX.length()));
+                if (lastPlayerLine == 1 && rosterState != null && !rosterState.isEmpty()) {
+                    rosterState.set(rosterState.size() - 1, px);
+                } else if (lastPlayerLine == 2 && !detachedPlayers.isEmpty()) {
+                    LeagueRecord.DetachedPlayer d = detachedPlayers.get(detachedPlayers.size() - 1);
+                    detachedPlayers.set(detachedPlayers.size() - 1,
+                            new LeagueRecord.DetachedPlayer(d.teamName(), d.player(), px));
+                }
+            } else if (line.startsWith(DETACHED_PLAYER_PREFIX)) {
+                String[] p = line.substring(DETACHED_PLAYER_PREFIX.length()).split("\t", 2);
+                detachedPlayers.add(new LeagueRecord.DetachedPlayer(unescapeItem(p[0]),
+                        PlayerRecord.fromCsv(p[1]), null));
+                lastPlayerLine = 2;
+            } else if (line.startsWith(DETACHED_STAFF_PREFIX)) {
+                String[] p = line.substring(DETACHED_STAFF_PREFIX.length()).split("\t", 2);
+                detachedStaff.add(new LeagueRecord.DetachedStaff(unescapeItem(p[0]), StaffRecord.fromCsv(p[1])));
+            } else if (line.startsWith(FCS_BLOCK_PREFIX)) {
+                confTeams = fcsTeams;
+                currentConf = null;
             } else if (line.startsWith(BOWL_NAMES_PREFIX)) {
                 bowlNames = splitTabs(line.substring(BOWL_NAMES_PREFIX.length()));
             } else if (line.startsWith(PLAYOFF_TEAMS_PREFIX)) {
@@ -492,6 +639,9 @@ public class SaveManager {
                 roster = new ArrayList<>();
                 history = new ArrayList<>();
                 tRecords = new ArrayList<>();
+                teamLists = new java.util.LinkedHashMap<>();
+                rosterState = new ArrayList<>();
+                lastPlayerLine = 0;
             } else if (line.startsWith(COACH_PREFIX)) {
                 String[] p = line.substring(2).split(",", 2);
                 StaffRecord s = StaffRecord.fromCsv(p[1]);
@@ -500,6 +650,8 @@ public class SaveManager {
                 else if (p[0].equals("DC")) dc = s;
             } else if (line.startsWith(PLAYER_PREFIX)) {
                 roster.add(PlayerRecord.fromCsv(line.substring(2)));
+                rosterState.add(LeagueRecord.StateBag.EMPTY);
+                lastPlayerLine = 1;
             } else if (line.startsWith(HISTORY_PREFIX)) {
                 history.add(TeamHistoryRecord.fromCsv(line.substring(2)));
             } else if (line.startsWith(RECORD_PREFIX)) {
@@ -533,7 +685,7 @@ public class SaveManager {
                         teamNilCollectiveLevel, "", teamPrevRankTeamPollScore,
                         teamRivalName, teamRivalryTrophyName, teamRivalryWins, teamHoldsRivalryTrophy,
                         teamStadiumLevel, teamSeasonBaseline, teamPlaybookOffense, teamPlaybookDefense,
-                        teamState));
+                        teamState, teamLists, rosterState));
             } else if (line.startsWith(GAME_PREFIX)) {
                 gameRecords.add(LeagueRecord.GameRecord.fromSaveLine(line.substring(GAME_PREFIX.length())));
             }
@@ -552,7 +704,8 @@ public class SaveManager {
             confs.add(new LeagueRecord.ConferenceRecord(c.name(), c.oocWeeks(), c.teams(), confStates.get(i)));
         }
         LeagueRecord.LeagueState leagueState = leagueScalars == null ? null
-                : new LeagueRecord.LeagueState(leagueHistory, heismanHistory, bowlNames, playoffTeams, leagueScalars);
+                : new LeagueRecord.LeagueState(leagueHistory, heismanHistory, bowlNames, playoffTeams, leagueScalars,
+                        leagueLists, detachedPlayers, detachedStaff, fcsTeams);
         LeagueRecord raw = new LeagueRecord(leagueName, year, week, confs, hof, lRecords, heisman, champ,
                 List.copyOf(gameRecords), rngSeed, settings, recruitingStarted, freeAgentCoaches, seasonWeeks,
                 leagueState);

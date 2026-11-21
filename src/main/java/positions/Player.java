@@ -95,7 +95,7 @@ public class Player {
     public int[] overallWt = {2, 2, 1, 1};
 
     public int cost;
-    int progression;
+    public int progression;
     public int homeState;
     public int character;
     public int height;

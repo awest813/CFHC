@@ -112,9 +112,12 @@ import staff.Staff;
 public class League {
     /**
      * v1.5a added team/conference/league state lines (TX:, CX:, LS:, LH:, HH:, BN:, PO:);
-     * v1.4e saves still load, with those fields defaulted.
+     * v1.5b added everything else held between two weeks (news, awards, offseason
+     * lists, FCS opponents, the RNG position; see {@link SaveStateCodec}) so a reload
+     * plays on exactly as if the game was never saved. v1.5a and v1.4e saves still
+     * load; see {@link SaveSchema} for what they default.
      */
-    public static final String CURRENT_SAVE_VERSION = "v1.5a";
+    public static final String CURRENT_SAVE_VERSION = "v1.5b";
 
     public static GameUiBridge bridgeOrNoOp(GameUiBridge bridge) {
         return bridge == null ? GameUiBridge.NO_OP : bridge;
@@ -696,6 +699,8 @@ public class League {
                 }
                 updateLongestActiveWinStreak();
                 checkIndyConfExists();
+                resumeSavedRng();
+                loadedRngState = null;
                 // Do not call setupSeason() here: it mutates prestige, staff, and
                 // schedules in ways that are not captured in LeagueRecord; callers
                 // that need a fresh schedule must invoke setupSeason explicitly.
@@ -1270,9 +1275,26 @@ public class League {
     }
 
     public LeagueRecord toRecord() {
+        java.util.List<Staff> pool = coachPool();
+        SaveStateCodec.Writer codec = new SaveStateCodec.Writer(this, pool);
         ArrayList<LeagueRecord.ConferenceRecord> confRecords = new ArrayList<>();
         for (Conference c : conferences) {
-            confRecords.add(c.toRecord());
+            LeagueRecord.ConferenceRecord cr = c.toRecord();
+            ArrayList<LeagueRecord.TeamRecord> teams = new ArrayList<>();
+            for (int i = 0; i < cr.teams().size(); i++) {
+                Team t = c.confTeams.get(i);
+                teams.add(cr.teams().get(i).withExtras(codec.teamLists(t), codec.rosterState(t)));
+            }
+            confRecords.add(new LeagueRecord.ConferenceRecord(cr.name(), cr.oocWeeks(), teams, cr.state()));
+        }
+        ArrayList<LeagueRecord.TeamRecord> fcsRecords = new ArrayList<>();
+        for (Team f : codec.fcsTeams) {
+            fcsRecords.add(f.toRecord().withExtras(codec.teamLists(f), codec.rosterState(f)));
+        }
+        java.util.List<LeagueRecord.GameRecord> games = buildGameRecordsForSave(codec);
+        java.util.List<StaffRecord> poolRecords = new ArrayList<>();
+        for (Staff c : pool) {
+            poolRecords.add(c.toRecord());
         }
 
         return new LeagueRecord(
@@ -1283,18 +1305,19 @@ public class League {
                 leagueRecords.toRecordList(),
                 heismanWinnerStrFull != null ? heismanWinnerStrFull : "",
                 nationalChampionNameForRecord(),
-                java.util.List.copyOf(buildGameRecordsForSave()),
+                java.util.List.copyOf(games),
                 rngSeed,
                 settingsRecord(),
                 recruitingPhaseActive,
-                coachPoolRecords(),
+                poolRecords,
                 regSeasonWeeks,
-                leagueStateRecord()
+                leagueStateRecord(codec, fcsRecords)
         );
     }
 
     /** History, bowl names and postseason bookkeeping for the save (see {@link LeagueRecord.LeagueState}). */
-    private LeagueRecord.LeagueState leagueStateRecord() {
+    private LeagueRecord.LeagueState leagueStateRecord(SaveStateCodec.Writer codec,
+                                                       java.util.List<LeagueRecord.TeamRecord> fcsRecords) {
         java.util.List<String> history = new ArrayList<>();
         for (String[] row : leagueHistory) {
             history.add(String.join("%", row));
@@ -1320,7 +1343,9 @@ public class League {
         if (postseason != null) {
             scalars.put("postseason", postseason.replace("\n", "\\n"));
         }
-        return new LeagueRecord.LeagueState(history, new ArrayList<>(heismanHistory), bowls, field, scalars.build());
+        java.util.Map<String, java.util.List<String>> lists = codec.leagueLists();
+        return new LeagueRecord.LeagueState(history, new ArrayList<>(heismanHistory), bowls, field, scalars.build(),
+                lists, codec.detachedPlayers(), codec.detachedStaff(), fcsRecords);
     }
 
     private static String streakCsv(TeamStreak s) {
@@ -1348,14 +1373,14 @@ public class League {
      * The coaches without a job, for the save. Fired coaches the carousel has not
      * placed yet are saved with the pool: the fired list is rebuilt each offseason.
      */
-    private java.util.List<StaffRecord> coachPoolRecords() {
-        java.util.List<StaffRecord> pool = new ArrayList<>();
+    private java.util.List<Staff> coachPool() {
+        java.util.List<Staff> pool = new ArrayList<>();
         java.util.Set<Staff> seen = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
         for (Staff c : coachFreeAgents) {
-            if (seen.add(c)) pool.add(c.toRecord());
+            if (seen.add(c)) pool.add(c);
         }
         for (Staff c : coachList) {
-            if (seen.add(c)) pool.add(c.toRecord());
+            if (seen.add(c)) pool.add(c);
         }
         return pool;
     }
@@ -1449,9 +1474,12 @@ public class League {
         return nationalChampionName != null ? nationalChampionName : "";
     }
 
-    private java.util.List<LeagueRecord.GameRecord> buildGameRecordsForSave() {
+    private java.util.List<LeagueRecord.GameRecord> buildGameRecordsForSave(SaveStateCodec.Writer codec) {
         java.util.IdentityHashMap<Game, Boolean> seen = new java.util.IdentityHashMap<>();
         java.util.ArrayList<LeagueRecord.GameRecord> out = new java.util.ArrayList<>();
+        // v1.5b: which saved FCS opponent plays in each game ("slot:index").
+        java.util.List<String> fcsGames = new ArrayList<>();
+        java.util.List<String> overtimes = new ArrayList<>(); // "slot:periods", shown in game summaries
         int slot = 0;
         for (Team t : teamList) {
             java.util.List<Game> schedule = t.getGameSchedule();
@@ -1463,10 +1491,26 @@ public class League {
                 // Record where each team holds the game; the two indexes can differ.
                 int home = g.homeTeam.getGameSchedule().indexOf(g);
                 int away = g.awayTeam.getGameSchedule().indexOf(g);
+                int fcs = indexOfIdentity(codec.fcsTeams, g.awayTeam);
+                if (fcs >= 0) {
+                    fcsGames.add(slot + ":" + fcs);
+                }
+                if (g.numOT > 0) {
+                    overtimes.add(slot + ":" + g.numOT);
+                }
                 out.add(LeagueRecord.GameRecord.fromGame(g, slot++).withScheduleSlots(home + 1, away + 1));
             }
         }
+        codec.putList("fcsGames", fcsGames);
+        codec.putList("overtimes", overtimes);
         return out;
+    }
+
+    private static int indexOfIdentity(java.util.List<Team> list, Team t) {
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i) == t) return i;
+        }
+        return -1;
     }
 
     /**
@@ -1481,7 +1525,9 @@ public class League {
      * exactly from the write order: the owning team wrote its new games in slot order,
      * so each takes the owner's earliest free slot.
      */
-    private void restoreScheduledGames(java.util.List<LeagueRecord.GameRecord> games) {
+    private void restoreScheduledGames(java.util.List<LeagueRecord.GameRecord> games,
+                                       java.util.Map<Integer, Team> savedFcs,
+                                       java.util.Map<Integer, Integer> overtimes) {
         if (games == null || games.isEmpty()) {
             return;
         }
@@ -1510,7 +1556,9 @@ public class League {
                 g = new Game(home, bye, "BYE WEEK");
             } else {
                 away = byName.get(gr.awayName());
+                Team saved = away == null ? savedFcs.get(gr.slot()) : null;
                 Team opponent = away != null ? away
+                        : saved != null ? saved
                         : new Team(gr.awayName(), "FCS", "FCS Division", (int) (SimRandom.nextDouble() * 40), "FCS1", 0, this, false);
                 String gName = gr.gameName();
                 if (gName == null || gName.isEmpty()) {
@@ -1520,7 +1568,7 @@ public class League {
                 g.seniorDay = gr.seniorDay();
                 g.homecomingGame = gr.homecomingGame();
                 g.rivalryGame = gr.rivalryGame();
-                if (away == null) {
+                if (away == null && saved == null) {
                     opponent.addGameToSchedule(g); // FCS opponents sit outside the league
                 }
             }
@@ -1528,6 +1576,7 @@ public class League {
             g.hasPlayed = gr.played();
             g.homeScore = gr.homeScore();
             g.awayScore = gr.awayScore();
+            g.numOT = overtimes.getOrDefault(gr.slot(), g.numOT);
 
             int homeIndex = gr.homeScheduleIndex();
             int awayIndex = gr.awayScheduleIndex();
@@ -1624,7 +1673,22 @@ public class League {
             this.conferences.add(new Conference(cr, this));
         }
 
+        // v1.5b saves carry everything between two weeks; older ones are rebuilt
+        // or defaulted below (see SaveSchema for what each version restores).
+        boolean fullState = state != null && state.hasFullState();
+        restoredFullState = fullState;
+        loadedFcsTeams = new ArrayList<>();
+        if (fullState) {
+            for (LeagueRecord.TeamRecord tr : state.fcsTeams()) {
+                loadedFcsTeams.add(new Team(tr, this));
+            }
+        }
+        loadedFcsRecords = fullState ? state.fcsTeams() : java.util.List.of();
+
         linkOocOpponentsFromRecord(record);
+        for (int i = 0; i < loadedFcsTeams.size(); i++) {
+            loadedFcsTeams.get(i).linkOocOpponentsFromNames(loadedFcsRecords.get(i).oocOpponentNames());
+        }
         
         this.leagueHoF = new ArrayList<>(record.leagueHoF());
 
@@ -1633,6 +1697,12 @@ public class League {
         coachFreeAgents.clear();
         for (StaffRecord coach : record.coachFreeAgents()) {
             coachFreeAgents.add(new HeadCoach(coach, null));
+        }
+        SaveStateCodec.Reader codec = fullState
+                ? new SaveStateCodec.Reader(this, record, loadedFcsTeams, new ArrayList<>(coachFreeAgents))
+                : null;
+        if (codec != null) {
+            restoreTeamOrder(codec.teamOrder());
         }
         
         for (DataRecord dr : record.leagueRecords()) {
@@ -1654,6 +1724,13 @@ public class League {
             if (saved != null && saved.playbookOffense() >= 0) t.setPlaybookOffNum(saved.playbookOffense());
             if (saved != null && saved.playbookDefense() >= 0) t.setPlaybookDefNum(saved.playbookDefense());
         }
+        for (int i = 0; i < loadedFcsTeams.size(); i++) {
+            Team f = loadedFcsTeams.get(i);
+            LeagueRecord.TeamRecord saved = loadedFcsRecords.get(i);
+            f.useCpuPlaybooks();
+            if (saved.playbookOffense() >= 0) f.setPlaybookOffNum(saved.playbookOffense());
+            if (saved.playbookDefense() >= 0) f.setPlaybookDefNum(saved.playbookDefense());
+        }
 
         linkUserTeamFromLoadedCoaches();
         if (userTeam == null && state != null) {
@@ -1668,7 +1745,7 @@ public class League {
         this.recruitingPhaseActive = SeasonFlowOrder.isRecruitingGate(currentWeek, regSeasonWeeks)
                 && (record.recruitingStarted() != null ? record.recruitingStarted() : cpuClassesSigned());
 
-        restoreTeamHallsOfFame();
+        restoreTeamHallsOfFame(!fullState);
         restoreLegacyDivisions(record);
         if (state != null) {
             longestWinStreak = parseStreakCsv(state.scalars().str("longestStreak", ""), longestWinStreak);
@@ -1679,15 +1756,83 @@ public class League {
             playoffWeek = state.scalars().integer("playoffWeek", playoffWeek);
         }
 
-        restoreScheduledGames(record.scheduledGames());
+        restoreScheduledGames(record.scheduledGames(), codec != null ? fcsGameSlots(state) : java.util.Map.of(),
+                codec != null ? slotInts(state, "overtimes") : java.util.Map.of());
         rebuildSeasonResultsFromSchedules();
         restorePostseasonGames(state);
-        restoreSeasonBaselines();
+        if (codec != null) {
+            // Everything the baselines and ranks would be recomputed from is restored as saved.
+            java.util.List<LeagueRecord.TeamRecord> walk = new ArrayList<>();
+            for (LeagueRecord.ConferenceRecord cr : record.conferences()) {
+                walk.addAll(cr.teams());
+            }
+            walk.addAll(state.fcsTeams());
+            boolean baselinesMissing = false;
+            for (Team t : teamList) {
+                baselinesMissing |= !t.hasSeasonBaseline();
+            }
+            if (baselinesMissing) {
+                restoreSeasonBaselines(); // a damaged save; a complete one never lacks them
+            }
+            codec.applyTeams(walk);
+            codec.applyLeague();
+            loadedRngState = codec.rngState();
+        } else {
+            restoreSeasonBaselines();
+            loadedRngState = null;
+        }
 
         // New-format loads skip setupSeason(), which normally allocates weekly news/score
         // buckets. Without this, preseasonNews/topRecruits NPEs on newsStories.
-        ensureSeasonWeekListsCapacity(Math.max(seasonWeeks, currentWeek + 4));
+        if (codec == null) {
+            ensureSeasonWeekListsCapacity(Math.max(seasonWeeks, currentWeek + 4));
+        }
         afterSaveLoaded();
+        loadedFcsTeams = java.util.List.of();
+        loadedFcsRecords = java.util.List.of();
+        resumeSavedRng();
+    }
+
+    /**
+     * Puts the RNG back where the save left it (v1.5b), so the games after a reload
+     * play out exactly as they would have without saving. Loading itself draws
+     * numbers (placeholder opponents, TV names), so this runs once loading is done;
+     * older saves restart the stream from the seed.
+     */
+    private void resumeSavedRng() {
+        if (loadedRngState != null) {
+            SimRandom.restoreState(loadedRngState);
+        }
+    }
+
+    /** v1.5b: a {@code slot:value} league list as a map. */
+    private static java.util.Map<Integer, Integer> slotInts(LeagueRecord.LeagueState state, String key) {
+        java.util.Map<Integer, Integer> out = new java.util.HashMap<>();
+        for (String it : state.lists().getOrDefault(key, java.util.List.of())) {
+            int colon = it.indexOf(':');
+            try {
+                out.put(Integer.parseInt(it.substring(0, colon)), Integer.parseInt(it.substring(colon + 1)));
+            } catch (RuntimeException ignored) {
+                // skip a bad entry
+            }
+        }
+        return out;
+    }
+
+    /** v1.5b: game slot -> saved FCS opponent. */
+    private java.util.Map<Integer, Team> fcsGameSlots(LeagueRecord.LeagueState state) {
+        java.util.Map<Integer, Team> out = new java.util.HashMap<>();
+        for (String it : state.lists().getOrDefault("fcsGames", java.util.List.of())) {
+            int colon = it.indexOf(':');
+            try {
+                int slot = Integer.parseInt(it.substring(0, colon));
+                int idx = Integer.parseInt(it.substring(colon + 1));
+                if (idx >= 0 && idx < loadedFcsTeams.size()) out.put(slot, loadedFcsTeams.get(idx));
+            } catch (RuntimeException ignored) {
+                // a bad entry falls back to a fresh opponent
+            }
+        }
+        return out;
     }
 
     /**
@@ -1730,14 +1875,62 @@ public class League {
     }
 
     /** Team halls of fame are not saved per team; rebuild them from the league's, as the legacy loader did. */
-    private void restoreTeamHallsOfFame() {
+    private void restoreTeamHallsOfFame(boolean countThem) {
         for (PlayerRecord pr : leagueHoF) {
             Team t = pr.teamName() != null ? findTeam(pr.teamName()) : null;
             if (t != null) {
                 t.addToHallOfFame(pr);
-                t.incrementHoFCount();
+                if (countThem) {
+                    t.incrementHoFCount(); // v1.5b saves carry the count
+                }
             }
         }
+    }
+
+    /** v1.5b: teams back in the saved league order (polls and prestige sort it; sim order follows it). */
+    private void restoreTeamOrder(java.util.List<String> names) {
+        if (names.size() != teamList.size()) {
+            return;
+        }
+        ArrayList<Team> ordered = new ArrayList<>(teamList.size());
+        java.util.Set<Team> used = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+        for (String n : names) {
+            Team found = null;
+            for (Team t : teamList) {
+                if (!used.contains(t) && t.getName().equals(n)) {
+                    found = t;
+                    break;
+                }
+            }
+            if (found == null) {
+                return;
+            }
+            used.add(found);
+            ordered.add(found);
+        }
+        teamList.clear();
+        teamList.addAll(ordered);
+    }
+
+    /** This season's FCS opponents from a v1.5b save, while it loads (in save order). */
+    private java.util.List<Team> loadedFcsTeams = java.util.List.of();
+    private java.util.List<LeagueRecord.TeamRecord> loadedFcsRecords = java.util.List.of();
+    /** The saved RNG position from a v1.5b save, re-applied once loading is done. */
+    private String loadedRngState;
+
+    /**
+     * The saved FCS opponent named {@code name} that plays {@code forTeam}, for a
+     * v1.5b load; null when the save predates FCS opponents (a fresh one is made).
+     */
+    Team loadedFcsOpponent(Team forTeam, String name) {
+        for (int i = 0; i < loadedFcsTeams.size(); i++) {
+            Team f = loadedFcsTeams.get(i);
+            if (f.getName().equals(name) && loadedFcsRecords.get(i).oocOpponentNames().contains(forTeam.getName())
+                    && !forTeam.getOocTeams().contains(f)) {
+                return f;
+            }
+        }
+        return null;
     }
 
     /**
@@ -2503,6 +2696,34 @@ public class League {
     /**
      * Update all teams off talent, def talent, etc
      */
+    /**
+     * Run after loading a save, before the first screen. A v1.5b save restores the
+     * talent ratings, poll scores and conference order exactly, so this leaves them
+     * alone: {@link #updateTeamTalentRatings()} resets every poll score to prestige
+     * plus talent and re-sorts each conference, which changed the order games are
+     * played in and with it every result after a reload. Older saves carry neither,
+     * so they still get the full refresh.
+     */
+    public void refreshAfterLoad() {
+        if (!restoredFullState) {
+            updateTeamTalentRatings();
+        }
+    }
+
+    /** True once a v1.5b save was applied (see {@link #refreshAfterLoad()}). */
+    private boolean restoredFullState;
+
+    /**
+     * Sets the stat ranks for a loaded league's first screen. A v1.5b save carries
+     * them (and re-ranking re-sorts the team list, which the season plays in), so
+     * only older saves are ranked here.
+     */
+    public void setTeamRanksAfterLoad() {
+        if (!restoredFullState) {
+            setTeamRanks();
+        }
+    }
+
     public void updateTeamTalentRatings() {
         for (Team t : teamList) {
             t.updateTalentRatings();
@@ -2819,10 +3040,10 @@ public class League {
     // composite poll score. Derived weekly — never persisted.
     // ------------------------------------------------------------------
 
-    private final java.util.HashMap<String, Integer> apRanks = new java.util.HashMap<>();
-    private final java.util.HashMap<String, Integer> coachesRanks = new java.util.HashMap<>();
-    private final java.util.HashMap<String, Integer> prevApRanks = new java.util.HashMap<>();
-    private final java.util.HashMap<String, Integer> prevCoachesRanks = new java.util.HashMap<>();
+    final java.util.HashMap<String, Integer> apRanks = new java.util.HashMap<>();
+    final java.util.HashMap<String, Integer> coachesRanks = new java.util.HashMap<>();
+    final java.util.HashMap<String, Integer> prevApRanks = new java.util.HashMap<>();
+    final java.util.HashMap<String, Integer> prevCoachesRanks = new java.util.HashMap<>();
 
     public int getApRank(Team t) {
         return apRanks.getOrDefault(t.getName(), 0);
@@ -3176,7 +3397,7 @@ public class League {
     }
 
     /** Injury rest earned at postseason selection, applied after that week's poll. */
-    private final java.util.Map<Team, Integer> queuedPostseasonRest = new java.util.LinkedHashMap<>();
+    final java.util.Map<Team, Integer> queuedPostseasonRest = new java.util.LinkedHashMap<>();
 
     /**
      * Queue rest (injury healing) for a team selected to the playoff or a bowl.
@@ -3683,12 +3904,14 @@ public class League {
     }
 
     /**
-     * Readers call this before reading award state. Normally a no-op; a save
-     * loaded during the postseason (award flags are not persisted) decides the
-     * awards on first read, as long as the players have not advanced yet.
+     * Readers call this before reading award state. A no-op except for a save from
+     * before v1.5b loaded after the conference championships: those saves carry no
+     * award state, so the awards are decided on first read, from the restored
+     * players, as long as they have not advanced yet. v1.5b saves carry the awards
+     * and the decided flag, so they are never decided twice.
      */
     private void ensureSeasonAwardsForRead() {
-        if (!seasonAwardsDecided
+        if (!seasonAwardsDecided && !restoredFullState
                 && currentWeek >= SeasonFlowOrder.bowlWeek1(regSeasonWeeks)
                 && currentWeek < SeasonFlowOrder.graduationWeek(regSeasonWeeks)) {
             decideSeasonAwards();

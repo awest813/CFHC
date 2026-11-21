@@ -31,9 +31,21 @@ public final class SaveSchema {
      */
     public static final String V1_4E = "v1.4e";
 
+    /**
+     * The generation with team/conference/league state lines but without the v1.5b
+     * lists ({@code LL:}, {@code TL:}, {@code PX:}, {@code XP:}, {@code XS:}, {@code XC:}).
+     * It loads through the same reader with these defaults: no news before the load,
+     * awards decided again from the restored players if the save falls between the
+     * conference championship and graduation (see {@code League.ensureSeasonAwardsForRead}),
+     * empty offseason and transfer lists, coach pools merged into the free agents,
+     * fresh FCS opponents, recomputed talent and ranks, and the RNG restarted from the seed.
+     */
+    public static final String V1_5A = "v1.5a";
+
     static {
         LinkedHashSet<String> versions = new LinkedHashSet<>();
         versions.add(League.CURRENT_SAVE_VERSION);
+        versions.add(V1_5A);
         versions.add(V1_4E);
         SUPPORTED = Collections.unmodifiableSet(versions);
     }
@@ -94,13 +106,15 @@ public final class SaveSchema {
     }
 
     /**
-     * Migration hook. v1.4e to the current version is identity at the record level:
-     * the fields v1.5a added are optional lines, and {@code League} defaults them
-     * (or rebuilds them from the schedules) when a record does not carry them.
+     * Migration hook. v1.4e and v1.5a to the current version are identity at the
+     * record level: the fields later versions added are optional lines, and
+     * {@code League} defaults them (or rebuilds them from the schedules) when a record
+     * does not carry them ({@link LeagueRecord.LeagueState#hasFullState()} tells which).
      */
     public static LeagueRecord migrate(String fromVersion, LeagueRecord record) throws IOException {
         String normalized = requireSupported(fromVersion);
-        if (League.CURRENT_SAVE_VERSION.equals(normalized) || V1_4E.equals(normalized)) {
+        if (League.CURRENT_SAVE_VERSION.equals(normalized) || V1_5A.equals(normalized)
+                || V1_4E.equals(normalized)) {
             return record;
         }
         throw new IOException(unsupportedMessage(normalized));
