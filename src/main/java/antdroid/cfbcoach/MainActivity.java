@@ -870,7 +870,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 newHC = s.toString().trim();
-                if (!simLeague.isNameValid(newHC)) {
+                if (!League.isPersonNameValid(newHC)) {
                     invalidHCText.setText(R.string.setup_name_invalid);
                 } else {
                     invalidHCText.setText("");
@@ -880,7 +880,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 newHC = s.toString().trim();
-                if (!simLeague.isNameValid(newHC)) {
+                if (!League.isPersonNameValid(newHC)) {
                     invalidHCText.setText(R.string.setup_name_invalid);
                 } else {
                     invalidHCText.setText("");
@@ -890,7 +890,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             @Override
             public void afterTextChanged(Editable s) {
                 newHC = s.toString().trim();
-                if (!simLeague.isNameValid(newHC)) {
+                if (!League.isPersonNameValid(newHC)) {
                     invalidHCText.setText(R.string.setup_name_invalid);
                 } else {
                     invalidHCText.setText("");
@@ -2552,7 +2552,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (name.split(" ").length < 2) {
             return false;
         }
-        return !(name.contains(",") || name.contains(">") || name.contains("%") || name.contains("\\"));
+        return League.isPersonNameValid(name);
     }
 
     //GAME EDITOR V2

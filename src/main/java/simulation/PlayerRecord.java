@@ -101,11 +101,15 @@ public record PlayerRecord(
         String[] basic = parts[0].split(",");
         
         String pos = basic[0];
-        String name = Persistence.unescapeAmp(basic[1]);
+        String name = Persistence.readPlayerField(basic[1]);
         String teamName = "";
-        if (pos.contains(":")) {
-            teamName = Persistence.unescapeAmp(pos.split(":")[0].trim());
-            pos = pos.split(":")[1].trim();
+        // "team: POS". The position never has a colon, so the last one separates
+        // the two (the team name's own colons are escaped now, but older saves
+        // wrote them raw, and splitting at the first one lost the position).
+        int colon = pos.lastIndexOf(':');
+        if (colon >= 0) {
+            teamName = Persistence.readPlayerField(pos.substring(0, colon).trim());
+            pos = pos.substring(colon + 1).trim();
         }
 
         int[] attrs = new int[4];
@@ -182,8 +186,8 @@ public record PlayerRecord(
             basic.length > 27 && Boolean.parseBoolean(basic[27]), // isInjured
             basic.length > 28 ? Integer.parseInt(basic[28]) : 0,
             basic.length > 29 ? Persistence.unescapeAmp(basic[29].replace(';', ',')) : "",
-            basic.length > 30 ? Persistence.unescapeAmp(basic[30]) : "",
-            basic.length > 31 ? Persistence.unescapeAmp(basic[31]) : "",
+            basic.length > 30 ? Persistence.readPlayerField(basic[30]) : "",
+            basic.length > 31 ? Persistence.readPlayerField(basic[31]) : "",
             optionalInt(basic, 32, -1),
             optionalInt(basic, 33, 0)
         );

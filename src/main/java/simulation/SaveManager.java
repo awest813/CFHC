@@ -273,7 +273,7 @@ public class SaveManager {
         }
 
         for (LeagueRecord.ConferenceRecord c : league.conferences()) {
-            String confLine = CONF_PREFIX + sanitizeInlineValue(c.name());
+            String confLine = CONF_PREFIX + nameField(c.name());
             if (c.oocWeeks() != null && !c.oocWeeks().isEmpty()) {
                 StringBuilder cw = new StringBuilder();
                 for (int i = 0; i < c.oocWeeks().size(); i++) {
@@ -321,7 +321,7 @@ public class SaveManager {
                 + sanitizeInlineValue(t.practicePositionGroup()) + "\t"
                 + sanitizeInlineValue(t.focusIntensity()) + "\t"
                 + t.prevRankTeamPollScore() + "\t"
-                + sanitizeInlineValue(t.rivalName()) + "\t"
+                + nameField(t.rivalName()) + "\t"
                 + sanitizeInlineValue(t.rivalryTrophyName()) + "\t"
                 + t.rivalryWins() + "\t"
                 + (t.holdsRivalryTrophy() ? 1 : 0) + "\t"
@@ -378,7 +378,7 @@ public class SaveManager {
                     if (i > 0) {
                         to.append(";");
                     }
-                    to.append(sanitizeInlineValue(t.oocOpponentNames().get(i)).replace(";", " "));
+                    to.append(nameField(t.oocOpponentNames().get(i)));
                 }
             }
             writer.write(to + "\n");
@@ -418,6 +418,34 @@ public class SaveManager {
             return "";
         }
         return value.replace('\t', ' ').replaceAll("\\s+", " ").trim();
+    }
+
+    /**
+     * Characters escaped in team and conference names on {@code C:}, {@code T:} and
+     * {@code TO:} lines: {@code |} ends a conference name and splits the {@code TO:}
+     * weeks from the opponents, {@code ;} separates opponents ({@link Persistence#encodeField}).
+     */
+    private static final String NAME_FIELD_CHARS = "%;|";
+
+    /** A team or conference name: whitespace normalized as before, then delimiters escaped. */
+    static String nameField(String value) {
+        return Persistence.encodeField(sanitizeInlineValue(value), NAME_FIELD_CHARS);
+    }
+
+    /** Reads {@link #nameField}; older saves wrote names raw and read back unchanged. */
+    static String readNameField(String value) {
+        return Persistence.decodeField(value);
+    }
+
+    /** Whether {@code s} is a {@code C:} line's OOC week list: digits and commas only. */
+    private static boolean isWeekList(String s) {
+        for (int i = 0; i < s.length(); i++) {
+            char c = s.charAt(i);
+            if (!(c >= '0' && c <= '9') && c != ',' && c != ' ') {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static LeagueRecord load(InputStream in) throws IOException {
@@ -562,9 +590,14 @@ public class SaveManager {
                 String raw = line.substring(2);
                 String cname;
                 List<Integer> confOoc = new ArrayList<>();
-                int pipe = raw.indexOf('|');
+                // The week list follows the last '|' (older saves wrote a '|' in
+                // the name raw; a tail that is not a week list is part of the name).
+                int pipe = raw.lastIndexOf('|');
+                if (pipe >= 0 && !isWeekList(raw.substring(pipe + 1))) {
+                    pipe = -1;
+                }
                 if (pipe >= 0) {
-                    cname = raw.substring(0, pipe);
+                    cname = readNameField(raw.substring(0, pipe));
                     String rest = raw.substring(pipe + 1);
                     if (!rest.isEmpty()) {
                         for (String s : rest.split(",")) {
@@ -574,7 +607,7 @@ public class SaveManager {
                         }
                     }
                 } else {
-                    cname = raw;
+                    cname = readNameField(raw);
                 }
                 currentConf = new LeagueRecord.ConferenceRecord(cname, List.copyOf(confOoc), confTeams);
                 conferences.add(currentConf);
@@ -605,7 +638,7 @@ public class SaveManager {
                 teamPlaybookOffense = -1;
                 teamPlaybookDefense = -1;
                 String[] p = line.substring(2).split("\t", -1);
-                teamName = p[0];
+                teamName = readNameField(p[0]);
                 teamAbbr = p[1];
                 prestige = Integer.parseInt(p[2]);
                 if (p.length >= 5) {
@@ -636,7 +669,7 @@ public class SaveManager {
                     teamPrevRankTeamPollScore = Integer.parseInt(p[11].trim());
                 }
                 if (p.length >= 13) {
-                    teamRivalName = p[12];
+                    teamRivalName = readNameField(p[12]);
                 }
                 if (p.length >= 14) {
                     teamRivalryTrophyName = p[13];
@@ -680,7 +713,11 @@ public class SaveManager {
                 teamOocWeeksBuf.clear();
                 teamOocNamesBuf.clear();
                 String body = line.substring(TEAM_OOC_PREFIX.length());
-                String[] sides = body.split("\\|", -1);
+                // Weeks never hold a '|', so the first one ends them (older saves
+                // wrote opponent names raw, and a '|' in one split them apart).
+                int bar = body.indexOf('|');
+                String[] sides = bar < 0 ? new String[]{body}
+                        : new String[]{body.substring(0, bar), body.substring(bar + 1)};
                 if (sides.length >= 1 && !sides[0].isEmpty()) {
                     for (String w : sides[0].split(",")) {
                         if (!w.isEmpty()) {
@@ -691,7 +728,7 @@ public class SaveManager {
                 if (sides.length >= 2 && !sides[1].isEmpty()) {
                     for (String n : sides[1].split(";")) {
                         if (!n.isEmpty()) {
-                            teamOocNamesBuf.add(n.trim());
+                            teamOocNamesBuf.add(readNameField(n.trim()));
                         }
                     }
                 }

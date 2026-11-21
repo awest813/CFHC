@@ -69,8 +69,14 @@ public record StaffRecord(
         // History is the last section and its lines name teams ("Texas A&M"), so
         // only the first three '&' separate sections; splitting on every one cut a
         // coach's history off at the first such name.
-        String[] parts = csv.split("&", 4);
-        String[] basic = parts[0].split(",", -1);
+        // Older saves wrote the name raw, so a coach named "Bob & Ray" split the
+        // record in the wrong place and the save would not load. The name is the
+        // second field and never holds a comma, so sections start after it.
+        int c1 = csv.indexOf(',');
+        int c2 = c1 < 0 ? -1 : csv.indexOf(',', c1 + 1);
+        String head = c2 > 0 ? csv.substring(0, c2) : "";
+        String[] parts = (c2 > 0 ? csv.substring(c2) : csv).split("&", 4);
+        String[] basic = (head + parts[0]).split(",", -1);
 
         int[] statsList = new int[0];
         if (parts.length > 1) {
@@ -93,7 +99,7 @@ public record StaffRecord(
         List<String> historyList = new ArrayList<>();
         if (parts.length > 3 && !parts[3].isEmpty()) {
             String[] h = parts[3].split("\\^", -1);
-            for (String s : h) historyList.add(s);
+            for (String s : h) historyList.add(Persistence.decodeField(s));
         }
 
         boolean userFlag = basic.length > 16 && Boolean.parseBoolean(basic[16]);
@@ -111,7 +117,7 @@ public record StaffRecord(
 
         return new StaffRecord(
             basic[0],
-            basic[1],
+            Persistence.decodeField(basic[1]),
             Integer.parseInt(basic[2]),
             Integer.parseInt(basic[3]),
             Integer.parseInt(basic[4]),

@@ -9,18 +9,27 @@ public record DataRecord(
     String holder,
     int year
 ) {
+    /**
+     * {@code key,value,holder,year}. The holder (names, with {@code %} between
+     * player and team) is everything between the second and the last comma, so a
+     * comma in a name no longer shifts the year out of place.
+     */
     public static DataRecord fromCsv(String csv) {
-        String[] parts = csv.split(",", 4);
-        if (parts.length < 4) return null;
+        int a = csv.indexOf(',');
+        int b = a < 0 ? -1 : csv.indexOf(',', a + 1);
+        int c = csv.lastIndexOf(',');
+        if (b < 0 || c <= b) return null;
         return new DataRecord(
-            parts[0],
-            Float.parseFloat(parts[1]),
-            parts[2],
-            Integer.parseInt(parts[3])
+            csv.substring(0, a),
+            Float.parseFloat(csv.substring(a + 1, b)),
+            csv.substring(b + 1, c),
+            Integer.parseInt(csv.substring(c + 1))
         );
     }
 
+    /** One save line: a line break in the holder would end it, so it becomes a space. */
     public String toCsv(java.text.DecimalFormat df) {
-        return key + "," + df.format(value) + "," + holder + "," + year;
+        String h = holder == null ? "" : holder.replace('\n', ' ').replace('\r', ' ');
+        return key + "," + df.format(value) + "," + h + "," + year;
     }
 }

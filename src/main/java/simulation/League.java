@@ -8033,16 +8033,43 @@ Then conferences can see if they want to add them to their list if the teams mee
 
 
     /**
-     * See if team name is in use, or has illegal characters.
+     * See if a team, conference or person name has illegal characters.
      *
      * @param name team name
      * @return true if valid, false if not
      */
     public boolean isNameValid(String name) {
-        if (name.length() == 0) {
+        return isSaveSafeName(name);
+    }
+
+    /**
+     * Characters no name may hold: each separates fields somewhere in a save or a
+     * news line ({@code ,} CSV fields, {@code >} headline from body, {@code %} history
+     * rows and escapes, {@code |} {@code ;} {@code :} {@code ^} save lists, {@code \}
+     * list escapes). The save escapes them too; this keeps new names plain.
+     */
+    public static final String NAME_FORBIDDEN_CHARS = ",>%\\|:;^";
+
+    /** A non-blank name without {@link #NAME_FORBIDDEN_CHARS} or control characters (tabs, line breaks). */
+    public static boolean isSaveSafeName(String name) {
+        if (name == null || name.trim().isEmpty()) {
             return false;
         }
-        return !(name.contains(",") || name.contains(">") || name.contains("%") || name.contains("\\"));
+        for (int i = 0; i < name.length(); i++) {
+            char c = name.charAt(i);
+            if (NAME_FORBIDDEN_CHARS.indexOf(c) >= 0 || Character.isISOControl(c)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * A coach's name: {@link #isSaveSafeName} and no {@code &}, which separates the
+     * sections of a coach's save record (team names keep theirs: "Texas A&M").
+     */
+    public static boolean isPersonNameValid(String name) {
+        return isSaveSafeName(name) && name.indexOf('&') < 0;
     }
 
     public boolean isInteger( String input ) {

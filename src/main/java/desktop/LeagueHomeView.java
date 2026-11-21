@@ -1029,6 +1029,13 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
         if (newName == null || newName.trim().isEmpty()) {
             return; // cancelled — stay retired-in-place, user can act again
         }
+        if (!simulation.League.isPersonNameValid(newName.trim())) {
+            JOptionPane.showMessageDialog(this,
+                    DesktopTheme.messageForDialog("A coach's name cannot contain any of "
+                            + simulation.League.NAME_FORBIDDEN_CHARS + " &"),
+                    "Invalid Name", JOptionPane.WARNING_MESSAGE);
+            return; // stay retired-in-place, user can act again
+        }
 
         // Mirrors Android MainActivity.reincarnation ("Use Same Team") order:
         // prestige knockdown -> team changes -> old coach to the free-agent
