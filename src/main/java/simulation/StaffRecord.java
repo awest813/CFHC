@@ -46,6 +46,25 @@ public record StaffRecord(
         }
     }
 
+    /**
+     * Field 19 onward: the scheme archetypes are themselves comma-separated, so a
+     * coach with several kept only the first one when only field 19 was read.
+     */
+    private static String schemeArchetypesField(String[] basic) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 19; i < basic.length; i++) {
+            String tag = basic[i].trim();
+            if (tag.isEmpty()) {
+                continue;
+            }
+            if (sb.length() > 0) {
+                sb.append(',');
+            }
+            sb.append(tag);
+        }
+        return sb.toString();
+    }
+
     public static StaffRecord fromCsv(String csv) {
         // History is the last section and its lines name teams ("Texas A&M"), so
         // only the first three '&' separate sections; splitting on every one cut a
@@ -113,7 +132,7 @@ public record StaffRecord(
             statsList,
             awardsList,
             historyList,
-            basic.length > 19 ? basic[19] : ""
+            schemeArchetypesField(basic)
         );
     }
 }
