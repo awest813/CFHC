@@ -803,8 +803,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 try {
                     Team selectedTeam = simLeague.getTeamList().get(item);
                     if (selectedTeam.getHeadCoach() != null) {
-                        selectedTeam.getHeadCoach().team = null;
-                        simLeague.addCoachFreeAgent(selectedTeam.getHeadCoach());
+                        // A copy, as the desktop does: the coach keeps the post until
+                        // the name dialog replaces him, and pooling the same object put
+                        // one coach on a staff and in the pool at once (an autosave in
+                        // between wrote him twice).
+                        simLeague.addCoachFreeAgent(new HeadCoach(selectedTeam.getHeadCoach(), selectedTeam));
                     }
                     if (userTeam != null) {
                         userTeam.setUserControlled(false);

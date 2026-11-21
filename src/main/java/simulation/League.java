@@ -1294,7 +1294,7 @@ public class League {
         }
         java.util.List<LeagueRecord.GameRecord> games = buildGameRecordsForSave(codec);
         java.util.List<StaffRecord> poolRecords = new ArrayList<>();
-        for (Staff c : pool) {
+        for (Staff c : codec.writtenPool()) {
             poolRecords.add(c.toRecord());
         }
 

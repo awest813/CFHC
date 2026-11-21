@@ -22,9 +22,13 @@ import staff.Staff;
  * ids. A player's id is its position in a fixed walk: every league team (conference
  * order, then team order within the conference) and then every FCS opponent, each
  * roster in {@link Team#getAllPlayers()} order; players on no roster follow as
- * {@code XP:} lines. Coaches likewise: each team's HC, OC and DC, then the saved
- * free-agent pool ({@code CFA:} lines), then {@code XS:} lines. Loading rebuilds
- * the same walk, so the ids resolve to the same objects.
+ * {@code XP:} lines. Coaches likewise: each team's HC, OC and DC (one id per
+ * post, as each is its own {@code H:} line), then the saved free-agent pool
+ * ({@code CFA:} lines), then {@code XS:} lines. Loading rebuilds the same walk,
+ * so the ids resolve to the same objects. A pool coach who also holds a post (the
+ * pool lists can briefly hold a coach a team still employs) is not written as a
+ * {@code CFA:} line: the pool lists name him by his post's id, so he stays one
+ * object after a reload ({@link Writer#writtenPool()}).
  *
  * <p><b>What is carried</b> (named {@code LL:} lists; {@code TL:} lists and
  * {@code TX:} keys per team, see {@link Team#saveLists}; {@code PX:} per player):
@@ -168,13 +172,15 @@ final class SaveStateCodec {
         private int playerCount;
         private final IdentityHashMap<Staff, Integer> staffIds = new IdentityHashMap<>();
         private final List<Staff> allStaff = new ArrayList<>();
+        private final List<Staff> writtenPool = new ArrayList<>();
         private final List<Staff> detachedStaff = new ArrayList<>();
         private final IdentityHashMap<Staff, Team> staffOwner = new IdentityHashMap<>();
         private final IdentityHashMap<Team, Map<String, List<String>>> teamLists = new IdentityHashMap<>();
         private final Map<String, List<String>> leagueLists = new LinkedHashMap<>();
 
         /**
-         * @param pool the coaches written as {@code CFA:} lines, in that order
+         * @param pool the coaches without a job, in order; those that got no id of
+         *             their own are the {@code CFA:} lines ({@link #writtenPool()})
          */
         Writer(League league, List<Staff> pool) {
             this.league = league;
@@ -188,20 +194,31 @@ final class SaveStateCodec {
                 }
             }
             for (Team t : teams) {
-                addStaff(t.getHeadCoach());
-                addStaff(t.getOC());
-                addStaff(t.getDC());
                 for (Staff s : new Staff[]{t.getHeadCoach(), t.getOC(), t.getDC()}) {
-                    if (s != null) staffOwner.putIfAbsent(s, t);
+                    if (s != null) {
+                        // Every post is its own H: line and loads as its own object, so
+                        // each takes an id (the loader counts them the same way).
+                        staffIds.putIfAbsent(s, allStaff.size());
+                        allStaff.add(s);
+                        staffOwner.putIfAbsent(s, t);
+                    }
                 }
             }
             for (Staff s : pool) {
-                addStaff(s);
+                if (s != null && !staffIds.containsKey(s)) {
+                    addStaff(s);
+                    writtenPool.add(s);
+                }
             }
             for (Team t : teams) {
                 teamLists.put(t, t.saveLists(this));
             }
             captureLeague();
+        }
+
+        /** The pool coaches to write as {@code CFA:} lines: those not already on a staff. */
+        List<Staff> writtenPool() {
+            return writtenPool;
         }
 
         private void addStaff(Staff s) {
@@ -524,9 +541,13 @@ final class SaveStateCodec {
                 if (t.getDC() != null) staff.add(t.getDC());
             }
             List<String> staffState = state.lists().getOrDefault("staffState", List.of());
-            int poolStart = staff.size();
+            boolean[] alias = legacyPoolAliases(pool, staffState.size());
             for (int i = 0; i < pool.size(); i++) {
-                String st = poolStart + i < staffState.size() ? staffState.get(poolStart + i) : "H";
+                if (alias[i]) {
+                    continue;
+                }
+                int id = staff.size();
+                String st = id < staffState.size() ? staffState.get(id) : "H";
                 staff.add(retype(pool.get(i), st));
             }
             for (LeagueRecord.DetachedStaff d : state.detachedStaff()) {
@@ -542,6 +563,33 @@ final class SaveStateCodec {
                 applyPlayerState(p, d.state(), true);
                 players.add(p);
             }
+        }
+
+        /**
+         * Which {@code CFA:} coaches of a save from before v1.5d are a team's coach
+         * written twice. Those saves gave such a coach no id of his own but still
+         * wrote him to the pool, so every later id was off by one. Found by count
+         * (the coach states list is short by exactly that many) and by an identical
+         * record on some post; nothing is skipped unless both agree.
+         */
+        private boolean[] legacyPoolAliases(List<Staff> pool, int stateCount) {
+            boolean[] alias = new boolean[pool.size()];
+            int missing = staff.size() + pool.size() + state.detachedStaff().size() - stateCount;
+            if (stateCount == 0 || missing <= 0 || missing > pool.size()) {
+                return alias;
+            }
+            java.util.Set<String> posts = new java.util.HashSet<>();
+            for (Staff s : staff) {
+                posts.add(Persistence.toCsv(s.toRecord()));
+            }
+            int found = 0;
+            for (int i = 0; i < pool.size(); i++) {
+                if (posts.contains(Persistence.toCsv(pool.get(i).toRecord()))) {
+                    alias[i] = true;
+                    found++;
+                }
+            }
+            return found == missing ? alias : new boolean[pool.size()];
         }
 
         /** The pool coach as the class it was saved as (the old loader made every one a HeadCoach). */
@@ -589,12 +637,6 @@ final class SaveStateCodec {
                 if (name.equals(f.getName())) return f;
             }
             return null;
-        }
-
-        /** The loaded pool coaches (possibly re-typed), in {@code CFA:} order. */
-        List<Staff> poolStaff(int poolSize) {
-            int start = staff.size() - state.detachedStaff().size() - poolSize;
-            return new ArrayList<>(staff.subList(start, start + poolSize));
         }
 
         @Override
