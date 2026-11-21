@@ -16,7 +16,7 @@ public final class Persistence {
     }
 
     public static String toCsv(PlayerRecord r) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(512); // a player line is ~350-450 chars
         // Basic Part
         String pos = r.position();
         if (r.teamName() != null && !r.teamName().isEmpty()) {

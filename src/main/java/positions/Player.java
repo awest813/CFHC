@@ -128,8 +128,36 @@ public class Player {
         );
     }
 
+    private static final java.util.regex.Pattern WHITESPACE_RUN = java.util.regex.Pattern.compile("\\s+");
+
+    /**
+     * {@code value.replaceAll("\\s+", " ").trim()}, without compiling the regex
+     * on every call and returning {@code value} itself when it is already clean
+     * (no leading or trailing {@code <= ' '} char, no whitespace but single spaces).
+     */
     private static String sanitizeRecordText(String value) {
-        return value == null ? "" : value.replaceAll("\\s+", " ").trim();
+        if (value == null) {
+            return "";
+        }
+        int n = value.length();
+        if (n == 0) {
+            return value;
+        }
+        boolean clean = value.charAt(0) > ' ' && value.charAt(n - 1) > ' ';
+        for (int i = 0; clean && i < n; i++) {
+            char c = value.charAt(i);
+            if (c == ' ') {
+                clean = value.charAt(i + 1) != ' ' && !isRegexSpace(value.charAt(i + 1));
+            } else if (isRegexSpace(c)) {
+                clean = false;
+            }
+        }
+        return clean ? value : WHITESPACE_RUN.matcher(value).replaceAll(" ").trim();
+    }
+
+    /** Java regex {@code \\s} without UNICODE_CHARACTER_CLASS: [ \\t\\n\\x0B\\f\\r]. */
+    private static boolean isRegexSpace(char c) {
+        return c == ' ' || c == '\t' || c == '\n' || c == '\u000B' || c == '\f' || c == '\r';
     }
 
     public String getName() {
