@@ -176,7 +176,7 @@ public class CoachSkillsTest {
         hc.coachSkillRanksBits = CoachSkills.withRank(hc.coachSkillRanksBits, CoachSkills.NIL_MARKETING, 1);
 
         String summary = CoachSkills.buildProgramSummary(t, hc);
-        assertTrue(summary.contains("Training facilities: L3"));
+        assertTrue(summary.contains("Training facilities: Level 3"));
         assertTrue(summary.contains("Tier 2"));
         assertTrue(summary.contains("Recruiting pitch"));
         assertTrue(summary.contains("Player development"));

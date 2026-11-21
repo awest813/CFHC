@@ -106,6 +106,8 @@ public class PlaybookDialog extends JDialog {
         closeBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         closeBtn.setBorder(BorderFactory.createEmptyBorder(12, 40, 12, 40));
         closeBtn.addActionListener(e -> dispose());
+        closeBtn.setMnemonic(java.awt.event.KeyEvent.VK_F);
+        DesktopTheme.installDialogKeys(this, closeBtn);
         bottom.add(closeBtn);
         add(bottom, BorderLayout.SOUTH);
     }

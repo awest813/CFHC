@@ -58,6 +58,8 @@ public class PlayerDetailView extends JDialog {
         setLayout(new BorderLayout());
         DesktopTheme.styleDialogContentPane(getContentPane());
         DesktopTheme.applyWindowIcon(this);
+        // Esc closes, like the other career dialogs.
+        DesktopTheme.installDialogKeys(this, null);
 
         add(buildHeaderBanner(), BorderLayout.NORTH);
 
@@ -370,8 +372,9 @@ public class PlayerDetailView extends JDialog {
         infoLabel.setFont(LABEL_FONT);
         infoLabel.setForeground(DesktopTheme.textPrimary());
 
-        JLabel hintLabel = new JLabel("CFHC UI REDESIGN • 2026 EDITION");
-        hintLabel.setFont(new Font("Monospaced", Font.BOLD, 10));
+        // Was a leftover "CFHC UI REDESIGN • 2026 EDITION" build stamp.
+        JLabel hintLabel = new JLabel("Esc to close");
+        hintLabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 11));
         hintLabel.setForeground(DesktopTheme.textSecondary());
 
         footer.add(infoLabel, BorderLayout.WEST);

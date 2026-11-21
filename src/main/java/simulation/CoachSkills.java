@@ -89,7 +89,7 @@ public final class CoachSkills {
      */
     public static String buildProgramSummary(Team t, Staff hc) {
         StringBuilder sb = new StringBuilder();
-        sb.append("Training facilities: L").append(t.getTeamFacilities())
+        sb.append("Training facilities: Level ").append(t.getTeamFacilities())
                 .append("  (drives base player development in the sim)\n");
         // Effects and next-tier cost are shown on the dedicated NIL card in both
         // shells (NilCollectiveStatus); the summary keeps a one-line reference.

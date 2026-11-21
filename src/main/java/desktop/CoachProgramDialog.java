@@ -45,7 +45,7 @@ public final class CoachProgramDialog {
         final Staff hc = userTeam.getHeadCoach();
 
         JDialog d = new JDialog(owner, CoachSkills.PROGRAM_DIALOG_TITLE, true);
-        d.setSize(560, 700);
+        d.setSize(640, 700);
         d.setLocationRelativeTo(owner);
         d.setLayout(new BorderLayout(0, 8));
         DesktopTheme.styleDialogContentPane(d.getContentPane());
@@ -149,6 +149,7 @@ public final class CoachProgramDialog {
         DesktopTheme.styleSecondaryButton(close);
         close.addActionListener(e -> d.dispose());
         footer.add(close, BorderLayout.EAST);
+        DesktopTheme.installDialogKeys(d, null);
 
         d.setVisible(true);
     }

@@ -52,6 +52,8 @@ public class SettingsDialog extends JDialog {
         setLayout(new BorderLayout());
         DesktopTheme.styleDialogContentPane(getContentPane());
         DesktopTheme.applyWindowIcon(this);
+        // Esc = Cancel (nothing is applied until Apply Settings).
+        DesktopTheme.installDialogKeys(this, null);
 
         // Header
         JPanel header = new JPanel(new BorderLayout()) {

@@ -1168,13 +1168,16 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
         simulation.Game g = DesktopWeekResult.findPlayedGame(
                 leagueCore.userTeam, weekBefore, leagueCore.regSeasonWeeks);
 
-        String digestBlock = weekDigest == null || weekDigest.isEmpty() ? "" : "\n--------------------\n" + weekDigest;
+        String digestBlock = weekDigest == null || weekDigest.isEmpty() ? "" : "\n\n" + weekDigest;
+        String weekName = weekBefore > 0 && weekBefore < leagueCore.regSeasonWeeks - 1
+                ? "Week " + weekBefore
+                : simulation.SeasonPresentation.getScoreboardWeekType(weekBefore, leagueCore.regSeasonWeeks);
 
         if (g == null || g == lastSummarizedGame) {
             // No user game this week (BYE / dead week) — still surface the week in review.
             if (!digestBlock.isEmpty()) {
                 JOptionPane.showMessageDialog(this, DesktopTheme.messageForDialog(weekDigest),
-                        "Week " + weekBefore + " In Review", JOptionPane.INFORMATION_MESSAGE);
+                        weekName + " In Review", JOptionPane.INFORMATION_MESSAGE);
             }
             return;
         }
@@ -1185,13 +1188,15 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
         int score = DesktopWeekResult.userScore(g, leagueCore.userTeam);
         int oppScore = DesktopWeekResult.opponentScore(g, leagueCore.userTeam);
 
-        String result = score > oppScore ? "WIN" : (score < oppScore ? "LOSS" : "TIE");
+        String result = score > oppScore ? "Win" : (score < oppScore ? "Loss" : "Tie");
 
-        String msg = String.format(Locale.ROOT, "Week %d Result:\n\n%s %s %s\nFinal Score: %d - %d\n\nRecord: %d-%d%s",
-                weekBefore, result, site, opp, score, oppScore,
+        // One headline line; the digest below already carries the league texture
+        // (it used to repeat the result under a "-----" divider).
+        String msg = String.format(Locale.ROOT, "%s %s%s, %d-%d\nRecord: %d-%d%s",
+                result, site, opp, score, oppScore,
                 leagueCore.userTeam.getWins(), leagueCore.userTeam.getLosses(), digestBlock);
 
-        JOptionPane.showMessageDialog(this, DesktopTheme.messageForDialog(msg), "Game Result",
+        JOptionPane.showMessageDialog(this, DesktopTheme.messageForDialog(msg), weekName + " Result",
                 score >= oppScore ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.WARNING_MESSAGE);
     }
 
@@ -1757,7 +1762,7 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
                   Ctrl+Shift+A   Advance through offseason (stops at recruiting)
 
                 Recruiting
-                  Ctrl+R         Open Recruiting; finish after NLI week to start the new season.
+                  Ctrl+R         Open Recruiting; finish on Signing Day to start the new season.
 
                 Files
                   Ctrl+O         Open save
@@ -1777,7 +1782,9 @@ public class LeagueHomeView extends JFrame implements DesktopRecruitingBudget.Li
         area.setCaretPosition(0);
         JScrollPane scroll = new JScrollPane(area);
         scroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
-        scroll.setPreferredSize(new Dimension(520, 360));
+        // Wide enough for the longest line: at 520px every description was clipped
+        // behind a horizontal scrollbar.
+        scroll.setPreferredSize(new Dimension(760, 460));
         JOptionPane.showMessageDialog(this, scroll, "Keyboard Shortcuts", JOptionPane.PLAIN_MESSAGE);
     }
 

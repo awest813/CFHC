@@ -36,6 +36,8 @@ public class GameBoxScoreView extends JDialog {
         setSize(720, 520);
         setLayout(new BorderLayout());
         DesktopTheme.applyWindowIcon(this);
+        // Esc closes, like the other career dialogs.
+        DesktopTheme.installDialogKeys(this, null);
 
         if (!game.hasPlayed || "BYE WEEK".equals(game.gameName)) {
             add(buildNotPlayedPanel(), BorderLayout.CENTER);
@@ -235,7 +237,7 @@ public class GameBoxScoreView extends JDialog {
         String type = game.gameName != null ? game.gameName : "Regular Season";
         footer.add(new JLabel("Game type: " + type));
         if (game.numOT > 0) {
-            footer.add(new JLabel("  \u2022  " + game.numOT + " overtime(s)"));
+            footer.add(new JLabel("  \u2022  " + (game.numOT == 1 ? "Overtime" : game.numOT + " overtimes")));
         }
         return footer;
     }

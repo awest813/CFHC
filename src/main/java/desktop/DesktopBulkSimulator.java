@@ -108,7 +108,7 @@ final class DesktopBulkSimulator {
                     if (dialog.isCancelled()) {
                         JOptionPane.showMessageDialog(host.window(),
                                 DesktopTheme.messageForDialog(
-                                        "Season simulation was interrupted after " + played + " week(s)."),
+                                        "Season simulation was interrupted after " + played + (played == 1 ? " week." : " weeks.")),
                                 "Simulation Interrupted",
                                 JOptionPane.INFORMATION_MESSAGE);
                     }
