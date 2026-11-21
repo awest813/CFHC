@@ -94,6 +94,15 @@ public final class RecruitingDialogController {
             return;
         }
 
+        String blocked = sessionData.signingBlockReason(recruit);
+        if (blocked != null) {
+            collapseForRefresh(recruitList, groupPosition, groupCount);
+            Toast.makeText(activity, blocked + ".", Toast.LENGTH_LONG).show();
+            recruitList.expandGroup(groupPosition);
+            expListAdapter.notifyDataSetChanged();
+            return;
+        }
+
         if (!showPopUp) {
             performRecruit(activity, sessionData, recruit, groupPosition, recruitList, expListAdapter);
             return;

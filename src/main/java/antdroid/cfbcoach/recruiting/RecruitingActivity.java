@@ -247,7 +247,13 @@ public class RecruitingActivity extends AppCompatActivity {
 
 
     public void recruitPlayer(RecruitingPlayerRecord recruit) {
-        controller.recruitPlayer(recruit, uiState.isAutoFilter());
+        try {
+            controller.recruitPlayer(recruit, uiState.isAutoFilter());
+        } catch (IllegalStateException | IllegalArgumentException e) {
+            // Roster or budget changed since the button was drawn: say why instead of crashing.
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
+            return;
+        }
 
         Toast.makeText(this, "Recruited " + recruit.position() + " " + recruit.name(),
                 Toast.LENGTH_SHORT).show();

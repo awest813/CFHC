@@ -287,7 +287,15 @@ public class Staff {
 
     public int getCoachScore() {
         int prestigeDiff;
-        if (team.league.currentWeek < 15) {
+        // The season's prestige change is projected until the offseason books it
+        // (Team.enterOffSeason, at the season-summary step). This used a fixed
+        // "week < 15", so from the second bowl week to the summary (weeks 15-18 of
+        // a 14-week calendar) the score dropped its prestige part entirely: the
+        // change was neither projected nor applied yet.
+        int summaryWeek = simulation.SeasonFlowOrder.seasonSummaryWeek(team.league.regSeasonWeeks);
+        int week = team.league.currentWeek;
+        boolean booked = week > summaryWeek || (week == summaryWeek && team.isSeasonPrestigeBooked());
+        if (!booked) {
             int[] newPrestige = team.calcSeasonPrestige();
             prestigeDiff = newPrestige[0] - team.getTeamPrestige();
         } else {

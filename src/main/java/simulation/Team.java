@@ -1770,7 +1770,20 @@ public class Team {
         return statsTracker.getTeamHomeInfo();
     }
 
+    /**
+     * True from {@link #enterOffSeason()} until the next season's reset. Only read
+     * on the season-summary week, the one week where the season's prestige change
+     * may or may not be applied yet; later weeks are always booked, so this does
+     * not need saving.
+     */
+    private boolean seasonPrestigeBooked;
+
+    public boolean isSeasonPrestigeBooked() {
+        return seasonPrestigeBooked;
+    }
+
     public void enterOffSeason() {
+        seasonPrestigeBooked = true;
         prestigePts = calcSeasonPrestige();
         teamPrestige = prestigePts[0];
         totalWins += wins;
@@ -1785,6 +1798,7 @@ public class Team {
      * when starting the next season without a full save/load cycle.
      */
     public void resetSeasonStats() {
+        seasonPrestigeBooked = false;
         wins = 0;
         losses = 0;
         teamPoints = 0;
@@ -1813,6 +1827,10 @@ public class Team {
 
         playersLeaving.clear();
         if (playersTransferring != null) clearPlayersTransferring();
+        if (league != null) {
+            int seasonYear = league.getYear();
+            for (Player p : getAllPlayers()) p.beginSeasonStats(seasonYear);
+        }
     }
 
     //Calculates Prestige Change at end of season
@@ -2204,7 +2222,10 @@ public class Team {
         int i = 0;
         PracticeFocus pf = userControlled ? practiceFocus : PracticeFocus.BALANCED;
         while (i < players.size()) {
-            if ((players.get(i).year >= 4 && !players.get(i).isTransfer && !players.get(i).isRedshirt)
+            // A medical redshirt keeps the senior for another season (the news
+            // promised one); seniors with one used to graduate anyway.
+            if ((players.get(i).year >= 4 && !players.get(i).isTransfer && !players.get(i).isRedshirt
+                    && !players.get(i).isMedicalRS)
                     || (players.get(i).year == 3 && players.get(i).ratOvr > NFL_OVR && SimRandom.nextDouble() < NFL_CHANCE)
                     || (players.get(i).year == 2 && players.get(i).wasRedshirt && players.get(i).ratOvr > NFL_OVR + sophNFL && SimRandom.nextDouble() < NFL_CHANCE_SOPH)) {
                 // Departing players never advance, so count their final-season
@@ -3102,134 +3123,44 @@ public class Team {
     /**
      * Recruits walk ons at each needed position.
      * This is used by user teams if there is a dearth at any position.
+     *
+     * <p>A position short of its minimum always gets walk-ons. Redshirts and
+     * sitting-out transfers are also replaced (they cannot play this season), but
+     * only while the roster is under {@link RosterRules#MAX_PLAYERS}: those extra
+     * walk-ons used to push a full user roster to 76-78 after signing day (CPU
+     * rosters are trimmed to the cap, the user's never are).
      */
     public void recruitWalkOns() {
-        int star;
-        boolean walkon = true;
-
-
-        //QUARTERBACKS
-        int needs = minQBs - teamQBs.size();
-        for (int i = 0; i < teamQBs.size(); ++i) {
-            if (teamQBs.get(i).isRedshirt || teamQBs.get(i).isTransfer) {
-                needs++;
-            }
-        }
-        for (int i = 0; i < needs; ++i) {
-            star = (int) (SimRandom.nextDouble() * 2) + 1;
-            teamQBs.add(new PlayerQB(league.getRandName(), 1, star, this, walkon));
-        }
-
-        //RUNNING BACKS
-        needs = minRBs - teamRBs.size();
-        for (int i = 0; i < teamRBs.size(); ++i) {
-            if (teamRBs.get(i).isRedshirt || teamRBs.get(i).isTransfer) {
-                needs++;
-            }
-        }
-        for (int i = 0; i < needs; ++i) {
-            star = (int) (SimRandom.nextDouble() * 2) + 1;
-            teamRBs.add(new PlayerRB(league.getRandName(), 1, star, this, walkon));
-        }
-
-        //WIDE RECEIVERS
-        needs = minWRs - teamWRs.size();
-        for (int i = 0; i < teamWRs.size(); ++i) {
-            if (teamWRs.get(i).isRedshirt || teamWRs.get(i).isTransfer) {
-                needs++;
-            }
-        }
-        for (int i = 0; i < needs; ++i) {
-            star = (int) (SimRandom.nextDouble() * 2) + 1;
-            teamWRs.add(new PlayerWR(league.getRandName(), 1, star, this, walkon));
-        }
-
-        //TIGHT ENDS
-        needs = minTEs - teamTEs.size();
-        for (int i = 0; i < teamTEs.size(); ++i) {
-            if (teamTEs.get(i).isRedshirt || teamTEs.get(i).isTransfer) {
-                needs++;
-            }
-        }
-        for (int i = 0; i < needs; ++i) {
-            star = (int) (SimRandom.nextDouble() * 2) + 1;
-            teamTEs.add(new PlayerTE(league.getRandName(), 1, star, this, walkon));
-        }
-
-        //OFFENSIVE LINE
-        needs = minOLs - teamOLs.size();
-        for (int i = 0; i < teamOLs.size(); ++i) {
-            if (teamOLs.get(i).isRedshirt || teamOLs.get(i).isTransfer) {
-                needs++;
-            }
-        }
-        for (int i = 0; i < needs; ++i) {
-            star = (int) (SimRandom.nextDouble() * 2) + 1;
-            teamOLs.add(new PlayerOL(league.getRandName(), 1, star, this, walkon));
-        }
-
-        //KICKERS
-        needs = minKs - teamKs.size();
-        for (int i = 0; i < teamKs.size(); ++i) {
-            if (teamKs.get(i).isRedshirt || teamKs.get(i).isTransfer) {
-                needs++;
-            }
-        }
-        for (int i = 0; i < needs; ++i) {
-            star = (int) (SimRandom.nextDouble() * 2) + 1;
-            teamKs.add(new PlayerK(league.getRandName(), 1, star, this, walkon));
-        }
-
-        //DEFENSIVE LINE
-        needs = minDLs - teamDLs.size();
-        for (int i = 0; i < teamDLs.size(); ++i) {
-            if (teamDLs.get(i).isRedshirt || teamDLs.get(i).isTransfer) {
-                needs++;
-            }
-        }
-        for (int i = 0; i < needs; ++i) {
-            star = (int) (SimRandom.nextDouble() * 2) + 1;
-            teamDLs.add(new PlayerDL(league.getRandName(), 1, star, this, walkon));
-        }
-
-        //LINEBACKERS
-        needs = minLBs - teamLBs.size();
-        for (int i = 0; i < teamLBs.size(); ++i) {
-            if (teamLBs.get(i).isRedshirt || teamLBs.get(i).isTransfer) {
-                needs++;
-            }
-        }
-        for (int i = 0; i < needs; ++i) {
-            star = (int) (SimRandom.nextDouble() * 2) + 1;
-            teamLBs.add(new PlayerLB(league.getRandName(), 1, star, this, walkon));
-        }
-
-        //CORNERBACKS
-        needs = minCBs - teamCBs.size();
-        for (int i = 0; i < teamCBs.size(); ++i) {
-            if (teamCBs.get(i).isRedshirt || teamCBs.get(i).isTransfer) {
-                needs++;
-            }
-        }
-        for (int i = 0; i < needs; ++i) {
-            star = (int) (SimRandom.nextDouble() * 2) + 1;
-            teamCBs.add(new PlayerCB(league.getRandName(), 1, star, this, walkon));
-        }
-
-        //SAFETY
-        needs = minSs - teamSs.size();
-        for (int i = 0; i < teamSs.size(); ++i) {
-            if (teamSs.get(i).isRedshirt || teamSs.get(i).isTransfer) {
-                needs++;
-            }
-        }
-        for (int i = 0; i < needs; ++i) {
-            star = (int) (SimRandom.nextDouble() * 2) + 1;
-            teamSs.add(new PlayerS(league.getRandName(), 1, star, this, walkon));
-        }
+        int[] roster = {getAllPlayers().size()};
+        addWalkOns(teamQBs, minQBs, roster, (n, s) -> new PlayerQB(n, 1, s, this, true));
+        addWalkOns(teamRBs, minRBs, roster, (n, s) -> new PlayerRB(n, 1, s, this, true));
+        addWalkOns(teamWRs, minWRs, roster, (n, s) -> new PlayerWR(n, 1, s, this, true));
+        addWalkOns(teamTEs, minTEs, roster, (n, s) -> new PlayerTE(n, 1, s, this, true));
+        addWalkOns(teamOLs, minOLs, roster, (n, s) -> new PlayerOL(n, 1, s, this, true));
+        addWalkOns(teamKs, minKs, roster, (n, s) -> new PlayerK(n, 1, s, this, true));
+        addWalkOns(teamDLs, minDLs, roster, (n, s) -> new PlayerDL(n, 1, s, this, true));
+        addWalkOns(teamLBs, minLBs, roster, (n, s) -> new PlayerLB(n, 1, s, this, true));
+        addWalkOns(teamCBs, minCBs, roster, (n, s) -> new PlayerCB(n, 1, s, this, true));
+        addWalkOns(teamSs, minSs, roster, (n, s) -> new PlayerS(n, 1, s, this, true));
 
         //done making players, sort them
         sortPlayers();
+    }
+
+    private <P extends Player> void addWalkOns(ArrayList<P> group, int min, int[] roster,
+                                               java.util.function.BiFunction<String, Integer, P> make) {
+        int unavailable = 0;
+        for (P p : group) {
+            if (p.isRedshirt || p.isTransfer) unavailable++;
+        }
+        int needs = min - group.size() + unavailable;
+        int hardNeeds = min - group.size();
+        for (int i = 0; i < needs; ++i) {
+            if (i >= hardNeeds && roster[0] >= RosterRules.MAX_PLAYERS) break;
+            int star = (int) (SimRandom.nextDouble() * 2) + 1;
+            group.add(make.apply(league.getRandName(), star));
+            roster[0]++;
+        }
     }
 
     public PlayerQB[] getQBRecruits(int rating) {

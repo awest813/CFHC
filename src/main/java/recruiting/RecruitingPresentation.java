@@ -21,6 +21,20 @@ public final class RecruitingPresentation {
                 + " Head coach recruiting (" + sessionData.coachTalent + ") adds to your signing budget and reduces scouting cost.";
     }
 
+    /** Positions still below their roster minimum, e.g. "QB 1, OL 2"; "none" when every position is covered. */
+    public static String shortPositionsSummary(RecruitingSessionData sessionData) {
+        RecruitingSessionData.PositionNeeds n = sessionData.calculateNeeds();
+        int[] needs = {n.qbs, n.rbs, n.wrs, n.tes, n.ols, n.ks, n.dls, n.lbs, n.cbs, n.ss};
+        String[] names = {"QB", "RB", "WR", "TE", "OL", "K", "DL", "LB", "CB", "S"};
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < names.length; i++) {
+            if (needs[i] <= 0) continue;
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(names[i]).append(' ').append(needs[i]);
+        }
+        return sb.length() == 0 ? "none" : sb.toString();
+    }
+
     public static String buildBoardStatus(RecruitingSessionData sessionData) {
         int n = sessionData.availAll.size();
         if (n == 0) {

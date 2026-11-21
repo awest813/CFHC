@@ -440,6 +440,13 @@ public class RecruitingPanel extends JPanel {
                     "Cannot Recruit", JOptionPane.WARNING_MESSAGE);
             return;
         }
+        String blocked = sessionData.signingBlockReason(recruit);
+        if (blocked != null && recruit.cost() <= sessionData.recruitingBudget) {
+            JOptionPane.showMessageDialog(this,
+                    DesktopTheme.messageForDialog(blocked + "."),
+                    "Cannot Recruit", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
 
         if (recruit.cost() > sessionData.recruitingBudget) {
             JOptionPane.showMessageDialog(this,
