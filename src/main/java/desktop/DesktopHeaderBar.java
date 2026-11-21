@@ -115,7 +115,10 @@ public class DesktopHeaderBar extends JPanel {
                 // only needs the phase name itself.
                 ? recordPrefix
                     + simulation.SeasonPresentation.getSeasonPhaseChipText(league).replaceFirst("^Phase\\s+", "")
+                    // Week number only: the chip's suffix ("CCG", "NCG", "Offseason")
+                    // repeated the phase ("NATIONAL CHAMPIONSHIP • WEEK 17 NCG").
                     + "  \u2022  " + simulation.SeasonPresentation.getSeasonWeekChipText(league)
+                            .replaceFirst("\\s{2,}.*$", "")
                 : currentYear + " SEASON  •  WEEK 8";
         JLabel seasonLabel = new JLabel(seasonText.toUpperCase());
         seasonLabel.setFont(new Font("SansSerif", Font.BOLD, 11));

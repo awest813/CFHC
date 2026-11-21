@@ -124,10 +124,10 @@ class GameBoxScore {
         StringBuilder gameR = new StringBuilder();
 
         gameL.append("\nPoints\nYards\nPass Yards\nRush Yards\nTOs\nPenalties\n");
-        gameC.append("#" + game.awayTeam.getRankTeamPollScore() + " " + game.awayTeam.getAbbr() + "\n" + game.awayScore + "\n" + game.awayYards + " yds\n" +
+        gameC.append(rankPrefix(game.awayTeam) + game.awayTeam.getAbbr() + "\n" + game.awayScore + "\n" + game.awayYards + " yds\n" +
                 game.awayPassYards + " pyds\n" + game.awayRushYards + " ryds\n" + game.awayTurnovers + " TOs\n"
                 + game.awayPenalties + " for " + game.awayPenaltyYards + " yds\n");
-        gameR.append("#" + game.homeTeam.getRankTeamPollScore() + " " + game.homeTeam.getAbbr() + "\n" + game.homeScore + "\n" + game.homeYards + " yds\n" +
+        gameR.append(rankPrefix(game.homeTeam) + game.homeTeam.getAbbr() + "\n" + game.homeScore + "\n" + game.homeYards + " yds\n" +
                 game.homePassYards + " pyds\n" + game.homeRushYards + " ryds\n" + game.homeTurnovers + " TOs\n"
                 + game.homePenalties + " for " + game.homePenaltyYards + " yds\n");
 
@@ -335,9 +335,9 @@ class GameBoxScore {
         StringBuilder gameR = new StringBuilder();
 
         gameL.append("\nPoints\nYards\nPass Yards\nRush Yards\nTOs\nPenalties\n\nOffense\nDefense\n");
-        gameC.append("#" + game.awayTeam.getRankTeamPollScore() + " " + game.awayTeam.getName() + "\n" + game.awayScore + "\n" + game.awayYards + " yds\n" +
+        gameC.append(rankPrefix(game.awayTeam) + game.awayTeam.getName() + "\n" + game.awayScore + "\n" + game.awayYards + " yds\n" +
                 game.awayPassYards + " pyds\n" + game.awayRushYards + " ryds\n" + game.awayTurnovers + " TOs\n" + game.awayPenalties + " for " + game.awayPenaltyYards + " yds\n\n" + game.awayTeam.getPlaybookOffense().getStratName() + "\n" + game.awayTeam.getPlaybookDefense().getStratName() + " \n");
-        gameR.append("#" + game.homeTeam.getRankTeamPollScore() + " " + game.homeTeam.getName() + "\n" + game.homeScore + "\n" + game.homeYards + " yds\n" +
+        gameR.append(rankPrefix(game.homeTeam) + game.homeTeam.getName() + "\n" + game.homeScore + "\n" + game.homeYards + " yds\n" +
                 game.homePassYards + " pyds\n" + game.homeRushYards + " ryds\n" + game.homeTurnovers + " TOs\n" + game.homePenalties + " for " + game.homePenaltyYards + " yds\n\n" + game.homeTeam.getPlaybookOffense().getStratName() + "\n" + game.homeTeam.getPlaybookDefense().getStratName() + " \n");
 
         StringBuilder gamePL = new StringBuilder();
@@ -558,7 +558,7 @@ class GameBoxScore {
                 "\nPass YPG\nRush YPG\nOpp PYPG\nOpp RYPG\n\nOff Talent\nDef Talent\nPrestige\n\nHC\nHC Ovr\nHC Off\nOffense\nHC Def\nDefense\n\nFavorite");
         int g = Math.max(1, game.awayTeam.numGames());
         Team t = game.awayTeam;
-        gameC.append("#" + t.getRankTeamPollScore() + " " + t.getAbbr() + "\n" + t.getWins() + "-" + t.getLosses() + "\n" +
+        gameC.append(rankPrefix(t) + t.getAbbr() + "\n" + t.getWins() + "-" + t.getLosses() + "\n" +
                 t.getTeamPoints() / g + " (" + t.getRankTeamPoints() + ")\n" + t.getTeamOppPoints() / g + " (" + t.getRankTeamOppPoints() + ")\n" +
                 t.getTeamYards() / g + " (" + t.getRankTeamYards() + ")\n" + t.getTeamOppYards() / g + " (" + t.getRankTeamOppYards() + ")\n\n" +
                 t.getTeamPassYards() / g + " (" + t.getRankTeamPassYards() + ")\n" + t.getTeamRushYards() / g + " (" + t.getRankTeamRushYards() + ")\n" +
@@ -570,7 +570,7 @@ class GameBoxScore {
                 "\n\n" + getFavorite(homeRating, awayRating, false));
         g = Math.max(1, game.homeTeam.numGames());
         t = game.homeTeam;
-        gameR.append("#" + t.getRankTeamPollScore() + " " + t.getAbbr() + "\n" + t.getWins() + "-" + t.getLosses() + "\n" +
+        gameR.append(rankPrefix(t) + t.getAbbr() + "\n" + t.getWins() + "-" + t.getLosses() + "\n" +
                 t.getTeamPoints() / g + " (" + t.getRankTeamPoints() + ")\n" + t.getTeamOppPoints() / g + " (" + t.getRankTeamOppPoints() + ")\n" +
                 t.getTeamYards() / g + " (" + t.getRankTeamYards() + ")\n" + t.getTeamOppYards() / g + " (" + t.getRankTeamOppYards() + ")\n\n" +
                 t.getTeamPassYards() / g + " (" + t.getRankTeamPassYards() + ")\n" + t.getTeamRushYards() / g + " (" + t.getRankTeamRushYards() + ")\n" +
@@ -666,5 +666,11 @@ class GameBoxScore {
         if (!Player.defensePos.contains(p.position)) return p.gameTackles > 0;
         return p.gameTackles > 0 || p.gameSacks > 0 || p.gameInterceptions > 0
                 || p.gameFumbles > 0 || p.gameDefended > 0;
+    }
+
+    /** "#12 " for a Top 25 team, nothing otherwise ("#97 Akron" read like a typo). */
+    static String rankPrefix(Team t) {
+        int r = t.getRankTeamPollScore();
+        return r >= 1 && r <= 25 ? "#" + r + " " : "";
     }
 }
