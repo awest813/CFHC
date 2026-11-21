@@ -28,7 +28,7 @@ public class PollRankingsPanel implements LeagueScreen {
         panel.add(DesktopTheme.buildScreenHeader("Poll Rankings",
                 "Current AP-style poll order with team talent and prestige."), BorderLayout.NORTH);
 
-        String[] columns = {"Rank", "Team", "Record", "Conf", "Poll Score", "Prestige", "Off Tal", "Def Tal"};
+        String[] columns = {"Rank", "Team", "Record", "Conf", "Poll Score", "Prestige", "Off Talent", "Def Talent"};
         DefaultTableModel model = new DefaultTableModel(columns, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
             @Override public Class<?> getColumnClass(int col) {
@@ -60,6 +60,10 @@ public class PollRankingsPanel implements LeagueScreen {
         StripedRowRenderer.installWithTeamColors(table, ctx.teamMap(), 1, "%.1f");
         // Record / Conf ("7-0") align with the other numeric columns.
         StripedRowRenderer.setNumericColumns(table, 2, 3);
+        DesktopTheme.compactColumn(table, 0, 64);
+        for (int col = 2; col < columns.length; col++) {
+            DesktopTheme.compactColumn(table, col, 100);
+        }
         table.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {

@@ -50,13 +50,13 @@ public class PlayerSearchPanel implements LeagueScreen {
         searchTarget = nameField;
 
         filterBar.add(new JLabel("Position:"));
-        String[] positions = {"ALL", "QB", "RB", "WR", "TE", "OL", "DL", "LB", "CB", "S", "K"};
+        String[] positions = {"All", "QB", "RB", "WR", "TE", "OL", "DL", "LB", "CB", "S", "K"};
         JComboBox<String> posBox = new JComboBox<>(positions);
         posBox.getAccessibleContext().setAccessibleName("Player search position filter");
         filterBar.add(posBox);
 
         filterBar.add(new JLabel("Year:"));
-        String[] years = {"ALL", "FR", "SO", "JR", "SR"};
+        String[] years = {"All", "FR", "SO", "JR", "SR"};
         JComboBox<String> yearBox = new JComboBox<>(years);
         yearBox.getAccessibleContext().setAccessibleName("Player search year filter");
         filterBar.add(yearBox);
@@ -94,6 +94,10 @@ public class PlayerSearchPanel implements LeagueScreen {
         table.getColumnModel().getColumn(5).setPreferredWidth(60);
         table.getColumnModel().getColumn(5).setMaxWidth(80);
         StripedRowRenderer.install(table);
+        if (!ctx.league().showPotential) {
+            // Potential is hidden in this league: drop the column instead of a blank one.
+            table.removeColumn(table.getColumnModel().getColumn(5));
+        }
 
         table.addMouseListener(new MouseAdapter() {
             @Override
@@ -132,7 +136,7 @@ public class PlayerSearchPanel implements LeagueScreen {
             for (Team t : ctx.league().getTeamList()) {
                 for (Player p : t.getAllPlayers()) {
                     if (!query.isEmpty() && !p.name.toLowerCase(Locale.ROOT).contains(query)) continue;
-                    if (!"ALL".equals(posFilter) && !p.position.equals(posFilter)) continue;
+                    if (!"All".equals(posFilter) && !p.position.equals(posFilter)) continue;
                     if (yearInt != -1 && p.year != yearInt) continue;
                     model.addRow(new Object[]{
                             p.name, p.position, t.getName(), DesktopTheme.yearAbbreviation(p.year), p.ratOvr,
@@ -140,7 +144,8 @@ public class PlayerSearchPanel implements LeagueScreen {
                     });
                 }
             }
-            resultCount.setText(model.getRowCount() + " players");
+            int found = model.getRowCount();
+            resultCount.setText(String.format(Locale.ROOT, "%,d %s", found, found == 1 ? "player" : "players"));
         };
 
         searchBtn.addActionListener(e -> runSearch.run());

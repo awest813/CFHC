@@ -66,6 +66,8 @@ public class TeamDetailView extends JDialog {
         setSize(1080, 740);
         setLayout(new BorderLayout());
         DesktopTheme.applyWindowIcon(this);
+        // Esc closes, like the other career dialogs.
+        DesktopTheme.installDialogKeys(this, null);
 
         add(buildIdentityHeader(team, liveTeam), BorderLayout.NORTH);
 
@@ -277,6 +279,15 @@ public class TeamDetailView extends JDialog {
         table.setAutoCreateRowSorter(true);
         table.setRowHeight(24);
         StripedRowRenderer.install(table);
+        DesktopTheme.compactColumn(table, 0, 56);
+        DesktopTheme.compactColumn(table, 2, 56);
+        DesktopTheme.compactColumn(table, 3, 72);
+        DesktopTheme.compactColumn(table, 4, 72);
+        DesktopTheme.compactColumn(table, 5, 72);
+        if (!showPot) {
+            // Potential hidden by league setting: no blank column.
+            table.removeColumn(table.getColumnModel().getColumn(4));
+        }
 
         // Double-click to show player detail (from live team)
         if (liveTeam != null) {
@@ -333,6 +344,8 @@ public class TeamDetailView extends JDialog {
         JTable table = new JTable(model);
         table.setRowHeight(24);
         StripedRowRenderer.install(table);
+        DesktopTheme.compactColumn(table, 0, 56);
+        DesktopTheme.compactColumn(table, 2, 80);
 
         // Double-click a game row to show box score
         table.addMouseListener(new MouseAdapter() {
@@ -386,6 +399,10 @@ public class TeamDetailView extends JDialog {
         JTable table = new JTable(model);
         table.setRowHeight(24);
         StripedRowRenderer.install(table);
+        DesktopTheme.compactColumn(table, 0, 72);
+        DesktopTheme.compactColumn(table, 1, 56);
+        DesktopTheme.compactColumn(table, 3, 56);
+        DesktopTheme.compactColumn(table, 4, 72);
 
         if (liveTeam != null) {
             table.addMouseListener(new MouseAdapter() {

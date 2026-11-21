@@ -135,13 +135,15 @@ public class TransferPortalDialog extends JDialog {
         topBar.add(countLabel);
 
         JButton myTransfersBtn = new JButton("My Transfers");
-        DesktopTheme.styleSecondaryButton(myTransfersBtn);
+        DesktopTheme.styleHudQuickButton(myTransfersBtn, false);
+        myTransfersBtn.setMnemonic(java.awt.event.KeyEvent.VK_M);
         myTransfersBtn.addActionListener(e -> DesktopTheme.showScrollableText(
                 this, yearLabel() + " Your Transfers", userTransferSummary(league)));
         topBar.add(myTransfersBtn);
 
         JButton allTransfersBtn = new JButton("All Transfers");
-        DesktopTheme.styleSecondaryButton(allTransfersBtn);
+        DesktopTheme.styleHudQuickButton(allTransfersBtn, false);
+        allTransfersBtn.setMnemonic(java.awt.event.KeyEvent.VK_A);
         allTransfersBtn.addActionListener(e -> DesktopTheme.showScrollableText(
                 this, yearLabel() + " All Transfers", leagueTransferSummary(league)));
         topBar.add(allTransfersBtn);
@@ -155,11 +157,10 @@ public class TransferPortalDialog extends JDialog {
         summary.setRows(4);
         DesktopTheme.styleTextContent(summary);
         JScrollPane summaryScroll = new JScrollPane(summary);
-        summaryScroll.setBorder(BorderFactory.createTitledBorder(
-                BorderFactory.createLineBorder(DesktopTheme.borderSubtle()),
-                "Your program this cycle"));
+        // Themed card caption (the classic Swing TitledBorder drew a plain default-font label).
+        summaryScroll.setBorder(DesktopTheme.titledBorder("Your Program This Cycle"));
         summaryScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
-        summaryScroll.setPreferredSize(new Dimension(0, 110));
+        summaryScroll.setPreferredSize(new Dimension(0, 124));
         north.add(summaryScroll, BorderLayout.CENTER);
 
         add(north, BorderLayout.NORTH);
@@ -182,6 +183,10 @@ public class TransferPortalDialog extends JDialog {
         table.setSelectionBackground(DesktopTheme.selectionAccent());
         table.getAccessibleContext().setAccessibleName("Transfer portal prospects");
         StripedRowRenderer.install(table);
+        DesktopTheme.installBroadcastHeader(table);
+        DesktopTheme.compactColumn(table, 0, 56);
+        DesktopTheme.compactColumn(table, 2, 64);
+        DesktopTheme.compactColumn(table, 3, 56);
 
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
@@ -243,7 +248,7 @@ public class TransferPortalDialog extends JDialog {
                     count++;
                 }
             }
-            countLabel.setText("  " + count + " PROSPECTS IN PORTAL");
+            countLabel.setText("  " + count + (count == 1 ? " PROSPECT" : " PROSPECTS") + " IN PORTAL");
         };
 
         filterBox.addActionListener(e -> applyFilter.run());
@@ -251,7 +256,7 @@ public class TransferPortalDialog extends JDialog {
 
         if (allPlayers.isEmpty()) {
             tableModel.setRowCount(0);
-            countLabel.setText("  PORTAL REGISTRY IS CURRENTLY EMPTY.");
+            countLabel.setText("  THE PORTAL IS EMPTY");
         }
     }
 
@@ -266,6 +271,7 @@ public class TransferPortalDialog extends JDialog {
 
     public static void show(JFrame owner, League league) {
         TransferPortalDialog dlg = new TransferPortalDialog(owner, league);
+        DesktopTheme.fitDialogHeight(dlg);
         dlg.setLocationRelativeTo(owner);
         dlg.setVisible(true);
     }

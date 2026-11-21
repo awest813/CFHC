@@ -198,12 +198,14 @@ public class RecruitingPanel extends JPanel {
         DesktopTheme.styleDataTableInScroll(tableScroll, boardTable, "Recruiting board");
         // Weighted columns: long player names need the lion's share or the
         // default equal split ellipsizes them ("Yehuda Carpe...").
-        boardTable.getColumnModel().getColumn(0).setPreferredWidth(50);  // Pos
-        boardTable.getColumnModel().getColumn(1).setPreferredWidth(175); // Name
-        boardTable.getColumnModel().getColumn(2).setPreferredWidth(60);  // Stars
-        boardTable.getColumnModel().getColumn(3).setPreferredWidth(65);  // Cost
-        boardTable.getColumnModel().getColumn(4).setPreferredWidth(70);  // Overall
-        boardTable.getColumnModel().getColumn(5).setPreferredWidth(150); // Status
+        // Stars and Overall are sized for five glyphs / the header so they never
+        // collapse to "★..." / "OVER..." on a narrower window.
+        DesktopTheme.compactColumn(boardTable, 0, 48);                   // Pos
+        boardTable.getColumnModel().getColumn(1).setPreferredWidth(210); // Name
+        DesktopTheme.compactColumn(boardTable, 2, 84);                   // Stars
+        DesktopTheme.compactColumn(boardTable, 3, 64);                   // Cost
+        DesktopTheme.compactColumn(boardTable, 4, 80);                   // Overall
+        boardTable.getColumnModel().getColumn(5).setPreferredWidth(110); // Status
         // Stars as gold glyphs (style guide), keeping the Integer model value so
         // the column still sorts numerically.
         boardTable.getColumnModel().getColumn(2).setCellRenderer(new StripedRowRenderer() {
@@ -289,6 +291,20 @@ public class RecruitingPanel extends JPanel {
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableScroll, rightPanel);
         split.setDividerLocation(550);
+        // On wide windows give the board ~56% instead of a fixed 550px, so names and
+        // "Committed: <school>" statuses are not ellipsized while the scouting pane
+        // keeps the remainder. One-shot: a divider the user drags stays put.
+        split.addComponentListener(new java.awt.event.ComponentAdapter() {
+            @Override
+            public void componentResized(java.awt.event.ComponentEvent e) {
+                int w = split.getWidth();
+                if (w <= 0) {
+                    return;
+                }
+                split.setDividerLocation(Math.max(550, (int) (w * 0.56)));
+                split.removeComponentListener(this);
+            }
+        });
         split.setOpaque(true);
         split.setBackground(DesktopTheme.windowBackground());
         return split;

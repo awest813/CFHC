@@ -71,7 +71,8 @@ public class RedshirtDialog extends JDialog {
         northStack.setBackground(DesktopTheme.tableBase());
 
         // Top Hint Bar
-        JPanel hintBar = new JPanel(new FlowLayout(FlowLayout.LEFT, 25, 12)) {
+        // BorderLayout (not FlowLayout) so the HTML hint wraps instead of running off the edge.
+        JPanel hintBar = new JPanel(new BorderLayout()) {
             @Override
             protected void paintComponent(Graphics g) {
                 super.paintComponent(g);
@@ -82,6 +83,7 @@ public class RedshirtDialog extends JDialog {
             }
         };
         hintBar.setBackground(DesktopTheme.tableBase());
+        hintBar.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
         boolean window = simulation.SeasonFlowOrder.isRedshirtWindow(league.currentWeek);
         JLabel hint = new JLabel("<html>Season redshirts (including auto-redshirts for players with fewer than 4 games) "
                 + "are listed below. Double-click any player to view details. "
@@ -89,7 +91,7 @@ public class RedshirtDialog extends JDialog {
                           : "Redshirts can only be granted or removed in the preseason.") + "</html>");
         hint.setFont(new Font("SansSerif", Font.ITALIC, 11));
         hint.setForeground(DesktopTheme.textSecondary());
-        hintBar.add(hint);
+        hintBar.add(hint, BorderLayout.CENTER);
         northStack.add(hintBar, BorderLayout.NORTH);
 
         if (league.userTeam != null && !league.userTeam.getRedshirtList().isEmpty()) {
@@ -102,10 +104,9 @@ public class RedshirtDialog extends JDialog {
             seasonList.setEditable(false);
             DesktopTheme.styleTextContent(seasonList);
             JScrollPane seasonScroll = new JScrollPane(seasonList);
-            seasonScroll.setPreferredSize(new java.awt.Dimension(0, 110));
-            seasonScroll.setBorder(BorderFactory.createTitledBorder(
-                    BorderFactory.createLineBorder(DesktopTheme.borderSubtle()),
-                    league.getYear() + " Redshirts"));
+            seasonScroll.setPreferredSize(new java.awt.Dimension(0, 124));
+            seasonScroll.setBorder(DesktopTheme.titledBorder(league.getYear() + " Redshirts"));
+            seasonScroll.getViewport().setBackground(DesktopTheme.textAreaEditorBackground());
             northStack.add(seasonScroll, BorderLayout.CENTER);
         }
         add(northStack, BorderLayout.NORTH);
@@ -223,7 +224,13 @@ public class RedshirtDialog extends JDialog {
     }
 
     private JTable createModernTable(DefaultTableModel model, String accessibleName) {
-        return DesktopTheme.stylePickerTable(model, 35, 11, accessibleName);
+        JTable table = DesktopTheme.stylePickerTable(model, 35, 11, accessibleName);
+        // Short columns stay short so player names are not ellipsized ("Dandre P...").
+        DesktopTheme.compactColumn(table, 0, 50);
+        DesktopTheme.compactColumn(table, 2, 48);
+        DesktopTheme.compactColumn(table, 3, 60);
+        DesktopTheme.compactColumn(table, 4, 64);
+        return table;
     }
 
     private DefaultTableModel createModel() {
@@ -279,6 +286,7 @@ public class RedshirtDialog extends JDialog {
 
     public static void show(JFrame owner, League league) {
         RedshirtDialog dlg = new RedshirtDialog(owner, league);
+        DesktopTheme.fitDialogHeight(dlg);
         dlg.setLocationRelativeTo(owner);
         dlg.setVisible(true);
     }

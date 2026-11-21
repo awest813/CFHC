@@ -62,11 +62,10 @@ public class PlayerStatsPanel implements LeagueScreen {
         JTable table = new JTable(model);
         table.setRowHeight(22);
         table.setFillsViewportHeight(true);
-        table.getColumnModel().getColumn(0).setPreferredWidth(60);
-        table.getColumnModel().getColumn(0).setMaxWidth(80);
+        DesktopTheme.compactColumn(table, 0, 64);
         table.getColumnModel().getColumn(1).setPreferredWidth(260);
-        table.getColumnModel().getColumn(2).setPreferredWidth(100);
-        table.getColumnModel().getColumn(3).setPreferredWidth(120);
+        DesktopTheme.compactColumn(table, 2, 110);
+        DesktopTheme.compactColumn(table, 3, 130);
         StripedRowRenderer.install(table);
         StripedRowRenderer.setNumericColumns(table, 0, 3);
 

@@ -599,6 +599,22 @@ _selectionAccent = highContrast
     }
 
     /**
+     * Sizes a short-value column (position, class year, rating, rank...) so it keeps
+     * room for its header and values but does not soak up spare width: extra space
+     * goes to the name/team columns instead of padding "QB" out to 300px while names
+     * ellipsize.
+     */
+    public static void compactColumn(JTable table, int column, int width) {
+        if (table == null || column < 0 || column >= table.getColumnModel().getColumnCount()) {
+            return;
+        }
+        javax.swing.table.TableColumn c = table.getColumnModel().getColumn(column);
+        c.setMinWidth(Math.max(24, width - 12));
+        c.setPreferredWidth(width);
+        c.setMaxWidth(width + 40);
+    }
+
+    /**
      * Styles a data table after it is the viewport view of {@code scroll}. Prefer this over
      * calling {@link #styleDataTable(JTable)} before the table is mounted in a scroll pane.
      */
@@ -644,7 +660,23 @@ _selectionAccent = highContrast
         table.getTableHeader().setPreferredSize(new Dimension(0, rowHeight + 5));
         table.getTableHeader().setBorder(
                 BorderFactory.createMatteBorder(0, 0, 1, 0, borderSubtle()));
+        installBroadcastHeader(table);
         return table;
+    }
+
+    /**
+     * Uppercase, column-aligned header (the data-table treatment) for tables that keep
+     * their own colors, such as the offseason picker tables.
+     */
+    public static void installBroadcastHeader(JTable table) {
+        if (table == null || table.getTableHeader() == null) {
+            return;
+        }
+        javax.swing.table.JTableHeader header = table.getTableHeader();
+        header.setReorderingAllowed(false);
+        if (!(header.getDefaultRenderer() instanceof BroadcastHeaderRenderer)) {
+            header.setDefaultRenderer(new BroadcastHeaderRenderer(header.getDefaultRenderer()));
+        }
     }
 
     /** League tab / analytics page root so the content pane never shows default white in dark mode. */
@@ -788,10 +820,14 @@ _selectionAccent = highContrast
      * blocks. Non-strings (existing components, scroll panes) pass through unchanged.
      */
     public static Object messageForDialog(Object message) {
-        if (!dark || message == null) {
-            return message;
+        if (message == null) {
+            return null;
         }
         if (message instanceof String s) {
+            boolean longText = s.split("\n", -1).length > LONG_MESSAGE_LINES;
+            if (!dark && !longText) {
+                return message;
+            }
             JTextArea a = new JTextArea(s);
             a.setEditable(false);
             a.setWrapStyleWord(true);
@@ -799,10 +835,53 @@ _selectionAccent = highContrast
             a.setColumns(42);
             a.setRows(0);
             styleTextContent(a);
+            if (longText) {
+                // Week-in-review digests run 40+ lines: cap the dialog height and scroll
+                // instead of growing past the bottom of a laptop screen.
+                a.setColumns(48);
+                a.setCaretPosition(0);
+                JScrollPane scroll = new JScrollPane(a);
+                scroll.setBorder(BorderFactory.createEmptyBorder());
+                scroll.getViewport().setBackground(textAreaEditorBackground());
+                scroll.setPreferredSize(new Dimension(
+                        a.getPreferredSize().width + 24, 460));
+                return scroll;
+            }
+            // A wrapping JTextArea reports its unwrapped height until it has a width,
+            // so JOptionPane packed the dialog 1-3 lines short and clipped the end of
+            // the message. Give it its column width first so the height counts wraps.
+            a.setSize(a.getPreferredSize().width, Short.MAX_VALUE);
             return a;
         }
         return message;
     }
+
+    /**
+     * Grows a fixed-size dialog's height to its content (e.g. the redshirt dialog
+     * once the season's redshirt list is added above the tables) without going past
+     * the usable screen height. Width is left alone: HTML hint labels report their
+     * unwrapped width as preferred.
+     */
+    public static void fitDialogHeight(java.awt.Window w) {
+        if (w == null) {
+            return;
+        }
+        int prefH = w.getPreferredSize().height;
+        int maxH = Integer.MAX_VALUE;
+        try {
+            maxH = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment()
+                    .getMaximumWindowBounds().height - 40;
+        } catch (java.awt.HeadlessException ignored) {
+            // keep the content height
+        }
+        int h = Math.max(w.getHeight(), Math.min(prefH, maxH));
+        if (h != w.getHeight()) {
+            w.setSize(w.getWidth(), h);
+        }
+    }
+
+    /** Plain dialog messages longer than this scroll inside a fixed-height pane. */
+    static final int LONG_MESSAGE_LINES = 24;
 
     /** Strong list / table selection color (same in light and dark). */
     public static Color selectionAccent() { return _selectionAccent; }
@@ -1026,8 +1105,14 @@ _selectionAccent = highContrast
             protected void paintComponent(java.awt.Graphics g) {
                 java.awt.Graphics2D g2 = (java.awt.Graphics2D) g.create();
                 g2.setRenderingHint(java.awt.RenderingHints.KEY_ANTIALIASING, java.awt.RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(getBackground());
+                // Disabled: muted slate fill. The bright fill stayed and the LAF's
+                // grey disabled text was unreadable on it (green "GRANT REDSHIRT").
+                g2.setColor(isEnabled() ? getBackground() : tableHeaderBackground());
                 g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
+                if (!isEnabled()) {
+                    g2.setColor(borderSubtle());
+                    g2.drawRoundRect(0, 0, getWidth() - 1, getHeight() - 1, 6, 6);
+                }
                 super.paintComponent(g);
                 g2.dispose();
             }
@@ -1189,9 +1274,39 @@ _selectionAccent = highContrast
             if (c instanceof JComponent jc) {
                 jc.setBorder(BorderFactory.createCompoundBorder(
                         BorderFactory.createMatteBorder(0, 0, 1, 0, borderSubtle()),
-                        BorderFactory.createEmptyBorder(4, 10, 4, 8)));
+                        BorderFactory.createEmptyBorder(4, 10, 4, 10)));
+            }
+            if (c instanceof javax.swing.JLabel jl && table != null && column >= 0) {
+                jl.setHorizontalAlignment(columnAlignment(table, column));
             }
             return c;
+        }
+
+        /**
+         * Header text sits over its column's values: right-aligned numbers get a
+         * right-aligned header instead of a centred label floating over them.
+         */
+        private static int columnAlignment(JTable table, int column) {
+            if (table.getRowCount() > 0) {
+                try {
+                    Component cell = table.prepareRenderer(table.getCellRenderer(0, column), 0, column);
+                    if (cell instanceof javax.swing.JLabel label) {
+                        int a = label.getHorizontalAlignment();
+                        if (a == javax.swing.SwingConstants.LEADING) {
+                            return javax.swing.SwingConstants.LEFT;
+                        }
+                        if (a == javax.swing.SwingConstants.TRAILING) {
+                            return javax.swing.SwingConstants.RIGHT;
+                        }
+                        return a;
+                    }
+                } catch (RuntimeException ignored) {
+                    // fall through to the column class
+                }
+            }
+            Class<?> cls = table.getColumnClass(column);
+            return cls != null && Number.class.isAssignableFrom(cls)
+                    ? javax.swing.SwingConstants.RIGHT : javax.swing.SwingConstants.LEFT;
         }
     }
 

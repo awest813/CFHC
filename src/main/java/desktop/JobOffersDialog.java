@@ -40,7 +40,7 @@ import java.util.Locale;
  */
 public class JobOffersDialog extends JDialog {
 
-    private static final String[] COLUMNS = {"Team", "Prestige", "Conf", "Off Tal", "Def Tal", "Fit Req"};
+    private static final String[] COLUMNS = {"Team", "Prestige", "Conf", "Off Talent", "Def Talent", "Fit Req"};
     private static final DecimalFormat DF = new DecimalFormat("#0.0", DecimalFormatSymbols.getInstance(Locale.ROOT));
     private static final int MIN_COACH_RATING = 40;
     private static final int NEW_JOB_CONTRACT_LENGTH = 6;
@@ -59,7 +59,7 @@ public class JobOffersDialog extends JDialog {
         this.league = league;
         this.isPromotion = isPromotion;
         this.userHC = league.userTeam != null ? league.userTeam.getHeadCoach() : null;
-        setSize(1000, 650);
+        setSize(1080, 650);
         setLayout(new BorderLayout());
         DesktopTheme.styleDialogContentPane(getContentPane());
         DesktopTheme.applyWindowIcon(this);
@@ -162,7 +162,7 @@ public class JobOffersDialog extends JDialog {
 
         for (Team t : vacancies) {
             model.addRow(new Object[]{
-                    t.getName().toUpperCase(Locale.ROOT),
+                    t.getName(),
                     t.getTeamPrestige(),
                     t.getConference().toUpperCase(Locale.ROOT),
                     DF.format(t.getTeamOffTalent()),
@@ -186,6 +186,11 @@ public class JobOffersDialog extends JDialog {
         table.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 10));
         table.getTableHeader().setPreferredSize(new Dimension(0, 40));
         table.getTableHeader().setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, DesktopTheme.borderSubtle()));
+        DesktopTheme.installBroadcastHeader(table);
+        DesktopTheme.compactColumn(table, 1, 84);
+        DesktopTheme.compactColumn(table, 3, 96);
+        DesktopTheme.compactColumn(table, 4, 96);
+        DesktopTheme.compactColumn(table, 5, 76);
 
         // Right side: Program Snapshot Card
         JPanel detailPanel = new JPanel(new BorderLayout(15, 15));
@@ -236,7 +241,7 @@ public class JobOffersDialog extends JDialog {
         tableScroll.getViewport().setBackground(DesktopTheme.windowBackground());
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableScroll, detailPanel);
-        split.setDividerLocation(550);
+        split.setDividerLocation(640);
         split.setOpaque(false);
         split.setBorder(null);
         split.setDividerSize(5);
