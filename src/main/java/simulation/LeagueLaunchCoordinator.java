@@ -182,7 +182,10 @@ public final class LeagueLaunchCoordinator {
                     if (userTeam == null) {
                         throw new IOException("Loaded recruiting resume save without a user team");
                     }
-                    userTeam.getHeadCoach().user = true;
+                    // The head-coach post can be vacant mid-offseason (as in loadInternalLeague).
+                    if (userTeam.getHeadCoach() != null) {
+                        userTeam.getHeadCoach().user = true;
+                    }
                     league.finishRecruitingSeason(request.recruits);
                     return new LaunchResult(league, userTeam, userTeam, league.getYear(), true, false, false);
                 }

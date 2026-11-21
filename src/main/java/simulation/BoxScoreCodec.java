@@ -280,12 +280,28 @@ final class BoxScoreCodec {
         return out.toByteArray();
     }
 
+    /**
+     * Most a saved box-score list may inflate to. A season's box scores are a few
+     * megabytes; a damaged or hostile list that would inflate past this is skipped
+     * like any other unreadable list instead of exhausting memory.
+     */
+    static final int MAX_INFLATED_BYTES = 64 * 1024 * 1024;
+
     private static byte[] inflate(byte[] in) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream(in.length * 6 + 64);
+        return inflate(in, MAX_INFLATED_BYTES);
+    }
+
+    /** Inflates {@code in}; throws once the output would pass {@code max} bytes. */
+    static byte[] inflate(byte[] in, int max) throws IOException {
+        int initial = (int) Math.min((long) in.length * 6 + 64, Math.min(max, 1 << 22));
+        ByteArrayOutputStream out = new ByteArrayOutputStream(initial);
         try (InflaterInputStream z = new InflaterInputStream(new ByteArrayInputStream(in))) {
             byte[] buf = new byte[1 << 16];
             int n;
             while ((n = z.read(buf)) > 0) {
+                if (out.size() > max - n) {
+                    throw new IOException("Box scores inflate past " + max + " bytes");
+                }
                 out.write(buf, 0, n);
             }
         }
