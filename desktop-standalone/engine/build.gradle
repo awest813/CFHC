@@ -337,6 +337,11 @@ tasks.named('test', Test) {
     workingDir = repoRoot
     // Forward -DregenGoldenSaves=true from the Gradle JVM into test workers.
     systemProperty 'regenGoldenSaves', System.getProperty('regenGoldenSaves', 'false')
+    // -Dcfhc.determinism.debug=true: SaveDeterminismTest compares the save after every step.
+    systemProperty 'cfhc.determinism.debug', System.getProperty('cfhc.determinism.debug', 'false')
+    systemProperty 'cfhc.determinism.seed', System.getProperty('cfhc.determinism.seed', '')
+    systemProperty 'cfhc.dump.week', System.getProperty('cfhc.dump.week', '')
+    systemProperty 'cfhc.dump.dir', System.getProperty('cfhc.dump.dir', System.getProperty('java.io.tmpdir'))
     // DesktopAudioManager loads assets/sounds/* from the classpath (same layout as desktopJar).
     dependsOn prepareDesktopResources
     classpath += files(desktopResourcesDir)
