@@ -74,7 +74,8 @@ public class PlayCallingTest {
         // Runs were 45% of plays, every 3rd and 1-2 was a run and no 3rd and long was.
         assertBetween("run share", share(all), 0.47, 0.60);
         assertBetween("1st and 10", share(firstAndTen), 0.50, 0.65);
-        assertBetween("2nd and short", share(secondShort), 0.60, 0.85);
+        // ~400 such snaps: the share moves +-2% with the seed (0.81-0.86 seen), so 0.85 was a coin flip.
+        assertBetween("2nd and short", share(secondShort), 0.60, 0.88);
         assertBetween("3rd and short", share(thirdShort), 0.55, 0.85);
         assertBetween("3rd and long", share(thirdLong), 0.04, 0.20);
         // ~70 snaps a team (incompletions, sacks and picks are not in the run/pass tally above).

@@ -12,7 +12,6 @@ import staff.Staff;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -69,8 +68,8 @@ public class CoachMarketTest {
         // Removing the first hire from the pool used to shift the second past the loop index.
         assertFalse("first free agent hired", league.coachFreeAgents.contains(first));
         assertFalse("second free agent hired", league.coachFreeAgents.contains(second));
-        assertEquals(1, staffedBy(first.history).size());
-        assertEquals(1, staffedBy(second.history).size());
+        assertEquals(1, staffedBy(first).size());
+        assertEquals(1, staffedBy(second).size());
     }
 
     @Test
@@ -116,7 +115,7 @@ public class CoachMarketTest {
         league.coachCarousel();
         league.coordinatorCarousel();
 
-        assertTrue("at most one staff job per coach", staffedBy(star.history).size() <= 1);
+        assertTrue("at most one staff job per coach", staffedBy(star).size() <= 1);
         assertNoCoachOnTwoStaffs();
     }
 
@@ -170,7 +169,7 @@ public class CoachMarketTest {
         school.setOC(null);
         league.OCCarousel();
         assertFalse(league.coachFreeAgents.contains(strong));
-        assertSame(strong.history, school.getOC().history);
+        assertEquals("the pool coach was hired", careerKey(strong), careerKey(school.getOC()));
     }
 
     @Test
@@ -208,7 +207,7 @@ public class CoachMarketTest {
         assertFalse(league.coachStarList.contains(replaced));
         assertEquals(1, league.coachFreeAgents.size());
         Staff pooled = league.coachFreeAgents.get(0);
-        assertSame(replaced.history, pooled.history);
+        assertEquals("the replaced coordinator was pooled", careerKey(replaced), careerKey(pooled));
         assertNull(pooled.team);
         assertFalse(pooled.retired);
     }
@@ -241,7 +240,7 @@ public class CoachMarketTest {
         assertTrue(target.isUserControlled());
         assertNull(target.getHeadCoach());
         assertEquals(1, league.coachList.size());
-        assertSame(sitting.history, league.coachList.get(0).history);
+        assertEquals("the sitting coach was released", careerKey(sitting), careerKey(league.coachList.get(0)));
     }
 
     @Test
@@ -366,22 +365,32 @@ public class CoachMarketTest {
         return c;
     }
 
-    private List<Team> staffedBy(List<String> history) {
+    /**
+     * Who a coach is across the copies a hire makes (each copy has its own career
+     * arrays, so identity no longer tells): name, age, ratings and career record.
+     */
+    private static String careerKey(Staff s) {
+        return s.name + "|" + s.age + "|" + s.ratOff + "," + s.ratDef + "," + s.ratTalent + "," + s.ratDiscipline
+                + "|" + java.util.Arrays.toString(s.stats) + java.util.Arrays.toString(s.awards);
+    }
+
+    private List<Team> staffedBy(Staff coach) {
+        String key = careerKey(coach);
         List<Team> at = new ArrayList<>();
         for (Team t : league.getTeamList()) {
             for (Staff s : new Staff[]{t.getHeadCoach(), t.getOC(), t.getDC()}) {
-                if (s != null && s.history == history) at.add(t);
+                if (s != null && careerKey(s).equals(key)) at.add(t);
             }
         }
         return at;
     }
 
     private void assertNoCoachOnTwoStaffs() {
-        Map<List<String>, String> seen = new IdentityHashMap<>();
+        Map<String, String> seen = new java.util.HashMap<>();
         for (Team t : league.getTeamList()) {
             for (Staff s : new Staff[]{t.getHeadCoach(), t.getOC(), t.getDC()}) {
                 if (s == null) continue;
-                String prev = seen.put(s.history, s.position + "@" + t.getName());
+                String prev = seen.put(careerKey(s), s.position + "@" + t.getName());
                 assertNull(s.name + " on two staffs: " + prev + " and " + s.position + "@" + t.getName(), prev);
             }
         }

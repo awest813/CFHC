@@ -2946,19 +2946,42 @@ public class Team {
             cb = Math.max(0, cb);
             s = Math.max(0, s);
 
+            // Pipeline: needs counted only heads, so a room of three upperclass QBs
+            // signed no QB until all three left at once (~7% of CPU programs went
+            // three straight classes without one, then started a true freshman).
+            qb = Math.max(qb, pipelineNeed(teamQBs, 2));
+            rb = Math.max(rb, pipelineNeed(teamRBs, startersRB + subRB));
+            wr = Math.max(wr, pipelineNeed(teamWRs, startersWR + subWR));
+            te = Math.max(te, pipelineNeed(teamTEs, startersTE + subTE));
+            ol = Math.max(ol, pipelineNeed(teamOLs, startersOL + subOL));
+            k = Math.max(k, pipelineNeed(teamKs, 2 * startersK));
+            dl = Math.max(dl, pipelineNeed(teamDLs, startersDL + subDL));
+            lb = Math.max(lb, pipelineNeed(teamLBs, startersLB + subLB));
+            cb = Math.max(cb, pipelineNeed(teamCBs, startersCB + subCB));
+            s = Math.max(s, pipelineNeed(teamSs, startersS + subS));
+
             int rosterSize = getTeamSize() + qb + rb + wr + te + ol + k + dl + lb + cb + s;
 
+            // Top up to the roster target in proportion to how many each position
+            // plays (starters + rotation subs). The draw was uniform over nine
+            // positions, so a QB was as likely as an offensive lineman.
+            int[] weights = {startersQB + subQB, startersRB + subRB, startersWR + subWR, startersTE + subTE,
+                    startersOL + subOL, startersDL + subDL, startersLB + subLB, startersCB + subCB, startersS + subS};
+            int totalWeight = 0;
+            for (int w : weights) totalWeight += w;
             for (int i = rosterSize; i < minPlayers; i++) {
-                int x = (int) (SimRandom.nextDouble() * 9) + 1;
-                if (x == 1) qb++;
-                if (x == 2) rb++;
-                if (x == 3) wr++;
-                if (x == 4) te++;
-                if (x == 5) ol++;
-                if (x == 6) dl++;
-                if (x == 7) lb++;
-                if (x == 8) cb++;
-                if (x == 9) s++;
+                int x = (int) (SimRandom.nextDouble() * totalWeight);
+                int pos = 0;
+                while (x >= weights[pos]) x -= weights[pos++];
+                if (pos == 0) qb++;
+                if (pos == 1) rb++;
+                if (pos == 2) wr++;
+                if (pos == 3) te++;
+                if (pos == 4) ol++;
+                if (pos == 5) dl++;
+                if (pos == 6) lb++;
+                if (pos == 7) cb++;
+                if (pos == 8) s++;
             }
 
             recruitPlayersFreshman(qb, rb, wr, te, ol, k, dl, lb, cb, s);
@@ -2967,6 +2990,20 @@ public class Team {
 
     public int getTeamSize() {
         return rosterManager.getTeamSize();
+    }
+
+    /**
+     * Recruits a CPU class signs at a position to keep a pipeline: half of
+     * {@code playing} (at least one) should be freshmen or sophomores, so the
+     * position never empties when a class graduates. At most two a year.
+     */
+    static int pipelineNeed(java.util.List<? extends Player> players, int playing) {
+        int target = Math.max(1, (playing + 1) / 2);
+        int young = 0;
+        for (Player p : players) {
+            if (!p.isTransfer && p.year <= 2) young++;
+        }
+        return Math.max(0, Math.min(2, target - young));
     }
 
     public int getRecruitLevel() {
@@ -4779,9 +4816,15 @@ public class Team {
     /** Starting-QB speed a read-option book needs; without it CPU staffs run Multiple Pro. */
     public static final int READ_OPTION_QB_SPEED = 75;
 
-    /** Speed of the starting quarterback, 0 without one. */
+    /**
+     * Speed of the quarterback who would start today (the first one healthy and
+     * eligible on the depth chart), 0 without one. It read the top of the chart,
+     * so a hurt running QB kept a read-option book on for his slow backup.
+     */
     public int starterQbSpeed() {
-        return teamQBs.isEmpty() ? 0 : teamQBs.get(0).getRatSpeed();
+        if (teamQBs.isEmpty()) return 0;
+        PlayerQB qb = Game.firstHealthy(teamQBs, 0);
+        return qb == null ? 0 : qb.getRatSpeed();
     }
 
     // Generate CPU Strategy
@@ -4899,8 +4942,10 @@ public class Team {
             int totalScore = 10 * score + statScore;
             int avgScore = totalScore / (p.year);
             if (score > 99 || statScore > 28000 || totalScore > 28750 || avgScore > 7450) {
-                // HOFer
-                PlayerRecord record = p.toRecord();
+                // HOFer. The entry gets its own copy of the career arrays: sharing the
+                // leaving player's made it change with him until the next season, but
+                // not after a reload (the save writes the two apart).
+                PlayerRecord record = p.toRecord().withCopiedCareer();
                 hallOfFame.add(record);
                 league.addToHallOfFame(record);
                 HoFCount++;

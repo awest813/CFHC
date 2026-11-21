@@ -114,10 +114,11 @@ public class League {
      * v1.5a added team/conference/league state lines (TX:, CX:, LS:, LH:, HH:, BN:, PO:);
      * v1.5b added everything else held between two weeks (news, awards, offseason
      * lists, FCS opponents, the RNG position; see {@link SaveStateCodec}) so a reload
-     * plays on exactly as if the game was never saved. v1.5a and v1.4e saves still
-     * load; see {@link SaveSchema} for what they default.
+     * plays on exactly as if the game was never saved. v1.5c added the played games'
+     * box scores ({@link BoxScoreCodec}). v1.5b, v1.5a and v1.4e saves still load;
+     * see {@link SaveSchema} for what they default.
      */
-    public static final String CURRENT_SAVE_VERSION = "v1.5b";
+    public static final String CURRENT_SAVE_VERSION = "v1.5c";
 
     public static GameUiBridge bridgeOrNoOp(GameUiBridge bridge) {
         return bridge == null ? GameUiBridge.NO_OP : bridge;
@@ -1480,6 +1481,7 @@ public class League {
         // v1.5b: which saved FCS opponent plays in each game ("slot:index").
         java.util.List<String> fcsGames = new ArrayList<>();
         java.util.List<String> overtimes = new ArrayList<>(); // "slot:periods", shown in game summaries
+        java.util.Map<Integer, Game> bySlot = new java.util.LinkedHashMap<>(); // v1.5c box scores
         int slot = 0;
         for (Team t : teamList) {
             java.util.List<Game> schedule = t.getGameSchedule();
@@ -1498,11 +1500,16 @@ public class League {
                 if (g.numOT > 0) {
                     overtimes.add(slot + ":" + g.numOT);
                 }
+                bySlot.put(slot, g);
                 out.add(LeagueRecord.GameRecord.fromGame(g, slot++).withScheduleSlots(home + 1, away + 1));
             }
         }
         codec.putList("fcsGames", fcsGames);
         codec.putList("overtimes", overtimes);
+        java.util.List<String> boxScores = BoxScoreCodec.encode(bySlot);
+        if (!boxScores.isEmpty()) {
+            codec.putList(BoxScoreCodec.KEY, boxScores);
+        }
         return out;
     }
 
@@ -1525,11 +1532,12 @@ public class League {
      * exactly from the write order: the owning team wrote its new games in slot order,
      * so each takes the owner's earliest free slot.
      */
-    private void restoreScheduledGames(java.util.List<LeagueRecord.GameRecord> games,
+    private java.util.Map<Integer, Game> restoreScheduledGames(java.util.List<LeagueRecord.GameRecord> games,
                                        java.util.Map<Integer, Team> savedFcs,
                                        java.util.Map<Integer, Integer> overtimes) {
+        java.util.Map<Integer, Game> bySlot = new java.util.HashMap<>();
         if (games == null || games.isEmpty()) {
-            return;
+            return bySlot;
         }
         java.util.ArrayList<LeagueRecord.GameRecord> sorted = new java.util.ArrayList<>(games);
         sorted.sort(java.util.Comparator.comparingInt(LeagueRecord.GameRecord::slot));
@@ -1577,6 +1585,7 @@ public class League {
             g.homeScore = gr.homeScore();
             g.awayScore = gr.awayScore();
             g.numOT = overtimes.getOrDefault(gr.slot(), g.numOT);
+            bySlot.put(gr.slot(), g);
 
             int homeIndex = gr.homeScheduleIndex();
             int awayIndex = gr.awayScheduleIndex();
@@ -1615,6 +1624,7 @@ public class League {
                 }
             }
         }
+        return bySlot;
     }
 
     private static boolean isFree(java.util.ArrayList<Game> list, int index) {
@@ -1756,8 +1766,13 @@ public class League {
             playoffWeek = state.scalars().integer("playoffWeek", playoffWeek);
         }
 
-        restoreScheduledGames(record.scheduledGames(), codec != null ? fcsGameSlots(state) : java.util.Map.of(),
+        java.util.Map<Integer, Game> gamesBySlot = restoreScheduledGames(record.scheduledGames(),
+                codec != null ? fcsGameSlots(state) : java.util.Map.of(),
                 codec != null ? slotInts(state, "overtimes") : java.util.Map.of());
+        if (state != null) {
+            // v1.5c: the played games' box scores; older saves have none to restore.
+            BoxScoreCodec.apply(state.lists().get(BoxScoreCodec.KEY), gamesBySlot);
+        }
         rebuildSeasonResultsFromSchedules();
         restorePostseasonGames(state);
         if (codec != null) {
@@ -5317,6 +5332,19 @@ public class League {
         }
     }
 
+    /**
+     * Whether a portal player would start for a team: it has fewer than
+     * {@code starters} at the position, or he out-rates its last starter. The
+     * test was against the team's best player, so a wideout who would have been
+     * a team's WR2 (or a guard who beat four of its five linemen) was passed
+     * over everywhere and usually left for the FCS.
+     */
+    static boolean wouldStart(java.util.List<? extends Player> depth, int starters, Player transfer) {
+        int n = Math.max(1, starters);
+        if (depth.size() < n) return true;
+        return depth.get(n - 1).ratOvr < transfer.ratOvr;
+    }
+
     //Transfer players from the available transfer lists
     public void transferPlayers(GameUiBridge mainAct) {
         GameUiBridge bridge = bridgeOrNoOp(mainAct);
@@ -5340,7 +5368,7 @@ public class League {
                 rand = SimRandom.nextInt((max - min) + 1) + min;
                 for (int n = 0; n < teamList.size(); ++n) {
                     int t = (rand + n) % teamList.size();
-                    if (teamList.get(t).getTeamQBs().size() < 1 || teamList.get(t).getTeamQBs().get(0).ratOvr < transferQBs.get(i).ratOvr) {
+                    if (wouldStart(teamList.get(t).getTeamQBs(), teamList.get(t).startersQB, transferQBs.get(i))) {
                         if (Math.abs(teamList.get(t).getLocation() - transferQBs.get(i).getRegion()) < loc) {
                             int qbTransfers = 0;
                             for (int x = 0; x < teamList.get(t).getTeamQBs().size(); ++x) {
@@ -5379,7 +5407,7 @@ public class League {
                 rand = SimRandom.nextInt((max - min) + 1) + min;
                 for (int n = 0; n < teamList.size(); ++n) {
                     int t = (rand + n) % teamList.size();
-                    if (teamList.get(t).getTeamRBs().size() < 2 || teamList.get(t).getTeamRBs().get(0).ratOvr < transferRBs.get(i).ratOvr) {
+                    if (wouldStart(teamList.get(t).getTeamRBs(), teamList.get(t).startersRB, transferRBs.get(i))) {
                         if (Math.abs(teamList.get(t).getLocation() - transferRBs.get(i).getRegion()) < loc) {
                             if (!teamList.get(t).isUserControlled()) {
                                 newsStories.get(currentWeek + 1).add(teamList.get(t).getName() + " Transfer News>" + transferRBs.get(i).getYrStr() + " RB " + transferRBs.get(i).name + "(" + transferRBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ". He was previously enrolled at " +
@@ -5409,7 +5437,7 @@ public class League {
                 rand = SimRandom.nextInt((max - min) + 1) + min;
                 for (int n = 0; n < teamList.size(); ++n) {
                     int t = (rand + n) % teamList.size();
-                    if (teamList.get(t).getTeamWRs().size() < 3 || teamList.get(t).getTeamWRs().get(0).ratOvr < transferWRs.get(i).ratOvr) {
+                    if (wouldStart(teamList.get(t).getTeamWRs(), teamList.get(t).startersWR, transferWRs.get(i))) {
                         if (Math.abs(teamList.get(t).getLocation() - transferWRs.get(i).getRegion()) < loc) {
                             if (!teamList.get(t).isUserControlled()) {
                                 newsStories.get(currentWeek + 1).add(teamList.get(t).getName() + " Transfer News>" + transferWRs.get(i).getYrStr() + " WR " + transferWRs.get(i).name + "(" + transferWRs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ". He was previously enrolled at " +
@@ -5439,7 +5467,7 @@ public class League {
                 rand = SimRandom.nextInt((max - min) + 1) + min;
                 for (int n = 0; n < teamList.size(); ++n) {
                     int t = (rand + n) % teamList.size();
-                    if (teamList.get(t).getTeamTEs().size() < 1 || teamList.get(t).getTeamTEs().get(0).ratOvr < transferTEs.get(i).ratOvr) {
+                    if (wouldStart(teamList.get(t).getTeamTEs(), teamList.get(t).startersTE, transferTEs.get(i))) {
                         if (Math.abs(teamList.get(t).getLocation() - transferTEs.get(i).getRegion()) < loc) {
                             if (!teamList.get(t).isUserControlled()) {
                                 newsStories.get(currentWeek + 1).add(teamList.get(t).getName() + " Transfer News>" + transferTEs.get(i).getYrStr() + " TE " + transferTEs.get(i).name + "(" + transferTEs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ". He was previously enrolled at " +
@@ -5471,7 +5499,7 @@ public class League {
                     int t = (rand + n) % teamList.size();
                     // Need (short on OL or an upgrade) and region both apply; && bound tighter
                     // than ||, so any team short on OL took a lineman from anywhere.
-                    if ((teamList.get(t).getTeamOLs().size() < 5 || teamList.get(t).getTeamOLs().get(0).ratOvr < transferOLs.get(i).ratOvr) && Math.abs(teamList.get(t).getLocation() - transferOLs.get(i).getRegion()) < loc) {
+                    if ((wouldStart(teamList.get(t).getTeamOLs(), teamList.get(t).startersOL, transferOLs.get(i))) && Math.abs(teamList.get(t).getLocation() - transferOLs.get(i).getRegion()) < loc) {
                         if (!teamList.get(t).isUserControlled()) {
                             newsStories.get(currentWeek + 1).add(teamList.get(t).getName() + " Transfer News>" + transferOLs.get(i).getYrStr() + " OL " + transferOLs.get(i).name + "(" + transferOLs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ". He was previously enrolled at " +
                                     transferOLs.get(i).team.getAbbr() + " .");
@@ -5499,7 +5527,7 @@ public class League {
                 rand = SimRandom.nextInt((max - min) + 1) + min;
                 for (int n = 0; n < teamList.size(); ++n) {
                     int t = (rand + n) % teamList.size();
-                    if (teamList.get(t).getTeamKs().size() < 1 || teamList.get(t).getTeamKs().get(0).ratOvr < transferKs.get(i).ratOvr) {
+                    if (wouldStart(teamList.get(t).getTeamKs(), teamList.get(t).startersK, transferKs.get(i))) {
                         if (Math.abs(teamList.get(t).getLocation() - transferKs.get(i).getRegion()) < loc) {
                             if (!teamList.get(t).isUserControlled()) {
                                 newsStories.get(currentWeek + 1).add(teamList.get(t).getName() + " Transfer News>" + transferKs.get(i).getYrStr() + " K " + transferKs.get(i).name + "(" + transferKs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ". He was previously enrolled at " +
@@ -5529,7 +5557,7 @@ public class League {
                 rand = SimRandom.nextInt((max - min) + 1) + min;
                 for (int n = 0; n < teamList.size(); ++n) {
                     int t = (rand + n) % teamList.size();
-                    if (teamList.get(t).getTeamDLs().size() < 4 || teamList.get(t).getTeamDLs().get(0).ratOvr < transferDLs.get(i).ratOvr) {
+                    if (wouldStart(teamList.get(t).getTeamDLs(), teamList.get(t).startersDL, transferDLs.get(i))) {
                         if (Math.abs(teamList.get(t).getLocation() - transferDLs.get(i).getRegion()) < loc) {
                             if (!teamList.get(t).isUserControlled()) {
                                 newsStories.get(currentWeek + 1).add(teamList.get(t).getName() + " Transfer News>" + transferDLs.get(i).getYrStr() + " DL " + transferDLs.get(i).name + "(" + transferDLs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ". He was previously enrolled at " +
@@ -5559,7 +5587,7 @@ public class League {
                 rand = SimRandom.nextInt((max - min) + 1) + min;
                 for (int n = 0; n < teamList.size(); ++n) {
                     int t = (rand + n) % teamList.size();
-                    if (teamList.get(t).getTeamLBs().size() < 3 || teamList.get(t).getTeamLBs().get(0).ratOvr < transferLBs.get(i).ratOvr) {
+                    if (wouldStart(teamList.get(t).getTeamLBs(), teamList.get(t).startersLB, transferLBs.get(i))) {
                         if (Math.abs(teamList.get(t).getLocation() - transferLBs.get(i).getRegion()) < loc) {
                             if (!teamList.get(t).isUserControlled()) {
                                 newsStories.get(currentWeek + 1).add(teamList.get(t).getName() + " Transfer News>" + transferLBs.get(i).getYrStr() + " LB " + transferLBs.get(i).name + "(" + transferLBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ". He was previously enrolled at " +
@@ -5589,7 +5617,7 @@ public class League {
                 rand = SimRandom.nextInt((max - min) + 1) + min;
                 for (int n = 0; n < teamList.size(); ++n) {
                     int t = (rand + n) % teamList.size();
-                    if (teamList.get(t).getTeamCBs().size() < 3 || teamList.get(t).getTeamCBs().get(0).ratOvr < transferCBs.get(i).ratOvr) {
+                    if (wouldStart(teamList.get(t).getTeamCBs(), teamList.get(t).startersCB, transferCBs.get(i))) {
                         if (Math.abs(teamList.get(t).getLocation() - transferCBs.get(i).getRegion()) < loc) {
                             if (!teamList.get(t).isUserControlled()) {
                                 newsStories.get(currentWeek + 1).add(teamList.get(t).getName() + " Transfer News>" + transferCBs.get(i).getYrStr() + " CB " + transferCBs.get(i).name + "(" + transferCBs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ". He was previously enrolled at " +
@@ -5619,7 +5647,7 @@ public class League {
                 rand = SimRandom.nextInt((max - min) + 1) + min;
                 for (int n = 0; n < teamList.size(); ++n) {
                     int t = (rand + n) % teamList.size();
-                    if (teamList.get(t).getTeamSs().size() < 1 || teamList.get(t).getTeamSs().get(0).ratOvr < transferSs.get(i).ratOvr) {
+                    if (wouldStart(teamList.get(t).getTeamSs(), teamList.get(t).startersS, transferSs.get(i))) {
                         if (Math.abs(teamList.get(t).getLocation() - transferSs.get(i).getRegion()) < loc) {
                             if (!teamList.get(t).isUserControlled()) {
                                 newsStories.get(currentWeek + 1).add(teamList.get(t).getName() + " Transfer News>" + transferSs.get(i).getYrStr() + " S " + transferSs.get(i).name + "(" + transferSs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ". He was previously enrolled at " +
