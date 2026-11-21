@@ -320,10 +320,54 @@ public final class RecruitingSessionData {
         return projectedRosterSize() < simulation.RosterRules.MAX_PLAYERS;
     }
 
+    /**
+     * Roster spots that walk-ons will take after signing day if {@code recruit}
+     * signs: one for each player a position is still short of its
+     * {@link simulation.RosterRules} minimum. Signing day fills those spots with
+     * walk-ons whatever the roster size, so they count against the cap here.
+     */
+    int spotsStillNeededAfter(RecruitingPlayerRecord recruit) {
+        String pos = recruit != null ? recruit.position() : "";
+        int[] counts = {teamQBs.size(), teamRBs.size(), teamWRs.size(), teamTEs.size(), teamOLs.size(),
+                teamKs.size(), teamDLs.size(), teamLBs.size(), teamCBs.size(), teamSs.size()};
+        String[] names = {"QB", "RB", "WR", "TE", "OL", "K", "DL", "LB", "CB", "S"};
+        int short_ = 0;
+        for (int i = 0; i < names.length; i++) {
+            int have = counts[i] + (names[i].equals(pos) ? 1 : 0);
+            short_ += Math.max(0, simulation.RosterRules.minForPosition(names[i]) - have);
+        }
+        return short_;
+    }
+
+    /**
+     * Why {@code recruit} cannot sign, or null when they can: the roster is full,
+     * the budget is short, or the last open spots are needed for positions below
+     * their minimum (signing someone else there used to leave the walk-ons that
+     * fill those positions pushing the roster past the cap).
+     */
+    public String signingBlockReason(RecruitingPlayerRecord recruit) {
+        int max = simulation.RosterRules.MAX_PLAYERS;
+        if (!canRecruitMore()) {
+            return "Roster is full (" + projectedRosterSize() + "/" + max + ")";
+        }
+        if (recruit.cost() > recruitingBudget) {
+            return "Recruit cost $" + recruit.cost() + " exceeds remaining budget $" + recruitingBudget;
+        }
+        int reserved = spotsStillNeededAfter(recruit);
+        if (projectedRosterSize() + 1 + reserved > max) {
+            return "The last " + (max - projectedRosterSize()) + " roster spot(s) are needed for positions below "
+                    + "their minimum (" + RecruitingPresentation.shortPositionsSummary(this) + ")";
+        }
+        return null;
+    }
+
     public void recruitPlayer(RecruitingPlayerRecord recruit, boolean autoFilter, double recruitOffBoardChance) {
         if (!canRecruitMore()) {
             throw new IllegalStateException(
                     "Roster is full (" + projectedRosterSize() + "/" + simulation.RosterRules.MAX_PLAYERS + ")");
+        }
+        if (projectedRosterSize() + 1 + spotsStillNeededAfter(recruit) > simulation.RosterRules.MAX_PLAYERS) {
+            throw new IllegalStateException(signingBlockReason(recruit));
         }
         int cost = recruit.cost();
         if (cost > recruitingBudget) {

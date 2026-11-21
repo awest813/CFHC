@@ -49,6 +49,8 @@ public final class SeasonController {
             handleOffseasonWeek(result);
         }
 
+        // Fixed engine step for derived conference prestige (see League#refreshConferencePrestige).
+        league.refreshConferencePrestige();
         bridge.refreshCurrentPage();
         result.refreshRequested();
         return result.weekAfter(league.currentWeek).build();

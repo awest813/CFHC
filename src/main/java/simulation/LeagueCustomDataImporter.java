@@ -33,8 +33,8 @@ public final class LeagueCustomDataImporter {
         try (InputStream stream = inputStream;
              BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
             String line = reader.readLine();
-            while ((line = reader.readLine()) != null && !line.equals("END_COACHES")) {
-                String[] fileSplit = line.split(",");
+            while ((line = reader.readLine()) != null && !line.trim().equals("END_COACHES")) {
+                String[] fileSplit = splitRow(line);
                 if (fileSplit.length <= 1 || fileSplit[1].split(" ").length <= 1) {
                     continue;
                 }
@@ -43,33 +43,49 @@ public final class LeagueCustomDataImporter {
                     if (!fileSplit[0].equals(team.getName())) {
                         continue;
                     }
-
-                    if (fileSplit.length > 4) {
-                        if (fileSplit[2].equals("HC")) {
-                            team.newCustomHeadCoach(fileSplit[1], Integer.parseInt(fileSplit[3]), Integer.parseInt(fileSplit[4]));
-                        } else if (fileSplit[2].equals("OC")) {
-                            team.newCustomOC(fileSplit[1], Integer.parseInt(fileSplit[3]), Integer.parseInt(fileSplit[4]));
-                        } else if (fileSplit[2].equals("DC")) {
-                            team.newCustomDC(fileSplit[1], Integer.parseInt(fileSplit[3]), Integer.parseInt(fileSplit[4]));
-                        }
-                    } else if (fileSplit.length > 3) {
-                        if (fileSplit[2].equals("HC")) {
-                            team.newCustomHeadCoach(fileSplit[1], Integer.parseInt(fileSplit[3]), 0);
-                        } else if (fileSplit[2].equals("OC")) {
-                            team.newCustomOC(fileSplit[1], Integer.parseInt(fileSplit[3]), 0);
-                        } else if (fileSplit[2].equals("DC")) {
-                            team.newCustomDC(fileSplit[1], Integer.parseInt(fileSplit[3]), 0);
-                        }
-                    } else if (fileSplit.length > 2) {
-                        team.newCustomHeadCoach(fileSplit[1], Integer.parseInt(fileSplit[2]), 0);
-                    } else {
-                        team.getHeadCoach().name = fileSplit[1];
+                    try {
+                        applyCoachRow(team, fileSplit);
+                    } catch (NumberFormatException e) {
+                        // A row with a non-numeric rating is skipped; it used to abort the
+                        // import with an unchecked exception (an Android crash).
+                        PlatformLog.w("LeagueCustomDataImporter", "Skipping coach row: " + line);
                     }
                 }
             }
         }
 
         league.resetPlaybooks();
+    }
+
+    private static void applyCoachRow(Team team, String[] fileSplit) {
+        if (fileSplit.length > 4) {
+            if (fileSplit[2].equals("HC")) {
+                team.newCustomHeadCoach(fileSplit[1], Integer.parseInt(fileSplit[3]), Integer.parseInt(fileSplit[4]));
+            } else if (fileSplit[2].equals("OC")) {
+                team.newCustomOC(fileSplit[1], Integer.parseInt(fileSplit[3]), Integer.parseInt(fileSplit[4]));
+            } else if (fileSplit[2].equals("DC")) {
+                team.newCustomDC(fileSplit[1], Integer.parseInt(fileSplit[3]), Integer.parseInt(fileSplit[4]));
+            }
+        } else if (fileSplit.length > 3) {
+            if (fileSplit[2].equals("HC")) {
+                team.newCustomHeadCoach(fileSplit[1], Integer.parseInt(fileSplit[3]), 0);
+            } else if (fileSplit[2].equals("OC")) {
+                team.newCustomOC(fileSplit[1], Integer.parseInt(fileSplit[3]), 0);
+            } else if (fileSplit[2].equals("DC")) {
+                team.newCustomDC(fileSplit[1], Integer.parseInt(fileSplit[3]), 0);
+            }
+        } else if (fileSplit.length > 2) {
+            team.newCustomHeadCoach(fileSplit[1], Integer.parseInt(fileSplit[2]), 0);
+        } else if (team.getHeadCoach() != null) {
+            team.getHeadCoach().name = fileSplit[1];
+        }
+    }
+
+    /** CSV fields, trimmed (Windows line endings and padded cells used to break matching and number parsing). */
+    private static String[] splitRow(String line) {
+        String[] f = line.split(",");
+        for (int i = 0; i < f.length; i++) f[i] = f[i].trim();
+        return f;
     }
 
     public static void importRoster(InputStream inputStream, League league) throws IOException {
@@ -83,8 +99,8 @@ public final class LeagueCustomDataImporter {
         try (InputStream stream = inputStream;
              BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
             String line = reader.readLine();
-            while ((line = reader.readLine()) != null && !line.equals("END_ROSTER")) {
-                String[] fileSplit = line.split(",");
+            while ((line = reader.readLine()) != null && !line.trim().equals("END_ROSTER")) {
+                String[] fileSplit = splitRow(line);
                 if (fileSplit.length <= 4 || fileSplit[1].split(" ").length <= 1) {
                     continue;
                 }
@@ -94,7 +110,11 @@ public final class LeagueCustomDataImporter {
                         continue;
                     }
 
-                    addRosterPlayer(rosterBuffers.get(team), team, fileSplit, false);
+                    try {
+                        addRosterPlayer(rosterBuffers.get(team), team, fileSplit, false);
+                    } catch (NumberFormatException e) {
+                        PlatformLog.w("LeagueCustomDataImporter", "Skipping roster row: " + line);
+                    }
                 }
             }
         }
@@ -150,9 +170,11 @@ public final class LeagueCustomDataImporter {
         if (fileSplit.length <= 4) {
             return;
         }
+        // Columns: TEAM,NAME,POSITION,YEAR,STARS (see the bundled Universe/*-Roster-*.csv).
+        // The constructors take (name, year, stars): "rating" here is the class year.
         String playerName = fileSplit[1];
-        int rating = Integer.parseInt(fileSplit[3]);
-        int year = Integer.parseInt(fileSplit[4]);
+        int rating = Math.max(1, Math.min(4, Integer.parseInt(fileSplit[3])));
+        int year = Math.max(0, Math.min(10, Integer.parseInt(fileSplit[4])));
         String position = fileSplit[2];
 
         if (position.equals("QB")) {

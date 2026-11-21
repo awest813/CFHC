@@ -2806,6 +2806,20 @@ public class League {
     }
 
     //Determine League Average Conference Prestige
+    /**
+     * Brings every conference's (and team's) conference prestige up to date with
+     * team prestige. Several readers do this on demand (recruiting budget, the
+     * average conference prestige), so it also runs at the end of every season
+     * step: a screen that reads one of them between steps then finds nothing to
+     * change, instead of handing the engine fresher values than an unbroken run
+     * (or a reload) would have.
+     */
+    public void refreshConferencePrestige() {
+        for (Conference c : conferences) {
+            c.updateConfPrestige();
+        }
+    }
+
     public int getAverageConfPrestige() {
         int avgPrestige = 0;
         int countC = 0;
@@ -6564,7 +6578,13 @@ Then conferences can see if they want to add them to their list if the teams mee
             }
         }
 
+        // CompNFLTalent writes each player's (saved) talentNFL while comparing; this
+        // is a screen read, so put the values back afterwards.
+        double[] savedTalent = new double[allPlayersLeaving.size()];
+        for (int i = 0; i < savedTalent.length; i++) savedTalent[i] = allPlayersLeaving.get(i).talentNFL;
+        ArrayList<Player> leavingOrder = new ArrayList<>(allPlayersLeaving);
         Collections.sort(allPlayersLeaving, new CompNFLTalent());
+        for (int i = 0; i < savedTalent.length; i++) leavingOrder.get(i).talentNFL = savedTalent[i];
         ArrayList<Player> NFLPlayers = new ArrayList<>();
 
         // Seven rounds when the pool is deep, otherwise the first three rounds,
@@ -6575,8 +6595,15 @@ Then conferences can see if they want to add them to their list if the teams mee
             NFLPlayers.add(allPlayersLeaving.get(i));
         }
 
-        List<String> nfl = Arrays.asList(proTeams);
-        SimRandom.shuffle(nfl);
+        // The mock draft is a screen: its pro-team order comes from a side stream
+        // keyed to the season (the same board every time it is opened that year).
+        // It used to shuffle the league's own proTeams array with the season's
+        // random stream, so opening the Mock Draft changed later results.
+        final List<String> nfl = new ArrayList<>(Arrays.asList(proTeams));
+        SimRandom.onSideStream(0x4D4F434BL ^ getYear(), () -> {
+            SimRandom.shuffle(nfl);
+            return null;
+        });
 
         String[] nflPlayers = new String[NFLPlayers.size()];
         int n = 0, r = 1;
@@ -6757,6 +6784,12 @@ Then conferences can see if they want to add them to their list if the teams mee
         String[] yearTop25 = new String[25];
         Team tt;
         for (int i = 0; i < 25; ++i) {
+            // A custom universe can have fewer than 25 teams: the season used to
+            // end in an IndexOutOfBoundsException here. Unfilled ranks read "-".
+            if (i >= teamList.size()) {
+                yearTop25[i] = "-";
+                continue;
+            }
             tt = teamList.get(i);
             yearTop25[i] = tt.getName() + " (" + tt.getWins() + "-" + tt.getLosses() + ")";
         }
@@ -6967,7 +7000,9 @@ Then conferences can see if they want to add them to their list if the teams mee
     public ArrayList<String> getTeamRankingsStr(int selection) {
         /*
          */
-        ArrayList<Team> teams = teamList;
+        // A copy: these lists are read by screens, and sorting the league's own list
+        // reordered the teams the next week is played in (changing results).
+        ArrayList<Team> teams = new ArrayList<>(teamList);
 
         ArrayList<HeadCoach> HC = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
@@ -7189,7 +7224,7 @@ Then conferences can see if they want to add them to their list if the teams mee
     public ArrayList<String> getLeagueHistoryStats(int selection) {
         /*
          */
-        ArrayList<Team> teams = teamList;
+        ArrayList<Team> teams = new ArrayList<>(teamList); // a copy: screens read this
         ArrayList<String> rankings = new ArrayList<>();
         Team t;
 
@@ -7239,12 +7274,14 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public void createCoachDatabase() {
+        ArrayList<Staff> fresh = buildCoachDatabase();
         coachDatabase.clear();
+        coachDatabase.addAll(fresh);
+    }
 
-        for(Staff x : coachDatabase) {
-            coachDatabase.add(x);
-        }
-
+    /** Every coach with a record (active staffs, the coach pool, free agents), without touching league state. */
+    private ArrayList<Staff> buildCoachDatabase() {
+        ArrayList<Staff> coachDatabase = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             if (teamList.get(i).getHeadCoach() != null) coachDatabase.add(teamList.get(i).getHeadCoach());
             if (teamList.get(i).getOC() != null && teamList.get(i).getOC().getWins() > 0) coachDatabase.add(teamList.get(i).getOC());
@@ -7259,16 +7296,17 @@ Then conferences can see if they want to add them to their list if the teams mee
         for(Staff x : coachFreeAgents) {
             if(x.getWins() > 0) coachDatabase.add(x);
         }
+        return coachDatabase;
     }
 
     public ArrayList<String> getCoachDatabase(int selection) {
         /*
          */
-        coachDatabase.clear();
+        // A fresh list (shadowing the field): the screen used to rebuild and sort
+        // the league's saved coachDatabase, so opening it changed the save.
+        ArrayList<Staff> coachDatabase = buildCoachDatabase();
         ArrayList<String> rankings = new ArrayList<>();
         Staff c;
-
-        createCoachDatabase();
 
         switch (selection) {
             case 0:
@@ -7385,7 +7423,7 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public ArrayList<String> getTeamRankings() {
-        ArrayList<Team> teams = teamList;
+        ArrayList<Team> teams = new ArrayList<>(teamList); // a copy: screens read this
         ArrayList<String> rankings = new ArrayList<>();
         Team t;
         Collections.sort(teams, new CompTeamPoll());
@@ -7740,97 +7778,97 @@ Then conferences can see if they want to add them to their list if the teams mee
         switch (selection) {
             case 0:
                 Collections.sort(pQB, new CompPlayerPassRating());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, pQB.size()); ++i) {
                     rankings.add((i + 1) + ". ," + pQB.get(i).name + "," + pQB.get(i).team.getAbbr() + "," + df2.format(pQB.get(i).getPasserRating()));
                 }
                 break;
             case 1:
                 Collections.sort(pQB, new CompPlayerPassYards());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, pQB.size()); ++i) {
                     rankings.add((i + 1) + ". ," + pQB.get(i).name + "," + pQB.get(i).team.getAbbr() + "," + pQB.get(i).getPassYards());
                 }
                 break;
             case 2:
                 Collections.sort(pQB, new CompPlayerPassTDs());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, pQB.size()); ++i) {
                     rankings.add((i + 1) + ". ," + pQB.get(i).name + "," + pQB.get(i).team.getAbbr() + "," + pQB.get(i).getPassTD());
                 }
                 break;
             case 3:
                 Collections.sort(pQB, new CompPlayerPassInts());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, pQB.size()); ++i) {
                     rankings.add((i + 1) + ". ," + pQB.get(i).name + "," + pQB.get(i).team.getAbbr() + "," + pQB.get(i).getPassInt());
                 }
                 break;
             case 4:
                 Collections.sort(pQB, new CompPlayerPassPCT());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, pQB.size()); ++i) {
                     rankings.add((i + 1) + ". ," + pQB.get(i).name + "," + pQB.get(i).team.getAbbr() + "," + df2.format(pQB.get(i).getPassPCT()) + "%");
                 }
                 break;
             case 5:
                 Collections.sort(off, new CompPlayerRushYards());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, off.size()); ++i) {
                     rankings.add((i + 1) + ". ," + off.get(i).position + " " + off.get(i).name + "," + off.get(i).team.getAbbr() + "," + off.get(i).rushYards);
                 }
                 break;
             case 6:
                 Collections.sort(off, new CompPlayerRushTDs());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, off.size()); ++i) {
                     rankings.add((i + 1) + ". ," + off.get(i).position + " " + off.get(i).name + "," + off.get(i).team.getAbbr() + "," + off.get(i).rushTDs);
                 }
                 break;
             case 7:
                 Collections.sort(off, new CompPlayerReceptions());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, off.size()); ++i) {
                     rankings.add((i + 1) + ". ," + off.get(i).position + " " + off.get(i).name + "," + off.get(i).team.getAbbr() + "," + off.get(i).receptions);
                 }
                 break;
             case 8:
                 Collections.sort(off, new CompPlayerRecYards());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, off.size()); ++i) {
                     rankings.add((i + 1) + ". ," + off.get(i).position + " " + off.get(i).name + "," + off.get(i).team.getAbbr() + "," + off.get(i).receptionYards);
                 }
                 break;
             case 9:
                 Collections.sort(off, new CompPlayerRecTDs());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, off.size()); ++i) {
                     rankings.add((i + 1) + ". ," + off.get(i).position + " " + off.get(i).name + "," + off.get(i).team.getAbbr() + "," + off.get(i).receptionTDs);
                 }
                 break;
             case 10:
                 Collections.sort(def, new CompPlayerTackles());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, def.size()); ++i) {
                     rankings.add((i + 1) + ". ," + def.get(i).position + " " + def.get(i).name + "," + def.get(i).team.getAbbr() + "," + def.get(i).tackles);
                 }
                 break;
             case 11:
                 Collections.sort(def, new CompPlayerSacks());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, def.size()); ++i) {
                     rankings.add((i + 1) + ". ," + def.get(i).position + " " + def.get(i).name + "," + def.get(i).team.getAbbr() + "," + def.get(i).sacks);
                 }
                 break;
             case 12:
                 Collections.sort(def, new CompPlayerFumblesRec());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, def.size()); ++i) {
                     rankings.add((i + 1) + ". ," + def.get(i).position + " " + def.get(i).name + "," + def.get(i).team.getAbbr() + "," + def.get(i).fumbles);
                 }
                 break;
             case 13:
                 Collections.sort(def, new CompPlayerInterceptions());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, def.size()); ++i) {
                     rankings.add((i + 1) + ". ," + def.get(i).position + " " + def.get(i).name + "," + def.get(i).team.getAbbr() + "," + def.get(i).interceptions);
                 }
                 break;
             case 14:
                 Collections.sort(pK, new CompPlayerFGMade());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, pK.size()); ++i) {
                     rankings.add((i + 1) + ". ," + pK.get(i).name + "," + pK.get(i).team.getAbbr() + "," + pK.get(i).getFGMade());
                 }
                 break;
             case 15:
                 Collections.sort(pK, new CompPlayerFGpct());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, pK.size()); ++i) {
                     rankings.add((i + 1) + ". ," + pK.get(i).name + "," + pK.get(i).team.getAbbr() + "," + pK.get(i).getFGpct() + "%");
                 }
                 break;
@@ -7888,70 +7926,70 @@ Then conferences can see if they want to add them to their list if the teams mee
             case 1:
                 ArrayList<PlayerQB> pQB = rankQB();
                 Collections.sort(pQB, new CompPlayerHeisman());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, pQB.size()); ++i) {
                     rankings.add((i + 1) + ". ," + pQB.get(i).name + " (" + pQB.get(i).team.getAbbr() + ")," + pQB.get(i).getHeismanScore());
                 }
                 break;
             case 2:
                 ArrayList<PlayerRB> pRB = rankRB();
                 Collections.sort(pRB, new CompPlayerHeisman());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, pRB.size()); ++i) {
                     rankings.add((i + 1) + ". ," + pRB.get(i).name + " (" + pRB.get(i).team.getAbbr() + ")," + pRB.get(i).getHeismanScore());
                 }
                 break;
             case 3:
                 ArrayList<PlayerWR> pWR = rankWR();
                 Collections.sort(pWR, new CompPlayerHeisman());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, pWR.size()); ++i) {
                     rankings.add((i + 1) + ". ," + pWR.get(i).name + " (" + pWR.get(i).team.getAbbr() + ")," + pWR.get(i).getHeismanScore());
                 }
                 break;
             case 4:
                 ArrayList<PlayerTE> pTE = rankTE();
                 Collections.sort(pTE, new CompPlayerHeisman());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, pTE.size()); ++i) {
                     rankings.add((i + 1) + ". ," + pTE.get(i).name + " (" + pTE.get(i).team.getAbbr() + ")," + pTE.get(i).getHeismanScore());
                 }
                 break;
             case 5:
                 ArrayList<PlayerOL> pOL = rankOL();
                 Collections.sort(pOL, new CompPlayerHeisman());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, pOL.size()); ++i) {
                     rankings.add((i + 1) + ". ," + pOL.get(i).name + " (" + pOL.get(i).team.getAbbr() + ")," + pOL.get(i).getHeismanScore());
                 }
                 break;
             case 6:
                 ArrayList<PlayerK> pK = rankK();
                 Collections.sort(pK, new CompPlayerHeisman());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, pK.size()); ++i) {
                     rankings.add((i + 1) + ". ," + pK.get(i).name + " (" + pK.get(i).team.getAbbr() + ")," + pK.get(i).getHeismanScore());
                 }
                 break;
             case 7:
                 ArrayList<PlayerDL> pDL = rankDL();
                 Collections.sort(pDL, new CompPlayerHeisman());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, pDL.size()); ++i) {
                     rankings.add((i + 1) + ". ," + pDL.get(i).name + " (" + pDL.get(i).team.getAbbr() + ")," + pDL.get(i).getHeismanScore());
                 }
                 break;
             case 8:
                 ArrayList<PlayerLB> pLB = rankLB();
                 Collections.sort(pLB, new CompPlayerHeisman());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, pLB.size()); ++i) {
                     rankings.add((i + 1) + ". ," + pLB.get(i).name + " (" + pLB.get(i).team.getAbbr() + ")," + pLB.get(i).getHeismanScore());
                 }
                 break;
             case 9:
                 ArrayList<PlayerCB> pCB = rankCB();
                 Collections.sort(pCB, new CompPlayerHeisman());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, pCB.size()); ++i) {
                     rankings.add((i + 1) + ". ," + pCB.get(i).name + " (" + pCB.get(i).team.getAbbr() + ")," + pCB.get(i).getHeismanScore());
                 }
                 break;
             case 10:
                 ArrayList<PlayerS> pS = rankS();
                 Collections.sort(pS, new CompPlayerHeisman());
-                for (int i = 0; i < rankNum; ++i) {
+                for (int i = 0; i < Math.min(rankNum, pS.size()); ++i) {
                     rankings.add((i + 1) + ". ," + pS.get(i).name + " (" + pS.get(i).team.getAbbr() + ")," + pS.get(i).getHeismanScore());
                 }
                 break;
@@ -8123,6 +8161,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         applyRecruitingSignings(recruitsData);
         startNextSeason();
         signingDayNews();
+        refreshConferencePrestige();
     }
 
     public void startNextSeason() {
@@ -8585,7 +8624,8 @@ Then conferences can see if they want to add them to their list if the teams mee
      * Get an unmodifiable view of the coach database.
      */
     public java.util.List<Staff> getCoachDatabase() {
-        return java.util.Collections.unmodifiableList(coachDatabase);
+        // Built fresh: the saved field is not a cache screens should rewrite.
+        return java.util.Collections.unmodifiableList(buildCoachDatabase());
     }
 
     /**

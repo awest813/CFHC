@@ -494,17 +494,20 @@ public class TeamDetailView extends JDialog {
         panel.setLayout(new java.awt.GridLayout(0, 1, 6, 6));
         panel.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
 
-        panel.add(coachLine("Head Coach",
-                team.headCoach().name(), team.headCoach().ratOvr()));
-        panel.add(coachLine("Offensive Coordinator",
-                team.offenseCoach().name(), team.offenseCoach().ratOvr()));
-        panel.add(coachLine("Defensive Coordinator",
-                team.defenseCoach().name(), team.defenseCoach().ratOvr()));
+        // A post can be vacant in the offseason (between the carousel and the
+        // coordinator hires, or after a firing): this used to throw and the team
+        // window never opened.
+        panel.add(coachLine("Head Coach", team.headCoach()));
+        panel.add(coachLine("Offensive Coordinator", team.offenseCoach()));
+        panel.add(coachLine("Defensive Coordinator", team.defenseCoach()));
         return panel;
     }
 
-    private JLabel coachLine(String role, String name, int ovr) {
-        JLabel label = new JLabel(String.format(Locale.ROOT, "%-25s %s  (Overall %d)", role + ":", name, ovr));
+    private JLabel coachLine(String role, simulation.StaffRecord coach) {
+        String text = coach == null
+                ? String.format(Locale.ROOT, "%-25s %s", role + ":", "Vacant")
+                : String.format(Locale.ROOT, "%-25s %s  (Overall %d)", role + ":", coach.name(), coach.ratOvr());
+        JLabel label = new JLabel(text);
         label.setFont(new Font("SansSerif", Font.PLAIN, 14));
         label.setForeground(DesktopTheme.textPrimary());
         return label;

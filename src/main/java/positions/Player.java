@@ -944,27 +944,54 @@ public class Player {
             team.addRedshirt(position + " " + name + "  [" + ratOvr + "]");
         }
 
+        // A redshirt year keeps the class year, but its games (up to four, or a
+        // medical redshirt's) still go into the career record: they used to stay
+        // in the season stats and were counted again as part of next season.
         if (isTransfer || isRedshirt || isMedicalRS) {
             isTransfer = false;
             isRedshirt = false;
             isMedicalRS = false;
             wasRedshirt = true;
+            seasonStatstoCareer();
         } else if (getGames() <= 4 && !wasRedshirt) {
             team.addRedshirt(position + " " + name + "  [" + ratOvr + "]");
             wasRedshirt = true;
+            seasonStatstoCareer();
         } else {
             seasonStatstoCareer();
             year++;
         }
     }
 
+    /**
+     * Moves this season's stats into the career row for the current class year
+     * and clears them. Adds to the row rather than replacing it, so a redshirt
+     * season's few games and the following season at the same class year both
+     * count. Index 0 is the season label (kept from the latest season played).
+     */
     public void seasonStatstoCareer() {
         while (careerStats.size() <= year) {
             careerStats.add(new int[stats.length]);
         }
-        for (int i = 0; i < stats.length; i++) {
-            careerStats.get(year)[i] = stats[i];
-            stats[i] = 0;
+        int[] row = careerStats.get(year);
+        boolean played = stats.length > 1 && stats[1] > 0;
+        if (played || row[0] == 0) {
+            row[0] = stats[0];
+        }
+        for (int i = 1; i < stats.length && i < row.length; i++) {
+            row[i] += stats[i];
+        }
+        Arrays.fill(stats, 0);
+    }
+
+    /**
+     * Labels the season stats with the season about to be played. The label was
+     * only set when a player was created, so every later season showed as "0" on
+     * the stats pages (and "2026 to 0" for seasons played).
+     */
+    public void beginSeasonStats(int seasonYear) {
+        if (stats != null && stats.length > 0) {
+            stats[0] = seasonYear;
         }
     }
 
@@ -1672,7 +1699,12 @@ public class Player {
         for (int i = 0; i < careerStats.size(); i++) {
             if (careerStats.get(i)[0] > 0) { firstIdx = i; break; }
         }
-        return careerStats.get(firstIdx)[0] + " to " + careerStats.get(careerStats.size() - 1)[0];
+        int lastIdx = firstIdx;
+        for (int i = careerStats.size() - 1; i > firstIdx; i--) {
+            if (careerStats.get(i)[0] > 0) { lastIdx = i; break; }
+        }
+        // The career rows beyond the last season played are empty (season 0).
+        return careerStats.get(firstIdx)[0] + " to " + careerStats.get(lastIdx)[0];
     }
 
 
