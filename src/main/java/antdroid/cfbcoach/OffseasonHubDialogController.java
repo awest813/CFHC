@@ -55,7 +55,7 @@ final class OffseasonHubDialogController {
             if (i < index) {
                 sb.append("✓  ").append(names[i]);
             } else if (i == index) {
-                sb.append("▶  ").append(names[i]).append("  — ")
+                sb.append("▶  ").append(names[i]).append(" — ")
                         .append(activity.getString(R.string.offseason_hub_next_up));
             } else {
                 sb.append("     ").append(names[i]);

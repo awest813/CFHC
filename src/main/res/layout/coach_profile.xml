@@ -139,12 +139,12 @@
                 <TextView style="@style/Widget.Cfhc.CardTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/dlg_coach_record" />
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:gravity="center_vertical" android:orientation="horizontal">
-                    <TextView android:id="@+id/cpWinsName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Career Wins" />
+                    <TextView android:id="@+id/cpWinsName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" android:text="@string/coach_profile_wins" />
                     <TextView android:id="@+id/cpWins" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" android:textColor="@color/cf_win" tools:text="60" />
                 </LinearLayout>
 
                 <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:gravity="center_vertical" android:orientation="horizontal">
-                    <TextView android:id="@+id/cpLossesName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Career Losses" />
+                    <TextView android:id="@+id/cpLossesName" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" android:text="@string/coach_profile_losses" />
                     <TextView android:id="@+id/cpLosses" android:layout_width="wrap_content" android:layout_height="wrap_content" android:gravity="end" android:textAppearance="@style/TextAppearance.Cfhc.Cf.StatBold" android:textColor="@color/cf_loss" tools:text="24" />
                 </LinearLayout>
             </LinearLayout>
@@ -163,10 +163,10 @@
 
                 <TextView style="@style/Widget.Cfhc.CardTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/dlg_coach_contract" />
 
-                <TextView android:id="@+id/cpContractName" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Contract" />
+                <TextView android:id="@+id/cpContractName" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" android:text="@string/coach_profile_contract" />
                 <TextView android:id="@+id/cpContract" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_xxs" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" tools:text="3 of 7 years left" />
 
-                <TextView android:id="@+id/cpStatusName" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" tools:text="Status" />
+                <TextView android:id="@+id/cpStatusName" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_sm" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Caption" android:text="@string/coach_profile_status" />
                 <TextView android:id="@+id/cpStatus" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="@dimen/cf_space_xxs" android:textAppearance="@style/TextAppearance.Cfhc.Cf.Body" android:textColor="@color/cf_text_primary" android:textStyle="bold" tools:text="Hot Seat" />
             </LinearLayout>
         </LinearLayout>

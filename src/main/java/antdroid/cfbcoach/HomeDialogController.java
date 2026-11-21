@@ -37,8 +37,8 @@ public final class HomeDialogController {
                         activity.startActivity(intent);
                     }
                 })
-                .setNegativeButton("Cancel", null)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.action_cancel, null)
+                .setPositiveButton(R.string.action_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         onOkSelected.run();
@@ -93,7 +93,7 @@ public final class HomeDialogController {
                 }
             }
         });
-        builder.setNegativeButton("Cancel", null);
+        builder.setNegativeButton(R.string.action_cancel, null);
         AlertDialog alert = builder.create();
         PlatformUiHelper.showImmersive(alert);
     }
@@ -105,13 +105,13 @@ public final class HomeDialogController {
         AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("Choose Save to Import");
         builder.setMessage("This feature lets you import external Exported Saves from your device. Please locate and select the desired file after pressing OK.");
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.action_ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 onOkSelected.run();
             }
         });
-        builder.setNegativeButton("Cancel", null);
+        builder.setNegativeButton(R.string.action_cancel, null);
         AlertDialog alert = builder.create();
         PlatformUiHelper.showImmersive(alert);
     }
@@ -133,7 +133,7 @@ public final class HomeDialogController {
                 }
             }
         });
-        builder.setNegativeButton("Cancel", null);
+        builder.setNegativeButton(R.string.action_cancel, null);
         AlertDialog alert = builder.create();
         PlatformUiHelper.showImmersive(alert);
     }
@@ -180,7 +180,7 @@ public final class HomeDialogController {
         AlertDialog.Builder dialogBuilder = Dialogs.builder(activity);
         dialogBuilder.setMessage(message)
                 .setTitle(title)
-                .setPositiveButton("OK", null);
+                .setPositiveButton(R.string.action_ok, null);
         dialogBuilder.setCancelable(false);
         AlertDialog dialog = dialogBuilder.create();
         PlatformUiHelper.showImmersive(dialog);
@@ -193,7 +193,7 @@ public final class HomeDialogController {
         AlertDialog dialog = Dialogs.builder(activity)
                 .setMessage(message)
                 .setTitle(title)
-                .setPositiveButton("OK", null)
+                .setPositiveButton(R.string.action_ok, null)
                 .setNeutralButton(R.string.home_licenses, (d, w) -> showLicensesDialog(activity))
                 .setCancelable(false)
                 .create();

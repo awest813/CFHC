@@ -25,7 +25,7 @@ public final class RecruitingOptionsDialogController {
                 .setPositiveButton("Recruiting", (dialog, which) -> {
                     if (onRecruiting != null) onRecruiting.run();
                 })
-                .setNegativeButton("Back", (dialog, which) -> {})
+                .setNegativeButton(R.string.action_back, (dialog, which) -> {})
                 .setNeutralButton("Save", (dialog, which) -> {
                     if (onSave != null) onSave.run();
                 })
@@ -77,7 +77,7 @@ public final class RecruitingOptionsDialogController {
         AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setCancelable(false);
         builder.setTitle("Recruiting Class Rankings")
-                .setPositiveButton("OK", (dialog, which) -> {
+                .setPositiveButton(R.string.action_ok, (dialog, which) -> {
                     if (onContinue != null) onContinue.run();
                 })
                 .setView(activity.getLayoutInflater().inflate(R.layout.simple_list_dialog, null, false));
@@ -95,7 +95,7 @@ public final class RecruitingOptionsDialogController {
     /** Mock draft board from the drawer, any time of year (desktop parity: View → Mock Draft). */
     public static void showMockDraft(MainActivity activity, League simLeague, Team userTeam) {
         AlertDialog dialog = Dialogs.builder(activity)
-                .setPositiveButton("OK", null)
+                .setPositiveButton(R.string.action_ok, null)
                 .setView(activity.getLayoutInflater().inflate(R.layout.simple_list_dialog, null, false))
                 .create();
         activity.showImmersive(dialog);

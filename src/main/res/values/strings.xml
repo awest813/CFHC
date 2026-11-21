@@ -92,7 +92,7 @@
     <string name="home_switch_theme_dark">Switch to Midnight Theme</string>
     <string name="home_save_hint_empty">No saves in your slots yet - start a new career or import an exported file.</string>
     <string name="home_welcome_title">Welcome to CFHC</string>
-    <string name="home_welcome_message">Here is how to get moving:\n\n- Start New Career - pick a team and begin your dynasty.\n- Load Save - continue when a slot has a game saved.\n- Game Manual - quick in-app topics or the full guide on the web.\n\nYou can change light or dark theme anytime. Good luck this season.</string>
+    <string name="home_welcome_message">Here is how to get started:\n\n• Start New Career: pick a team and begin your dynasty.\n• Load Save: pick up a dynasty from one of your save slots.\n• Game Manual: quick in-app topics or the full guide on the web.\n\nYou can switch between the light and dark theme at any time. Good luck this season!</string>
     <string name="home_welcome_cta">Let\'s go</string>
     <string name="home_manual_dialog_title">Game Manual</string>
     <string name="home_manual_option_in_app">In-app guide (offline)</string>
@@ -121,25 +121,25 @@
     <string name="recruiting_button_done">Finish Recruiting</string>
     <string name="recruiting_program_title_default">Program Recruiting</string>
     <string name="recruiting_program_title_format">%1$s Recruiting</string>
-    <string name="recruiting_budget_default">Budget: $0</string>
-    <string name="recruiting_budget_format">Budget: $%1$,d</string>
-    <string name="recruiting_board_status_default">Board: 0 prospects</string>
+    <string name="recruiting_budget_default">$0</string>
+    <string name="recruiting_budget_format">$%1$,d</string>
+    <string name="recruiting_board_status_default">0 prospects</string>
     <string name="recruiting_button_scout">Scout</string>
     <string name="recruiting_button_recruit_default">Recruit: $0</string>
     <string name="recruiting_button_recruit_format">Recruit: $%1$,d</string>
-    <string name="recruiting_button_roster_full">ROSTER FULL</string>
+    <string name="recruiting_button_roster_full">Roster Full</string>
     <string name="recruiting_button_committed_format">Committed to %1$s</string>
     <string name="recruiting_toast_committed_elsewhere">Committed elsewhere: %1$s</string>
     <string name="league_overview_hint">Tap a team or coach entry to jump into its profile.</string>
     <string name="dialog_shell_label">League Center</string>
     <string name="dialog_shell_rankings_title">League Overview</string>
-    <string name="dialog_shell_rankings_subtitle">Browse rankings, archives, and weekly information from a cleaner mobile shell.</string>
+    <string name="dialog_shell_rankings_subtitle">Browse rankings, archives, and weekly information in one place.</string>
     <string name="dialog_shell_list_title">Program Overview</string>
     <string name="dialog_shell_list_subtitle">Review this list in the same surfaced style used across the rest of the app.</string>
     <string name="dialog_shell_archive_title">Archive View</string>
     <string name="dialog_shell_archive_subtitle">Move through historical seasons, postseason archives, and long-form summaries in a cleaner reading surface.</string>
     <string name="dialog_shell_graph_title">Program Trends</string>
-    <string name="dialog_shell_graph_subtitle">Track prestige, rankings, and long-term trajectory with a dedicated graph shell.</string>
+    <string name="dialog_shell_graph_subtitle">Track prestige, rankings, and long-term trajectory over the years.</string>
 
     <!-- Parity & Navigation Drawer strings -->
     <string name="menu_my_coach">My Coach</string>

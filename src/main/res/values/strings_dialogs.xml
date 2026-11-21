@@ -51,7 +51,7 @@
     <string name="dlg_coach_record">Career record</string>
     <string name="dlg_coach_contract">Contract &amp; status</string>
     <string name="dlg_coach_ratings">Coaching ratings</string>
-    <string name="dlg_coach_overall">Overall rating</string>
+    <string name="dlg_coach_overall">Overall</string>
 
     <!-- Settings -->
     <string name="dlg_settings_section_sound">Sound</string>

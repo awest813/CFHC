@@ -765,6 +765,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return SeasonPresentationController.getSeasonSubtitleText();
     }
 
+    /** The season the header shows (the one being played; the league year rolls over at season end). */
+    int getDisplayedSeason() {
+        return gameState.getSeason();
+    }
+
     public String getSeasonYearChipText() {
         return SeasonPresentationController.getSeasonYearChipText(gameState.getSeason());
     }
@@ -1110,7 +1115,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AlertDialog.Builder builder = Dialogs.builder(this);
         builder.setTitle("Awards Ceremony")
                 .setMessage(summaryText)
-                .setPositiveButton("OK", null);
+                .setPositiveButton(R.string.action_ok, null);
         showImmersive(builder.create());
     }
 
@@ -1179,7 +1184,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AlertDialog.Builder builder = Dialogs.builder(this);
         builder.setMessage(news)
                 .setTitle(title)
-                .setPositiveButton("OK", null);
+                .setPositiveButton(R.string.action_ok, null);
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
         showImmersive(dialog);
@@ -1719,7 +1724,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             StatsRowAdapter pStatsAdapter = new StatsRowAdapter(this, pStatsArray);
             builder.setAdapter(pStatsAdapter, null)
                     .setTitle("Player Card")
-                    .setPositiveButton("Close", new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.action_close, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             //do nothing
@@ -2259,7 +2264,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AlertDialog.Builder builder = Dialogs.builder(MainActivity.this);
         builder.setMessage(update)
                 .setTitle(simLeague.getYear() + " Network Contract Updates")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.action_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                     }
@@ -2280,7 +2285,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         AlertDialog.Builder builder = Dialogs.builder(this);
         builder.setCancelable(false);
         builder.setTitle("Budget Rankings")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.action_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                     }
@@ -2579,7 +2584,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         PlayerProfileSnapshot snapshot = PlayerProfileSnapshot.fromPlayer(p);
 
         AlertDialog.Builder builder = Dialogs.builder(this);
-        builder.setTitle("Accept/Decline " + p.getTransferStatusMessage() + " Request\n")
+        builder.setTitle(p.getTransferStatusMessage() + " Request")
                 .setView(getLayoutInflater().inflate(R.layout.player_profile, null, false));
 
 

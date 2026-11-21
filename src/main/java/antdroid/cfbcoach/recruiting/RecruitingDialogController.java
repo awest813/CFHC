@@ -11,6 +11,7 @@ import android.widget.Toast;
 import java.util.List;
 
 import antdroid.cfbcoach.PlatformUiHelper;
+import antdroid.cfbcoach.R;
 import recruiting.RecruitingController;
 import recruiting.RecruitingPlayerRecord;
 import recruiting.RecruitingPresentation;
@@ -69,7 +70,7 @@ public final class RecruitingDialogController {
         AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setMessage(rosterStr)
                 .setTitle(teamName + " Roster | Team Size: " + totalPlayers)
-                .setPositiveButton("OK", null);
+                .setPositiveButton(R.string.action_ok, null);
 
         AlertDialog dialog = builder.create();
         PlatformUiHelper.showImmersive(dialog);
@@ -112,7 +113,7 @@ public final class RecruitingDialogController {
         builder.setTitle("Confirm Recruiting");
         builder.setMessage(RecruitingPresentation.buildRecruitConfirmMessage(sessionData, RosterRules.MAX_PLAYERS, recruit));
 
-        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+        builder.setPositiveButton(R.string.action_yes, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 performRecruit(activity, sessionData, recruit, groupPosition, recruitList, expListAdapter);
                 dialog.dismiss();
@@ -127,7 +128,7 @@ public final class RecruitingDialogController {
             }
         });
 
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        builder.setNegativeButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 collapseForRefresh(recruitList, groupPosition, groupCount);
                 recruitList.expandGroup(groupPosition);
@@ -151,13 +152,13 @@ public final class RecruitingDialogController {
     public static void showExitConfirmDialog(final RecruitingActivity activity, List<String> positions, final RecruitingController controller) {
         AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setMessage(RecruitingPresentation.buildExitConfirmMessage(positions, controller.getSessionData()))
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.action_yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         controller.finishRecruiting();
                     }
                 })
-                .setNegativeButton("No", null);
+                .setNegativeButton(R.string.action_no, null);
 
         AlertDialog dialog = builder.create();
         PlatformUiHelper.showImmersive(dialog);

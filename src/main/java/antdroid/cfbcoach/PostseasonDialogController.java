@@ -18,7 +18,7 @@ final class PostseasonDialogController {
     static void show(final MainActivity activity, final League simLeague) {
         AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("Postseason Games")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.action_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // Do nothing
@@ -28,9 +28,9 @@ final class PostseasonDialogController {
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
         PlatformUiHelper.showImmersive(dialog);
-        PlatformUiHelper.bindArchiveDialogShell(dialog, "Postseason Archive", "Switch between conference title games and postseason slates in one shared archive shell.");
+        PlatformUiHelper.bindArchiveDialogShell(dialog, "Postseason Archive", "Switch between conference title games and the bowls and playoff.");
 
-        String[] selection = {"Conf Championships", "Postseason"};
+        String[] selection = {"Conference Championships", "Bowls & Playoff"};
         Spinner bowlCCGSpinner = dialog.findViewById(R.id.spinnerBowlCCG);
         PlatformUiHelper.avoidSpinnerDropdownFocus(bowlCCGSpinner);
         ArrayAdapter<String> bowlCCGadapter = new ArrayAdapter<>(activity,

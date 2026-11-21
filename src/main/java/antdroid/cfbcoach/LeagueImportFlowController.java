@@ -48,13 +48,13 @@ public final class LeagueImportFlowController {
     private static void showImportPrompt(final Host host, final LeagueImportWorkflow workflow) {
         AlertDialog.Builder builder = Dialogs.builder(host.getDialogContext());
         builder.setMessage("Do you want to import Coach/Player data?")
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.action_yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         showStep(host, workflow, workflow.chooseImportData(true));
                     }
                 })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.action_no, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         showStep(host, workflow, workflow.chooseImportData(false));
@@ -80,7 +80,7 @@ public final class LeagueImportFlowController {
                         showStep(host, workflow, workflow.selectImportType(LeagueImportWorkflow.ImportType.ROSTER));
                     }
                 })
-                .setNeutralButton("Cancel", new DialogInterface.OnClickListener() {
+                .setNeutralButton(R.string.action_cancel, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         showStep(host, workflow, workflow.cancelImportType());
@@ -94,13 +94,13 @@ public final class LeagueImportFlowController {
     private static void showImportMorePrompt(final Host host, final LeagueImportWorkflow workflow) {
         AlertDialog.Builder builder = Dialogs.builder(host.getDialogContext());
         builder.setMessage("Do you want to import more data?")
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.action_yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         showStep(host, workflow, workflow.chooseImportMore(true));
                     }
                 })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.action_no, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         showStep(host, workflow, workflow.chooseImportMore(false));

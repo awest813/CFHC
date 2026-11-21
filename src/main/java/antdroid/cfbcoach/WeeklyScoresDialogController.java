@@ -21,7 +21,7 @@ final class WeeklyScoresDialogController {
     static void show(final MainActivity activity, final League simLeague) {
         AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("Weekly Scoreboard")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.action_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // Do nothing

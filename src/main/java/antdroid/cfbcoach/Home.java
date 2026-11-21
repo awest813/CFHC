@@ -189,7 +189,7 @@ public class Home extends AppCompatActivity {
             PlatformUiHelper.showImmersive(
                     Dialogs.builder(this)
                             .setMessage("No web browser found to open this link.")
-                            .setPositiveButton("OK", null)
+                            .setPositiveButton(R.string.action_ok, null)
                             .create());
         }
     }

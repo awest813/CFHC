@@ -56,7 +56,9 @@ public final class CoachProgramDialogController {
 
         Runnable refresh = () -> {
             if (summary != null) {
-                summary.setText(CoachSkills.buildProgramSummary(userTeam, hc));
+                // "Training facilities: L3" reads as a code; spell the level out.
+                summary.setText(CoachSkills.buildProgramSummary(userTeam, hc)
+                        .replaceAll("facilities: L(\\d+)", "facilities: Level $1"));
             }
             simulation.NilCollectiveStatus nil = simulation.NilCollectiveStatus.of(userTeam);
             if (nilTier != null) nilTier.setText(nil.tierLabel());
@@ -64,7 +66,7 @@ public final class CoachProgramDialogController {
             if (nilEffects != null) nilEffects.setText(nil.effectsLine());
             if (nilNext != null) nilNext.setText(nil.nextTierLine());
             if (xpView != null) {
-                xpView.setText("Skill XP: " + hc.coachSkillXp);
+                xpView.setText(activity.getString(R.string.program_skill_xp_format, hc.coachSkillXp));
             }
             if (branchSpinner != null) {
                 branchSpinner.invalidate();
@@ -90,17 +92,17 @@ public final class CoachProgramDialogController {
                 int cur = CoachSkills.getRank(hc.coachSkillRanksBits, b);
                 int cost = CoachSkills.costForNextRank(cur);
                 if (cur >= 3) {
-                    Toast.makeText(activity, "This branch is maxed.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, R.string.program_branch_maxed, Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (hc.coachSkillXp < cost) {
                     Toast.makeText(activity,
-                            "Need " + cost + " XP (you have " + hc.coachSkillXp + "). XP builds each week you sim.",
+                            activity.getString(R.string.program_need_xp_format, cost, hc.coachSkillXp),
                             Toast.LENGTH_LONG).show();
                     return;
                 }
                 if (hc.tryPurchaseCoachSkillRank(b)) {
-                    Toast.makeText(activity, "Upgraded " + CoachSkills.branchTitle(b), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, activity.getString(R.string.program_upgraded_format, CoachSkills.branchTitle(b)), Toast.LENGTH_SHORT).show();
                     refresh.run();
                     if (branchSpinner != null) {
                         for (int i = 0; i < CoachSkills.BRANCH_COUNT; i++) {

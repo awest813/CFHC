@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copy moved out of Java during the Android polish pass (dialog buttons, toasts,
+     labels). Per-area files stay authoritative for their screens. -->
+<resources>
+    <!-- Common dialog buttons -->
+    <string name="action_ok">OK</string>
+    <string name="action_close">Close</string>
+    <string name="action_cancel">Cancel</string>
+    <string name="action_back">Back</string>
+    <string name="action_yes">Yes</string>
+    <string name="action_no">No</string>
+    <string name="action_confirm">Confirm</string>
+
+    <!-- Coach program dialog -->
+    <string name="program_skill_xp_format">Skill XP: %1$,d</string>
+    <string name="program_branch_maxed">This branch is maxed.</string>
+    <string name="program_need_xp_format">Need %1$,d XP (you have %2$,d). XP builds each week you sim.</string>
+    <string name="program_upgraded_format">Upgraded %1$s</string>
+
+    <!-- Seasonal dialogs -->
+    <string name="seasonal_preseason_title_format">%1$d Preseason</string>
+    <string name="seasonal_preseason_message">Set your redshirts before the first game, then save your progress.</string>
+    <string name="seasonal_save_progress">Save Progress</string>
+    <string name="seasonal_midseason_title">Midseason Progress Report</string>
+    <string name="seasonal_midseason_empty">No player rating changes to report this midseason.</string>
+    <string name="seasonal_summary_title_format">%1$d Season Summary</string>
+    <string name="seasonal_summary_note">You can review this summary any time in the offseason news.</string>
+    <string name="seasonal_all_prestige_changes">All Prestige Changes</string>
+    <string name="seasonal_prestige_title">Prestige Rankings</string>
+    <string name="seasonal_prestige_shell_title">Prestige Movement</string>
+    <string name="seasonal_prestige_shell_subtitle">See which programs are rising and falling across college football.</string>
+    <string name="seasonal_discipline_title">Disciplinary Action</string>
+    <string name="seasonal_exit_message">Return to the main menu? Any progress since the start of the season will be lost.</string>
+    <string name="seasonal_exit_confirm">Yes, Exit</string>
+
+    <!-- Discipline dialog -->
+    <string name="discipline_title">Discipline Action Required</string>
+    <string name="discipline_ignore">Ignore</string>
+    <plurals name="discipline_suspend_games">
+        <item quantity="one">Suspend %1$d Game</item>
+        <item quantity="other">Suspend %1$d Games</item>
+    </plurals>
+
+    <!-- Player search result count -->
+    <plurals name="player_search_found">
+        <item quantity="one">%1$,d player found</item>
+        <item quantity="other">%1$,d players found</item>
+    </plurals>
+
+    <!-- Redshirt dialog (reuses the depth chart shell) -->
+    <string name="redshirt_pill">Redshirts</string>
+    <string name="redshirt_hint">A redshirted player sits out the season and keeps a year of eligibility. Redshirts can only be set before the first game.</string>
+
+    <!-- Box score view picker (order matches GameDialogController's sections) -->
+    <string-array name="boxscore_views">
+        <item>Game Summary</item>
+        <item>Offense Stats</item>
+        <item>Defense Stats</item>
+        <item>Special Teams Stats</item>
+        <item>Play-by-Play Log</item>
+    </string-array>
+    <string name="scout_offense_scheme_format">%1$s offensive scheme</string>
+    <string name="scout_defense_scheme_format">%1$s defensive scheme</string>
+
+    <!-- Coach profile (row labels beside the live values) -->
+    <string name="coach_profile_wins">Career wins</string>
+    <string name="coach_profile_losses">Career losses</string>
+    <string name="coach_profile_contract">Contract</string>
+    <string name="coach_profile_status">Job status</string>
+    <string name="coach_profile_history">Coach History</string>
+
+    <!-- Player profile -->
+    <string name="profile_character">Character</string>
+    <string name="profile_intelligence">Intelligence</string>
+    <string name="profile_status">Status</string>
+    <string name="profile_durability">Durability</string>
+    <string name="profile_title">Player Profile</string>
+    <string name="profile_dev_plan">Dev Plan</string>
+    <string name="profile_cut">Cut</string>
+    <string name="profile_cut_title">Cut Player</string>
+    <string name="profile_cut_message_format">Cut %1$s %2$s?\n\nIf you cut him during the season, a walk-on may take his roster spot.</string>
+    <string name="profile_cut_action">Cut Player</string>
+</resources>

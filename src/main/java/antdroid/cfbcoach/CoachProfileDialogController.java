@@ -14,8 +14,8 @@ public final class CoachProfileDialogController {
         AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle(p.getName())
                 .setView(activity.getLayoutInflater().inflate(R.layout.coach_profile, null, false))
-                .setPositiveButton("Close", (dialog, which) -> {})
-                .setNeutralButton("Coach History", (dialog, which) -> onHistoryClick.run());
+                .setPositiveButton(R.string.action_close, (dialog, which) -> {})
+                .setNeutralButton(R.string.coach_profile_history, (dialog, which) -> onHistoryClick.run());
 
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
@@ -74,13 +74,17 @@ public final class CoachProfileDialogController {
 
         String[] c = snapshot.featuredStats;
         cpFeatStat1Name.setText(PlatformUiHelper.valueAt(c, 0));
-        cpFeatStat1.setText(PlatformUiHelper.valueAt(c, 1));
+        cpFeatStat1.setText(featured(PlatformUiHelper.valueAt(c, 1)));
         cpFeatStat2Name.setText(PlatformUiHelper.valueAt(c, 2));
-        cpFeatStat2.setText(PlatformUiHelper.valueAt(c, 3));
+        cpFeatStat2.setText(featured(PlatformUiHelper.valueAt(c, 3)));
         cpFeatStat3Name.setText(PlatformUiHelper.valueAt(c, 4));
-        cpFeatStat3.setText(PlatformUiHelper.valueAt(c, 5));
+        cpFeatStat3.setText(featured(PlatformUiHelper.valueAt(c, 5)));
         cpFeatStat4Name.setText(PlatformUiHelper.valueAt(c, 6));
-        cpFeatStat4.setText(PlatformUiHelper.valueAt(c, 7));
+        cpFeatStat4.setText(featured(PlatformUiHelper.valueAt(c, 7)));
     }
 
+    /** The engine writes an empty list as lower-case "none"; show it as "None". */
+    private static String featured(String value) {
+        return "none".equals(value) ? "None" : value;
+    }
 }

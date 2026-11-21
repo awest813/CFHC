@@ -24,7 +24,7 @@ public final class CareerDialogController {
         AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setMessage(message)
                 .setTitle(title)
-                .setPositiveButton("OK", (dialog, which) -> {})
+                .setPositiveButton(R.string.action_ok, (dialog, which) -> {})
                 .setNeutralButton("Season Goals", (dialog, which) -> {
                     if (onSeasonGoals != null) onSeasonGoals.run();
                     else if (onShowSeasonGoals != null) onShowSeasonGoals.run();
@@ -68,7 +68,7 @@ public final class CareerDialogController {
     public static void showRetireSummary(MainActivity activity, Team currentTeam, Runnable onExit) {
         AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("A Brief Look Back")
-                .setPositiveButton("EXIT GAME", (dialog, which) -> {
+                .setPositiveButton("Exit Game", (dialog, which) -> {
                     if (onExit != null) onExit.run();
                 })
                 .setView(activity.getLayoutInflater().inflate(R.layout.team_rankings_dialog, null, false));
@@ -188,7 +188,7 @@ public final class CareerDialogController {
         AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle(title)
                 .setMessage(message)
-                .setPositiveButton("OK", (dialog, which) -> {});
+                .setPositiveButton(R.string.action_ok, (dialog, which) -> {});
         AlertDialog alert = builder.create();
         alert.setCancelable(false);
         activity.showImmersive(alert);
@@ -457,7 +457,7 @@ public final class CareerDialogController {
         AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setMessage(message)
                 .setTitle(title)
-                .setPositiveButton("OK", (dialog, which) -> {});
+                .setPositiveButton(R.string.action_ok, (dialog, which) -> {});
         AlertDialog dialog = builder.create();
         dialog.setCancelable(false);
         activity.showImmersive(dialog);

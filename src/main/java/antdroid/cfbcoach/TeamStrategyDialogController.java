@@ -19,7 +19,7 @@ final class TeamStrategyDialogController {
     static void show(MainActivity activity, Team userTeam) {
         AlertDialog.Builder builder = Dialogs.builder(activity);
         builder.setTitle("Team Schemes")
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(R.string.action_ok, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         // Dismiss handled by the dialog button.
