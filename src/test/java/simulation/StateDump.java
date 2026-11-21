@@ -82,6 +82,12 @@ final class StateDump {
             line(path, o);
             return;
         }
+        if (o instanceof CharSequence) {
+            // StringBuilders (a game's play-by-play): length and content hash.
+            String text = o.toString();
+            line(path, "<" + c.getSimpleName() + " len=" + text.length() + " hash=" + text.hashCode() + ">");
+            return;
+        }
         String label = label(o);
         if (label != null) {
             line(path, "@" + label);

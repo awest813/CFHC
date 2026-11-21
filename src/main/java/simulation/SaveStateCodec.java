@@ -35,9 +35,9 @@ import staff.Staff;
  * rosters, player award flags and injury state, and the RNG position
  * ({@link SimRandom#exportState()}).
  *
- * <p>Played games keep their scores but not their box scores (plays and
- * per-player game lines): nothing reads them after the week they were played
- * except the box-score screen of that game.
+ * <p>Since v1.5c played games also keep their box scores (play-by-play, team
+ * totals, returners and per-player game lines), compressed in one
+ * {@code LL:boxScores} list; see {@link BoxScoreCodec}.
  */
 final class SaveStateCodec {
 
