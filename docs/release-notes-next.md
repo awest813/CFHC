@@ -39,6 +39,15 @@ Changes since v1.5.0. Version numbers are not bumped yet.
 - Seasons simulate about 3x faster; the offseason step that froze for ~4 s is gone; weekly autosaves do most
   of their work off the UI thread.
 
+## Look and feel
+
+- Android: buttons show their real colors again (they all rendered emerald, so losses looked like wins and the
+  gold "Play Week" call to action was green); labels line up with values in box scores and scouting reports;
+  layouts hold up on small phones and large font sizes; star grades with ★; cleaner recruiting rows.
+- Desktop: popups no longer cut off their last lines; tables size their columns so names fit; a contract
+  dialog no longer shows "2500%" win rates; Esc closes detail dialogs; consistent headers and buttons.
+- Works correctly on Turkish-language systems (sounds, save folder and commands used to break there).
+
 ## Text
 
 - Natural play-by-play ("rushed for no gain", "for a loss of 3 yards", "gain of 1 yard"); fixed plurals,
