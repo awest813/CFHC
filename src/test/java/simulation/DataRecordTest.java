@@ -58,17 +58,12 @@ public class DataRecordTest {
 
     @Test
     public void fromCsv_handlesCommaInHolder() {
-        // split(",", 4) keeps at most 4 parts; holder text with a comma
-        // pushes leftover text into parts[3] alongside the year,
-        // so parseInt fails. This test documents that limitation.
-        String csvWithCommaInHolder = "Key,100,Holder, Name,2025";
-        try {
-            DataRecord.fromCsv(csvWithCommaInHolder);
-            fail("Expected NumberFormatException when holder contains comma");
-        } catch (NumberFormatException e) {
-            // Expected: parts[3] = " Name,2025" which is not a valid integer
-            assertTrue(e.getMessage().contains("Name") || e.getMessage().contains("2025"));
-        }
+        // The holder is everything between the second and the last comma (a comma
+        // in it used to push text into the year, and the save would not load).
+        DataRecord r = DataRecord.fromCsv("Key,100,Holder, Name,2025");
+        assertEquals("Key", r.key());
+        assertEquals("Holder, Name", r.holder());
+        assertEquals(2025, r.year());
     }
 
     @Test

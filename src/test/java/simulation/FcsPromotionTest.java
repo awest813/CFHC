@@ -281,6 +281,9 @@ public class FcsPromotionTest {
                 sawSettings = true;
                 continue;
             }
+            if (line.startsWith(SaveManager.END_SAVE_PREFIX)) {
+                line = SaveManager.END_SAVE_PREFIX + kept.size(); // the trailer counts the lines kept
+            }
             kept.add(line);
         }
         assertTrue("current saves carry a settings line", sawSettings);
