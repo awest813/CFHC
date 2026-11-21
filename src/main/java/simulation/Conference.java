@@ -439,12 +439,13 @@ public class Conference {
         if(league.enableUnivProRel) confWeeks = League.REGULAR_SEASON_GAMES;
 
         int n = confTeams.size();
+        java.util.List<Team> order = rivalAwareOrder(confTeams);
         java.util.List<java.util.List<int[]>> rounds = roundRobinRounds(n, confWeeks);
         for (int r = 0; r < rounds.size(); ++r) {
             boolean[] plays = new boolean[n];
             for (int[] pair : rounds.get(r)) {
-                Team home = confTeams.get(pair[0]);
-                Team away = confTeams.get(pair[1]);
+                Team home = order.get(pair[0]);
+                Team away = order.get(pair[1]);
                 Game gm = new Game(home, away, "Conference");
                 home.addGameToSchedule(gm);
                 away.addGameToSchedule(gm);
@@ -453,9 +454,48 @@ public class Conference {
                 plays[pair[1]] = true;
             }
             for (int t = 0; t < n; t++) {
-                if (!plays[t]) confByeRounds.computeIfAbsent(confTeams.get(t), k -> new ArrayList<>()).add(r);
+                if (!plays[t]) confByeRounds.computeIfAbsent(order.get(t), k -> new ArrayList<>()).add(r);
             }
         }
+    }
+
+    /**
+     * Round-robin slot order that puts each pair of conference-mate rivals in
+     * slots the first round pairs up (p and m-1-p in {@link #roundRobinRounds}),
+     * so they always meet. With 8 conference rounds in a 14-18 team conference,
+     * rivals were otherwise skipped about one season in three, and the OOC
+     * rivalry slot (cross-conference only) could not make it up. Deterministic.
+     */
+    static java.util.List<Team> rivalAwareOrder(java.util.List<Team> teams) {
+        int n = teams.size();
+        int m = (n % 2 == 0) ? n : n + 1;
+        Team[] slots = new Team[m];
+        java.util.Set<Team> placed = java.util.Collections.newSetFromMap(new java.util.IdentityHashMap<>());
+        // Slot pairs usable for two real teams: (0, m-1) only without a phantom.
+        int p = (n % 2 == 0) ? 0 : 1;
+        for (Team a : teams) {
+            if (p >= m / 2) break;
+            if (placed.contains(a) || a.getRivalName() == null || a.getRivalName().isEmpty()) continue;
+            Team b = null;
+            for (Team c : teams) {
+                if (c != a && a.getRivalName().equals(c.getName())) { b = c; break; }
+            }
+            if (b == null || placed.contains(b)) continue;
+            slots[p] = a;
+            slots[m - 1 - p] = b;
+            placed.add(a);
+            placed.add(b);
+            p++;
+        }
+        int next = 0;
+        for (Team t : teams) {
+            if (placed.contains(t)) continue;
+            while (slots[next] != null || (n % 2 != 0 && next == m - 1)) next++;
+            slots[next] = t;
+        }
+        java.util.List<Team> out = new ArrayList<>(n);
+        for (int i = 0; i < n; i++) out.add(slots[i]);
+        return out;
     }
 
     //NO DIVISION SCHEDULING WITH ODD/EVEN TEAMS — uses BYE week placeholder, removed after scheduling

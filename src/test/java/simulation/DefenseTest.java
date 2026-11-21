@@ -58,7 +58,9 @@ public class DefenseTest {
     public void everyDefensivePlayIsCreditedAndShown() {
         List<Team> teams = league.getTeamList();
         int picks = 0, safetyPicks = 0, pickSixes = 0, safetyBreakups = 0, sacks = 0, cornerSacks = 0;
-        for (int i = 0; i < 150; i++) {
+        // 300 games (~350 picks): at 150 (~175 picks) the safety share's noise
+        // (+-3.5%) alone could cross the 29% floor.
+        for (int i = 0; i < 300; i++) {
             Team home = teams.get((i * 11) % teams.size());
             Team away = teams.get((i * 11 + 5) % teams.size());
             Game g = new Game(home, away, "Defense");

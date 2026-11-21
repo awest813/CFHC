@@ -56,4 +56,25 @@ public class MusicLifecycleTest {
             other.destroy();
         }
     }
+
+    @Test
+    public void music_survivesMainActivityFinishingIntoRecruiting_andHomeStopsIt() {
+        CfhcApplication app = CfhcApplication.from(ApplicationProvider.getApplicationContext());
+        assertNotNull(app);
+        ActivityController<Activity> recruiting;
+        try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
+                LeagueFixture.mainIntent(ApplicationProvider.getApplicationContext(), 0))) {
+            assertEquals(SoundtrackEngine.State.PLAYING, app.soundtrack().getState());
+            // beginRecruiting(): start Recruiting, then finish() MainActivity.
+            recruiting = Robolectric.buildActivity(Activity.class).create(new Bundle()).start().resume();
+        } // scenario closes = MainActivity destroyed
+        assertEquals("music must keep playing on the Recruiting screen",
+                SoundtrackEngine.State.PLAYING, app.soundtrack().getState());
+        recruiting.pause().stop().destroy();
+
+        try (ActivityScenario<Home> home = ActivityScenario.launch(Home.class)) {
+            assertEquals("the launcher has no music",
+                    SoundtrackEngine.State.STOPPED, app.soundtrack().getState());
+        }
+    }
 }

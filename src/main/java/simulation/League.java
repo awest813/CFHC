@@ -5421,7 +5421,18 @@ public class League {
     static boolean wouldStart(java.util.List<? extends Player> depth, int starters, Player transfer) {
         int n = Math.max(1, starters);
         if (depth.size() < n) return true;
-        return depth.get(n - 1).ratOvr < transfer.ratOvr;
+        // The n-th best OVR actually on the roster. The list is not re-sorted
+        // while the portal runs (signings are appended), so reading index n-1
+        // compared every later transfer against the original last starter and
+        // one team could sign five "starting" receivers.
+        int[] ovrs = new int[depth.size()];
+        int k = 0;
+        for (Player p : depth) {
+            if (p != transfer) ovrs[k++] = p.ratOvr; // never compare a player with himself
+        }
+        if (k < n) return true;
+        java.util.Arrays.sort(ovrs, 0, k);
+        return ovrs[k - n] < transfer.ratOvr;
     }
 
     //Transfer players from the available transfer lists

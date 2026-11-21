@@ -77,6 +77,15 @@ public class AiGameDecisionTest {
     }
 
     // ---- fourth down ------------------------------------------------------
+    @Test
+    public void lastSnapOfHalf_ownTerritory_puntsInsteadOfHandingOverPoints() {
+        // 0:12 left in the half, 4th-and-12 at our own 15: going for it handed
+        // the opponent a short field and a free field goal.
+        assertEquals(FourthDownCall.PUNT, fourth(12, 15, 1812, 7, 7));
+        assertEquals("past midfield it's points or nothing",
+                FourthDownCall.GO, fourth(12, 55, 1812, 7, 7));
+    }
+
 
     @Test
     public void downTenLate_goesForFourthAndOneAtTheOpponent35() {

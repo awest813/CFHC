@@ -935,6 +935,7 @@ public class Game implements Serializable {
 
     public void playGame() {
         homeChemCache = Double.NaN; // rosters may have changed since a previous call
+        lastLoggedClock = Integer.MAX_VALUE;
         if (gameName.equals(BYE_WEEK_NAME) && !hasPlayed) {
             hasPlayed = true;
             homeTeam.addToGameWLSchedule("BYE");
@@ -1229,8 +1230,10 @@ public class Game implements Serializable {
             // Four scores up in the second half: it's a running clock and the
             // backups are in; winners kept dropping 21-28 on fourth quarters.
             if (!playingOT && gameTime <= 1800 && offenseLead >= 28 && gameDown < 4) {
-                preferRush += 0.40;
-                preferPass -= 0.20;
+                // On top of the 17+ lean above; +0.40/-0.20 pushed 1st-and-10
+                // run share past ~65% (FBS ~56%).
+                preferRush += 0.25;
+                preferPass -= 0.10;
             }
             if (hurryUpPass) {
                 preferPass += 0.45 + 0.15 * SimRandom.nextDouble();
@@ -1258,7 +1261,10 @@ public class Game implements Serializable {
             // ball over on downs with time left), otherwise it plays fourth down as usual.
             if (gameTime > 20 && canKneelOut(offense)) {
                 Team kneelDefense = defense;
-                if (timeoutsLeft(kneelDefense) > 0) {
+                // The user's staff keeps its timeouts when the coaching
+                // checkpoints are on (as in clockTimeout).
+                boolean userKeepsTimeouts = coachListener != null && kneelDefense == coachedTeam;
+                if (timeoutsLeft(kneelDefense) > 0 && !userKeepsTimeouts) {
                     if (kneelDefense == homeTeam) homeTimeouts--; else awayTimeouts--;
                     calls(kneelDefense).timeouts++;
                     gameTime -= 3;
@@ -1403,8 +1409,11 @@ public class Game implements Serializable {
             }
         }
         if (!playingOT && gameTime > 1800 && gameTime - 1800 <= timePerPlay) {
-            // Last snap of the half: points or nothing.
-            return inRange ? FourthDownCall.FIELD_GOAL : FourthDownCall.GO;
+            // Last snap of the half: points or nothing, but only from the
+            // opponent's side. A failed try from our own end used to hand over
+            // the ball with seconds left for a free field goal.
+            if (inRange) return FourthDownCall.FIELD_GOAL;
+            return yl >= 50 ? FourthDownCall.GO : FourthDownCall.PUNT;
         }
 
         int aggression = bias + trailingAggression(margin);
@@ -3548,8 +3557,21 @@ public class Game implements Serializable {
         }
     }
 
+    /** Clock of the latest play-by-play stamp; refunds never rewind past it. */
+    private int lastLoggedClock = Integer.MAX_VALUE;
+
     private String convGameTime() {
+        lastLoggedClock = gameTime;
         if (!playingOT) {
+            // A play that runs past the end of a quarter still belongs to it:
+            // stamp it 0:00 of that quarter until quarterCheck starts the next
+            // one (lines used to read "14:55 Q2" for the last play of Q1, then
+            // the clock jumped back up to 15:00).
+            int endedQuarter = 0;
+            if (!QT1 && gameTime < 2700) endedQuarter = 1;
+            else if (QT1 && !QT2 && gameTime < 1800) endedQuarter = 2;
+            else if (QT2 && !QT3 && gameTime < 900) endedQuarter = 3;
+            if (endedQuarter > 0) return "0:00 Q" + endedQuarter;
             int qNum = (3600 - gameTime) / 900 + 1;
             int minTime;
             int secTime;
@@ -3582,10 +3604,17 @@ public class Game implements Serializable {
         if (timeoutClockBank <= 0 || offense != coachedTeam || playingOT) return;
         if (gameTime <= 0 || gameTime >= 900 || clockBefore > 900) return;
         if ((offense == homeTeam) != gamePoss) return;
+        // Banked timeouts stop the clock for a team that needs time; a leading
+        // team's kneels and clock-milking used to be undone by them.
+        int margin = offense == homeTeam ? homeScore - awayScore : awayScore - homeScore;
+        if (margin > 0) return;
         int saved = Math.min(timeoutClockBank, clockBefore - gameTime - 10);
         if (saved > 0) {
-            gameTime += saved;
-            timeoutClockBank -= saved;
+            int target = Math.min(gameTime + saved, lastLoggedClock);
+            if (target > gameTime) {
+                timeoutClockBank -= target - gameTime;
+                gameTime = target;
+            }
         }
     }
 
@@ -3618,7 +3647,9 @@ public class Game implements Serializable {
         if (caller == null || (coachListener != null && caller == coachedTeam)) return;
         if (caller == homeTeam) homeTimeouts--; else awayTimeouts--;
         calls(caller).timeouts++;
-        gameTime = clockBefore - 10;
+        // Never rewind past a time already printed in the log (an injury line
+        // stamped after the snap made the play-by-play clock run backwards).
+        gameTime = Math.max(gameTime, Math.min(clockBefore - 10, lastLoggedClock));
         if (homeTeam.league != null && homeTeam.league.fullGameLog) {
             gameEventLog.append("\n").append(caller.getAbbr()).append(" calls timeout to stop the clock.");
         }
