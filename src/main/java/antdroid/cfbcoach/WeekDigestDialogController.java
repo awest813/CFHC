@@ -54,7 +54,7 @@ public final class WeekDigestDialogController {
             View card = inflater.inflate(R.layout.week_digest_section, sections, false);
             ((TextView) card.findViewById(R.id.digestSectionHeading)).setText(section.heading);
             TextView body = card.findViewById(R.id.digestSectionBody);
-            boolean ranking = section.heading.toLowerCase().startsWith("top ");
+            boolean ranking = section.heading.toLowerCase(java.util.Locale.ROOT).startsWith("top ");
             if (ranking) {
                 body.setTypeface(ResourcesCompat.getFont(activity, R.font.jetbrains_mono));
                 body.setText(TextUtils.join("\n", section.lines));

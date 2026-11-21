@@ -14,7 +14,7 @@ public final class PlayerSprites {
     }
 
     public static int avatarFor(String position) {
-        String pos = position == null ? "" : position.trim().toUpperCase();
+        String pos = position == null ? "" : position.trim().toUpperCase(java.util.Locale.ROOT);
         if (pos.startsWith("QB")) return R.drawable.sprite_avatar_qb_green;
         if (pos.startsWith("LB") || pos.endsWith("LB")) return R.drawable.sprite_avatar_lb_green;
         if (Player.defensePos.contains(pos)) return R.drawable.sprite_avatar_showcase_lb;

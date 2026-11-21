@@ -85,7 +85,7 @@ public final class PlayerDevelopmentDialogController {
             StringBuilder multLine = new StringBuilder();
             for (int a = 0; a < 4; a++) {
                 if (a > 0) multLine.append("  |  ");
-                multLine.append(attrNames[a]).append(" ").append(String.format("%.1f", mults[a])).append("x");
+                multLine.append(attrNames[a]).append(" ").append(String.format(java.util.Locale.getDefault(), "%.1f", mults[a])).append("x");
             }
             TextView multView = new TextView(activity);
             multView.setText(multLine.toString());

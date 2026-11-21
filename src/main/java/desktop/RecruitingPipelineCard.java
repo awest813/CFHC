@@ -38,7 +38,7 @@ public class RecruitingPipelineCard extends CustomCardPanel {
         // Header badge — real commit count + class rating (was hardcoded "14 Commits").
         JPanel headerRight = new JPanel();
         headerRight.setOpaque(false);
-        JLabel commitsBadge = new JLabel("  " + commits + " Commits  \u2022  Class " + String.format("%.0f", classRat) + "  ");
+        JLabel commitsBadge = new JLabel("  " + commits + " Commits  \u2022  Class " + String.format(java.util.Locale.getDefault(), "%.0f", classRat) + "  ");
         commitsBadge.setOpaque(true);
         commitsBadge.setBackground(new Color(0, 230, 118, 30));
         commitsBadge.setForeground(DesktopTheme.successGreen());

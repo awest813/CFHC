@@ -31,7 +31,7 @@ public class CustomCardPanel extends JPanel {
         if (cardTitle != null && !cardTitle.trim().isEmpty()) {
             headerBar = new JPanel(new BorderLayout());
             headerBar.setOpaque(false);
-            titleLabel = new JLabel(cardTitle.toUpperCase());
+            titleLabel = new JLabel(cardTitle.toUpperCase(java.util.Locale.ROOT));
             titleLabel.setFont(new Font("SansSerif", Font.BOLD, 11));
             titleLabel.setForeground(DesktopTheme.textSecondary());
             headerBar.add(titleLabel, BorderLayout.WEST);

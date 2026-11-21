@@ -3787,7 +3787,7 @@ public class Game implements Serializable {
                     }
                     if (crunchFourthDownCall != GameCoachPlan.FourthDownCall.AUTO) {
                         gameEventLog.append("\n").append(coachedTeam.getAbbr()).append(" coaches signal their fourth-down intent: ")
-                                .append(crunchFourthDownCall.name().replace('_', ' ').toLowerCase()).append('.');
+                                .append(crunchFourthDownCall.name().replace('_', ' ').toLowerCase(java.util.Locale.ROOT)).append('.');
                     }
                 }
             }

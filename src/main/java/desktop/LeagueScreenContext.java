@@ -60,7 +60,7 @@ public class LeagueScreenContext {
     /** Format a DataRecord value as a display string. */
     public static String formatValue(float value) {
         if (value == (long) value) return String.valueOf((long) value);
-        return String.format("%.2f", value);
+        return String.format(java.util.Locale.getDefault(), "%.2f", value);
     }
 
     /** Format a DataRecord holder field. */

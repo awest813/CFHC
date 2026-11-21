@@ -34,13 +34,11 @@ Dimensions (`res/values/dimens.xml`): spacing `cf_space_xs/sm/md/lg/xl/xxl`
 - Cards: `bg_cf_card`, `bg_cf_card_elevated`, `bg_cf_card_canvas` (inset tile),
   `bg_cf_card_accent` (emerald leading bar = "active"/"your team"), `bg_cf_card_crimson`
   (opponent / alert), `bg_cf_rating_tile` (emerald-bordered rating tile).
-- Pills: `bg_cf_pill_neutral/emerald/gold/crimson`, solid `bg_cf_pill_solid_gold/emerald`.
+- Pills: `bg_cf_pill_neutral/emerald/gold/crimson`, solid `bg_cf_pill_solid_gold`.
 - Controls: `bg_action_primary` (gold CTA), `bg_action_secondary`, `bg_action_danger`,
   `bg_action_win`, `bg_cf_input` (spinner/edit field), `bg_cf_list_selector`.
-- Misc: `bg_cf_divider` (1dp), `bg_cf_progress` / `bg_cf_progress_gold` (ProgressBar
+- Misc: `bg_cf_progress` / `bg_cf_progress_gold` (ProgressBar
   `progressDrawable`), `bg_toolbar`, `bg_bottom_nav`, `bg_dialog_surface`, `bg_dialog_section`.
-- Legacy `bg_mobile_panel`, `bg_mobile_panel_strong`, `bg_mobile_chip`, `bg_mobile_row`,
-  `bg_home_stat` are re-skinned onto the tokens and remain valid.
 
 ## Typography (`res/values/styles.xml`)
 

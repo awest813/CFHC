@@ -119,12 +119,12 @@ public class RosterSpotlightCard extends CustomCardPanel {
         if (hasPlayer && !rawName.isEmpty()) {
             String[] parts = rawName.trim().split("\\s+");
             if (parts.length >= 2 && parts[0].length() > 0 && parts[1].length() > 0) {
-                initials = ("" + parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
+                initials = ("" + parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase(java.util.Locale.ROOT);
                 if (rawName.length() > 12) {
                     displayName = parts[0].charAt(0) + ". " + parts[1];
                 }
             } else {
-                initials = rawName.substring(0, Math.min(2, rawName.length())).toUpperCase();
+                initials = rawName.substring(0, Math.min(2, rawName.length())).toUpperCase(java.util.Locale.ROOT);
             }
         }
 

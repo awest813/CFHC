@@ -71,7 +71,7 @@ public final class SaveLoadMessages {
         if (msg == null || msg.trim().isEmpty()) {
             return "Unable to load this save. The file may be invalid, unsupported, or missing required data.";
         }
-        String lower = msg.toLowerCase();
+        String lower = msg.toLowerCase(java.util.Locale.ROOT);
         if (lower.contains("unsupported") || lower.contains("schema version")) {
             return msg;
         }

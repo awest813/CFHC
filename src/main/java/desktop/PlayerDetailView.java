@@ -126,7 +126,7 @@ public class PlayerDetailView extends JDialog {
         JPanel nameStarsRow = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 10, 0));
         nameStarsRow.setOpaque(false);
 
-        JLabel nameLbl = new JLabel(player.name.toUpperCase());
+        JLabel nameLbl = new JLabel(player.name.toUpperCase(java.util.Locale.ROOT));
         nameLbl.setFont(TITLE_FONT);
         nameLbl.setForeground(Color.WHITE);
         nameStarsRow.add(nameLbl);
@@ -145,7 +145,7 @@ public class PlayerDetailView extends JDialog {
         tagsRow.add(createChip(player.position + " \u2022 " + player.getArchetypeDisplayName(), new Color(6, 182, 212), new Color(6, 182, 212, 40)));
         tagsRow.add(createChip(player.getYrStr(), DesktopTheme.textSecondary(), new Color(255, 255, 255, 25)));
         if (player.team != null) {
-            tagsRow.add(createChip(player.team.getName().toUpperCase(), DesktopTheme.warningText(), new Color(251, 191, 36, 40)));
+            tagsRow.add(createChip(player.team.getName().toUpperCase(java.util.Locale.ROOT), DesktopTheme.warningText(), new Color(251, 191, 36, 40)));
         }
 
         metaPanel.add(tagsRow);
@@ -448,7 +448,7 @@ public class PlayerDetailView extends JDialog {
         valLbl.setFont(new Font("Monospaced", Font.BOLD, 20));
         valLbl.setForeground(getTierColor(value));
 
-        JLabel nameLbl = new JLabel(label.toUpperCase(), SwingConstants.CENTER);
+        JLabel nameLbl = new JLabel(label.toUpperCase(java.util.Locale.ROOT), SwingConstants.CENTER);
         nameLbl.setFont(new Font("SansSerif", Font.BOLD, 10));
         nameLbl.setForeground(DesktopTheme.textSecondary());
 

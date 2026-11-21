@@ -17,7 +17,7 @@ final class DesktopAppPaths {
     }
 
     static File appDir() {
-        String os = System.getProperty("os.name", "").toLowerCase();
+        String os = System.getProperty("os.name", "").toLowerCase(java.util.Locale.ROOT);
         String home = System.getProperty("user.home");
         if (home == null || home.isEmpty()) {
             home = System.getProperty("user.dir");

@@ -128,7 +128,7 @@ public class CoachProfilePanel implements LeagueScreen {
         int losses = hc.getLosses();
         int games = wins + losses;
         String winPct = games > 0
-                ? String.format("%.3f", (double) wins / games)
+                ? String.format(java.util.Locale.getDefault(), "%.3f", (double) wins / games)
                 : "\u2014";
 
         JPanel statsRow = new JPanel(new GridLayout(2, 4, 8, 8));

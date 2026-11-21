@@ -194,7 +194,7 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
         }
 
         void start() {
-            Thread t = new Thread(this, "cfhc-soundtrack-" + track.name().toLowerCase());
+            Thread t = new Thread(this, "cfhc-soundtrack-" + track.name().toLowerCase(java.util.Locale.ROOT));
             t.setDaemon(true);
             t.start();
         }

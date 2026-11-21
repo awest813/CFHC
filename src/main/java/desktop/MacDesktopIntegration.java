@@ -32,7 +32,7 @@ public final class MacDesktopIntegration {
      * Must run before installing the look-and-feel so the screen menu bar is used on macOS.
      */
     public static void installEarly() {
-        String os = System.getProperty("os.name", "").toLowerCase();
+        String os = System.getProperty("os.name", "").toLowerCase(java.util.Locale.ROOT);
         if (!os.contains("mac")) {
             return;
         }

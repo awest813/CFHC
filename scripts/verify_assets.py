@@ -11,8 +11,6 @@ EXPECTED = {
     "src/main/assets/cfhc_icon.png": {"size": (512, 512), "mode": "RGBA"},
     # Android Menu & Drawables
     "src/main/res/drawable/main_menu_logo.png": {"size": (512, 512), "mode": "RGBA"},
-    "src/main/res/drawable/football_logo.png": {"size": (512, 512), "mode": "RGBA"},
-    "src/main/res/drawable/football_icon.png": {"size": (512, 512), "mode": "RGBA"},
     # Android Launcher & Mipmaps
     "src/main/ic_launcher-web.png": {"size": (512, 512), "mode": "RGBA"},
     "src/main/res/mipmap-mdpi/ic_launcher.png": {"size": (48, 48), "mode": "RGBA"},

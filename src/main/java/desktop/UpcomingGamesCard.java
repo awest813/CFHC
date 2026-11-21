@@ -69,7 +69,7 @@ public class UpcomingGamesCard extends CustomCardPanel {
                 boolean isHome = g.homeTeam == team;
                 String oppName = (isHome ? "vs " : "at ") + (opp != null ? opp.getName() : "TBD");
                 String oppAbbr = opp != null && opp.getAbbr() != null && opp.getAbbr().length() >= 1
-                        ? opp.getAbbr().substring(0, Math.min(2, opp.getAbbr().length())).toUpperCase() : "?";
+                        ? opp.getAbbr().substring(0, Math.min(2, opp.getAbbr().length())).toUpperCase(java.util.Locale.ROOT) : "?";
                 int oppPrestige = opp != null ? opp.getTeamPrestige() : 50;
                 Color diffColor = difficultyColor(oppPrestige, userPrestige);
                 String stars = difficultyStars(oppPrestige, userPrestige);

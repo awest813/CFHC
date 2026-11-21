@@ -91,7 +91,7 @@ public class Main {
         if (arg == null || arg.isEmpty() || arg.startsWith("-")) {
             return false;
         }
-        String lower = arg.toLowerCase();
+        String lower = arg.toLowerCase(java.util.Locale.ROOT);
         return lower.endsWith(".cfb") || lower.endsWith(".sav") || lower.endsWith(".txt");
     }
 

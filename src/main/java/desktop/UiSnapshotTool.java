@@ -97,7 +97,7 @@ public final class UiSnapshotTool {
         for (String screen : screens) {
             select.invoke(view, screen);
             Thread.sleep(300);
-            capture(view.getContentPane(), outDir + "/" + screen.replace(' ', '_').toLowerCase() + ".png");
+            capture(view.getContentPane(), outDir + "/" + screen.replace(' ', '_').toLowerCase(java.util.Locale.ROOT) + ".png");
             System.out.println("captured: " + screen);
             if ("Home".equals(screen)) {
                 // The dashboard grid scrolls when its rows don't fit; capture the lower half too.

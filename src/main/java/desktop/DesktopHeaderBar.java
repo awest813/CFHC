@@ -50,7 +50,7 @@ public class DesktopHeaderBar extends JPanel {
         // Precompute the crest monogram so the paint closure can capture it.
         final String mono = userTeam != null && userTeam.getAbbr() != null
                 && userTeam.getAbbr().length() >= 2
-                ? userTeam.getAbbr().substring(0, 2).toUpperCase() : "--";
+                ? userTeam.getAbbr().substring(0, 2).toUpperCase(java.util.Locale.ROOT) : "--";
 
         // Logo Shield Icon Component
         JPanel logoCrest = new JPanel() {
@@ -89,7 +89,7 @@ public class DesktopHeaderBar extends JPanel {
         JPanel titlePanel = new JPanel(new BorderLayout(0, 2));
         titlePanel.setOpaque(false);
 
-        String schoolName = userTeam != null ? userTeam.getName().toUpperCase() : "COLLEGE FOOTBALL";
+        String schoolName = userTeam != null ? userTeam.getName().toUpperCase(java.util.Locale.ROOT) : "COLLEGE FOOTBALL";
         String mascotName = userTeam != null && userTeam.nickname != null ? userTeam.nickname : "";
 
         JPanel nameRow = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
@@ -120,7 +120,7 @@ public class DesktopHeaderBar extends JPanel {
                     + "  \u2022  " + simulation.SeasonPresentation.getSeasonWeekChipText(league)
                             .replaceFirst("\\s{2,}.*$", "")
                 : currentYear + " SEASON  •  WEEK 8";
-        JLabel seasonLabel = new JLabel(seasonText.toUpperCase());
+        JLabel seasonLabel = new JLabel(seasonText.toUpperCase(java.util.Locale.ROOT));
         seasonLabel.setFont(new Font("SansSerif", Font.BOLD, 11));
         seasonLabel.setForeground(DesktopTheme.headerSubtleText());
 
@@ -144,7 +144,7 @@ public class DesktopHeaderBar extends JPanel {
         Color chipColor;
         String chipLabel;
         if (hc != null) {
-            coachName = "HC " + hc.name.toUpperCase();
+            coachName = "HC " + hc.name.toUpperCase(java.util.Locale.ROOT);
             coachRecord = "Career: " + hc.getWins() + "-" + hc.getLosses() + "  \u2022  Yr " + hc.year;
             // Job-security state from real contract/firing data.
             // Brand-constant accents: the header is dark in every theme, and the

@@ -32,7 +32,7 @@ public class ConferenceStandingsCard extends CustomCardPanel {
 
     public ConferenceStandingsCard(Team userTeam, Runnable onViewAll, Consumer<Team> onSelectTeam) {
         super(userTeam != null && userTeam.conference != null
-                ? userTeam.conference.toUpperCase() + " STANDINGS"
+                ? userTeam.conference.toUpperCase(java.util.Locale.ROOT) + " STANDINGS"
                 : "CONFERENCE STANDINGS");
         JPanel content = getContentArea();
 

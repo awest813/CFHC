@@ -73,7 +73,7 @@ public class HeadCoachCard extends CustomCardPanel {
         JLabel nameLabel = new JLabel(coachName);
         nameLabel.setFont(new Font("SansSerif", Font.BOLD, 13));
         nameLabel.setForeground(DesktopTheme.textPrimary());
-        JLabel titleLabel = new JLabel(position.toUpperCase());
+        JLabel titleLabel = new JLabel(position.toUpperCase(java.util.Locale.ROOT));
         titleLabel.setFont(new Font("SansSerif", Font.BOLD, 9));
         titleLabel.setForeground(DesktopTheme.textSecondary());
         top.add(nameLabel, BorderLayout.CENTER);

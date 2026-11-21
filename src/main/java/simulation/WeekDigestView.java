@@ -89,7 +89,7 @@ public final class WeekDigestView {
 
     private static String outcomeOf(String result) {
         if (result.isEmpty()) return "";
-        if (result.toUpperCase().startsWith("BYE")) return "BYE";
+        if (result.toUpperCase(java.util.Locale.ROOT).startsWith("BYE")) return "BYE";
         char c = result.charAt(0);
         if ((c == 'W' || c == 'L' || c == 'T') && (result.length() == 1 || result.charAt(1) == ' ')) {
             return String.valueOf(c);

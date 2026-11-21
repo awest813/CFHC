@@ -48,11 +48,11 @@ public class NextGameMatchupCard extends CustomCardPanel {
         Team homeTeam = team;
         Team awayTeam = opp;
 
-        String homeName = homeTeam != null ? homeTeam.getName().toUpperCase() : "\u2014";
+        String homeName = homeTeam != null ? homeTeam.getName().toUpperCase(java.util.Locale.ROOT) : "\u2014";
         String homeMascot = mascotLine(homeTeam);
         String homeRecord = homeTeam != null ? homeTeam.getWins() + "-" + homeTeam.getLosses() : "\u2014";
 
-        String awayName = awayTeam != null ? awayTeam.getName().toUpperCase() : "TBD";
+        String awayName = awayTeam != null ? awayTeam.getName().toUpperCase(java.util.Locale.ROOT) : "TBD";
         String awayMascot = mascotLine(awayTeam);
         String awayRecord = awayTeam != null ? awayTeam.getWins() + "-" + awayTeam.getLosses() : "\u2014";
         String atBadge = awayTeam == null ? "\u2014" : (userIsHome ? "VS" : "AT");
@@ -213,7 +213,7 @@ public class NextGameMatchupCard extends CustomCardPanel {
     /** Nickname, or the conference for teams without one (FCS opponents), so the line is never blank. */
     private static String mascotLine(Team t) {
         if (t == null) return "";
-        if (t.nickname != null && !t.nickname.isBlank()) return t.nickname.toUpperCase();
-        return t.conference != null ? t.conference.toUpperCase() : "";
+        if (t.nickname != null && !t.nickname.isBlank()) return t.nickname.toUpperCase(java.util.Locale.ROOT);
+        return t.conference != null ? t.conference.toUpperCase(java.util.Locale.ROOT) : "";
     }
 }

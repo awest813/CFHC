@@ -136,7 +136,7 @@ public class DesktopAudioManager implements AudioManager {
             case TOUCHDOWN_CHEER -> "touchdown";
             case CROWD_ROAR -> "crowd_roar";
             case STADIUM_ORGAN -> "organ";
-            default -> event.name().toLowerCase();
+            default -> event.name().toLowerCase(java.util.Locale.ROOT);
         };
     }
 
