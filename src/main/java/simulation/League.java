@@ -2283,10 +2283,13 @@ public class League {
     /** Extra soft-cap room per prestige point. */
     static final int BUDGET_SOFT_CAP_PER_PRESTIGE = 200;
     /** Share of the budget above the soft cap spent each offseason. */
-    static final double BUDGET_OVER_CAP_SPEND = 0.50;
-    /** Yearly upkeep per facilities level and per stadium expansion tier. */
+    static final double BUDGET_OVER_CAP_SPEND = 0.60;
+    /** Share of the whole budget spent on day-to-day operations each offseason. */
+    static final double BUDGET_OPERATING_SHARE = 0.12;
+    /** Yearly upkeep per facilities level, stadium expansion tier and NIL tier. */
     static final int FACILITY_UPKEEP_PER_LEVEL = 1200;
     static final int STADIUM_UPKEEP_PER_TIER = 1500;
+    static final int NIL_UPKEEP_PER_TIER = 1000;
 
     /** Soft cap for a program's athletic budget: richer, more prestigious programs carry more. */
     public static int budgetSoftCap(int prestige) {
@@ -2295,8 +2298,9 @@ public class League {
 
     /**
      * Offseason running costs, after the year's facility, NIL and stadium
-     * purchases: upkeep for what a program has built, plus department spending
-     * of a share of whatever sits above the soft cap. Revenue arrives every week
+     * purchases: operations (a share of the budget) and upkeep for what a
+     * program has built (together at most half the budget), then department
+     * spending of a share of whatever sits above the soft cap. Revenue arrives every week
      * but upgrades were the only outflow, so budgets compounded without bound
      * (league max ~9K to ~60K in 15 seasons while facilities stalled at level
      * 4). Never takes a budget below zero.
@@ -2305,7 +2309,9 @@ public class League {
         for (Team tm : teamList) {
             int budget = tm.getTeamBudget();
             int upkeep = FACILITY_UPKEEP_PER_LEVEL * tm.getTeamFacilities()
-                    + STADIUM_UPKEEP_PER_TIER * Math.max(0, tm.teamStadium - 1);
+                    + STADIUM_UPKEEP_PER_TIER * Math.max(0, tm.teamStadium - 1)
+                    + NIL_UPKEEP_PER_TIER * tm.nilCollectiveLevel
+                    + (int) Math.round(budget * BUDGET_OPERATING_SHARE);
             budget -= Math.min(upkeep, budget / 2);
             int over = budget - budgetSoftCap(tm.getTeamPrestige());
             if (over > 0) budget -= (int) Math.round(over * BUDGET_OVER_CAP_SPEND);
