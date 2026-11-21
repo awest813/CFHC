@@ -114,6 +114,29 @@ public class Game implements Serializable {
     private boolean homeHalfAdjustment;
     private boolean awayHalfAdjustment;
 
+    /**
+     * Per-team tally of the coaching calls made in this game: fourth-down
+     * decisions, field-goal tries and timeouts. Read by the AI decision tests
+     * and tuning harnesses; nothing in the sim reads it back.
+     */
+    static final class CallStats {
+        int fourthDowns;
+        int goAttempts;
+        int goConversions;
+        int punts;
+        int fgAttempts;
+        int fgMade;
+        int fgYards;
+        int fgAttempts50;
+        int timeouts;
+    }
+    final CallStats homeCalls = new CallStats();
+    final CallStats awayCalls = new CallStats();
+
+    CallStats calls(Team t) {
+        return t == homeTeam ? homeCalls : awayCalls;
+    }
+
     public int getHomeTimeouts() { return homeTimeouts; }
     public int getAwayTimeouts() { return awayTimeouts; }
 
@@ -957,9 +980,11 @@ public class Game implements Serializable {
                 //play ball!
                 Team offense = gamePoss ? homeTeam : awayTeam;
                 int clockBefore = gameTime;
+                boolean possBefore = gamePoss;
                 if (gamePoss) runPlay(homeTeam, awayTeam);
                 else runPlay(awayTeam, homeTeam);
                 spendBankedTimeout(offense, clockBefore);
+                clockTimeout(offense, possBefore, clockBefore);
             }
 
             // Add last play
@@ -1199,6 +1224,19 @@ public class Game implements Serializable {
             // A kneel runs a full play's clock; on fourth down the leader only kneels
             // when that is sure to end the game (a fourth-down kneel used to hand the
             // ball over on downs with time left), otherwise it plays fourth down as usual.
+            if (gameTime > 20 && canKneelOut(offense)) {
+                Team kneelDefense = defense;
+                if (timeoutsLeft(kneelDefense) > 0) {
+                    if (kneelDefense == homeTeam) homeTimeouts--; else awayTimeouts--;
+                    calls(kneelDefense).timeouts++;
+                    gameTime -= 3;
+                } else {
+                    gameTime -= Math.min(gameTime, KNEEL_RUNOFF);
+                }
+                gameDown++;
+                gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" takes a knee.");
+                return;
+            }
             if (gameTime <= 20 && !playingOT && offenseLeading && (gameDown < 4 || gameTime <= timePerPlay)) {
                 gameTime -= timePerPlay + timePerPlay * SimRandom.nextDouble();
                 gameDown++;
@@ -1228,63 +1266,25 @@ public class Game implements Serializable {
                     //hail mary
                     passingPlay(offense, defense);
                 }
+            } else if (gameDown < 4 && !playingOT && gameTime > 1800 && gameTime - 1800 <= timePerPlay
+                    && gameYardLine > 60 && fgInRange(offense)) {
+                // Last snap of the first half in range: take the points. Offenses
+                // used to run a play here and let the half expire.
+                fieldGoalAtt(offense, defense);
             } else if (gameDown >= 4) {
-                // Interactive coaching: crunch fourth-down intent + aggression bias.
-                boolean coachGoForIt = crunchActive && offense == coachedTeam
-                        && crunchFourthDownCall == GameCoachPlan.FourthDownCall.GO_FOR_IT;
-                boolean coachFieldGoal = crunchActive && offense == coachedTeam
-                        && crunchFourthDownCall == GameCoachPlan.FourthDownCall.FIELD_GOAL;
-                boolean coachPunt = crunchActive && offense == coachedTeam
-                        && crunchFourthDownCall == GameCoachPlan.FourthDownCall.PUNT;
-                int bias = offense == coachedTeam ? fourthDownBias : 0;
-
-                if (((gamePoss && (awayScore - homeScore) > 3) || (!gamePoss && (homeScore - awayScore) > 3)) && gameTime < 300) {
-                    //go for it since we need 7 to win -- This also forces going for it if down by a TD in BOT OT
-                    if (gameYardsNeed < 3 && preferRush * 3 > preferPass) {
-                        rushingPlay(offense, defense);
-                    } else {
-                        passingPlay(offense, defense);
-                    }
-                } else if (coachGoForIt) {
-                    if (gameYardsNeed < 3 && preferRush * 3 > preferPass) {
-                        rushingPlay(offense, defense);
-                    } else {
-                        passingPlay(offense, defense);
-                    }
-                } else if (coachFieldGoal && gameYardLine > 55) {
-                    fieldGoalAtt(offense, defense);
-                } else if (coachPunt && gameYardLine <= 60) {
-                    puntPlay(offense, defense);
-                } else {
-                    //4th down
-                    if (gameYardsNeed < 3 + Math.max(0, bias)) {
-                        if (gameYardLine > 65 - Math.max(0, bias) * 2 && fgInRange(offense)) {
-                            //fga
-                            fieldGoalAtt(offense, defense);
-                        } else if (gameYardLine > 55) {
-                            // go for it: usually a run, sometimes a quick throw
-                            if (SimRandom.nextDouble() < shortYardageRunChance(gameYardsNeed, offense.getPlaybookOffense())) {
-                                rushingPlay(offense, defense);
-                            } else {
-                                passingPlay(offense, defense);
-                            }
-                        } else {
-                            //punt
-                            puntPlay(offense, defense);
-                        }
-                    } else if (gameYardLine > 60 && fgInRange(offense)) {
-                        //fga
-                        fieldGoalAtt(offense, defense);
-                    } else if (gameYardLine > 65 && gameYardsNeed <= 6) {
-                        // Out of field goal range but too close to punt (it would
-                        // just be a touchback): go for it, as college coaches do.
-                        passingPlay(offense, defense);
-                    } else {
-                        //punt
-                        puntPlay(offense, defense);
-                    }
+                CallStats cs = calls(offense);
+                cs.fourthDowns++;
+                int puntsBefore = cs.punts, fgBefore = cs.fgAttempts;
+                int pointsBefore = offenseIsHome ? homeScore : awayScore;
+                boolean possBefore = gamePoss;
+                fourthDownPlay(offense, defense, preferPass, preferRush);
+                if (cs.punts == puntsBefore && cs.fgAttempts == fgBefore) {
+                    cs.goAttempts++;
+                    int pointsAfter = offenseIsHome ? homeScore : awayScore;
+                    if (pointsAfter > pointsBefore || (gamePoss == possBefore && gameDown == 1)) cs.goConversions++;
                 }
             } else if (gameDown == 3) {
+                
                 // Third down by distance. It used to be all runs at 1-4 yards and all
                 // passes from 5 on (FBS: ~70% runs on 3rd and 1-2, ~35% at 3-6, ~10% beyond).
                 double runChance = hurryUpPass && gameYardsNeed > 1 ? 0.03
@@ -1304,6 +1304,138 @@ public class Game implements Serializable {
         }
 
 
+    }
+
+    /** What the offense does on fourth down. */
+    enum FourthDownCall { GO, FIELD_GOAL, PUNT }
+
+    /**
+     * Fewest odds of a make worth a field-goal try on an ordinary fourth down
+     * (~50 yds for an average kicker, ~45 for a weak one). Any kick within the
+     * leg's reach used to be tried, so weak kickers took 55-yard shots at 15%.
+     */
+    static final double FG_MIN_CHANCE = 0.40;
+
+    /** Chance a field goal from the current spot is good (0 when out of range). */
+    double fgChanceFromSpot(Team offense) {
+        PlayerK k = kicker(offense);
+        if (k == null || !fgInRange(offense)) return 0;
+        int yardLineAtKick = gameYardLine - 7;
+        return fgMakeChance(110 - yardLineAtKick,
+                k.getRatKickAcc() + getHFadv() + weather.fgAdj() + getArchetypeFgAccBonus(k, yardLineAtKick));
+    }
+
+    /**
+     * The fourth-down call outside the final-seconds branch, from the score,
+     * clock, spot, distance and the kicker. Deterministic: the run/pass choice
+     * on a go is rolled afterwards.
+     *
+     * <ul>
+     * <li>Trailing late (under 5:00, and all of overtime): a field goal when 1-3
+     * down and it is makeable; a field goal down 9-11 with 2:00+ left (it keeps
+     * the game one score); otherwise go. Only a team down 1-3 with 3:00+ left,
+     * backed up on 4th and long plays it straight.</li>
+     * <li>Last snap before halftime: kick if in range, else go.</li>
+     * <li>Otherwise by distance (FBS-like, about 1.6 tries a team a game at
+     * ~55%): 4th and goal from the 1-2 goes; 4th and 1 goes from the own 35 on,
+     * 4th and 2 from the own 40, 3-4 yards from the own 45, 5-6 from the
+     * opponent 42 and any distance from the opponent 32. A makeable kick is
+     * taken instead past the opponent 40 (past the 25 at 4th and 2). It used
+     * to punt on 4th and 1 short of the opponent 45 and on 4th and 7+ from
+     * the opponent 34 (~0.45 tries a game). Trailing offenses shift these by
+     * up to two yards ({@link #trailingAggression}), as does the coach's
+     * fourth-down dial either way (caution used to do nothing).</li>
+     * </ul>
+     */
+    FourthDownCall fourthDownCall(Team offense, int bias) {
+        boolean offenseIsHome = offense == homeTeam;
+        int margin = offenseIsHome ? homeScore - awayScore : awayScore - homeScore;
+        double fgChance = fgChanceFromSpot(offense);
+        boolean inRange = fgChance > 0;
+        boolean makeable = fgChance >= FG_MIN_CHANCE;
+        int yl = gameYardLine;
+        int need = gameYardsNeed;
+        boolean late = playingOT || gameTime < 300;
+
+        if (late && margin < 0) {
+            int deficit = -margin;
+            if (deficit <= 3) {
+                if (playingOT ? inRange : makeable) return FourthDownCall.FIELD_GOAL;
+                boolean timeToPlayDefense = !playingOT && gameTime >= 180 && yl < 40 && need > 4;
+                if (!timeToPlayDefense) return FourthDownCall.GO;
+            } else if (deficit <= 11 && deficit >= 9) {
+                if (!playingOT && gameTime >= 120 && makeable) return FourthDownCall.FIELD_GOAL;
+                return FourthDownCall.GO;
+            } else {
+                return FourthDownCall.GO;
+            }
+        }
+        if (!playingOT && gameTime > 1800 && gameTime - 1800 <= timePerPlay) {
+            // Last snap of the half: points or nothing.
+            return inRange ? FourthDownCall.FIELD_GOAL : FourthDownCall.GO;
+        }
+
+        int aggression = bias + trailingAggression(margin);
+        int eff = need - aggression;
+
+        if (yl >= 95 && need <= 2) {
+            // Goal to go from the 1 or 2.
+            if (eff <= 1 || !makeable) return FourthDownCall.GO;
+            return FourthDownCall.FIELD_GOAL;
+        }
+        if (eff <= 1) {
+            if (yl >= 35) return FourthDownCall.GO;
+        } else if (eff <= 2) {
+            if (makeable && yl > 75) return FourthDownCall.FIELD_GOAL;
+            if (yl >= 40) return FourthDownCall.GO;
+        } else {
+            if (makeable && yl > 60) return FourthDownCall.FIELD_GOAL;
+            if (eff <= 4 && yl >= 45) return FourthDownCall.GO;
+            if (eff <= 6 && yl >= 58) return FourthDownCall.GO;
+            if (yl >= 68) return FourthDownCall.GO;
+        }
+        if (playingOT) return inRange ? FourthDownCall.FIELD_GOAL : FourthDownCall.GO;
+        return FourthDownCall.PUNT;
+    }
+
+    /**
+     * Yards of extra fourth-down aggression for a trailing offense: two when down
+     * 14+ in the second half or 9+ in the fourth quarter, one when down 4+ in the
+     * fourth quarter.
+     */
+    private int trailingAggression(int margin) {
+        if (playingOT || margin >= 0) return 0;
+        if ((gameTime <= 1800 && margin <= -14) || (gameTime <= 900 && margin <= -9)) return 2;
+        if (gameTime <= 900 && margin <= -4) return 1;
+        return 0;
+    }
+
+    /** Fourth down outside the final-seconds branch: go for it, kick or punt. */
+    private void fourthDownPlay(Team offense, Team defense, double preferPass, double preferRush) {
+        // Interactive coaching: crunch fourth-down intent.
+        boolean coached = crunchActive && offense == coachedTeam;
+        GameCoachPlan.FourthDownCall crunch = coached ? crunchFourthDownCall : GameCoachPlan.FourthDownCall.AUTO;
+        int bias = offense == coachedTeam ? fourthDownBias : 0;
+        FourthDownCall call = fourthDownCall(offense, bias);
+        boolean mustGo = call == FourthDownCall.GO && (playingOT || gameTime < 300)
+                && (offense == homeTeam ? homeScore < awayScore : awayScore < homeScore);
+        if (!mustGo) {
+            if (crunch == GameCoachPlan.FourthDownCall.GO_FOR_IT) call = FourthDownCall.GO;
+            else if (crunch == GameCoachPlan.FourthDownCall.FIELD_GOAL && gameYardLine > 55) call = FourthDownCall.FIELD_GOAL;
+            else if (crunch == GameCoachPlan.FourthDownCall.PUNT && gameYardLine <= 60) call = FourthDownCall.PUNT;
+        }
+        switch (call) {
+            case FIELD_GOAL -> fieldGoalAtt(offense, defense);
+            case PUNT -> puntPlay(offense, defense);
+            default -> {
+                // Go for it: usually a run on short yardage, a throw on long.
+                if (SimRandom.nextDouble() < shortYardageRunChance(gameYardsNeed, offense.getPlaybookOffense())) {
+                    rushingPlay(offense, defense);
+                } else {
+                    passingPlay(offense, defense);
+                }
+            }
+        }
     }
 
     /**
@@ -2511,6 +2643,13 @@ public class Game implements Serializable {
         }
         selK.gameSnaps++;
         gameYardLine -= 7;
+        {
+            CallStats cs = calls(offense);
+            int dist = 110 - gameYardLine;
+            cs.fgAttempts++;
+            cs.fgYards += dist;
+            if (dist >= 50) cs.fgAttempts50++;
+        }
 
         // Rare blocked kick: the defense breaks through and takes over.
         if (!playingOT && SimRandom.nextDouble() < 0.012) {
@@ -2547,6 +2686,7 @@ public class Game implements Serializable {
                 }
                 gameEventLog.append(getEventLogScoring()).append(offense.getAbbr()).append(" K ").append(selK.name).append(" made the ").append(110 - gameYardLine).append(" yard FG.");
                 addPointsQuarter(3);
+                calls(offense).fgMade++;
 
                 selK.recordFGAtt(1);
                 selK.recordFGMade(1);
@@ -2584,6 +2724,7 @@ public class Game implements Serializable {
                 }
                 gameEventLog.append(getEventLogScoring()).append(offense.getAbbr()).append(" K ").append(selK.name).append(" made the ").append(110 - gameYardLine).append(" yard FG.");
                 addPointsQuarter(3);
+                calls(offense).fgMade++;
                 selK.recordFGMade(1);
                 selK.recordFGAtt(1);
                 selK.gameFGMade++;
@@ -2887,6 +3028,7 @@ public class Game implements Serializable {
             overtimeFourthDown(offense, defense);
             return;
         }
+        calls(offense).punts++;
         // Desperate fake punt: trailing by a score-and-a-half late, deep in own territory.
         boolean offenseTrailing = (offense == homeTeam) ? homeScore < awayScore : awayScore < homeScore;
         int deficit = offenseTrailing
@@ -3403,6 +3545,63 @@ public class Game implements Serializable {
         }
     }
 
+    /**
+     * Timeouts the staffs call to stop a running clock after a snap where the
+     * offense kept the ball (a run or a catch in bounds): in the last 3:00 the
+     * defense calls them when it trails by 1-16 and needs the ball back, in the
+     * last 2:00 the trailing offense calls them in its drive, and in the last
+     * minute of the first half an offense past its own 45 calls them to get a
+     * try at points. The runoff past 10 seconds (the snap itself) comes back.
+     * Timeouts used to go unused except to ice kickers. The user's staff keeps
+     * its own timeouts when the interactive coaching checkpoints are on.
+     */
+    void clockTimeout(Team offense, boolean possBefore, int clockBefore) {
+        if (playingOT || gamePoss != possBefore || (offense == homeTeam) != gamePoss) return;
+        int runoff = clockBefore - gameTime;
+        if (runoff <= 20) return;
+        boolean endOfHalf = clockBefore <= 1860 && gameTime > 1800;
+        boolean endOfGame = clockBefore <= 180 && gameTime > 0;
+        if (!endOfHalf && !endOfGame) return;
+        Team defense = offense == homeTeam ? awayTeam : homeTeam;
+        int margin = offense == homeTeam ? homeScore - awayScore : awayScore - homeScore;
+        Team caller = null;
+        if (endOfGame) {
+            if (margin < 0 && clockBefore <= 120 && timeoutsLeft(offense) > 0) caller = offense;
+            else if (margin > 0 && margin <= 16 && timeoutsLeft(defense) > 0) caller = defense;
+        } else if (gameYardLine >= 45 && timeoutsLeft(offense) > 0) {
+            caller = offense;
+        }
+        if (caller == null || (coachListener != null && caller == coachedTeam)) return;
+        if (caller == homeTeam) homeTimeouts--; else awayTimeouts--;
+        calls(caller).timeouts++;
+        gameTime = clockBefore - 10;
+        if (homeTeam.league != null && homeTeam.league.fullGameLog) {
+            gameEventLog.append("\n").append(caller.getAbbr()).append(" calls timeout to stop the clock.");
+        }
+    }
+
+    int timeoutsLeft(Team t) {
+        return t == homeTeam ? homeTimeouts : awayTimeouts;
+    }
+
+    /**
+     * Victory formation: the leading offense in the last 2:00 kneels when the
+     * kneels it has left (one per down before fourth) run out the clock, each
+     * burning about 40 seconds once the defense has no timeouts to stop it.
+     * Leaders used to keep running plays (and fumbling) until 0:20.
+     */
+    boolean canKneelOut(Team offense) {
+        if (playingOT || gameDown >= 4 || gameTime > 120 || gameYardLine <= 5) return false;
+        int margin = offense == homeTeam ? homeScore - awayScore : awayScore - homeScore;
+        if (margin <= 0) return false;
+        Team defense = offense == homeTeam ? awayTeam : homeTeam;
+        int kneels = 4 - gameDown;
+        return (kneels - timeoutsLeft(defense)) * KNEEL_RUNOFF >= gameTime;
+    }
+
+    /** Seconds a kneel takes off the clock when the defense cannot stop it (snap + play clock). */
+    static final int KNEEL_RUNOFF = 40;
+
     private void quarterCheck() {
         if (gameTime < 2700 && !QT1) {
             QT1 = true;
@@ -3470,17 +3669,10 @@ public class Game implements Serializable {
             gameTime = 900;
             gameEventLog.append("\n\n-- 4th QUARTER --");
 
-            // Two-minute drill setup: the trailing team banks a timeout at the quarter turn.
-            if (!twoMinuteWarned) {
-                twoMinuteWarned = true;
-                if (homeScore < awayScore && homeTimeouts > 0) {
-                    homeTimeouts--;
-                    gameEventLog.append("\n").append(homeTeam.getAbbr()).append(" takes a timeout going into the fourth quarter.");
-                } else if (awayScore < homeScore && awayTimeouts > 0) {
-                    awayTimeouts--;
-                    gameEventLog.append("\n").append(awayTeam.getAbbr()).append(" takes a timeout going into the fourth quarter.");
-                }
-            }
+            // The trailing team used to take a timeout at the quarter turn, when the
+            // clock is already stopped: it saved nothing and left one fewer for
+            // the last two minutes. Timeouts are now spent by clockTimeout.
+            twoMinuteWarned = true;
 
             // Interactive coaching: crunch-time decision (timeouts + fourth-down intent).
             if (coachListener != null && coachedTeam != null) {
