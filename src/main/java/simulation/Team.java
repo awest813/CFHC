@@ -3931,15 +3931,15 @@ public class Team {
             player.troubledTimes++;
             if (player.ratOvr > 84) {
                 league.addNewsStory(player.team.league.currentWeek + 1, "Player Suspended!>" + player.team.name + "'s " + player.position + ", " + player.name + " was suspended from the team today. The team cited the reason as: " + description
-                        + ". The player will be suspended for " + duration + " weeks.");
-                league.addNewsHeadline(player.team.name + "'s " + player.position + ", " + player.name + " was suspended for " + duration + " weeks due to " + description
+                        + ". The player will be suspended for " + duration + (duration == 1 ? " week." : " weeks."));
+                league.addNewsHeadline(player.team.name + "'s " + player.position + ", " + player.name + " was suspended for " + duration + (duration == 1 ? " week" : " weeks") + " due to " + description
                         + ".");
             }
 
             if(userControlled) {
                 suspensionNews = "Player Suspended!\n\n" + player.team.name + "'s star " + player.position + ", " + player.name + " was suspended from the team today. The team cited the reason as: " + description
-                        + ". The player will be suspended for " + duration + " weeks.";
-                league.addNewsHeadline(player.team.name + "'s " + player.position + ", " + player.name + " was suspended for " + duration + " weeks due to " + description
+                        + ". The player will be suspended for " + duration + (duration == 1 ? " week." : " weeks.");
+                league.addNewsHeadline(player.team.name + "'s " + player.position + ", " + player.name + " was suspended for " + duration + (duration == 1 ? " week" : " weeks") + " due to " + description
                         + ".");
                 suspension = true;
             } else {

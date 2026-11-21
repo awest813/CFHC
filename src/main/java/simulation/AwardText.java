@@ -46,4 +46,12 @@ public final class AwardText {
     public static String times(int n) {
         return n == 1 ? "once" : n == 2 ? "twice" : n + " times";
     }
+
+    /** "an Air Raid", "a Spread", "an ankle": the article that fits the next word. */
+    public static String withArticle(String word) {
+        if (word == null || word.isEmpty()) return "a";
+        char c = Character.toLowerCase(word.charAt(0));
+        boolean vowel = "aeiou".indexOf(c) >= 0;
+        return (vowel ? "an " : "a ") + word;
+    }
 }

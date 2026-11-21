@@ -2376,7 +2376,7 @@ public class League {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < conferences.size(); i++) {
             if (conferences.get(i).confTeams.size() >= conferences.get(i).minConfTeams) {
-                sb.append(conferences.get(i).confName + ":  " + conferences.get(i).confPrestige + "\n");
+                sb.append(conferences.get(i).confName + ": " + conferences.get(i).confPrestige + "\n");
             }
         }
 
@@ -3978,7 +3978,7 @@ public class League {
         Collections.sort(teams, new CompTeamPoll());
 
         if (currentWeek == 8) {
-            newsStories.get(currentWeek + 1).add("Committee Announces First Playoff Rankings>The College Football Playoffs Committee has set ther initial rankings for this season's playoffs. The first look at the playoffs have " +
+            newsStories.get(currentWeek + 1).add("Committee Announces First Playoff Rankings>The College Football Playoff Committee has set its initial rankings for this season's playoff. The first look has " +
                     teams.get(0).getName() + " at the top of the list. The rest of the playoff order looks like this:\n\n" + "1. " + teams.get(0).getStrAbbrWL() + "\n" + "2. " + teams.get(1).getStrAbbrWL() + "\n" + "3. " +
                     teams.get(2).getStrAbbrWL() + "\n" + "4. " + teams.get(3).getStrAbbrWL() + "\n" + "5. " + teams.get(4).getStrAbbrWL() + "\n" + "6. " + teams.get(5).getStrAbbrWL() + "\n" + "7. " +
                     teams.get(6).getStrAbbrWL() + "\n" + "8. " + teams.get(7).getStrAbbrWL() + "\n");
