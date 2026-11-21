@@ -229,7 +229,7 @@ public final class LeagueLaunchCoordinator {
             userTeam.getHeadCoach().user = true;
         }
         league.rebuildScheduleIfNeeded();
-        league.updateTeamTalentRatings();
+        league.refreshAfterLoad();
         return league;
     }
 
@@ -261,7 +261,7 @@ public final class LeagueLaunchCoordinator {
                 userTeam.getHeadCoach().user = true;
             }
             league.rebuildScheduleIfNeeded();
-            league.updateTeamTalentRatings();
+            league.refreshAfterLoad();
             return league;
         } finally {
             if (!tempImport.delete()) {

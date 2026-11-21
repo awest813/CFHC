@@ -679,6 +679,24 @@ public class Team {
         if (pts.length > 0) {
             prestigePts = pts;
         }
+        teamOffTalent = parseFloatOr(s.str("offTal", null), teamOffTalent);
+        teamDefTalent = parseFloatOr(s.str("defTal", null), teamDefTalent);
+        teamChemistry = s.dbl("chem", teamChemistry);
+        teamStrengthOfWins = s.integer("sow", teamStrengthOfWins);
+        teamStrengthOfLosses = s.integer("sol", teamStrengthOfLosses);
+        teamSOS = s.dbl("sos", teamSOS);
+        teamRPI = parseFloatOr(s.str("rpi", null), teamRPI);
+        projectedPollScore = parseFloatOr(s.str("projPoll", null), projectedPollScore);
+        dismissalChance = s.integer("dismissal", dismissalChance);
+        qbtransferNum = s.integer("qbTransfers", qbtransferNum);
+        suspension = s.bool("suspension", suspension);
+        HoFCount = s.integer("hof", HoFCount);
+        applyRankCsv(parseInts(s.str("ranks", "")));
+    }
+
+    /** True when the record carried v1.5b team state (talent, ranks and lists). */
+    static boolean hasFullState(LeagueRecord.StateBag s) {
+        return s != null && s.has("ranks");
     }
 
     /** The {@link #applyStateRecord} counterpart: what {@link #toRecord()} saves as team state. */
@@ -745,7 +763,186 @@ public class Team {
             }
             b.put("prestigePts", sb);
         }
+        // v1.5b: the computed ratings and ranks. Every reload used to recompute
+        // talent and reset the poll score to prestige + talent, and left the
+        // ranks at 0 until the next weekly update.
+        b.put("offTal", Float.toString(teamOffTalent))
+                .put("defTal", Float.toString(teamDefTalent))
+                .put("chem", Double.toString(teamChemistry))
+                .put("sow", teamStrengthOfWins)
+                .put("sol", teamStrengthOfLosses)
+                .put("sos", Double.toString(teamSOS))
+                .put("rpi", Float.toString(teamRPI))
+                .put("projPoll", Float.toString(projectedPollScore))
+                .put("dismissal", dismissalChance)
+                .put("qbTransfers", qbtransferNum)
+                .flag("suspension", suspension)
+                .put("hof", HoFCount)
+                .put("ranks", rankCsv());
         return b.build();
+    }
+
+    /** The rank fields, in a fixed order (see {@link #applyRankCsv}). */
+    private String rankCsv() {
+        int[] r = {rankTeamPoints, rankTeamOppPoints, rankTeamYards, rankTeamOppYards, rankTeamPassYards,
+                rankTeamRushYards, rankTeamOppPassYards, rankTeamOppRushYards, rankTeamTODiff, rankTeamOffTalent,
+                rankTeamDefTalent, rankTeamPrestige, rankTeamPrestigeStart, rankTeamRecruitClass,
+                rankTeamStrengthOfWins, rankTeamSOS, rankTeamDisciplineScore, rankTeamBudget, rankTeamFacilities,
+                rankTeamChemistry, rankTeamRPI};
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < r.length; i++) {
+            if (i > 0) sb.append(',');
+            sb.append(r[i]);
+        }
+        return sb.toString();
+    }
+
+    private void applyRankCsv(int[] r) {
+        if (r.length < 21) {
+            return;
+        }
+        rankTeamPoints = r[0];
+        rankTeamOppPoints = r[1];
+        rankTeamYards = r[2];
+        rankTeamOppYards = r[3];
+        rankTeamPassYards = r[4];
+        rankTeamRushYards = r[5];
+        rankTeamOppPassYards = r[6];
+        rankTeamOppRushYards = r[7];
+        rankTeamTODiff = r[8];
+        rankTeamOffTalent = r[9];
+        rankTeamDefTalent = r[10];
+        rankTeamPrestige = r[11];
+        rankTeamPrestigeStart = r[12];
+        rankTeamRecruitClass = r[13];
+        rankTeamStrengthOfWins = r[14];
+        rankTeamSOS = r[15];
+        rankTeamDisciplineScore = r[16];
+        rankTeamBudget = r[17];
+        rankTeamFacilities = r[18];
+        rankTeamChemistry = r[19];
+        rankTeamRPI = r[20];
+    }
+
+    private static float parseFloatOr(String v, float fallback) {
+        try {
+            return v == null ? fallback : Float.parseFloat(v.trim());
+        } catch (NumberFormatException e) {
+            return fallback;
+        }
+    }
+
+    /**
+     * v1.5b team lists ({@code TL:} lines): the offseason lists (players leaving,
+     * transferring, redshirt rows), the injured and discipline pools, training-camp
+     * focus, text that holds line breaks (contract, suspension news) and the full
+     * season-history stats. Players are written as save ids ({@link SaveStateCodec}).
+     */
+    java.util.Map<String, java.util.List<String>> saveLists(SaveStateCodec.Refs refs) {
+        java.util.LinkedHashMap<String, java.util.List<String>> out = new java.util.LinkedHashMap<>();
+        out.put("leaving", refs.players(playersLeaving));
+        out.put("transferring", refs.players(playersTransferring));
+        out.put("injured", refs.players(playersInjured));
+        if (playersDis != null) {
+            out.put("discipline", refs.players(playersDis));
+        }
+        out.put("redshirts", new ArrayList<>(redshirtList));
+        out.put("campFocus", new ArrayList<>(trainingCampFocusNames));
+        out.put("contract", SaveStateCodec.optional(contractString));
+        out.put("suspensionNews", SaveStateCodec.optional(suspensionNews));
+        java.util.List<String> hist = new ArrayList<>();
+        for (TeamHistoryRecord h : teamHistory) {
+            hist.add(h.wins + "," + h.losses + "," + h.confWins + "," + h.confLosses + "," + h.rank + ","
+                    + h.pointsFor + "," + h.pointsAgainst + "," + h.yardsFor + "," + h.yardsAgainst + ","
+                    + h.turnovers + "," + h.prestige + "," + h.preseasonPrestige);
+        }
+        out.put("historyStats", hist);
+        // This season's results; league teams also rebuild them from the schedule,
+        // FCS opponents hold no schedule.
+        out.put("results", new ArrayList<>(gameWLSchedule));
+        out.put("beat", teamNames(gameWinsAgainst));
+        out.put("lostTo", teamNames(gameLossesAgainst));
+        return out;
+    }
+
+    private static java.util.List<String> teamNames(java.util.List<Team> teams) {
+        java.util.List<String> out = new ArrayList<>(teams.size());
+        for (Team t : teams) {
+            out.add(t == null ? "" : t.getName());
+        }
+        return out;
+    }
+
+    /** A saved opponent: a league team, else the opponent of that name on this schedule. */
+    private Team opponentNamed(String n) {
+        Team t = league.findTeam(n);
+        if (t != null) return t;
+        for (Game g : gameSchedule) {
+            if (g == null) continue;
+            if (g.homeTeam != this && n.equals(g.homeTeam.getName())) return g.homeTeam;
+            if (g.awayTeam != this && n.equals(g.awayTeam.getName())) return g.awayTeam;
+        }
+        return null;
+    }
+
+    private void restoreOpponents(java.util.List<Team> target, java.util.List<String> names) {
+        if (names == null) return;
+        java.util.List<Team> resolved = new ArrayList<>();
+        for (String n : names) {
+            Team t = opponentNamed(n);
+            if (t == null) return; // keep what the schedule rebuilt
+            resolved.add(t);
+        }
+        target.clear();
+        target.addAll(resolved);
+    }
+
+    /** Restores {@link #saveLists}; a list the save lacks keeps its loaded value. */
+    void applySaveLists(java.util.Map<String, java.util.List<String>> lists, SaveStateCodec.Refs refs) {
+        java.util.List<String> v;
+        if ((v = lists.get("leaving")) != null) {
+            playersLeaving.clear();
+            playersLeaving.addAll(refs.resolvePlayers(v));
+        }
+        if ((v = lists.get("transferring")) != null) {
+            playersTransferring.clear();
+            playersTransferring.addAll(refs.resolvePlayers(v));
+        }
+        if ((v = lists.get("injured")) != null) {
+            playersInjured.clear();
+            playersInjured.addAll(refs.resolvePlayers(v));
+        }
+        v = lists.get("discipline");
+        playersDis = v == null ? null : new ArrayList<>(refs.resolvePlayers(v));
+        if ((v = lists.get("redshirts")) != null) {
+            redshirtList.clear();
+            redshirtList.addAll(v);
+        }
+        if ((v = lists.get("campFocus")) != null) {
+            trainingCampFocusNames.clear();
+            trainingCampFocusNames.addAll(v);
+        }
+        if ((v = lists.get("contract")) != null) {
+            contractString = SaveStateCodec.optional(v);
+        }
+        if ((v = lists.get("suspensionNews")) != null) {
+            suspensionNews = SaveStateCodec.optional(v);
+        }
+        if ((v = lists.get("results")) != null) {
+            gameWLSchedule.clear();
+            gameWLSchedule.addAll(v);
+        }
+        restoreOpponents(gameWinsAgainst, lists.get("beat"));
+        restoreOpponents(gameLossesAgainst, lists.get("lostTo"));
+        if ((v = lists.get("historyStats")) != null && v.size() == teamHistory.size()) {
+            for (int i = 0; i < v.size(); i++) {
+                int[] f = parseInts(v.get(i));
+                if (f.length < 12) continue;
+                TeamHistoryRecord h = teamHistory.get(i);
+                teamHistory.set(i, new TeamHistoryRecord(h.year, f[0], f[1], f[2], f[3], f[4], f[5], f[6], f[7],
+                        f[8], f[9], f[10], f[11], h.summary));
+            }
+        }
     }
 
     /** "length,startYear,endYear,team" from {@link #stateRecord()}; null when unreadable. */
@@ -792,6 +989,9 @@ public class Team {
                 continue;
             }
             Team op = league.findTeam(nm);
+            if (op == null) {
+                op = league.loadedFcsOpponent(this, nm);
+            }
             if (op == null) {
                 op = new Team(nm, "FCS", "FCS Division", (int) (SimRandom.nextDouble() * 40), "FCS1", 0, league, false);
             }

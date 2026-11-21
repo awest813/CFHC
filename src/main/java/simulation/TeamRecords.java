@@ -11,7 +11,9 @@ public class TeamRecords {
     private final DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
     private final DecimalFormat df2 = new DecimalFormat("#.##", symbols);
 
-    private final HashMap<String, DataRecord> records;
+    // Insertion-ordered: records beyond the fixed list (bowl wins, coach awards...)
+    // are saved in the order they were first set.
+    private final java.util.LinkedHashMap<String, DataRecord> records;
 
 
     private final String[] recordsList = {"TEAM", "Team PPG", "Team Opp PPG", "Team YPG", "Team Opp YPG", "Team TO Diff",
@@ -24,7 +26,7 @@ public class TeamRecords {
             "CAREER: SPEC TEAMS", "Career Field Goals", "Career KR Yards", "Career KR TDs", "Career PR Yards", "Career PR TDs"};
 
     public TeamRecords(ArrayList<String> recordStrings) {
-        records = new HashMap<>();
+        records = new java.util.LinkedHashMap<>();
         for (String str : recordStrings) {
             DataRecord r = DataRecord.fromCsv(str);
             if (r != null) records.put(r.key(), r);
@@ -33,7 +35,7 @@ public class TeamRecords {
     }
 
     public TeamRecords() {
-        records = new HashMap<>();
+        records = new java.util.LinkedHashMap<>();
         records.put("TEAM", null);
         records.put("Team PPG", new DataRecord("Team PPG", 0, "XXX%XXX", 0));
         records.put("Team Opp PPG", new DataRecord("Team Opp PPG", 1000, "XXX%XXX", 0));
@@ -143,9 +145,14 @@ public class TeamRecords {
 
     public ArrayList<DataRecord> toRecordList() {
         ArrayList<DataRecord> list = new ArrayList<>();
+        java.util.Set<String> listed = new java.util.HashSet<>(java.util.Arrays.asList(recordsList));
         for (String s : recordsList) {
             DataRecord r = records.get(s);
             if (r != null) list.add(r);
+        }
+        // Records outside the fixed list (program totals, coach awards) were dropped by every save.
+        for (Map.Entry<String, DataRecord> e : records.entrySet()) {
+            if (!listed.contains(e.getKey()) && e.getValue() != null) list.add(e.getValue());
         }
         return list;
     }

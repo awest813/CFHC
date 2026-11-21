@@ -170,7 +170,7 @@ public class WeekTextureTest {
                     GameUiBridge.NO_OP,
                     true);
             loaded.rebuildScheduleIfNeeded();
-            Team loadedUser = loaded.getTeamList().get(0);
+            Team loadedUser = loaded.findTeam(userTeam.getName()); // saves keep the poll-sorted team order
             assertEquals("prevRank must round-trip through the save", 7, loadedUser.getPrevRankTeamPollScore());
         } finally {
             //noinspection ResultOfMethodCallIgnored

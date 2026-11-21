@@ -132,6 +132,12 @@ public class Conference {
             this.confTVBonus = state.integer("tvBonus", 0);
             String tvName = state.str("tvName", "");
             this.TV = tvName.isEmpty() ? null : tvName;
+            // v1.5b: realignment and scheduling inputs computed during the season.
+            this.confPrestige = state.integer("prestige", 0);
+            this.confPromoteMin = state.integer("promoteMin", 0);
+            this.confRelegateMin = state.integer("relegateMin", 0);
+            this.oocGames = state.integer("oocGames", 0);
+            this.divGames = state.integer("divGames", 0);
         }
         this.oocWeeks = new ArrayList<>();
         if (record.oocWeeks() != null) {
@@ -163,6 +169,11 @@ public class Conference {
                 .put("tvName", TV != null ? TV : "")
                 .put("divA", divisions.size() > 0 ? divisions.get(0).divName : "A")
                 .put("divB", divisions.size() > 1 ? divisions.get(1).divName : "B")
+                .put("prestige", confPrestige)
+                .put("promoteMin", confPromoteMin)
+                .put("relegateMin", confRelegateMin)
+                .put("oocGames", oocGames)
+                .put("divGames", divGames)
                 .build();
         return new LeagueRecord.ConferenceRecord(confName, java.util.List.copyOf(oocWeeks), teams, state);
     }

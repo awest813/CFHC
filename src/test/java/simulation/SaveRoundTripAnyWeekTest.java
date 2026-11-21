@@ -75,7 +75,7 @@ public class SaveRoundTripAnyWeekTest {
                 resources.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES), bridge(), true);
         loaded.setPlatformResourceProvider(resources);
         loaded.rebuildScheduleIfNeeded();
-        loaded.updateTeamTalentRatings();
+        loaded.refreshAfterLoad();
         return loaded;
     }
 
@@ -267,20 +267,120 @@ public class SaveRoundTripAnyWeekTest {
         while (league.currentWeek < SeasonFlowOrder.bowlWeek2(League.STANDARD_REG_SEASON_WEEKS)) {
             controller.advanceWeek();
         }
-        List<String> legacy = new ArrayList<>();
-        for (String line : new String(league.serializeSave(), StandardCharsets.UTF_8).split("\n")) {
-            if (line.startsWith(SaveSchema.VERSION_PREFIX)) {
-                legacy.add(SaveSchema.VERSION_PREFIX + SaveSchema.V1_4E);
-            } else if (!line.matches("^(TX|CX|LS|LH|HH|BN|PO):.*")) {
-                legacy.add(line);
-            }
-        }
         File save = tmp.newFile("legacy.cfb");
-        Files.write(save.toPath(), legacy);
+        Files.write(save.toPath(), downgrade(league, SaveSchema.V1_4E));
         League loaded = reload(save);
         assertEquals(SaveSchema.V1_4E, loaded.saveVer);
         assertEquals(League.EXPANDED_PLAYOFF_TEAM_COUNT, loaded.getPlayoffTeams().size());
         for (int i = 4; i < 8; i++) assertNotNull("quarterfinal " + i, loaded.cfpGames[i]);
+        playIntoNextSeason(loaded);
+    }
+
+    /** v1.5b lines: named lists, per-player state, detached players/coaches, the FCS block. */
+    private static final String V15B_LINES = "LL|TL|PX|XP|XS";
+    /** v1.5a lines (and the v1.5b ones): team, conference and league state. */
+    private static final String V15A_LINES = "TX|CX|LS|LH|HH|BN|PO|" + V15B_LINES;
+
+    /** The league's save as an older build wrote it: the newer lines dropped. */
+    private static List<String> downgrade(League league, String version) throws Exception {
+        String drop = SaveSchema.V1_4E.equals(version) ? V15A_LINES : V15B_LINES;
+        List<String> out = new ArrayList<>();
+        boolean inFcsBlock = false;
+        for (String line : new String(league.serializeSave(), StandardCharsets.UTF_8).split("\n")) {
+            if (inFcsBlock) {
+                inFcsBlock = !line.equals("END_CONF");
+            } else if (line.startsWith(SaveManager.FCS_BLOCK_PREFIX)) {
+                inFcsBlock = true;
+            } else if (line.startsWith(SaveSchema.VERSION_PREFIX)) {
+                out.add(SaveSchema.VERSION_PREFIX + version);
+            } else if (!line.matches("^(" + drop + "):.*")) {
+                out.add(line);
+            }
+        }
+        return out;
+    }
+
+    private static List<String> playerNames(List<positions.Player> players) {
+        List<String> out = new ArrayList<>();
+        if (players != null) {
+            for (positions.Player p : players) out.add(p.position + " " + p.name);
+        }
+        return out;
+    }
+
+    private static int count(League l, java.util.function.Predicate<positions.Player> award) {
+        int n = 0;
+        for (Team t : l.getTeamList()) {
+            for (positions.Player p : t.getAllPlayers()) {
+                if (award.test(p)) n++;
+            }
+        }
+        return n;
+    }
+
+    /** A current save made after the awards carries them; the load never decides them again. */
+    @Test
+    public void postseasonSave_keepsAwardsWithoutRedeciding() throws Exception {
+        League[] original = new League[1];
+        League loaded = simToWeekSaveAndReload(SeasonFlowOrder.bowlWeek2(League.STANDARD_REG_SEASON_WEEKS),
+                true, original);
+        League a = original[0];
+        assertTrue(loaded.seasonAwardsDecided);
+        assertTrue(loaded.heismanDecided);
+        assertEquals(a.getHeismanWinner().name, loaded.getHeismanWinner().name);
+        assertSame("the winner is the rostered player", loaded.getHeismanWinner(),
+                loaded.findTeam(a.getHeismanWinner().team.getName()).getAllPlayers().stream()
+                        .filter(p -> p.name.equals(a.getHeismanWinner().name)).findFirst().orElse(null));
+        assertEquals(a.getHeismanCeremonyStr(), loaded.getHeismanCeremonyStr());
+        assertEquals(a.getCoachAwardStr(), loaded.getCoachAwardStr());
+        assertEquals(a.getAllAmericanStr(), loaded.getAllAmericanStr());
+        assertEquals(a.getAllFreshmanStr(), loaded.getAllFreshmanStr());
+        for (int c = 0; c < a.getConferences().size(); c++) {
+            assertEquals(a.getAllConfStr(c), loaded.getAllConfStr(c));
+        }
+        assertEquals(playerNames(a.heismanCandidates), playerNames(loaded.heismanCandidates));
+        assertEquals(playerNames(a.allAmericans), playerNames(loaded.allAmericans));
+        assertEquals(count(a, p -> p.wonAllAmerican), count(loaded, p -> p.wonAllAmerican));
+        assertEquals(count(a, p -> p.wonAllConference), count(loaded, p -> p.wonAllConference));
+        assertEquals(count(a, p -> p.wonHeisman), count(loaded, p -> p.wonHeisman));
+        assertTrue(count(loaded, p -> p.wonAllConference) > 0);
+        assertEquals(a.getNewsStories(), loaded.getNewsStories());
+        assertEquals(a.getWeeklyScores(), loaded.getWeeklyScores());
+        playIntoNextSeason(loaded);
+    }
+
+    /** A v1.5a save (no awards, news or offseason lists) from the postseason still loads and plays on. */
+    @Test
+    public void v15aPostseasonSave_decidesAwardsOnLoadAndFinishesSeason() throws Exception {
+        League league = newLeague(true);
+        SeasonController controller = new SeasonController(league, bridge());
+        while (league.currentWeek < SeasonFlowOrder.bowlWeek2(League.STANDARD_REG_SEASON_WEEKS)) {
+            controller.advanceWeek();
+        }
+        File save = tmp.newFile("v15a.cfb");
+        Files.write(save.toPath(), downgrade(league, SaveSchema.V1_5A));
+        League loaded = reload(save);
+        assertEquals(SaveSchema.V1_5A, loaded.saveVer);
+        assertFalse("awards are not in the save", loaded.seasonAwardsDecided);
+        // The documented fallback for older saves: decided on first read from the restored players.
+        assertFalse(loaded.getHeismanCeremonyStr().contains("announced after"));
+        assertTrue(loaded.seasonAwardsDecided);
+        for (int i = 4; i < 8; i++) assertNotNull("quarterfinal " + i, loaded.cfpGames[i]);
+        playIntoNextSeason(loaded);
+    }
+
+    /** A v1.5a save in the middle of the offseason (lists not saved) still reaches the next season. */
+    @Test
+    public void v15aOffseasonSave_finishesOffseason() throws Exception {
+        League league = newLeague(true);
+        SeasonController controller = new SeasonController(league, bridge());
+        while (league.currentWeek < SeasonFlowOrder.transferPortalWeek(League.STANDARD_REG_SEASON_WEEKS)) {
+            controller.advanceWeek();
+        }
+        File save = tmp.newFile("v15a-offseason.cfb");
+        Files.write(save.toPath(), downgrade(league, SaveSchema.V1_5A));
+        League loaded = reload(save);
+        assertEquals(SaveSchema.V1_5A, loaded.saveVer);
         playIntoNextSeason(loaded);
     }
 
