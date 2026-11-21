@@ -260,6 +260,42 @@ public class GameRulesTest {
     }
 
     @Test
+    public void suspendedPlayers_takeNoSnaps() {
+        // Suspended starters left at the top of a hand-set depth chart.
+        PlayerQB qb = homeTeam.getTeamQBs().get(0);
+        qb.isSuspended = true;
+        qb.weeksSuspended = 2;
+        Player rb = homeTeam.getTeamRBs().get(0);
+        rb.isSuspended = true;
+        rb.weeksSuspended = 2;
+        Game g = new Game(homeTeam, awayTeam, "OOC");
+        g.playGame();
+        assertEquals(0, qb.gameSnaps);
+        assertEquals(0, rb.gameSnaps);
+        assertTrue("backup QB should play", homeTeam.getTeamQBs().get(1).gameSnaps > 0);
+    }
+
+    @Test
+    public void benchPlayers_recoverFatigue() throws Exception {
+        Game g = new Game(homeTeam, awayTeam, "OOC");
+        List<PlayerOL> ol = homeTeam.getTeamOLs();
+        PlayerOL bench = ol.get(ol.size() - 1);
+        bench.gameFatigue = 40;
+        call(g, "recoup", false, 0);
+        assertTrue("bench lineman should catch his breath: " + bench.gameFatigue, bench.gameFatigue > 40);
+    }
+
+    @Test
+    public void neutralSite_isDecidedByGameType_notName() {
+        for (String name : new String[]{"Citrus Classic", "Liberty Invitational", "Semifinal"}) {
+            assertTrue(name, new Game(homeTeam, awayTeam, name).isNeutralSite());
+        }
+        for (String name : new String[]{"OOC", "Conference", "Division", "First Round", "ACC CCG"}) {
+            assertFalse(name, new Game(homeTeam, awayTeam, name).isNeutralSite());
+        }
+    }
+
+    @Test
     public void injuriesDuringAGame_benchThePlayer() {
         // Once the log says a player is out of the game, he never shows up in it
         // again (he used to keep catching, running and throwing).

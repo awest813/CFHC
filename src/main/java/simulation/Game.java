@@ -433,10 +433,17 @@ public class Game implements Serializable {
      * True for championship/neutral-site games: no home-field edge and no home
      * crowd. The single source for both {@link #getHFadv()} and {@link #crowdAdv()}.
      */
+    /**
+     * Bowls and playoff rounds past the first are played at neutral sites. Decided
+     * by what the game is not — a regular-season slot, a conference title game, or
+     * a campus-site CFP first round — rather than by matching words in its name, so
+     * custom bowl names (e.g. "Citrus Classic", no "Bowl") are neutral too.
+     */
     boolean isNeutralSite() {
-        return gameName.contains("Bowl") || gameName.contains("Championship")
-                || gameName.contains("Semifinal") || gameName.contains("Semis")
-                || gameName.contains("Quarterfinal") || gameName.equals("NCG");
+        if (gameName == null) return false;
+        return !isRegularSeasonSlot()
+                && !gameName.contains("CCG")
+                && !gameName.equals("First Round");
     }
 
     /** Home-crowd lift from prestige and a hot streak; zero at neutral sites. */
@@ -736,28 +743,28 @@ public class Game implements Serializable {
         int rbN = t.getTeamRBs().size();
         int cbN = t.getTeamCBs().size();
         for (int i = 0; i < Math.min(t.startersWR, wrN); i++) {
-            if (t.getTeamWRs().get(i).injury != null) continue;
+            if (!canPlay(t.getTeamWRs().get(i))) continue;
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamWRs().get(i).name, "WR", t.getTeamWRs().get(i).getRatSpeed(), (float) (starterPenalty * t.getTeamWRs().get(i).getRatSpeed() * SimRandom.nextDouble())));
         }
         for (int i = 0; i < Math.min(t.startersRB, rbN); i++) {
-            if (t.getTeamRBs().get(i).injury != null) continue;
+            if (!canPlay(t.getTeamRBs().get(i))) continue;
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamRBs().get(i).name, "RB", t.getTeamRBs().get(i).getRatSpeed(), (float) (starterPenalty * t.getTeamRBs().get(i).getRatSpeed() * SimRandom.nextDouble())));
         }
         for (int i = 0; i < Math.min(t.startersCB, cbN); i++) {
-            if (t.getTeamCBs().get(i).injury != null) continue;
+            if (!canPlay(t.getTeamCBs().get(i))) continue;
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamCBs().get(i).name, "CB", t.getTeamCBs().get(i).getRatSpeed(), (float) (starterPenalty * t.getTeamCBs().get(i).getRatSpeed() * SimRandom.nextDouble())));
         }
 
         for (int i = t.startersWR; i < Math.min(t.startersWR + t.subWR, wrN); i++) {
-            if (t.getTeamWRs().get(i).injury != null) continue;
+            if (!canPlay(t.getTeamWRs().get(i))) continue;
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamWRs().get(i).name, "WR", t.getTeamWRs().get(i).getRatSpeed(), (float) (t.getTeamWRs().get(i).getRatSpeed() * SimRandom.nextDouble())));
         }
         for (int i = t.startersRB; i < Math.min(t.startersRB + t.subRB, rbN); i++) {
-            if (t.getTeamRBs().get(i).injury != null) continue;
+            if (!canPlay(t.getTeamRBs().get(i))) continue;
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamRBs().get(i).name, "RB", t.getTeamRBs().get(i).getRatSpeed(), (float) (t.getTeamRBs().get(i).getRatSpeed() * SimRandom.nextDouble())));
         }
         for (int i = t.startersCB; i < Math.min(t.startersCB + t.subCB, cbN); i++) {
-            if (t.getTeamCBs().get(i).injury != null) continue;
+            if (!canPlay(t.getTeamCBs().get(i))) continue;
             teamReturner.add(new PlayerReturner(t.getAbbr(), t.getTeamCBs().get(i).name, "CB", t.getTeamCBs().get(i).getRatSpeed(), (float) (t.getTeamCBs().get(i).getRatSpeed() * SimRandom.nextDouble())));
         }
 
@@ -809,19 +816,19 @@ public class Game implements Serializable {
 
         for (int i = specialTeams.startersLB; i < Math.min(specialTeams.startersLB + specialTeams.subLB, lbN); i++) {
             PlayerLB lb = specialTeams.getLB(i);
-            if (lb == null || lb.injury != null) continue;
+            if (!canPlay(lb)) continue;
             ST += lb.getRatSpeed();
             teamST.add(new PlayerST(specialTeams.getAbbr(), lb.name, "LB", lb.getRatSpeed(), lb.getRatTackle()));
         }
         for (int i = specialTeams.startersCB; i < Math.min(specialTeams.startersCB + specialTeams.subCB, cbN); i++) {
             PlayerCB cb = specialTeams.getCB(i);
-            if (cb == null || cb.injury != null) continue;
+            if (!canPlay(cb)) continue;
             ST += cb.getRatSpeed();
             teamST.add(new PlayerST(specialTeams.getAbbr(), cb.name, "CB", cb.getRatSpeed(), cb.getRatTackle()));
         }
         for (int i = specialTeams.startersS; i < Math.min(specialTeams.startersS + specialTeams.subS, sN); i++) {
             PlayerS s = specialTeams.getS(i);
-            if (s == null || s.injury != null) continue;
+            if (!canPlay(s)) continue;
             ST += s.getRatSpeed();
             teamST.add(new PlayerST(specialTeams.getAbbr(), s.name, "S", s.getRatSpeed(), s.getRatTackle()));
         }
@@ -1263,6 +1270,16 @@ public class Game implements Serializable {
     }
 
     /**
+     * Whether a player may take the field today: not hurt and not serving a
+     * suspension. Suspended players sort to the bottom of the depth chart, but a
+     * hand-set depth chart (or one not re-sorted since the suspension) could
+     * still put one on the field.
+     */
+    static boolean canPlay(Player p) {
+        return p != null && p.injury == null && !p.isSuspended;
+    }
+
+    /**
      * The players on the field at one position: the depth chart from {@code start}
      * (1 when the starters are benched). A starter who is hurt or out of gas gives
      * way to the next fresh, healthy backup, a different one for each, so two tired
@@ -1277,19 +1294,19 @@ public class Game implements Serializable {
         int next = start + starters;
         for (int i = start; i < start + starters; i++) {
             T p = i < size ? depth.get(i) : null;
-            if (p != null && p.injury == null && p.gameFatigue > 0 && !out.contains(p)) {
+            if (canPlay(p) && p.gameFatigue > 0 && !out.contains(p)) {
                 out.add(p);
                 continue;
             }
             T sub = null;
             while (sub == null && next < size) {
                 T c = depth.get(next++);
-                if (c.injury == null && c.gameFatigue > 0 && !out.contains(c)) sub = c;
+                if (canPlay(c) && c.gameFatigue > 0 && !out.contains(c)) sub = c;
             }
-            if (sub == null && p != null && p.injury == null && !out.contains(p)) sub = p;
+            if (sub == null && canPlay(p) && !out.contains(p)) sub = p;
             if (sub == null) {
                 for (T c : depth) {
-                    if (c.injury == null && !out.contains(c)) {
+                    if (canPlay(c) && !out.contains(c)) {
                         sub = c;
                         break;
                     }
@@ -1309,10 +1326,10 @@ public class Game implements Serializable {
         int size = depth.size();
         if (size == 0) return null;
         for (int i = Math.max(0, start); i < size; i++) {
-            if (depth.get(i).injury == null) return depth.get(i);
+            if (canPlay(depth.get(i))) return depth.get(i);
         }
         for (int i = 0; i < Math.min(start, size); i++) {
-            if (depth.get(i).injury == null) return depth.get(i);
+            if (canPlay(depth.get(i))) return depth.get(i);
         }
         return depth.get(start < size ? Math.max(0, start) : 0);
     }
@@ -3403,33 +3420,33 @@ public class Game implements Serializable {
         recoupPlayers(awayTeam, gain);
     }
 
+    /**
+     * Fatigue recovery for the whole depth chart, not just the starters: a backup
+     * who came in for a tired starter and then went back to the bench used to stay
+     * winded all game, and so did any starter who had been subbed out. Players on
+     * the field drain on every snap (see the play methods) while recovering at the
+     * same rate as everyone else, so the bench now catches its breath.
+     */
     private static void recoupPlayers(Team team, int gain) {
         if (team == null) {
             return;
         }
-        for (int i = 0; i < team.startersRB; ++i) {
-            recoupOne(team.getRB(i), gain);
+        recoupAll(team.getTeamRBs(), gain);
+        recoupAll(team.getTeamWRs(), gain);
+        recoupAll(team.getTeamTEs(), gain);
+        recoupAll(team.getTeamOLs(), gain);
+        recoupAll(team.getTeamDLs(), gain);
+        recoupAll(team.getTeamLBs(), gain);
+        recoupAll(team.getTeamCBs(), gain);
+        recoupAll(team.getTeamSs(), gain);
+    }
+
+    private static void recoupAll(List<? extends Player> depth, int gain) {
+        if (depth == null) {
+            return;
         }
-        for (int i = 0; i < team.startersWR; ++i) {
-            recoupOne(team.getWR(i), gain);
-        }
-        for (int i = 0; i < team.startersTE; ++i) {
-            recoupOne(team.getTE(i), gain);
-        }
-        for (int i = 0; i < team.startersOL; ++i) {
-            recoupOne(team.getOL(i), gain);
-        }
-        for (int i = 0; i < team.startersDL; ++i) {
-            recoupOne(team.getDL(i), gain);
-        }
-        for (int i = 0; i < team.startersLB; ++i) {
-            recoupOne(team.getLB(i), gain);
-        }
-        for (int i = 0; i < team.startersCB; ++i) {
-            recoupOne(team.getCB(i), gain);
-        }
-        for (int i = 0; i < team.startersS; ++i) {
-            recoupOne(team.getS(i), gain);
+        for (Player p : depth) {
+            recoupOne(p, gain);
         }
     }
 
