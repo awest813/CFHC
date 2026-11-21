@@ -2053,11 +2053,11 @@ public class Game implements Serializable {
                     //check downs if there wasnt fumble or TD
                     if (homeTeam.league.fullGameLog) {
                         if (pos.equals("WR")) {
-                            gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" WR ").append(selWR.name).append(" caught the pass for a gain of ").append(yardsGain).append(" yards.");
+                            gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" WR ").append(selWR.name).append(" caught the pass ").append(catchYards(yardsGain)).append(".");
                         } else if (pos.equals("RB")) {
-                            gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" RB ").append(selRB.name).append(" caught the pass for a gain of ").append(yardsGain).append(" yards.");
+                            gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" RB ").append(selRB.name).append(" caught the pass ").append(catchYards(yardsGain)).append(".");
                         } else if (pos.equals("TE")) {
-                            gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" TE ").append(selTE.name).append(" caught the pass for a gain of ").append(yardsGain).append(" yards.");
+                            gameEventLog.append(getEventLog()).append(offense.getAbbr()).append(" TE ").append(selTE.name).append(" caught the pass ").append(catchYards(yardsGain)).append(".");
                         }
                     }
 
@@ -2415,6 +2415,25 @@ public class Game implements Serializable {
             gameYardLine--;
             gameYardsNeed++;
         }
+    }
+
+    /** "1 yard", "7 yards" (play-by-play used to print "1 yards"). */
+    static String yards(int n) {
+        return n + (Math.abs(n) == 1 ? " yard" : " yards");
+    }
+
+    /** Run result: "for 4 yards", "for no gain", "for a loss of 2 yards". */
+    static String runYards(int n) {
+        if (n == 0) return "for no gain";
+        if (n < 0) return "for a loss of " + yards(-n);
+        return "for " + yards(n);
+    }
+
+    /** Catch result: "for a gain of 12 yards", "for no gain", "for a loss of 1 yard". */
+    static String catchYards(int n) {
+        if (n == 0) return "for no gain";
+        if (n < 0) return "for a loss of " + yards(-n);
+        return "for a gain of " + yards(n);
     }
 
     /** Scores level for the team with the ball. */
@@ -2969,7 +2988,7 @@ public class Game implements Serializable {
                     } else {
                         awayScore += 6;
                     }
-                    tdInfo = returner.team + " " + returner.position + " " + returner.name + " returns the kick " + returnYards + " yards for a TOUCHDOWN!";
+                    tdInfo = returner.team + " " + returner.position + " " + returner.name + " returns the kick " + yards(returnYards) + " for a TOUCHDOWN!";
                     returner.kTD++;
                     kickXP(defense, offense);
                     if (!playingOT) kickOff(defense, offense);
@@ -3035,7 +3054,7 @@ public class Game implements Serializable {
                     } else {
                         awayScore += 6;
                     }
-                    tdInfo = returner.team + " " + returner.position + " " + returner.name + " returns the kick " + returnYards + " yards for a TOUCHDOWN!";
+                    tdInfo = returner.team + " " + returner.position + " " + returner.name + " returns the kick " + yards(returnYards) + " for a TOUCHDOWN!";
                     returner.kTD++;
                     kickXP(defense, offense);
                     if (!playingOT) kickOff(defense, offense);
@@ -3141,7 +3160,7 @@ public class Game implements Serializable {
             } else {
                 awayScore += 6;
             }
-            tdInfo = returner.team + " " + returner.position + " " + returner.name + " returns the punt " + returnYards + " yards for a TOUCHDOWN!";
+            tdInfo = returner.team + " " + returner.position + " " + returner.name + " returns the punt " + yards(returnYards) + " for a TOUCHDOWN!";
             returner.pTD++;
             kickXP(defense, offense);
             if (!playingOT) kickOff(defense, offense);
@@ -3376,7 +3395,7 @@ public class Game implements Serializable {
             return;
         }
         if (returnYards > 0) {
-            gameEventLog.append(" Returned ").append(returnYards).append(" yards.");
+            gameEventLog.append(" Returned ").append(yards(returnYards)).append(".");
         }
     }
 

@@ -94,11 +94,11 @@ class GameStatRecorder {
             if (selRB.gameSim >= selQB.gameSim) {
                 selRB.gameRushTDs++;
                 selRB.recordRushTDs(1);
-                game.tdInfo = offense.getAbbr() + " RB " + selRB.name + " rushed " + yardsGain + " yards for a TD.";
+                game.tdInfo = offense.getAbbr() + " RB " + selRB.name + " rushed " + Game.yards(yardsGain) + " for a TD.";
             } else {
                 selQB.gameRushTDs++;
                 selQB.recordRushTDs(1);
-                game.tdInfo = offense.getAbbr() + " QB " + selQB.name + " rushed " + yardsGain + " yards for a TD.";
+                game.tdInfo = offense.getAbbr() + " QB " + selQB.name + " rushed " + Game.yards(yardsGain) + " for a TD.";
             }
 
             if (game.gamePoss) {
@@ -109,9 +109,9 @@ class GameStatRecorder {
         } else {
             if (game.homeTeam.league.fullGameLog)
                 if (selRB.gameSim >= selQB.gameSim) {
-                    game.gameEventLog.append(game.getEventLog()).append(offense.getAbbr()).append(" RB ").append(selRB.name).append(" rushed for ").append(yardsGain).append(" yards, and was tackled by ").append(defender).append(".");
+                    game.gameEventLog.append(game.getEventLog()).append(offense.getAbbr()).append(" RB ").append(selRB.name).append(" rushed ").append(Game.runYards(yardsGain)).append(" and was tackled by ").append(defender).append(".");
                 } else {
-                    game.gameEventLog.append(game.getEventLog()).append(offense.getAbbr()).append(" QB ").append(selQB.name).append(" scrambled for ").append(yardsGain).append(" yards, and was tackled by ").append(defender).append(".");
+                    game.gameEventLog.append(game.getEventLog()).append(offense.getAbbr()).append(" QB ").append(selQB.name).append(" scrambled ").append(Game.runYards(yardsGain)).append(" and was tackled by ").append(defender).append(".");
                 }
 
         }
