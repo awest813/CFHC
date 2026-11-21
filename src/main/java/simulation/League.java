@@ -1506,12 +1506,23 @@ public class League {
         }
         codec.putList("fcsGames", fcsGames);
         codec.putList("overtimes", overtimes);
+        if (deferredBoxScoreToken != null) {
+            deferredBoxScoreText = BoxScoreCodec.text(bySlot);
+            if (deferredBoxScoreText != null) {
+                codec.putList(BoxScoreCodec.KEY, BoxScoreCodec.deferredItems(deferredBoxScoreToken));
+            }
+            return out;
+        }
         java.util.List<String> boxScores = BoxScoreCodec.encode(bySlot);
         if (!boxScores.isEmpty()) {
             codec.putList(BoxScoreCodec.KEY, boxScores);
         }
         return out;
     }
+
+    /** Set only inside {@link #snapshotSave()}: the box-score payload is left as this placeholder. */
+    private String deferredBoxScoreToken;
+    private byte[] deferredBoxScoreText;
 
     private static int indexOfIdentity(java.util.List<Team> list, Team t) {
         for (int i = 0; i < list.size(); i++) {
@@ -8184,6 +8195,36 @@ Then conferences can see if they want to add them to their list if the teams mee
         java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream(256 * 1024);
         SaveManager.save(this.toRecord(), out);
         return out.toByteArray();
+    }
+
+    /**
+     * Like {@link #serializeSave()}, but leaves compressing the season's box
+     * scores (most of the cost of a save in season) to {@link SaveSnapshot#finish()},
+     * which can then run off the league thread. Must itself run on the league
+     * thread; {@code finish()} returns the same bytes {@code serializeSave()}
+     * would have returned here.
+     */
+    public SaveSnapshot snapshotSave() throws IOException {
+        String token = SaveSnapshot.newToken();
+        byte[] data;
+        byte[] text;
+        deferredBoxScoreToken = token;
+        try {
+            data = serializeSave();
+            text = deferredBoxScoreText;
+        } finally {
+            deferredBoxScoreToken = null;
+            deferredBoxScoreText = null;
+        }
+        if (text == null) {
+            return new SaveSnapshot(data);
+        }
+        byte[] tokenBytes = token.getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+        int at = SaveSnapshot.indexOfOnly(data, tokenBytes);
+        if (at < 0) {
+            return new SaveSnapshot(serializeSave()); // cannot happen; stay correct anyway
+        }
+        return new SaveSnapshot(data, tokenBytes, text, at);
     }
 
 

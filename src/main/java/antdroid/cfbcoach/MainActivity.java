@@ -1808,9 +1808,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private void saveToSlotAsync(int slot, final Runnable afterSave) {
         final int year = simLeague.getYear();
         final int week = simLeague.currentWeek;
-        final byte[] data;
+        final simulation.SaveSnapshot data;
         try {
-            data = simLeague.serializeSave();
+            // Box-score compression is deferred to the save thread (finish()).
+            data = simLeague.snapshotSave();
         } catch (IOException | RuntimeException ex) {
             PlatformLog.e("MainActivity", "Failed to serialize league for slot " + slot, ex);
             onSaveFinished(false, year, week, afterSave);
@@ -2494,7 +2495,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return;
         }
         try {
-            byte[] data = simLeague.serializeSave();
+            // Most of a mid-season save is compressing the box scores; the
+            // snapshot leaves that to the save thread.
+            simulation.SaveSnapshot data = simLeague.snapshotSave();
             autosaveRequestedAt = System.currentTimeMillis();
             SaveWriter.write(saveLoadService.getAutosaveFile(), data, ok -> {
                 if (!ok) PlatformLog.w("MainActivity", "Autosave write failed");

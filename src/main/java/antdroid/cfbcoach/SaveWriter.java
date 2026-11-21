@@ -11,11 +11,12 @@ import java.util.concurrent.TimeUnit;
 
 import simulation.LeagueSaveStorage;
 import simulation.PlatformLog;
+import simulation.SaveSnapshot;
 
 /**
  * Writes save bytes to storage on one background thread, so slow storage
  * cannot freeze the UI (ANR). Callers snapshot the league on the UI thread
- * with {@code League.serializeSave()} first, because the league is not
+ * with {@code League.serializeSave()} or {@code snapshotSave()} first, because the league is not
  * thread-safe (docs/THREADING.md). Only the file I/O happens here.
  *
  * <p>One process-wide queue keeps writes in order and lets a recreated
@@ -44,6 +45,26 @@ final class SaveWriter {
             boolean ok = LeagueSaveStorage.writeAtomically(target, data);
             if (callback != null) {
                 MAIN.post(() -> callback.onWritten(ok));
+            }
+        });
+    }
+
+    /**
+     * Finishes {@code snapshot} (compressing its box scores) and writes it, both
+     * on the save thread. The snapshot itself must be taken on the UI thread.
+     */
+    static void write(final File target, final SaveSnapshot snapshot, final Callback callback) {
+        IO.execute(() -> {
+            boolean ok;
+            try {
+                ok = LeagueSaveStorage.writeAtomically(target, snapshot.finish());
+            } catch (RuntimeException e) {
+                PlatformLog.e("SaveWriter", "Failed to finish save for " + target.getName(), e);
+                ok = false;
+            }
+            if (callback != null) {
+                final boolean written = ok;
+                MAIN.post(() -> callback.onWritten(written));
             }
         });
     }

@@ -37,6 +37,31 @@ final class BoxScoreCodec {
 
     /** The list items for {@code games} (slot -> game; unplayed games are skipped). */
     static List<String> encode(Map<Integer, Game> games) {
+        byte[] text = text(games);
+        List<String> out = new ArrayList<>(2);
+        if (text == null) {
+            return out;
+        }
+        out.add(FORMAT_Z1);
+        out.add(payload(text));
+        return out;
+    }
+
+    /** The list items with {@code token} standing in for the payload ({@link SaveSnapshot}). */
+    static List<String> deferredItems(String token) {
+        List<String> out = new ArrayList<>(2);
+        out.add(FORMAT_Z1);
+        out.add(token);
+        return out;
+    }
+
+    /** Compressed, Base64 payload of {@link #text}. Reads only {@code text}: safe on any thread. */
+    static String payload(byte[] text) {
+        return base64(deflate(text));
+    }
+
+    /** UTF-8 box-score text of the played games, or null when none has been played. */
+    static byte[] text(Map<Integer, Game> games) {
         StringBuilder text = new StringBuilder(1 << 16);
         for (Map.Entry<Integer, Game> e : games.entrySet()) {
             Game g = e.getValue();
@@ -49,13 +74,10 @@ final class BoxScoreCodec {
             }
             text.append('\n');
         }
-        List<String> out = new ArrayList<>(2);
         if (text.length() == 0) {
-            return out;
+            return null;
         }
-        out.add(FORMAT_Z1);
-        out.add(base64(deflate(text.toString().getBytes(StandardCharsets.UTF_8))));
-        return out;
+        return text.toString().getBytes(StandardCharsets.UTF_8);
     }
 
     /** Restores the saved box scores onto the rebuilt games (slot -> game). */
