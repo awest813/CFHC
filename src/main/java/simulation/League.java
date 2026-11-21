@@ -6636,6 +6636,7 @@ Then conferences can see if they want to add them to their list if the teams mee
     //advances team players
     public void advanceSeason() {
         ensureCoordinatorsOnceBeforePlayerAdvance();
+        computeNflDeclareThresholds();
 
         for (int t = 0; t < teamList.size(); ++t) {
             teamList.get(t).advanceTeamPlayers();
@@ -6650,6 +6651,39 @@ Then conferences can see if they want to add them to their list if the teams mee
             if (enableTV) conferences.get(c).reviewConfTVDeal();
         }
 
+    }
+
+    /** Per-position early-entry bar for this offseason (see {@link #nflDeclareThreshold}). */
+    private final java.util.Map<String, Integer> nflDeclareThresholds = new java.util.HashMap<>();
+
+    /**
+     * Early NFL entry used one bar for everyone (OVR above {@link Team#NFL_OVR},
+     * 93), but archetype caps hold some positions below it (RB tops out near 90,
+     * blocking TEs near 87), so elite backs, tight ends, linemen and linebackers
+     * could never leave early. The bar is now the lower of 93 and the 98th
+     * percentile at the position league-wide, computed once per offseason before
+     * anyone advances (deterministic; no random draws).
+     */
+    void computeNflDeclareThresholds() {
+        java.util.Map<String, java.util.List<Integer>> byPos = new java.util.TreeMap<>();
+        for (Team t : teamList) {
+            for (Player p : t.getAllPlayers()) {
+                byPos.computeIfAbsent(p.position, k -> new ArrayList<>()).add(p.ratOvr);
+            }
+        }
+        nflDeclareThresholds.clear();
+        for (java.util.Map.Entry<String, java.util.List<Integer>> e : byPos.entrySet()) {
+            java.util.List<Integer> ovrs = e.getValue();
+            Collections.sort(ovrs);
+            int p98 = ovrs.get(Math.min(ovrs.size() - 1, (int) Math.floor(ovrs.size() * 0.98)));
+            nflDeclareThresholds.put(e.getKey(), Math.min(Team.NFL_OVR, p98));
+        }
+    }
+
+    /** OVR a player must exceed to consider early NFL entry this offseason. */
+    public int nflDeclareThreshold(String position) {
+        Integer t = nflDeclareThresholds.get(position);
+        return t != null ? t : Team.NFL_OVR;
     }
 
     /**

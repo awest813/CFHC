@@ -61,5 +61,7 @@ public class RecruitingPresentationTest {
         String result = RecruitingPresentation.buildOverviewSummary(session);
         assertNotNull(result);
         assertTrue(result.contains("recruiting"));
+        assertTrue(result, result.contains("open roster spot"));
+        assertTrue(result, !result.contains("outgoing seniors"));
     }
 }

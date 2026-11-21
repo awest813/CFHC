@@ -2235,8 +2235,8 @@ public class Team {
             // promised one); seniors with one used to graduate anyway.
             if ((players.get(i).year >= 4 && !players.get(i).isTransfer && !players.get(i).isRedshirt
                     && !players.get(i).isMedicalRS)
-                    || (players.get(i).year == 3 && players.get(i).ratOvr > NFL_OVR && SimRandom.nextDouble() < NFL_CHANCE)
-                    || (players.get(i).year == 2 && players.get(i).wasRedshirt && players.get(i).ratOvr > NFL_OVR + sophNFL && SimRandom.nextDouble() < NFL_CHANCE_SOPH)) {
+                    || (players.get(i).year == 3 && players.get(i).ratOvr > league.nflDeclareThreshold(players.get(i).position) && SimRandom.nextDouble() < NFL_CHANCE)
+                    || (players.get(i).year == 2 && players.get(i).wasRedshirt && players.get(i).ratOvr > league.nflDeclareThreshold(players.get(i).position) + sophNFL && SimRandom.nextDouble() < NFL_CHANCE_SOPH)) {
                 // Departing players never advance, so count their final-season
                 // awards here (Hall of Fame credentials read them next).
                 players.get(i).recordSeasonAwards();

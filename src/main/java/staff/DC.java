@@ -149,6 +149,13 @@ public class DC extends Staff {
             ratDiscipline -= (int) (SimRandom.nextDouble() * (age / 10));
         }
 
+        // The age-60+ decline ran after the clamps above, so ratings could sit
+        // below their floors until the next season.
+        if (ratOff < 20) ratOff = 20;
+        if (ratDef < 20) ratDef = 20;
+        if (ratTalent < 20) ratTalent = 20;
+        if (ratDiscipline < 15) ratDiscipline = 15;
+
         ratOvr = getStaffOverall(overallWt);
         ratImprovement = ratOvr - oldOvr;
         baselinePrestige += (int)Math.round(defpts);

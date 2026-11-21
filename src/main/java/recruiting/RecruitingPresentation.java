@@ -16,8 +16,12 @@ public final class RecruitingPresentation {
 
     public static String buildOverviewSummary(RecruitingSessionData sessionData) {
         int currentRoster = sessionData.projectedRosterSize();
-        int graduatingCount = sessionData.playersGraduating.size();
-        return "You currently have " + currentRoster + " active players, " + graduatingCount + " outgoing seniors, and a class board shaped by your biggest roster needs."
+        // Seniors have already left by signing day, so the old "outgoing seniors"
+        // count always read 0; open roster spots are what matter now.
+        int openSpots = Math.max(0, simulation.RosterRules.MAX_PLAYERS - currentRoster);
+        return "You currently have " + currentRoster + " active players, " + openSpots
+                + (openSpots == 1 ? " open roster spot" : " open roster spots")
+                + ", and a class board shaped by your biggest roster needs."
                 + " Head coach recruiting (" + sessionData.coachTalent + ") adds to your signing budget and reduces scouting cost.";
     }
 
