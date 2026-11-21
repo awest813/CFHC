@@ -41,7 +41,7 @@ public class PlaybookDialog extends JDialog {
     }
 
     public PlaybookDialog(JFrame owner, Team team, Runnable onChanged) {
-        super(owner, "SCHEME ROOM - " + team.getName().toUpperCase(Locale.ROOT), true);
+        super(owner, "Scheme Room — " + team.getName(), true);
         this.team = team;
         this.onChanged = onChanged != null ? onChanged : () -> {};
         setSize(850, 700);

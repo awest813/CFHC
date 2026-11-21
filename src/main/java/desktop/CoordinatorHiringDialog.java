@@ -43,7 +43,7 @@ public class CoordinatorHiringDialog extends JDialog {
     private final Team userTeam;
 
     public CoordinatorHiringDialog(JFrame owner, League league) {
-        super(owner, "STAFF ACQUISITION — COORDINATORS (PASS 1 OF 2: OFFENSE)", true);
+        super(owner, "Coordinator Hiring — Offense (1 of 2)", true);
         this.league = league;
         this.userTeam = league.userTeam;
         setSize(900, 600);
@@ -392,7 +392,7 @@ public class CoordinatorHiringDialog extends JDialog {
     }
 
     private static void showDCOnly(JFrame owner, League league) {
-        JDialog dcDialog = new JDialog(owner, "STAFF ACQUISITION — COORDINATORS (PASS 2 OF 2: DEFENSE)", true);
+        JDialog dcDialog = new JDialog(owner, "Coordinator Hiring — Defense (2 of 2)", true);
         dcDialog.setSize(900, 600);
         CoordinatorHiringDialog helper = new CoordinatorHiringDialog(owner, league);
         helper.showDCContent(dcDialog);

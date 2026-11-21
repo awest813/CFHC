@@ -411,7 +411,7 @@ public class DesktopUiBridge implements GameUiBridge {
     public void showRealignmentSummary() {
         String news = league.newsRealignment;
         if (news == null || news.isEmpty()) {
-            news = "No conference realignment occurred this off-season.";
+            news = "No conference realignment occurred this offseason.";
         }
         final String newsFinal = news;
         if (suppressInformationalUi()) {

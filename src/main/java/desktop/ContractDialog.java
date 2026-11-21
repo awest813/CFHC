@@ -35,7 +35,7 @@ public class ContractDialog extends JDialog {
     private boolean retired = false;
 
     public ContractDialog(JFrame owner, League league) {
-        super(owner, "OFF-SEASON REVIEW — " + league.getYear(), true);
+        super(owner, "Offseason Review — " + league.getYear(), true);
         this.league = league;
         setSize(700, 500);
         setLayout(new BorderLayout());
@@ -76,7 +76,7 @@ public class ContractDialog extends JDialog {
             "</table>" +
             "</body></html>",
             hc.name.toUpperCase(Locale.ROOT), hc.age, hc.stats[0], hc.stats[1], hc.stats[6], hc.stats[2], hc.stats[4],
-            hc.getWinPCT() * 100
+            hc.getWinPCT()
         );
         
         JLabel statsLabel = new JLabel(statsHtml);
@@ -151,7 +151,7 @@ public class ContractDialog extends JDialog {
                 "</body></html>",
                 hc.name.toUpperCase(Locale.ROOT), hc.age, hc.ratOvr, hc.coachStatus().toUpperCase(Locale.ROOT),
                 hc.getSeasonGrade(),
-                hc.contractYear, hc.contractLength, hc.stats[0], hc.stats[1], hc.getWinPCT() * 100
+                hc.contractYear, hc.contractLength, hc.stats[0], hc.stats[1], hc.getWinPCT()
             );
             JLabel profileLabel = new JLabel(profileHtml);
             profileLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
@@ -164,7 +164,7 @@ public class ContractDialog extends JDialog {
 
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         buttons.setOpaque(false);
-        JButton okBtn = DesktopTheme.createGlassButton("PROCEED TO OFF-SEASON", DesktopTheme.accentBlue());
+        JButton okBtn = DesktopTheme.createGlassButton("PROCEED TO OFFSEASON", DesktopTheme.accentBlue());
         okBtn.addActionListener(e -> dispose());
         buttons.add(okBtn);
         content.add(buttons, BorderLayout.SOUTH);

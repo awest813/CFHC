@@ -45,7 +45,7 @@ public class RedshirtDialog extends JDialog {
     private List<Player> eligibleList;
 
     public RedshirtDialog(JFrame owner, League league) {
-        super(owner, "ROSTER MANAGEMENT — REDSHIRTS", true);
+        super(owner, "Roster Management — Redshirts", true);
         this.league = league;
         setSize(1000, 650);
         setLayout(new BorderLayout());

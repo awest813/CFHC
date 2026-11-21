@@ -43,7 +43,7 @@ public class ProgramPrestigeCard extends CustomCardPanel {
         int w = team != null ? team.getWins() : 0;
         int l = team != null ? team.getLosses() : 0;
         int gp = w + l;
-        String winPct = gp > 0 ? String.format("%.3f", (double) w / gp) : "\u2014";
+        String winPct = gp > 0 ? String.format(java.util.Locale.ROOT, "%.1f%%", 100.0 * w / gp) : "\u2014";
 
         JPanel body = new JPanel(new BorderLayout(10, 0));
         body.setOpaque(false);
@@ -104,7 +104,7 @@ public class ProgramPrestigeCard extends CustomCardPanel {
 
         JPanel bullets = new JPanel(new GridLayout(3, 1, 0, 1));
         bullets.setOpaque(false);
-        bullets.add(buildBullet("Winning %: " + winPct));
+        bullets.add(buildBullet("Win Rate: " + winPct));
         bullets.add(buildBullet("Season Delta: " + (delta >= 0 ? "+" : "") + delta));
         bullets.add(buildBullet("National Rank: " + (team != null && team.rankTeamPollScore > 0 ? "#" + team.rankTeamPollScore : "\u2014")));
 

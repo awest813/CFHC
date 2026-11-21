@@ -54,7 +54,7 @@ public class JobOffersDialog extends JDialog {
     private boolean accepted = false;
 
     public JobOffersDialog(JFrame owner, League league, boolean isPromotion) {
-        super(owner, isPromotion ? "CAREER ADVANCEMENT OPPORTUNITIES" : "HEAD COACH OPPORTUNITIES", true);
+        super(owner, isPromotion ? "Career Advancement Opportunities" : "Head Coach Opportunities", true);
         this.ownerFrame = owner;
         this.league = league;
         this.isPromotion = isPromotion;
