@@ -201,11 +201,11 @@ public class RecruitingPanel extends JPanel {
         // Stars and Overall are sized for five glyphs / the header so they never
         // collapse to "★..." / "OVER..." on a narrower window.
         DesktopTheme.compactColumn(boardTable, 0, 48);                   // Pos
-        boardTable.getColumnModel().getColumn(1).setPreferredWidth(210); // Name
+        boardTable.getColumnModel().getColumn(1).setPreferredWidth(165); // Name
         DesktopTheme.compactColumn(boardTable, 2, 84);                   // Stars
         DesktopTheme.compactColumn(boardTable, 3, 64);                   // Cost
         DesktopTheme.compactColumn(boardTable, 4, 80);                   // Overall
-        boardTable.getColumnModel().getColumn(5).setPreferredWidth(110); // Status
+        boardTable.getColumnModel().getColumn(5).setPreferredWidth(200); // Status ("Committed: Louisville")
         // Stars as gold glyphs (style guide), keeping the Integer model value so
         // the column still sorts numerically.
         boardTable.getColumnModel().getColumn(2).setCellRenderer(new StripedRowRenderer() {
