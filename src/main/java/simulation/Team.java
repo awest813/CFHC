@@ -2200,9 +2200,18 @@ public class Team {
     public void advanceSeasonPlayers() {
 
         ArrayList<Player> players = getAllPlayers();
-
-        int i = 0;
         PracticeFocus pf = userControlled ? practiceFocus : PracticeFocus.BALANCED;
+        // Progression reads every team's chemistry per player; only this
+        // roster changes in the loop, so the league caches the others.
+        league.runWithChemistryScope(this, () -> advanceOrGraduatePlayers(players, pf));
+
+        stabilizeDisciplineFromCoachSkills();
+        sortPlayers();
+        identifyTransferCandidates();
+    }
+
+    private void advanceOrGraduatePlayers(ArrayList<Player> players, PracticeFocus pf) {
+        int i = 0;
         while (i < players.size()) {
             if ((players.get(i).year >= 4 && !players.get(i).isTransfer && !players.get(i).isRedshirt)
                     || (players.get(i).year == 3 && players.get(i).ratOvr > NFL_OVR && SimRandom.nextDouble() < NFL_CHANCE)
@@ -2219,10 +2228,6 @@ public class Team {
                 i++;
             }
         }
-
-        stabilizeDisciplineFromCoachSkills();
-        sortPlayers();
-        identifyTransferCandidates();
     }
 
     /**

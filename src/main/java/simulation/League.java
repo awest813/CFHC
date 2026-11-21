@@ -2815,10 +2815,51 @@ public class League {
     //get League Avg Chemistry
     public double getAverageTeamChemistry() {
         double avg = 0;
+        Team scoped = chemistryScopeTeam;
+        double[] cached = chemistryScopeCache;
+        if (scoped != null && cached != null && cached.length == teamList.size()) {
+            // Same sum in the same order; only the scoped team can have changed.
+            for (int i = 0; i < teamList.size(); ++i) {
+                Team t = teamList.get(i);
+                avg += t == scoped ? t.getTeamChemistry() : cached[i];
+            }
+            return avg / teamList.size();
+        }
         for (int i = 0; i < teamList.size(); ++i) {
             avg += teamList.get(i).getTeamChemistry();
         }
         return avg / teamList.size();
+    }
+
+    /** Set while one team advances its players; see {@link #runWithChemistryScope}. */
+    private Team chemistryScopeTeam;
+    private double[] chemistryScopeCache;
+
+    /**
+     * Runs {@code work}, during which only {@code owner}'s roster may change,
+     * with every other team's chemistry computed once up front.
+     * {@link #getAverageTeamChemistry()} then returns exactly the value it would
+     * compute from scratch, without walking every roster in the league on each
+     * call (offseason progression calls it several times per player).
+     */
+    public void runWithChemistryScope(Team owner, Runnable work) {
+        if (chemistryScopeTeam != null) {
+            work.run();
+            return;
+        }
+        double[] cache = new double[teamList.size()];
+        for (int i = 0; i < cache.length; ++i) {
+            Team t = teamList.get(i);
+            cache[i] = t == owner ? 0 : t.getTeamChemistry();
+        }
+        chemistryScopeCache = cache;
+        chemistryScopeTeam = owner;
+        try {
+            work.run();
+        } finally {
+            chemistryScopeTeam = null;
+            chemistryScopeCache = null;
+        }
     }
 
 
