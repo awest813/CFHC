@@ -148,7 +148,7 @@ public class DashboardPanel implements LeagueScreen {
         JPanel quick = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         quick.setOpaque(false);
         JButton play = mkNavButton(playWeekLabel(), cb.playWeek(), true);
-        play.setToolTipText(buildNextActionContext());
+        play.setToolTipText(buildNextActionContext() + " (Space)");
         quick.add(play);
         if (league.userTeam != null) {
             JButton my = new JButton("My Program");

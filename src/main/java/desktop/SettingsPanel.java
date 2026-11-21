@@ -25,18 +25,17 @@ public class SettingsPanel implements LeagueScreen {
 
         JPanel header = new JPanel(new BorderLayout(12, 0));
         header.setOpaque(false);
-        JLabel title = new JLabel("League Settings");
-        title.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
-        title.setForeground(DesktopTheme.textPrimary());
-        JLabel subtitle = new JLabel("Review active universe rules and open the settings dialog for changes.");
-        subtitle.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
-        subtitle.setForeground(DesktopTheme.textSecondary());
-        JPanel titleBlock = new JPanel(new GridLayout(0, 1, 0, 2));
-        titleBlock.setOpaque(false);
-        titleBlock.add(title);
-        titleBlock.add(subtitle);
-        header.add(titleBlock, BorderLayout.CENTER);
+        // Same accent-bar header as every other screen (was a one-off 20pt title).
+        JPanel screenHeader = DesktopTheme.buildScreenHeader("League Settings",
+                "Review active universe rules and open the settings dialog for changes.");
+        header.add(screenHeader, BorderLayout.CENTER);
         JButton editTop = new JButton("Edit Settings...");
+        DesktopTheme.styleHudQuickButton(editTop, false);
+        editTop.setMnemonic(java.awt.event.KeyEvent.VK_E);
+        editTop.setToolTipText("Change league rules and display options (Ctrl+,)");
+        JPanel editWrap = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 0, 0));
+        editWrap.setOpaque(false);
+        editWrap.add(editTop);
         editTop.addActionListener(e -> {
             simulation.AudioManager sounds =
                     ctx.parent() instanceof LeagueHomeView home ? home.uiSounds() : null;
@@ -55,7 +54,7 @@ public class SettingsPanel implements LeagueScreen {
                 ((LeagueHomeView) ctx.parent()).onSettingsAppliedExternally();
             }
         });
-        header.add(editTop, BorderLayout.EAST);
+        header.add(editWrap, BorderLayout.EAST);
         panel.add(header, BorderLayout.NORTH);
 
         // Compact label/value list on a slate card, anchored top-left. The old
@@ -109,7 +108,7 @@ public class SettingsPanel implements LeagueScreen {
         DesktopTheme.styleLeagueSettingsPanel(panel);
         // styleLeagueSettingsPanel paints every label textPrimary; restore the
         // muted/positive accents afterwards.
-        subtitle.setForeground(DesktopTheme.textSecondary());
+        restoreSubtitleColor(screenHeader);
         cardTitle.setForeground(DesktopTheme.textSecondary());
         note.setForeground(DesktopTheme.textSecondary());
         for (java.awt.Component row : rows.getComponents()) {
@@ -119,6 +118,17 @@ public class SettingsPanel implements LeagueScreen {
             }
         }
         return panel;
+    }
+
+    /** The header subtitle (plain-weight label) goes back to the muted color. */
+    private static void restoreSubtitleColor(java.awt.Container root) {
+        for (java.awt.Component c : root.getComponents()) {
+            if (c instanceof JLabel l && !l.getFont().isBold()) {
+                l.setForeground(DesktopTheme.textSecondary());
+            } else if (c instanceof java.awt.Container inner) {
+                restoreSubtitleColor(inner);
+            }
+        }
     }
 
     private static void addOptionRow(JPanel rows, String label, String value) {

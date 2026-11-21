@@ -52,9 +52,9 @@ public class ScoreboardPanel implements LeagueScreen {
         JTable table = new JTable(model);
         table.setRowHeight(28);
         table.setFont(new Font("SansSerif", Font.PLAIN, 13));
-        table.getColumnModel().getColumn(0).setPreferredWidth(340);
-        table.getColumnModel().getColumn(1).setPreferredWidth(140);
-        table.getColumnModel().getColumn(2).setPreferredWidth(160);
+        table.getColumnModel().getColumn(0).setPreferredWidth(360);
+        table.getColumnModel().getColumn(1).setPreferredWidth(360);
+        DesktopTheme.compactColumn(table, 2, 190);
         StripedRowRenderer.installWithHover(table);
 
         // Emphasise the user's game with the shared highlight treatment (bold,
@@ -68,9 +68,10 @@ public class ScoreboardPanel implements LeagueScreen {
         topPanel.add(DesktopTheme.buildScreenHeader("Scoreboard", "Browse completed weeks and open box scores."), BorderLayout.NORTH);
 
         JPanel navPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 4));
-        JButton prevBtn = new JButton("\u25C0 Previous");
-        JButton nextBtn = new JButton("Next \u25B6");
+        JButton prevBtn = new JButton("\u25C0 Prev Week");
+        JButton nextBtn = new JButton("Next Week \u25B6");
         JButton currentBtn = new JButton("Current Week");
+        styleWeekNavButtons(prevBtn, nextBtn, currentBtn);
         JLabel weekLabel = new JLabel();
         weekLabel.setFont(new Font("SansSerif", Font.BOLD, 15));
         weekLabel.setForeground(DesktopTheme.textPrimary());
@@ -80,10 +81,13 @@ public class ScoreboardPanel implements LeagueScreen {
         weekTypeLabel.setForeground(DesktopTheme.textSecondary());
 
         Runnable updateScoreboard = () -> {
-            weekLabel.setText(currentWeek <= 0
+            String title = currentWeek <= 0
                     ? SeasonPresentation.getSeasonCycleLabel(ctx.league())
-                    : "Week " + currentWeek);
-            weekTypeLabel.setText(getWeekType(currentWeek, ctx.league()));
+                    : "Week " + currentWeek;
+            String type = getWeekType(currentWeek, ctx.league());
+            weekLabel.setText(title);
+            // "Preseason  Preseason": only show the week type when it adds something.
+            weekTypeLabel.setText(type.equalsIgnoreCase(title) ? "" : type);
             model.setRowCount(0);
             List<List<String>> scores = ctx.league().getWeeklyScores();
             if (scores != null && currentWeek >= 0 && currentWeek < scores.size()) {
@@ -93,7 +97,9 @@ public class ScoreboardPanel implements LeagueScreen {
                 }
             }
             if (model.getRowCount() == 0) {
-                model.addRow(new Object[]{"No recorded games for this week.", "", ""});
+                model.addRow(new Object[]{currentWeek <= 0
+                        ? "No games in the preseason \u2014 Week 1 kicks off the schedule."
+                        : "No games were played this week.", "", ""});
             }
             prevBtn.setEnabled(currentWeek > 0);
             nextBtn.setEnabled(currentWeek < ctx.league().currentWeek);
@@ -155,6 +161,19 @@ public class ScoreboardPanel implements LeagueScreen {
         return panel;
     }
 
+    /**
+     * Shared look for the Prev/Next/Current week buttons on Scoreboard and News: the
+     * compact HUD treatment used by the other screen toolbars, with arrow-key hints.
+     */
+    static void styleWeekNavButtons(JButton prev, JButton next, JButton current) {
+        DesktopTheme.styleHudQuickButton(prev, false);
+        DesktopTheme.styleHudQuickButton(next, false);
+        DesktopTheme.styleHudQuickButton(current, false);
+        prev.setToolTipText("Previous week (Left arrow)");
+        next.setToolTipText("Next week (Right arrow)");
+        current.setToolTipText("Jump to the current week (Home)");
+    }
+
     /** True when one side of an "Away at Home" matchup is exactly the user's team. */
     static boolean isUserGame(String matchup, String userTeamName) {
         if (matchup == null || userTeamName == null || userTeamName.isEmpty()) {
@@ -188,7 +207,8 @@ public class ScoreboardPanel implements LeagueScreen {
         }
 
         if (body.isEmpty() || body.startsWith("No games")) {
-            model.addRow(new Object[]{body.isEmpty() ? "No game data" : body, "", header});
+            // Engine placeholder ("Scores:>No games this week."): the table's own empty
+            // state covers it, instead of a "Scores:" fragment in the Type column.
             return;
         }
 

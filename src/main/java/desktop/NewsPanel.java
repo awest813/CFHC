@@ -69,7 +69,11 @@ public class NewsPanel implements LeagueScreen {
         JPanel navPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 4));
         JButton prevBtn = new JButton("\u25C0 Prev Week");
         JButton nextBtn = new JButton("Next Week \u25B6");
-        JButton latestBtn = new JButton("Latest");
+        JButton latestBtn = new JButton("Current Week");
+        ScoreboardPanel.styleWeekNavButtons(prevBtn, nextBtn, latestBtn);
+        latestBtn.setToolTipText("Jump to the current week");
+        prevBtn.setToolTipText("Previous week");
+        nextBtn.setToolTipText("Next week");
         JLabel weekLabel = new JLabel();
         weekLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
         weekLabel.setForeground(DesktopTheme.textPrimary());
@@ -78,7 +82,7 @@ public class NewsPanel implements LeagueScreen {
 
         Runnable loadNewsForWeek = () -> {
             headlineModel.clear();
-            weekLabel.setText("Week " + newsWeek[0] + " News");
+            weekLabel.setText(newsWeek[0] <= 0 ? "Preseason News" : "Week " + newsWeek[0] + " News");
             List<List<String>> stories = ctx.league().getNewsStories();
             if (stories != null && newsWeek[0] >= 0 && newsWeek[0] < stories.size()) {
                 List<String> weekStories = stories.get(newsWeek[0]);
@@ -90,7 +94,7 @@ public class NewsPanel implements LeagueScreen {
                 }
             }
             if (headlineModel.isEmpty()) {
-                headlineModel.addElement("No news for week " + newsWeek[0] + ".");
+                headlineModel.addElement(newsWeek[0] <= 0 ? "No preseason news." : "No news for week " + newsWeek[0] + ".");
                 storyArea.setText("No stories were generated for this week.");
             } else {
                 storyArea.setText("Select a headline to read the full story.");
