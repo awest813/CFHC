@@ -131,19 +131,24 @@ public class RecruitingFlowTest {
     }
 
     /** Players short of each position minimum, sitting transfers not counted (as CPUrecruiting does). */
+    /** What a CPU class must sign: each position's shortfall or its pipeline need (Team.pipelineNeed), whichever is more. */
     private static int shortfall(Team t) {
         int total = 0;
-        total += Math.max(0, RosterRules.MIN_QBS - eligible(t.getTeamQBs()));
-        total += Math.max(0, RosterRules.MIN_RBS - eligible(t.getTeamRBs()));
-        total += Math.max(0, RosterRules.MIN_WRS - eligible(t.getTeamWRs()));
-        total += Math.max(0, RosterRules.MIN_TES - eligible(t.getTeamTEs()));
-        total += Math.max(0, RosterRules.MIN_OLS - eligible(t.getTeamOLs()));
-        total += Math.max(0, RosterRules.MIN_KS - eligible(t.getTeamKs()));
-        total += Math.max(0, RosterRules.MIN_DLS - eligible(t.getTeamDLs()));
-        total += Math.max(0, RosterRules.MIN_LBS - eligible(t.getTeamLBs()));
-        total += Math.max(0, RosterRules.MIN_CBS - eligible(t.getTeamCBs()));
-        total += Math.max(0, RosterRules.MIN_SS - eligible(t.getTeamSs()));
+        total += need(t.getTeamQBs(), RosterRules.MIN_QBS, 2);
+        total += need(t.getTeamRBs(), RosterRules.MIN_RBS, RosterRules.STARTERS_RB + RosterRules.SUB_RB);
+        total += need(t.getTeamWRs(), RosterRules.MIN_WRS, RosterRules.STARTERS_WR + RosterRules.SUB_WR);
+        total += need(t.getTeamTEs(), RosterRules.MIN_TES, RosterRules.STARTERS_TE + RosterRules.SUB_TE);
+        total += need(t.getTeamOLs(), RosterRules.MIN_OLS, RosterRules.STARTERS_OL + RosterRules.SUB_OL);
+        total += need(t.getTeamKs(), RosterRules.MIN_KS, 2 * RosterRules.STARTERS_K);
+        total += need(t.getTeamDLs(), RosterRules.MIN_DLS, RosterRules.STARTERS_DL + RosterRules.SUB_DL);
+        total += need(t.getTeamLBs(), RosterRules.MIN_LBS, RosterRules.STARTERS_LB + RosterRules.SUB_LB);
+        total += need(t.getTeamCBs(), RosterRules.MIN_CBS, RosterRules.STARTERS_CB + RosterRules.SUB_CB);
+        total += need(t.getTeamSs(), RosterRules.MIN_SS, RosterRules.STARTERS_S + RosterRules.SUB_S);
         return total;
+    }
+
+    private static int need(List<? extends Player> players, int min, int playing) {
+        return Math.max(Math.max(0, min - eligible(players)), Team.pipelineNeed(players, playing));
     }
 
     private static int eligible(List<? extends Player> players) {
