@@ -266,9 +266,9 @@ public class DesktopSoundtrackEngine implements SoundtrackEngine {
             try {
                 SourceDataLine l = (SourceDataLine) AudioSystem.getLine(
                         new DataLine.Info(SourceDataLine.class, format));
-                // ~370 ms buffer: deep enough not to underrun, short enough
-                // that a flush on cancel is the only latency that matters.
-                l.open(format, CHUNK_FRAMES * format.getFrameSize() * 4);
+                // ~280 ms buffer: deep enough not to underrun, and mute/volume
+                // changes (applied as chunks are written) land within it.
+                l.open(format, CHUNK_FRAMES * format.getFrameSize() * 3);
                 line = l;
                 if (cancelled) return false;
                 synchronized (lock) {
