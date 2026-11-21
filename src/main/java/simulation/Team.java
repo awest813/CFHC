@@ -302,8 +302,37 @@ public class Team {
     public static final double NFL_CHANCE = 0.66;
     public static final double NFL_CHANCE_SOPH = 0.330;
 
-    /** Soft ceiling on program prestige; see {@link #calcSeasonPrestige()}. */
-    public static final int PRESTIGE_SOFT_MAX = 200;
+    /**
+     * Ceiling of the 0-100 prestige scale the data (top programs start near 92),
+     * recruiting tiers and UI bars are built for; see {@link #applyPrestigeGain}.
+     * Was 200, so dynasties drifted to 110-120.
+     */
+    public static final int PRESTIGE_SOFT_MAX = 100;
+    /** Above this, prestige gains are compressed, fading to nothing at the max. */
+    public static final int PRESTIGE_SOFT_KNEE = 85;
+
+    /**
+     * Prestige after a gain or loss. Losses apply in full; each point gained
+     * above {@link #PRESTIGE_SOFT_KNEE} sticks with probability
+     * (MAX - current) / (MAX - KNEE), so elite programs approach 100 ever more
+     * slowly instead of piling up at a hard clamp. Result is within 0..MAX.
+     */
+    public static int applyPrestigeGain(int current, int change) {
+        int p = current;
+        if (change <= 0) {
+            p += change;
+        } else {
+            for (int i = 0; i < change; i++) {
+                if (p < PRESTIGE_SOFT_KNEE) {
+                    p++;
+                } else if (p < PRESTIGE_SOFT_MAX && SimRandom.nextDouble()
+                        < (PRESTIGE_SOFT_MAX - p) / (double) (PRESTIGE_SOFT_MAX - PRESTIGE_SOFT_KNEE)) {
+                    p++;
+                }
+            }
+        }
+        return Math.max(0, Math.min(PRESTIGE_SOFT_MAX, p));
+    }
 
     public static double knockdownRet = 0.925;
     public static double knockdownFired = 0.975;
@@ -1642,15 +1671,9 @@ public class Team {
             if (nflPts > 1) nflPts = 1;
         }
 
-        newPrestige += prestigeChange + ccPts + ncwPts + nflPts + disPts;
-
-        // Mirror the floor with a soft ceiling. Without this, a dominant team
-        // (repeated national titles + conference championships) accumulates
-        // prestige indefinitely — a 100-season career run reached 250+ for
-        // Clemson. PrestigeBoundsTest documents 200 as the soft max above which
-        // values signal corruption, so clamp here.
-        if (newPrestige < 0) newPrestige = 0;
-        if (newPrestige > PRESTIGE_SOFT_MAX) newPrestige = PRESTIGE_SOFT_MAX;
+        // Soft ceiling: without it a dominant team (repeated titles and
+        // conference championships) accumulates prestige indefinitely.
+        newPrestige = applyPrestigeGain(newPrestige, prestigeChange + ccPts + ncwPts + nflPts + disPts);
 
         int[] PrestigeScore = {newPrestige, prestigeChange, ccPts, ncwPts, nflPts, disPts};
         return PrestigeScore;
@@ -1980,6 +2003,9 @@ public class Team {
             if ((players.get(i).year >= 4 && !players.get(i).isTransfer && !players.get(i).isRedshirt)
                     || (players.get(i).year == 3 && players.get(i).ratOvr > NFL_OVR && SimRandom.nextDouble() < NFL_CHANCE)
                     || (players.get(i).year == 2 && players.get(i).wasRedshirt && players.get(i).ratOvr > NFL_OVR + sophNFL && SimRandom.nextDouble() < NFL_CHANCE_SOPH)) {
+                // Departing players never advance, so count their final-season
+                // awards here (Hall of Fame credentials read them next).
+                players.get(i).recordSeasonAwards();
                 playersLeaving.add(players.get(i));
                 removePlayer(players.get(i));
                 players.remove(i);
@@ -2131,6 +2157,46 @@ public class Team {
         for(int i = 0; i < cuts; i++) {
             removePlayer(players.get(players.size()-i-1));
         }
+    }
+
+    /**
+     * Trims a CPU roster to {@link RosterRules#MAX_PLAYERS}: the cap was only
+     * enforced on the user's recruiting board, and CPU classes plus transfers
+     * pushed rosters into the 80s. Cuts the lowest-value players beyond each
+     * position's minimum (the best {@code MIN_*} at each position are kept, so
+     * starters and the depth chart are never touched).
+     *
+     * @return how many players were cut
+     */
+    public int enforceRosterCap() {
+        ArrayList<Player> players = getAllPlayers();
+        int excess = players.size() - RosterRules.MAX_PLAYERS;
+        if (excess <= 0 || userControlled) return 0;
+
+        java.util.Map<String, ArrayList<Player>> byPos = new java.util.LinkedHashMap<>();
+        for (Player p : players) byPos.computeIfAbsent(p.position, k -> new ArrayList<>()).add(p);
+        ArrayList<Player> cuttable = new ArrayList<>();
+        for (java.util.Map.Entry<String, ArrayList<Player>> e : byPos.entrySet()) {
+            ArrayList<Player> group = e.getValue();
+            group.sort((a, b) -> Double.compare(rosterValue(b), rosterValue(a)));
+            int keep = Math.max(RosterRules.minForPosition(e.getKey()), 1);
+            for (int i = keep; i < group.size(); i++) cuttable.add(group.get(i));
+        }
+        cuttable.sort((a, b) -> Double.compare(rosterValue(a), rosterValue(b)));
+        int cut = 0;
+        for (int i = 0; i < cuttable.size() && cut < excess; i++) {
+            removePlayer(cuttable.get(i));
+            playersInjured.remove(cuttable.get(i));
+            cut++;
+        }
+        if (cut > 0) sortPlayers();
+        return cut;
+    }
+
+    /** Keep-or-cut value: current rating plus room to grow, weighted toward young players. */
+    private static double rosterValue(Player p) {
+        double growth = Math.max(0, p.ratPot - p.ratOvr);
+        return p.ratOvr + growth * (p.year <= 2 ? 0.5 : 0.2);
     }
 
     public void cutPlayer(Player p) {
@@ -3600,6 +3666,7 @@ public class Team {
             teamDisciplineScore -= penalty*1.65;
             teamBudget -= (penalty * 250);
         }
+        teamBudget = Math.max(0, teamBudget);
 
         if(choice == 1 || choice == 2) {
             player.isSuspended = true;
@@ -5745,7 +5812,8 @@ public class Team {
 
     // Budget/facilities
     public int getTeamBudget() { return teamBudget; }
-    public void setTeamBudget(int budget) { this.teamBudget = budget; }
+    /** Budgets never go below zero (a buyout or fine takes what is there). */
+    public void setTeamBudget(int budget) { this.teamBudget = Math.max(0, budget); }
     public int getTeamRecruitBudget() { return teamRecruitBudget; }
     public void setTeamRecruitBudget(int budget) { this.teamRecruitBudget = budget; }
     public int getTeamDisciplineBudget() { return teamDiscplineBudget; }

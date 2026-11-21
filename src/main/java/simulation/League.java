@@ -1687,6 +1687,22 @@ public class League {
         // New-format loads skip setupSeason(), which normally allocates weekly news/score
         // buckets. Without this, preseasonNews/topRecruits NPEs on newsStories.
         ensureSeasonWeekListsCapacity(Math.max(seasonWeeks, currentWeek + 4));
+        afterSaveLoaded();
+    }
+
+    /**
+     * Season-flow fixups once a save is applied; kept out of the record parsing
+     * above (which only calls this). Team conference names follow the conference
+     * that holds them (old saves wrote "CUSA"). A legacy 13-week save loaded at
+     * week 0 has nothing in flight, so it moves to the standard calendar now
+     * instead of playing the season on the old one, which left the 12th game
+     * unplayed.
+     */
+    private void afterSaveLoaded() {
+        syncTeamConferenceNames();
+        if (regSeasonWeeks == LEGACY_REG_SEASON_WEEKS && currentWeek == 0) {
+            regSeasonWeeks = STANDARD_REG_SEASON_WEEKS;
+        }
     }
 
     /**
@@ -2149,6 +2165,7 @@ public class League {
         upgradeFacilities();
         upgradeNilCollectives();
         upgradeStadiums();
+        applyOffseasonBudgetExpenses();
 
         sb = new StringBuilder();
         for (int i = 0; i < teamList.size(); i++) {
@@ -2428,15 +2445,55 @@ public class League {
      * @param conf conference name
      * @return int of number 0-5
      */
+    /**
+     * Index of the conference named {@code conf}, accepting old spellings (see
+     * {@link #canonicalConferenceName}); -1 when no conference has that name.
+     * Unknown names used to return 0, so realignment could edit the ACC when it
+     * meant another conference.
+     */
     public int getConfNumber(String conf) {
-        boolean complete = false;
-        int i = 0;
-        while (i < conferences.size() && !complete) {
-            if (conf.equals(conferences.get(i).confName)) {
-                return i;
-            } else i++;
+        if (conf == null) return -1;
+        String canonical = canonicalConferenceName(conf);
+        for (int i = 0; i < conferences.size(); i++) {
+            String name = conferences.get(i).confName;
+            if (conf.equals(name) || canonical.equals(name)) return i;
         }
-        return 0;
+        for (int i = 0; i < conferences.size(); i++) {
+            if (canonical.equalsIgnoreCase(conferences.get(i).confName)) return i;
+        }
+        return -1;
+    }
+
+    /**
+     * Current spelling of a conference name. Bundled team data and saves used
+     * "CUSA" while the conference itself is "Conference USA".
+     */
+    public static String canonicalConferenceName(String conf) {
+        if (conf == null) return null;
+        if (conf.equalsIgnoreCase("CUSA") || conf.equalsIgnoreCase("C-USA")) return "Conference USA";
+        return conf;
+    }
+
+    /** The conference whose member list holds {@code t}, or null. */
+    public Conference conferenceOf(Team t) {
+        for (Conference c : conferences) {
+            if (c.confTeams.contains(t)) return c;
+        }
+        int i = t != null ? getConfNumber(t.getConference()) : -1;
+        return i >= 0 ? conferences.get(i) : null;
+    }
+
+    /**
+     * Makes every team's conference name match the conference that holds it
+     * (old saves and custom data can carry an alias such as "CUSA"). Runs at
+     * schedule build and after a save loads.
+     */
+    public void syncTeamConferenceNames() {
+        for (Conference c : conferences) {
+            for (Team t : c.confTeams) {
+                if (!c.confName.equals(t.getConference())) t.setConference(c.confName);
+            }
+        }
     }
 
     public void sortTeamList() {
@@ -2617,9 +2674,50 @@ public class League {
                 tm.setTeamBudget(tm.getTeamBudget() - baselineCost * (tm.getTeamFacilities() + 1));
                 tm.setFacilityUpgrade(true);
                 tm.setTeamFacilities(tm.getTeamFacilities() + 1);
-                tm.setTeamPrestige(tm.getTeamPrestige() + tm.getTeamFacilities());
+                tm.setTeamPrestige(Team.applyPrestigeGain(tm.getTeamPrestige(), tm.getTeamFacilities()));
                 tm.getHeadCoach().baselinePrestige += tm.getTeamFacilities();
             }
+        }
+    }
+
+    /** Budget a program can carry before athletic-department spending grows (prestige 0). */
+    static final int BUDGET_SOFT_CAP_BASE = 12000;
+    /** Extra soft-cap room per prestige point. */
+    static final int BUDGET_SOFT_CAP_PER_PRESTIGE = 200;
+    /** Share of the budget above the soft cap spent each offseason. */
+    static final double BUDGET_OVER_CAP_SPEND = 0.60;
+    /** Share of the whole budget spent on day-to-day operations each offseason. */
+    static final double BUDGET_OPERATING_SHARE = 0.12;
+    /** Yearly upkeep per facilities level, stadium expansion tier and NIL tier. */
+    static final int FACILITY_UPKEEP_PER_LEVEL = 1200;
+    static final int STADIUM_UPKEEP_PER_TIER = 1500;
+    static final int NIL_UPKEEP_PER_TIER = 1000;
+
+    /** Soft cap for a program's athletic budget: richer, more prestigious programs carry more. */
+    public static int budgetSoftCap(int prestige) {
+        return BUDGET_SOFT_CAP_BASE + BUDGET_SOFT_CAP_PER_PRESTIGE * Math.max(0, prestige);
+    }
+
+    /**
+     * Offseason running costs, after the year's facility, NIL and stadium
+     * purchases: operations (a share of the budget) and upkeep for what a
+     * program has built (together at most half the budget), then department
+     * spending of a share of whatever sits above the soft cap. Revenue arrives every week
+     * but upgrades were the only outflow, so budgets compounded without bound
+     * (league max ~9K to ~60K in 15 seasons while facilities stalled at level
+     * 4). Never takes a budget below zero.
+     */
+    public void applyOffseasonBudgetExpenses() {
+        for (Team tm : teamList) {
+            int budget = tm.getTeamBudget();
+            int upkeep = FACILITY_UPKEEP_PER_LEVEL * tm.getTeamFacilities()
+                    + STADIUM_UPKEEP_PER_TIER * Math.max(0, tm.teamStadium - 1)
+                    + NIL_UPKEEP_PER_TIER * tm.nilCollectiveLevel
+                    + (int) Math.round(budget * BUDGET_OPERATING_SHARE);
+            budget -= Math.min(upkeep, budget / 2);
+            int over = budget - budgetSoftCap(tm.getTeamPrestige());
+            if (over > 0) budget -= (int) Math.round(over * BUDGET_OVER_CAP_SPEND);
+            tm.setTeamBudget(budget);
         }
     }
 
@@ -2689,7 +2787,7 @@ public class League {
                 tm.setTeamBudget(tm.getTeamBudget() - cost);
                 tm.nilCollectiveLevel = next;
                 tm.nilCollectiveUpgrade = true;
-                tm.setTeamPrestige(tm.getTeamPrestige() + 1);
+                tm.setTeamPrestige(Team.applyPrestigeGain(tm.getTeamPrestige(), 1));
             }
         }
     }
@@ -2821,7 +2919,7 @@ public class League {
      *
      * @return string of the ceremony.
      */
-    public String getLinemanPOTYStr() {
+    private String decideLinemanPOTY() {
         if (!linemanPOTYDecided) {
             linemanPOTYDecided = true;
             linemanPOTYCandidates = getLinemanPOTY();
@@ -2830,6 +2928,8 @@ public class League {
                 return linemanPOTYWinnerStrFull;
             }
             linemanPOTY = linemanPOTYCandidates.get(0);
+            // Counted here, once per award (a DL can win both Defensive and Lineman
+            // of the Year); Player.addSeasonAwards does not count POTY again.
             linemanPOTY.wonHeisman = true;
             linemanPOTY.recordHeismans(1);
             linemanPOTY.team.getHeadCoach().recordHeismans(1);
@@ -2988,14 +3088,14 @@ public class League {
                 scheduleNormalCFP();
             }
 
+            // The regular season is complete: decide every award now, in the engine.
+            decideSeasonAwards();
+
         } else if (currentWeek == regSeasonWeeks) {
-            ArrayList<Player> heismans = getHeisman();
-            if (defPOTYCandidates == null || defPOTYCandidates.isEmpty()) {
-                defPOTYCandidates = getDefPOTY();
-            }
-            if (!heismans.isEmpty() && defPOTYCandidates != null && !defPOTYCandidates.isEmpty()) {
-                Player off = heismans.get(0);
-                Player def = defPOTYCandidates.get(0);
+            ensureSeasonAwardsForRead();
+            if (heisman != null && defPOTY != null) {
+                Player off = heisman;
+                Player def = defPOTY;
                 heismanHistory.add(off.position + " " + off.getInitialName() + " [" + off.getYrStr() + "], "
                         + off.team.getAbbr() + " (" + off.team.getWins() + "-" + off.team.getLosses() + ")>" +
                         def.position + " " + def.getInitialName() + " [" + def.getYrStr() + "], "
@@ -3554,6 +3654,77 @@ public class League {
     }
 
 
+    /** True once this season's awards have been decided by {@link #decideSeasonAwards()}. */
+    public boolean seasonAwardsDecided;
+
+    private static final String AWARDS_NOT_YET = "Season awards are announced after the conference championship games.";
+
+    /**
+     * Decides every end-of-regular-season award once: Player, Defensive and
+     * Lineman of the Year, Coach of the Year, Freshman of the Year, the
+     * All-American, All-Freshman and All-Conference teams. The engine calls it
+     * after conference championship week ({@link #playWeek()}), so Android,
+     * desktop and bulk sims all get the same awards whether or not a dialog is
+     * ever opened. Idempotent.
+     */
+    public void decideSeasonAwards() {
+        if (seasonAwardsDecided) return;
+        seasonAwardsDecided = true;
+        decideHeismanCeremony();
+        decideDefensePOTY();
+        decideLinemanPOTY();
+        decideCoachAward();
+        decideFreshmanCeremony();
+        decideAllFreshman();
+        decideAllAmericans();
+        for (Conference c : conferences) {
+            if (!c.confTeams.isEmpty()) c.getAllConfPlayers();
+        }
+    }
+
+    /**
+     * Readers call this before reading award state. Normally a no-op; a save
+     * loaded during the postseason (award flags are not persisted) decides the
+     * awards on first read, as long as the players have not advanced yet.
+     */
+    private void ensureSeasonAwardsForRead() {
+        if (!seasonAwardsDecided
+                && currentWeek >= SeasonFlowOrder.bowlWeek1(regSeasonWeeks)
+                && currentWeek < SeasonFlowOrder.graduationWeek(regSeasonWeeks)) {
+            decideSeasonAwards();
+        }
+    }
+
+    /** Player of the Year ceremony text; a pure reader. */
+    public String getHeismanCeremonyStr() {
+        ensureSeasonAwardsForRead();
+        return heismanDecided && heismanWinnerStrFull != null ? heismanWinnerStrFull : AWARDS_NOT_YET;
+    }
+
+    /** Defensive Player of the Year ceremony text; a pure reader. */
+    public String getDefensePOTYStr() {
+        ensureSeasonAwardsForRead();
+        return defPOTYDecided && defPOTYWinnerStrFull != null ? defPOTYWinnerStrFull : AWARDS_NOT_YET;
+    }
+
+    /** Lineman of the Year ceremony text; a pure reader. */
+    public String getLinemanPOTYStr() {
+        ensureSeasonAwardsForRead();
+        return linemanPOTYDecided && linemanPOTYWinnerStrFull != null ? linemanPOTYWinnerStrFull : AWARDS_NOT_YET;
+    }
+
+    /** Freshman of the Year ceremony text; a pure reader. */
+    public String getFreshmanCeremonyStr() {
+        ensureSeasonAwardsForRead();
+        return freshmanDecided && freshmanWinnerStrFull != null ? freshmanWinnerStrFull : AWARDS_NOT_YET;
+    }
+
+    /** Coach of the Year text; a pure reader. */
+    public String getCoachAwardStr() {
+        ensureSeasonAwardsForRead();
+        return coachAwardDecided && coachWinnerStrFull != null ? coachWinnerStrFull : AWARDS_NOT_YET;
+    }
+
     /**
      * Calculates who wins the Heisman.
      *
@@ -3568,7 +3739,7 @@ public class League {
      *
      * @return string of the heisman ceremony.
      */
-    public String getHeismanCeremonyStr() {
+    private String decideHeismanCeremony() {
         boolean putNewsStory = false;
         if (!heismanDecided) {
             heismanDecided = true;
@@ -3581,6 +3752,8 @@ public class League {
                 return heismanWinnerStrFull;
             }
             heisman = heismanCandidates.get(0);
+            // Counted here, once per award (a DL can win both Defensive and Lineman
+            // of the Year); Player.addSeasonAwards does not count POTY again.
             heisman.wonHeisman = true;
             heisman.recordHeismans(1);
             heisman.team.getHeadCoach().recordHeismans(1);
@@ -3623,7 +3796,7 @@ public class League {
      *
      * @return string of the heisman ceremony.
      */
-    public String getDefensePOTYStr() {
+    private String decideDefensePOTY() {
         boolean putNewsStory = false;
         if (!defPOTYDecided) {
             defPOTYDecided = true;
@@ -3634,6 +3807,8 @@ public class League {
                 return defPOTYWinnerStrFull;
             }
             defPOTY = defPOTYCandidates.get(0);
+            // Counted here, once per award (a DL can win both Defensive and Lineman
+            // of the Year); Player.addSeasonAwards does not count POTY again.
             defPOTY.wonHeisman = true;
             defPOTY.recordHeismans(1);
             defPOTY.team.getHeadCoach().recordHeismans(1);
@@ -3778,8 +3953,8 @@ public class League {
      *
      * @return string list of all americans
      */
-    public String getAllFreshmanStr() {
-        if (allFreshman.isEmpty()) {
+    private void decideAllFreshman() {
+        if (allFreshman.isEmpty() && fQBs != null) {
 
             if (fQBs.size() > 0) {
                 allFreshman.add(fQBs.get(0));
@@ -3860,6 +4035,11 @@ public class League {
             }
         }
 
+    }
+
+    /** All-Freshman team; a pure reader (picked once by {@link #decideSeasonAwards()}). */
+    public String getAllFreshmanStr() {
+        ensureSeasonAwardsForRead();
         StringBuilder allFreshmanTeam = new StringBuilder();
         for (int i = 0; i < allFreshman.size(); ++i) {
             Player p = allFreshman.get(i);
@@ -3876,18 +4056,22 @@ public class League {
      *
      * @return string of the heisman ceremony.
      */
-    public String getFreshmanCeremonyStr() {
+    private String decideFreshmanCeremony() {
         boolean putNewsStory = false;
         if (!freshmanDecided) {
             freshmanDecided = true;
             freshmanCandidates = getTopFreshman();
+            if (freshmanCandidates.isEmpty()) {
+                freshmanWinnerStrFull = "No Freshman Player of the Year candidates this season.";
+                return freshmanWinnerStrFull;
+            }
             freshman = freshmanCandidates.get(0);
             freshman.wonTopFreshman = true;
             freshman.team.getHeadCoach().recordTopFreshman(1);
             putNewsStory = true;
             //full results string
             String heismanTop5 = "\n";
-            for (int i = 0; i < 5; ++i) {
+            for (int i = 0; i < Math.min(5, freshmanCandidates.size()); ++i) {
                 Player p = freshmanCandidates.get(i);
                 heismanTop5 += (i + 1) + ". " + p.getAwardStats();
             }
@@ -3909,13 +4093,17 @@ public class League {
         }
     }
 
-    public String getCoachAwardStr() {
+    private String decideCoachAward() {
         if (!coachAwardDecided) {
             coachAwardDecided = true;
             ArrayList<HeadCoach> coachCandidates = rankHC();
+            if (coachCandidates.isEmpty()) {
+                coachWinnerStrFull = "No Head Coach of the Year candidates this season.";
+                return coachWinnerStrFull;
+            }
             coachWinner = coachCandidates.get(0);
             String coachAwardTopList = "";
-            for (int i = 0; i < 5; ++i) {
+            for (int i = 0; i < Math.min(5, coachCandidates.size()); ++i) {
                 HeadCoach p = coachCandidates.get(i);
                 HeadCoach hc = (HeadCoach) p;
                 coachAwardTopList += (i + 1) + ". " + hc.name + ": " + ((HeadCoach) p).getCoachScore() + " votes\n";
@@ -3947,7 +4135,7 @@ public class League {
      *
      * @return string list of all americans
      */
-    public String getAllAmericanStr() {
+    private void decideAllAmericans() {
         if (allAmericans.isEmpty()) {
             ArrayList<PlayerQB> qbs = new ArrayList<>();
             ArrayList<PlayerRB> rbs = new ArrayList<>();
@@ -4078,6 +4266,16 @@ public class League {
             }
         }
 
+    }
+
+    /**
+     * First and second All-American teams. A pure reader: the teams are picked
+     * once, by {@link #decideSeasonAwards()}.
+     *
+     * @return string list of all americans
+     */
+    public String getAllAmericanStr() {
+        ensureSeasonAwardsForRead();
         StringBuilder allAmerican = new StringBuilder();
         allAmerican.append("[FIRST TEAM ALL-AMERICANS]\n\n>");
         for (int i = 0; i < allAmericans.size(); ++i) {
@@ -4106,6 +4304,8 @@ public class League {
      * @return string of the conference team
      */
     public String getAllConfStr(int confNum) {
+        ensureSeasonAwardsForRead();
+        if (!seasonAwardsDecided) return "";
         ArrayList<Player> allConfPlayers = conferences.get(confNum).getAllConfPlayers();
         ArrayList<HeadCoach> allConfCoaches = conferences.get(confNum).allConfCoach;
 
@@ -4922,7 +5122,11 @@ public class League {
                                 transferQBs.remove(i);
                                 --i;
                                 break;
-                            } else if (user != null && user.getQbTransferNum() == 0) {
+                            } else if (teamList.get(t).isUserControlled() && user != null && user.getQbTransferNum() == 0) {
+                                // Offered to the user only when the user's own program is the
+                                // fit; a CPU team that already took a transfer QB used to land
+                                // here too and hand any QB to the user. Otherwise the next team
+                                // in line is tried, or he stays in the portal.
                                 user.incrementQbTransferNum();
                                 bridge.transferPlayer(transferQBs.get(i));
                                 transferQBs.remove(i);
@@ -4969,7 +5173,7 @@ public class League {
                 for (int n = 0; n < teamList.size(); ++n) {
                     int t = (rand + n) % teamList.size();
                     if (teamList.get(t).getTeamWRs().size() < 3 || teamList.get(t).getTeamWRs().get(0).ratOvr < transferWRs.get(i).ratOvr) {
-                        if (Math.abs(teamList.get(t).getLocation() - transferWRs.get(i).getRegion()) < 1) {
+                        if (Math.abs(teamList.get(t).getLocation() - transferWRs.get(i).getRegion()) < loc) {
                             if (!teamList.get(t).isUserControlled()) {
                                 newsStories.get(currentWeek + 1).add(teamList.get(t).getName() + " Transfer News>" + transferWRs.get(i).getYrStr() + " WR " + transferWRs.get(i).name + "(" + transferWRs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ". He was previously enrolled at " +
                                         transferWRs.get(i).team.getAbbr() + " .");
@@ -5028,7 +5232,9 @@ public class League {
                 rand = SimRandom.nextInt((max - min) + 1) + min;
                 for (int n = 0; n < teamList.size(); ++n) {
                     int t = (rand + n) % teamList.size();
-                    if (teamList.get(t).getTeamOLs().size() < 5 || teamList.get(t).getTeamOLs().get(0).ratOvr < transferOLs.get(i).ratOvr && Math.abs(teamList.get(t).getLocation() - transferOLs.get(i).getRegion()) < loc) {
+                    // Need (short on OL or an upgrade) and region both apply; && bound tighter
+                    // than ||, so any team short on OL took a lineman from anywhere.
+                    if ((teamList.get(t).getTeamOLs().size() < 5 || teamList.get(t).getTeamOLs().get(0).ratOvr < transferOLs.get(i).ratOvr) && Math.abs(teamList.get(t).getLocation() - transferOLs.get(i).getRegion()) < loc) {
                         if (!teamList.get(t).isUserControlled()) {
                             newsStories.get(currentWeek + 1).add(teamList.get(t).getName() + " Transfer News>" + transferOLs.get(i).getYrStr() + " OL " + transferOLs.get(i).name + "(" + transferOLs.get(i).ratOvr + ") has announced his transfer to " + teamList.get(t).getName() + ". He was previously enrolled at " +
                                     transferOLs.get(i).team.getAbbr() + " .");
@@ -5454,7 +5660,7 @@ Then conferences can see if they want to add them to their list if the teams mee
                     for (int i = 0; i < promoteTeamList.size(); i++) {
                         if (promoteTeamList.get(i).getTeamPrestige() > (conf.confRelegateMin * 1.2) && SimRandom.nextDouble() < realignmentChance && Math.abs(promoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2) {
                             final Team teamA = promoteTeamList.get(i);
-                            conferences.get(getConfNumber(teamA.getConference())).confTeams.remove(teamA);
+                            conferenceOf(teamA).confTeams.remove(teamA);
                             teamA.setConference(conf.confName);
                             conf.confTeams.add(teamA);
 
@@ -5499,7 +5705,7 @@ Then conferences can see if they want to add them to their list if the teams mee
                     for (int i = 0; i < promoteTeamList.size(); i++) {
                         if (promoteTeamList.get(i).getTeamPrestige() > (conf.confRelegateMin * 1.2) && SimRandom.nextDouble() < realignmentChance && Math.abs(promoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2) {
                             final Team teamA = promoteTeamList.get(i);
-                            conferences.get(getConfNumber(teamA.getConference())).confTeams.remove(teamA);
+                            conferenceOf(teamA).confTeams.remove(teamA);
                             teamA.setConference(conf.confName);
                             conf.confTeams.add(teamA);
 
@@ -5541,8 +5747,8 @@ Then conferences can see if they want to add them to their list if the teams mee
                         if (demoteTeamList.get(i).getTeamPrestige() > conf.confPromoteMin && SimRandom.nextDouble() < realignmentChance && Math.abs(demoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2 && !demoteTeamList.get(i).getConference().equals(conferences.get(c).confName)) {
                             final Team teamA = demoteTeamList.get(i);
                             final String oldConf = teamA.getConference();
-                            if (conferences.get(getConfNumber(teamA.getConference())).confTeams.size() > conferences.get(getConfNumber(teamA.getConference())).minConfTeams && conferences.get(getConfNumber(teamA.getConference())).confTeams.size() > minConfTeams) {
-                                conferences.get(getConfNumber(teamA.getConference())).confTeams.remove(teamA);
+                            if (conferenceOf(teamA).confTeams.size() > conferenceOf(teamA).minConfTeams && conferenceOf(teamA).confTeams.size() > minConfTeams) {
+                                conferenceOf(teamA).confTeams.remove(teamA);
                                 teamA.setConference(conf.confName);
                                 conf.confTeams.add(teamA);
 
@@ -5578,11 +5784,11 @@ Then conferences can see if they want to add them to their list if the teams mee
                 if (conferences.get(c).confTeams.size() < maxConfTeams && conferences.get(c).confTeams.size() >= conferences.get(c).minConfTeams) {
                     Conference conf = conferences.get(c);
                     for (int i = 0; i < promoteTeamList.size(); i++) {
-                        if (promoteTeamList.get(i).getTeamPrestige() > conf.confPromoteMin && SimRandom.nextDouble() < realignmentChance && Math.abs(promoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2 && !promoteTeamList.get(i).getConference().equals(conferences.get(c).confName) && conferences.get(getConfNumber(promoteTeamList.get(i).getConference())).confPrestige < conf.confPrestige) {
+                        if (promoteTeamList.get(i).getTeamPrestige() > conf.confPromoteMin && SimRandom.nextDouble() < realignmentChance && Math.abs(promoteTeamList.get(i).getLocation() - conf.confTeams.get(0).getLocation()) < 2 && !promoteTeamList.get(i).getConference().equals(conferences.get(c).confName) && conferenceOf(promoteTeamList.get(i)).confPrestige < conf.confPrestige) {
                             final Team teamA = promoteTeamList.get(i);
                             final String oldConf = teamA.getConference();
-                            if (conferences.get(getConfNumber(teamA.getConference())).confTeams.size() > conferences.get(getConfNumber(teamA.getConference())).minConfTeams && conferences.get(getConfNumber(teamA.getConference())).confTeams.size() > minConfTeams) {
-                                conferences.get(getConfNumber(teamA.getConference())).confTeams.remove(teamA);
+                            if (conferenceOf(teamA).confTeams.size() > conferenceOf(teamA).minConfTeams && conferenceOf(teamA).confTeams.size() > minConfTeams) {
+                                conferenceOf(teamA).confTeams.remove(teamA);
                                 teamA.setConference(conf.confName);
                                 conf.confTeams.add(teamA);
 
@@ -5615,8 +5821,8 @@ Then conferences can see if they want to add them to their list if the teams mee
                         final Team teamA = demoteTeamList.get(i);
                         final String oldConf = teamA.getConference();
 
-                        if (conferences.get(getConfNumber(teamA.getConference())).confTeams.size() > conferences.get(getConfNumber(teamA.getConference())).minConfTeams && conferences.get(getConfNumber(teamA.getConference())).confTeams.size() > minConfTeams) {
-                            conferences.get(getConfNumber(teamA.getConference())).confTeams.remove(teamA);
+                        if (conferenceOf(teamA).confTeams.size() > conferenceOf(teamA).minConfTeams && conferenceOf(teamA).confTeams.size() > minConfTeams) {
+                            conferenceOf(teamA).confTeams.remove(teamA);
                             teamA.setConference(indy.confName);
                             indy.confTeams.add(teamA);
 
@@ -5676,7 +5882,7 @@ Then conferences can see if they want to add them to their list if the teams mee
 
                     Team FCS = new Team(fcsName, "FCS", "Independent", 35, "A", (int) (SimRandom.nextDouble() * 6), this, true);
                     FCS.setAbbr(FCS.getName().substring(0, 3));
-                    FCS.setRankTeamPollScore(teamList.size());
+                    FCS.setRankTeamPollScore(teamList.size() + 1); // ranked last, below the current last place
                     teamList.add(FCS);
                     indy.confTeams.add(FCS);
                     fcsPromotionsUsed++;
@@ -5759,7 +5965,7 @@ Then conferences can see if they want to add them to their list if the teams mee
 
                         Team FCS = new Team(fcsName, "FCS", "Antdroid", 35, "A", (int) (SimRandom.nextDouble() * 6), this, true);
                         FCS.setAbbr(FCS.getName().substring(0, 3));
-                        FCS.setRankTeamPollScore(teamList.size());
+                        FCS.setRankTeamPollScore(teamList.size() + 1); // ranked last, below the current last place
                         teamList.add(FCS);
                         antdroid.confTeams.add(FCS);
                         fcsPromotionsUsed++;
@@ -5809,8 +6015,8 @@ Then conferences can see if they want to add them to their list if the teams mee
                         if (qualified.size() >= 2) {
                             final Team teamA = qualified.get(0);
                             final Team teamB = qualified.get(1);
-                            conferences.get(getConfNumber(teamA.getConference())).confTeams.remove(teamA);
-                            conferences.get(getConfNumber(teamB.getConference())).confTeams.remove(teamB);
+                            conferenceOf(teamA).confTeams.remove(teamA);
+                            conferenceOf(teamB).confTeams.remove(teamB);
                             teamA.setConference(conf.confName);
                             teamB.setConference(conf.confName);
                             conf.confTeams.add(teamA);
@@ -6851,7 +7057,6 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public ArrayList<PlayerQB> rankQB() {
-        heisman = null;
         ArrayList<PlayerQB> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             for (int qb = 0; qb < teamList.get(i).getTeamQBs().size(); ++qb) {
@@ -6863,7 +7068,6 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public ArrayList<PlayerRB> rankRB() {
-        heisman = null;
         ArrayList<PlayerRB> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             for (int rb = 0; rb < teamList.get(i).getTeamRBs().size(); ++rb) {
@@ -6875,7 +7079,6 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public ArrayList<PlayerWR> rankWR() {
-        heisman = null;
         ArrayList<PlayerWR> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             for (int wr = 0; wr < teamList.get(i).getTeamWRs().size(); ++wr) {
@@ -6887,7 +7090,6 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public ArrayList<PlayerTE> rankTE() {
-        heisman = null;
         ArrayList<PlayerTE> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             for (int te = 0; te < teamList.get(i).getTeamTEs().size(); ++te) {
@@ -6899,7 +7101,6 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public ArrayList<PlayerOL> rankOL() {
-        heisman = null;
         ArrayList<PlayerOL> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             for (int te = 0; te < teamList.get(i).getTeamOLs().size(); ++te) {
@@ -6911,7 +7112,6 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public ArrayList<PlayerK> rankK() {
-        heisman = null;
         ArrayList<PlayerK> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             for (int te = 0; te < teamList.get(i).getTeamKs().size(); ++te) {
@@ -6923,7 +7123,6 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public ArrayList<PlayerDL> rankDL() {
-        heisman = null;
         ArrayList<PlayerDL> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             for (int dl = 0; dl < teamList.get(i).getTeamDLs().size(); ++dl) {
@@ -6935,7 +7134,6 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public ArrayList<PlayerLB> rankLB() {
-        heisman = null;
         ArrayList<PlayerLB> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             for (int lb = 0; lb < teamList.get(i).getTeamLBs().size(); ++lb) {
@@ -6947,7 +7145,6 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public ArrayList<PlayerCB> rankCB() {
-        heisman = null;
         ArrayList<PlayerCB> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             for (int cb = 0; cb < teamList.get(i).getTeamCBs().size(); ++cb) {
@@ -6959,7 +7156,6 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public ArrayList<PlayerS> rankS() {
-        heisman = null;
         ArrayList<PlayerS> heismanCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             for (int s = 0; s < teamList.get(i).getTeamSs().size(); ++s) {
@@ -6971,7 +7167,6 @@ Then conferences can see if they want to add them to their list if the teams mee
     }
 
     public ArrayList<HeadCoach> rankHC() {
-        heisman = null;
         ArrayList<HeadCoach> coachCandidates = new ArrayList<>();
         for (int i = 0; i < teamList.size(); ++i) {
             if (teamList.get(i).getHeadCoach() != null) {
@@ -7601,6 +7796,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         linemanPOTYCandidates = new ArrayList<>();
         linemanPOTYWinnerStrFull = "";
         hasScheduledBowls = false;
+        seasonAwardsDecided = false;
         heisman = null;
         defPOTY = null;
         freshman = null;
@@ -7613,6 +7809,12 @@ Then conferences can see if they want to add them to their list if the teams mee
         allFreshman = new ArrayList<>();
         playoffTeams = new ArrayList<>();
         cfpGames = new Game[15];
+        // Last season's postseason games: Bowl Watch and the postseason summary read
+        // these arrays, and stale played bowls used to show until new ones replaced them.
+        bowlGames = new Game[bowlGames != null ? bowlGames.length : 0];
+        semiG14 = null;
+        semiG23 = null;
+        // ncg stays: last season's title game is still read for summaries and history.
 
         // Clear transfer pools (they were consumed during the offseason)
         transferQBs = new ArrayList<>();
@@ -7632,8 +7834,11 @@ Then conferences can see if they want to add them to their list if the teams mee
         // Reset per-team season state and conference schedule bookkeeping
         for (Conference c : conferences) {
             c.oocWeeks.clear();
+            c.resetSeasonAwards();
         }
         for (Team t : teamList) {
+            // Recruiting and the transfer portal are done: hold CPU rosters to the cap.
+            t.enforceRosterCap();
             t.resetSeasonStats();
             // CPU staffs call their own books with this year's coordinators and QB;
             // they used to keep the book they were created with for the whole career.

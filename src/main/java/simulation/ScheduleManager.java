@@ -21,6 +21,9 @@ public final class ScheduleManager {
      * prestige averages, news lists, and other post-schedule season setup.
      */
     public static void scheduleRegularSeason(League league) {
+        // Same-conference checks below compare names; old data spelled some differently.
+        league.syncTeamConferenceNames();
+
         // Rivalries exist before scheduling so the OOC slate can honor them.
         league.generateRivalries();
 
@@ -62,6 +65,20 @@ public final class ScheduleManager {
             }
         }
 
+        // A team sitting out a conference round (odd-sized conferences) plays an
+        // OOC game that week instead, so every team still fills 12 game slots.
+        if (!league.enableUnivProRel) {
+            for (Conference c : league.conferences) {
+                if (c.confByeRounds.isEmpty()) continue;
+                ArrayList<Integer> confWeeks = conferenceWeeks(c);
+                for (java.util.Map.Entry<Team, ArrayList<Integer>> e : c.confByeRounds.entrySet()) {
+                    for (int round : e.getValue()) {
+                        if (round < confWeeks.size()) e.getKey().addOocWeek(confWeeks.get(round));
+                    }
+                }
+            }
+        }
+
         // FCS name pool (exclude names already used by FBS teams)
         league.rebuildFcsNamePool();
 
@@ -84,7 +101,10 @@ public final class ScheduleManager {
 
                     // Rivalry week: when the declared rival shares this OOC window, play it.
                     Team rival = a.getRivalName().isEmpty() ? null : league.findTeam(a.getRivalName());
-                    if (rival != null && availTeams.contains(rival) && !a.getOocTeams().contains(rival)) {
+                    // Conference-mate rivals already meet in conference play, so only a
+                    // rival from another conference takes the OOC slot.
+                    if (rival != null && availTeams.contains(rival) && !a.getOocTeams().contains(rival)
+                            && !rival.getConference().equals(a.getConference())) {
                         oocWeekOf.put(scheduleOocGame(league, a, rival), week);
                         a.addOocTeam(rival);
                         rival.addOocTeam(a);
@@ -158,6 +178,18 @@ public final class ScheduleManager {
         }
     }
 
+    /**
+     * The weeks a full-size conference plays its conference rounds in, in order
+     * (every week that is not one of the conference's OOC weeks).
+     */
+    private static ArrayList<Integer> conferenceWeeks(Conference c) {
+        ArrayList<Integer> weeks = new ArrayList<>();
+        for (int w = 0; w < League.REGULAR_SEASON_GAMES; w++) {
+            if (!c.oocWeeks.contains(w)) weeks.add(w);
+        }
+        return weeks;
+    }
+
     private static Conference conferenceOf(League league, Team t) {
         for (Conference c : league.conferences) {
             if (c.confTeams.contains(t)) return c;
@@ -167,6 +199,15 @@ public final class ScheduleManager {
 
     /** Creates and attaches one OOC game; {@link #alignToWeeks} moves it to its week. */
     private static Game scheduleOocGame(League league, Team a, Team b) {
+        // Home field goes to the side with fewer home games so far (an FCS
+        // filler always travels), which keeps home/away close to 6/6.
+        boolean bIsFcs = b.getConference() != null && b.getConference().contains("FCS");
+        boolean aIsFcs = a.getConference() != null && a.getConference().contains("FCS");
+        if (aIsFcs || (!bIsFcs && homeGames(b) < homeGames(a))) {
+            Team swap = a;
+            a = b;
+            b = swap;
+        }
         Game oocGame = new Game(a, b, "OOC");
 
         // Append OOC games (don't insert by week — insertion fails when
@@ -214,11 +255,19 @@ public final class ScheduleManager {
             // Conference round r goes to the conference's r-th non-OOC week (all teams in a
             // conference share those weeks). A team idle in a round gets a bye that week.
             java.util.Set<Integer> oocWeeks = new java.util.HashSet<>(t.getOocWeeks());
-            ArrayList<Integer> confWeeks = new ArrayList<>();
-            for (int w = 0; w < weeks; w++) {
-                if (!oocWeeks.contains(w)) confWeeks.add(w);
-            }
             Conference c = conferenceOf(league, t);
+            // Round r maps through the conference's own OOC weeks: a team's list also
+            // holds the weeks it sits out a conference round, which are not OOC weeks
+            // for the rest of the conference.
+            ArrayList<Integer> confWeeks;
+            if (c != null && !c.confByeRounds.isEmpty()) {
+                confWeeks = conferenceWeeks(c);
+            } else {
+                confWeeks = new ArrayList<>();
+                for (int w = 0; w < weeks; w++) {
+                    if (!oocWeeks.contains(w)) confWeeks.add(w);
+                }
+            }
             ArrayList<Game> unplaced = new ArrayList<>();
             for (Game g : conf) {
                 Integer round = c != null ? c.confRoundOf.get(g) : null;
@@ -248,6 +297,14 @@ public final class ScheduleManager {
             }
             t.gameSchedule.addAll(extra); // only if a team somehow has more games than weeks
         }
+    }
+
+    private static int homeGames(Team t) {
+        int n = 0;
+        for (Game g : t.gameSchedule) {
+            if (g != null && !g.isByeWeek() && g.homeTeam == t) n++;
+        }
+        return n;
     }
 
     /** True when the two teams already meet on the current schedule. */

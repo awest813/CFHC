@@ -73,6 +73,29 @@ public class SeasonLengthTest {
 
     @Test
     public void legacySaveWithoutSeasonLength_keepsThirteenWeekCalendar_untilRollover() throws Exception {
+        // Mid-season: phases are in flight, so the old calendar stays until rollover.
+        league.currentWeek = 3;
+        LeagueRecord record = legacyRecord();
+        assertEquals("legacy header has no season length", 0, record.regSeasonWeeks());
+
+        league.applyLeagueRecord(record);
+        assertEquals(League.LEGACY_REG_SEASON_WEEKS, league.regSeasonWeeks);
+
+        league.startNextSeason();
+        assertEquals("rollover upgrades to the standard calendar",
+                League.STANDARD_REG_SEASON_WEEKS, league.regSeasonWeeks);
+    }
+
+    @Test
+    public void legacySaveAtWeekZero_switchesToStandardCalendarOnLoad() throws Exception {
+        assertEquals(0, league.currentWeek);
+        league.applyLeagueRecord(legacyRecord());
+        assertEquals("nothing is in flight at week 0",
+                League.STANDARD_REG_SEASON_WEEKS, league.regSeasonWeeks);
+    }
+
+    /** This league's save with the L: header's season-length field stripped. */
+    private LeagueRecord legacyRecord() throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         SaveManager.save(league.toRecord(), out);
         // Strip field 8 (season length) from the L: header to mimic a save written before the fix.
@@ -84,16 +107,8 @@ public class SeasonLengthTest {
             }
             legacy.append(line).append('\n');
         }
-        LeagueRecord record = SaveManager.load(new ByteArrayInputStream(
+        return SaveManager.load(new ByteArrayInputStream(
                 legacy.toString().getBytes(StandardCharsets.UTF_8)));
-        assertEquals("legacy header has no season length", 0, record.regSeasonWeeks());
-
-        league.applyLeagueRecord(record);
-        assertEquals(League.LEGACY_REG_SEASON_WEEKS, league.regSeasonWeeks);
-
-        league.startNextSeason();
-        assertEquals("rollover upgrades to the standard calendar",
-                League.STANDARD_REG_SEASON_WEEKS, league.regSeasonWeeks);
     }
 
     @Test

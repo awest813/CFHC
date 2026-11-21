@@ -883,8 +883,27 @@ public class Player {
         }
     }
 
+    /**
+     * Counts this season's team honors into the career totals. Player of the
+     * Year awards are recorded by their ceremonies (one per award), so
+     * {@code wonHeisman} only drives the potential bonus and display here. The
+     * flags are cleared afterwards: they were never reset, so an honor won once
+     * was counted again every following season.
+     */
     public void addSeasonAwards() {
-        if (wonHeisman) recordHeismans(1);
+        recordSeasonAwards();
+        wonHeisman = false;
+        wonAllAmerican = false;
+        wonAllConference = false;
+        wonAllFreshman = false;
+        wonTopFreshman = false;
+    }
+
+    /**
+     * Records this season's awards without clearing the flags: for a player
+     * leaving the program, whose final-season honors still show on the way out.
+     */
+    public void recordSeasonAwards() {
         if (wonAllAmerican) recordAllAmericans(1);
         if (wonAllConference) recordAllConference(1);
         if (wonAllFreshman) recordAllFreshman(1);

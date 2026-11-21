@@ -45,4 +45,21 @@ public final class RosterRules {
     /** Recruiting target: CPU classes and the user budget's roster-need bonus fill toward this. */
     public static final int MIN_PLAYERS = 65;
     public static final int MAX_PLAYERS = 75;
+
+    /** Fewest players a position may carry (the MIN_* constants), 0 for an unknown position. */
+    public static int minForPosition(String pos) {
+        switch (pos) {
+            case "QB": return MIN_QBS;
+            case "RB": return MIN_RBS;
+            case "WR": return MIN_WRS;
+            case "TE": return MIN_TES;
+            case "OL": return MIN_OLS;
+            case "K": return MIN_KS;
+            case "DL": return MIN_DLS;
+            case "LB": return MIN_LBS;
+            case "CB": return MIN_CBS;
+            case "S": return MIN_SS;
+            default: return 0;
+        }
+    }
 }
