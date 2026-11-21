@@ -35,8 +35,17 @@ public final class CustomUniverseParser {
 
             StringBuilder teamsContent = new StringBuilder();
             teamsContent.append("[START_TEAMS]\n");
+            int lineNo = 0;
+            int teamCount = 0;
             while ((line = reader.readLine()) != null && !line.contains("[END_TEAMS]")) {
+                lineNo++;
+                if (lineNo > 1 && !line.contains("[END_CONF]")) {
+                    teamCount += validateTeamLine(line, lineNo);
+                }
                 teamsContent.append(line).append('\n');
+            }
+            if (teamCount == 0) {
+                throw new IOException("Custom universe file has no teams");
             }
             teamsContent.append("[END_TEAMS]\n");
             writeFile(teams, teamsContent.toString());
@@ -52,6 +61,31 @@ public final class CustomUniverseParser {
 
             return new LeagueLaunchCoordinator.CustomUniverseFiles(conferences, teams, bowls);
         }
+    }
+
+    /**
+     * A team row is "name, abbr, conference, prestige, division, location[, rival]".
+     * The league reads it with unchecked parses, so a short row or a non-numeric
+     * prestige/location used to throw out of the league constructor (an Android
+     * crash, as hosts only catch IOException). The league reads every row between
+     * the markers as a team, so a blank row is an error too.
+     *
+     * @return 1 (the row is a team)
+     */
+    static int validateTeamLine(String line, int lineNo) throws IOException {
+        String[] f = line.split(", ").length > 1 ? line.split(", ") : line.split(",");
+        if (f.length < 6) {
+            throw new IOException("Custom universe team row " + lineNo
+                    + " needs name, abbreviation, conference, prestige, division and location: " + line);
+        }
+        try {
+            Integer.parseInt(f[3]);
+            Integer.parseInt(f[5]);
+        } catch (NumberFormatException e) {
+            throw new IOException("Custom universe team row " + lineNo
+                    + ": prestige and location must be whole numbers: " + line);
+        }
+        return 1;
     }
 
     private static void writeFile(File file, String content) throws IOException {
