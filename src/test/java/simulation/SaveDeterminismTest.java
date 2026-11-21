@@ -265,7 +265,8 @@ public class SaveDeterminismTest {
                     .append(" / ").append(coach(t.getDC())).append('\n');
             for (Game g : t.getGameSchedule()) {
                 sb.append("  G ").append(g == null ? "null" : g.gameName + ":" + g.homeTeam.getName() + " "
-                        + g.homeScore + "-" + g.awayScore + " " + g.awayTeam.getName() + (g.hasPlayed ? "" : " (unplayed)"))
+                        + g.homeScore + "-" + g.awayScore + " " + g.awayTeam.getName() + (g.hasPlayed ? "" : " (unplayed)")
+                        + (g.hasPlayed && !g.isByeWeek() ? " box=" + SaveBoxScoreRoundTripTest.boxScore(g).hashCode() : ""))
                         .append('\n');
             }
             for (Player p : t.getAllPlayers()) {
@@ -303,6 +304,20 @@ public class SaveDeterminismTest {
             }
             week++;
         }
+        // Hall of Fame entries and coaches outside a staff (pools, Coach of the Year)
+        // with their career arrays: copies of a coach used to share them with the original.
+        for (PlayerRecord r : l.getLeagueHoF()) {
+            sb.append("HOF ").append(hof(r)).append('\n');
+        }
+        for (Team t : l.getTeamList()) {
+            for (PlayerRecord r : t.getHallOfFame()) {
+                sb.append("HOF ").append(t.getName()).append(' ').append(hof(r)).append('\n');
+            }
+        }
+        sb.append("coachOfYear ").append(career(l.coachWinner)).append('\n');
+        for (Staff s : l.coachStarList) sb.append("star ").append(career(s)).append('\n');
+        for (Staff s : l.coachList) sb.append("fired ").append(career(s)).append('\n');
+        for (Staff s : l.coachFreeAgents) sb.append("pool ").append(career(s)).append('\n');
         sb.append("history=").append(l.getLeagueHistoryStr()).append('\n');
         sb.append("records=").append(l.getLeagueRecordsStr()).append('\n');
         return sb.toString();
@@ -314,6 +329,21 @@ public class SaveDeterminismTest {
 
     private static String coach(Staff s) {
         return s == null ? "-" : s.name + " " + s.age + " " + s.ratOff + "," + s.ratDef + "," + s.ratTalent + ","
-                + s.ratDiscipline + " pres=" + s.ratOvr;
+                + s.ratDiscipline + " pres=" + s.ratOvr + " career=" + java.util.Arrays.toString(s.stats)
+                + java.util.Arrays.toString(s.awards) + s.history;
+    }
+
+    private static String career(Staff s) {
+        return s == null ? "-" : coach(s) + " " + s.position + (s.team != null ? " @" + s.team.getName() : "");
+    }
+
+    private static String hof(PlayerRecord r) {
+        StringBuilder sb = new StringBuilder(r.position()).append(' ').append(r.name()).append(" @")
+                .append(r.teamName()).append(" stats=").append(java.util.Arrays.toString(r.stats()))
+                .append(" awards=").append(java.util.Arrays.toString(r.awards())).append(" career=");
+        if (r.careerStats() != null) {
+            for (int[] y : r.careerStats()) sb.append(java.util.Arrays.toString(y));
+        }
+        return sb.toString();
     }
 }
