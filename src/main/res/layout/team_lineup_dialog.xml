@@ -105,11 +105,11 @@
             android:minHeight="@dimen/cf_touch_target_lg"
             android:layout_marginEnd="@dimen/cf_space_xs"
             android:layout_weight="1"
-            android:background="@drawable/bg_action_secondary"
+            android:background="@drawable/bg_action_primary"
             android:fontFamily="@font/inter"
             android:text="@string/dlg_lineup_save"
             android:textAllCaps="false"
-            android:textColor="@color/cf_text_primary"
+            android:textColor="@color/cf_on_gold"
             android:textStyle="bold" />
 
         <Button
@@ -119,11 +119,11 @@
             android:minHeight="@dimen/cf_touch_target_lg"
             android:layout_marginStart="@dimen/cf_space_xs"
             android:layout_weight="1"
-            android:background="@drawable/bg_action_primary"
+            android:background="@drawable/bg_action_secondary"
             android:fontFamily="@font/inter"
             android:text="@string/dlg_close"
             android:textAllCaps="false"
-            android:textColor="@color/cf_on_gold"
+            android:textColor="@color/cf_text_primary"
             android:textStyle="bold" />
     </LinearLayout>
 </LinearLayout>

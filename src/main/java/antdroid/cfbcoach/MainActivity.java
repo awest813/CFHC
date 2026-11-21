@@ -365,8 +365,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (!gameState.isRedshirtComplete()) {
             // Short label so it fits the third-width button (which also autosizes).
             depthchartButton.setText(R.string.redshirt_button_pending);
-            depthchartButton.setBackgroundResource(R.drawable.bg_action_danger);
-            depthchartButton.setTextColor(ContextCompat.getColor(this, R.color.cf_on_crimson));
+            // Crimson "to do" only while redshirts can still be set (preseason): after
+            // week 0 the dialog is a read-only list, not an outstanding task.
+            if (simLeague != null && simulation.SeasonFlowOrder.isRedshirtWindow(simLeague.currentWeek)) {
+                depthchartButton.setBackgroundResource(R.drawable.bg_action_danger);
+                depthchartButton.setTextColor(ContextCompat.getColor(this, R.color.cf_on_crimson));
+            }
         }
 
         depthchartButton.setOnClickListener(new View.OnClickListener() {

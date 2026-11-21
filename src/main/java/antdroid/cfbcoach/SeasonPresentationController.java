@@ -65,7 +65,10 @@ public final class SeasonPresentationController {
             seasonYearChip.setText(status.yearChip);
         }
         if (seasonWeekChip != null) {
-            seasonWeekChip.setText(status.weekChip);
+            // "Week 18  Offseason": the phase chip beside it already names the phase.
+            String week = status.weekChip == null ? "" : status.weekChip;
+            int gap = week.indexOf("  ");
+            seasonWeekChip.setText(gap > 0 ? week.substring(0, gap) : week);
         }
         if (seasonPhaseChip != null) {
             String phase = status.phaseChip == null ? "" : status.phaseChip.replaceFirst("^Phase\\s+", "");
