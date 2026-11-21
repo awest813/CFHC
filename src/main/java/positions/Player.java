@@ -564,7 +564,9 @@ public class Player {
         ratAttr3 += (int) ((SimRandom.nextDouble() * games) * mult[2]);
         ratAttr4 += (int) ((SimRandom.nextDouble() * games) * mult[3]) / 1.5;
 
+        int[] beforeFocus = focusTraits();
         applyPracticeFocusMidSeason(practiceFocus, games);
+        rebalanceFocus(beforeFocus, practiceFocus);
 
         clampCoreRatings();
         ratOvr = getOverall();
@@ -647,7 +649,9 @@ public class Player {
             if(getChemistryProgression() > 0) character += getChemistryProgression()/2;
             if(character > 100) character = 100;
 
+            int[] beforeFocus = focusTraits();
             applyPracticeFocusSeasonEnd(practiceFocus, progression, games);
+            rebalanceFocus(beforeFocus, practiceFocus);
 
             durabilityProgression();
         }
@@ -663,6 +667,60 @@ public class Player {
      * Extra mid-season growth from the team's practice focus (user team only in {@link Team#midSeasonProgression}).
      * Respects position-group sub-focus and intensity.
      */
+
+    /** Core traits a practice focus can move: IQ, the four attributes, durability. */
+    private int[] focusTraits() {
+        return new int[]{ratIntelligence, ratAttr1, ratAttr2, ratAttr3, ratAttr4, ratDurability};
+    }
+
+    private void setFocusTraits(int[] v) {
+        ratIntelligence = v[0];
+        ratAttr1 = v[1];
+        ratAttr2 = v[2];
+        ratAttr3 = v[3];
+        ratAttr4 = v[4];
+        ratDurability = v[5];
+    }
+
+    /**
+     * Makes a practice-focus application a reallocation: the points it just
+     * added to the focused traits come back out of the traits it did not touch,
+     * spread evenly. Focus used to be pure extra growth; once CPU staffs got a
+     * focus too (parity with the user), that inflated the whole league (~+1 OVR,
+     * ~+2 players rated 90+ per team over 25 seasons). Deterministic: the
+     * starting trait for the remainder comes from the ratings themselves.
+     */
+    private void rebalanceFocus(int[] before, PracticeFocus focus) {
+        if (focus == null || focus == PracticeFocus.BALANCED) return;
+        boolean[] targeted = new boolean[6];
+        switch (focus) {
+            case FOOTBALL_IQ: targeted[0] = true; break;
+            case FUNDAMENTALS: targeted[1] = true; targeted[2] = true; break;
+            case ATHLETICISM: targeted[3] = true; targeted[4] = true; break;
+            case PHYSICAL: targeted[5] = true; targeted[3] = true; targeted[4] = true; break;
+            default: return;
+        }
+        int[] after = focusTraits();
+        int gained = 0;
+        java.util.List<Integer> pool = new java.util.ArrayList<>(6);
+        for (int i = 0; i < after.length; i++) {
+            int d = after[i] - before[i];
+            if (targeted[i]) {
+                if (d > 0) gained += d;
+            } else {
+                pool.add(i); // only traits the focus does not target pay for it
+            }
+        }
+        if (gained <= 0 || pool.isEmpty()) return;
+        int sum = 0;
+        for (int v : after) sum += v;
+        int start = Math.floorMod(sum, pool.size());
+        for (int k = 0; k < gained; k++) {
+            after[pool.get((start + k) % pool.size())]--;
+        }
+        setFocusTraits(after);
+    }
+
     private void applyPracticeFocusMidSeason(PracticeFocus focus, double games) {
         if (focus == null || focus == PracticeFocus.BALANCED || games <= 0) {
             return;
@@ -787,6 +845,7 @@ public class Player {
         double mult = intensity != null ? intensity.growthMultiplier() : 1.0;
         boolean matchesGroup = posGroup != null && posGroup.matches(position);
         double chance = WEEKLY_PRACTICE_CHANCE * mult * (matchesGroup ? 1.0 : 2.0 / 3.0);
+        int[] beforeFocus = focusTraits();
 
         switch (focus) {
             case FOOTBALL_IQ:
@@ -806,6 +865,7 @@ public class Player {
             default:
                 break;
         }
+        rebalanceFocus(beforeFocus, focus);
         clampCoreRatings();
         ratOvr = getOverall();
     }

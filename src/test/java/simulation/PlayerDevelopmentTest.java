@@ -165,9 +165,12 @@ public class PlayerDevelopmentTest {
         int gained = qb.ratAttr1 - 40;
         assertTrue("200 weeks of fundamentals: +" + gained, gained >= 4 && gained <= 24);
         assertTrue(qb.ratAttr2 > 40);
-        assertEquals(40, qb.ratAttr3);
-        assertEquals(40, qb.ratAttr4);
-        assertEquals(40, qb.ratIntelligence);
+        // Focus is a reallocation: what the focused traits gain, the others give
+        // back (so every program having a focus does not inflate the league).
+        assertTrue(qb.ratAttr3 < 40 || qb.ratAttr4 < 40 || qb.ratIntelligence < 40 || qb.ratDurability < 40);
+        int focusedGain = (qb.ratAttr1 - 40) + (qb.ratAttr2 - 40);
+        int othersLoss = (40 - qb.ratAttr3) + (40 - qb.ratAttr4) + (40 - qb.ratIntelligence) + (40 - qb.ratDurability);
+        assertEquals("zero-sum", focusedGain, othersLoss);
 
         resetRatings(qb);
         for (int week = 0; week < 100; week++) {
@@ -201,6 +204,7 @@ public class PlayerDevelopmentTest {
     private static void resetRatings(PlayerQB qb) {
         qb.ratAttr1 = 40; qb.ratAttr2 = 40; qb.ratAttr3 = 40; qb.ratAttr4 = 40;
         qb.ratIntelligence = 40;
+        qb.ratDurability = 40;
     }
 
     @Test
