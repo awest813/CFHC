@@ -6499,7 +6499,13 @@ Then conferences can see if they want to add them to their list if the teams mee
             }
         }
 
+        // CompNFLTalent writes each player's (saved) talentNFL while comparing; this
+        // is a screen read, so put the values back afterwards.
+        double[] savedTalent = new double[allPlayersLeaving.size()];
+        for (int i = 0; i < savedTalent.length; i++) savedTalent[i] = allPlayersLeaving.get(i).talentNFL;
+        ArrayList<Player> leavingOrder = new ArrayList<>(allPlayersLeaving);
         Collections.sort(allPlayersLeaving, new CompNFLTalent());
+        for (int i = 0; i < savedTalent.length; i++) leavingOrder.get(i).talentNFL = savedTalent[i];
         ArrayList<Player> NFLPlayers = new ArrayList<>();
 
         // Seven rounds when the pool is deep, otherwise the first three rounds,
