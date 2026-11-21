@@ -3867,6 +3867,9 @@ public class League {
 
     //Player Spotlight
     public void playerSpotlight() {
+        // Spotlight weeks are relative to season length. Checked before ranking
+        // (the rankings are pure sorts of every player) so other weeks skip them.
+        if (currentWeek < 5 || currentWeek > Math.min(11, regSeasonWeeks - 2)) return;
         ArrayList<PlayerQB> QB = rankQB();
         ArrayList<PlayerRB> RB = rankRB();
         ArrayList<PlayerWR> WR = rankWR();
@@ -6895,7 +6898,17 @@ Then conferences can see if they want to add them to their list if the teams mee
             teamList.get(t).setRankTeamFacilities(t + 1);
         }
 
-        Collections.sort(teamList, new CompTeamChemistry());
+        // Same order as CompTeamChemistry, with each team's chemistry (a walk
+        // over its roster) computed once instead of on every comparison.
+        final java.util.IdentityHashMap<Team, Double> chemistry = new java.util.IdentityHashMap<>();
+        for (Team t : teamList) {
+            chemistry.put(t, t.getTeamChemistry());
+        }
+        Collections.sort(teamList, (a, b) -> {
+            double sa = chemistry.get(a);
+            double sb = chemistry.get(b);
+            return sa > sb ? -1 : sa == sb ? 0 : 1;
+        });
         for (int t = 0; t < teamList.size(); ++t) {
             teamList.get(t).setRankTeamChemistry(t + 1);
         }
