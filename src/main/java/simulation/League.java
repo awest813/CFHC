@@ -118,10 +118,11 @@ public class League {
      * box scores ({@link BoxScoreCodec}). v1.5d ends the file with an
      * {@code END_SAVE} trailer (a cut-off save is refused rather than loaded as a
      * smaller league), escapes the save delimiters in names, and no longer writes a
-     * pool coach who holds a post twice. v1.5c, v1.5b, v1.5a and v1.4e saves still
-     * load; see {@link SaveSchema} for what they default.
+     * pool coach who holds a post twice. v1.5e adds the national recruiting pool
+     * ({@link RecruitPool}) while recruiting is under way. v1.5d, v1.5c, v1.5b,
+     * v1.5a and v1.4e saves still load; see {@link SaveSchema} for what they default.
      */
-    public static final String CURRENT_SAVE_VERSION = "v1.5d";
+    public static final String CURRENT_SAVE_VERSION = "v1.5e";
 
     public static GameUiBridge bridgeOrNoOp(GameUiBridge bridge) {
         return bridge == null ? GameUiBridge.NO_OP : bridge;
@@ -192,6 +193,8 @@ public class League {
 
     /** Set when NLI recruiting begins; cleared by {@link #startNextSeason()}. */
     public boolean recruitingPhaseActive;
+    /** This cycle's national prospect pool (from {@link #recruitPlayers()} to {@link #startNextSeason()}). */
+    RecruitPool recruitPool;
 
     //Bowl Games
     public boolean hasScheduledBowls;
@@ -1297,6 +1300,12 @@ public class League {
             fcsRecords.add(f.toRecord().withExtras(codec.teamLists(f), codec.rosterState(f)));
         }
         java.util.List<LeagueRecord.GameRecord> games = buildGameRecordsForSave(codec);
+        // v1.5e: the recruiting pool (open prospects become detached players, so before the league lists).
+        if (recruitPool != null) {
+            recruitPool.write(codec, teamList);
+        } else {
+            RecruitPool.writeNone(codec);
+        }
         java.util.List<StaffRecord> poolRecords = new ArrayList<>();
         for (Staff c : codec.writtenPool()) {
             poolRecords.add(c.toRecord());
@@ -1806,6 +1815,12 @@ public class League {
             }
             codec.applyTeams(walk);
             codec.applyLeague();
+            recruitPool = RecruitPool.read(codec, teamList);
+            if (record.recruitingStarted() == null && recruitPool != null
+                    && SeasonFlowOrder.isRecruitingGate(currentWeek, regSeasonWeeks)) {
+                // The early wave leaves CPU rosters short, so the pool itself says recruiting began.
+                recruitingPhaseActive = true;
+            }
             loadedRngState = codec.rngState();
         } else {
             restoreSeasonBaselines();
@@ -1820,6 +1835,12 @@ public class League {
         afterSaveLoaded();
         loadedFcsTeams = java.util.List.of();
         loadedFcsRecords = java.util.List.of();
+        if (recruitPool == null && !RecruitPool.savedIn(codec) && recruitingPhaseActive
+                && SeasonFlowOrder.isRecruitingGate(currentWeek, regSeasonWeeks) && cpuClassesSigned()) {
+            // A save from before the shared pool, made after CPU classes were signed:
+            // build the pool now so the user's board comes from it (CPU programs sign no more).
+            recruitPool = RecruitPool.generate(this, false);
+        }
         resumeSavedRng();
     }
 
@@ -6634,11 +6655,24 @@ Then conferences can see if they want to add them to their list if the teams mee
         return nflPlayers;
     }
 
-    //CPU Recruiting - Tells each team to recruit players
+    /**
+     * Opens recruiting: builds this cycle's national prospect pool and runs the
+     * early signing wave, in which CPU programs commit part of their classes
+     * ({@link RecruitPool}). Every host calls this when the recruiting gate opens,
+     * before the user's board; calling it again in the same cycle does nothing.
+     * The rest of the CPU classes sign in {@link #applyRecruitingSignings}.
+     */
     public void recruitPlayers() {
-        for (int t = 0; t < teamList.size(); ++t) {
-            teamList.get(t).CPUrecruiting();
+        if (recruitPool != null && recruitPool.year() == getYear()) {
+            return;
         }
+        recruitPool = RecruitPool.generate(this, true);
+        recruitPool.runEarlyWave(teamList);
+    }
+
+    /** This cycle's national prospect pool; null outside recruiting. */
+    public RecruitPool getRecruitPool() {
+        return recruitPool;
     }
 
     //Mid-Season - Give players who have been playing games a bonus
@@ -8223,8 +8257,24 @@ Then conferences can see if they want to add them to their list if the teams mee
      * {@code currentWeek >= regSeasonWeeks + 13}).
      */
     public void applyRecruitingSignings(String recruitsData) {
+        if (recruitPool == null && SeasonFlowOrder.isRecruitingGate(currentWeek, regSeasonWeeks)
+                && !cpuClassesSigned()) {
+            // A host that skipped recruitPlayers() at the gate: CPU programs still recruit.
+            recruitPlayers();
+        }
+        // The user's signings are taken off the pool first, then CPU programs fill
+        // their classes from what is left (the late wave), then the user's class
+        // joins the roster with walk-ons for any position still short.
+        String accepted = recruitPool != null ? recruitPool.acceptUserSignings(recruitsData) : recruitsData;
+        if (recruitPool != null) {
+            if (recruitPool.isLive()) {
+                recruitPool.runLateWave(teamList);
+            } else {
+                recruitPool.stage = RecruitPool.Stage.CLOSED;
+            }
+        }
         if (userTeam != null) {
-            userTeam.recruitPlayersFromStr(recruitsData == null ? "" : recruitsData);
+            userTeam.recruitPlayersFromStr(accepted == null ? "" : accepted);
         }
         updateTeamTalentRatings();
     }
@@ -8304,6 +8354,7 @@ Then conferences can see if they want to add them to their list if the teams mee
 
         currentWeek = 0;
         recruitingPhaseActive = false;
+        recruitPool = null;
         newsHeadlines.clear();
         // Legacy leagues (13-week calendar) move to the standard length at a
         // season boundary, where no phase is in flight.

@@ -419,9 +419,31 @@ public final class SimulationFacade {
             sb.append(Persistence.toCsv(player.toRecord())).append("%\n");
         }
         sb.append("END_TEAM_INFO%\n");
+        RecruitPool pool = userTeam.league != null ? userTeam.league.getRecruitPool() : null;
+        if (pool != null && pool.stage() == RecruitPool.Stage.OPEN && pool.user() == userTeam) {
+            // The national pool: prospects of this program's caliber, each followed by
+            // his status line (committed elsewhere, or his rival and decision point).
+            sb.append(RECRUITING_POOL_MARKER).append('|').append(pool.committedCount()).append('|')
+                    .append(pool.prospects().size()).append("%\n");
+            for (RecruitPool.Prospect p : pool.boardFor(userTeam)) {
+                sb.append(Persistence.toCsv(p.player().toRecord())).append("%\n");
+                sb.append(RECRUITING_STATUS_PREFIX).append(statusName(p.committedTo())).append('|')
+                        .append(statusName(p.rival())).append('|').append(p.decisionPoint()).append("%\n");
+            }
+            return sb.toString();
+        }
         long boardKey = 31L * (userTeam.league != null ? userTeam.league.getYear() : 0) + userTeam.getName().hashCode();
         sb.append(SimRandom.onSideStream(boardKey, userTeam::getRecruitsInfoSaveFile));
         return sb.toString();
+    }
+
+    /** Payload line before a national-pool board: {@code @POOL|committed|pool size}. */
+    public static final String RECRUITING_POOL_MARKER = "@POOL";
+    /** Payload line after each pool prospect: {@code @S|committed to|rival|decision point}. */
+    public static final String RECRUITING_STATUS_PREFIX = "@S|";
+
+    private static String statusName(Team t) {
+        return t == null ? "" : t.getName().replace('|', '/');
     }
 
     /** First payload line: conference, name, abbr, budget units, coach skill, NIL tier, coach bonus. */

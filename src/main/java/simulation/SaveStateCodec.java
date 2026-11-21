@@ -688,6 +688,15 @@ final class SaveStateCodec {
             return state.lists().getOrDefault(key, List.of());
         }
 
+        /** A league list for state the league restores itself (e.g. the recruiting pool). */
+        List<String> listOf(String key) {
+            return list(key);
+        }
+
+        boolean hasList(String key) {
+            return has(key);
+        }
+
         private boolean has(String key) {
             return state.lists().containsKey(key);
         }

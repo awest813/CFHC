@@ -86,7 +86,9 @@ public class RecruitingFlowTest {
         int before = existing.size();
         int shortfall = shortfall(deep);
 
+        // Both signing waves: the early wave at the gate, the late wave with the user's class.
         league.recruitPlayers();
+        league.applyRecruitingSignings("");
 
         for (Team t : league.getTeamList()) {
             if (!t.isUserControlled()) {

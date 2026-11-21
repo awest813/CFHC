@@ -19,10 +19,84 @@ public final class RecruitingPresentation {
         // Seniors have already left by signing day, so the old "outgoing seniors"
         // count always read 0; open roster spots are what matter now.
         int openSpots = Math.max(0, simulation.RosterRules.MAX_PLAYERS - currentRoster);
-        return "You currently have " + currentRoster + " active players, " + openSpots
+        String summary = "You currently have " + currentRoster + " active players, " + openSpots
                 + (openSpots == 1 ? " open roster spot" : " open roster spots")
                 + ", and a class board shaped by your biggest roster needs."
                 + " Head coach recruiting (" + sessionData.coachTalent + ") adds to your signing budget and reduces scouting cost.";
+        if (sessionData.isSharedPool()) {
+            summary += " Every program signs from the same national pool: " + sessionData.poolCommittedAtOpen()
+                    + " of " + sessionData.poolSize() + " prospects committed in the early signing period."
+                    + " Contested prospects commit to their rival after a set number of your signings, so sign"
+                    + " your top targets first.";
+            int lost = sessionData.lostToRivals().size();
+            if (lost > 0) {
+                summary += " Lost to rivals so far: " + lost + ".";
+            }
+        }
+        return summary;
+    }
+
+    /**
+     * Where a national-pool prospect stands, for the board: "Committed to X",
+     * "Contested: X - decides after your next signing", or null when he is open
+     * with no deadline (or the board is not the national pool).
+     */
+    public static String statusLine(RecruitingSessionData sessionData, RecruitingPlayerRecord recruit) {
+        if (sessionData == null || recruit == null) {
+            return null;
+        }
+        String committed = sessionData.committedTo(recruit);
+        if (committed != null) {
+            return "Committed to " + committed;
+        }
+        String rival = sessionData.rivalFor(recruit);
+        int left = sessionData.signingsUntilDecision(recruit);
+        if (rival != null && left > 0) {
+            return "Contested: " + rival + " - decides after your "
+                    + (left == 1 ? "next signing" : "next " + left + " signings");
+        }
+        return null;
+    }
+
+    /** Short board tag: "COMMITTED" (to a rival), "DECIDING" (decides on the next signing), or "". */
+    public static String statusTag(RecruitingSessionData sessionData, RecruitingPlayerRecord recruit) {
+        if (sessionData == null || recruit == null) {
+            return "";
+        }
+        if (sessionData.isCommittedElsewhere(recruit)) {
+            return "COMMITTED";
+        }
+        int left = sessionData.signingsUntilDecision(recruit);
+        return left == 1 ? "DECIDING" : left > 1 ? "Contested" : "";
+    }
+
+    /** Notice after a signing: who just committed to a rival, or null when nobody did. */
+    public static String buildLostProspectsNotice(RecruitingSessionData sessionData) {
+        String list = buildLostProspectsList(sessionData);
+        return list == null ? null : "Committed elsewhere: " + list;
+    }
+
+    /**
+     * Who committed to a rival on the user's last signing, e.g.
+     * "QB Sam Hill (Alabama), WR Jo Lee (Auburn)"; null when nobody did.
+     */
+    public static String buildLostProspectsList(RecruitingSessionData sessionData) {
+        if (sessionData == null || sessionData.lastDecisions().isEmpty()) {
+            return null;
+        }
+        StringBuilder sb = new StringBuilder();
+        int shown = 0;
+        for (RecruitingPlayerRecord r : sessionData.lastDecisions()) {
+            if (shown == 3) {
+                sb.append(" and ").append(sessionData.lastDecisions().size() - 3).append(" more");
+                break;
+            }
+            if (shown > 0) sb.append(", ");
+            sb.append(r.position()).append(' ').append(r.name()).append(" (")
+                    .append(sessionData.committedTo(r)).append(')');
+            shown++;
+        }
+        return sb.toString();
     }
 
     /** Positions still below their roster minimum, e.g. "QB 1, OL 2"; "none" when every position is covered. */
@@ -43,6 +117,9 @@ public final class RecruitingPresentation {
         int n = sessionData.availAll.size();
         if (n == 0) {
             return "Board: no prospects available";
+        }
+        if (sessionData.isSharedPool()) {
+            return "Board: " + n + " prospects, " + sessionData.committedElsewhereCount() + " committed elsewhere";
         }
         return "Board: " + n + " prospects";
     }
@@ -204,6 +281,24 @@ public final class RecruitingPresentation {
 
     public static String getPlayerListLeftLabel(RecruitingPlayerRecord recruit) {
         return "$" + recruit.cost() + " " + recruit.position() + " " + recruit.name();
+    }
+
+    /** As {@link #getPlayerListLeftLabel(RecruitingPlayerRecord)}, but a committed prospect shows no price. */
+    public static String getPlayerListLeftLabel(RecruitingSessionData sessionData, RecruitingPlayerRecord recruit) {
+        if (sessionData != null && sessionData.isCommittedElsewhere(recruit)) {
+            return "[X] " + recruit.position() + " " + recruit.name();
+        }
+        return getPlayerListLeftLabel(recruit);
+    }
+
+    /** As {@link #getPlayerListRightLabel(RecruitingPlayerRecord)}, with the national-pool status. */
+    public static String getPlayerListRightLabel(RecruitingSessionData sessionData, RecruitingPlayerRecord recruit) {
+        String committed = sessionData != null ? sessionData.committedTo(recruit) : null;
+        if (committed != null) {
+            return "Committed: " + committed;
+        }
+        String tag = statusTag(sessionData, recruit);
+        return tag.isEmpty() ? getPlayerListRightLabel(recruit) : tag + " " + getPlayerListRightLabel(recruit);
     }
 
     public static String getPlayerListRightLabel(RecruitingPlayerRecord recruit) {

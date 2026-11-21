@@ -2,8 +2,10 @@ package recruiting;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public final class RecruitingSessionData {
@@ -74,6 +76,36 @@ public final class RecruitingSessionData {
     public final ArrayList<RecruitingPlayerRecord> east = new ArrayList<>();
     public final ArrayList<RecruitingPlayerRecord> south = new ArrayList<>();
     private final Set<String> scoutedRecruitKeys = new HashSet<>();
+
+    /**
+     * Where a national-pool prospect stands: committed to another program, or
+     * open with a rival he commits to once the user has made {@code decisionPoint}
+     * signings without him (0: no decision point).
+     */
+    private static final class ProspectStatus {
+        final RecruitingPlayerRecord recruit;
+        String committedTo;
+        final String rival;
+        final int decisionPoint;
+
+        ProspectStatus(RecruitingPlayerRecord recruit, String committedTo, String rival, int decisionPoint) {
+            this.recruit = recruit;
+            this.committedTo = committedTo;
+            this.rival = rival;
+            this.decisionPoint = decisionPoint;
+        }
+    }
+
+    /** True when the board is the national pool ({@code @POOL} payload): prospects can sign elsewhere. */
+    private boolean sharedPool;
+    private int poolCommitted;
+    private int poolSize;
+    private final Map<String, ProspectStatus> statusByKey = new HashMap<>();
+    /** Board order of the statuses, so decisions are applied in a fixed order. */
+    private final ArrayList<ProspectStatus> statuses = new ArrayList<>();
+    /** Prospects who committed to a rival during this session, in order. */
+    private final ArrayList<RecruitingPlayerRecord> lostToRivals = new ArrayList<>();
+    private final ArrayList<RecruitingPlayerRecord> lastDecisions = new ArrayList<>();
 
 
     private RecruitingSessionData(String teamName, int recruitingBudget, int coachTalent) {
@@ -160,10 +192,26 @@ public final class RecruitingSessionData {
         }
 
         ++i;
+        RecruitingPlayerRecord last = null;
         while (i < lines.length) {
             String line = lines[i].trim();
-            if (!line.isEmpty() && !line.equals("END_RECRUITS")) {
-                session.addRecruit(line);
+            if (line.startsWith(simulation.SimulationFacade.RECRUITING_POOL_MARKER)) {
+                String[] f = line.split("\\|", -1);
+                session.sharedPool = true;
+                session.poolCommitted = f.length > 1 ? parsePositiveIntLoose(f[1], 0) : 0;
+                session.poolSize = f.length > 2 ? parsePositiveIntLoose(f[2], 0) : 0;
+            } else if (line.startsWith(simulation.SimulationFacade.RECRUITING_STATUS_PREFIX)) {
+                if (last != null) {
+                    String[] f = line.split("\\|", -1);
+                    String committed = f.length > 1 && !f[1].isEmpty() ? f[1] : null;
+                    String rival = f.length > 2 && !f[2].isEmpty() ? f[2] : null;
+                    int decision = f.length > 3 ? parsePositiveIntLoose(f[3], 0) : 0;
+                    ProspectStatus st = new ProspectStatus(last, committed, rival, decision);
+                    session.statusByKey.put(last.listKey(), st);
+                    session.statuses.add(st);
+                }
+            } else if (!line.isEmpty() && !line.equals("END_RECRUITS")) {
+                last = session.addRecruit(line);
             }
             ++i;
         }
@@ -253,6 +301,9 @@ public final class RecruitingSessionData {
                 }
             }
             sortTeamByOverall();
+            if (sharedPool) {
+                applyDecisions();
+            }
         }
         recruitingBudget = Math.max(0, remainingBudget);
     }
@@ -347,6 +398,10 @@ public final class RecruitingSessionData {
      */
     public String signingBlockReason(RecruitingPlayerRecord recruit) {
         int max = simulation.RosterRules.MAX_PLAYERS;
+        String elsewhere = committedTo(recruit);
+        if (elsewhere != null) {
+            return "Committed to " + elsewhere;
+        }
         if (!canRecruitMore()) {
             return "Roster is full (" + projectedRosterSize() + "/" + max + ")";
         }
@@ -362,6 +417,10 @@ public final class RecruitingSessionData {
     }
 
     public void recruitPlayer(RecruitingPlayerRecord recruit, boolean autoFilter, double recruitOffBoardChance) {
+        String elsewhere = committedTo(recruit);
+        if (elsewhere != null) {
+            throw new IllegalStateException(recruit.name() + " has committed to " + elsewhere);
+        }
         if (!canRecruitMore()) {
             throw new IllegalStateException(
                     "Roster is full (" + projectedRosterSize() + "/" + simulation.RosterRules.MAX_PLAYERS + ")");
@@ -384,7 +443,13 @@ public final class RecruitingSessionData {
         if (autoFilter) {
             removeUnaffordableRecruits();
         }
-        removeRandomRecruits(recruitOffBoardChance);
+        if (sharedPool) {
+            // Rivals sign prospects as signing day goes on: whoever's decision point
+            // this signing reached commits elsewhere (no random disappearances).
+            applyDecisions();
+        } else {
+            removeRandomRecruits(recruitOffBoardChance);
+        }
     }
 
 
@@ -546,11 +611,93 @@ public final class RecruitingSessionData {
 
 
 
-    private void addRecruit(String recruitCsv) {
+    private RecruitingPlayerRecord addRecruit(String recruitCsv) {
         RecruitingPlayerRecord player = RecruitingPlayerRecord.fromRecruitCsv(recruitCsv);
         availAll.add(player);
         addToRegionList(player.regionBucket(), player);
         addToAvailablePositionList(player.position(), player);
+        return player;
+    }
+
+    // ------------------------------------------------------------------
+    // National pool: competition for prospects
+    // ------------------------------------------------------------------
+
+    /** True when the board is the shared national pool: rival programs sign prospects too. */
+    public boolean isSharedPool() {
+        return sharedPool;
+    }
+
+    /** Prospects in the national pool. */
+    public int poolSize() {
+        return poolSize;
+    }
+
+    /** National-pool prospects already committed when the board opened (the early signing wave). */
+    public int poolCommittedAtOpen() {
+        return poolCommitted;
+    }
+
+    /** The program {@code recruit} has committed to (never the user's), or null while he is open. */
+    public String committedTo(RecruitingPlayerRecord recruit) {
+        ProspectStatus st = recruit != null ? statusByKey.get(recruit.listKey()) : null;
+        return st != null ? st.committedTo : null;
+    }
+
+    public boolean isCommittedElsewhere(RecruitingPlayerRecord recruit) {
+        return committedTo(recruit) != null;
+    }
+
+    /** The rival program an open prospect leans to, or null. */
+    public String rivalFor(RecruitingPlayerRecord recruit) {
+        ProspectStatus st = recruit != null ? statusByKey.get(recruit.listKey()) : null;
+        return st != null && st.committedTo == null ? st.rival : null;
+    }
+
+    /**
+     * How many more signings the user can make before an open prospect commits to
+     * his rival: 1 means sign him next or lose him. -1 when he has no deadline.
+     */
+    public int signingsUntilDecision(RecruitingPlayerRecord recruit) {
+        ProspectStatus st = recruit != null ? statusByKey.get(recruit.listKey()) : null;
+        if (st == null || st.committedTo != null || st.rival == null || st.decisionPoint <= 0
+                || playersRecruited.contains(recruit)) {
+            return -1;
+        }
+        return Math.max(1, st.decisionPoint - playersRecruited.size());
+    }
+
+    /** Board prospects already committed to another program. */
+    public int committedElsewhereCount() {
+        int n = 0;
+        for (RecruitingPlayerRecord r : availAll) {
+            if (isCommittedElsewhere(r)) n++;
+        }
+        return n;
+    }
+
+    /** Prospects who committed to a rival while the user was signing, oldest first. */
+    public List<RecruitingPlayerRecord> lostToRivals() {
+        return Collections.unmodifiableList(lostToRivals);
+    }
+
+    /** Prospects who committed to a rival on the user's last signing (for a notice). */
+    public List<RecruitingPlayerRecord> lastDecisions() {
+        return Collections.unmodifiableList(lastDecisions);
+    }
+
+    /** Commits every open prospect whose decision point the user's signings have reached. */
+    private void applyDecisions() {
+        lastDecisions.clear();
+        int signed = playersRecruited.size();
+        for (ProspectStatus st : statuses) {
+            if (st.committedTo == null && st.rival != null && st.decisionPoint > 0 && st.decisionPoint <= signed
+                    && !playersRecruited.contains(st.recruit)) {
+                st.committedTo = st.rival;
+                lastDecisions.add(st.recruit);
+            }
+        }
+        lostToRivals.addAll(lastDecisions);
     }
 
 

@@ -324,7 +324,74 @@ public class AiSeasonDecisionTest {
         @Override public void showRealignmentSummary() {}
         @Override public void startRecruitingFlow() {
             league.recruitPlayers();
+            probePoolAfterEarlyWave(league);
+            league.applyRecruitingSignings("");
+            probePoolAfterLateWave(league);
             league.finishRecruitingSeason("");
         }
+    }
+
+    // ---- the shared national pool ------------------------------------------
+
+    private static long poolCycles, poolProspects, poolNeeds, earlyCommits, earlyOverCap, lateSigned,
+            doubleSigned, generatedFallbacks;
+
+    private static void probePoolAfterEarlyWave(League league) {
+        RecruitPool pool = league.getRecruitPool();
+        if (pool == null) return;
+        poolCycles++;
+        poolProspects += pool.prospects().size();
+        for (Team t : league.getTeamList()) {
+            int[] need = pool.needs.get(t);
+            if (need == null) continue;
+            int[] early = new int[need.length];
+            for (RecruitPool.Prospect p : pool.prospects()) {
+                if (p.committedTo() == t) early[Team.recruitPositionIndex(p.player().position)]++;
+            }
+            for (int i = 0; i < need.length; i++) {
+                int total = need[i] + early[i];
+                poolNeeds += total;
+                earlyCommits += early[i];
+                if (early[i] > Math.ceil(total * RecruitPool.EARLY_SHARE)) earlyOverCap++;
+            }
+        }
+    }
+
+    private static void probePoolAfterLateWave(League league) {
+        RecruitPool pool = league.getRecruitPool();
+        if (pool == null) return;
+        Set<Player> fromPool = java.util.Collections.newSetFromMap(new IdentityHashMap<>());
+        for (RecruitPool.Prospect p : pool.prospects()) {
+            if (p.committedTo() != null && !p.committedTo().isUserControlled()) {
+                lateSigned++;
+                fromPool.add(p.player());
+            }
+        }
+        Set<Player> seen = java.util.Collections.newSetFromMap(new IdentityHashMap<>());
+        for (Team t : league.getTeamList()) {
+            for (Player x : t.getAllPlayers()) {
+                if (!seen.add(x)) doubleSigned++;
+                if (!t.isUserControlled() && x.year == 1 && !x.wasRedshirt && !x.isWalkOn && !x.isTransfer
+                        && !fromPool.contains(x) && x.ratOvr > 0 && pool.prospects().size() > 0) {
+                    // A first-year scholarship player not from this pool: a fallback freshman
+                    // (or last year's class); only the former can appear once the gate's
+                    // class has signed, as last year's freshmen are sophomores by now.
+                    generatedFallbacks++;
+                }
+            }
+        }
+    }
+
+    @Test
+    public void sharedPool_feedsEveryCpuClassWithinTheCaps() {
+        assertEquals("one pool per recruiting cycle", SEASONS, poolCycles);
+        assertTrue("pool covers the nation's needs with surplus: " + poolProspects + " for " + poolNeeds,
+                poolProspects >= poolNeeds * 1.25);
+        assertTrue("an early signing wave happens: " + earlyCommits + " of " + poolNeeds,
+                earlyCommits > poolNeeds / 5);
+        assertEquals("early commits over a position's early share", 0, earlyOverCap);
+        assertEquals("players on two rosters", 0, doubleSigned);
+        assertTrue("CPU classes come from the pool: " + lateSigned + " signed, " + generatedFallbacks
+                + " generated", generatedFallbacks * 50 < lateSigned);
     }
 }

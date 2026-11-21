@@ -105,12 +105,20 @@ public class DesktopNewCoachSystemsTest {
         assertFalse("A generated recruiting board should have available players", session.availAll.isEmpty());
 
         RecruitingController controller = new RecruitingController(session, flow);
-        RecruitingPlayerRecord initialTarget = session.availAll.get(0);
+        // The board is the national pool: rivals' early commits are listed but can't be signed.
+        RecruitingPlayerRecord initialTarget = null;
+        for (RecruitingPlayerRecord r : session.availAll) {
+            if (!session.isCommittedElsewhere(r)) {
+                initialTarget = r;
+                break;
+            }
+        }
+        assertNotNull("the board should list open prospects", initialTarget);
         session.recruitingBudget = Math.max(session.recruitingBudget, initialTarget.cost() + 200);
 
         int budgetBeforeScout = session.recruitingBudget;
         assertTrue(controller.scoutPlayer(initialTarget));
-        RecruitingPlayerRecord scoutedTarget = session.availAll.get(0);
+        RecruitingPlayerRecord scoutedTarget = session.availAll.get(session.availAll.indexOf(initialTarget));
         assertTrue("Scouting should spend some budget", session.recruitingBudget < budgetBeforeScout);
         assertTrue("Scouting should mark portable recruit records in-session",
                 session.isScouted(scoutedTarget));

@@ -56,9 +56,18 @@ public final class SaveSchema {
      */
     public static final String V1_5C = "v1.5c";
 
+    /**
+     * The generation with the {@code END_SAVE} trailer but without the national
+     * recruiting pool ({@code LL:recruitPool*}, v1.5e). It loads through the same
+     * reader; a save of it at the recruiting gate after CPU classes were signed gets
+     * a pool built on load for the user's board, with no CPU needs left to fill.
+     */
+    public static final String V1_5D = "v1.5d";
+
     static {
         LinkedHashSet<String> versions = new LinkedHashSet<>();
         versions.add(League.CURRENT_SAVE_VERSION);
+        versions.add(V1_5D);
         versions.add(V1_5C);
         versions.add(V1_5B);
         versions.add(V1_5A);
@@ -122,14 +131,15 @@ public final class SaveSchema {
     }
 
     /**
-     * Migration hook. v1.4e, v1.5a, v1.5b and v1.5c to the current version are identity at the
+     * Migration hook. v1.4e, v1.5a, v1.5b, v1.5c and v1.5d to the current version are identity at the
      * record level: the fields later versions added are optional lines, and
      * {@code League} defaults them (or rebuilds them from the schedules) when a record
      * does not carry them ({@link LeagueRecord.LeagueState#hasFullState()} tells which).
      */
     public static LeagueRecord migrate(String fromVersion, LeagueRecord record) throws IOException {
         String normalized = requireSupported(fromVersion);
-        if (League.CURRENT_SAVE_VERSION.equals(normalized) || V1_5C.equals(normalized) || V1_5B.equals(normalized)
+        if (League.CURRENT_SAVE_VERSION.equals(normalized) || V1_5D.equals(normalized)
+                || V1_5C.equals(normalized) || V1_5B.equals(normalized)
                 || V1_5A.equals(normalized) || V1_4E.equals(normalized)) {
             return record;
         }
@@ -141,7 +151,8 @@ public final class SaveSchema {
      * on), so one without it is incomplete. Null (no {@code V:} line) predates it.
      */
     public static boolean hasEndTrailer(String version) {
-        return version != null && League.CURRENT_SAVE_VERSION.equals(normalize(version));
+        String v = normalize(version);
+        return version != null && (League.CURRENT_SAVE_VERSION.equals(v) || V1_5D.equals(v));
     }
 
     public static String normalize(String version) {

@@ -2888,146 +2888,186 @@ public class Team {
     }
 
 
-    //GET FINAL RECRUITING NEEDS PRIOR TO RECRUITING
-    public void CPUrecruiting() {
+    /** Position order of the {@code int[10]} recruit-need arrays. */
+    public static final String[] RECRUIT_POSITIONS = {"QB", "RB", "WR", "TE", "OL", "K", "DL", "LB", "CB", "S"};
 
-        int numTransfers = 0;
-        if (!userControlled) {
-            for (int i = 0; i < teamQBs.size(); ++i) {
-                if (teamQBs.get(i).isTransfer) {
-                    numTransfers++;
-                }
-            }
-            int qb = minQBs - (teamQBs.size() - numTransfers);
+    /** Index of {@code pos} in {@link #RECRUIT_POSITIONS}, or -1. */
+    public static int recruitPositionIndex(String pos) {
+        for (int i = 0; i < RECRUIT_POSITIONS.length; i++) {
+            if (RECRUIT_POSITIONS[i].equals(pos)) return i;
+        }
+        return -1;
+    }
 
-            numTransfers = 0;
-            for (int i = 0; i < teamRBs.size(); ++i) {
-                if (teamRBs.get(i).isTransfer) {
-                    numTransfers++;
-                }
-            }
-            int rb = minRBs - (teamRBs.size() - numTransfers);
+    /** How many play {@code RECRUIT_POSITIONS[i]} (starters + rotation subs); weights the class top-up. */
+    int playingAt(int i) {
+        switch (i) {
+            case 0: return startersQB + subQB;
+            case 1: return startersRB + subRB;
+            case 2: return startersWR + subWR;
+            case 3: return startersTE + subTE;
+            case 4: return startersOL + subOL;
+            case 5: return startersK + subK;
+            case 6: return startersDL + subDL;
+            case 7: return startersLB + subLB;
+            case 8: return startersCB + subCB;
+            default: return startersS + subS;
+        }
+    }
 
-            numTransfers = 0;
-            for (int i = 0; i < teamWRs.size(); ++i) {
-                if (teamWRs.get(i).isTransfer) {
-                    numTransfers++;
-                }
-            }
-            int wr = minWRs - (teamWRs.size() - numTransfers);
+    private java.util.List<? extends Player> recruitGroup(int i) {
+        switch (i) {
+            case 0: return teamQBs;
+            case 1: return teamRBs;
+            case 2: return teamWRs;
+            case 3: return teamTEs;
+            case 4: return teamOLs;
+            case 5: return teamKs;
+            case 6: return teamDLs;
+            case 7: return teamLBs;
+            case 8: return teamCBs;
+            default: return teamSs;
+        }
+    }
 
-            numTransfers = 0;
-            for (int i = 0; i < teamTEs.size(); ++i) {
-                if (teamTEs.get(i).isTransfer) {
-                    numTransfers++;
-                }
-            }
-            int te = minTEs - (teamTEs.size() - numTransfers);
+    /**
+     * OVR of the last player in the rotation at {@code RECRUIT_POSITIONS[i]} (the
+     * {@link #playingAt}-th best), or 0 when the rotation has an open spot: what a
+     * recruit must beat to play. Reads only.
+     */
+    int rotationOvr(int i) {
+        java.util.List<? extends Player> group = recruitGroup(i);
+        int k = Math.max(1, playingAt(i));
+        if (group.size() < k) {
+            return 0;
+        }
+        int[] ovrs = new int[group.size()];
+        for (int j = 0; j < ovrs.length; j++) {
+            ovrs[j] = group.get(j).ratOvr;
+        }
+        Arrays.sort(ovrs);
+        return ovrs[ovrs.length - k];
+    }
 
-            numTransfers = 0;
-            for (int i = 0; i < teamOLs.size(); ++i) {
-                if (teamOLs.get(i).isTransfer) {
-                    numTransfers++;
-                }
-            }
-            int ol = minOLs - (teamOLs.size() - numTransfers);
+    private static int countNonTransfers(java.util.List<? extends Player> players) {
+        int n = 0;
+        for (Player p : players) {
+            if (!p.isTransfer) n++;
+        }
+        return n;
+    }
 
-            numTransfers = 0;
-            for (int i = 0; i < teamKs.size(); ++i) {
-                if (teamKs.get(i).isTransfer) {
-                    numTransfers++;
-                }
-            }
-            int k = minKs - (teamKs.size() - numTransfers);
-
-            numTransfers = 0;
-            for (int i = 0; i < teamDLs.size(); ++i) {
-                if (teamDLs.get(i).isTransfer) {
-                    numTransfers++;
-                }
-            }
-            int dl = minDLs - (teamDLs.size() - numTransfers);
-
-            numTransfers = 0;
-            for (int i = 0; i < teamLBs.size(); ++i) {
-                if (teamLBs.get(i).isTransfer) {
-                    numTransfers++;
-                }
-            }
-            int lb = minLBs - (teamLBs.size() - numTransfers);
-
-            numTransfers = 0;
-            for (int i = 0; i < teamCBs.size(); ++i) {
-                if (teamCBs.get(i).isTransfer) {
-                    numTransfers++;
-                }
-            }
-            int cb = minCBs - (teamCBs.size() - numTransfers);
-
-            numTransfers = 0;
-            for (int i = 0; i < teamSs.size(); ++i) {
-                if (teamSs.get(i).isTransfer) {
-                    numTransfers++;
-                }
-            }
-            int s = minSs - (teamSs.size() - numTransfers);
-
+    /**
+     * The class a program must sign before any top-up, in {@link #RECRUIT_POSITIONS}
+     * order: each position's shortfall below its minimum (sitting transfers not
+     * counted), raised to the {@link #pipelineNeed} of young players. Reads only.
+     */
+    public int[] recruitNeedsBeforeTopUp() {
+        int[] mins = {minQBs, minRBs, minWRs, minTEs, minOLs, minKs, minDLs, minLBs, minCBs, minSs};
+        int[] needs = new int[RECRUIT_POSITIONS.length];
+        for (int i = 0; i < needs.length; i++) {
             // A surplus position needs nobody. Negative needs used to be summed
             // into the roster estimate (signing one extra random recruit per
-            // surplus player, 65 + surplus in all) and could swallow the top-up
-            // below, which only adds a player when the need ends up positive.
-            qb = Math.max(0, qb);
-            rb = Math.max(0, rb);
-            wr = Math.max(0, wr);
-            te = Math.max(0, te);
-            ol = Math.max(0, ol);
-            k = Math.max(0, k);
-            dl = Math.max(0, dl);
-            lb = Math.max(0, lb);
-            cb = Math.max(0, cb);
-            s = Math.max(0, s);
-
+            // surplus player, 65 + surplus in all) and could swallow the top-up,
+            // which only adds a player when the need ends up positive.
+            int need = Math.max(0, mins[i] - countNonTransfers(recruitGroup(i)));
             // Pipeline: needs counted only heads, so a room of three upperclass QBs
             // signed no QB until all three left at once (~7% of CPU programs went
             // three straight classes without one, then started a true freshman).
             // Two young QBs (a redshirt stays "young" an extra year, so a target
             // of one still allowed three-class QB droughts).
-            qb = Math.max(qb, pipelineNeed(teamQBs, 4));
-            rb = Math.max(rb, pipelineNeed(teamRBs, startersRB + subRB));
-            wr = Math.max(wr, pipelineNeed(teamWRs, startersWR + subWR));
-            te = Math.max(te, pipelineNeed(teamTEs, startersTE + subTE));
-            ol = Math.max(ol, pipelineNeed(teamOLs, startersOL + subOL));
-            k = Math.max(k, pipelineNeed(teamKs, 2 * startersK));
-            dl = Math.max(dl, pipelineNeed(teamDLs, startersDL + subDL));
-            lb = Math.max(lb, pipelineNeed(teamLBs, startersLB + subLB));
-            cb = Math.max(cb, pipelineNeed(teamCBs, startersCB + subCB));
-            s = Math.max(s, pipelineNeed(teamSs, startersS + subS));
+            int playing = i == 0 ? 4 : i == 5 ? 2 * startersK : playingAt(i);
+            needs[i] = Math.max(need, pipelineNeed(recruitGroup(i), playing));
+        }
+        return needs;
+    }
 
-            int rosterSize = getTeamSize() + qb + rb + wr + te + ol + k + dl + lb + cb + s;
+    /**
+     * A CPU program's whole signing class, in {@link #RECRUIT_POSITIONS} order:
+     * {@link #recruitNeedsBeforeTopUp()}, then topped up to {@link #minPlayers} in
+     * proportion to how many play each position (never kickers). The top-up draws
+     * from the league stream.
+     */
+    public int[] cpuRecruitNeeds() {
+        int[] needs = recruitNeedsBeforeTopUp();
+        int rosterSize = getTeamSize();
+        for (int n : needs) rosterSize += n;
+        // Top up to the roster target in proportion to how many each position
+        // plays (starters + rotation subs). The draw was uniform over nine
+        // positions, so a QB was as likely as an offensive lineman.
+        int[] slots = {0, 1, 2, 3, 4, 6, 7, 8, 9};
+        int totalWeight = 0;
+        for (int i : slots) totalWeight += playingAt(i);
+        for (int i = rosterSize; i < minPlayers; i++) {
+            int x = (int) (SimRandom.nextDouble() * totalWeight);
+            int pos = 0;
+            while (x >= playingAt(slots[pos])) x -= playingAt(slots[pos++]);
+            needs[slots[pos]]++;
+        }
+        return needs;
+    }
 
-            // Top up to the roster target in proportion to how many each position
-            // plays (starters + rotation subs). The draw was uniform over nine
-            // positions, so a QB was as likely as an offensive lineman.
-            int[] weights = {startersQB + subQB, startersRB + subRB, startersWR + subWR, startersTE + subTE,
-                    startersOL + subOL, startersDL + subDL, startersLB + subLB, startersCB + subCB, startersS + subS};
-            int totalWeight = 0;
-            for (int w : weights) totalWeight += w;
-            for (int i = rosterSize; i < minPlayers; i++) {
-                int x = (int) (SimRandom.nextDouble() * totalWeight);
-                int pos = 0;
-                while (x >= weights[pos]) x -= weights[pos++];
-                if (pos == 0) qb++;
-                if (pos == 1) rb++;
-                if (pos == 2) wr++;
-                if (pos == 3) te++;
-                if (pos == 4) ol++;
-                if (pos == 5) dl++;
-                if (pos == 6) lb++;
-                if (pos == 7) cb++;
-                if (pos == 8) s++;
-            }
+    //GET FINAL RECRUITING NEEDS PRIOR TO RECRUITING
+    /**
+     * Generates and signs a whole class at once, as CPU programs recruited before
+     * the shared national pool ({@link RecruitPool}); kept for tools and tests.
+     */
+    public void CPUrecruiting() {
+        if (!userControlled) {
+            int[] n = cpuRecruitNeeds();
+            recruitPlayersFreshman(n[0], n[1], n[2], n[3], n[4], n[5], n[6], n[7], n[8], n[9]);
+        }
+    }
 
-            recruitPlayersFreshman(qb, rb, wr, te, ol, k, dl, lb, cb, s);
+    /**
+     * Adds a signed prospect from the national pool to this roster as the same
+     * object (pool bookkeeping and the save refer to it), and makes this its team.
+     */
+    public void signRecruit(Player p) {
+        p.team = this;
+        switch (p.position) {
+            case "QB": teamQBs.add((PlayerQB) p); break;
+            case "RB": teamRBs.add((PlayerRB) p); break;
+            case "WR": teamWRs.add((PlayerWR) p); break;
+            case "TE": teamTEs.add((PlayerTE) p); break;
+            case "OL": teamOLs.add((PlayerOL) p); break;
+            case "K": teamKs.add((PlayerK) p); break;
+            case "DL": teamDLs.add((PlayerDL) p); break;
+            case "LB": teamLBs.add((PlayerLB) p); break;
+            case "CB": teamCBs.add((PlayerCB) p); break;
+            case "S": teamSs.add((PlayerS) p); break;
+            default: throw new IllegalArgumentException("Unknown position " + p.position);
+        }
+    }
+
+    /**
+     * The star level this program's freshmen start from before the per-recruit
+     * nudge ({@link #nudgedRecruitStars}); refreshes conference prestige once.
+     */
+    int recruitStarBase() {
+        return Math.max(getRecruitLevel(), minRecruitStar);
+    }
+
+    /** One recruit's star rating, drawn as {@link #recruitPlayersFreshman} draws it. */
+    int nudgedRecruitStars(int base) {
+        int recruitChance = HC != null ? HC.ratTalent - 33 : teamPrestige - 50;
+        return Math.min(nudgeCpuFreshmanStarRating(base, recruitChance), 10);
+    }
+
+    /** A new freshman at {@code pos}, priced for {@code t} (its prestige and location set his cost). */
+    static Player newFreshman(String pos, String name, int stars, Team t) {
+        switch (pos) {
+            case "QB": return new PlayerQB(name, 1, stars, t);
+            case "RB": return new PlayerRB(name, 1, stars, t);
+            case "WR": return new PlayerWR(name, 1, stars, t);
+            case "TE": return new PlayerTE(name, 1, stars, t);
+            case "OL": return new PlayerOL(name, 1, stars, t);
+            case "K": return new PlayerK(name, 1, stars, t);
+            case "DL": return new PlayerDL(name, 1, stars, t);
+            case "LB": return new PlayerLB(name, 1, stars, t);
+            case "CB": return new PlayerCB(name, 1, stars, t);
+            case "S": return new PlayerS(name, 1, stars, t);
+            default: throw new IllegalArgumentException("Unknown position " + pos);
         }
     }
 
