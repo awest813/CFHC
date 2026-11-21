@@ -496,13 +496,26 @@ public class StatsTracker {
     }
 
     public double getTeamChemistry() {
-        double rating = 0;
-        ArrayList<Player> roster = team.getAllPlayers();
-        for (int i = 0; i < roster.size(); ++i) {
-            rating += roster.get(i).character;
-            rating += roster.get(i).ratIntelligence;
+        // Integer sums are exact in a double, so this equals summing over
+        // getAllPlayers() without building that list on every call.
+        long rating = chemistrySum(team.teamQBs) + chemistrySum(team.teamRBs) + chemistrySum(team.teamWRs)
+                + chemistrySum(team.teamTEs) + chemistrySum(team.teamOLs) + chemistrySum(team.teamKs)
+                + chemistrySum(team.teamDLs) + chemistrySum(team.teamLBs) + chemistrySum(team.teamCBs)
+                + chemistrySum(team.teamSs);
+        int size = team.teamQBs.size() + team.teamRBs.size() + team.teamWRs.size() + team.teamTEs.size()
+                + team.teamOLs.size() + team.teamKs.size() + team.teamDLs.size() + team.teamLBs.size()
+                + team.teamCBs.size() + team.teamSs.size();
+        return (double) rating / (2 * size);
+    }
+
+    private static long chemistrySum(java.util.List<? extends Player> group) {
+        long sum = 0;
+        for (int i = 0; i < group.size(); ++i) {
+            Player p = group.get(i);
+            sum += p.character;
+            sum += p.ratIntelligence;
         }
-        return rating / (2 * roster.size());
+        return sum;
     }
 
     public int getStaffDiscipline() {

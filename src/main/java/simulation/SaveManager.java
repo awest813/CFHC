@@ -78,18 +78,33 @@ public class SaveManager {
         if (v == null) {
             return "";
         }
-        StringBuilder sb = new StringBuilder(v.length() + 8);
-        for (int i = 0; i < v.length(); i++) {
+        // Returns v itself when nothing needs escaping (the usual case);
+        // otherwise fills a char array once (every escape is one extra char).
+        int n = v.length();
+        int extra = 0;
+        for (int i = 0; i < n; i++) {
             char c = v.charAt(i);
-            switch (c) {
-                case '\\': sb.append("\\\\"); break;
-                case '\t': sb.append("\\t"); break;
-                case '\n': sb.append("\\n"); break;
-                case '\r': sb.append("\\r"); break;
-                default: sb.append(c);
+            if (c == '\\' || c == '\t' || c == '\n' || c == '\r') {
+                extra++;
             }
         }
-        return sb.toString();
+        if (extra == 0) {
+            return v;
+        }
+        char[] in = v.toCharArray();
+        char[] out = new char[n + extra];
+        int o = 0;
+        for (int i = 0; i < n; i++) {
+            char c = in[i];
+            switch (c) {
+                case '\\': out[o++] = '\\'; out[o++] = '\\'; break;
+                case '\t': out[o++] = '\\'; out[o++] = 't'; break;
+                case '\n': out[o++] = '\\'; out[o++] = 'n'; break;
+                case '\r': out[o++] = '\\'; out[o++] = 'r'; break;
+                default: out[o++] = c;
+            }
+        }
+        return new String(out);
     }
 
     static String unescapeItem(String v) {
@@ -114,12 +129,16 @@ public class SaveManager {
         return sb.toString();
     }
 
-    private static String listLine(String prefix, String key, List<String> items) {
-        StringBuilder sb = new StringBuilder(prefix).append(escapeItem(key));
+    /** Writes {@code prefix key<TAB>items...} as one line, straight to the writer (items can be megabytes). */
+    private static void writeListLine(java.io.Writer writer, String prefix, String key, List<String> items)
+            throws IOException {
+        writer.write(prefix);
+        writer.write(escapeItem(key));
         for (String item : items) {
-            sb.append('\t').append(escapeItem(item));
+            writer.write('\t');
+            writer.write(escapeItem(item));
         }
-        return sb.append('\n').toString();
+        writer.write('\n');
     }
 
     /** {@code key<TAB>items...} body of an {@code LL:}/{@code TL:} line, unescaped. */
@@ -224,7 +243,7 @@ public class SaveManager {
                 writer.write(PLAYOFF_TEAMS_PREFIX + joinTabs(state.playoffTeams()) + "\n");
             }
             for (java.util.Map.Entry<String, List<String>> e : state.lists().entrySet()) {
-                writer.write(listLine(LEAGUE_LIST_PREFIX, e.getKey(), e.getValue()));
+                writeListLine(writer, LEAGUE_LIST_PREFIX, e.getKey(), e.getValue());
             }
             for (LeagueRecord.DetachedPlayer d : state.detachedPlayers()) {
                 writer.write(DETACHED_PLAYER_PREFIX + escapeItem(d.teamName()) + "\t"
@@ -365,7 +384,7 @@ public class SaveManager {
             writer.write(to + "\n");
         }
         for (java.util.Map.Entry<String, List<String>> e : t.lists().entrySet()) {
-            writer.write(listLine(TEAM_LIST_PREFIX, e.getKey(), e.getValue()));
+            writeListLine(writer, TEAM_LIST_PREFIX, e.getKey(), e.getValue());
         }
         writer.write(END_TOKEN + "_TEAM\n");
     }

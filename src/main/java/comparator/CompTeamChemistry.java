@@ -7,6 +7,9 @@ import simulation.Team;
 public class CompTeamChemistry  implements Comparator<Team> {
     @Override
     public int compare(Team a, Team b) {
-        return a.getTeamChemistry() > b.getTeamChemistry() ? -1 : a.getTeamChemistry() == b.getTeamChemistry() ? 0 : 1;
+        // Each score is computed once per side; same result as calling it per test.
+        double sa = a.getTeamChemistry();
+        double sb = b.getTeamChemistry();
+        return sa > sb ? -1 : sa == sb ? 0 : 1;
     }
 }

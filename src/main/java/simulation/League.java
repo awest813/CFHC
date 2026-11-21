@@ -1506,12 +1506,23 @@ public class League {
         }
         codec.putList("fcsGames", fcsGames);
         codec.putList("overtimes", overtimes);
+        if (deferredBoxScoreToken != null) {
+            deferredBoxScoreText = BoxScoreCodec.text(bySlot);
+            if (deferredBoxScoreText != null) {
+                codec.putList(BoxScoreCodec.KEY, BoxScoreCodec.deferredItems(deferredBoxScoreToken));
+            }
+            return out;
+        }
         java.util.List<String> boxScores = BoxScoreCodec.encode(bySlot);
         if (!boxScores.isEmpty()) {
             codec.putList(BoxScoreCodec.KEY, boxScores);
         }
         return out;
     }
+
+    /** Set only inside {@link #snapshotSave()}: the box-score payload is left as this placeholder. */
+    private String deferredBoxScoreToken;
+    private byte[] deferredBoxScoreText;
 
     private static int indexOfIdentity(java.util.List<Team> list, Team t) {
         for (int i = 0; i < list.size(); i++) {
@@ -2815,10 +2826,51 @@ public class League {
     //get League Avg Chemistry
     public double getAverageTeamChemistry() {
         double avg = 0;
+        Team scoped = chemistryScopeTeam;
+        double[] cached = chemistryScopeCache;
+        if (scoped != null && cached != null && cached.length == teamList.size()) {
+            // Same sum in the same order; only the scoped team can have changed.
+            for (int i = 0; i < teamList.size(); ++i) {
+                Team t = teamList.get(i);
+                avg += t == scoped ? t.getTeamChemistry() : cached[i];
+            }
+            return avg / teamList.size();
+        }
         for (int i = 0; i < teamList.size(); ++i) {
             avg += teamList.get(i).getTeamChemistry();
         }
         return avg / teamList.size();
+    }
+
+    /** Set while one team advances its players; see {@link #runWithChemistryScope}. */
+    private Team chemistryScopeTeam;
+    private double[] chemistryScopeCache;
+
+    /**
+     * Runs {@code work}, during which only {@code owner}'s roster may change,
+     * with every other team's chemistry computed once up front.
+     * {@link #getAverageTeamChemistry()} then returns exactly the value it would
+     * compute from scratch, without walking every roster in the league on each
+     * call (offseason progression calls it several times per player).
+     */
+    public void runWithChemistryScope(Team owner, Runnable work) {
+        if (chemistryScopeTeam != null) {
+            work.run();
+            return;
+        }
+        double[] cache = new double[teamList.size()];
+        for (int i = 0; i < cache.length; ++i) {
+            Team t = teamList.get(i);
+            cache[i] = t == owner ? 0 : t.getTeamChemistry();
+        }
+        chemistryScopeCache = cache;
+        chemistryScopeTeam = owner;
+        try {
+            work.run();
+        } finally {
+            chemistryScopeTeam = null;
+            chemistryScopeCache = null;
+        }
     }
 
 
@@ -3816,6 +3868,9 @@ public class League {
 
     //Player Spotlight
     public void playerSpotlight() {
+        // Spotlight weeks are relative to season length. Checked before ranking
+        // (the rankings are pure sorts of every player) so other weeks skip them.
+        if (currentWeek < 5 || currentWeek > Math.min(11, regSeasonWeeks - 2)) return;
         ArrayList<PlayerQB> QB = rankQB();
         ArrayList<PlayerRB> RB = rankRB();
         ArrayList<PlayerWR> WR = rankWR();
@@ -6880,7 +6935,17 @@ Then conferences can see if they want to add them to their list if the teams mee
             teamList.get(t).setRankTeamFacilities(t + 1);
         }
 
-        Collections.sort(teamList, new CompTeamChemistry());
+        // Same order as CompTeamChemistry, with each team's chemistry (a walk
+        // over its roster) computed once instead of on every comparison.
+        final java.util.IdentityHashMap<Team, Double> chemistry = new java.util.IdentityHashMap<>();
+        for (Team t : teamList) {
+            chemistry.put(t, t.getTeamChemistry());
+        }
+        Collections.sort(teamList, (a, b) -> {
+            double sa = chemistry.get(a);
+            double sb = chemistry.get(b);
+            return sa > sb ? -1 : sa == sb ? 0 : 1;
+        });
         for (int t = 0; t < teamList.size(); ++t) {
             teamList.get(t).setRankTeamChemistry(t + 1);
         }
@@ -8180,6 +8245,36 @@ Then conferences can see if they want to add them to their list if the teams mee
         java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream(256 * 1024);
         SaveManager.save(this.toRecord(), out);
         return out.toByteArray();
+    }
+
+    /**
+     * Like {@link #serializeSave()}, but leaves compressing the season's box
+     * scores (most of the cost of a save in season) to {@link SaveSnapshot#finish()},
+     * which can then run off the league thread. Must itself run on the league
+     * thread; {@code finish()} returns the same bytes {@code serializeSave()}
+     * would have returned here.
+     */
+    public SaveSnapshot snapshotSave() throws IOException {
+        String token = SaveSnapshot.newToken();
+        byte[] data;
+        byte[] text;
+        deferredBoxScoreToken = token;
+        try {
+            data = serializeSave();
+            text = deferredBoxScoreText;
+        } finally {
+            deferredBoxScoreToken = null;
+            deferredBoxScoreText = null;
+        }
+        if (text == null) {
+            return new SaveSnapshot(data);
+        }
+        byte[] tokenBytes = token.getBytes(java.nio.charset.StandardCharsets.US_ASCII);
+        int at = SaveSnapshot.indexOfOnly(data, tokenBytes);
+        if (at < 0) {
+            return new SaveSnapshot(serializeSave()); // cannot happen; stay correct anyway
+        }
+        return new SaveSnapshot(data, tokenBytes, text, at);
     }
 
 

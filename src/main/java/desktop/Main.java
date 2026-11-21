@@ -72,6 +72,9 @@ public class Main {
             case "test-seasons":
                 StabilityTester.runTest();
                 break;
+            case "bench":
+                runBenchmark(args);
+                break;
             case "help":
             case "--help":
             case "-h":
@@ -128,6 +131,21 @@ public class Main {
         }
     }
 
+    /** {@code bench [seasons] [seed]}: prints engine timings for a fresh league. */
+    private static void runBenchmark(String[] args) {
+        try {
+            simulation.PlatformLog.setDebugEnabled(false);
+            int seasons = args.length > 1 ? Integer.parseInt(args[1]) : 10;
+            long seed = args.length > 2 ? Long.decode(args[2]) : 0x5A7EDE7L;
+            DesktopResourceProvider resources = new DesktopResourceProvider(System.getProperty("user.dir"));
+            new simulation.PerfBenchmark(resources).run(seed, Math.max(1, seasons)).print(System.out);
+        } catch (Exception e) {
+            System.err.println("Benchmark failed: " + e);
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
     private static void printUsage() {
         System.out.println("Usage: java -jar CFHC-desktop-" + DesktopVersion.VERSION
                 + ".jar [command] [file]");
@@ -138,6 +156,7 @@ public class Main {
         System.out.println("  inspect <savefile> - Print save metadata to console");
         System.out.println("  play    <savefile> - Launch graphical league home from an existing save");
         System.out.println("  stability          - Run a headless 3-season desktop new-game stability test");
+        System.out.println("  bench [seasons] [seed] - Headless engine timings (sim, save, load, heap)");
         System.out.println("  help               - Show this message");
         System.out.println();
         System.out.println("Saves default to ~/.cfhc/saves (macOS/Windows use the OS app-data folder).");
