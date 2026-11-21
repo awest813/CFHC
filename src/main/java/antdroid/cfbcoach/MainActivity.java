@@ -1945,8 +1945,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     //Pre-Season Goals
     private void seasonGoals() {
-        simLeague.updateTeamTalentRatings();
-        simLeague.setTeamBenchMarks();
+        // Read-only: projections come from the engine (season setup, then the
+        // preseason advance in SeasonController). Recomputing them here re-sorted
+        // the team list the season plays in, so merely opening this screen
+        // changed results (and a reload no longer matched an unbroken run).
 
         goals = "";
         int confPos = 0;

@@ -332,6 +332,10 @@ public final class ScheduleManager {
             if (!isRivalryCandidate(a) || a.getRivalName().isEmpty()) continue;
             Team b = league.findTeam(a.getRivalName());
             if (b == null || b == a || alreadyScheduled(a, b)) continue;
+            // Cross-conference only: a conference-mate rival this slate skipped
+            // would otherwise get a 9th "OOC" conference game (e.g. Sun Belt,
+            // 14 teams / 8 conference games).
+            if (b.getConference() != null && b.getConference().equals(a.getConference())) continue;
 
             int week = -1;
             int n = Math.min(a.gameSchedule.size(), b.gameSchedule.size());

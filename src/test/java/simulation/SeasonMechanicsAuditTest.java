@@ -80,6 +80,36 @@ public class SeasonMechanicsAuditTest {
         }
     }
 
+    /** Scheduling is random; check the conference-game cap holds across seeds. */
+    @Test
+    public void conferenceGameCount_neverExceedsIntended_acrossSeeds() {
+        FileSystemResourceProvider r = new FileSystemResourceProvider(System.getProperty("user.dir"));
+        for (long seed = 1; seed <= 40; seed++) {
+            SimRandom.pinNextSeed(seed);
+            League l = new League(
+                    r.getString(PlatformResourceProvider.KEY_LEAGUE_PLAYER_NAMES),
+                    r.getString(PlatformResourceProvider.KEY_LEAGUE_LAST_NAMES),
+                    r.getString(PlatformResourceProvider.KEY_CONFERENCES),
+                    r.getString(PlatformResourceProvider.KEY_TEAMS),
+                    r.getString(PlatformResourceProvider.KEY_BOWLS),
+                    false, false);
+            for (Conference c : l.getConferences()) {
+                if (c.confTeams.size() < c.minConfTeams) continue;
+                int confWeeks = League.REGULAR_SEASON_GAMES - c.getOOCGames();
+                for (Team t : c.confTeams) {
+                    int conf = 0;
+                    for (Game g : t.getGameSchedule()) {
+                        if (g.isByeWeek()) continue;
+                        Team opp = g.homeTeam == t ? g.awayTeam : g.homeTeam;
+                        if (opp.getConference().equals(t.getConference())) conf++;
+                    }
+                    assertTrue("seed " + seed + " " + t.getName() + " conference games " + conf,
+                            conf <= confWeeks);
+                }
+            }
+        }
+    }
+
     @Test
     public void leagueSchedule_twelveRealGames_noRematches_conferenceCountsAsIntended() {
         Set<String> oddChecked = new HashSet<>();

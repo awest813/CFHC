@@ -59,6 +59,11 @@ public final class SeasonController {
         if (league.userTeam != null) {
             league.userTeam.recruitWalkOns();
         }
+        // Fold preseason roster/depth-chart/redshirt changes into talent and
+        // projections at one fixed step, identically on every platform (this
+        // used to happen only when Android's Season Goals screen was opened).
+        league.updateTeamTalentRatings();
+        league.setTeamBenchMarks();
         league.preseasonNews();
         league.currentWeek++; // Advance to Week 1
         updateSimStatus(result, "Preseason", nextLabel(), true);

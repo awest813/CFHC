@@ -313,25 +313,29 @@ public class Team {
 
     /**
      * Prestige after a gain or loss. Losses apply in full; each point gained
-     * above {@link #PRESTIGE_SOFT_KNEE} sticks with probability
-     * (MAX - current) / (MAX - KNEE), so elite programs approach 100 ever more
-     * slowly instead of piling up at a hard clamp. Result is within 0..MAX.
+     * above {@link #PRESTIGE_SOFT_KNEE} is worth only (MAX - current) / (MAX - KNEE)
+     * of a point, so elite programs approach 100 ever more slowly instead of piling
+     * up at a hard clamp. Fractions are dropped. Deterministic and side-effect free:
+     * {@link #calcSeasonPrestige()} (and the coach score built on it) is also read
+     * by UI screens, which must neither draw random numbers nor get a different
+     * answer on every call (sorting by it threw "Comparison method violates its
+     * general contract"). Result is within 0..MAX.
      */
     public static int applyPrestigeGain(int current, int change) {
-        int p = current;
         if (change <= 0) {
-            p += change;
-        } else {
-            for (int i = 0; i < change; i++) {
-                if (p < PRESTIGE_SOFT_KNEE) {
-                    p++;
-                } else if (p < PRESTIGE_SOFT_MAX && SimRandom.nextDouble()
-                        < (PRESTIGE_SOFT_MAX - p) / (double) (PRESTIGE_SOFT_MAX - PRESTIGE_SOFT_KNEE)) {
-                    p++;
-                }
+            return Math.max(0, Math.min(PRESTIGE_SOFT_MAX, current + change));
+        }
+        double p = current;
+        for (int i = 0; i < change; i++) {
+            if (p < PRESTIGE_SOFT_KNEE) {
+                p = Math.min(PRESTIGE_SOFT_KNEE, p + 1);
+            } else if (p < PRESTIGE_SOFT_MAX) {
+                p += (PRESTIGE_SOFT_MAX - p) / (double) (PRESTIGE_SOFT_MAX - PRESTIGE_SOFT_KNEE);
             }
         }
-        return Math.max(0, Math.min(PRESTIGE_SOFT_MAX, p));
+        // Never lose ground to rounding: an increase is at least what we started with.
+        int out = Math.max(current, (int) Math.floor(p + 1e-9));
+        return Math.max(0, Math.min(PRESTIGE_SOFT_MAX, out));
     }
 
     public static double knockdownRet = 0.925;
