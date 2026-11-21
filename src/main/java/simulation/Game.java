@@ -427,13 +427,31 @@ public class Game implements Serializable {
         return adv;
     }
 
+    /**
+     * Chemistry (character + football IQ) and staff discipline can't change
+     * during a game, but this was recomputed over both rosters on every snap.
+     * Cached per game; reset when a game starts.
+     */
+    private double homeChemCache = Double.NaN, awayChemCache;
+    private int homeDiscCache, awayDiscCache;
+
+    private void ensureChemistryCache() {
+        if (Double.isNaN(homeChemCache)) {
+            homeChemCache = homeTeam.getTeamChemistry();
+            awayChemCache = awayTeam.getTeamChemistry();
+            homeDiscCache = homeTeam.getStaffDiscipline();
+            awayDiscCache = awayTeam.getStaffDiscipline();
+        }
+    }
+
     private int getTeamChemistryAdv() {
         int adv = 0;
-
+        ensureChemistryCache();
+        // Same expression and evaluation order as before, on the cached values.
         if (gamePoss) {
-            adv = (int) (Math.round((homeTeam.getTeamChemistry() + homeTeam.getStaffDiscipline() - awayTeam.getStaffDiscipline() - awayTeam.getTeamChemistry()) / 5));
+            adv = (int) (Math.round((homeChemCache + homeDiscCache - awayDiscCache - awayChemCache) / 5));
         } else {
-            adv = (int) (Math.round((awayTeam.getTeamChemistry() + awayTeam.getStaffDiscipline() - homeTeam.getStaffDiscipline() - homeTeam.getTeamChemistry()) / 5));
+            adv = (int) (Math.round((awayChemCache + awayDiscCache - homeDiscCache - homeChemCache) / 5));
         }
         if (adv > 3) adv = 3;
         if (adv < -3) adv = -3;
@@ -916,6 +934,7 @@ public class Game implements Serializable {
     //GAME SIMULATION
 
     public void playGame() {
+        homeChemCache = Double.NaN; // rosters may have changed since a previous call
         if (gameName.equals(BYE_WEEK_NAME) && !hasPlayed) {
             hasPlayed = true;
             homeTeam.addToGameWLSchedule("BYE");
@@ -3745,22 +3764,28 @@ public class Game implements Serializable {
         if (team == null) {
             return;
         }
-        recoupAll(team.getTeamRBs(), gain);
-        recoupAll(team.getTeamWRs(), gain);
-        recoupAll(team.getTeamTEs(), gain);
-        recoupAll(team.getTeamOLs(), gain);
-        recoupAll(team.getTeamDLs(), gain);
-        recoupAll(team.getTeamLBs(), gain);
-        recoupAll(team.getTeamCBs(), gain);
-        recoupAll(team.getTeamSs(), gain);
+        // Runs every snap for both full depth charts: read the lists directly
+        // (no wrapper per call) and skip players already fully rested, which
+        // recoupOne would leave at 100 anyway.
+        recoupAll(team.teamRBs, gain);
+        recoupAll(team.teamWRs, gain);
+        recoupAll(team.teamTEs, gain);
+        recoupAll(team.teamOLs, gain);
+        recoupAll(team.teamDLs, gain);
+        recoupAll(team.teamLBs, gain);
+        recoupAll(team.teamCBs, gain);
+        recoupAll(team.teamSs, gain);
     }
 
     private static void recoupAll(List<? extends Player> depth, int gain) {
         if (depth == null) {
             return;
         }
-        for (Player p : depth) {
-            recoupOne(p, gain);
+        for (int i = 0, n = depth.size(); i < n; i++) {
+            Player p = depth.get(i);
+            if (p != null && p.gameFatigue < 100) {
+                recoupOne(p, gain);
+            }
         }
     }
 
