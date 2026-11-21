@@ -295,6 +295,96 @@ public class GameRulesTest {
         }
     }
 
+    /** A game in progress, regulation, home team with the ball. */
+    private Game liveGame() {
+        Game g = new Game(homeTeam, awayTeam, "OOC");
+        g.playGame();
+        g.playingOT = false;
+        g.gamePoss = true;
+        g.gameDown = 1;
+        g.gameYardsNeed = 10;
+        g.gameYardLine = 25;
+        g.gameEventLog.setLength(0);
+        return g;
+    }
+
+    @Test
+    public void penaltyLog_showsTheDownItWasThrownOn() throws Exception {
+        Game g = liveGame();
+        g.gameDown = 2;
+        g.gameYardsNeed = 7;
+        g.gameYardLine = 40;
+        Class<?> pc = Class.forName("simulation.Game$PenaltyCall");
+        java.lang.reflect.Constructor<?> ctor = pc.getDeclaredConstructors()[0];
+        ctor.setAccessible(true);
+        Object call = ctor.newInstance(true, "False Start", 5, false);
+        Method apply = Game.class.getDeclaredMethod("applyPreSnapPenalty", pc, Team.class, Team.class);
+        apply.setAccessible(true);
+        apply.invoke(g, call, homeTeam, awayTeam);
+        String log = g.gameEventLog.toString();
+        assertTrue(log, log.contains(" 2 and 7 at "));
+        assertTrue(log, log.contains("False Start"));
+    }
+
+    @Test
+    public void tiedOnOwnSide_withSecondsLeft_kneelsToOvertime() throws Exception {
+        Game g = liveGame();
+        int kneels = 0;
+        for (int attempt = 0; attempt < 20; attempt++) {
+            g.homeScore = 17;
+            g.awayScore = 17;
+            g.gameTime = 15;
+            g.gameDown = 1;
+            g.gameYardsNeed = 10;
+            g.gameYardLine = 25;
+            g.gamePoss = true;
+            g.gameEventLog.setLength(0);
+            call(g, "runPlay", homeTeam, awayTeam);
+            String log = g.gameEventLog.toString();
+            if (log.contains("PENALTY")) continue; // a pre-snap flag replaced the snap
+            assertTrue(log, log.contains("takes its chances in overtime"));
+            assertTrue("no turnover risk taken", g.gamePoss);
+            kneels++;
+        }
+        assertTrue(kneels > 0);
+    }
+
+    @Test
+    public void passPlays_leaveDepthChartPositionsAlone() {
+        List<Integer> before = new ArrayList<>();
+        for (Player p : homeTeam.getTeamWRs()) before.add(p.posDepth);
+        new Game(homeTeam, awayTeam, "OOC").playGame();
+        List<Integer> after = new ArrayList<>();
+        for (Player p : homeTeam.getTeamWRs()) after.add(p.posDepth);
+        assertEquals(before, after);
+    }
+
+    @Test
+    public void blowout_benchesEveryStarterAtAPosition() throws Exception {
+        Game g = liveGame();
+        g.homeScore = 63;
+        g.awayScore = 0;
+        g.gameTime = 600; // 10:00 left in the fourth, up 63
+        List<PlayerOL> ol = homeTeam.getTeamOLs();
+        assertTrue("need backups", ol.size() > homeTeam.startersOL);
+        @SuppressWarnings("unchecked")
+        List<PlayerOL> onField = (List<PlayerOL>) call(null, "lineup", ol, homeTeam.startersOL,
+                homeTeam.startersOL);
+        for (int i = 0; i < homeTeam.startersOL; i++) {
+            assertFalse("starter " + i + " still in", onField.contains(ol.get(i)));
+        }
+        assertTrue((Boolean) call(g, "benchStarters"));
+
+        // And the play itself uses the backups: starting WRs take no snap.
+        List<Integer> snaps = new ArrayList<>();
+        for (int i = 0; i < homeTeam.startersWR; i++) snaps.add(homeTeam.getTeamWRs().get(i).gameSnaps);
+        call(g, "passingPlay", homeTeam, awayTeam);
+        for (int i = 0; i < homeTeam.startersWR; i++) {
+            assertEquals("starting WR " + i + " played in garbage time",
+                    (int) snaps.get(i), homeTeam.getTeamWRs().get(i).gameSnaps);
+        }
+    }
+
     @Test
     public void injuriesDuringAGame_benchThePlayer() {
         // Once the log says a player is out of the game, he never shows up in it
