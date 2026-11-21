@@ -119,7 +119,7 @@ public final class RecruitingPresentation {
             return "Board: no prospects available";
         }
         if (sessionData.isSharedPool()) {
-            return "Board: " + n + " prospects, " + sessionData.committedElsewhereCount() + " committed elsewhere";
+            return "Board: " + n + " (" + sessionData.committedElsewhereCount() + " committed)";
         }
         return "Board: " + n + " prospects";
     }
@@ -268,6 +268,18 @@ public final class RecruitingPresentation {
         return "Your projected roster is at " + currentRoster + " (max: " + maxPlayers + ").\n\nRecruit "
                 + recruit.stars() + "-star " + recruit.position() + " " + recruit.name()
                 + " for $" + recruit.cost() + "?";
+    }
+
+    /** As {@link #buildExitConfirmMessage(List)}, noting the prospects rivals signed during the session. */
+    public static String buildExitConfirmMessage(List<String> positions, RecruitingSessionData sessionData) {
+        String msg = buildExitConfirmMessage(positions);
+        if (sessionData != null && sessionData.isSharedPool()) {
+            int lost = sessionData.lostToRivals().size();
+            msg += "\nProspects still open sign with other programs when you finish."
+                    + (lost > 0 ? " Rivals signed " + lost + " contested prospect" + (lost == 1 ? "" : "s")
+                    + " while you recruited." : "") + "\n";
+        }
+        return msg;
     }
 
     public static String buildExitConfirmMessage(List<String> positions) {

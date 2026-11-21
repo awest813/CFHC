@@ -531,6 +531,29 @@ public final class RecruitPool {
         stage = Stage.CLOSED;
     }
 
+    /**
+     * One line for the Signing Day story once the late wave has run: how many
+     * committed early, and how many contested prospects chose a rival over the user.
+     */
+    String competitionSummary() {
+        int early = 0;
+        int lost = 0;
+        for (Prospect p : prospects) {
+            if (p.early) early++;
+            if (user != null && p.rival != null && !p.signedByUser && p.decisionPoint > 0
+                    && p.decisionPoint <= userSignings && p.committedTo == p.rival) {
+                lost++;
+            }
+        }
+        String line = early + " of " + prospects.size() + " prospects in the national pool committed in the early"
+                + " signing period.";
+        if (user != null && lost > 0) {
+            line += " " + lost + (lost == 1 ? " contested prospect" : " contested prospects")
+                    + " chose a rival over " + user.getName() + ".";
+        }
+        return line;
+    }
+
     // ------------------------------------------------------------------
     // The user's board
     // ------------------------------------------------------------------
@@ -604,14 +627,16 @@ public final class RecruitPool {
     void write(SaveStateCodec.Writer codec, List<Team> teams) {
         codec.putList(LIST_INFO, List.of("year=" + year, "stage=" + stage.name(), "live=" + (live ? 1 : 0),
                 "salt=" + Long.toHexString(salt), "user=" + teams.indexOf(user), "signings=" + userSignings));
-        List<Player> players = new ArrayList<>(prospects.size());
+        List<String> players = new ArrayList<>(prospects.size());
         List<String> meta = new ArrayList<>(prospects.size());
         for (Prospect p : prospects) {
-            players.add(p.player);
+            boolean onRoster = p.committedTo != null && !p.signedByUser && p.player.team == p.committedTo;
+            // A signed prospect is a roster player (its id); an open one is written compactly.
+            players.add(onRoster ? "R" + codec.player(p.player) : "D" + compactCsv(p.player));
             meta.add(teams.indexOf(p.committedTo) + "|" + (p.early ? 1 : 0) + "|" + (p.signedByUser ? 1 : 0)
                     + "|" + teams.indexOf(p.rival) + "|" + p.decisionPoint + "|" + p.expectedPrestige);
         }
-        codec.putList(LIST_PLAYERS, codec.players(players));
+        codec.putList(LIST_PLAYERS, players);
         codec.putList(LIST_META, meta);
         List<String> needLines = new ArrayList<>();
         for (Team t : teams) {
@@ -655,7 +680,9 @@ public final class RecruitPool {
             }
             List<Prospect> prospects = new ArrayList<>(ids.size());
             for (int i = 0; i < ids.size(); i++) {
-                Player pl = codec.player(ids.get(i));
+                String item = ids.get(i);
+                Player pl = item.startsWith("R") ? codec.player(item.substring(1))
+                        : item.startsWith("D") ? fromCompactCsv(item.substring(1), teams) : null;
                 if (pl == null) {
                     return null;
                 }
@@ -688,6 +715,35 @@ public final class RecruitPool {
             PlatformLog.w("RecruitPool", "Unreadable recruiting pool in save; rebuilding: " + e.getMessage());
             return null;
         }
+    }
+
+    /**
+     * An unsigned prospect without his career-stat lines: a prospect has never
+     * played, so those are the five empty seasons every new player starts with
+     * (saves at the gate were half again as big when open prospects were written whole).
+     */
+    static String compactCsv(Player p) {
+        String[] parts = Persistence.toCsv(p.toRecord()).split("&", -1);
+        return parts[0] + "&" + parts[1] + "&&" + (parts.length > 3 ? parts[3] : "");
+    }
+
+    static Player fromCompactCsv(String csv, List<Team> teams) {
+        PlayerRecord rec = PlayerRecord.fromCsv(csv);
+        Team team = null;
+        for (Team t : teams) {
+            if (t.getName().equals(rec.teamName())) {
+                team = t;
+                break;
+            }
+        }
+        Player p = Player.fromRecord(rec, team);
+        if (p.careerStats == null || p.careerStats.isEmpty()) {
+            p.careerStats = new ArrayList<>();
+            for (int i = 0; i < 5; i++) {
+                p.careerStats.add(new int[p.stats.length]);
+            }
+        }
+        return p;
     }
 
     private static Team teamAt(List<Team> teams, int index) {

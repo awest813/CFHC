@@ -41,7 +41,7 @@ import java.util.function.Consumer;
 public class RecruitingPanel extends JPanel {
 
     private static final String TAG = "RecruitingPanel";
-    private static final String[] BOARD_COLUMNS = {"Pos", "Name", "Stars", "Cost", "Overall"};
+    private static final String[] BOARD_COLUMNS = {"Pos", "Name", "Stars", "Cost", "Overall", "Status"};
     private static final Font MONO = new Font(Font.MONOSPACED, Font.PLAIN, 12);
 
     private final RecruitingController controller;
@@ -61,6 +61,8 @@ public class RecruitingPanel extends JPanel {
     private JTextArea detailArea;
     private JLabel budgetLabel;
     private JLabel recruitedLabel;
+    /** National-pool board: committed count, and who just signed elsewhere. */
+    private JLabel competitionLabel;
     private JTextArea rosterArea;
 
     private List<RecruitingPlayerRecord> currentList;
@@ -157,6 +159,10 @@ public class RecruitingPanel extends JPanel {
         recruitedLabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 13));
         bar.add(recruitedLabel);
 
+        competitionLabel = new JLabel();
+        competitionLabel.setFont(new Font(Font.SANS_SERIF, Font.PLAIN, 12));
+        bar.add(competitionLabel);
+
         DesktopTheme.styleToolbar(bar);
         return bar;
     }
@@ -197,6 +203,7 @@ public class RecruitingPanel extends JPanel {
         boardTable.getColumnModel().getColumn(2).setPreferredWidth(60);  // Stars
         boardTable.getColumnModel().getColumn(3).setPreferredWidth(65);  // Cost
         boardTable.getColumnModel().getColumn(4).setPreferredWidth(70);  // Overall
+        boardTable.getColumnModel().getColumn(5).setPreferredWidth(150); // Status
         // Stars as gold glyphs (style guide), keeping the Integer model value so
         // the column still sorts numerically.
         boardTable.getColumnModel().getColumn(2).setCellRenderer(new StripedRowRenderer() {
@@ -309,12 +316,16 @@ public class RecruitingPanel extends JPanel {
 
         boardModel.setRowCount(0);
         for (RecruitingPlayerRecord r : currentList) {
+            String committed = sessionData.committedTo(r);
+            String tag = RecruitingPresentation.statusTag(sessionData, r);
             boardModel.addRow(new Object[]{
                     r.position(),
                     r.name(),
                     r.stars(),
                     r.cost(),
-                    r.recruitOverall()
+                    r.recruitOverall(),
+                    committed != null ? "Committed: " + committed
+                            : tag.isEmpty() ? "Open" : tag + " (" + sessionData.rivalFor(r) + ")"
             });
         }
 
@@ -334,6 +345,12 @@ public class RecruitingPanel extends JPanel {
         budgetLabel.setForeground(DesktopTheme.isDark() ? DesktopTheme.emerald() : DesktopTheme.successGreen());
         recruitedLabel.setText("  Signed " + sessionData.playersRecruited.size());
         recruitedLabel.setForeground(DesktopTheme.gold());
+        if (sessionData.isSharedPool()) {
+            competitionLabel.setText("  " + sessionData.committedElsewhereCount() + " committed elsewhere, "
+                    + sessionData.lostToRivals().size() + " lost to rivals");
+            competitionLabel.setToolTipText("Every program signs from one national pool. Contested prospects commit "
+                    + "to their rival after a set number of your signings.");
+        }
 
         RecruitingSessionData.PositionNeeds currentNeeds =
                 sessionData.calculateNeeds();
@@ -384,6 +401,10 @@ public class RecruitingPanel extends JPanel {
 
         StringBuilder sb = new StringBuilder();
         sb.append(recruit.name()).append("  (").append(pos).append(")\n");
+        String status = RecruitingPresentation.statusLine(sessionData, recruit);
+        if (status != null) {
+            sb.append(status).append("\n");
+        }
         sb.append(RecruitingPresentation.getPlayerListRightLabel(recruit)).append("\n");
         sb.append("Cost: $").append(recruit.cost()).append("\n");
         sb.append("Overall: ").append(recruit.recruitOverall()).append("\n\n");
@@ -432,6 +453,13 @@ public class RecruitingPanel extends JPanel {
 
         RecruitingPlayerRecord recruit = currentList.get(modelRow);
 
+        if (sessionData.isCommittedElsewhere(recruit)) {
+            JOptionPane.showMessageDialog(this,
+                    DesktopTheme.messageForDialog(recruit.name() + " has committed to "
+                            + sessionData.committedTo(recruit) + "."),
+                    "Cannot Recruit", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         if (!sessionData.canRecruitMore()) {
             JOptionPane.showMessageDialog(this,
                     DesktopTheme.messageForDialog(
@@ -477,12 +505,17 @@ public class RecruitingPanel extends JPanel {
                 + " for $" + recruit.cost());
 
         loadBoard(filterBox.getSelectedIndex());
+        String lost = RecruitingPresentation.buildLostProspectsNotice(sessionData);
+        if (lost != null) {
+            JOptionPane.showMessageDialog(this, DesktopTheme.messageForDialog(lost + "."),
+                    "Rivals Signed Prospects", JOptionPane.INFORMATION_MESSAGE);
+        }
     }
 
     private void finishRecruiting() {
         String exitMsg = finishDialogMessage != null
                 ? finishDialogMessage
-                : RecruitingPresentation.buildExitConfirmMessage(positionLabels);
+                : RecruitingPresentation.buildExitConfirmMessage(positionLabels, sessionData);
         int choice = JOptionPane.showConfirmDialog(this,
                 DesktopTheme.messageForDialog(exitMsg),
                 finishDialogTitle, JOptionPane.YES_NO_OPTION);

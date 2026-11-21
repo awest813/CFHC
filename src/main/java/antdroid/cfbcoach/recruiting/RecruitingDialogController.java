@@ -150,7 +150,7 @@ public final class RecruitingDialogController {
      */
     public static void showExitConfirmDialog(final RecruitingActivity activity, List<String> positions, final RecruitingController controller) {
         AlertDialog.Builder builder = Dialogs.builder(activity);
-        builder.setMessage(RecruitingPresentation.buildExitConfirmMessage(positions))
+        builder.setMessage(RecruitingPresentation.buildExitConfirmMessage(positions, controller.getSessionData()))
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

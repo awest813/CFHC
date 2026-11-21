@@ -257,6 +257,12 @@ public class RecruitingActivity extends AppCompatActivity {
 
         Toast.makeText(this, "Recruited " + recruit.position() + " " + recruit.name(),
                 Toast.LENGTH_SHORT).show();
+        String lost = RecruitingPresentation.buildLostProspectsList(sessionData);
+        if (lost != null) {
+            // Rival programs signed contested prospects while this one signed.
+            Toast.makeText(this, getString(R.string.recruiting_toast_committed_elsewhere, lost),
+                    Toast.LENGTH_LONG).show();
+        }
 
         updatePositionNeeds();
         updateBudgetText();
@@ -363,7 +369,9 @@ public class RecruitingActivity extends AppCompatActivity {
             final TextView details = convertView.findViewById(R.id.textRecruitDetails);
             final TextView potential = convertView.findViewById(R.id.textRecruitPotential);
 
-            details.setText(playerDetail);
+            String status = RecruitingPresentation.statusLine(sessionData, recruit);
+            details.setText(status != null ? status + "\n\n" + playerDetail : playerDetail);
+            final boolean committedElsewhere = sessionData.isCommittedElsewhere(recruit);
             potential.setText(RecruitingPresentation.buildPotentialDetails(recruit, sessionData.isScouted(recruit)));
             final android.widget.ImageView avatar = convertView.findViewById(R.id.recruitAvatar);
             if (avatar != null) {
@@ -372,7 +380,7 @@ public class RecruitingActivity extends AppCompatActivity {
 
             Button scoutPlayerButton = convertView.findViewById(R.id.buttonScoutPlayer);
             scoutPlayerButton.setText(context.getString(R.string.recruiting_button_scout));
-            scoutPlayerButton.setEnabled(!sessionData.isScouted(recruit));
+            scoutPlayerButton.setEnabled(!sessionData.isScouted(recruit) && !committedElsewhere);
             scoutPlayerButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     scoutPlayer(recruit);
@@ -381,18 +389,23 @@ public class RecruitingActivity extends AppCompatActivity {
 
             Button recruitPlayerButton = convertView.findViewById(R.id.buttonRecruitPlayer);
 
-            if (sessionData.canRecruitMore()) {
+            if (committedElsewhere) {
+                recruitPlayerButton.setText(context.getString(R.string.recruiting_button_committed_format,
+                        sessionData.committedTo(recruit)));
+            } else if (sessionData.canRecruitMore()) {
                 recruitPlayerButton.setText(context.getString(R.string.recruiting_button_recruit_format, recruit.cost()));
             } else {
                 recruitPlayerButton.setText(context.getString(R.string.recruiting_button_roster_full));
                 //recruitPlayerButton.setVisibility(View.INVISIBLE);
             }
+            // A prospect who signed with another program cannot be recruited.
+            recruitPlayerButton.setEnabled(!committedElsewhere);
 
             // Set up button for recruiting player
             recruitPlayerButton.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     // Save who is currently expanded
-                    if (sessionData.canRecruitMore()) {
+                    if (!committedElsewhere && sessionData.canRecruitMore()) {
                         RecruitingDialogController.showRecruitConfirmDialog(
                                 RecruitingActivity.this,
                                 sessionData,
@@ -433,8 +446,9 @@ public class RecruitingActivity extends AppCompatActivity {
 
         public View getGroupView(int groupPosition, boolean isExpanded,
                                  View convertView, ViewGroup parent) {
-            String playerLeft = RecruitingPresentation.getPlayerListLeftLabel(getGroup(groupPosition));
-            String playerRight = RecruitingPresentation.getPlayerListRightLabel(getGroup(groupPosition));
+            RecruitingPlayerRecord recruit = getGroup(groupPosition);
+            String playerLeft = RecruitingPresentation.getPlayerListLeftLabel(sessionData, recruit);
+            String playerRight = RecruitingPresentation.getPlayerListRightLabel(sessionData, recruit);
             if (convertView == null) {
                 LayoutInflater infalInflater = (LayoutInflater) context
                         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -447,6 +461,8 @@ public class RecruitingActivity extends AppCompatActivity {
             TextView itemR = convertView.findViewById(R.id.textRecruitRight);
             itemR.setTypeface(itemR.getTypeface(), Typeface.BOLD);
             itemR.setText(playerRight);
+            // Committed elsewhere: still listed (you see who you lost), but dimmed.
+            convertView.setAlpha(sessionData.isCommittedElsewhere(recruit) ? 0.55f : 1f);
             return convertView;
         }
 

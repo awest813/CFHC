@@ -128,6 +128,8 @@
     <string name="recruiting_button_recruit_default">Recruit: $0</string>
     <string name="recruiting_button_recruit_format">Recruit: $%1$,d</string>
     <string name="recruiting_button_roster_full">ROSTER FULL</string>
+    <string name="recruiting_button_committed_format">Committed to %1$s</string>
+    <string name="recruiting_toast_committed_elsewhere">Committed elsewhere: %1$s</string>
     <string name="league_overview_hint">Tap a team or coach entry to jump into its profile.</string>
     <string name="dialog_shell_label">League Center</string>
     <string name="dialog_shell_rankings_title">League Overview</string>

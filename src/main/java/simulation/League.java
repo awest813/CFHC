@@ -195,6 +195,8 @@ public class League {
     public boolean recruitingPhaseActive;
     /** This cycle's national prospect pool (from {@link #recruitPlayers()} to {@link #startNextSeason()}). */
     RecruitPool recruitPool;
+    /** The pool's Signing Day line, from the late wave to {@link #signingDayNews()} (not saved: same step). */
+    private String recruitingCompetitionNote;
 
     //Bowl Games
     public boolean hasScheduledBowls;
@@ -3326,6 +3328,10 @@ public class League {
         for (int i = 0; i < Math.min(5, classRanking.size()); i++) {
             Team t = classRanking.get(i);
             sb.append(i + 1).append(". ").append(t.getName()).append("\n");
+        }
+        if (recruitingCompetitionNote != null) {
+            sb.append("\n").append(recruitingCompetitionNote).append("\n");
+            recruitingCompetitionNote = null;
         }
         addNewsStory(1, sb.toString().trim());
         if (!classRanking.isEmpty()) {
@@ -8269,6 +8275,7 @@ Then conferences can see if they want to add them to their list if the teams mee
         if (recruitPool != null) {
             if (recruitPool.isLive()) {
                 recruitPool.runLateWave(teamList);
+                recruitingCompetitionNote = recruitPool.competitionSummary();
             } else {
                 recruitPool.stage = RecruitPool.Stage.CLOSED;
             }

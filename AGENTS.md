@@ -32,6 +32,9 @@ Standard commands live in `README.md` and `build.gradle`; this section only cove
   games, week 13 conference championships. Week math goes through `SeasonFlowOrder`; play-button text comes from
   `SeasonPresentation.getPlayWeekLabel`. Saves store the season length in `L:` header field 8; saves without it
   load as the legacy 13-week calendar and switch to 14 weeks at the next season rollover.
+- Recruiting is one national prospect pool per cycle (`simulation.RecruitPool`): `League.recruitPlayers()` builds it
+  at the gate and runs the CPU early wave; `applyRecruitingSignings()` takes the user's class off it and runs the late
+  wave. Hosts must call `recruitPlayers()` before building the user's board. Saves carry it (v1.5e `LL:recruitPool*`).
 - Without the Android SDK, `python3 scripts/verify_android_res.py` checks resources and every `R.*` reference.
 - Android screen tests (Robolectric, `src/test/java/antdroid/**`): `./gradlew :app:testDebugUnitTest --tests 'antdroid.cfbcoach.*'`.
   They open Home, every main-list page and the main dialogs in both themes, check that recreating MainActivity

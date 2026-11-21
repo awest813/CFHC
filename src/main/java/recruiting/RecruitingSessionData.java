@@ -344,23 +344,23 @@ public final class RecruitingSessionData {
 
 
     public void sortBoardsByCost() {
-        Collections.sort(availAll, new CompRecruitCost());
-        if (avail50 != null) Collections.sort(avail50, new CompRecruitCost());
-        Collections.sort(availQBs, new CompRecruitCost());
-        Collections.sort(availRBs, new CompRecruitCost());
-        Collections.sort(availWRs, new CompRecruitCost());
-        Collections.sort(availTEs, new CompRecruitCost());
-        Collections.sort(availOLs, new CompRecruitCost());
-        Collections.sort(availKs, new CompRecruitCost());
-        Collections.sort(availDLs, new CompRecruitCost());
-        Collections.sort(availLBs, new CompRecruitCost());
-        Collections.sort(availCBs, new CompRecruitCost());
-        Collections.sort(availSs, new CompRecruitCost());
-        Collections.sort(west, new CompRecruitCost());
-        Collections.sort(midwest, new CompRecruitCost());
-        Collections.sort(central, new CompRecruitCost());
-        Collections.sort(east, new CompRecruitCost());
-        Collections.sort(south, new CompRecruitCost());
+        Collections.sort(availAll, openFirst(new CompRecruitCost()));
+        if (avail50 != null) Collections.sort(avail50, openFirst(new CompRecruitCost()));
+        Collections.sort(availQBs, openFirst(new CompRecruitCost()));
+        Collections.sort(availRBs, openFirst(new CompRecruitCost()));
+        Collections.sort(availWRs, openFirst(new CompRecruitCost()));
+        Collections.sort(availTEs, openFirst(new CompRecruitCost()));
+        Collections.sort(availOLs, openFirst(new CompRecruitCost()));
+        Collections.sort(availKs, openFirst(new CompRecruitCost()));
+        Collections.sort(availDLs, openFirst(new CompRecruitCost()));
+        Collections.sort(availLBs, openFirst(new CompRecruitCost()));
+        Collections.sort(availCBs, openFirst(new CompRecruitCost()));
+        Collections.sort(availSs, openFirst(new CompRecruitCost()));
+        Collections.sort(west, openFirst(new CompRecruitCost()));
+        Collections.sort(midwest, openFirst(new CompRecruitCost()));
+        Collections.sort(central, openFirst(new CompRecruitCost()));
+        Collections.sort(east, openFirst(new CompRecruitCost()));
+        Collections.sort(south, openFirst(new CompRecruitCost()));
     }
 
     public int projectedRosterSize() {
@@ -686,6 +686,18 @@ public final class RecruitingSessionData {
         return Collections.unmodifiableList(lastDecisions);
     }
 
+    /**
+     * Open prospects before those committed elsewhere, each part in {@code order}:
+     * committed prospects stay listed (the user sees who went where) without
+     * pushing signable ones off the top of the board or out of the Top 50.
+     */
+    private java.util.Comparator<RecruitingPlayerRecord> openFirst(java.util.Comparator<RecruitingPlayerRecord> order) {
+        return (a, b) -> {
+            int c = Boolean.compare(isCommittedElsewhere(a), isCommittedElsewhere(b));
+            return c != 0 ? c : order.compare(a, b);
+        };
+    }
+
     /** Commits every open prospect whose decision point the user's signings have reached. */
     private void applyDecisions() {
         lastDecisions.clear();
@@ -789,23 +801,23 @@ public final class RecruitingSessionData {
 
 
     public void sortBoardsByGrade() {
-        Collections.sort(availAll, new CompRecruitScoutGrade());
-        Collections.sort(west, new CompRecruitScoutGrade());
-        Collections.sort(midwest, new CompRecruitScoutGrade());
-        Collections.sort(central, new CompRecruitScoutGrade());
-        Collections.sort(east, new CompRecruitScoutGrade());
-        Collections.sort(south, new CompRecruitScoutGrade());
-        Collections.sort(availQBs, new CompRecruitScoutGrade());
-        Collections.sort(availRBs, new CompRecruitScoutGrade());
-        Collections.sort(availWRs, new CompRecruitScoutGrade());
-        Collections.sort(availTEs, new CompRecruitScoutGrade());
-        Collections.sort(availOLs, new CompRecruitScoutGrade());
-        Collections.sort(availKs, new CompRecruitScoutGrade());
-        Collections.sort(availDLs, new CompRecruitScoutGrade());
-        Collections.sort(availLBs, new CompRecruitScoutGrade());
-        Collections.sort(availCBs, new CompRecruitScoutGrade());
-        Collections.sort(availSs, new CompRecruitScoutGrade());
-        if (avail50 != null) Collections.sort(avail50, new CompRecruitScoutGrade());
+        Collections.sort(availAll, openFirst(new CompRecruitScoutGrade()));
+        Collections.sort(west, openFirst(new CompRecruitScoutGrade()));
+        Collections.sort(midwest, openFirst(new CompRecruitScoutGrade()));
+        Collections.sort(central, openFirst(new CompRecruitScoutGrade()));
+        Collections.sort(east, openFirst(new CompRecruitScoutGrade()));
+        Collections.sort(south, openFirst(new CompRecruitScoutGrade()));
+        Collections.sort(availQBs, openFirst(new CompRecruitScoutGrade()));
+        Collections.sort(availRBs, openFirst(new CompRecruitScoutGrade()));
+        Collections.sort(availWRs, openFirst(new CompRecruitScoutGrade()));
+        Collections.sort(availTEs, openFirst(new CompRecruitScoutGrade()));
+        Collections.sort(availOLs, openFirst(new CompRecruitScoutGrade()));
+        Collections.sort(availKs, openFirst(new CompRecruitScoutGrade()));
+        Collections.sort(availDLs, openFirst(new CompRecruitScoutGrade()));
+        Collections.sort(availLBs, openFirst(new CompRecruitScoutGrade()));
+        Collections.sort(availCBs, openFirst(new CompRecruitScoutGrade()));
+        Collections.sort(availSs, openFirst(new CompRecruitScoutGrade()));
+        if (avail50 != null) Collections.sort(avail50, openFirst(new CompRecruitScoutGrade()));
     }
 
     public void sortTeamByOverall() {
