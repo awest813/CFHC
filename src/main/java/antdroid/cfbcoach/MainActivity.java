@@ -362,16 +362,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //Team Depth Chart Button
         Button depthchartButton = findViewById(R.id.buttonDepthChart);
-        if (!gameState.isRedshirtComplete()) {
-            // Short label so it fits the third-width button (which also autosizes).
-            depthchartButton.setText(R.string.redshirt_button_pending);
-            // Crimson "to do" only while redshirts can still be set (preseason): after
-            // week 0 the dialog is a read-only list, not an outstanding task.
-            if (simLeague != null && simulation.SeasonFlowOrder.isRedshirtWindow(simLeague.currentWeek)) {
-                depthchartButton.setBackgroundResource(R.drawable.bg_action_danger);
-                depthchartButton.setTextColor(ContextCompat.getColor(this, R.color.cf_on_crimson));
-            }
-        }
+        refreshDepthChartButton();
 
         depthchartButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -1052,7 +1043,25 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return coach;
     }
 
+    /**
+     * Depth chart / redshirt button: "Redshirts" while that step is pending, crimson
+     * only while redshirts can still be set (preseason). Re-applied on every UI
+     * refresh; it used to be styled once when the screen was built, so it stayed
+     * crimson after week 0 until the activity was recreated.
+     */
+    private void refreshDepthChartButton() {
+        Button b = findViewById(R.id.buttonDepthChart);
+        if (b == null || gameState == null) return;
+        boolean pending = !gameState.isRedshirtComplete();
+        boolean urgent = pending && simLeague != null
+                && simulation.SeasonFlowOrder.isRedshirtWindow(simLeague.currentWeek);
+        b.setText(pending ? R.string.redshirt_button_pending : R.string.main_depth_chart);
+        b.setBackgroundResource(urgent ? R.drawable.bg_action_danger : R.drawable.bg_action_secondary);
+        b.setTextColor(ContextCompat.getColor(this, urgent ? R.color.cf_on_crimson : R.color.cf_text_primary));
+    }
+
     public void resetUI() {
+        refreshDepthChartButton();
         switch (gameState.getCurrPage()) {
             case 1: viewRoster(); break;
             case 2: showTeamPlayerStats(); break;
