@@ -191,6 +191,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         soundtrackEngine = new AndroidSoundtrackEngine(this);
         applyPersistedAudioPrefs();
         soundtrackEngine.play(simulation.SoundtrackEngine.Track.DASHBOARD_ORGAN);
+        CfhcApplication app = CfhcApplication.from(this);
+        if (app != null) {
+            app.addForegroundListener(appForegroundListener);
+            setNoisyReceiverRegistered(true);
+        }
         saveLoadService = new simulation.SaveLoadService(getFilesDir());
         if(theme == 1) setTheme(R.style.AppThemeLight);
 
@@ -2650,28 +2655,65 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             };
 
+    private boolean noisyReceiverRegistered = false;
+
+    /**
+     * Music follows the app, not this screen: opening Recruiting (its own
+     * activity) used to pause it via onPause. Leaving the app pauses it and
+     * coming back resumes it. The headphones-unplugged receiver follows the
+     * same lifecycle so it also works while Recruiting is on top.
+     */
+    private final CfhcApplication.ForegroundListener appForegroundListener = foreground -> {
+        if (foreground) {
+            setNoisyReceiverRegistered(true);
+            if (soundtrackEngine != null) soundtrackEngine.resume();
+        } else {
+            if (soundtrackEngine != null) soundtrackEngine.pause();
+            setNoisyReceiverRegistered(false);
+        }
+    };
+
+    private void setNoisyReceiverRegistered(boolean on) {
+        if (on == noisyReceiverRegistered) return;
+        try {
+            if (on) {
+                registerReceiver(noisyAudioReceiver, new android.content.IntentFilter(
+                        android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY));
+            } else {
+                unregisterReceiver(noisyAudioReceiver);
+            }
+            noisyReceiverRegistered = on;
+        } catch (IllegalArgumentException ignored) {
+            noisyReceiverRegistered = false;
+        }
+    }
+
     @Override
     protected void onPause() {
-        if (soundtrackEngine != null) {
-            soundtrackEngine.pause();
+        // Without the app-level tracker (unusual test setups) fall back to the
+        // per-screen behavior.
+        if (CfhcApplication.from(this) == null) {
+            if (soundtrackEngine != null) soundtrackEngine.pause();
+            setNoisyReceiverRegistered(false);
         }
-        unregisterReceiver(noisyAudioReceiver);
         super.onPause();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        registerReceiver(noisyAudioReceiver,
-                new android.content.IntentFilter(android.media.AudioManager.ACTION_AUDIO_BECOMING_NOISY));
-        if (soundtrackEngine != null) {
-            soundtrackEngine.resume();
+        if (CfhcApplication.from(this) == null) {
+            setNoisyReceiverRegistered(true);
+            if (soundtrackEngine != null) soundtrackEngine.resume();
         }
     }
 
     @Override
     protected void onDestroy() {
         cancelBulk = true; // a bulk worker must not keep advancing a league nobody shows
+        CfhcApplication app = CfhcApplication.from(this);
+        if (app != null) app.removeForegroundListener(appForegroundListener);
+        setNoisyReceiverRegistered(false);
         if (audioManager != null) {
             audioManager.dispose();
             audioManager = null;
