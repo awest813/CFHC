@@ -115,10 +115,13 @@ public class League {
      * v1.5b added everything else held between two weeks (news, awards, offseason
      * lists, FCS opponents, the RNG position; see {@link SaveStateCodec}) so a reload
      * plays on exactly as if the game was never saved. v1.5c added the played games'
-     * box scores ({@link BoxScoreCodec}). v1.5b, v1.5a and v1.4e saves still load;
-     * see {@link SaveSchema} for what they default.
+     * box scores ({@link BoxScoreCodec}). v1.5d ends the file with an
+     * {@code END_SAVE} trailer (a cut-off save is refused rather than loaded as a
+     * smaller league), escapes the save delimiters in names, and no longer writes a
+     * pool coach who holds a post twice. v1.5c, v1.5b, v1.5a and v1.4e saves still
+     * load; see {@link SaveSchema} for what they default.
      */
-    public static final String CURRENT_SAVE_VERSION = "v1.5c";
+    public static final String CURRENT_SAVE_VERSION = "v1.5d";
 
     public static GameUiBridge bridgeOrNoOp(GameUiBridge bridge) {
         return bridge == null ? GameUiBridge.NO_OP : bridge;
@@ -677,6 +680,7 @@ public class League {
 
     public League(File saveFile, String namesCSV, String lastNamesCSV, GameUiBridge mainAct, boolean recruitingChk) {
         GameUiBridge bridge = bridgeOrNoOp(mainAct);
+        LeagueSaveStorage.recoverInterruptedReplace(saveFile);
 
         setupCommonInitalizers();
         setupNamesDB(namesCSV, lastNamesCSV);

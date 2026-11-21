@@ -18,13 +18,17 @@ final class SaveFileSummary {
 
             String schemaVersion = null;
             String primary;
-            if (header.startsWith(SaveSchema.VERSION_PREFIX)) {
+            SaveManager.TrailerCheck trailer = new SaveManager.TrailerCheck();
+            trailer.line(header);
+            boolean declaredVersion = header.startsWith(SaveSchema.VERSION_PREFIX);
+            if (declaredVersion) {
                 schemaVersion = SaveSchema.normalize(
                         header.substring(SaveSchema.VERSION_PREFIX.length()));
                 String next = bufferedReader.readLine();
                 if (next == null || next.isEmpty()) {
                     return "EMPTY";
                 }
+                trailer.line(next);
                 primary = stripTrailingPercent(next);
             } else {
                 primary = stripTrailingPercent(header);
@@ -49,6 +53,7 @@ final class SaveFileSummary {
             String line;
             String previousLine = null;
             while ((line = bufferedReader.readLine()) != null) {
+                trailer.line(line);
                 if (line.startsWith(SaveManager.SETTINGS_PREFIX)) {
                     LeagueRecord.Settings settings = LeagueRecord.Settings.fromSaveLine(
                             line.substring(SaveManager.SETTINGS_PREFIX.length()));
@@ -71,7 +76,10 @@ final class SaveFileSummary {
             String mode = careerMode ? "Head Coach Career" : "Open Dynasty";
             String playoff = twelveTeamPlayoff ? "12-Team Playoff" : "4-Team Playoff";
             String versionLine;
-            if (schemaVersion != null && SaveSchema.isSupported(schemaVersion)) {
+            if (declaredVersion && SaveSchema.hasEndTrailer(schemaVersion) && !trailer.complete()) {
+                // Cut off mid-write: loading it would fail, so the slot is not offered.
+                versionLine = SaveLoadMessages.UNREADABLE + " (incomplete)";
+            } else if (schemaVersion != null && SaveSchema.isSupported(schemaVersion)) {
                 versionLine = "Version: " + schemaVersion;
             } else if (schemaVersion != null) {
                 versionLine = "Unsupported Version: " + schemaVersion;

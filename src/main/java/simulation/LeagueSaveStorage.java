@@ -84,11 +84,31 @@ public final class LeagueSaveStorage {
     }
 
     public static File getSlotFile(File filesDir, int slot) {
-        return new File(filesDir, "saveFile" + slot + ".cfb");
+        return recoverInterruptedReplace(new File(filesDir, "saveFile" + slot + ".cfb"));
     }
 
     public static File getNamedInternalFile(File filesDir, String name) {
-        return new File(filesDir, name);
+        return recoverInterruptedReplace(new File(filesDir, name));
+    }
+
+    /**
+     * Puts back a save that {@link #writeAtomically} moved aside on Windows when the
+     * process died before the new file took its place: the save is missing but its
+     * {@code .bak} is the complete previous one. Returns {@code target} either way.
+     */
+    public static File recoverInterruptedReplace(File target) {
+        if (target == null || target.exists()) {
+            return target;
+        }
+        File old = new File(target.getAbsolutePath() + ".bak");
+        if (old.isFile()) {
+            if (old.renameTo(target)) {
+                PlatformLog.w("LeagueSaveStorage", "Recovered save from " + old.getAbsolutePath());
+            } else {
+                PlatformLog.e("LeagueSaveStorage", "Could not recover save from " + old.getAbsolutePath());
+            }
+        }
+        return target;
     }
 
     public static File getRecruitingSaveFile(File filesDir) {

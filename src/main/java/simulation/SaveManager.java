@@ -62,6 +62,79 @@ public class SaveManager {
     /** v1.5b: starts the block of this season's FCS opponents (team blocks up to END_CONF). */
     static final String FCS_BLOCK_PREFIX = "XC:";
     private static final String END_TOKEN = "END";
+    /**
+     * v1.5d: the last line, {@code END_SAVE<TAB><lines before it>}. A save of that
+     * schema without it (a crash or full disk mid-write, a truncated copy) is
+     * refused instead of loading as a smaller league. Older readers skip it.
+     */
+    static final String END_SAVE_PREFIX = "END_SAVE\t";
+
+    /**
+     * Checks a save's {@code END_SAVE} trailer while its lines are read: feed every
+     * line to {@link #line}, then {@link #complete()} says whether the file ended
+     * with a trailer counting exactly the lines before it.
+     */
+    static final class TrailerCheck {
+        private long lines;
+        private long trailerAt = -1;
+        private boolean afterTrailer;
+
+        void line(String line) {
+            if (trailerAt >= 0) {
+                if (!line.isEmpty()) {
+                    afterTrailer = true;
+                }
+                return;
+            }
+            if (line.startsWith(END_SAVE_PREFIX)) {
+                try {
+                    long n = Long.parseLong(line.substring(END_SAVE_PREFIX.length()).trim());
+                    if (n == lines) {
+                        trailerAt = lines;
+                        return;
+                    }
+                } catch (NumberFormatException ignored) {
+                    // not a valid trailer: the file stays incomplete
+                }
+            }
+            lines++;
+        }
+
+        boolean complete() {
+            return trailerAt >= 0 && !afterTrailer;
+        }
+    }
+
+    /** Counts the lines written, for the {@code END_SAVE} trailer. */
+    private static final class LineCountingWriter extends java.io.FilterWriter {
+        long lines;
+
+        LineCountingWriter(java.io.Writer out) {
+            super(out);
+        }
+
+        @Override
+        public void write(int c) throws IOException {
+            if (c == '\n') lines++;
+            out.write(c);
+        }
+
+        @Override
+        public void write(char[] cbuf, int off, int len) throws IOException {
+            for (int i = off; i < off + len; i++) {
+                if (cbuf[i] == '\n') lines++;
+            }
+            out.write(cbuf, off, len);
+        }
+
+        @Override
+        public void write(String str, int off, int len) throws IOException {
+            for (int i = off; i < off + len; i++) {
+                if (str.charAt(i) == '\n') lines++;
+            }
+            out.write(str, off, len);
+        }
+    }
 
     /**
      * Records written with enough digits that a float reads back identically
@@ -151,6 +224,10 @@ public class SaveManager {
         return new java.util.AbstractMap.SimpleImmutableEntry<>(unescapeItem(p[0]), items);
     }
 
+    /** Why a save of a schema with the {@code END_SAVE} trailer was refused. */
+    static final String INCOMPLETE_SAVE =
+            "Save file is incomplete (it was cut off or damaged while being written)";
+
     /** Result of loading a new-format save, including the resolved schema version. */
     public record LoadResult(LeagueRecord record, String schemaVersion) {}
 
@@ -211,7 +288,8 @@ public class SaveManager {
     }
 
     public static void save(LeagueRecord league, OutputStream out) throws IOException {
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8));
+        LineCountingWriter writer = new LineCountingWriter(
+                new BufferedWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8)));
         try {
         writer.write(SaveSchema.VERSION_PREFIX + SaveSchema.current() + "\n");
 
@@ -306,14 +384,15 @@ public class SaveManager {
                 writer.write(GAME_PREFIX + g.toSaveLine() + "\n");
             }
         }
+        writer.write(END_SAVE_PREFIX + writer.lines + "\n");
         writer.flush();
         } finally {
             writer.close();
         }
     }
 
-    private static void writeTeam(BufferedWriter writer, LeagueRecord.TeamRecord t) throws IOException {
-        writer.write(TEAM_PREFIX + sanitizeInlineValue(t.name()) + "\t" + sanitizeInlineValue(t.abbr()) + "\t"
+    private static void writeTeam(java.io.Writer writer, LeagueRecord.TeamRecord t) throws IOException {
+        writer.write(TEAM_PREFIX + nameField(t.name()) + "\t" + sanitizeInlineValue(t.abbr()) + "\t"
                 + t.prestige() + "\t" + t.wins() + "\t" + t.losses() + "\t"
                 + t.teamPollScore() + "\t" + t.rankTeamPollScore() + "\t"
                 + sanitizeInlineValue(t.practiceFocus()) + "\t"
@@ -512,10 +591,12 @@ public class SaveManager {
         LeagueRecord.Settings settings = null;
         String schemaVersion = null;
         boolean sawLeagueHeader = false;
+        TrailerCheck trailer = new TrailerCheck();
 
         String line;
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
             while ((line = reader.readLine()) != null) {
+            trailer.line(line);
             if (line.startsWith(SaveSchema.VERSION_PREFIX)) {
                 schemaVersion = SaveSchema.requireSupported(
                         SaveSchema.parseVersionToken(line.substring(SaveSchema.VERSION_PREFIX.length())));
@@ -750,6 +831,10 @@ public class SaveManager {
 
         if (!sawLeagueHeader) {
             throw new IOException("Save file is missing the L: league header");
+        }
+        if (SaveSchema.hasEndTrailer(schemaVersion) && !trailer.complete()) {
+            // Checked before the unversioned default: a file without a V: line predates the trailer.
+            throw new IOException(INCOMPLETE_SAVE);
         }
         if (schemaVersion == null) {
             schemaVersion = SaveSchema.unversionedNewFormatDefault();

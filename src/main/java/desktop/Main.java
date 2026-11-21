@@ -187,7 +187,7 @@ public class Main {
     }
 
     private static void launchPlayMode(String filePath) {
-        File saveFile = new File(filePath);
+        File saveFile = simulation.LeagueSaveStorage.recoverInterruptedReplace(new File(filePath));
         if (!saveFile.isFile()) {
             fail("save file not found: " + filePath);
             return;
@@ -223,7 +223,7 @@ public class Main {
     }
 
     private static void inspectSaveFile(String filePath) {
-        File saveFile = new File(filePath);
+        File saveFile = simulation.LeagueSaveStorage.recoverInterruptedReplace(new File(filePath));
         if (!saveFile.isFile()) {
             fail("save file not found: " + filePath);
             return;

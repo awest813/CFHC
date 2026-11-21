@@ -49,9 +49,17 @@ public final class SaveSchema {
      */
     public static final String V1_5B = "v1.5b";
 
+    /**
+     * The generation with box scores but without the {@code END_SAVE} trailer (and
+     * with names written unescaped). It loads through the same reader; a truncated
+     * file of it cannot be told from a complete one.
+     */
+    public static final String V1_5C = "v1.5c";
+
     static {
         LinkedHashSet<String> versions = new LinkedHashSet<>();
         versions.add(League.CURRENT_SAVE_VERSION);
+        versions.add(V1_5C);
         versions.add(V1_5B);
         versions.add(V1_5A);
         versions.add(V1_4E);
@@ -114,18 +122,26 @@ public final class SaveSchema {
     }
 
     /**
-     * Migration hook. v1.4e, v1.5a and v1.5b to the current version are identity at the
+     * Migration hook. v1.4e, v1.5a, v1.5b and v1.5c to the current version are identity at the
      * record level: the fields later versions added are optional lines, and
      * {@code League} defaults them (or rebuilds them from the schedules) when a record
      * does not carry them ({@link LeagueRecord.LeagueState#hasFullState()} tells which).
      */
     public static LeagueRecord migrate(String fromVersion, LeagueRecord record) throws IOException {
         String normalized = requireSupported(fromVersion);
-        if (League.CURRENT_SAVE_VERSION.equals(normalized) || V1_5B.equals(normalized)
+        if (League.CURRENT_SAVE_VERSION.equals(normalized) || V1_5C.equals(normalized) || V1_5B.equals(normalized)
                 || V1_5A.equals(normalized) || V1_4E.equals(normalized)) {
             return record;
         }
         throw new IOException(unsupportedMessage(normalized));
+    }
+
+    /**
+     * Whether saves of {@code version} end with the {@code END_SAVE} trailer (v1.5d
+     * on), so one without it is incomplete. Null (no {@code V:} line) predates it.
+     */
+    public static boolean hasEndTrailer(String version) {
+        return version != null && League.CURRENT_SAVE_VERSION.equals(normalize(version));
     }
 
     public static String normalize(String version) {
