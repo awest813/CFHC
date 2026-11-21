@@ -37,14 +37,32 @@ public final class LeagueSaveStorage {
             return false;
         }
         try {
-            if (target.exists() && !target.delete()) {
-                PlatformLog.e("LeagueSaveStorage", "Could not delete existing save file to replace: "
-                        + target.getAbsolutePath());
-                deleteQuietly(tmp);
-                return false;
-            }
+            // POSIX (Android, macOS, Linux): rename replaces the old save
+            // atomically, so there is never a moment without a complete save.
             if (tmp.renameTo(target)) {
                 return true;
+            }
+            // Windows cannot rename over an existing file. Move the old save
+            // aside first and put it back if the new one cannot take its place.
+            if (target.exists()) {
+                File old = new File(target.getAbsolutePath() + ".bak");
+                deleteQuietly(old);
+                if (!target.renameTo(old)) {
+                    PlatformLog.e("LeagueSaveStorage", "Could not move existing save file aside: "
+                            + target.getAbsolutePath());
+                    deleteQuietly(tmp);
+                    return false;
+                }
+                if (tmp.renameTo(target)) {
+                    deleteQuietly(old);
+                    return true;
+                }
+                if (!old.renameTo(target)) {
+                    PlatformLog.e("LeagueSaveStorage", "Could not restore previous save file "
+                            + old.getAbsolutePath());
+                }
+                deleteQuietly(tmp);
+                return false;
             }
             try (FileInputStream in = new FileInputStream(tmp);
                  FileOutputStream out = new FileOutputStream(target)) {
