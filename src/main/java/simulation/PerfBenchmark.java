@@ -3,7 +3,6 @@ package simulation;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.nio.file.Files;
 import java.util.Locale;
 
 /**
@@ -188,7 +187,7 @@ public final class PerfBenchmark {
 
         File f = File.createTempFile("cfhc-bench", ".cfb");
         try {
-            Files.write(f.toPath(), data);
+            writeFile(f, data);
             String rng = SimRandom.exportState();
             r.loadMs = minMs(TIMING_REPS, () -> load(f));
             SimRandom.restoreState(rng);
@@ -199,7 +198,7 @@ public final class PerfBenchmark {
 
         File mf = File.createTempFile("cfhc-bench-mid", ".cfb");
         try {
-            Files.write(mf.toPath(), midData);
+            writeFile(mf, midData);
             String rng = SimRandom.exportState();
             r.midLoadMs = minMs(TIMING_REPS, () -> load(mf));
             SimRandom.restoreState(rng);
@@ -232,6 +231,12 @@ public final class PerfBenchmark {
             best = Math.min(best, System.nanoTime() - t0);
         }
         return best / 1e6;
+    }
+
+    private static void writeFile(File f, byte[] data) throws IOException {
+        try (java.io.FileOutputStream out = new java.io.FileOutputStream(f)) {
+            out.write(data);
+        }
     }
 
     private League load(File f) {
