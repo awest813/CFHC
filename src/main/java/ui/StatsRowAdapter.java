@@ -99,7 +99,7 @@ public class StatsRowAdapter extends ArrayAdapter<String> {
                 } else if (pRat < 94 && pRat >= 76) {
                     textV.setTextColor(ContextCompat.getColor(context, R.color.cf_warning));
                 } else if (pRat < 76 && pRat >= 68) {
-                    textV.setTextColor(ContextCompat.getColor(context, R.color.cf_amber));
+                    textV.setTextColor(ContextCompat.getColor(context, R.color.cf_amber_text));
                 } else {
                     textV.setTextColor(ContextCompat.getColor(context, R.color.cf_negative));
                 }

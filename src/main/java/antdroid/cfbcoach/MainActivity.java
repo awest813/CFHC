@@ -184,8 +184,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        theme = GameNavigation.getTheme(getIntent(), GameNavigation.DEFAULT_THEME);
+        CfhcTheme.apply(this, theme);
         super.onCreate(savedInstanceState);
-        theme = GameNavigation.getTheme(getIntent(), 1);
         flowManager = new AndroidGameFlowManager(this, theme);
         audioManager = new AndroidAudioManager(this);
         CfhcApplication app = CfhcApplication.from(this);
@@ -194,10 +195,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         applyPersistedAudioPrefs();
         soundtrackEngine.play(simulation.SoundtrackEngine.Track.DASHBOARD_ORGAN);
         saveLoadService = new simulation.SaveLoadService(getFilesDir());
-        if(theme == 1) setTheme(R.style.AppThemeLight);
-
-        else setTheme(R.style.AppTheme);
-
         PlatformUiHelper.hideSystemUI(this);
 
 

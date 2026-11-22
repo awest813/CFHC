@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Light theme platform bases: the same style names as values/styles.xml on
+     Material3 Light, so AppTheme, its overlays and the drawer header pick light
+     widget defaults (ripples, hints, switches, popups) when the light theme is on. -->
+<resources>
+    <style name="Platform.Cfhc" parent="Theme.Material3.Light.NoActionBar" />
+    <style name="Platform.Cfhc.Overlay" parent="ThemeOverlay.Material3.Light" />
+    <style name="Platform.Cfhc.Overlay.ActionBar" parent="ThemeOverlay.Material3.Light" />
+</resources>

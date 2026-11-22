@@ -60,10 +60,9 @@ public class RecruitingActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
         theme = GameNavigation.getTheme(getIntent(), GameNavigation.DEFAULT_THEME);
-        if(theme == 1) setTheme(R.style.AppThemeLight);
-        else setTheme(R.style.AppTheme);
+        antdroid.cfbcoach.CfhcTheme.apply(this, theme);
+        super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_recruiting);
         PlatformUiHelper.applySafeInsets(this);

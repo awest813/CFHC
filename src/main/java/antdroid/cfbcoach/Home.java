@@ -43,11 +43,7 @@ public class Home extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         homePrefs = getSharedPreferences(PREFS_HOME, MODE_PRIVATE);
         theme = GameNavigation.getTheme(getIntent(), homePrefs.getInt(KEY_THEME, GameNavigation.DEFAULT_THEME));
-        if (theme == 1) {
-            setTheme(R.style.AppThemeLight);
-        } else {
-            setTheme(R.style.AppTheme);
-        }
+        CfhcTheme.apply(this, theme);
 
         super.onCreate(savedInstanceState);
 
@@ -111,7 +107,10 @@ public class Home extends AppCompatActivity {
             audioManager.play(AudioEvent.UI_CLICK);
             theme = (theme == 0) ? 1 : 0;
             homePrefs.edit().putInt(KEY_THEME, theme).apply();
-            recreate();
+            // The recreated Home re-reads its intent, so carry the new choice there.
+            setIntent(GameNavigation.createHomeIntent(this, theme));
+            // Switching the night mode recreates this screen with the other palette.
+            if (!CfhcTheme.applyNightMode(theme)) recreate();
         });
 
         findViewById(R.id.buttonUpdates).setOnClickListener(v -> {

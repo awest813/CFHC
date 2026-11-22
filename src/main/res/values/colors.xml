@@ -63,6 +63,17 @@
     <color name="cf_crimson">#881337</color>
     <color name="cf_crimson_bright">#9F1239</color>
 
+    <!-- Fill vs text roles of the gold ramp. Same values here; the light theme
+         (values-notnight) deepens text gold and keeps the fills bright. -->
+    <color name="cf_amber_text">@color/cf_amber</color>
+    <color name="cf_amber_pressed">@color/cf_gold</color>
+    <color name="cf_gold_fill">@color/cf_gold</color>
+    <!-- Material colorOnSecondary (on cf_gold): dark label here, white on the light theme's deep gold. -->
+    <color name="cf_on_secondary">@color/cf_on_gold</color>
+    <!-- Launch window / system splash: drawn before the in-app theme applies, so it
+         stays obsidian in both palettes (no light flash for Midnight players). -->
+    <color name="cf_launch_canvas">#060C14</color>
+
     <!-- On-accent and gauge states -->
     <color name="cf_on_emerald">#061018</color>
     <color name="cf_on_gold">#1A1205</color>

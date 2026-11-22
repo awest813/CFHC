@@ -100,6 +100,9 @@ public class CfhcApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        // Pick the saved light/dark palette before any activity attaches, so the
+        // first screen inflates with it instead of switching after onCreate.
+        CfhcTheme.applyNightMode(CfhcTheme.savedTheme(this));
         // Count started activities: moving between our own screens (e.g. into
         // Recruiting) keeps the count above zero, so background music keeps
         // playing; only leaving the app takes it to zero.

@@ -16,20 +16,21 @@
         android:largeHeap="true"
         android:launchMode="singleTop"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme.Launch">
         <activity
             android:name=".Home"
             android:exported="true"
             android:screenOrientation="fullSensor"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme.Launch">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!-- configChanges: the app picks its own light/dark theme (not DayNight),
-             so a system dark-mode toggle, split-screen resize or fold is handled
+        <!-- configChanges: the app picks its own light/dark theme (CfhcTheme forces
+             AppCompat's night mode from the in-app setting, not the system's), so a
+             system dark-mode toggle, split-screen resize or fold is handled
              in place instead of recreating the activity. Recreation is still
              possible (process death); MainActivity resumes from the autosave. -->
         <activity
@@ -37,14 +38,14 @@
             android:alwaysRetainTaskState="true"
             android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
             android:parentActivityName=".Home"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme.Launch" />
         <activity
             android:name=".recruiting.RecruitingActivity"
             android:alwaysRetainTaskState="true"
             android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
             android:label="@string/title_activity_recruiting"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme.Launch" />
         <activity
             android:name=".TutorialActivity"
             android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"

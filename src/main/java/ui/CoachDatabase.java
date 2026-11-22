@@ -88,9 +88,9 @@ public class CoachDatabase  extends RowAdapter<String> {
 
         if (isPastUser(center, coachName)) {
             // Coaches the user has controlled in this save
-            textLeft.setTextColor(color(R.color.cf_amber));
-            textCenter.setTextColor(color(R.color.cf_amber));
-            textRight.setTextColor(color(R.color.cf_amber));
+            textLeft.setTextColor(color(R.color.cf_amber_text));
+            textCenter.setTextColor(color(R.color.cf_amber_text));
+            textRight.setTextColor(color(R.color.cf_amber_text));
         }
 
 

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Light ("Daylight") theme palette. values/colors.xml is the dark broadcast-HUD
+  palette; the activities force the night qualifier from the in-app theme setting
+  (CfhcTheme), so these overrides apply only when the player picks the light theme.
+  Same token names, so every layout, drawable, style and ContextCompat.getColor()
+  call picks the right value per theme.
+
+  Contrast (WCAG AA, checked by scripts/check_theme_contrast.py): body text and
+  accent text >= 4.5:1 on canvas, sidebar and every card surface; on-accent
+  labels >= 4.5:1 on their fills.
+-->
+<resources>
+    <!-- Legacy semantic names still read by older styles -->
+    <color name="textPrimary">#0F172A</color>
+    <color name="textSecondary">#3E4C61</color>
+    <color name="textMuted">#536176</color>
+    <color name="accentGold">@color/cf_gold</color>
+
+    <!-- Surfaces: cool paper canvas, white cards, slightly tinted elevated tiles -->
+    <color name="cf_canvas">#EEF2F6</color>
+    <color name="cf_sidebar">#E6EBF1</color>
+    <color name="cf_card">#FFFFFF</color>
+    <color name="cf_card_elevated">#F5F7FA</color>
+    <color name="cf_card_hover">#E8EDF4</color>
+    <color name="cf_border">#D2DAE4</color>
+    <color name="cf_border_highlight">#AEBACB</color>
+
+    <!-- Accents, deepened so they read as text on light surfaces -->
+    <color name="cf_emerald">#036B4E</color>
+    <color name="cf_green">#05875F</color>
+    <color name="cf_gold">#8F4A06</color>
+    <color name="cf_amber">#F59E0B</color>
+    <color name="cf_crimson">#9F1239</color>
+    <color name="cf_crimson_bright">#BE123C</color>
+
+    <!-- Fill vs text splits of the gold ramp (dark theme aliases them back) -->
+    <color name="cf_amber_text">#8A4B04</color>
+    <color name="cf_amber_pressed">#E58B07</color>
+    <color name="cf_gold_fill">#F59E0B</color>
+    <color name="cf_on_secondary">#FFFFFF</color>
+
+    <!-- On-accent and gauge states -->
+    <color name="cf_on_emerald">#FFFFFF</color>
+    <color name="cf_on_gold">#1A1205</color>
+    <color name="cf_star_empty">#CBD5E1</color>
+    <color name="cf_emerald_glow">#1C036B4E</color>
+
+    <!-- Semantic / state tokens -->
+    <color name="cf_win">#036B4E</color>
+    <color name="cf_loss">#B91C1C</color>
+    <color name="cf_positive">#036B4E</color>
+    <color name="cf_negative">#B91C1C</color>
+    <color name="cf_warning">#8A4B04</color>
+    <color name="cf_info">#035C8C</color>
+    <color name="cf_on_crimson">#FFF1F2</color>
+
+    <!-- Translucent overlays: ink instead of white glass on a light canvas -->
+    <color name="cf_glass">#0A0F172A</color>
+    <color name="cf_glass_strong">#140F172A</color>
+    <color name="cf_glass_border">#1F0F172A</color>
+    <color name="cf_scrim">#660F172A</color>
+    <color name="cf_footer">#F5FFFFFF</color>
+    <color name="cf_gold_glow">#1FF59E0B</color>
+    <color name="cf_crimson_glow">#149F1239</color>
+    <color name="cf_emerald_dim">#14036B4E</color>
+    <color name="cf_divider">#E0E6EE</color>
+</resources>
