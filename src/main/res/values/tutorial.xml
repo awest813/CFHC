@@ -11,24 +11,25 @@
         This Mode has two starting points: NORMAL mode, which lets you start at any university, and CHALLENGE mode, which humbly starts you at a smaller school and makes your work to get to the top.
         \n\n
         \n\n
-        NOTE: Save files will ALWAYS start at the beginning of a season. This is intentional, for now. All mid-season progress will be lost. You can only save during pre-season and regular season.
-        There will be a reminder at the beginning of each season.\n\n
+        SAVING: Save at any time, in any week, including the playoffs, the offseason and recruiting. A save picks up exactly where you left off. The game also autosaves after every week.\n\n
 
         Developer Notes:\n\n
         The original version of this game was created by Achi Jones in 2016. He graciously made this game open-source on Github and allowed it to be tinkered with. In Fall of 2017, I took
         the source code and expanded upon it for Android devices. The game now features several new features including expanded universe, improved realism, career mode, and in-game editor.
     </string>
     <string name="tutPlayingSeason">
-        Your team will play 12 games in the regular season, which consist of playing all 9 of your conference opponents once and three out of conference games.
+        Your team plays 12 games in the regular season: about 8 against conference opponents (in a large conference you will not play everyone every year, but you always play a conference rival) and the rest against non-conference opponents.
         By navigating to the GAMES tab, you can see exactly what your team\'s schedule is.
         And by clicking on each game, you can see a scouting report of the two teams (if the game has yet to be played), or a summary of the game (if it was already played).\n\n
         The most important game of the regular season is your rivalry game, which you gain prestige if won or lose prestige if lost.
         At the end of the regular season, the Conference Championship is played between the two teams with the best in-conference record.
         If two teams have the same record, a head-to-head tiebreaker is used. If three or more teams have the same record, the one with the highest poll ranking is chosen.
         After the Conference Championships, Bowl Games are played.\n\n
-        The top 32 teams get chosen for a bowl, with the most important being the National Semifinals between the #1 and #4 team, and the #2 and #3 team.
-        The winner of these two games advance to the National Championship where an undisputed champion is crowned.\n\n
-        After the season, your team will have gained or lost prestige based on their results versus their expectations, and you move onto recruiting.
+        The best teams are chosen for bowls and the playoff. With Expanded Playoffs on (Settings), 12 teams play in a bracket; otherwise #1 plays #4 and #2 plays #3 in the National Semifinals.
+        The playoff winners meet in the National Championship, where an undisputed champion is crowned.\n\n
+        After the season, your team will have gained or lost prestige based on their results versus their expectations, and you move onto recruiting.\n\n
+        RECRUITING: Every program recruits from the same national pool of prospects. Rival schools sign some prospects in an early signing period before your board opens, so some players will already show as committed elsewhere.
+        Prospects marked Contested or Deciding are being chased by a rival and will sign there after a few more of your signings, so sign your top targets first.
     </string>
     <string name="tutRankings">
         As your team plays through the season, it will be evaluated by pollsters who determine how good (or bad) your team is compared to others.
@@ -184,9 +185,9 @@
     <string name="tutCustomizations">
         Users can now create their own College Football Universe! The universe file is a simple text or comma separated value (CSV) file which can be made in any text editor or spreadsheet editor, and then placed in your phone internal storage or sdcard.\n\n
 
-        Custom Universe:\n Custom Universes allow users to customize all 120 teams and 10 conferences. Custom Universes can modify team names, rivals, starting prestige, location and conference names.\n\nTo use it in a game, start a NEW CUSTOM DYNASTY or NEW CUSTOM CAREER. A pop up will appear asking the user to locate the custom universe txt file from the phone memory/sd card. Select and start!\n\n
+        Custom Universe:\n Custom Universes allow users to customize every team and conference. Custom Universes can modify team names, rivals, starting prestige, location and conference names.\n\nTo use it in a game, start a NEW CUSTOM DYNASTY or NEW CUSTOM CAREER. A pop up will appear asking the user to locate the custom universe txt file from the phone memory/sd card. Select and start!\n\n
 
-        \nCustom Rosters:\n Custom Rosters allows users to create rosters for all 120 teams! Custom Rosters can modify/create player names, set positions, and overall skill level.\n\nTo use it in a game, while in a game, click the MENU button in the top right, and select IMPORT DATA. Choose Roster. A pop up will appear asking the user to locate the custom roster txt file from the phone memory/sd card. Select and it will auto-generate the roster!\n\n
+        \nCustom Rosters:\n Custom Rosters allows users to create rosters for every team! Custom Rosters can modify/create player names, set positions, and overall skill level.\n\nTo use it in a game, while in a game, click the MENU button in the top right, and select IMPORT DATA. Choose Roster. A pop up will appear asking the user to locate the custom roster txt file from the phone memory/sd card. Select and it will auto-generate the roster!\n\n
 
         \nCustom Coaches:\n Custom Coaches allows users to create coaches for all 120 teams! Custom Coaches can modify/create coach names, set team, and overall skill level.\n\nTo use it in a game, while in a game, click the MENU button in the top right, and select IMPORT DATA. Choose Coach. A pop up will appear asking the user to locate the custom coach txt file from the phone memory/sd card. Select and it will auto-generate the roster!\n\n
 

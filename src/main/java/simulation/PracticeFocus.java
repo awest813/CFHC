@@ -37,10 +37,10 @@ public enum PracticeFocus {
     public String shortDescription() {
         return switch (this) {
             case BALANCED -> "Even development across all traits.";
-            case FOOTBALL_IQ -> "Extra growth in awareness and football IQ.";
-            case FUNDAMENTALS -> "Extra growth in core position skills (ratings 1\u20132).";
-            case ATHLETICISM -> "Extra growth in movement traits (ratings 3\u20134).";
-            case PHYSICAL -> "Extra growth in durability and physical traits.";
+            case FOOTBALL_IQ -> "More growth in awareness and football IQ, a little less elsewhere.";
+            case FUNDAMENTALS -> "More growth in core position skills (ratings 1\u20132), a little less elsewhere.";
+            case ATHLETICISM -> "More growth in movement traits (ratings 3\u20134), a little less elsewhere.";
+            case PHYSICAL -> "More growth in durability and physical traits, a little less elsewhere.";
         };
     }
 
