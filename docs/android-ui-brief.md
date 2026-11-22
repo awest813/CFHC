@@ -24,6 +24,13 @@ Colours (`res/values/colors.xml`):
 Legacy names (`surfaceCard`, `textPrimary`, `accentGold`, …) now resolve to the same
 palette, so existing layouts are already on-brand; prefer `cf_*` in new/edited XML.
 
+Light theme: `values-notnight/colors.xml` gives every `cf_*` token its light (Daylight)
+value, and `CfhcTheme` forces the night qualifier from the in-app theme setting, so a
+token reference is all a layout, drawable or `ContextCompat.getColor` call needs. Fills
+that carry dark text use the fill tokens (`cf_amber` CTA, `cf_amber_pressed`,
+`cf_gold_fill`); gold *text* on a fill-less surface uses `cf_gold` / `cf_amber_text`.
+Run `python3 scripts/check_theme_contrast.py` after changing a light value.
+
 Dimensions (`res/values/dimens.xml`): spacing `cf_space_xs/sm/md/lg/xl/xxl`
 (4/8/12/16/20/24dp), radius `cf_radius_sm/md/lg` (4/8/12dp), `cf_stroke`, type ramp
 `cf_text_rating/hero/display/title/body/caption/micro/stat`, sprite box

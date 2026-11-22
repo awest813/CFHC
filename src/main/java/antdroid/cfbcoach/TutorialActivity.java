@@ -25,11 +25,7 @@ public class TutorialActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         theme = GameNavigation.getTheme(getIntent(), GameNavigation.DEFAULT_THEME);
-        if (theme == 1) {
-            setTheme(R.style.AppThemeLight);
-        } else {
-            setTheme(R.style.AppTheme);
-        }
+        CfhcTheme.apply(this, theme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tutorial);
         PlatformUiHelper.applySafeInsets(this);

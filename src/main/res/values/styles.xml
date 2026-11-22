@@ -1,13 +1,21 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Material 3 platform bases. This file is the dark (Midnight) broadcast HUD;
+         values-notnight/styles.xml re-parents the same names on Material3 Light, and
+         values-notnight/colors.xml swaps the cf_* token values. CfhcTheme forces the
+         night qualifier from the in-app theme setting, so one AppTheme serves both. -->
+    <style name="Platform.Cfhc" parent="Theme.Material3.Dark.NoActionBar" />
+    <style name="Platform.Cfhc.Overlay" parent="ThemeOverlay.Material3.Dark" />
+    <style name="Platform.Cfhc.Overlay.ActionBar" parent="ThemeOverlay.Material3.Dark.ActionBar" />
+
     <!-- Material 3 base on the broadcast-HUD tokens; dynamic colour is intentionally off (see CfhcApplication). -->
-    <style name="AppTheme" parent="Theme.Material3.Dark.NoActionBar">
+    <style name="AppTheme" parent="Platform.Cfhc">
         <item name="colorPrimary">@color/cf_emerald</item>
         <item name="colorOnPrimary">@color/cf_on_emerald</item>
         <item name="colorPrimaryContainer">@color/cf_card_elevated</item>
         <item name="colorOnPrimaryContainer">@color/cf_text_primary</item>
         <item name="colorSecondary">@color/cf_gold</item>
-        <item name="colorOnSecondary">@color/cf_on_gold</item>
+        <item name="colorOnSecondary">@color/cf_on_secondary</item>
         <item name="colorSecondaryContainer">@color/cf_card_elevated</item>
         <item name="colorOnSecondaryContainer">@color/cf_text_primary</item>
         <item name="colorPrimaryDark">@color/cf_canvas</item>
@@ -24,16 +32,19 @@
         <item name="android:fontFamily">@font/inter</item>
         <item name="android:statusBarColor">@color/cf_canvas</item>
         <item name="android:navigationBarColor">@color/cf_canvas</item>
-        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightStatusBar">@bool/cf_light_system_bars</item>
+        <item name="android:windowLightNavigationBar" tools:targetApi="27">@bool/cf_light_system_bars</item>
         <item name="android:textColorPrimary">@color/cf_text_primary</item>
         <item name="android:textColorSecondary">@color/cf_text_secondary</item>
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.Cfhc.Dialog</item>
         <item name="alertDialogTheme">@style/ThemeOverlay.Cfhc.Dialog</item>
         <item name="android:progressBarStyleHorizontal">@style/Widget.Cfhc.ProgressBar</item>
         <item name="materialButtonStyle">@style/Widget.Cfhc.Button</item>
-        <!-- Android 12+ system splash: obsidian canvas behind the adaptive icon
-             (ignored on older releases) so launch flows straight into the HUD. -->
-        <item name="android:windowSplashScreenBackground" tools:targetApi="31">@color/cf_canvas</item>
+        <!-- Android 12+ system splash: canvas behind the adaptive icon (ignored on
+             older releases) so launch flows straight into the HUD. The system draws
+             it with the device's own day/night setting, before the in-app theme
+             applies, so it uses cf_launch_canvas (obsidian in both palettes). -->
+        <item name="android:windowSplashScreenBackground" tools:targetApi="31">@color/cf_launch_canvas</item>
         <item name="android:windowSplashScreenIconBackgroundColor" tools:targetApi="31">@color/ic_launcher_background</item>
     </style>
 
@@ -94,23 +105,28 @@
         <item name="android:textColor">@color/cf_emerald</item>
     </style>
 
-    <!-- "Light" theme = the same obsidian HUD on a slate (not black) canvas. Every
-         screen is built on the dark token ramp, so a true light palette would need
-         per-attribute theming; this keeps the user toggle meaningful (softer canvas,
-         less OLED-black) without producing broken contrast anywhere. -->
-    <style name="AppThemeLight" parent="AppTheme">
-        <item name="colorPrimaryDark">@color/cf_card</item>
-        <item name="android:colorBackground">@color/cf_card</item>
-        <item name="android:windowBackground">@color/cf_card</item>
-        <item name="android:statusBarColor">@color/cf_card</item>
-        <item name="android:navigationBarColor">@color/cf_card</item>
+    <!-- Light ("Daylight") theme: a genuine light palette - cool paper canvas, white
+         cards, slate-900 text and the brand accents deepened for contrast (emerald
+         #036B4E, gold #8F4A06, crimson #9F1239; bright gold stays on CTA fills). It
+         is AppTheme resolved under the notnight qualifier: values-notnight holds the
+         Material3 Light parents and the light cf_* token values, and CfhcTheme sets
+         the activity's night mode from the theme setting before it inflates. Kept as
+         its own style so activities and tests can name the light theme. -->
+    <style name="AppThemeLight" parent="AppTheme" />
+
+    <!-- Manifest theme: the system draws the starting window from it with the device's
+         own day/night setting, before CfhcTheme applies the player's choice, so it keeps
+         an obsidian launch canvas in both palettes. Each activity swaps in AppTheme /
+         AppThemeLight before inflating. -->
+    <style name="AppTheme.Launch">
+        <item name="android:windowBackground">@color/cf_launch_canvas</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.Material3.Dark.ActionBar">
+    <style name="AppTheme.AppBarOverlay" parent="Platform.Cfhc.Overlay.ActionBar">
         <item name="colorControlNormal">@color/cf_text_primary</item>
     </style>
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.Material3.Dark">
+    <style name="AppTheme.PopupOverlay" parent="Platform.Cfhc.Overlay">
         <item name="android:colorBackground">@color/cf_card_elevated</item>
         <item name="colorSurface">@color/cf_card_elevated</item>
         <item name="android:textColorPrimary">@color/cf_text_primary</item>

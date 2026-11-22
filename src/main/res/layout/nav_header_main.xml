@@ -11,7 +11,7 @@
     android:paddingTop="@dimen/cf_space_xxl"
     android:paddingEnd="@dimen/cf_space_lg"
     android:paddingBottom="@dimen/cf_space_md"
-    android:theme="@style/ThemeOverlay.Material3.Dark">
+    android:theme="@style/Platform.Cfhc.Overlay">
 
     <TextView
         android:id="@+id/navMono"

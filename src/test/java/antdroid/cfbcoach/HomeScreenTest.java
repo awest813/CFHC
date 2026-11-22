@@ -18,6 +18,30 @@ import static org.junit.Assert.*;
 public class HomeScreenTest {
 
     @Test
+    public void homeAndTutorial_renderInBothThemes() throws Exception {
+        android.content.Context context = androidx.test.core.app.ApplicationProvider.getApplicationContext();
+        for (int theme : new int[]{0, 1}) {
+            String tag = theme == 1 ? "light" : "dark";
+            try (ActivityScenario<Home> scenario = ActivityScenario.launch(
+                    GameNavigation.createHomeIntent(context, theme))) {
+                scenario.onActivity(activity -> capture(activity.getWindow().getDecorView(), "home_" + tag));
+            }
+            try (ActivityScenario<TutorialActivity> scenario = ActivityScenario.launch(
+                    GameNavigation.createTutorialIntent(context, theme))) {
+                scenario.onActivity(activity -> capture(activity.getWindow().getDecorView(), "tutorial_" + tag));
+            }
+        }
+    }
+
+    private static void capture(View root, String name) {
+        try {
+            Screenshots.capture(root, name);
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    @Test
     public void homeInflates_andRendersBothThemes() throws Exception {
         try (ActivityScenario<Home> scenario = ActivityScenario.launch(Home.class)) {
             scenario.onActivity(activity -> {

@@ -73,6 +73,34 @@ public class RecruitingScreenTest {
     }
 
     @Test
+    public void board_rendersInBothThemes() throws Exception {
+        Context context = ApplicationProvider.getApplicationContext();
+        String payload = gatePayload();
+        for (int theme : new int[]{0, 1}) {
+            Intent intent = GameNavigation.createRecruitingIntent(context, payload, theme);
+            try (ActivityScenario<RecruitingActivity> scenario = ActivityScenario.launch(intent)) {
+                scenario.onActivity(activity -> {
+                    try {
+                        ShadowLooper.idleMainLooper();
+                        String tag = "recruiting_" + (theme == 1 ? "light" : "dark");
+                        Screenshots.capture(activity.getWindow().getDecorView(), tag + "_board");
+                        // One prospect's expanded card (ratings, offer button), drawn on its own.
+                        RecruitingActivity.ExpandableListAdapterRecruiting adapter = field(activity, "expListAdapter");
+                        ViewGroup parent = activity.findViewById(R.id.recruitExpandList);
+                        View card = adapter.getChildView(0, 0, true, null, parent);
+                        card.measure(View.MeasureSpec.makeMeasureSpec(parent.getWidth() > 0 ? parent.getWidth() : 1233,
+                                View.MeasureSpec.EXACTLY), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+                        card.layout(0, 0, card.getMeasuredWidth(), card.getMeasuredHeight());
+                        Screenshots.capture(card, tag + "_card");
+                    } catch (Exception e) {
+                        throw new AssertionError(e);
+                    }
+                });
+            }
+        }
+    }
+
+    @Test
     public void committedProspects_areMarkedAndCannotBeSigned() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
         Intent intent = GameNavigation.createRecruitingIntent(context, gatePayload(), 0);
