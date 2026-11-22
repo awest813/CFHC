@@ -104,7 +104,7 @@ public final class DesktopTheme {
                 _tableHdrBg = new Color(9, 18, 31);
                 _tableHover = new Color(22, 36, 59);
                 _launcherMain = new Color(6, 12, 20);
-                _launcherFooter = new Color(100, 116, 139);
+                _launcherFooter = new Color(130, 145, 166); // was 100,116,139: 4.1:1 on the launcher, now ~6:1 (WCAG AA)
                 _textAreaBg = new Color(13, 23, 38);
                 _menuBarBg = new Color(9, 18, 31);
             }
