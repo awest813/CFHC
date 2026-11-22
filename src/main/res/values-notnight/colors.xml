@@ -22,6 +22,10 @@
     <color name="cf_sidebar">#E6EBF1</color>
     <color name="cf_card">#FFFFFF</color>
     <color name="cf_card_elevated">#F5F7FA</color>
+    <!-- Inverse snackbar so it stands off the light page (Material convention). -->
+    <color name="cf_snackbar_bg">#1E293B</color>
+    <color name="cf_snackbar_text">#F8FAFC</color>
+    <color name="cf_snackbar_action">#4ADE80</color>
     <color name="cf_card_hover">#E8EDF4</color>
     <color name="cf_border">#D2DAE4</color>
     <color name="cf_border_highlight">#AEBACB</color>

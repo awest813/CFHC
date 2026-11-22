@@ -43,6 +43,8 @@ EXTRA = [
     ("cf_emerald", "cf_canvas", None, 3.0),          # accent bars, rating-tile stroke
     ("cf_gold", "cf_canvas", None, 3.0),             # gold bars, budget-tile stroke
     ("cf_star_empty", "cf_card", None, 1.3),         # empty star vs card (visible, not text)
+    ("cf_snackbar_text", "cf_snackbar_bg", None, 4.5),    # snackbar message
+    ("cf_snackbar_action", "cf_snackbar_bg", None, 4.5),  # snackbar action
 ]
 
 

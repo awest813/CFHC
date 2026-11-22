@@ -101,9 +101,9 @@ public final class PlatformUiHelper {
         com.google.android.material.snackbar.Snackbar bar =
                 com.google.android.material.snackbar.Snackbar.make(root, message,
                         com.google.android.material.snackbar.Snackbar.LENGTH_SHORT);
-        bar.setBackgroundTint(androidx.core.content.ContextCompat.getColor(activity, R.color.cf_card_elevated));
-        bar.setTextColor(androidx.core.content.ContextCompat.getColor(activity, R.color.cf_text_primary));
-        bar.setActionTextColor(androidx.core.content.ContextCompat.getColor(activity, R.color.cf_emerald));
+        bar.setBackgroundTint(androidx.core.content.ContextCompat.getColor(activity, R.color.cf_snackbar_bg));
+        bar.setTextColor(androidx.core.content.ContextCompat.getColor(activity, R.color.cf_snackbar_text));
+        bar.setActionTextColor(androidx.core.content.ContextCompat.getColor(activity, R.color.cf_snackbar_action));
         android.view.View anchor = activity.findViewById(R.id.simGameButton);
         if (anchor != null && anchor.isShown()) bar.setAnchorView(anchor);
         bar.show();

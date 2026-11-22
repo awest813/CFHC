@@ -26,7 +26,7 @@
     <color name="surfaceOutline">#1E293B</color>
     <color name="textPrimary">#F8FAFC</color>
     <color name="textSecondary">#94A3B8</color>
-    <color name="textMuted">#64748B</color>
+    <color name="textMuted">#8291A6</color> <!-- was #64748B: 3.3-4.1:1 on dark surfaces, now >=4.8 (WCAG AA) -->
     <color name="accentGold">#F59E0B</color>
     <color name="accentGoldDark">#D97706</color>
     <color name="successSurface">#0F3D2E</color>
@@ -51,6 +51,10 @@
     <color name="cf_sidebar">#0A111C</color>
     <color name="cf_card">#0D1726</color>
     <color name="cf_card_elevated">#111C2E</color>
+    <!-- Snackbar: the elevated card on dark; an inverse (dark) bar on Daylight. -->
+    <color name="cf_snackbar_bg">@color/cf_card_elevated</color>
+    <color name="cf_snackbar_text">@color/cf_text_primary</color>
+    <color name="cf_snackbar_action">@color/cf_emerald</color>
     <color name="cf_card_hover">#16243B</color>
     <color name="cf_border">#1E293B</color>
     <color name="cf_border_highlight">#2A3A52</color>
@@ -77,7 +81,7 @@
     <!-- On-accent and gauge states -->
     <color name="cf_on_emerald">#061018</color>
     <color name="cf_on_gold">#1A1205</color>
-    <color name="cf_star_empty">#1E293B</color>
+    <color name="cf_star_empty">#253349</color> <!-- empty stars were nearly invisible on cards -->
     <color name="cf_emerald_glow">#4000E676</color>
 
     <!-- Alias legacy semantic names onto the token palette where the value
@@ -88,7 +92,7 @@
 
     <!-- Semantic / state tokens -->
     <color name="cf_win">#10B981</color>
-    <color name="cf_loss">#EF4444</color>
+    <color name="cf_loss">#F25555</color> <!-- was #EF4444: 4.1:1 on hover rows -->
     <color name="cf_positive">#00E676</color>
     <color name="cf_negative">#F87171</color>
     <color name="cf_warning">#FBBF24</color>
