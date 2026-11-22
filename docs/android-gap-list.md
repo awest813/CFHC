@@ -369,9 +369,9 @@ split the record constructions into smaller helpers.
   - Clipped empty-state rows (Mock Draft, Coach Database), the Transfer Portal count running into its hint, a blank
     header card in in-season Settings, and blank cards for an empty Weekly Scoreboard week or empty League History.
     All fixed.
-  - The "light theme" is a slate variant of the dark HUD (`AppThemeLight` only changes the window colour), so the
-    toggle is now labelled Midnight / Slate. A true light palette would mean moving every `cf_*` colour onto theme
-    attributes, which the dark broadcast design deliberately doesn't do.
+  - The "light theme" was a slate variant of the dark HUD. It is now a real light palette (Midnight / Daylight):
+    `values-notnight/colors.xml` overrides every `cf_*` token, `CfhcTheme` maps the setting onto AppCompat's night
+    mode, and `scripts/check_theme_contrast.py` checks the light pairs against WCAG AA.
 - **Season-flow screen test (`SeasonFlowScreenTest`)** plays a season through MainActivity, dismissing dialogs, and
   redraws every page each week. It found three engine bugs that no engine test caught:
   - **Season summary crash:** the summary was shown before the season's books closed, so `Team.prestigePts` was
