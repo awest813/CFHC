@@ -57,6 +57,12 @@ public class MainScreensTest {
                 try {
                     dismissDialogs();
                     NavigationView nav = activity.findViewById(R.id.nav_view);
+                    androidx.drawerlayout.widget.DrawerLayout drawer = activity.findViewById(R.id.drawer_layout);
+                    drawer.openDrawer(androidx.core.view.GravityCompat.START, false);
+                    settle(activity);
+                    Screenshots.capture(activity.getWindow().getDecorView(), tag + "_drawer");
+                    drawer.closeDrawer(androidx.core.view.GravityCompat.START, false);
+                    settle(activity);
                     for (int id : PAGES) {
                         MenuItem item = nav.getMenu().findItem(id);
                         activity.onNavigationItemSelected(item);
