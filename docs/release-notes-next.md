@@ -46,6 +46,8 @@ Changes since v1.5.0. Version numbers are not bumped yet.
   layouts hold up on small phones and large font sizes; star grades with ★; cleaner recruiting rows.
 - Desktop: popups no longer cut off their last lines; tables size their columns so names fit; a contract
   dialog no longer shows "2500%" win rates; Esc closes detail dialogs; consistent headers and buttons.
+- Android has a real light theme, "Daylight" (Settings → theme): light surfaces, dark text, contrast checked
+  against WCAG AA. Dark stays the default.
 - Works correctly on Turkish-language systems (sounds, save folder and commands used to break there).
 
 ## Text
