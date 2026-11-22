@@ -29,8 +29,10 @@ public final class GameNavigation {
     private static final String EXTRA_SAVE_FILE = "SAVE_FILE";
     private static final String EXTRA_RECRUITS = "RECRUITS";
 
-    /** Default theme value: 1 = light, 0 = dark. */
-    public static final int DEFAULT_THEME = 1;
+    /** Default theme value: 1 = Daylight (light), 0 = dark. */
+    // Dark HUD until the player picks Daylight: theme 1 became a real light palette,
+    // and players who never touched the setting should keep the look they know.
+    public static final int DEFAULT_THEME = 0;
 
     private GameNavigation() {
     }
